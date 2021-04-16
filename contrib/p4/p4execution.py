@@ -61,7 +61,8 @@ class P4Execution(object):
         self.switches = None  # Set by init
         self.ptf_tester = None  # Set by init
 
-        self.counter = Counter()
+        # Includes all nodes and switches, not the ptf tester
+        self.nr_of_active_containers = Counter()
 
         self.client = None
         self.node_networks = []
@@ -197,7 +198,7 @@ class P4Execution(object):
         self.start_container_listening()
 
         # Wait until all nodes and switches are setup
-        while self.counter.value < len(self.nodes + self.switches):
+        while self.nr_of_active_containers.value < len(self.nodes + self.switches):
             time.sleep(1)
 
         test_dict = self.read_tests()
@@ -332,8 +333,7 @@ class P4Execution(object):
 
     def setup_network(self):
         """
-        Creates the networks required to run the test. It will create 1 network for each node.
-        This network represents the bridge between the node and the swtich. Further, it creates
+        Creates the networks required to run the test. Further, it creates
         the management network(mgnt) used by the ptf_teter to inject packages.
         """
         try:
@@ -363,14 +363,6 @@ class P4Execution(object):
 
             ip_addr = MGNT_NETWORK_SUBNET + ".0.{0}".format(node_config["id"] + 3)
             self.mgnt_network.connect(node, ipv4_address=ip_addr)
-
-        # containers_to_connect = [self.ptf_tester] + self.nodes
-
-        # ip_address_nr = 2  # 1 is used for broadcast
-        # for container in containers_to_connect:
-        #     ip_addr = MGNT_NETWORK_SUBNET + ".0.{0}".format(ip_address_nr)
-        #     self.mgnt_network.connect(container, ipv4_address=ip_addr)
-        #     ip_address_nr += 1
 
     def connect_nodes_to_switch(self):
         """
@@ -562,15 +554,29 @@ class P4Execution(object):
                     time.sleep(1)
                     seconds_waited += 1
 
+                # Check if namespaces are addad. If not add simlinuk to namespace
+                if not os.path.islink("/var/run/netns/{0}".format(device1)):
+                    os.symlink(
+                        "/proc/{0}/ns/net".format(pid_device1),
+                        "/var/run/netns/{0}".format(device1),
+                    )
+
+                if not os.path.islink("/var/run/netns/{0}".format(device2)):
+                    if not os.path.exists("/var/run/netns/{0}".format(device2)):
+                        os.symlink(
+                            "/proc/{0}/ns/net".format(pid_device2),
+                            "/var/run/netns/{0}".format(device2),
+                        )
+
                 iface_switch1 = link["device1"] + "_{0}".format(link["device1_port"])
                 iface_switch2 = link["device2"] + "_{0}".format(link["device2_port"])
 
                 # Create Veth pair and put them in the right namespace
                 ip.link("add", ifname=iface_switch1, peer=iface_switch2, kind="veth")
-                id_node = ip.link_lookup(ifname=iface_switch1)[0]
-                ip.link("set", index=id_node, net_ns_fd=link["device1"])
-                id_switch = ip.link_lookup(ifname=iface_switch2)[0]
-                ip.link("set", index=id_switch, net_ns_fd=link["device2"])
+                id_switch1 = ip.link_lookup(ifname=iface_switch1)[0]
+                ip.link("set", index=id_switch1, net_ns_fd=link["device1"])
+                id_switch2 = ip.link_lookup(ifname=iface_switch2)[0]
+                ip.link("set", index=id_switch2, net_ns_fd=link["device2"])
 
         # Start all veth in all the switches
         for switch in self.switches:
@@ -680,19 +686,28 @@ class P4Execution(object):
         containers_to_start = self.nodes + self.switches
         containers_to_start.append(self.ptf_tester)
 
+        container_threads = []
+
         for container in containers_to_start:
-            print("Staritng container: " + container.name)
-            x = threading.Thread(target=self.thread_container_start, args=(container,))
-            x.start()
+            container_threads.append(
+                threading.Thread(target=self.thread_container_start, args=(container,))
+            )
+
+        # Start and wait for all to finish
+        [x.start() for x in container_threads]
+        [x.join() for x in container_threads]
 
     def thread_container_start(self, container):
         container.start()
-        logging.debug("{0} started!".format(container.name))
+        print(container.name + " started")
 
     def start_container_listening(self):
         """
         This will start all nodes and switches and their respective commands
         """
+
+        container_threads = []
+
         for node_container in self.nodes:
             # Read node info
             node_config = self.network_config["nodes"][node_container.name]
@@ -711,10 +726,11 @@ class P4Execution(object):
                     node_config["id"], port_nr, node_container.name
                 )
 
-            x = threading.Thread(
-                target=self.thread_setup_node, args=(node_container, node_command)
+            container_threads.append(
+                threading.Thread(
+                    target=self.thread_setup_node, args=(node_container, node_command)
+                )
             )
-            x.start()
 
         for switch in self.switches:
             switch_command = "simple_switch --log-file /app/log/switch_log --log-flush"
@@ -727,10 +743,15 @@ class P4Execution(object):
 
             switch_command += " /app/P4/simple_switch.json"
 
-            x = threading.Thread(
-                target=self.thread_setup_switch, args=(switch, switch_command)
+            container_threads.append(
+                threading.Thread(
+                    target=self.thread_setup_switch, args=(switch, switch_command)
+                )
             )
-            x.start()
+
+        # Wait for all to setup befor leaveing the method
+        [x.start() for x in container_threads]
+        [x.join() for x in container_threads]
 
     def thread_setup_switch(self, switch_container, switch_command):
 
@@ -772,11 +793,11 @@ class P4Execution(object):
                 else:
                     logging.info("Could not find table: \n {0}".format(table_file_path))
 
-        self.counter.increment()
+        self.nr_of_active_containers.increment()
 
     def thread_setup_node(self, node_container, node_command):
         node_container.exec_run(node_command, detach=True)
-        self.counter.increment()
+        self.nr_of_active_containers.increment()
 
     def create_switch_mount_copy(self, switch_name):
         switch_path = self.switch_source_path + "/" + switch_name
