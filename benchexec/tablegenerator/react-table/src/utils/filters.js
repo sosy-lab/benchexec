@@ -14,7 +14,6 @@ import { isNil, getRawOrDefault, omit } from "./utils";
  * @param {Object} data -  Data object received from json data
  */
 const getFilterableData = ({ tools, rows }) => {
-  const start = Date.now();
   const mapped = tools.map((tool, idx) => {
     let statusIdx;
     const { tool: toolName, date, niceName } = tool;
@@ -34,7 +33,6 @@ const getFilterableData = ({ tools, rows }) => {
     });
 
     if (isNil(statusIdx)) {
-      console.log(`Couldn't find any status columns in tool ${idx}`);
       return undefined;
     }
 
@@ -85,9 +83,6 @@ const getFilterableData = ({ tools, rows }) => {
       }),
     };
   });
-  if (process.env.NODE_ENV !== "test") {
-    console.log(`filterableData:creationTime:${Date.now() - start} ms`);
-  }
   return mapped;
 };
 
@@ -146,7 +141,6 @@ const applyTextFilter = (filter, row, cell) => {
  * @param {Array<Object>} filters - List of filters
  */
 const buildMatcher = (filters) => {
-  const start = Date.now();
   const out = filters.reduce((acc, { id, value, values }) => {
     if (
       (isNil(value) && isNil(values)) ||
@@ -191,8 +185,6 @@ const buildMatcher = (filters) => {
     acc[tool][columnIdx].push(filter);
     return acc;
   }, {});
-  console.log(`Creating matcher took ${Date.now() - start} ms`);
-  console.log({ matcher: out });
   return out;
 };
 
@@ -208,7 +200,6 @@ const buildMatcher = (filters) => {
  * @returns {MatchingFunction} - the built matching function. It requires
  */
 const applyMatcher = (matcher) => (data) => {
-  const start = Date.now();
   let diffd = [...data];
   if (matcher.diff) {
     diffd = diffd.filter((row) => {
@@ -300,7 +291,6 @@ const applyMatcher = (matcher) => (data) => {
     // all filter requirements were satisfied
     return true;
   });
-  console.log(`matching took ${Date.now() - start} ms`);
   return out;
 };
 
