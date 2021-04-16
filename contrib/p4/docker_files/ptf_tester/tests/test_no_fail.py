@@ -10,13 +10,12 @@ TYPE_IPV4 = 0x0800
 
 
 class MyTunnel(Packet):
-    name="MyTunnel"
-    fields_desc = [
-        ShortField("pid", 0),
-        ShortField("dst_id", 0)
-    ]
+    name = "MyTunnel"
+    fields_desc = [ShortField("pid", 0), ShortField("dst_id", 0)]
+
     def mysummary(self):
         return self.sprintf("pid=%pid%, dst_id=%dst_id%")
+
 
 class DataplaneBaseTest(BaseTest):
     def __init__(self):
@@ -33,33 +32,88 @@ class DataplaneBaseTest(BaseTest):
         if config["log_dir"] != None:
             self.dataplane.stop_pcap()
 
+
 class IPV4OneSwitchTest(DataplaneBaseTest):
     def __init__(self):
         DataplaneBaseTest.__init__(self)
 
     def runTest(self):
-        #log_to_file("Staring first test")
-        pkt = testutils.simple_tcp_packet(pktlen=100, ip_dst="192.168.1.2", ip_ttl=64, eth_dst="00:01:02:03:04:05", eth_src="00:01:02:03:04:05")
-        pkt_expected = testutils.simple_tcp_packet(pktlen=100, ip_dst="192.168.1.2", ip_ttl=63, eth_dst="00:01:02:03:04:05", eth_src="00:01:02:03:04:05")
+        # log_to_file("Staring first test")
+        pkt = testutils.simple_tcp_packet(
+            pktlen=100,
+            ip_dst="192.168.1.2",
+            ip_ttl=64,
+            eth_dst="00:01:02:03:04:05",
+            eth_src="00:01:02:03:04:05",
+        )
+        pkt_expected = testutils.simple_tcp_packet(
+            pktlen=100,
+            ip_dst="192.168.1.2",
+            ip_ttl=63,
+            eth_dst="00:01:02:03:04:05",
+            eth_src="00:01:02:03:04:05",
+        )
         try:
-            testutils.send_packet(self, (0, 1), pkt)
+            testutils.send_packet(self, (0, 0), pkt)
         except Exception as e:
             print(e)
-        
-        
-        testutils.verify_packet(self, pkt_expected, (1, 1))
+
+        testutils.verify_packet(self, pkt_expected, (1, 0))
+
+
+class IPV4OneSwitchTest2(DataplaneBaseTest):
+    def __init__(self):
+        DataplaneBaseTest.__init__(self)
+
+    def runTest(self):
+        # log_to_file("Staring first test")
+        pkt = testutils.simple_tcp_packet(
+            pktlen=100,
+            ip_dst="192.168.1.3",
+            ip_ttl=64,
+            eth_dst="00:01:02:03:04:05",
+            eth_src="00:01:02:03:04:05",
+        )
+        pkt_expected = testutils.simple_tcp_packet(
+            pktlen=100,
+            ip_dst="192.168.1.3",
+            ip_ttl=63,
+            eth_dst="00:01:02:03:04:05",
+            eth_src="00:01:02:03:04:05",
+        )
+        try:
+            testutils.send_packet(self, (1, 1), pkt)
+        except Exception as e:
+            print(e)
+
+        testutils.verify_packet(self, pkt_expected, (2, 0))
+
 
 class Ipv4TwoSwitchesTest(DataplaneBaseTest):
     def __init__(self):
         DataplaneBaseTest.__init__(self)
 
     def runTest(self):
-        pkt = testutils.simple_tcp_packet(pktlen=100, ip_dst="192.168.1.4", ip_ttl=64, eth_dst="00:01:02:03:04:05", eth_src="00:01:02:03:04:05")
-        pkt_expected = testutils.simple_tcp_packet(pktlen=100, ip_dst="192.168.1.4", ip_ttl=62, eth_dst="00:01:02:03:04:05", eth_src="00:01:02:03:04:05")
+        pkt = testutils.simple_tcp_packet(
+            pktlen=100,
+            ip_dst="192.168.1.4",
+            ip_ttl=64,
+            eth_dst="00:01:02:03:04:05",
+            eth_src="00:01:02:03:04:05",
+        )
+        pkt_expected = testutils.simple_tcp_packet(
+            pktlen=100,
+            ip_dst="192.168.1.4",
+            ip_ttl=62,
+            eth_dst="00:01:02:03:04:05",
+            eth_src="00:01:02:03:04:05",
+        )
 
-        testutils.send_packet(self, (0, 1), pkt)
+        testutils.send_packet(self, (0, 0), pkt)
 
-        testutils.verify_packet(self, pkt_expected, (3,1))
+        testutils.verify_packet(self, pkt_expected, (3, 0))
+
+
 # class MyTunnelPacketTest(DataplaneBaseTest):
 #     def __init__(self):
 #         DataplaneBaseTest.__init__(self)
@@ -84,5 +138,3 @@ def log_to_file(msg):
     f = open("/app/app.log", "w")
     f.write(msg + "\n")
     f.close()
-
-        
