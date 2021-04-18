@@ -184,7 +184,7 @@ const updateStats = async ({
 }) => {
   const formatter = buildFormatter(tools);
   let res = skipStats
-    ? {}
+    ? []
     : await processData({ tools, table, formatter, stats });
 
   const availableStats = stats
