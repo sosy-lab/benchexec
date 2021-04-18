@@ -214,7 +214,6 @@ const setHashSearch = (
     return hrefString;
   }
   if (history) {
-    console.log({ searchString });
     history.push(searchString);
     return;
   }
@@ -311,10 +310,13 @@ const makeFilterSerializer = ({
   categoryValues: allCategoryValues,
 }) => (filter) => {
   const groupedFilters = {};
-  for (const { id, value, values } of filter) {
+  const tableTabIdFilters = [];
+  for (const { id, value, values, isTableTabFilter } of filter) {
     if (id === "id") {
       if (values && values.length > 0) {
         groupedFilters.ids = { values: values.map((val) => (val ? val : "")) };
+      } else if (isTableTabFilter) {
+        tableTabIdFilters.push({ id, value });
       }
       continue;
     }
@@ -362,6 +364,11 @@ const makeFilterSerializer = ({
   const runsetFilters = [];
   if (ids) {
     runsetFilters.push(`id(values(${ids.values.map(escape).join(",")}))`);
+  }
+  if (tableTabIdFilters) {
+    tableTabIdFilters.forEach((filter) => {
+      runsetFilters.push(`id_any(value(${filter.value}))`);
+    });
   }
   for (const [tool, column] of Object.entries(rest)) {
     const columnFilters = [];
@@ -508,6 +515,12 @@ const makeFilterDeserializer = ({
       out.push({
         id: "id",
         ...tokenHandlers("values", tokenized["values"])[0],
+      });
+      continue;
+    } else if (token === "id_any") {
+      out.push({
+        id: "id",
+        ...tokenizePart(filter),
       });
       continue;
     }

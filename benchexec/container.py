@@ -47,7 +47,7 @@ __all__ = [
 
 
 DEFAULT_STACK_SIZE = 1024 * 1024
-GUARD_PAGE_SIZE = libc.sysconf(libc.SC_PAGESIZE)  # size of guard page at end of stack
+PAGE_SIZE = os.sysconf("SC_PAGESIZE")
 
 CONTAINER_UID = 1000
 CONTAINER_GID = 1000
@@ -137,19 +137,19 @@ def allocate_stack(size=DEFAULT_STACK_SIZE):
     # Allocate memory with appropriate flags for a stack as in
     # https://blog.fefe.de/?ts=a85c8ba7
     base = libc.mmap_anonymous(
-        size + GUARD_PAGE_SIZE,
+        size + PAGE_SIZE,  # allocate one page more for a guard page
         libc.PROT_READ | libc.PROT_WRITE,
         libc.MAP_GROWSDOWN | libc.MAP_STACK,
     )
 
     try:
-        # create a guard page that crashes the application when it is written to
+        # configure guard page that crashes the application when it is written to
         # (on stack overflow)
-        libc.mprotect(base, GUARD_PAGE_SIZE, libc.PROT_NONE)
+        libc.mprotect(base, PAGE_SIZE, libc.PROT_NONE)
 
-        yield ctypes.c_void_p(base + size + GUARD_PAGE_SIZE)
+        yield ctypes.c_void_p(base + size + PAGE_SIZE)
     finally:
-        libc.munmap(base, size + GUARD_PAGE_SIZE)
+        libc.munmap(base, size + PAGE_SIZE)
 
 
 def execute_in_namespace(func, use_network_ns=True):
@@ -244,8 +244,7 @@ def _generate_native_clone_child_callback():
     # Inspired by https://csl.name/post/python-jit/
 
     # Allocate one page of memory where we put the code
-    page_size = libc.sysconf(libc.SC_PAGESIZE)
-    mem = libc.mmap_anonymous(page_size, libc.PROT_READ | libc.PROT_WRITE)
+    mem = libc.mmap_anonymous(PAGE_SIZE, libc.PROT_READ | libc.PROT_WRITE)
 
     # Get address of PyOS_AfterFork_Child that we want to call
     afterfork_address = ctypes.cast(
@@ -314,7 +313,7 @@ def _generate_native_clone_child_callback():
     ctypes.memmove(mem, code, len(code))
 
     # Make code executable
-    libc.mprotect(mem, page_size, libc.PROT_READ | libc.PROT_EXEC)
+    libc.mprotect(mem, PAGE_SIZE, libc.PROT_READ | libc.PROT_EXEC)
     return libc.CLONE_CALLBACK(mem)
 
 

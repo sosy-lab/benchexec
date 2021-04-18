@@ -30,7 +30,6 @@ image: ${CI_REGISTRY_IMAGE}/test:python-${PYTHON_VERSION}
 stages:
   - images
   - test
-  - deploy
 
 .unit-tests: &unit-tests
   stage: test
@@ -84,24 +83,6 @@ unit-tests:python-3.9:
   <<: *unit-tests
   variables:
     PYTHON_VERSION: '3.9'
-
-deploy-coverage:
-  stage: deploy
-  variables:
-    PYTHON_VERSION: '3.9'
-  before_script:
-    - pip install -e git+https://github.com/codacy/python-codacy-coverage.git#egg=codacy-coverage
-  script:
-    - python-codacy-coverage -r coverage.xml
-  dependencies:
-    - unit-tests:python-3.9
-  only:
-    refs:
-      - master
-    variables:
-      - $CODACY_PROJECT_TOKEN # required for job
-      - $CI_PROJECT_PATH == $PROJECT_PATH # not on forks
-  <<: *pip-cache
 
 # Static checks
 check-format:

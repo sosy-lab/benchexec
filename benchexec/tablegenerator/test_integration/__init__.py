@@ -57,10 +57,12 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
     def run_cmd(self, *args):
         try:
             output = subprocess.check_output(
-                args=args, stderr=subprocess.STDOUT
-            ).decode()
+                args=args,
+                stderr=subprocess.STDOUT,
+                universal_newlines=True,
+            )
         except subprocess.CalledProcessError as e:
-            print(e.output.decode())
+            print(e.output)
             raise e
         print(output)
         return output
@@ -190,9 +192,9 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
     def test_no_files_given(self):
         self.assertEqual(
             1,
-            subprocess.call(
+            subprocess.run(
                 tablegenerator, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-            ),
+            ).returncode,
             "expected error return code",
         )
 
@@ -205,7 +207,9 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
         ]
         self.assertEqual(
             2,
-            subprocess.call(cmdline, stdout=subprocess.PIPE, stderr=subprocess.PIPE),
+            subprocess.run(
+                cmdline, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+            ).returncode,
             "expected error return code",
         )
 
@@ -213,7 +217,9 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
         cmdline = [*tablegenerator, "-x", os.path.join(here, "table-only-columns.xml")]
         self.assertEqual(
             2,
-            subprocess.call(cmdline, stdout=subprocess.PIPE, stderr=subprocess.PIPE),
+            subprocess.run(
+                cmdline, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+            ).returncode,
             "expected error return code",
         )
 
@@ -720,7 +726,7 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
                 table_prefix="cbmc.2015-12-11_1211.results.Simple",
             )
         except subprocess.CalledProcessError as e:
-            if "HTTP Error" or "urlopen error" in e.output.decode():
+            if "HTTP Error" or "urlopen error" in e.output:
                 self.skipTest("HTTP access to GitHub failed")
             else:
                 raise

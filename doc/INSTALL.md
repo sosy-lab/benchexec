@@ -11,7 +11,11 @@ SPDX-License-Identifier: Apache-2.0
 
 ## Download and Installation
 
-BenchExec requires at least Python 3.5.
+### Requirements
+
+- Python 3.5 or newer (will require Python 3.6 [soon](https://github.com/sosy-lab/benchexec/issues/717))
+- Linux (cf. [Kernel Requirements](#kernel-requirements) below for details)
+- x86 or ARM machine (please [contact us](https://github.com/sosy-lab/benchexec/issues/new) for other architectures)
 
 The following packages are optional but recommended dependencies:
 - [cpu-energy-meter] will let BenchExec measure energy consumption on Intel CPUs.
@@ -21,6 +25,8 @@ The following packages are optional but recommended dependencies:
 - [pqos_wrapper] and [pqos library][pqos]
   provide isolation of L3 cache and measurement of cache usage and memory bandwidth
   (only in `benchexec`).
+
+Note that the `table-generator` utility requires only Python and works on all platforms.
 
 ### Debian/Ubuntu
 
@@ -94,20 +100,27 @@ If you are using an Ubuntu version that is still supported,
 everything else should work out of the box.
 For other distributions, please read the following detailed requirements.
 
+Except on Ubuntu, the full feature set of BenchExec is only usable
+on **Linux 5.11 or newer**, so we suggest at least this kernel version.
+
+On older kernels, you need to avoid using the overlay filesystem (cf. below),
+all other features are supported.
+However, we strongly recommend to use at least **Linux 4.14 or newer**
+because it reduces the overhead of BenchExec's memory measurements and limits.
+For even older kernel versions, please read
+[our previous documentation](https://github.com/sosy-lab/benchexec/blob/e445f17/doc/INSTALL.md#kernel-requirements)
+with more details.
+
 Using BenchExec on kernels without NUMA support
 is not guaranteed to work (but this is enabled by all common distributions).
 
-Without container mode (i.e., `--no-container`),
-any Linux kernel version of the last several years is
-acceptable, though newer is better in general.
-We recommend at least Linux 3.14 because older versions need
-[special care](https://github.com/sosy-lab/benchexec/blob/b19a591/doc/INSTALL.md#warning-for-users-of-linux-kernel-up-to-313-eg-ubuntu-1404).
+In container mode (i.e., always except when using `--no-container`),
+ BenchExec uses two main kernel features
+that are not usable on all distributions by default:
 
-In container mode, BenchExec uses two main kernel features:
-
-- **User Namespaces**: This is typically available in Linux 3.8 or newer,
-  and most distros enable it by default (the kernel option is `CONFIG_USER_NS`).
-  Debian and Arch Linux disable this feature for regular users,
+- **User Namespaces**: This is available on most distros
+  (the kernel option is `CONFIG_USER_NS`),
+  but Debian and Arch Linux disable this feature for regular users,
   so the system administrator needs to enable it
   with `sudo sysctl -w kernel.unprivileged_userns_clone=1` or a respective entry
   in `/etc/sysctl.conf`.
@@ -115,18 +128,11 @@ In container mode, BenchExec uses two main kernel features:
   `sudo sysctl -w user.max_user_namespaces=10000` or a respective entry
   in `/etc/sysctl.conf` (the exact value is not important).
 
-- **Overlay Filesystem**: This is typically available in Linux 3.18 or newer
-  (kernel option `CONFIG_OVERLAY_FS`).
-  However, only Ubuntu allows regular users to create such mounts in a container.
-  Users of other distributions can still use container mode, but have to choose a different mode
+- **Unprivileged Overlay Filesystem**: This is only available since Linux 5.11
+  (kernel option `CONFIG_OVERLAY_FS`),
+  but also present in all Ubuntu kernels, even older ones.
+  Users of older kernels on other distributions can still use container mode, but have to choose a different mode
   of mounting the file systems in the container, e.g., with `--read-only-dir /` (see below).
-  Alternatively, you could compile your own kernel and include [this patch](http://kernel.ubuntu.com/git/ubuntu/ubuntu-xenial.git/commit?id=0c29f9eb00d76a0a99804d97b9e6aba5d0bf19b3).
-  Note that creating overlays over NFS mounts is not stable at least until Linux 4.5,
-  thus it is recommended to specify a different [directory mode](container.md#directory-access-modes)
-  for every NFS mount on the system.
-
-Furthermore, BenchExec uses [seccomp](http://man7.org/linux/man-pages/man2/seccomp.2.html),
-which is available since Linux 3.17, but Linux 4.8 or newer is recommended.
 
 If container mode does not work, please check the [common problems](container.md#common-problems).
 
