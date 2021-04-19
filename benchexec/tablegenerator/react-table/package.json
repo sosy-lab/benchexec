@@ -31,6 +31,7 @@
     "start": "(test -f src/data/dependencies.json || node scripts/dependencies.js) && node scripts/start.js",
     "build": "node scripts/dependencies.js && react-app-rewired build",
     "test": "(test -f src/data/dependencies.json || node scripts/dependencies.js) && react-app-rewired test",
+    "test:debug": "(test -f src/data/dependencies.json || node scripts/dependencies.js) && react-app-rewired --inspect-brk test",
     "lint:fix": "(test -f src/data/dependencies.json || node scripts/dependencies.js) && eslint --fix --ignore-path .lintignores $(pwd)'/**/*.js' && prettier --ignore-path .lintignores --write $(pwd)'/**/*.+(css|scss|json)'",
     "lint": "(test -f src/data/dependencies.json || node scripts/dependencies.js) &&  eslint --max-warnings 0 --ignore-path .lintignores . && prettier --ignore-path .lintignores --check $(pwd)'/**/*.+(css|scss|json)'"
   },
