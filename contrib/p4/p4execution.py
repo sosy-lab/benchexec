@@ -516,9 +516,13 @@ class P4Execution(object):
 
                 # Create Veth pair and put them in the right namespace
                 ip.link("add", ifname=iface_device1, peer=iface_device2, kind="veth")
+
                 id_node = ip.link_lookup(ifname=iface_device1)[0]
+                ip.link("set", index=id_node, state="up")
                 ip.link("set", index=id_node, net_ns_fd=link["device1"])
+
                 id_switch = ip.link_lookup(ifname=iface_device2)[0]
+                ip.link("set", index=id_switch, state="up")
                 ip.link("set", index=id_switch, net_ns_fd=link["device2"])
 
                 # Start all veth port in Nodes
@@ -554,7 +558,7 @@ class P4Execution(object):
                     time.sleep(1)
                     seconds_waited += 1
 
-                # Check if namespaces are addad. If not add simlinuk to namespace
+                # Check if namespaces are addad. If not add simlink to namespace
                 if not os.path.islink("/var/run/netns/{0}".format(device1)):
                     os.symlink(
                         "/proc/{0}/ns/net".format(pid_device1),
@@ -574,8 +578,11 @@ class P4Execution(object):
                 # Create Veth pair and put them in the right namespace
                 ip.link("add", ifname=iface_switch1, peer=iface_switch2, kind="veth")
                 id_switch1 = ip.link_lookup(ifname=iface_switch1)[0]
+                ip.link("set", index=id_switch1, state="up")
                 ip.link("set", index=id_switch1, net_ns_fd=link["device1"])
+
                 id_switch2 = ip.link_lookup(ifname=iface_switch2)[0]
+                ip.link("set", index=id_switch2, state="up")
                 ip.link("set", index=id_switch2, net_ns_fd=link["device2"])
 
         # Start all veth in all the switches
@@ -753,7 +760,20 @@ class P4Execution(object):
         [x.start() for x in container_threads]
         [x.join() for x in container_threads]
 
+    def set_link_state(self, ns, state, iface_ids):
+        available_states = ["UP", "DOWN"]
+
+        if state in available_states:
+            for iface_id in iface_ids:
+                ns.link("set", index=iface_id, state=state)
+
     def thread_setup_switch(self, switch_container, switch_command):
+        ns = NetNS(switch_container.name)
+
+        # Check if some interface failed to start
+        while len(ns.link_lookup(IFLA_OPERSTATE="DOWN")) != 0:
+            self.set_link_state(ns, "UP", ns.link_lookup(IFLA_OPERSTATE="DOWN"))
+            time.sleep(1)
 
         switch_container.exec_run(switch_command, detach=True)
         switch_is_setup = False
