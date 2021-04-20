@@ -30,7 +30,7 @@ from distutils.dir_util import copy_tree
 try:
     import docker
 except Exception as e:
-    raise BenchExecException("Pythond-docker package not found")
+    raise BenchExecException("Python-docker package not found")
 
 try:
     from pyroute2 import IPRoute
@@ -52,8 +52,7 @@ class P4Execution(object):
     """
     This Class is for executing p4 benchmarks. The class creates docker containers representing each
     device in the network. It creates virutal ethenet connections between all the devices. Finally,
-    it sets up a test container connected to all the nodes in the network. As of now it only supports creating 1
-    switch with 4 nodes in a tree format.
+    it sets up a test container connected to all the nodes in the network.
     """
 
     def __init__(self):
@@ -123,6 +122,7 @@ class P4Execution(object):
         if not setup_is_valid:
             raise BenchExecException("Network config file is not valid")
 
+        # Container setup
         self.client = docker.from_env()
         self.switch_target_path = "/app"
         self.nrOfNodes = len(self.network_config["nodes"])
@@ -139,7 +139,6 @@ class P4Execution(object):
                     name="ptfTester",
                     mounts=[mount_ptf_tester],
                     tty=True,
-                    # network="mgnt"
                 )
             except docker.errors.APIError:
                 self.ptf_tester = self.client.containers.get("ptfTester")
@@ -148,23 +147,15 @@ class P4Execution(object):
             self.nodes = []
 
             for node_name in self.network_config["nodes"]:
-                # Try get old node from previous run if it exits
                 try:
-                    self.nodes.append(self.client.containers.get(node_name))
-                    logging.debug(
-                        "Old node container find with name: "
-                        + node_name
-                        + ". Using that"
-                    )
-                except docker.errors.APIError:
                     self.nodes.append(
                         self.client.containers.create(
-                            NODE_IMAGE_NAME,
-                            detach=True,
-                            name=node_name,
-                            # network="mgnt"sad
+                            NODE_IMAGE_NAME, detach=True, name=node_name
                         )
                     )
+                except docker.errors.APIError:
+                    logging.error("Failed to setup node container.")
+
             self.switches = []
 
             # Each switch needs their own mount copy
@@ -188,13 +179,17 @@ class P4Execution(object):
 
             logging.info("Setting up network")
             self.setup_network()
-            self.connect_nodes_to_switch_new()
+            self.connect_nodes_to_switch()
 
         except docker.errors.APIError as e:
             self.close()
             raise BenchExecException(str(e))
 
     def execute_benchmark(self, benchmark, output_handler):
+        """
+        Excecutes the benchmark.
+        """
+
         self.start_container_listening()
 
         # Wait until all nodes and switches are setup
@@ -333,8 +328,8 @@ class P4Execution(object):
 
     def setup_network(self):
         """
-        Creates the networks required to run the test. Further, it creates
-        the management network(mgnt) used by the ptf_teter to inject packages.
+        Creates the managment network, connectes all nodes and the ptf tester
+        to the network.
         """
         try:
             ipam_pool = docker.types.IPAMPool(
@@ -366,105 +361,9 @@ class P4Execution(object):
 
     def connect_nodes_to_switch(self):
         """
-        This function is what creates all the connection between the devices in the network.
-        It will create 1 veth-pair for each device. Put each veth-interface in the correct
-        network namspace, activate them and give them an ipv4 address.
+        This will create veth pairs for all links definid in the network config.
+        Each veth will also be moved to the correct network namespace.
         """
-
-        client_low = docker.APIClient()
-
-        self.start_containers()
-
-        switch_name = ""
-        ip = IPRoute()
-
-        # Check if netns folder exists. If not, create one for netns to look intp
-        if not os.path.exists("/var/run/netns"):
-            os.mkdir("/var/run/netns")
-
-        try:
-            for switch in self.switches:
-                switch_name = switch.name
-                pid = client_low.inspect_container(switch.name)["State"]["Pid"]
-                switch_is_setup = False
-
-                # Wait until switch is setup
-                max_wait_seconds = 10
-                seconds_waited = 0
-                while not switch_is_setup and seconds_waited <= max_wait_seconds:
-                    switch_is_setup = os.path.exists("/proc/{0}/ns/net".format(pid))
-                    time.sleep(1)
-                    seconds_waited += 1
-
-                # Clear up any old namespaces
-                if os.path.islink("/var/run/netns/{0}".format(switch.name)):
-                    os.remove("/var/run/netns/{0}".format(switch.name))
-                os.symlink(
-                    "/proc/{0}/ns/net".format(pid),
-                    "/var/run/netns/{0}".format(switch.name),
-                )
-
-            node_id_nr = 1
-            for node in self.nodes:
-                pid = client_low.inspect_container(node.name)["State"]["Pid"]
-                if os.path.islink("/var/run/netns/{0}".format(node.name)):
-                    os.remove("/var/run/netns/{0}".format(node.name))
-
-                os.symlink(
-                    "/proc/{0}/ns/net".format(pid),
-                    "/var/run/netns/{0}".format(node.name),
-                )
-
-                try:
-                    # Create Veth pair and put them in the right namespace
-                    ip.link(
-                        "add",
-                        ifname="n{0}_veth".format(node_id_nr),
-                        peer="sv{0}_veth".format(node_id_nr),
-                        kind="veth",
-                    )
-                    id_node = ip.link_lookup(ifname="n{0}_veth".format(node_id_nr))[0]
-                    ip.link("set", index=id_node, net_ns_fd=node.name)
-                    id_switch = ip.link_lookup(ifname="sv{0}_veth".format(node_id_nr))[
-                        0
-                    ]
-                    ip.link("set", index=id_switch, net_ns_fd=switch_name)
-
-                    ns = NetNS(node.name)
-                    ns.link("set", index=id_node, state="up")
-                    ns.addr(
-                        "add",
-                        index=id_node,
-                        address="192.168.1.{0}".format(node_id_nr),
-                        prefixlen=24,
-                    )
-                except Exception as e:
-                    logging.error(
-                        "Failed to setup veth pair." + str(type(e)) + " " + str(e)
-                    )
-                    self.close()
-                    raise BenchExecException(
-                        "Setup of network failed. Could not setup veth pair. "
-                    )
-
-                node_id_nr += 1
-
-            # Start all veth in the switch
-            ns = NetNS(switch_name)
-            net_interfaces = ns.get_links()
-
-            for interface in net_interfaces[2:]:
-                iface_name = interface["attrs"][0][1]
-                id = ns.link_lookup(ifname=iface_name)[0]
-                ns.link("set", index=id, state="up")
-
-        except Exception as e:
-            ns.close()
-            ip.close()
-            logging.error(e)
-            raise BenchExecException("Failed to setup veth pairs for containers.")
-
-    def connect_nodes_to_switch_new(self):
         client_low = docker.APIClient()
         self.start_containers()
 
@@ -596,7 +495,9 @@ class P4Execution(object):
                 ns.link("set", index=id, state="up")
 
     def read_tests(self):
-
+        """
+        Read the test from the ptf container
+        """
         # Make sure it's started. This is a blocking call
         self.ptf_tester.start()
 
@@ -690,6 +591,10 @@ class P4Execution(object):
             self.mgnt_network.remove()
 
     def start_containers(self):
+        """
+        Start all containers. This is done with thread. This function does not gurantees that
+        containers are started.
+        """
         containers_to_start = self.nodes + self.switches
         containers_to_start.append(self.ptf_tester)
 
@@ -697,7 +602,7 @@ class P4Execution(object):
 
         for container in containers_to_start:
             container_threads.append(
-                threading.Thread(target=self.thread_container_start, args=(container,))
+                threading.Thread(target=lambda x: x.start(), args=(container,))
             )
 
         # Start and wait for all to finish
@@ -706,11 +611,12 @@ class P4Execution(object):
 
     def thread_container_start(self, container):
         container.start()
-        print(container.name + " started")
 
     def start_container_listening(self):
         """
-        This will start all nodes and switches and their respective commands
+        This will set all the nodes and switches up for testing. This means all nodes runs
+        the ptf agent script and all switches run the switch starup command. All the ports and their
+        configuration are set automatically.
         """
 
         container_threads = []
@@ -768,6 +674,9 @@ class P4Execution(object):
                 ns.link("set", index=iface_id, state=state)
 
     def thread_setup_switch(self, switch_container, switch_command):
+        """
+        Sets up a switch. Ment to be ran in a thread.
+        """
         ns = NetNS(switch_container.name)
 
         # Check if some interface failed to start
@@ -847,6 +756,9 @@ class P4Execution(object):
         os.remove(file_path)
 
     def network_file_isValid(self):
+        """
+        Simple chech throught the network file
+        """
         if not self.network_config:
             logging.debug("No network file is defined for validation")
             return False
