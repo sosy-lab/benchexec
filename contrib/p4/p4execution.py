@@ -30,13 +30,17 @@ from distutils.dir_util import copy_tree
 try:
     import docker
 except Exception as e:
-    raise BenchExecException("Python-docker package not found")
+    raise BenchExecException(
+        "Python-docker package not found. Try reinstalling python docker module"
+    )
 
 try:
     from pyroute2 import IPRoute
     from pyroute2 import NetNS
 except:
-    raise BenchExecException("pyroute2 python package not found")
+    raise BenchExecException(
+        "pyroute2 python package not found. Try reinstalling pyroute2"
+    )
 
 
 STOPPED_BY_INTERRUPT = False
@@ -85,28 +89,22 @@ class P4Execution(object):
         ) = self.read_folder_paths(benchmark)
 
         if not os.path.isdir(self.switch_source_path):
-            logging.critical(
-                "Switch folder path not found: {0}".format(self.switch_source_path)
-            )
+            logging.critical(f"Switch folder path not found: {self.switch_source_path}")
             raise BenchExecException(
-                "Switch folder path not found: {0}".format(self.switch_source_path)
+                "Switch folder path not found. Look over setup definition"
             )
         if not os.path.isdir(self.ptf_folder_path):
-            logging.critical(
-                "Ptf test folder path not found: {0}".format(self.ptf_folder_path)
-            )
+            logging.critical(f"Ptf test folder path not found: {self.ptf_folder_path}")
             raise (
                 BenchExecException(
-                    "Ptf test folder path not found: {0}".format(self.ptf_folder_path)
+                    f"Ptf test folder path not found: {self.ptf_folder_path}"
                 )
             )
 
         if not self.switch_source_path or not self.ptf_folder_path:
             raise BenchExecException(
                 "Switch or Ptf folder path not defined."
-                + "Switch path: {0} Folder path: {1}".format(
-                    self.switch_source_path, self.ptf_folder_path
-                )
+                + f"Switch path: {self.switch_source_path} Folder path: {self.ptf_folder_path}"
             )
 
         # Extract network config info
@@ -203,21 +201,15 @@ class P4Execution(object):
         # Read all switch setup logs
         for switch in self.switches:
             switch_log_file = (
-                self.switch_source_path
-                + "/{0}".format(switch.name)
-                + "/log/switch_log.txt"
+                f"{self.switch_source_path}/{switch.name}/log/switch_log.txt"
             )
             switch_command_output = (
-                self.switch_source_path
-                + "/{0}".format(switch.name)
-                + "/table_command_output.txt"
+                f"{self.switch_source_path}/{switch.name}/table_command_output.txt"
             )
 
-            switch_log_file_new = benchmark.log_folder + "{0}_Setup.log".format(
-                switch.name
-            )
+            switch_log_file_new = benchmark.log_folder + f"{switch.name}_Setup.log"
             switch_command_output_new = (
-                benchmark.log_folder + "{0}_table_entry.log".format(switch.name)
+                benchmark.log_folder + f"{switch.name}_table_entry.log"
             )
 
             copyfile(switch_log_file, switch_log_file_new)
@@ -227,7 +219,7 @@ class P4Execution(object):
 
                 copyfile(switch_command_output, switch_command_output_new)
             else:
-                logging.info("No tables was loaded for switch: {0}".format(switch.name))
+                logging.info(f"No tables was loaded for switch: {switch.name}")
 
             # Clear log file
             with open(switch_log_file, "r+") as f:
@@ -257,16 +249,12 @@ class P4Execution(object):
 
             for run in runSet.runs:
                 # Create ptf command depending on nr of nodes
-                command = "ptf --test-dir /app " + run.identifier
+                command = f"ptf --test-dir /app {run.identifier}"
 
                 for node in self.nodes:
                     node_config = self.network_config["nodes"][node.name]
 
-                    command += (
-                        " --device-socket {0}-{{0-64}}@tcp://".format(node_config["id"])
-                        + MGNT_NETWORK_SUBNET
-                        + ".0.{0}:10001".format(node_config["id"] + 3)
-                    )
+                    command += f" --device-socket {node_config['id']}-{{0-64}}@tcp://{MGNT_NETWORK_SUBNET}.0.{node_config['id'] + 3}:10001"
 
                 command += " --platform nn"
 
@@ -295,14 +283,16 @@ class P4Execution(object):
                 # Save all switch log_files
                 for switch in self.switches:
                     switch_log_file = (
-                        self.switch_source_path
-                        + "/{0}".format(switch.name)
-                        + "/log/switch_log.txt"
+                        f"{self.switch_source_path}/{switch.name}/log/switch_log.txt"
                     )
 
-                    switch_log_file_new = run.log_file[:-4] + "_{0}.log".format(
-                        switch.name
-                    )
+                    # switch_log_file = (
+                    #     self.switch_source_path
+                    #     + "/{0}".format(switch.name)
+                    #     + "/log/switch_log.txt"
+                    # )
+
+                    switch_log_file_new = run.log_file[:-4] + f"_{switch.name}.log"
 
                     copyfile(switch_log_file, switch_log_file_new)
 
