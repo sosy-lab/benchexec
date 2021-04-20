@@ -114,6 +114,32 @@ class Ipv4TwoSwitchesTest(DataplaneBaseTest):
         testutils.verify_packet(self, pkt_expected, (3, 0))
 
 
+class LongChainOfSwitches(DataplaneBaseTest):
+    def __init__(self):
+        DataplaneBaseTest.__init__(self)
+
+    def runTest(self):
+        pkt = testutils.simple_tcp_packet(
+            pktlen=100,
+            ip_dst="192.168.1.16",
+            ip_ttl=64,
+            eth_dst="00:01:02:03:04:05",
+            eth_src="00:01:02:03:04:05",
+        )
+
+        pkt_expected = testutils.simple_tcp_packet(
+            pktlen=100,
+            ip_dst="192.168.1.16",
+            ip_ttl=58,
+            eth_dst="00:01:02:03:04:05",
+            eth_src="00:01:02:03:04:05",
+        )
+
+        testutils.send_packet(self, (0, 0), pkt)
+
+        testutils.verify_packet(self, pkt_expected, (15, 0))
+
+
 # class MyTunnelPacketTest(DataplaneBaseTest):
 #     def __init__(self):
 #         DataplaneBaseTest.__init__(self)
