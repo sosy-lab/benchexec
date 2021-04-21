@@ -229,7 +229,7 @@ class OutputHandler(object):
         def format_line(key, value):
             if value is None:
                 return ""
-            return (key + ":").ljust(columnWidth) + str(value).strip() + "\n"
+            return ((key + ":").ljust(columnWidth) + str(value)).strip() + "\n"
 
         def format_byte(key, value):
             if value is None:
@@ -414,7 +414,7 @@ class OutputHandler(object):
             runSetInfo += runSet.name + "\n"
         runSetInfo += "Run set {0} of {1}: skipped {2}\n".format(
             runSet.index, len(self.benchmark.run_sets), reason or ""
-        )
+        ).rstrip()
         self.txt_file.append(runSetInfo)
 
     def writeRunSetInfoToLog(self, runSet):
