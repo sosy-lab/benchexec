@@ -38,7 +38,7 @@
     "extends": [
       "react-app",
       "plugin:prettier/recommended",
-      "prettier/react"
+      "prettier"
     ],
     "rules": {
       "prettier/prettier": "warn"
@@ -74,7 +74,7 @@
   "devDependencies": {
     "enzyme": "^3.11.0",
     "enzyme-adapter-react-16": "^1.15.6",
-    "eslint-config-prettier": "^6.15.0",
+    "eslint-config-prettier": "^8.2.0",
     "eslint-plugin-prettier": "^3.4.0",
     "imports-loader": "^1.2.0",
     "license-checker": "^25.0.1",
