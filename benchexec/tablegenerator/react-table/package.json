@@ -76,7 +76,6 @@
     "enzyme-adapter-react-16": "^1.15.6",
     "eslint-config-prettier": "^8.2.0",
     "eslint-plugin-prettier": "^3.4.0",
-    "imports-loader": "^1.2.0",
     "license-checker": "^25.0.1",
     "node-sass": "^5.0.0",
     "prettier": "^2.2.1",
