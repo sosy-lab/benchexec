@@ -78,7 +78,7 @@
     "eslint-plugin-prettier": "^3.4.0",
     "imports-loader": "^1.2.0",
     "license-checker": "^25.0.1",
-    "node-sass": "^4.14.1",
+    "node-sass": "^5.0.0",
     "prettier": "^2.2.1",
     "react-app-rewired": "^2.1.8",
     "react-scripts": "4.0.3",
