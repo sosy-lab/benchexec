@@ -307,7 +307,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         container_system_config=True,
         container_tmpfs=True,
         *args,
-        **kwargs
+        **kwargs,
     ):
         """Create instance.
         @param use_namespaces: If False, disable all container features of this class
@@ -485,7 +485,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         memlimit=None,
         memory_nodes=None,
         *args,
-        **kwargs
+        **kwargs,
     ):
         if not self._use_namespaces:
             return super(ContainerExecutor, self)._start_execution(*args, **kwargs)

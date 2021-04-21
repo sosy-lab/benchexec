@@ -114,7 +114,7 @@ class BenchExecIntegrationTests(unittest.TestCase):
         rundefs=benchmark_test_rundefs,
         test_name=benchmark_test_name,
         test_file=None,
-        compress=False
+        compress=False,
     ):
         if not test_file:  # Assign default test file
             test_file = self.benchmark_test_file
