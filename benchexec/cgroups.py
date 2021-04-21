@@ -526,7 +526,7 @@ class Cgroup(object):
         @return cputime usage in seconds
         """
         # convert nano-seconds to seconds
-        return float(self.get_value(CPUACCT, "usage")) / 1000000000
+        return float(self.get_value(CPUACCT, "usage")) / 1_000_000_000
 
     def read_allowed_memory_banks(self):
         """Get the list of all memory banks allowed by this cgroup."""

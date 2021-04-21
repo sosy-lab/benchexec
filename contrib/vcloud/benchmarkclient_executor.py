@@ -19,7 +19,7 @@ sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
 DEFAULT_CLOUD_TIMELIMIT = 300  # s
 
-DEFAULT_CLOUD_MEMORY_REQUIREMENT = 7000000000  # 7 GB
+DEFAULT_CLOUD_MEMORY_REQUIREMENT = 7_000_000_000  # 7 GB
 DEFAULT_CLOUD_CPUCORE_REQUIREMENT = 2  # one core with hyperthreading
 DEFAULT_CLOUD_CPUMODEL_REQUIREMENT = ""  # empty string matches every model
 
