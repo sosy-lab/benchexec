@@ -76,7 +76,7 @@ export SOURCE_DATE_EPOCH="$(dpkg-parsechangelog -STimestamp)"
 
 # Test and build under Python 3
 TEMP3="$(mktemp -d)"
-virtualenv -p /usr/bin/python3 "$TEMP3"
+python3 -m venv "$TEMP3"
 . "$TEMP3/bin/activate"
 git clone "file://$DIR" "$TEMP3/benchexec"
 pushd "$TEMP3/benchexec"
