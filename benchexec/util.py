@@ -649,8 +649,7 @@ def wildcard_match(word, wildcard):
 
 def read_local_time():
     """Get "aware" datetime.datetime instance with local time (including time zone)."""
-    # On Python 3.6+ can be simplified (cf. test case in test_util.py)
-    return datetime.datetime.now(datetime.timezone.utc).astimezone()
+    return datetime.datetime.now().astimezone()
 
 
 def should_color_output():
