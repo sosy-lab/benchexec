@@ -832,7 +832,13 @@ class OutputHandler(object):
 
         if self.compress_results:
             with self.log_zip_lock:
+                zip_is_empty = not self.log_zip.namelist()
                 self.log_zip.close()
+
+                if zip_is_empty:
+                    # remove useless ZIP file, e.g., because all runs were skipped
+                    os.remove(self.benchmark.log_zip)
+                    self.all_created_files.remove(self.benchmark.log_zip)
 
         # remove useless log folder if it is empty,
         # e.g., because all logs were written to the ZIP file
