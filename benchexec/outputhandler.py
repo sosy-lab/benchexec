@@ -828,10 +828,18 @@ class OutputHandler(object):
 
     def close(self):
         """Do all necessary cleanup."""
+        self.txt_file.close()
+
         if self.compress_results:
             with self.log_zip_lock:
                 self.log_zip.close()
-        self.txt_file.close()
+
+        # remove useless log folder if it is empty,
+        # e.g., because all logs were written to the ZIP file
+        try:
+            os.rmdir(self.benchmark.log_folder)
+        except OSError:
+            pass
 
     def get_filename(self, runSetName, fileExtension):
         """
