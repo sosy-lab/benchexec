@@ -816,10 +816,10 @@ class OutputHandler(object):
                     if self.compress_results
                     else self.xml_file_names
                 )
+                cmdline = [tableGeneratorPath] + xml_file_names
                 util.printOut(
-                    "In order to get HTML and CSV tables, run\n{0} '{1}'".format(
-                        tableGeneratorPath, "' '".join(xml_file_names)
-                    )
+                    "In order to get HTML and CSV tables, run\n"
+                    + " ".join(map(util.escape_string_shell, cmdline)),
                 )
 
         if isStoppedByInterrupt:
