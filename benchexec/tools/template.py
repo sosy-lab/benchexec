@@ -140,20 +140,22 @@ class BaseTool2(object, metaclass=ABCMeta):
         @return a (possibly empty) string of output of the tool
         """
         try:
-            process = subprocess.Popen(
-                [executable, arg], stdout=subprocess.PIPE, stderr=subprocess.PIPE
+            process = subprocess.run(
+                [executable, arg],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                universal_newlines=True,
             )
-            (stdout, stderr) = process.communicate()
         except OSError as e:
             logging.warning(
                 "Cannot run %s to determine version: %s", executable, e.strerror
             )
             return ""
-        if stderr and not use_stderr and not ignore_stderr:
+        if process.stderr and not use_stderr and not ignore_stderr:
             logging.warning(
                 "Cannot determine %s version, error output: %s",
                 executable,
-                util.decode_to_string(stderr),
+                process.stderr,
             )
             return ""
         if process.returncode:
@@ -164,7 +166,7 @@ class BaseTool2(object, metaclass=ABCMeta):
             )
             return ""
 
-        output = util.decode_to_string(stderr if use_stderr else stdout).strip()
+        output = (process.stderr if use_stderr else process.stdout).strip()
         if line_prefix:
             matches = (
                 line[len(line_prefix) :].strip()

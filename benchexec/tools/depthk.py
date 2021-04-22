@@ -39,13 +39,12 @@ class Tool(benchexec.tools.template.BaseTool):
         return executableDir
 
     def version(self, executable):
-        version = (
-            subprocess.Popen(
-                [executable, "-v"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT
-            )
-            .stdout.readline()
-            .decode()
-        )
+        version = subprocess.Popen(
+            [executable, "-v"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            universal_newlines=True,
+        ).stdout.readline()
         return version.strip()
 
     def name(self):

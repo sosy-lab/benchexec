@@ -229,7 +229,7 @@ class OutputHandler(object):
         def format_line(key, value):
             if value is None:
                 return ""
-            return (key + ":").ljust(columnWidth) + str(value).strip() + "\n"
+            return ((key + ":").ljust(columnWidth) + str(value)).strip() + "\n"
 
         def format_byte(key, value):
             if value is None:
@@ -414,7 +414,7 @@ class OutputHandler(object):
             runSetInfo += runSet.name + "\n"
         runSetInfo += "Run set {0} of {1}: skipped {2}\n".format(
             runSet.index, len(self.benchmark.run_sets), reason or ""
-        )
+        ).rstrip()
         self.txt_file.append(runSetInfo)
 
     def writeRunSetInfoToLog(self, runSet):
@@ -828,10 +828,24 @@ class OutputHandler(object):
 
     def close(self):
         """Do all necessary cleanup."""
+        self.txt_file.close()
+
         if self.compress_results:
             with self.log_zip_lock:
+                zip_is_empty = not self.log_zip.namelist()
                 self.log_zip.close()
-        self.txt_file.close()
+
+                if zip_is_empty:
+                    # remove useless ZIP file, e.g., because all runs were skipped
+                    os.remove(self.benchmark.log_zip)
+                    self.all_created_files.remove(self.benchmark.log_zip)
+
+        # remove useless log folder if it is empty,
+        # e.g., because all logs were written to the ZIP file
+        try:
+            os.rmdir(self.benchmark.log_folder)
+        except OSError:
+            pass
 
     def get_filename(self, runSetName, fileExtension):
         """

@@ -109,8 +109,9 @@ def copy_of_xml_element(elem):
 
 def decode_to_string(toDecode):
     """
-    This function is needed for Python 3,
-    because a subprocess can return bytes instead of a string.
+    Decode a byte string to a string, return input unchanged if it is already a string.
+    This method should usually not be used because it should be clear if calling
+    decode() is necessary, and because it hardcodes the UTF-8 encoding.
     """
     try:
         return toDecode.decode("utf-8")
@@ -591,50 +592,52 @@ def add_files_to_git_repository(base_dir, files, description):
         return
 
     # find out root directory of repository
-    gitRoot = subprocess.Popen(
+    gitRoot = subprocess.run(
         ["git", "rev-parse", "--show-toplevel"],
         cwd=base_dir,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
+        universal_newlines=True,
     )
-    stdout = gitRoot.communicate()[0]
     if gitRoot.returncode != 0:
         printOut(
             "Cannot commit results to repository: git rev-parse failed, perhaps output path is not a git directory?"
         )
         return
-    gitRootDir = decode_to_string(stdout).splitlines()[0]
+    gitRootDir = gitRoot.stdout.splitlines()[0]
 
     # check whether repository is clean
-    gitStatus = subprocess.Popen(
+    gitStatus = subprocess.run(
         ["git", "status", "--porcelain", "--untracked-files=no"],
         cwd=gitRootDir,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
+        universal_newlines=True,
     )
-    (stdout, stderr) = gitStatus.communicate()
     if gitStatus.returncode != 0:
-        printOut("Git status failed! Output was:\n" + decode_to_string(stderr))
+        printOut("Git status failed! Output was:\n" + gitStatus.stderr)
         return
 
-    if stdout:
+    if gitStatus.stdout:
         printOut("Git repository has local changes, not commiting results.")
         return
 
     # add files to staging area
     files = [os.path.realpath(file) for file in files]
     # Use --force to add all files in result-files directory even if .gitignore excludes them
-    gitAdd = subprocess.Popen(["git", "add", "--force", "--"] + files, cwd=gitRootDir)
-    if gitAdd.wait() != 0:
+    gitAdd = subprocess.run(["git", "add", "--force", "--"] + files, cwd=gitRootDir)
+    if gitAdd.returncode != 0:
         printOut("Git add failed, will not commit results!")
         return
 
     # commit files
     printOut("Committing results files to git repository in " + gitRootDir)
-    gitCommit = subprocess.Popen(
-        ["git", "commit", "--file=-", "--quiet"], cwd=gitRootDir, stdin=subprocess.PIPE
+    gitCommit = subprocess.run(
+        ["git", "commit", "--file=-", "--quiet"],
+        input=description,
+        cwd=gitRootDir,
+        universal_newlines=True,
     )
-    gitCommit.communicate(description.encode("UTF-8"))
     if gitCommit.returncode != 0:
         printOut("Git commit failed!")
         return
@@ -716,12 +719,12 @@ def get_capability(filename):
         res["error"] = True
         logging.warning("Unable to find capabilities for %s", filename)
         return res
-    cap_t = libcap.cap_get_file(ctypes.create_string_buffer(filename.encode("utf-8")))
+    cap_t = libcap.cap_get_file(ctypes.create_string_buffer(filename.encode()))
     libcap.cap_to_text.restype = ctypes.c_char_p
     cap_object = libcap.cap_to_text(cap_t, None)
     libcap.cap_free(cap_t)
     if cap_object is not None:
-        cap_string = cap_object.decode("utf-8")
+        cap_string = cap_object.decode()
         res["capabilities"] = (cap_string.split("+")[0])[2:].split(",")
         res["set"] = list(cap_string.split("+")[1])
     return res
@@ -733,7 +736,9 @@ def check_msr():
     benchexec has the read and write permissions for msr.
     """
     res = {"loaded": False, "write": False, "read": False}
-    loaded_modules = subprocess.check_output(["lsmod"]).decode("utf-8").split("\n")
+    loaded_modules = subprocess.check_output(
+        ["lsmod"], universal_newlines=True
+    ).splitlines()
 
     if any("msr" in module for module in loaded_modules):
         res["loaded"] = True

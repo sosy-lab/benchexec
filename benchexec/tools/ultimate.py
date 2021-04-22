@@ -118,10 +118,12 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
 
     def _query_ultimate_version(self, cmd, api):
         try:
-            process = subprocess.Popen(
-                cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+            process = subprocess.run(
+                cmd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                universal_newlines=True,
             )
-            (stdout, stderr) = process.communicate()
         except OSError as e:
             logging.warning(
                 "Cannot run Java to determine Ultimate version (API %s): %s",
@@ -129,8 +131,8 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
                 e.strerror,
             )
             return ""
-        stdout = util.decode_to_string(stdout).strip()
-        if stderr or process.returncode:
+        stdout = process.stdout.strip()
+        if process.stderr or process.returncode:
             logging.warning("Cannot determine Ultimate version (API %s)", api)
             logging.debug(
                 "Command was:     %s\n"
@@ -139,7 +141,7 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
                 "Standard output: %s",
                 " ".join(map(util.escape_string_shell, cmd)),
                 process.returncode,
-                util.decode_to_string(stderr),
+                process.stderr,
                 stdout,
             )
             return ""
@@ -480,16 +482,16 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
             if not candidate:
                 continue
             try:
-                process = subprocess.Popen(
+                process = subprocess.run(
                     [candidate, "-version"],
                     stdout=subprocess.PIPE,
                     stderr=subprocess.STDOUT,
+                    universal_newlines=True,
                 )
-                (stdout, stderr) = process.communicate()
             except OSError:
                 continue
 
-            stdout = util.decode_to_string(stdout).strip()
+            stdout = process.stdout.strip()
             if not stdout:
                 continue
             version = re.search(pattern, stdout).groups()[0]

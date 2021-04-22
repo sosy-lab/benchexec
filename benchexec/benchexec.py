@@ -337,31 +337,27 @@ class BenchExec(object):
             self.config,
             self.config.start_time or util.read_local_time(),
         )
-        self.check_existing_results(benchmark)
-
-        self.executor.init(self.config, benchmark)
-        output_handler = OutputHandler(
-            benchmark, self.executor.get_system_info(), self.config.compress_results
-        )
-
-        logging.debug(
-            "I'm benchmarking %r consisting of %s run sets using %s %s.",
-            benchmark_file,
-            len(benchmark.run_sets),
-            benchmark.tool_name,
-            benchmark.tool_version or "(unknown version)",
-        )
-
         try:
-            result = self.executor.execute_benchmark(benchmark, output_handler)
+            self.check_existing_results(benchmark)
+
+            self.executor.init(self.config, benchmark)
+            output_handler = OutputHandler(
+                benchmark, self.executor.get_system_info(), self.config.compress_results
+            )
+            try:
+                logging.debug(
+                    "I'm benchmarking %r consisting of %s run sets using %s %s.",
+                    benchmark_file,
+                    len(benchmark.run_sets),
+                    benchmark.tool_name,
+                    benchmark.tool_version or "(unknown version)",
+                )
+
+                result = self.executor.execute_benchmark(benchmark, output_handler)
+            finally:
+                output_handler.close()
         finally:
             benchmark.tool.close()
-            output_handler.close()
-            # remove useless log folder if it is empty
-            try:
-                os.rmdir(benchmark.log_folder)
-            except OSError:
-                pass
 
         if self.config.commit and not self.stopped_by_interrupt:
             try:
