@@ -127,7 +127,7 @@ def format_number(number, number_of_digits):
     """
     if number is None:
         return ""
-    return "%.{0}f".format(number_of_digits) % number
+    return f"{number:.{number_of_digits}f}"
 
 
 def parse_int_list(s):
