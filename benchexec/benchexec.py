@@ -56,7 +56,7 @@ class BenchExec(object):
 
         for arg in self.config.files:
             if not os.path.exists(arg) or not os.path.isfile(arg):
-                parser.error("File {0} does not exist.".format(repr(arg)))
+                parser.error(f"File {arg!r} does not exist.")
 
         if os.path.isdir(self.config.output_path):
             self.config.output_path = os.path.normpath(self.config.output_path) + os.sep
