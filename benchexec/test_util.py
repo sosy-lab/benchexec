@@ -5,7 +5,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
 import sys
 import unittest
 from benchexec.util import ProcessExitCode
