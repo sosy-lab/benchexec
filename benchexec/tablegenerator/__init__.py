@@ -1686,15 +1686,12 @@ def main(args=None):
     )
 
     if options.dump_counts:  # print some stats for Buildbot
-        print(
-            "REGRESSIONS {}".format(
-                get_regression_count(rows, options.ignoreFlappingTimeouts)
-            )
-        )
+        print("REGRESSIONS", get_regression_count(rows, options.ignoreFlappingTimeouts))
+
         countsList = get_counts(rows)
         print("STATS")
         for counts in countsList:
-            print(" ".join(str(e) for e in counts))
+            print(*counts)
 
     for f in futures:
         f.result()  # to get any exceptions that may have occurred
