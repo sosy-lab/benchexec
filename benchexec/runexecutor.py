@@ -218,9 +218,8 @@ def main(argv=None):
                 raise ValueError()
         except ValueError:
             parser.error(
-                'Cgroup value "{}" has invalid format, needs to be "subsystem.option=value".'.format(
-                    arg
-                )
+                f'Cgroup value "{arg}" has invalid format, '
+                f'needs to be "subsystem.option=value".'
             )
         cgroup_values[(subsystem, option)] = value
         cgroup_subsystems.add(subsystem)
@@ -432,9 +431,8 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             except OSError as e:
                 cgroups.remove()
                 sys.exit(
-                    '{} for setting cgroup option {}.{} to "{}" (error code {}).'.format(
-                        e.strerror, subsystem, option, value, e.errno
-                    )
+                    f"{e.strerror} for setting cgroup option {subsystem}.{option} "
+                    f'to "{value}" (error code {e.errno}).'
                 )
             logging.debug(
                 'Cgroup value %s.%s was set to "%s", new value is now "%s".',
@@ -752,9 +750,8 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 )
             if not self.cgroups.has_value(subsystem, option):
                 sys.exit(
-                    'Cannot set option "{option}" for subsystem "{subsystem}", it does not exist.'.format(
-                        option=option, subsystem=subsystem
-                    )
+                    f'Cannot set option "{option}" for subsystem "{subsystem}", '
+                    f"it does not exist."
                 )
 
         if files_count_limit is not None:

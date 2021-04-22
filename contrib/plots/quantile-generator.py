@@ -98,20 +98,16 @@ def main(args=None):
         for run_result in run_set_result.results:
             if run_result.score is None:
                 sys.exit(
-                    "No score available for task {0}, "
-                    "cannot produce score-based quantile data.".format(
-                        run_result.task_id
-                    )
+                    f"No score available for task {run_result.task_id}, "
+                    f"cannot produce score-based quantile data."
                 )
 
             if run_result.category == result.CATEGORY_WRONG:
                 start_index += run_result.score
             elif run_result.category == result.CATEGORY_MISSING:
                 sys.exit(
-                    "Property missing for task {0}, "
-                    "cannot produce score-based quantile data.".format(
-                        run_result.task_id
-                    )
+                    f"Property missing for task {run_result.task_id}, "
+                    f"cannot produce score-based quantile data."
                 )
             elif run_result.category == result.CATEGORY_CORRECT:
                 results.append(run_result)

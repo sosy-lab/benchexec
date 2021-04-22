@@ -341,8 +341,8 @@ class BaseTool2(object, metaclass=ABCMeta):
             other_file = benchexec.util.find_executable2(executable_name, dirs, os.F_OK)
             if other_file:
                 raise ToolNotFoundException(
-                    "Could not find executable '{}', but found file '{}' "
-                    "that is not executable.".format(executable_name, other_file)
+                    f"Could not find executable '{executable_name}', "
+                    f"but found file '{other_file}' that is not executable."
                 )
 
             msg = "Could not find executable '{}'. The searched directories were: {}".format(

@@ -183,9 +183,8 @@ def _get_cpu_cores_per_run0(
         for core in unused_cores:
             siblings_of_core.pop(core)
         logging.debug(
-            "Running in no-hyperthreading mode, avoiding the use of CPU cores {}".format(
-                unused_cores
-            )
+            f"Running in no-hyperthreading mode, "
+            f"avoiding the use of CPU cores {unused_cores}"
         )
 
     unit_size = len(next(iter(cores_of_unit.values())))  # Number of units per core
@@ -221,18 +220,19 @@ def _get_cpu_cores_per_run0(
     units_per_run = int(math.ceil(coreLimit_rounded_up / unit_size))
     if units_per_run > 1 and units_per_run * num_of_threads > unit_count:
         sys.exit(
-            "Cannot split runs over multiple CPUs/memory regions and at the same time assign multiple runs to the same CPU/memory region. Please reduce the number of threads to {0}.".format(
-                unit_count // units_per_run
-            )
+            f"Cannot split runs over multiple CPUs/memory regions "
+            f"and at the same time assign multiple runs to the same CPU/memory region. "
+            f"Please reduce the number of threads to {unit_count // units_per_run}."
         )
 
     runs_per_unit = int(math.ceil(num_of_threads / unit_count))
     assert units_per_run == 1 or runs_per_unit == 1
     if units_per_run == 1 and runs_per_unit * coreLimit > unit_size:
         sys.exit(
-            "Cannot run {} benchmarks with {} cores on {} CPUs/memory regions with {} cores, because runs would need to be split across multiple CPUs/memory regions. Please reduce the number of threads.".format(
-                num_of_threads, coreLimit, unit_count, unit_size
-            )
+            f"Cannot run {num_of_threads} benchmarks with {coreLimit} cores "
+            f"on {unit_count} CPUs/memory regions with {unit_size} cores, "
+            f"because runs would need to be split across multiple CPUs/memory regions. "
+            f"Please reduce the number of threads."
         )
 
     # Warn on misuse of hyper-threading
@@ -294,10 +294,11 @@ def _get_cpu_cores_per_run0(
                 core for core in cores_of_unit[unit] if core not in cores
             ]
 
-        assert (
-            len(cores) == coreLimit
-        ), "Wrong number of cores for run {} of {} - previous results: {}, remaining cores per CPU/memory region: {}, current cores: {}".format(
-            run + 1, num_of_threads, result, cores_of_unit, cores
+        assert len(cores) == coreLimit, (
+            f"Wrong number of cores for run {run + 1} of {num_of_threads} "
+            f"- previous results: {result}, "
+            f"remaining cores per CPU/memory region: {cores_of_unit}, "
+            f"current cores: {cores}"
         )
         blocked_cores = cores if need_HT else cores_with_siblings
         assert not used_cores.intersection(blocked_cores)
@@ -372,15 +373,14 @@ def check_memory_size(memLimit, num_of_threads, memoryAssignment, my_cgroups):
         def check_limit(actualLimit):
             if actualLimit < memLimit:
                 sys.exit(
-                    "Cgroups allow only {} bytes of memory to be used, cannot execute runs with {} bytes of memory.".format(
-                        actualLimit, memLimit
-                    )
+                    f"Cgroups allow only {actualLimit} bytes of memory to be used, "
+                    f"cannot execute runs with {memLimit} bytes of memory."
                 )
             elif actualLimit < memLimit * num_of_threads:
                 sys.exit(
-                    "Cgroups allow only {} bytes of memory to be used, not enough for {} benchmarks with {} bytes each. Please reduce the number of threads".format(
-                        actualLimit, num_of_threads, memLimit
-                    )
+                    f"Cgroups allow only {actualLimit} bytes of memory to be used, "
+                    f"not enough for {num_of_threads} benchmarks with {memLimit} bytes "
+                    f"each. Please reduce the number of threads."
                 )
 
         if not os.path.isdir("/sys/devices/system/node/"):
@@ -424,16 +424,14 @@ def check_memory_size(memLimit, num_of_threads, memoryAssignment, my_cgroups):
         totalSize = sum(memSizes[mem] for mem in mems_of_run)
         if totalSize < memLimit:
             sys.exit(
-                "Memory banks {} do not have enough memory for one run, only {} bytes available.".format(
-                    mems_of_run, totalSize
-                )
+                f"Memory banks {mems_of_run} do not have enough memory for one run, "
+                f"only {totalSize} bytes available."
             )
         usedMem[tuple(mems_of_run)] += memLimit
         if usedMem[tuple(mems_of_run)] > totalSize:
             sys.exit(
-                "Memory banks {} do not have enough memory for all runs, only {} bytes available. Please reduce the number of threads.".format(
-                    mems_of_run, totalSize
-                )
+                f"Memory banks {mems_of_run} do not have enough memory for all runs, "
+                f"only {totalSize} bytes available. Please reduce the number of threads."
             )
 
 

@@ -119,12 +119,13 @@ class Tool(OldSymbiotic):
         if run.was_timeout:
             return self._getPhase(run.output)  # generates TIMEOUT(phase)
         elif run.exit_code.signal:
-            return "KILLED (signal {0}, {1})".format(
-                run.exit_code.signal, self._getPhase(run.output)
+            return (
+                f"KILLED (signal {run.exit_code.signal}, {self._getPhase(run.output)})"
             )
         elif run.exit_code.value != 0:
-            return "{0}(returned {1}, {2})".format(
-                result.RESULT_ERROR, run.exit_code.value, self._getPhase(run.output)
+            return (
+                f"{result.RESULT_ERROR}"
+                f"(returned {run.exit_code.value}, {self._getPhase(run.output)})"
             )
 
         return f"{result.RESULT_ERROR}(unknown, {self._getPhase(run.output)})"

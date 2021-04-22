@@ -102,9 +102,7 @@ class Tool(benchexec.tools.template.BaseTool2):
                         options += [data_model_option]
                 else:
                     raise benchexec.tools.template.UnsupportedFeatureException(
-                        "Unsupported data_model '{}' defined for task '{}'".format(
-                            data_model, task
-                        )
+                        f"Unsupported data_model '{data_model}' defined for task '{task}'"
                     )
 
         return options

@@ -300,10 +300,8 @@ def find_executable(program, fallback=None, exitOnError=True, use_current_dir=Tr
     if exitOnError:
         if found_non_executable:
             sys.exit(  # noqa: R503 always raises
-                "Could not find '{0}' executable, "
-                "but found file '{1}' that is not executable.".format(
-                    program, found_non_executable[0]
-                )
+                f"Could not find '{program}' executable, "
+                f"but found file '{found_non_executable[0]}' that is not executable."
             )
         else:
             sys.exit(  # noqa: R503 always raises
@@ -490,9 +488,9 @@ class ProcessExitCode(collections.namedtuple("ProcessExitCode", "raw value signa
             # signal 0 does not exist, this means there was no signal that killed the process
             exitsignal = None
         else:
-            assert returnvalue == 0, "returnvalue {}, although exitsignal is {}".format(
-                returnvalue, exitsignal
-            )
+            assert (
+                returnvalue == 0
+            ), f"returnvalue {returnvalue}, although exitsignal is {exitsignal}"
             returnvalue = None
         return cls(exitcode, returnvalue, exitsignal)
 

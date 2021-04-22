@@ -381,15 +381,13 @@ class BenchExec(object):
         """
         if os.path.exists(benchmark.log_folder):
             sys.exit(
-                "Output directory {0} already exists, will not overwrite existing results.".format(
-                    benchmark.log_folder
-                )
+                f"Output directory {benchmark.log_folder} already exists, "
+                f"will not overwrite existing results."
             )
         if os.path.exists(benchmark.log_zip):
             sys.exit(
-                "Output archive {0} already exists, will not overwrite existing results.".format(
-                    benchmark.log_zip
-                )
+                f"Output archive {benchmark.log_zip} already exists, "
+                f"will not overwrite existing results."
             )
 
     def stop(self):

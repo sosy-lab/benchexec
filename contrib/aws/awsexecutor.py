@@ -322,9 +322,8 @@ def _createArchiveFile(archive_path, abs_base_dir, abs_paths):
                     os.remove(archive_path)
 
                 raise BenchExecException(
-                    "Missing file '{0}', cannot run benchmark without it.".format(
-                        os.path.normpath(file)
-                    )
+                    f"Missing file '{os.path.normpath(file)}', "
+                    f"cannot run benchmark without it."
                 )
 
             if os.path.isdir(file):
@@ -430,9 +429,8 @@ def getToolData(benchmark):
     for file in toolpaths:
         if not os.path.exists(file):
             raise BenchExecException(
-                "Missing file '{0}', not runing benchmark without it.".format(
-                    os.path.normpath(file)
-                )
+                f"Missing file '{os.path.normpath(file)}', "
+                f"not running benchmark without it."
             )
         for glob in benchexec.util.expand_filename_pattern(file, working_dir):
             valid_toolpaths.add(glob)

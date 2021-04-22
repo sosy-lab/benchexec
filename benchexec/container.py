@@ -493,10 +493,9 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
                 mp = mountpoint.decode()
                 raise OSError(
                     e.errno,
-                    "Creating overlay mount for '{}' failed: {}. Please use "
-                    "other directory modes, for example '--read-only-dir {}'.".format(
-                        mp, os.strerror(e.errno), util.escape_string_shell(mp)
-                    ),
+                    f"Creating overlay mount for '{mp}' failed: {os.strerror(e.errno)}. "
+                    f"Please use other directory modes, "
+                    f"for example '--read-only-dir {util.escape_string_shell(mp)}'.",
                 )
 
         elif mode == DIR_HIDDEN:

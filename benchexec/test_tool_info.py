@@ -69,25 +69,14 @@ def print_multiline_list(description, values):
 def print_multiline_text(description, value):
     if value is None:
         print(
-            "{}{}{}: {}None{}".format(
-                COLOR_DESCRIPTION,
-                description,
-                COLOR_DEFAULT,
-                COLOR_WARNING,
-                COLOR_DEFAULT,
-            ),
+            f"{COLOR_DESCRIPTION}{description}{COLOR_DEFAULT}: "
+            f"{COLOR_WARNING}None{COLOR_DEFAULT}",
             file=sys.stderr,
         )
     elif not value.strip():
         print(
-            "{}{}{}: {}“{}”{}".format(
-                COLOR_DESCRIPTION,
-                description,
-                COLOR_DEFAULT,
-                COLOR_WARNING,
-                value,
-                COLOR_DEFAULT,
-            ),
+            f"{COLOR_DESCRIPTION}{description}{COLOR_DEFAULT}: "
+            f"{COLOR_WARNING}“{value}”{COLOR_DEFAULT}",
             file=sys.stderr,
         )
     else:

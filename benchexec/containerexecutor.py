@@ -107,8 +107,8 @@ def handle_basic_container_args(options, parser=None):
         path = os.path.abspath(path)
         if not os.path.isdir(path):
             error_fn(
-                "Cannot specify directory mode for '{}' because it does not exist "
-                "or is no directory.".format(path)
+                f"Cannot specify directory mode for '{path}' "
+                f"because it does not exist or is no directory."
             )
         if path in dir_modes:
             error_fn(f"Cannot specify multiple directory modes for '{path}'.")
@@ -488,9 +488,8 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 for pattern in result_files_patterns:
                     if not pattern:
                         raise ValueError(
-                            "Invalid empty result-files pattern in {}".format(
-                                result_files_patterns
-                            )
+                            f"Invalid empty result-files pattern "
+                            f"in {result_files_patterns}"
                         )
 
                     pattern = os.path.normpath(pattern)

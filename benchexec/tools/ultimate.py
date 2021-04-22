@@ -74,8 +74,9 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
             if "Ultimate" in file_names and "plugins" in dir_names:
                 return exe
             break
-        msg = "ERROR: Did find a Ultimate.py in {} but no 'Ultimate' or no 'plugins' directory besides it".format(
-            os.path.dirname(exe)
+        msg = (
+            f"ERROR: Did find a Ultimate.py in {os.path.dirname(exe)} "
+            f"but no 'Ultimate' or no 'plugins' directory besides it"
         )
         raise ToolNotFoundException(msg)
 
@@ -207,10 +208,8 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
                     executable, options, task, resource_limits
                 )
             msg = (
-                "Unsupported argument combination: "
-                "If you specify {}, you also need to give a toolchain (with '-tc' or '--toolchain')".format(
-                    _OPTION_NO_WRAPPER
-                )
+                f"Unsupported argument combination: If you specify {_OPTION_NO_WRAPPER}, "
+                f"you also need to give a toolchain (with '-tc' or '--toolchain')"
             )
             raise UnsupportedFeatureException(msg)
 
@@ -219,9 +218,10 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
 
         # there is no way to run ultimate; not enough parameters
         msg = (
-            "Unsupported argument combination: You either need a property file or a toolchain option (-tc).\n"
-            "options={}\n"
-            "resource_limits={}".format(options, resource_limits)
+            f"Unsupported argument combination: "
+            f"You either need a property file or a toolchain option (-tc).\n"
+            f"options={options}\n"
+            f"resource_limits={resource_limits}"
         )
         raise UnsupportedFeatureException(msg)
 
@@ -271,18 +271,16 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
                     ]
                 if self.api == 1:
                     raise ValueError(
-                        "Illegal option -ultimatedata for API {} and Ultimate version {}".format(
-                            self.api, self.version(executable)
-                        )
+                        f"Illegal option -ultimatedata for API {self.api} "
+                        f"and Ultimate version {self.version(executable)}"
                     )
             elif "-ultimatedata" in options and "-data" not in options:
                 if self.api == 2:
                     cmdline += ["-data", "@noDefault"]
                 if self.api == 1:
                     raise ValueError(
-                        "Illegal option -ultimatedata for API {} and Ultimate version {}".format(
-                            self.api, self.version(executable)
-                        )
+                        f"Illegal option -ultimatedata for API {self.api} "
+                        f"and Ultimate version {self.version(executable)}"
                     )
         else:
             if "-data" not in options:

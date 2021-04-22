@@ -51,10 +51,11 @@ class Tool1To2:
     def executable(self, tool_locator):
         if tool_locator.tool_directory:
             raise ToolNotFoundException(
-                "Tool-info module for {} does not support parameter --tool-directory. "
-                "Instead, you can add the tool to PATH, "
-                "execute benchexec from the tool directory, "
-                "or upgrade the tool-info module.".format(self._wrapped.name())
+                f"Tool-info module for {self._wrapped.name()} "
+                f"does not support parameter --tool-directory. "
+                f"Instead, you can add the tool to PATH, "
+                f"execute benchexec from the tool directory, "
+                f"or upgrade the tool-info module."
             )
 
         assert tool_locator.use_path and tool_locator.use_current
@@ -96,8 +97,8 @@ def adapt_to_current_version(tool):
         return Tool1To2(tool)
     else:
         raise TypeError(
-            "{} is not a subclass of one of the expected base classes "
-            "in benchexec.tools.template".format(tool.__class__)
+            f"{tool.__class__} is not a subclass of one of the expected base classes "
+            f"in benchexec.tools.template"
         )
 
 

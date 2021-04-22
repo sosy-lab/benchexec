@@ -305,15 +305,15 @@ class Column(object):
         self.max_width = max(title_width, values_width)
 
     def __str__(self):
-        return "{}(title={}, pattern={}, num_of_digits={}, href={}, col_type={}, unit={}, scale_factor={})".format(
-            self.__class__.__name__,
-            self.title,
-            self.pattern,
-            self.number_of_significant_digits,
-            self.href,
-            self.type,
-            self.unit,
-            self.scale_factor,
+        return (
+            f"{self.__class__.__name__}("
+            f"title={self.title}, "
+            f"pattern={self.pattern}, "
+            f"num_of_digits={self.number_of_significant_digits}, "
+            f"href={self.href}, "
+            f"col_type={self.type}, "
+            f"unit={self.unit}, "
+            f"scale_factor={self.scale_factor})"
         )
 
 
@@ -481,9 +481,8 @@ def _get_column_type_heur(column, column_values):
                     column_source_unit = curr_column_unit
                 elif column_source_unit != curr_column_unit:
                     raise util.TableDefinitionError(
-                        "Attribute sourceUnit different from real source unit: {} and {} (in column {})".format(
-                            column_source_unit, curr_column_unit, column.title
-                        )
+                        f"Attribute sourceUnit different from real source unit: "
+                        f"{column_source_unit} and {curr_column_unit} (in column {column.title})"
                     )
                 if column_unit and curr_column_unit != column_unit:
                     if explicit_unit_defined:
@@ -649,11 +648,11 @@ def _get_int_digits(decimal_number_match):
 def _check_unit_consistency(actual_unit, wanted_unit, column):
     if actual_unit and wanted_unit is None:
         raise util.TableDefinitionError(
-            "Trying to convert from one unit to another, but source unit not specified"
-            " (in column {})".format(column.title)
+            f"Trying to convert from one unit to another, "
+            f"but source unit not specified (in column {column.title})"
         )
     elif wanted_unit != actual_unit:
         raise util.TableDefinitionError(
-            "Source value of different unit than specified source unit: " + "{} and {}"
-            " (in column {})".format(actual_unit, wanted_unit, column.title)
+            f"Source value of different unit than specified source unit: "
+            f"{actual_unit} and {wanted_unit} (in column {column.title})"
         )

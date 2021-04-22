@@ -272,9 +272,8 @@ def getToolDataForCloud(benchmark):
     for file in toolpaths:
         if not os.path.exists(file):
             sys.exit(
-                "Missing file '{0}', cannot run benchmark within cloud.".format(
-                    os.path.normpath(file)
-                )
+                f"Missing file '{os.path.normpath(file)}', "
+                f"cannot run benchmark within cloud."
             )
         if os.path.isdir(file) and not os.listdir(file):
             # VCloud can not handle empty directories, lets ignore them
