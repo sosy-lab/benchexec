@@ -189,27 +189,19 @@ def _get_cpu_cores_per_run0(
             )
         )
 
-    unit_size = None  # Number of cores per unit
-    for unit, cores in cores_of_unit.items():
-        if unit_size is None:
-            unit_size = len(cores)
-        elif unit_size != len(cores):
-            sys.exit(
-                "Asymmetric machine architecture not supported: CPU/memory region {0} has {1} cores, but other CPU/memory region has {2} cores.".format(
-                    unit, len(cores), unit_size
-                )
-            )
+    unit_size = len(next(iter(cores_of_unit.values())))  # Number of units per core
+    if any(len(cores) != unit_size for cores in cores_of_unit.values()):
+        sys.exit(
+            "Asymmetric machine architecture not supported: "
+            "CPUs/memory regions with different number of cores."
+        )
 
-    core_size = None  # Number of threads per core
-    for core, siblings in siblings_of_core.items():
-        if core_size is None:
-            core_size = len(siblings)
-        elif core_size != len(siblings):
-            sys.exit(
-                "Asymmetric machine architecture not supported: CPU core {0} has {1} siblings, but other core has {2} siblings.".format(
-                    core, len(siblings), core_size
-                )
-            )
+    core_size = len(next(iter(siblings_of_core.values())))  # Number of threads per core
+    if any(len(siblings) != core_size for siblings in siblings_of_core.values()):
+        sys.exit(
+            "Asymmetric machine architecture not supported: "
+            "CPU cores with different number of sibling cores."
+        )
 
     all_cpus_set = set(allCpus)
     for core, siblings in siblings_of_core.items():
