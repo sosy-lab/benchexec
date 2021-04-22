@@ -412,9 +412,10 @@ class OutputHandler(object):
         runSetInfo = "\n\n"
         if runSet.name:
             runSetInfo += runSet.name + "\n"
-        runSetInfo += "Run set {0} of {1}: skipped {2}\n".format(
+        runSetInfo += "Run set {0} of {1}: skipped {2}".format(
             runSet.index, len(self.benchmark.run_sets), reason or ""
         ).rstrip()
+        runSetInfo += "\n"
         self.txt_file.append(runSetInfo)
 
     def writeRunSetInfoToLog(self, runSet):
