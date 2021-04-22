@@ -69,31 +69,25 @@ rpc:            db files
 netgroup:       files
 automount:      files
 """
-CONTAINER_ETC_PASSWD = """
+CONTAINER_ETC_PASSWD = f"""
 root:x:0:0:root:/root:/bin/bash
-benchexec:x:{uid}:{gid}:benchexec:{home}:/bin/bash
+benchexec:x:{CONTAINER_UID}:{CONTAINER_GID}:benchexec:{CONTAINER_HOME}:/bin/bash
 nobody:x:65534:65534:nobody:/:/bin/false
-""".format(
-    uid=CONTAINER_UID, gid=CONTAINER_GID, home=CONTAINER_HOME
-)
+"""
 
-CONTAINER_ETC_GROUP = """
+CONTAINER_ETC_GROUP = f"""
 root:x:0:
-benchexec:x:{gid}:
+benchexec:x:{CONTAINER_GID}:
 nogroup:x:65534:
-""".format(
-    gid=CONTAINER_GID
-)
+"""
 
-CONTAINER_ETC_HOSTS = """
-127.0.0.1       localhost {host}
+CONTAINER_ETC_HOSTS = f"""
+127.0.0.1       localhost {CONTAINER_HOSTNAME}
 # The following lines are desirable for IPv6 capable hosts
 ::1     localhost ip6-localhost ip6-loopback
 ff02::1 ip6-allnodes
 ff02::2 ip6-allrouters
-""".format(
-    host=CONTAINER_HOSTNAME
-)
+"""
 
 CONTAINER_ETC_FILE_OVERRIDE = {
     b"nsswitch.conf": CONTAINER_ETC_NSSWITCH_CONF,

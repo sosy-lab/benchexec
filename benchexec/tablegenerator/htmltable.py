@@ -65,16 +65,14 @@ def write_html_table(
         out.write("\n")
 
     out.write(
-        """<!DOCTYPE html>
+        f"""<!DOCTYPE html>
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<meta name="generator" content="BenchExec table-generator {version}">
+<meta name="generator" content="BenchExec table-generator {__version__}">
 <title>{title} &ndash; BenchExec results</title>
 
-""".format(
-            title=title, version=__version__
-        )
+"""
     )
     write_tags("style", app_css)
     out.write(
