@@ -25,11 +25,7 @@ import sys
 from ctypes.util import find_library
 import ctypes
 from xml.etree import ElementTree
-
-try:
-    from shlex import quote as escape_string_shell
-except ImportError:
-    from pipes import quote as escape_string_shell  # noqa: F401 @UnusedImport
+from shlex import quote as escape_string_shell  # noqa: F401 @UnusedImport
 
 
 _BYTE_FACTOR = 1000  # byte in kilobyte
