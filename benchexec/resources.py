@@ -152,16 +152,17 @@ def _get_cpu_cores_per_run0(
     @param siblings_of_core: a mapping from each core to a list of sibling cores including the core itself (a sibling is a core sharing the same physical core)
     """
     # First, do some checks whether this algorithm has a chance to work.
-    if coreLimit > len(allCpus):
+    coreCount = len(allCpus)
+    if coreLimit > coreCount:
         sys.exit(
             "Cannot run benchmarks with {0} CPU cores, only {1} CPU cores available.".format(
-                coreLimit, len(allCpus)
+                coreLimit, coreCount
             )
         )
-    if coreLimit * num_of_threads > len(allCpus):
+    if coreLimit * num_of_threads > coreCount:
         sys.exit(
             "Cannot run {0} benchmarks in parallel with {1} CPU cores each, only {2} CPU cores available. Please reduce the number of threads to {3}.".format(
-                num_of_threads, coreLimit, len(allCpus), len(allCpus) // coreLimit
+                num_of_threads, coreLimit, coreCount, coreCount // coreLimit
             )
         )
 
