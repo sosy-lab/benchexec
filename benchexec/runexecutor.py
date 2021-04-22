@@ -293,13 +293,13 @@ def main(argv=None):
     print_optional_result("cputime", "s")
     for key in sorted(result.keys()):
         if key.startswith("cputime-"):
-            print("{}={:.9f}s".format(key, result[key]))
+            print(f"{key}={result[key]:.9f}s")
     print_optional_result("memory", "B")
     print_optional_result("blkio-read", "B")
     print_optional_result("blkio-write", "B")
     energy = intel_cpu_energy.format_energy_results(result.get("cpuenergy"))
     for energy_key, energy_value in energy.items():
-        print("{}={}J".format(energy_key, energy_value))
+        print(f"{energy_key}={energy_value}J")
 
 
 class RunExecutor(containerexecutor.ContainerExecutor):
@@ -673,13 +673,13 @@ class RunExecutor(containerexecutor.ContainerExecutor):
 
         if hardtimelimit is not None:
             if hardtimelimit <= 0:
-                sys.exit("Invalid time limit {0}.".format(hardtimelimit))
+                sys.exit(f"Invalid time limit {hardtimelimit}.")
             if CPUACCT not in self.cgroups:
                 logging.error("Time limit cannot be specified without cpuacct cgroup.")
                 critical_cgroups.add(CPUACCT)
         if softtimelimit is not None:
             if softtimelimit <= 0:
-                sys.exit("Invalid soft time limit {0}.".format(softtimelimit))
+                sys.exit(f"Invalid soft time limit {softtimelimit}.")
             if hardtimelimit and (softtimelimit > hardtimelimit):
                 sys.exit("Soft time limit cannot be larger than the hard time limit.")
             if CPUACCT not in self.cgroups:
@@ -695,7 +695,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 walltimelimit = softtimelimit + _WALLTIME_LIMIT_DEFAULT_OVERHEAD
         else:
             if walltimelimit <= 0:
-                sys.exit("Invalid wall time limit {0}.".format(walltimelimit))
+                sys.exit(f"Invalid wall time limit {walltimelimit}.")
 
         if cores is not None:
             if self.cpus is None:
@@ -712,7 +712,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
 
         if memlimit is not None:
             if memlimit <= 0:
-                sys.exit("Invalid memory limit {0}.".format(memlimit))
+                sys.exit(f"Invalid memory limit {memlimit}.")
             if MEMORY not in self.cgroups:
                 logging.error(
                     "Memory limit specified, but cannot be implemented without cgroup support."
@@ -734,13 +734,11 @@ class RunExecutor(containerexecutor.ContainerExecutor):
 
         if workingDir:
             if not os.path.exists(workingDir):
-                sys.exit("Working directory {0} does not exist.".format(workingDir))
+                sys.exit(f"Working directory {workingDir} does not exist.")
             if not os.path.isdir(workingDir):
-                sys.exit("Working directory {0} is not a directory.".format(workingDir))
+                sys.exit(f"Working directory {workingDir} is not a directory.")
             if not os.access(workingDir, os.X_OK):
-                sys.exit(
-                    "Permission denied for working directory {0}.".format(workingDir)
-                )
+                sys.exit(f"Permission denied for working directory {workingDir}.")
 
         self.cgroups.handle_errors(critical_cgroups)
 
@@ -761,10 +759,10 @@ class RunExecutor(containerexecutor.ContainerExecutor):
 
         if files_count_limit is not None:
             if files_count_limit < 0:
-                sys.exit("Invalid files-count limit {0}.".format(files_count_limit))
+                sys.exit(f"Invalid files-count limit {files_count_limit}.")
         if files_size_limit is not None:
             if files_size_limit < 0:
-                sys.exit("Invalid files-size limit {0}.".format(files_size_limit))
+                sys.exit(f"Invalid files-size limit {files_size_limit}.")
 
         try:
             return self._execute(

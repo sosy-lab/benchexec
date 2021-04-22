@@ -343,7 +343,7 @@ def setup_user_mapping(
     proc_child = os.path.join("/proc", str(pid))
     try:
         # map uid internally to our uid externally
-        uid_map = "{0} {1} 1".format(uid, parent_uid)
+        uid_map = f"{uid} {parent_uid} 1"
         util.write_file(uid_map, proc_child, "uid_map")
     except OSError as e:
         logging.warning("Creating UID mapping into container failed: %s", e)
@@ -358,7 +358,7 @@ def setup_user_mapping(
 
     try:
         # map gid internally to our gid externally
-        gid_map = "{0} {1} 1".format(gid, parent_gid)
+        gid_map = f"{gid} {parent_gid} 1"
         util.write_file(gid_map, proc_child, "gid_map")
     except OSError as e:
         logging.warning("Creating GID mapping into container failed: %s", e)

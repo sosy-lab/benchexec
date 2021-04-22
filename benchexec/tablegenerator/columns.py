@@ -115,7 +115,7 @@ class ColumnMeasureType(object):
         return self._max_decimal_digits
 
     def __str__(self):
-        return "{}({})".format(self._type, self._max_decimal_digits)
+        return f"{self._type}({self._max_decimal_digits})"
 
 
 class Column(object):
@@ -153,9 +153,7 @@ class Column(object):
         # If scaling on the variables is performed, a display unit must be defined, explicitly
         if scale_factor is not None and scale_factor != 1 and unit is None:
             raise util.TableDefinitionError(
-                "Scale factor is defined, but display unit is not (in column {})".format(
-                    title
-                )
+                f"Scale factor is defined, but display unit is not (in column {title})"
             )
 
         self.title = title
@@ -197,7 +195,7 @@ class Column(object):
         title = self.display_title or self.title
         if self.is_numeric() and (self.unit or self.source_unit):
             used_unit = self.unit or self.source_unit
-            return "{} ({})".format(title, used_unit)
+            return f"{title} ({used_unit})"
 
         else:
             return title
@@ -581,7 +579,7 @@ def _get_scale_factor(unit, source_unit, column):
         # If the display unit is different from the source unit, a scale factor must be given explicitly
         raise util.TableDefinitionError(
             "Attribute displayUnit is different from sourceUnit,"
-            + " but scaleFactor is not defined (in column {})".format(column.title)
+            + f" but scaleFactor is not defined (in column {column.title})"
         )
 
 

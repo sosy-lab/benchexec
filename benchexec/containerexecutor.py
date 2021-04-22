@@ -111,7 +111,7 @@ def handle_basic_container_args(options, parser=None):
                 "or is no directory.".format(path)
             )
         if path in dir_modes:
-            error_fn("Cannot specify multiple directory modes for '{}'.".format(path))
+            error_fn(f"Cannot specify multiple directory modes for '{path}'.")
         dir_modes[path] = mode
 
     for path in options.hidden_dir:
@@ -189,18 +189,14 @@ def handle_container_output_args(options, parser):
         result_files_patterns = [os.path.normpath(p) for p in options.result_files if p]
         for pattern in result_files_patterns:
             if pattern.startswith(".."):
-                parser.error(
-                    "Invalid relative result-files pattern '{}'.".format(pattern)
-                )
+                parser.error(f"Invalid relative result-files pattern '{pattern}'.")
     else:
         result_files_patterns = ["."]
 
     output_dir = options.output_directory
     if os.path.exists(output_dir) and not os.path.isdir(output_dir):
         parser.error(
-            "Output directory '{}' must not refer to an existing file.".format(
-                output_dir
-            )
+            f"Output directory '{output_dir}' must not refer to an existing file."
         )
     return {"output_dir": output_dir, "result_files_patterns": result_files_patterns}
 
@@ -285,11 +281,7 @@ def main(argv=None):
     except (BenchExecException, OSError) as e:
         if options.debug:
             logging.exception(e)
-        sys.exit(
-            "Cannot execute {0}: {1}.".format(
-                util.escape_string_shell(options.args[0]), e
-            )
-        )
+        sys.exit(f"Cannot execute {util.escape_string_shell(options.args[0])}: {e}.")
     return result.signal or result.value
 
 
@@ -354,11 +346,9 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             raise ValueError("Need directory mode for '/'.")
         for path, kind in dir_modes.items():
             if kind not in DIR_MODES:
-                raise ValueError(
-                    "Invalid value '{}' for directory '{}'.".format(kind, path)
-                )
+                raise ValueError(f"Invalid value '{kind}' for directory '{path}'.")
             if not os.path.isabs(path):
-                raise ValueError("Invalid non-absolute directory '{}'.".format(path))
+                raise ValueError(f"Invalid non-absolute directory '{path}'.")
             if path == "/proc":
                 raise ValueError("Cannot specify directory mode for /proc.")
         # All dir_modes in dir_modes are sorted by length
@@ -506,9 +496,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                     pattern = os.path.normpath(pattern)
                     if pattern.startswith(".."):
                         raise ValueError(
-                            "Invalid relative result-files pattern '{}'.".format(
-                                pattern
-                            )
+                            f"Invalid relative result-files pattern '{pattern}'."
                         )
 
             return self._start_execution_in_container(
@@ -909,7 +897,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
 
             exitcode, ru_child = pickle.loads(received)
 
-            base_path = "/proc/{}/root".format(child_pid)
+            base_path = f"/proc/{child_pid}/root"
             parent_cleanup = parent_cleanup_fn(
                 parent_setup, util.ProcessExitCode.from_raw(exitcode), base_path
             )

@@ -127,7 +127,7 @@ def execute_benchmark(benchmark, output_handler):
             if STOPPED_BY_INTERRUPT:
                 output_handler.set_error("interrupted")
             else:
-                errorMsg = "Cloud return code: {0}".format(returnCode)
+                errorMsg = f"Cloud return code: {returnCode}"
                 logging.warning(errorMsg)
                 output_handler.set_error(errorMsg)
     else:
@@ -262,7 +262,7 @@ def getToolDataForCloud(benchmark):
 
     workingDir = benchmark.working_directory()
     if not os.path.isdir(workingDir):
-        sys.exit("Missing working directory '{0}', cannot run tool.".format(workingDir))
+        sys.exit(f"Missing working directory '{workingDir}', cannot run tool.")
     logging.debug("Working dir: " + workingDir)
 
     toolpaths = benchmark.required_files()

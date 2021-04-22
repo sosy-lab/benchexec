@@ -34,9 +34,7 @@ class TestCpuCoresPerRun(unittest.TestCase):
             self.assertEqual(
                 expectedResult,
                 result,
-                "Incorrect result for {} cores and {} threads.".format(
-                    coreLimit, num_of_threads
-                ),
+                f"Incorrect result for {coreLimit} cores and {num_of_threads} threads.",
             )
 
     def assertInvalid(self, coreLimit, num_of_threads):

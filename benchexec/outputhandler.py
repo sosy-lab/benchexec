@@ -334,9 +334,7 @@ class OutputHandler(object):
         # write run set name to terminal
         numberOfFiles = len(runSet.runs)
         numberOfFilesStr = (
-            "     (1 file)"
-            if numberOfFiles == 1
-            else "     ({0} files)".format(numberOfFiles)
+            "     (1 file)" if numberOfFiles == 1 else f"     ({numberOfFiles} files)"
         )
         util.printOut(
             "\nexecuting run set"
@@ -615,7 +613,7 @@ class OutputHandler(object):
         lines.append(runSet.simpleLine)
 
         # write endline into txt_file
-        endline = "Run set {0}".format(runSet.index)
+        endline = f"Run set {runSet.index}"
 
         # format time, type is changed from float to string!
         cputime_str = (
@@ -724,7 +722,7 @@ class OutputHandler(object):
             elif title.startswith("mbm"):
                 value_suffix = "B/s"
 
-        value = "{}{}".format(value, value_suffix)
+        value = f"{value}{value_suffix}"
 
         element = ElementTree.Element("column", title=title, value=value)
         if hidden:

@@ -291,7 +291,7 @@ def _prepare_stats(all_column_stats, rows, columns):
     ]
 
     task_counts = (
-        "in total {0} true tasks, {1} false tasks".format(count_true, count_false)
+        f"in total {count_true} true tasks, {count_false} false tasks"
         if count_true or count_false
         else ""
     )

@@ -387,7 +387,7 @@ def getBenchmarkData(benchmark):
             run_definition = {}
 
             # wrap list-elements in quotations-marks if they contain whitespace
-            cmdline = ["'{}'".format(x) if " " in x else x for x in run.cmdline()]
+            cmdline = [f"'{x}'" if " " in x else x for x in run.cmdline()]
             cmdline = " ".join(cmdline)
             log_file = os.path.relpath(run.log_file, benchmark.log_folder)
 
@@ -421,7 +421,7 @@ def getToolData(benchmark):
     working_dir = benchmark.working_directory()
     if not os.path.isdir(working_dir):
         raise BenchExecException(
-            "Missing working directory '{0}', cannot run tool.".format(working_dir)
+            f"Missing working directory '{working_dir}', cannot run tool."
         )
     logging.debug("Working dir: %s", working_dir)
 
@@ -556,7 +556,7 @@ def parse_aws_run_result(values):
 
     def parse_time_value(s):
         if s[-1] != "s":
-            raise ValueError('Cannot parse "{0}" as a time value.'.format(s))
+            raise ValueError(f'Cannot parse "{s}" as a time value.')
         return float(s[:-1])
 
     def set_exitcode(new):
@@ -564,7 +564,7 @@ def parse_aws_run_result(values):
             old = result_values["exitcode"]
             assert (
                 old == new
-            ), "Inconsistent exit codes {} and {} from AWS execution".format(old, new)
+            ), f"Inconsistent exit codes {old} and {new} from AWS execution"
         else:
             result_values["exitcode"] = new
 

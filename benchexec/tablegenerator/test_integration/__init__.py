@@ -184,7 +184,7 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
         # Pretty-print JSON for better diffs
         content = json.dumps(json.loads(content), indent=" ", sort_keys=True)
         content = content.replace(
-            '\n "version": "{}"\n'.format(benchexec.__version__),
+            f'\n "version": "{benchexec.__version__}"\n',
             '\n "version": "(test)"\n',
         )
         return content

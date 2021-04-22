@@ -171,19 +171,13 @@ def load_tool_info(tool_name, config):
             tool_module,
             "\n  ".join(path or "." for path in sys.path),
         )
-        sys.exit(
-            'Unsupported tool "{0}" specified. ImportError: {1}'.format(tool_name, ie)
-        )
+        sys.exit(f'Unsupported tool "{tool_name}" specified. ImportError: {ie}')
     except AttributeError as ae:
         sys.exit(
-            'Unsupported tool "{0}" specified, class "Tool" is missing: {1}'.format(
-                tool_name, ae
-            )
+            f'Unsupported tool "{tool_name}" specified, class "Tool" is missing: {ae}'
         )
     except TypeError as te:
-        sys.exit(
-            'Unsupported tool "{0}" specified. TypeError: {1}'.format(tool_name, te)
-        )
+        sys.exit(f'Unsupported tool "{tool_name}" specified. TypeError: {te}')
     assert isinstance(tool, tooladapter.CURRENT_BASETOOL)
     return tool_module, tool
 
@@ -285,7 +279,7 @@ class Benchmark(object):
         try:
             rootTag = ElementTree.ElementTree().parse(benchmark_file)
         except ElementTree.ParseError as e:
-            sys.exit("Benchmark file {} is invalid: {}".format(benchmark_file, e))
+            sys.exit(f"Benchmark file {benchmark_file} is invalid: {e}")
         if "benchmark" != rootTag.tag:
             sys.exit(
                 "Benchmark file {} is invalid: "
@@ -311,7 +305,7 @@ class Benchmark(object):
                 return util.parse_memory_value(value)
             else:
                 raise ValueError(
-                    "Memory limit must have a unit suffix, e.g., '{} MB'".format(value)
+                    f"Memory limit must have a unit suffix, e.g., '{value} MB'"
                 )
 
         rlimits = {}
@@ -329,7 +323,7 @@ class Benchmark(object):
                 try:
                     rlimits[to_key] = parse_fn(value)
                 except ValueError as e:
-                    sys.exit("Invalid value for {} limit: {}".format(name.lower(), e))
+                    sys.exit(f"Invalid value for {name.lower()} limit: {e}")
                 if rlimits[to_key] <= 0:
                     sys.exit(
                         '{} limit "{}" is invalid, it needs to be a positive number '
@@ -428,9 +422,7 @@ class Benchmark(object):
             ]
             for pattern in self.result_files_patterns:
                 if pattern.startswith(".."):
-                    sys.exit(
-                        "Invalid relative result-files pattern '{}'.".format(pattern)
-                    )
+                    sys.exit(f"Invalid relative result-files pattern '{pattern}'.")
         else:
             # default is "everything below current directory"
             self.result_files_patterns = ["."]
@@ -794,9 +786,7 @@ class RunSet(object):
         )
         if not input_files:
             raise BenchExecException(
-                "Task-definition file {} does not define any input files.".format(
-                    task_def_file
-                )
+                f"Task-definition file {task_def_file} does not define any input files."
             )
         required_files = handle_files_from_task_definition(
             task_def.get("required_files"), task_def_file
@@ -1151,7 +1141,7 @@ class Run(object):
                     tool_status = "KILLED BY SIGNAL " + str(exitcode.signal)
 
                 elif exitcode.value and tool_status != result.RESULT_UNKNOWN:
-                    tool_status = "{} ({})".format(result.RESULT_ERROR, exitcode.value)
+                    tool_status = f"{result.RESULT_ERROR} ({exitcode.value})"
 
         # Tools sometimes produce a result even after violating a resource limit.
         # This should not be counted, so we overwrite the result with TIMEOUT/OOM
@@ -1177,7 +1167,7 @@ class Run(object):
             result.RESULT_LIST_OTHER + [status, "KILLED", "KILLED BY SIGNAL 9"]
         ):
             # timeout/OOM but tool still returned some result
-            status = "{} ({})".format(status, tool_status)
+            status = f"{status} ({tool_status})"
 
         return status
 
@@ -1265,12 +1255,10 @@ class Requirements(object):
             self.cpu_model = config.cpu_model
 
         if self.cpu_cores is not None and self.cpu_cores <= 0:
-            raise Exception(
-                "Invalid value {} for required CPU cores.".format(self.cpu_cores)
-            )
+            raise Exception(f"Invalid value {self.cpu_cores} for required CPU cores.")
 
         if self.memory is not None and self.memory <= 0:
-            raise Exception("Invalid value {} for required memory.".format(self.memory))
+            raise Exception(f"Invalid value {self.memory} for required memory.")
 
     def __str__(self):
         s = ""

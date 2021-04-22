@@ -470,7 +470,7 @@ class Cgroup(object):
         Do not include the subsystem name in the option name.
         Only call this method if the given subsystem is available.
         """
-        assert subsystem in self, "Subsystem {} is missing".format(subsystem)
+        assert subsystem in self, f"Subsystem {subsystem} is missing"
         return util.read_file(self.per_subsystem[subsystem], subsystem + "." + option)
 
     def get_file_lines(self, subsystem, option):

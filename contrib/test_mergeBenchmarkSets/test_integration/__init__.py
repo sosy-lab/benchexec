@@ -51,7 +51,7 @@ class MergeBenchmarkSetsIntegrationTests(unittest.TestCase):
     def assert_content_equals(self, result, expected):
         self.assertTrue(
             filecmp.cmp(result, expected, shallow=False),
-            "Contents of {0} do not match contents of {1}".format(result, expected),
+            f"Contents of {result} do not match contents of {expected}",
         )
 
     def test_no_files(self):

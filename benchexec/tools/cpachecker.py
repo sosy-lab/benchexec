@@ -200,7 +200,7 @@ class Tool(benchexec.tools.template.BaseTool2):
                 if not status:
                     status = newStatus
                 elif newStatus != result.RESULT_UNKNOWN and status != newStatus:
-                    status = "{0} ({1})".format(status, newStatus)
+                    status = f"{status} ({newStatus})"
             elif line == "Finished." and not status:
                 status = result.RESULT_DONE
 

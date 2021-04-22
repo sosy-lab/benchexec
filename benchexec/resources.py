@@ -80,7 +80,7 @@ def get_cpu_cores_per_run(
         # read mapping of core to memory region
         cores_of_memory_region = collections.defaultdict(list)
         for core in allCpus:
-            coreDir = "/sys/devices/system/cpu/cpu{0}/".format(core)
+            coreDir = f"/sys/devices/system/cpu/cpu{core}/"
             memory_regions = _get_memory_banks_listed_in_dir(coreDir)
             if memory_regions:
                 cores_of_memory_region[memory_regions[0]].append(core)
@@ -113,15 +113,13 @@ def get_cpu_cores_per_run(
         for core in allCpus:
             siblings = util.parse_int_list(
                 util.read_file(
-                    "/sys/devices/system/cpu/cpu{0}/topology/thread_siblings_list".format(
-                        core
-                    )
+                    f"/sys/devices/system/cpu/cpu{core}/topology/thread_siblings_list"
                 )
             )
             siblings_of_core[core] = siblings
         logging.debug("Siblings of cores are %s.", siblings_of_core)
     except ValueError as e:
-        sys.exit("Could not read CPU information from kernel: {0}".format(e))
+        sys.exit(f"Could not read CPU information from kernel: {e}")
     return _get_cpu_cores_per_run0(
         coreLimit,
         num_of_threads,
@@ -328,7 +326,7 @@ def get_memory_banks_per_run(coreAssignment, cgroups):
         for cores in coreAssignment:
             mems = set()
             for core in cores:
-                coreDir = "/sys/devices/system/cpu/cpu{0}/".format(core)
+                coreDir = f"/sys/devices/system/cpu/cpu{core}/"
                 mems.update(_get_memory_banks_listed_in_dir(coreDir))
             allowedMems = sorted(mems.intersection(allMems))
             logging.debug(
@@ -349,7 +347,7 @@ def get_memory_banks_per_run(coreAssignment, cgroups):
             # because this system has no NUMA support
             return None
     except ValueError as e:
-        sys.exit("Could not read memory information from kernel: {0}".format(e))
+        sys.exit(f"Could not read memory information from kernel: {e}")
 
 
 def _get_memory_banks_listed_in_dir(path):
@@ -415,7 +413,7 @@ def check_memory_size(memLimit, num_of_threads, memoryAssignment, my_cgroups):
 
         memSizes = {mem: _get_memory_bank_size(mem) for mem in allMems}
     except ValueError as e:
-        sys.exit("Could not read memory information from kernel: {0}".format(e))
+        sys.exit(f"Could not read memory information from kernel: {e}")
 
     # Check whether enough memory is allocatable on the assigned memory banks.
     # As the sum of the sizes of the memory banks is at most the total size of memory in the system,
@@ -441,7 +439,7 @@ def check_memory_size(memLimit, num_of_threads, memoryAssignment, my_cgroups):
 
 def _get_memory_bank_size(memBank):
     """Get the size of a memory bank in bytes."""
-    fileName = "/sys/devices/system/node/node{0}/meminfo".format(memBank)
+    fileName = f"/sys/devices/system/node/node{memBank}/meminfo"
     size = None
     with open(fileName) as f:
         for line in f:
@@ -449,27 +447,25 @@ def _get_memory_bank_size(memBank):
                 size = line.split(":")[1].strip()
                 if size[-3:] != " kB":
                     raise ValueError(
-                        '"{}" in file {} is not a memory size.'.format(size, fileName)
+                        f'"{size}" in file {fileName} is not a memory size.'
                     )
                 # kernel uses KiB but names them kB, convert to Byte
                 size = int(size[:-3]) * 1024
                 logging.debug("Memory bank %s has size %s bytes.", memBank, size)
                 return size
-    raise ValueError("Failed to read total memory from {}.".format(fileName))
+    raise ValueError(f"Failed to read total memory from {fileName}.")
 
 
 def get_cpu_package_for_core(core):
     """Get the number of the physical package (socket) a core belongs to."""
     return int(
         util.read_file(
-            "/sys/devices/system/cpu/cpu{0}/topology/physical_package_id".format(core)
+            f"/sys/devices/system/cpu/cpu{core}/topology/physical_package_id"
         )
     )
 
 
 def get_cores_of_same_package_as(core):
     return util.parse_int_list(
-        util.read_file(
-            "/sys/devices/system/cpu/cpu{0}/topology/core_siblings_list".format(core)
-        )
+        util.read_file(f"/sys/devices/system/cpu/cpu{core}/topology/core_siblings_list")
     )

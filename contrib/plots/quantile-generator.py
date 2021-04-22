@@ -29,7 +29,7 @@ def get_extract_value_function(column_identifier):
                 pos = i
                 break
         if pos is None:
-            sys.exit("CPU time missing for task {0}.".format(run_result.task_id))
+            sys.exit(f"CPU time missing for task {run_result.task_id}.")
         return util.to_decimal(run_result.values[pos])
 
     return extract_value

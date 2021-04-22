@@ -55,7 +55,7 @@ class Tool(benchexec.tools.template.BaseTool):
             else:
                 status = "KILLED BY SIGNAL 9"
         elif returncode != 0:
-            status = "ERROR ({0})".format(returncode)
+            status = f"ERROR ({returncode})"
         else:
             status = "FAILURE"
 

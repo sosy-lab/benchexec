@@ -163,9 +163,7 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
             launcher_jar = os.path.join(ultimate_dir, jar)
             if os.path.isfile(launcher_jar):
                 return launcher_jar
-        raise FileNotFoundError(
-            "No suitable launcher jar found in {0}".format(ultimate_dir)
-        )
+        raise FileNotFoundError(f"No suitable launcher jar found in {ultimate_dir}")
 
     @functools.lru_cache()
     def version(self, executable):

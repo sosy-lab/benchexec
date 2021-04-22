@@ -49,7 +49,7 @@ class Tool(benchexec.tools.template.BaseTool):
                 if "timeout" in line.lower():
                     return "TIMEOUT"
                 else:
-                    return "ERROR ({0})".format(returncode)
+                    return f"ERROR ({returncode})"
             elif line.startswith("TBF") and "FALSE" in line:
                 return result.RESULT_FALSE_REACH
             elif line.startswith("TBF") and "TRUE" in line:

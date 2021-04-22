@@ -79,7 +79,7 @@ class Tool(benchexec.tools.template.BaseTool2):
                 elif line.find("overflow") != -1:
                     return result.RESULT_FALSE_OVERFLOW
                 else:
-                    return "ERROR ({0})".format(run.exit_code.value)
+                    return f"ERROR ({run.exit_code.value})"
             if line.startswith("KLEE: done"):
                 return result.RESULT_DONE
         return result.RESULT_UNKNOWN

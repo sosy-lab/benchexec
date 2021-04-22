@@ -187,18 +187,18 @@ def is_turbo_boost_enabled():
             boost_enabled = int(util.read_file(_TURBO_BOOST_FILE))
             if not (0 <= boost_enabled <= 1):
                 raise ValueError(
-                    "Invalid value {} for turbo boost activation".format(boost_enabled)
+                    f"Invalid value {boost_enabled} for turbo boost activation"
                 )
             return boost_enabled != 0
         if os.path.exists(_TURBO_BOOST_FILE_PSTATE):
             boost_disabled = int(util.read_file(_TURBO_BOOST_FILE_PSTATE))
             if not (0 <= boost_disabled <= 1):
                 raise ValueError(
-                    "Invalid value {} for turbo boost activation".format(boost_disabled)
+                    f"Invalid value {boost_disabled} for turbo boost activation"
                 )
             return boost_disabled != 1
     except ValueError as e:
-        sys.exit("Could not read turbo-boost information from kernel: {0}".format(e))
+        sys.exit(f"Could not read turbo-boost information from kernel: {e}")
 
 
 def has_swap():

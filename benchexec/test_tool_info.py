@@ -61,11 +61,9 @@ def print_list(description, value):
 
 
 def print_multiline_list(description, values):
-    print(
-        "{}{}{}:".format(COLOR_DESCRIPTION, description, COLOR_DEFAULT), file=sys.stderr
-    )
+    print(f"{COLOR_DESCRIPTION}{description}{COLOR_DEFAULT}:", file=sys.stderr)
     for value in values:
-        print("\t“{}{}{}”".format(COLOR_VALUE, value, COLOR_DEFAULT), file=sys.stderr)
+        print(f"\t“{COLOR_VALUE}{value}{COLOR_DEFAULT}”", file=sys.stderr)
 
 
 def print_multiline_text(description, value):
@@ -94,11 +92,11 @@ def print_multiline_text(description, value):
         )
     else:
         print(
-            "{}{}{}:".format(COLOR_DESCRIPTION, description, COLOR_DEFAULT),
+            f"{COLOR_DESCRIPTION}{description}{COLOR_DEFAULT}:",
             file=sys.stderr,
         )
         for line in value.splitlines():
-            print("\t{}{}{}".format(COLOR_VALUE, line, COLOR_DEFAULT), file=sys.stderr)
+            print(f"\t{COLOR_VALUE}{line}{COLOR_DEFAULT}", file=sys.stderr)
 
 
 @contextlib.contextmanager
@@ -176,17 +174,14 @@ def print_tool_info(tool, tool_locator):
     if new_environment:
         print_multiline_list(
             "Additional environment variables",
-            (
-                "{}={}".format(variable, value)
-                for (variable, value) in new_environment.items()
-            ),
+            (f"{variable}={value}" for (variable, value) in new_environment.items()),
         )
     append_environment = environment.pop("additionalEnv", {})
     if append_environment:
         print_multiline_list(
             "Appended environment variables",
             (
-                "{}=${{{}}}{}".format(variable, variable, value)
+                f"{variable}=${{{variable}}}{value}"
                 for (variable, value) in append_environment.items()
             ),
         )

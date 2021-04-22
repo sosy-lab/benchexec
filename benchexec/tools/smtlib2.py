@@ -41,6 +41,6 @@ class Smtlib2Tool(benchexec.tools.template.BaseTool):
         elif returnsignal == 15:
             status = "KILLED"
         else:
-            status = "ERROR ({0})".format(returncode)
+            status = f"ERROR ({returncode})"
 
         return status

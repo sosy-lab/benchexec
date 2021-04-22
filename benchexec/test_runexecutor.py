@@ -157,19 +157,19 @@ class TestRunExecutor(unittest.TestCase):
                 self.assertRegex(
                     key,
                     "^cputime-cpu[0-9]+$",
-                    "unexpected result entry '{}={}'".format(key, result[key]),
+                    f"unexpected result entry '{key}={result[key]}'",
                 )
             elif key.startswith("cpuenergy-"):
                 self.assertRegex(
                     key,
                     "^cpuenergy-pkg[0-9]+-(package|core|uncore|dram|psys)$",
-                    "unexpected result entry '{}={}'".format(key, result[key]),
+                    f"unexpected result entry '{key}={result[key]}'",
                 )
             else:
                 self.assertIn(
                     key,
                     expected_keys,
-                    "unexpected result entry '{}={}'".format(key, result[key]),
+                    f"unexpected result entry '{key}={result[key]}'",
                 )
 
     def check_exitcode(self, result, exitcode, msg=None):
@@ -675,11 +675,11 @@ class TestRunExecutor(unittest.TestCase):
         temp_dir = output[-1].split(" ")[1]
         self.assertFalse(
             os.path.exists(home_dir),
-            "temporary home directory {} was not cleaned up".format(home_dir),
+            f"temporary home directory {home_dir} was not cleaned up",
         )
         self.assertFalse(
             os.path.exists(temp_dir),
-            "temporary temp directory {} was not cleaned up".format(temp_dir),
+            f"temporary temp directory {temp_dir} was not cleaned up",
         )
 
     def test_home_is_writable(self):
@@ -689,7 +689,7 @@ class TestRunExecutor(unittest.TestCase):
         self.check_exitcode(
             result,
             0,
-            "Failed to write to $HOME/TEST_FILE, output was\n{}".format(output),
+            f"Failed to write to $HOME/TEST_FILE, output was\n{output}",
         )
 
     def test_no_cleanup_temp(self):
@@ -798,7 +798,7 @@ class TestRunExecutorWithContainer(TestRunExecutor):
         try:
             container.execute_in_namespace(lambda: 0)
         except OSError as e:
-            self.skipTest("Namespaces not supported: {}".format(os.strerror(e.errno)))
+            self.skipTest(f"Namespaces not supported: {os.strerror(e.errno)}")
 
         dir_modes = kwargs.pop(
             "dir_modes",
@@ -1031,7 +1031,7 @@ class TestRunExecutorWithContainer(TestRunExecutor):
             )
             temp_file = os.path.join(temp_dir, "TEST_FILE")
             result, output = self.execute_run(
-                "/bin/sh", "-c", "echo TEST_TOKEN > '{}'".format(temp_file)
+                "/bin/sh", "-c", f"echo TEST_TOKEN > '{temp_file}'"
             )
             self.check_result_keys(result)
             self.check_exitcode(result, 0, "exit code of process is not 0")
@@ -1054,7 +1054,7 @@ class TestRunExecutorWithContainer(TestRunExecutor):
         self.check_exitcode(result, 0, "exit code for reading uptime is not zero")
         uptime = float(output[-1].split(" ")[0])
         self.assertLessEqual(
-            uptime, 10, "Uptime %ss unexpectedly high in container" % uptime
+            uptime, 10, f"Uptime {uptime}s unexpectedly high in container"
         )
 
     def test_uptime_without_lxcfs(self):
@@ -1068,7 +1068,7 @@ class TestRunExecutorWithContainer(TestRunExecutor):
         uptime = float(output[-1].split(" ")[0])
         # If uptime was less than 10s, LXCFS probably was in use
         self.assertGreaterEqual(
-            uptime, 10, "Uptime %ss unexpectedly low in container" % uptime
+            uptime, 10, f"Uptime {uptime}s unexpectedly low in container"
         )
 
 
