@@ -205,10 +205,11 @@ def _get_cpu_cores_per_run0(
     for core, siblings in siblings_of_core.items():
         siblings_set = set(siblings)
         if not siblings_set.issubset(all_cpus_set):
+            unusable_cores = siblings_set.difference(all_cpus_set)
             sys.exit(
-                "Core assignment is unsupported because siblings {0} of core {1} are not usable. Please always make all virtual cores of a physical core available.".format(
-                    siblings_set.difference(all_cpus_set), core
-                )
+                f"Core assignment is unsupported because siblings {unusable_cores} "
+                f"of core {core} are not usable. "
+                f"Please always make all virtual cores of a physical core available."
             )
 
     # Second, compute some values we will need.

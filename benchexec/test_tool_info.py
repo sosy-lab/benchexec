@@ -42,16 +42,10 @@ else:
 
 
 def print_value(description, value, extra_line=False):
+    sep = "\n\t" if extra_line else " "
     print(
-        "{}{}{}:{}“{}{}{}”".format(
-            COLOR_DESCRIPTION,
-            description,
-            COLOR_DEFAULT,
-            "\n\t" if extra_line else " ",
-            COLOR_VALUE,
-            value,
-            COLOR_DEFAULT,
-        ),
+        f"{COLOR_DESCRIPTION}{description}{COLOR_DEFAULT}:{sep}"
+        f"“{COLOR_VALUE}{value}{COLOR_DEFAULT}”",
         file=sys.stderr,
     )
 

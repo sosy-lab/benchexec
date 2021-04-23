@@ -856,12 +856,12 @@ class TestRunExecutorWithContainer(TestRunExecutor):
                 output_dir=output_dir,
                 result_files_patterns=result_files_patterns,
             )
+            output_str = "\n".join(output)
             self.assertEqual(
                 result["exitcode"].value,
                 0,
-                "exit code of {} is not zero,\nresult was {!r},\noutput was\n{}".format(
-                    " ".join(shell_cmd), result, "\n".join(output)
-                ),
+                f"exit code of {' '.join(shell_cmd)} is not zero,\n"
+                f"result was {result!r},\noutput was\n{output_str}",
             )
             result_files = []
             for root, _unused_dirs, files in os.walk(output_dir):
@@ -874,8 +874,8 @@ class TestRunExecutorWithContainer(TestRunExecutor):
             self.assertListEqual(
                 result_files,
                 expected_result_files,
-                "\nList of retrieved result files differs from expected list,\n"
-                "result was {!r},\noutput was\n{}".format(result, "\n".join(output)),
+                f"\nList of retrieved result files differs from expected list,\n"
+                f"result was {result!r},\noutput was\n{output_str}",
             )
         finally:
             shutil.rmtree(output_dir, ignore_errors=True)

@@ -702,11 +702,8 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             elif not cores:
                 sys.exit("Cannot execute run without any CPU core.")
             elif not set(cores).issubset(self.cpus):
-                sys.exit(
-                    "Cores {0} are not allowed to be used".format(
-                        list(set(cores).difference(self.cpus))
-                    )
-                )
+                forbidden_cores = list(set(cores).difference(self.cpus))
+                sys.exit(f"Cores {forbidden_cores} are not allowed to be used")
 
         if memlimit is not None:
             if memlimit <= 0:
@@ -724,11 +721,8 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             elif len(memory_nodes) == 0:
                 sys.exit("Cannot execute run without any memory node.")
             elif not set(memory_nodes).issubset(self.memory_nodes):
-                sys.exit(
-                    "Memory nodes {0} are not allowed to be used".format(
-                        list(set(memory_nodes).difference(self.memory_nodes))
-                    )
-                )
+                forbidden_nodes = list(set(memory_nodes).difference(self.memory_nodes))
+                sys.exit(f"Memory nodes {forbidden_nodes} are not allowed to be used")
 
         if workingDir:
             if not os.path.exists(workingDir):
