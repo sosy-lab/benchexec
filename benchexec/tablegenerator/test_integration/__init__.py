@@ -658,7 +658,7 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             output_path="-",
         )
         expected = benchexec.util.read_file(
-            here, "expected", "test.2015-03-03_1613.results.predicateAnalysis" + ".csv"
+            here, "expected", "test.2015-03-03_1613.results.predicateAnalysis.csv"
         )
         # Normalize line endings to avoid problems between OSs as Windows uses \r\n while Unix uses \n
         output = benchexec.tablegenerator.util.normalize_line_endings(output.strip())
