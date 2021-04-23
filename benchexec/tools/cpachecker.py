@@ -191,7 +191,7 @@ class Tool(benchexec.tools.template.BaseTool2):
                         line,
                     )
                     if match:
-                        newStatus += "(" + match.group(1) + ")"
+                        newStatus += f"({match.group(1)})"
                 else:
                     newStatus = result.RESULT_UNKNOWN
 

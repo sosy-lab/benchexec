@@ -267,10 +267,10 @@ class Benchmark(object):
         self.start_time = start_time
         self.instance = start_time.strftime(util.TIMESTAMP_FILENAME_FORMAT)
 
-        self.output_base_name = config.output_path + self.name + "." + self.instance
-        self.log_folder = self.output_base_name + ".logfiles" + os.path.sep
-        self.log_zip = self.output_base_name + ".logfiles.zip"
-        self.result_files_folder = self.output_base_name + ".files"
+        self.output_base_name = f"{config.output_path}{self.name}.{self.instance}"
+        self.log_folder = f"{self.output_base_name}.logfiles{os.path.sep}"
+        self.log_zip = f"{self.output_base_name}.logfiles.zip"
+        self.result_files_folder = f"{self.output_base_name}.files"
 
         # parse XML
         try:
@@ -866,7 +866,7 @@ class RunSet(object):
                 and expected_result.subproperty
                 and "(" in expected_result_filter
             ):
-                expected_result_str += "(" + expected_result.subproperty + ")"
+                expected_result_str += f"({expected_result.subproperty})"
             if expected_result_str != expected_result_filter:
                 logging.debug(
                     "Ignoring run '%s' because "
@@ -946,7 +946,7 @@ class Run(object):
         self.task_options = task_options
         self.runSet = runSet
         self.specific_options = fileOptions  # options that are specific for this run
-        self.log_file = runSet.log_folder + os.path.basename(self.identifier) + ".log"
+        self.log_file = f"{runSet.log_folder}{os.path.basename(self.identifier)}.log"
         self.result_files_folder = os.path.join(
             runSet.result_files_folder, os.path.basename(self.identifier)
         )

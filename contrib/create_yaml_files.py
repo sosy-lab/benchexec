@@ -199,8 +199,8 @@ if __name__ == "__main__":
         yml_content = "format_version: '1.0'\n"
         yml_content += "\n"
         if args.change_filename:
-            yml_content += "# old file name: " + os.path.basename(old_name) + "\n"
-        yml_content += "input_files: '" + task_basename + "'\n"
+            yml_content += f"# old file name: {os.path.basename(old_name)}\n"
+        yml_content += f"input_files: '{task_basename}'\n"
         yml_content += "\n"
 
         task_dir = os.path.dirname(curr_task)
@@ -210,16 +210,16 @@ if __name__ == "__main__":
             yml_content += "properties:\n"
             for prop, expected in sorted(yml_info[1], key=lambda p: p[0][0]):
                 prop_file = _get_prop(prop[0], prop_dir, task_dir)
-                yml_content += "  - property_file: " + prop_file + "\n"
+                yml_content += f"  - property_file: {prop_file}\n"
                 if expected:
-                    yml_content += "    expected_verdict: " + expected + "\n"
+                    yml_content += f"    expected_verdict: {expected}\n"
                 if prop[1]:
-                    yml_content += "    subproperty: " + prop[1] + "\n"
+                    yml_content += f"    subproperty: {prop[1]}\n"
                 if "unreach-call" in prop_file and expected == "false":
                     prop_file = _get_prop(
                         NAME_TO_PROP_AND_SUBPROP["cover-error"][0], prop_dir, task_dir
                     )
-                    yml_content += "  - property_file: " + prop_file + "\n"
+                    yml_content += f"  - property_file: {prop_file}\n"
         yml_file = curr_task[:-2] + ".yml"
         with open(yml_file, "w+") as outp:
             outp.write(yml_content)

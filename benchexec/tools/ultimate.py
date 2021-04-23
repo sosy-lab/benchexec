@@ -174,7 +174,7 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
             return wrapper_version
 
         ultimate_version = self._ultimate_version(executable)
-        return ultimate_version + "-" + wrapper_version
+        return f"{ultimate_version}-{wrapper_version}"
 
     @functools.lru_cache()
     def _is_svcomp17_version(self, executable):

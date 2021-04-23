@@ -76,7 +76,7 @@ class Tool(benchexec.tools.template.BaseTool2):
             pattern = identifier
             if pattern[-1] != ":":
                 pattern += ":"
-            match = re.match("^" + pattern + "([^(]*)", line)
+            match = re.match(f"^{pattern}([^(]*)", line)
             if match and match.group(1):
                 return match.group(1).strip()
         return None

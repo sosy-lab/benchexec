@@ -43,7 +43,7 @@ def _check_null(result, func, arguments):
         return result
 
     func_name = getattr(func, "__name__", "__unknown__")
-    raise OSError(func_name + "(" + ", ".join(map(str, arguments)) + ") returned null")
+    raise OSError(f"{func_name}({', '.join(map(str, arguments))}) returned null")
 
 
 def _load_seccomp():

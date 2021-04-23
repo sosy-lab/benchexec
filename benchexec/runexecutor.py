@@ -279,15 +279,15 @@ def main(argv=None):
 
     def print_optional_result(key, unit="", format_fn=str):
         if key in result:
-            print(key + "=" + format_fn(result[key]) + unit)
+            print(f"{key}={format_fn(result[key])}{unit}")
 
     # output results
     print_optional_result("starttime", unit="", format_fn=datetime.datetime.isoformat)
     print_optional_result("terminationreason")
     if exit_code is not None and exit_code.value is not None:
-        print("returnvalue=" + str(exit_code.value))
+        print(f"returnvalue={exit_code.value}")
     if exit_code is not None and exit_code.signal is not None:
-        print("exitsignal=" + str(exit_code.signal))
+        print(f"exitsignal={exit_code.signal}")
     print_optional_result("walltime", "s")
     print_optional_result("cputime", "s")
     for key in sorted(result.keys()):

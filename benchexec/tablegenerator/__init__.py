@@ -675,7 +675,7 @@ def insert_logfile_names(resultFile, resultElem):
         if "logfile" in sourcefile.attrib:
             log_file = urllib.parse.urljoin(resultFile, sourcefile.get("logfile"))
         else:
-            log_file = log_folder + os.path.basename(sourcefile.get("name")) + ".log"
+            log_file = f"{log_folder}{os.path.basename(sourcefile.get('name'))}.log"
         sourcefile.set("logfile", log_file)
 
 
@@ -1145,7 +1145,7 @@ def format_run_set_attributes_nicely(runSetResults):
         elif allBenchmarkNamesEqual:
             niceName = name
         else:
-            niceName = benchmarkName + "." + name
+            niceName = f"{benchmarkName}.{name}"
 
         runSetResult.attributes["niceName"] = niceName
 
@@ -1644,7 +1644,7 @@ def main(args=None):
                 timestamp = time.strftime(
                     benchexec.util.TIMESTAMP_FILENAME_FORMAT, time.localtime()
                 )
-                name = NAME_START + "." + timestamp
+                name = f"{NAME_START}.{timestamp}"
 
         if inputFiles and not outputPath:
             path = os.path.dirname(inputFiles[0])
