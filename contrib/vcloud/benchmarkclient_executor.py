@@ -263,7 +263,7 @@ def getToolDataForCloud(benchmark):
     workingDir = benchmark.working_directory()
     if not os.path.isdir(workingDir):
         sys.exit(f"Missing working directory '{workingDir}', cannot run tool.")
-    logging.debug("Working dir: " + workingDir)
+    logging.debug("Working dir: %s", workingDir)
 
     toolpaths = benchmark.required_files()
     if benchmark.config.additional_files:
@@ -418,7 +418,7 @@ def parseAndSetCloudWorkerHostInformation(outputDir, output_handler, benchmark):
         else:
             os.remove(filePath)
     except IOError:
-        logging.warning("Host information file not found: " + filePath)
+        logging.warning("Host information file not found: %s", filePath)
 
 
 def parseCloudRunResultFile(filePath):

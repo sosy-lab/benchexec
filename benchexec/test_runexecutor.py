@@ -771,8 +771,8 @@ class TestRunExecutor(unittest.TestCase):
             outer_result, outer_output = self.execute_run(*inner_cmdline)
             inner_output = inner_output_file.read().strip().splitlines()
 
-        logging.info("Outer output:\n" + "\n".join(outer_output))
-        logging.info("Inner output:\n" + "\n".join(inner_output))
+        logging.info("Outer output:\n%s", "\n".join(outer_output))
+        logging.info("Inner output:\n%s", "\n".join(inner_output))
         self.check_result_keys(outer_result, "returnvalue")
         self.check_exitcode(outer_result, 0, "exit code of inner runexec is not zero")
         self.check_command_in_output(inner_output, "/bin/echo TEST_TOKEN")
