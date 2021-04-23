@@ -479,7 +479,7 @@ class ProcessExitCode(collections.namedtuple("ProcessExitCode", "raw value signa
     @classmethod
     def from_raw(cls, exitcode):
         if not (0 <= exitcode < 2 ** 16):
-            raise ValueError("invalid exitcode " + str(exitcode))
+            raise ValueError(f"invalid exitcode {exitcode}")
         # calculation is: exitcode == (returnvalue * 256) + exitsignal
         # highest bit of exitsignal shows only whether a core file was produced, we clear it
         exitsignal = exitcode & 0x7F
@@ -514,9 +514,9 @@ class ProcessExitCode(collections.namedtuple("ProcessExitCode", "raw value signa
 
     def __str__(self):
         return (
-            ("exit signal " + str(self.signal))
+            f"exit signal {self.signal}"
             if self.signal
-            else ("return value " + str(self.value))
+            else f"return value {self.value}"
         )
 
     def __bool__(self):

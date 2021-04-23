@@ -185,13 +185,13 @@ if __name__ == "__main__":
         collisions = _compute_collisions(curr_task, tasks_to_new_names_and_yml)
         counter = 1
         while _compute_collisions(curr_task, tasks_to_new_names_and_yml):
-            curr_task = curr_task[:-2] + "-" + str(counter) + curr_task[-2:]
+            curr_task = f"{curr_task[:-2]}-{counter}{curr_task[-2:]}"
             counter += 1
         tasks_to_new_names_and_yml[old_name][0] = curr_task
         for other in collisions:
             new_name = tasks_to_new_names_and_yml[other][0]
             while _compute_collisions(new_name, tasks_to_new_names_and_yml):
-                new_name = new_name[:-2] + "-" + str(counter) + new_name[-2:]
+                new_name = f"{new_name[:-2]}-{counter}{new_name[-2:]}"
                 counter += 1
             tasks_to_new_names_and_yml[other][0] = new_name
 

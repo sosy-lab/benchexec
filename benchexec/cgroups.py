@@ -170,7 +170,7 @@ def _parse_proc_pid_cgroup(content):
         try:
             path = ownCgroup[2][1:]  # remove leading /
         except IndexError:
-            raise IndexError("index out of range for " + str(ownCgroup))
+            raise IndexError(f"index out of range for {ownCgroup}")
         for subsystem in ownCgroup[1].split(","):
             yield (subsystem, path)
 

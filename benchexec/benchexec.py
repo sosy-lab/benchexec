@@ -507,7 +507,7 @@ def main(benchexec=None, argv=None):
 
         sys.exit(benchexec.start(argv or sys.argv))
     except BenchExecException as e:
-        sys.exit("Error: " + str(e))
+        sys.exit(f"Error: {e}")
 
 
 if __name__ == "__main__":

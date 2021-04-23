@@ -1071,7 +1071,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                     coretime = int(coretime)
                     if coretime != 0:
                         # convert nanoseconds to seconds
-                        result["cputime-cpu" + str(core)] = coretime / 1_000_000_000
+                        result[f"cputime-cpu{core}"] = coretime / 1_000_000_000
                 except (OSError, ValueError) as e:
                     logging.debug(
                         "Could not read CPU time for core %s from kernel: %s", core, e

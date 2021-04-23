@@ -227,7 +227,7 @@ class Column(object):
             number = value
             number_str = util.print_decimal(number)
         else:
-            raise TypeError("Unexpected number type " + str(type(value)))
+            raise TypeError(f"Unexpected number type {type(value)}")
 
         if number.is_nan():
             return "NaN"

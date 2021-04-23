@@ -256,7 +256,7 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
             cmdline += ["-ea"]
 
         if mem_bytes:
-            cmdline += ["-Xmx" + str(mem_bytes)]
+            cmdline += [f"-Xmx{mem_bytes}"]
         cmdline += ["-Xss4m"]
         cmdline += ["-jar", self._get_current_launcher_jar(executable)]
 

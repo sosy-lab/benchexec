@@ -83,7 +83,7 @@ def execute_benchmark(benchmark, output_handler):
         # vcloud_jar is to be set by the calling script, i.e., (vcloud-)benchmark.py
         cmdLine = [
             "java",
-            "-Xmx" + str(heapSize) + "m",
+            f"-Xmx{heapSize}m",
             "-jar",
             vcloud_jar,
             "benchmark",
