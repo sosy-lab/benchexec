@@ -737,10 +737,9 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         for ((subsystem, option), _) in cgroupValues.items():
             if subsystem not in self._cgroup_subsystems:
                 sys.exit(
-                    'Cannot set option "{option}" for subsystem "{subsystem}" that is not enabled. '
-                    'Please specify "--require-cgroup-subsystem {subsystem}".'.format(
-                        option=option, subsystem=subsystem
-                    )
+                    f'Cannot set option "{option}" for subsystem "{subsystem}" '
+                    f"that is not enabled. "
+                    f'Please specify "--require-cgroup-subsystem {subsystem}".'
                 )
             if not self.cgroups.has_value(subsystem, option):
                 sys.exit(

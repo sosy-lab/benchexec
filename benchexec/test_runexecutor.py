@@ -1089,12 +1089,11 @@ class TestRunExecutorUnits(unittest.TestCase):
         invalid_utf8 = b"\xFF"
         with tempfile.NamedTemporaryFile(mode="w+b", delete=False) as report_file:
             with tempfile.NamedTemporaryFile(mode="w+b") as output:
-                output_content = """Dummy output
+                output_content = f"""Dummy output
 # An error report file with more information is saved as:
-# {}
+# {report_file.name}
 More output
-"""
-                output_content = output_content.format(report_file.name).encode()
+""".encode()
                 report_content = b"Report output\nMore lines"
                 output_content += invalid_utf8
                 report_content += invalid_utf8

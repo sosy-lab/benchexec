@@ -152,15 +152,14 @@ def _get_cpu_cores_per_run0(
     coreCount = len(allCpus)
     if coreLimit > coreCount:
         sys.exit(
-            "Cannot run benchmarks with {0} CPU cores, only {1} CPU cores available.".format(
-                coreLimit, coreCount
-            )
+            f"Cannot run benchmarks with {coreLimit} CPU cores, "
+            f"only {coreCount} CPU cores available."
         )
     if coreLimit * num_of_threads > coreCount:
         sys.exit(
-            "Cannot run {0} benchmarks in parallel with {1} CPU cores each, only {2} CPU cores available. Please reduce the number of threads to {3}.".format(
-                num_of_threads, coreLimit, coreCount, coreCount // coreLimit
-            )
+            f"Cannot run {num_of_threads} benchmarks in parallel "
+            f"with {coreLimit} CPU cores each, only {coreCount} CPU cores available. "
+            f"Please reduce the number of threads to {coreCount // coreLimit}."
         )
 
     if not use_hyperthreading:

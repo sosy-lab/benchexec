@@ -408,7 +408,7 @@ def _prepare_stats(all_column_stats, rows, columns):
         stat_rows.append(
             dict(  # noqa: C408
                 id="score",
-                title="score ({0} tasks, max score: {1})".format(len(rows), max_score),
+                title=f"score ({len(rows)} tasks, max score: {max_score})",
                 description=task_counts,
                 content=get_stat_row("score"),
             )

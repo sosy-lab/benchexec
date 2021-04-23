@@ -410,9 +410,10 @@ class OutputHandler(object):
         runSetInfo = "\n\n"
         if runSet.name:
             runSetInfo += runSet.name + "\n"
-        runSetInfo += "Run set {0} of {1}: skipped {2}".format(
-            runSet.index, len(self.benchmark.run_sets), reason or ""
-        ).rstrip()
+        runSetInfo += (
+            f"Run set {runSet.index} of {len(self.benchmark.run_sets)}: "
+            f"skipped {reason or ''}".rstrip()
+        )
         runSetInfo += "\n"
         self.txt_file.append(runSetInfo)
 
@@ -425,12 +426,9 @@ class OutputHandler(object):
         if runSet.name:
             runSetInfo += runSet.name + "\n"
         runSetInfo += (
-            "Run set {0} of {1} with options '{2}' and propertyfile '{3}'\n\n".format(
-                runSet.index,
-                len(self.benchmark.run_sets),
-                " ".join(runSet.options),
-                util.text_or_none(runSet.propertytag),
-            )
+            f"Run set {runSet.index} of {len(self.benchmark.run_sets)} "
+            f"with options '{' '.join(runSet.options)}' and "
+            f"propertyfile '{util.text_or_none(runSet.propertytag)}'\n\n"
         )
 
         titleLine = self.create_output_line(
@@ -468,9 +466,7 @@ class OutputHandler(object):
                 runSet.started_runs = 1
 
             timeStr = time.strftime("%H:%M:%S", time.localtime()) + "   "
-            progressIndicator = " ({0}/{1})".format(
-                runSet.started_runs, len(runSet.runs)
-            )
+            progressIndicator = f" ({runSet.started_runs}/{len(runSet.runs)})"
             terminalTitle = TERMINAL_TITLE.format(runSet.full_name + progressIndicator)
             if self.benchmark.num_of_threads == 1:
                 util.printOut(

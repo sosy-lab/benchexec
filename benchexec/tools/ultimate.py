@@ -320,9 +320,7 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
     def __assert_cmdline(cmdline, mode):
         assert all(
             cmdline
-        ), "cmdline contains empty or None argument when using {} mode: {}".format(
-            mode, str(cmdline)
-        )
+        ), f"cmdline contains empty or None argument when using {mode} mode: {cmdline}"
         pass
 
     def program_files(self, executable):

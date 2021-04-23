@@ -243,8 +243,8 @@ def _register_process_with_cgrulesengd(pid):
             )
             if failure:
                 pass
-                # print('Could not register process to cgrulesndg, error {}. '
-                #      'Probably the daemon will mess up our cgroups.'.format(success))
+                # print(f'Could not register process to cgrulesndg, error {success}. '
+                #      'Probably the daemon will mess up our cgroups.')
     except OSError:
         pass
 

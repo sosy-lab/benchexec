@@ -516,9 +516,7 @@ def _get_column_type_heur(column, column_values):
                 0, dec_digits_before_scale - ceil(log10(column_scale_factor))
             )
 
-            scaled_value = "{0:.{1}f}".format(
-                scaled_value, max_number_of_dec_digits_after_scale
-            )
+            scaled_value = f"{scaled_value:.{max_number_of_dec_digits_after_scale}f}"
             scaled_value_match = REGEX_MEASURE.match(scaled_value)
 
             curr_dec_digits = _get_decimal_digits(
