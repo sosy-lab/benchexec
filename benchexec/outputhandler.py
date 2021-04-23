@@ -169,9 +169,9 @@ class OutputHandler(object):
         Mark the benchmark as erroneous, e.g., because the benchmarking tool crashed.
         The message is intended as explanation for the user.
         """
-        self.xml_header.set("error", msg if msg else "unknown error")
+        self.xml_header.set("error", msg or "unknown error")
         if runSet:
-            runSet.xml.set("error", msg if msg else "unknown error")
+            runSet.xml.set("error", msg or "unknown error")
 
     def store_header_in_xml(self, version, memlimit, timelimit, corelimit):
 

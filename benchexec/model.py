@@ -1262,4 +1262,4 @@ class Requirements(object):
         if self.memory:
             s += " Memory=" + str(self.memory / _BYTE_FACTOR / _BYTE_FACTOR) + " MB"
 
-        return "Requirements:" + (s if s else " None")
+        return f"Requirements: {s or ' None'}"
