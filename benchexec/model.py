@@ -280,7 +280,7 @@ class Benchmark(object):
         if "benchmark" != rootTag.tag:
             sys.exit(
                 f"Benchmark file {benchmark_file} is invalid: "
-                f"It's root element is not named 'benchmark'."
+                f"Its root element is not named 'benchmark'."
             )
 
         # get tool
