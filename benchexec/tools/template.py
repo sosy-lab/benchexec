@@ -345,8 +345,9 @@ class BaseTool2(object, metaclass=ABCMeta):
                     f"but found file '{other_file}' that is not executable."
                 )
 
-            msg = "Could not find executable '{}'. The searched directories were: {}".format(
-                executable_name, "".join("\n  " + d for d in dirs)
+            msg = (
+                f"Could not find executable '{executable_name}'. "
+                f"The searched directories were: " + "".join("\n  " + d for d in dirs)
             )
             if not self.tool_directory:
                 msg += "\nYou can specify the tool's directory with --tool-directory."

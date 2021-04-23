@@ -69,9 +69,8 @@ def get_cpu_cores_per_run(
             invalid_cores = sorted(set(coreSet).difference(set(allCpus)))
             if len(invalid_cores) > 0:
                 raise ValueError(
-                    "The following provided CPU cores are not available: {}".format(
-                        ", ".join(map(str, invalid_cores))
-                    )
+                    "The following provided CPU cores are not available: "
+                    + ", ".join(map(str, invalid_cores))
                 )
             allCpus = [core for core in allCpus if core in coreSet]
 

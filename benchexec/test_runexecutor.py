@@ -1037,9 +1037,7 @@ class TestRunExecutorWithContainer(TestRunExecutor):
             self.check_exitcode(result, 0, "exit code of process is not 0")
             self.assertTrue(
                 os.path.exists(temp_file),
-                "File '{}' not created, output was:{}\n".format(
-                    temp_file, "\n".join(output)
-                ),
+                f"File '{temp_file}' not created, output was:\n" + "\n".join(output),
             )
             with open(temp_file, "r") as f:
                 self.assertEqual(f.read().strip(), "TEST_TOKEN")
