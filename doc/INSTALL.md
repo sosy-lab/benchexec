@@ -13,7 +13,7 @@ SPDX-License-Identifier: Apache-2.0
 
 ### Requirements
 
-- Python 3.5 or newer (will require Python 3.6 [soon](https://github.com/sosy-lab/benchexec/issues/717))
+- Python 3.6 or newer
 - Linux (cf. [Kernel Requirements](#kernel-requirements) below for details)
 - x86 or ARM machine (please [contact us](https://github.com/sosy-lab/benchexec/issues/new) for other architectures)
 

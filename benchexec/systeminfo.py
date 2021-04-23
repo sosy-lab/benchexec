@@ -115,18 +115,17 @@ class CPUThrottleCheck(object):
         Create an instance that monitors the given list of cores (or all CPUs).
         """
         self.cpu_throttle_count = {}
-        cpu_pattern = "[{0}]".format(",".join(map(str, cores))) if cores else "*"
-        for file in glob.glob(
-            "/sys/devices/system/cpu/cpu{}/thermal_throttle/*_throttle_count".format(
-                cpu_pattern
-            )
-        ):
-            try:
-                self.cpu_throttle_count[file] = int(util.read_file(file))
-            except Exception as e:
-                logging.warning(
-                    "Cannot read throttling count of CPU from kernel: %s", e
-                )
+        cores = [str(core) for core in cores] if cores else ["*"]
+        for core in cores:
+            for file in glob.iglob(
+                f"/sys/devices/system/cpu/cpu{core}/thermal_throttle/*_throttle_count"
+            ):
+                try:
+                    self.cpu_throttle_count[file] = int(util.read_file(file))
+                except Exception as e:
+                    logging.warning(
+                        "Cannot read throttling count of CPU from kernel: %s", e
+                    )
 
     def has_throttled(self):
         """

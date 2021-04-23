@@ -25,11 +25,7 @@ import sys
 from ctypes.util import find_library
 import ctypes
 from xml.etree import ElementTree
-
-try:
-    from shlex import quote as escape_string_shell
-except ImportError:
-    from pipes import quote as escape_string_shell  # noqa: F401 @UnusedImport
+from shlex import quote as escape_string_shell  # noqa: F401 @UnusedImport
 
 
 _BYTE_FACTOR = 1000  # byte in kilobyte
@@ -649,8 +645,7 @@ def wildcard_match(word, wildcard):
 
 def read_local_time():
     """Get "aware" datetime.datetime instance with local time (including time zone)."""
-    # On Python 3.6+ can be simplified (cf. test case in test_util.py)
-    return datetime.datetime.now(datetime.timezone.utc).astimezone()
+    return datetime.datetime.now().astimezone()
 
 
 def should_color_output():

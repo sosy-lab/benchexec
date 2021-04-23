@@ -31,7 +31,7 @@ def write_html_table(
     relevant_id_columns,
     output_path,
     common_prefix,
-    **kwargs
+    **kwargs,
 ):
     app_css = [util.read_bundled_file(path + "css") for path in _REACT_FILES]
     app_js = [util.read_bundled_file(path + "js") for path in _REACT_FILES]

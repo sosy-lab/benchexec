@@ -631,7 +631,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         files_size_limit=None,
         error_filename=None,
         write_header=True,
-        **kwargs
+        **kwargs,
     ):
         """
         This function executes a given command with resource limits,
@@ -822,7 +822,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         max_output_size,
         files_count_limit,
         files_size_limit,
-        **kwargs
+        **kwargs,
     ):
         """
         This method executes the command line and waits for the termination of it,
@@ -1083,7 +1083,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                     coretime = int(coretime)
                     if coretime != 0:
                         # convert nanoseconds to seconds
-                        result["cputime-cpu" + str(core)] = coretime / 1000000000
+                        result["cputime-cpu" + str(core)] = coretime / 1_000_000_000
                 except (OSError, ValueError) as e:
                     logging.debug(
                         "Could not read CPU time for core %s from kernel: %s", core, e

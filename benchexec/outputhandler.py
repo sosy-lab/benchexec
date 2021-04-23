@@ -412,9 +412,10 @@ class OutputHandler(object):
         runSetInfo = "\n\n"
         if runSet.name:
             runSetInfo += runSet.name + "\n"
-        runSetInfo += "Run set {0} of {1}: skipped {2}\n".format(
+        runSetInfo += "Run set {0} of {1}: skipped {2}".format(
             runSet.index, len(self.benchmark.run_sets), reason or ""
         ).rstrip()
+        runSetInfo += "\n"
         self.txt_file.append(runSetInfo)
 
     def writeRunSetInfoToLog(self, runSet):
@@ -815,10 +816,10 @@ class OutputHandler(object):
                     if self.compress_results
                     else self.xml_file_names
                 )
+                cmdline = [tableGeneratorPath] + xml_file_names
                 util.printOut(
-                    "In order to get HTML and CSV tables, run\n{0} '{1}'".format(
-                        tableGeneratorPath, "' '".join(xml_file_names)
-                    )
+                    "In order to get HTML and CSV tables, run\n"
+                    + " ".join(map(util.escape_string_shell, cmdline)),
                 )
 
         if isStoppedByInterrupt:

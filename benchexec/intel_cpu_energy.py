@@ -47,7 +47,7 @@ class EnergyMeasurement(object):
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             universal_newlines=True,
-            bufsize=10000,
+            bufsize=10_000,
             preexec_fn=os.setpgrp,  # Prevent delivery of Ctrl+C to subprocess
         )
 
