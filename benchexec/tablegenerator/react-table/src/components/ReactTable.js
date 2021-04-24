@@ -5,7 +5,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { useState, useEffect, memo } from "react";
+import React, { useState, useEffect, useCallback, memo } from "react";
 import ReactTable from "react-table";
 import "react-table/react-table.css";
 import withFixedColumns from "react-table-hoc-fixed-columns";
@@ -65,20 +65,24 @@ const TableRender = (props) => {
 
   function FilterInputField(props) {
     const elementId = props.column.id + "_filter";
-    const filter = props.filter ? props.filter.value : props.filter;
-    let value;
     let typingTimer;
+    let [value, setValue] = useState("");
+
+    useEffect(() => setValue(props.filter ? props.filter.value : ""), [
+      props.filter,
+    ]);
 
     const textPlaceHolder =
-      props.column.id === "id" && disableTaskText
+      props.column.id === "id" && props.disableTaskText
         ? "To edit, please clear task filter in the sidebar"
         : "text";
 
     const onChange = (event) => {
-      value = event.target.value;
+      const newValue = event.target.value;
+      setValue(newValue);
       clearTimeout(typingTimer);
       typingTimer = setTimeout(() => {
-        props.onChange(value);
+        props.onChange(newValue);
         document.getElementById(elementId).focus();
       }, 500);
     };
@@ -87,14 +91,31 @@ const TableRender = (props) => {
       <input
         id={elementId}
         placeholder={props.numeric ? "Min:Max" : textPlaceHolder}
-        defaultValue={value ? value : filter}
+        value={value}
         onChange={onChange}
-        disabled={props.column.id === "id" ? disableTaskText : false}
+        disabled={props.column.id === "id" ? props.disableTaskText : false}
         type="search"
         pattern={props.numeric ? numericPattern : undefined}
       />
     );
   }
+
+  const taskFilterInputField = useCallback(
+    (filterProps) => (
+      <FilterInputField disableTaskText={disableTaskText} {...filterProps} />
+    ),
+    [disableTaskText],
+  );
+
+  const runsetFilterInputField = useCallback(
+    (filterProps) => (
+      <FilterInputField
+        numeric={isNumericColumn(filterProps.column.Header.props.column)}
+        {...filterProps}
+      />
+    ),
+    [],
+  );
 
   // get selected status and category values
   useEffect(() => {
@@ -192,7 +213,7 @@ const TableRender = (props) => {
         filterMethod: (filter, row) => {
           return true;
         },
-        Filter: FilterInputField,
+        Filter: taskFilterInputField,
       },
     ],
   });
@@ -357,9 +378,7 @@ const TableRender = (props) => {
         <StandardCell cell={cell} toggleLinkOverlay={props.toggleLinkOverlay} />
       ),
       filterMethod: () => true,
-      Filter: (filter) => (
-        <FilterInputField numeric={isNumericColumn(column)} {...filter} />
-      ),
+      Filter: runsetFilterInputField,
       sortMethod: isNumericColumn(column) ? numericSortMethod : textSortMethod,
     };
   };
