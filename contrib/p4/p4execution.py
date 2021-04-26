@@ -548,7 +548,24 @@ class P4Execution(object):
 
             option_index += 2
 
+        if "~" in switch_folder:
+            switch_folder = self.extract_path(switch_folder)
+        if "~" in ptf_folder:
+            ptf_folder = self.extract_path(ptf_folder)
+        if "~" in network_config:
+            network_config = self.extract_path(network_config)
+
         return switch_folder, ptf_folder, network_config
+
+    def extract_path(self, path):
+        import subprocess
+
+        split = subprocess.run(["pwd"], capture_output=True).stdout.decode().split("/")
+        home_dir = f"/{split[1]}/{split[2]}"
+
+        new_path = path.replace("~", home_dir)
+
+        return new_path
 
     def stop(self):
         """
