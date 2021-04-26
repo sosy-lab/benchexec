@@ -70,11 +70,11 @@ To run benchexec with p4, there are a few requirements. The first one is to crea
 
 1.	Path to ptf test folder. Format: <option name="switch_folder">path/to/switch_folder</option>
 2.	Path to switch folder. Format <option name="ptf_test_folder">path/to/ptf_test_folder</option>
-3.	Path to network configuration file <option name="network_config">path/tp/network_config_file<option/>
+3.	Path to network configuration file <option name="network_config">path/tp/network_config_file</option>
 
 Finally, the user can define expected results for the test run. If the task is run with the include tag (can be replaced with the withoutfile tag), the user can include an expected results json file. An example of such a file is in `/doc/task_files_expected_results.json`. The format of the file is Modulename.testname. If no modules are defined, the module name is the file name. The test name is the name of the test. For more info, look at [PTF documentation](https://github.com/p4lang/ptf).
 
-A complete example of the xml file is in `/doc/simpleP4Test.XML`. The given example uses a pre-compiled json file for the switch. (Replace with the p4 file to be executed)The switch is a simple ipv4 forward switch from the p4 tutorial. The file also refers to a network configuration file which sets up the configuration as the picture below. Finally, it refers to some simple ipv4 forwarding test.
+A complete example of the xml file is in `contrib/p4/test_unput/simpleP4Test.XML`. The given example uses a pre-compiled json file for the switch. (Replace with the p4 file to be executed)The switch is a simple ipv4 forward switch from the p4 tutorial. The file also refers to a network configuration file which sets up the configuration as the picture below. Finally, it refers to some simple ipv4 forwarding test.
 
 
 ### Network configuration file
@@ -86,6 +86,6 @@ The network configuration file is what defines the test setup. To create such a 
 To run the program, execute the p4-benchmark.py file located in `/contrib`. An example would be:
 
 ```
-sudo python3 contrib/p4-benchmark.py ../doc/simpleP4.XML
+sudo python3 contrib/p4-benchmark.py contrib/p4/test_input/simpleP4Test.XML
 ```
 

@@ -5,16 +5,13 @@
 
 <benchmark tool="p4-test-tool" displayName="P4 test">
     <option name="switch_folder">~/benchexec/contrib/p4/docker_files/switch_bmv2</option>
-    <!-- <option name="ptf_tester_folder">/home/sdn/test_nano_ptf/ptf/ptf_nn/ptf_nn_test/</option> -->
     <option name="ptf_test_folder">~/benchexec/contrib/p4/docker_files/ptf_tester/tests</option>
     <option name="network_config">~/benchexec/contrib/p4/network_config.json</option>
 
     <rundefinition>
         <tasks>
             <!-- <withoutfile>Run 1</withoutfile> -->
-            <include>task_files/expected_results.json</include>
-            <!-- <include>../contrib/p4/test.json</include> -->
-            <!-- <withoutfile>Run 1</withoutfile> -->
+            <include>expected_results.json</include>
         </tasks>
     </rundefinition>
 </benchmark>
