@@ -18,7 +18,3 @@ endif
 
 make run:
 	sudo python3 -m pdb ../p4-benchmark.py ../../doc/simpleP4Test.XML
-
-
-	
-
