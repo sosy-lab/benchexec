@@ -151,7 +151,7 @@ if __name__ == "__main__":
         if task_file[-1] == "c" and (
             glob.glob(task_file[:-1] + "i") or glob.glob(task_file + ".i")
         ):
-            print("Redundant file: ", task_file)
+            print("Redundant file:", task_file)
             continue
         new_task_file, yml_info = handle_c(task_file, args)
         tasks_to_new_names_and_yml[task_file] = [new_task_file, yml_info]

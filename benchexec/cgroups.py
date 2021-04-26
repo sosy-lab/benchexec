@@ -243,8 +243,8 @@ def _register_process_with_cgrulesengd(pid):
             )
             if failure:
                 pass
-                # print('Could not register process to cgrulesndg, error {}. '
-                #      'Probably the daemon will mess up our cgroups.'.format(success))
+                # print(f'Could not register process to cgrulesndg, error {success}. '
+                #      'Probably the daemon will mess up our cgroups.')
     except OSError:
         pass
 
@@ -470,7 +470,7 @@ class Cgroup(object):
         Do not include the subsystem name in the option name.
         Only call this method if the given subsystem is available.
         """
-        assert subsystem in self, "Subsystem {} is missing".format(subsystem)
+        assert subsystem in self, f"Subsystem {subsystem} is missing"
         return util.read_file(self.per_subsystem[subsystem], subsystem + "." + option)
 
     def get_file_lines(self, subsystem, option):
@@ -526,7 +526,7 @@ class Cgroup(object):
         @return cputime usage in seconds
         """
         # convert nano-seconds to seconds
-        return float(self.get_value(CPUACCT, "usage")) / 1000000000
+        return float(self.get_value(CPUACCT, "usage")) / 1_000_000_000
 
     def read_allowed_memory_banks(self):
         """Get the list of all memory banks allowed by this cgroup."""

@@ -34,9 +34,7 @@ class TestCpuCoresPerRun(unittest.TestCase):
             self.assertEqual(
                 expectedResult,
                 result,
-                "Incorrect result for {} cores and {} threads.".format(
-                    coreLimit, num_of_threads
-                ),
+                f"Incorrect result for {coreLimit} cores and {num_of_threads} threads.",
             )
 
     def assertInvalid(self, coreLimit, num_of_threads):
@@ -456,7 +454,7 @@ class TestCpuCoresPerRun_threeCPU_HT(TestCpuCoresPerRun):
         self.assertEqual(
             [[0, 1], [2, 3], [6, 7]],
             result,
-            "Incorrect result for {} cores and {} threads.".format(2, 3),
+            "Incorrect result for 2 cores and 3 threads.",
         )
 
 
@@ -505,7 +503,7 @@ class TestCpuCoresPerRun_quadCPU_HT(TestCpuCoresPerRun):
         self.assertEqual(
             [[0], [32], [48], [16], [8], [40], [56], [24]],
             result,
-            "Incorrect result for {} cores and {} threads.".format(1, 8),
+            "Incorrect result for 1 core and 8 threads.",
         )
 
     def test_quadCPU_HT(self):
@@ -638,7 +636,7 @@ class TestCpuCoresPerRun_dualCPU_no_ht(TestCpuCoresPerRun):
         self.assertEqual(
             results,
             [[0, 9], [8, 10], [15, 21]],
-            "Incorrect result for {} cores and {} threads.".format(2, 3),
+            "Incorrect result for 2 cores and 3 threads.",
         )
 
 

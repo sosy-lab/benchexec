@@ -69,31 +69,25 @@ rpc:            db files
 netgroup:       files
 automount:      files
 """
-CONTAINER_ETC_PASSWD = """
+CONTAINER_ETC_PASSWD = f"""
 root:x:0:0:root:/root:/bin/bash
-benchexec:x:{uid}:{gid}:benchexec:{home}:/bin/bash
+benchexec:x:{CONTAINER_UID}:{CONTAINER_GID}:benchexec:{CONTAINER_HOME}:/bin/bash
 nobody:x:65534:65534:nobody:/:/bin/false
-""".format(
-    uid=CONTAINER_UID, gid=CONTAINER_GID, home=CONTAINER_HOME
-)
+"""
 
-CONTAINER_ETC_GROUP = """
+CONTAINER_ETC_GROUP = f"""
 root:x:0:
-benchexec:x:{gid}:
+benchexec:x:{CONTAINER_GID}:
 nogroup:x:65534:
-""".format(
-    gid=CONTAINER_GID
-)
+"""
 
-CONTAINER_ETC_HOSTS = """
-127.0.0.1       localhost {host}
+CONTAINER_ETC_HOSTS = f"""
+127.0.0.1       localhost {CONTAINER_HOSTNAME}
 # The following lines are desirable for IPv6 capable hosts
 ::1     localhost ip6-localhost ip6-loopback
 ff02::1 ip6-allnodes
 ff02::2 ip6-allrouters
-""".format(
-    host=CONTAINER_HOSTNAME
-)
+"""
 
 CONTAINER_ETC_FILE_OVERRIDE = {
     b"nsswitch.conf": CONTAINER_ETC_NSSWITCH_CONF,
@@ -343,7 +337,7 @@ def setup_user_mapping(
     proc_child = os.path.join("/proc", str(pid))
     try:
         # map uid internally to our uid externally
-        uid_map = "{0} {1} 1".format(uid, parent_uid)
+        uid_map = f"{uid} {parent_uid} 1"
         util.write_file(uid_map, proc_child, "uid_map")
     except OSError as e:
         logging.warning("Creating UID mapping into container failed: %s", e)
@@ -358,7 +352,7 @@ def setup_user_mapping(
 
     try:
         # map gid internally to our gid externally
-        gid_map = "{0} {1} 1".format(gid, parent_gid)
+        gid_map = f"{gid} {parent_gid} 1"
         util.write_file(gid_map, proc_child, "gid_map")
     except OSError as e:
         logging.warning("Creating GID mapping into container failed: %s", e)
@@ -499,10 +493,9 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
                 mp = mountpoint.decode()
                 raise OSError(
                     e.errno,
-                    "Creating overlay mount for '{}' failed: {}. Please use "
-                    "other directory modes, for example '--read-only-dir {}'.".format(
-                        mp, os.strerror(e.errno), util.escape_string_shell(mp)
-                    ),
+                    f"Creating overlay mount for '{mp}' failed: {os.strerror(e.errno)}. "
+                    f"Please use other directory modes, "
+                    f"for example '--read-only-dir {util.escape_string_shell(mp)}'.",
                 )
 
         elif mode == DIR_HIDDEN:

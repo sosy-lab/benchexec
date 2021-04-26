@@ -102,9 +102,7 @@ class Tool(benchexec.tools.template.BaseTool2):
                         options += [data_model_option]
                 else:
                     raise benchexec.tools.template.UnsupportedFeatureException(
-                        "Unsupported data_model '{}' defined for task '{}'".format(
-                            data_model, task
-                        )
+                        f"Unsupported data_model '{data_model}' defined for task '{task}'"
                     )
 
         return options
@@ -200,7 +198,7 @@ class Tool(benchexec.tools.template.BaseTool2):
                 if not status:
                     status = newStatus
                 elif newStatus != result.RESULT_UNKNOWN and status != newStatus:
-                    status = "{0} ({1})".format(status, newStatus)
+                    status = f"{status} ({newStatus})"
             elif line == "Finished." and not status:
                 status = result.RESULT_DONE
 

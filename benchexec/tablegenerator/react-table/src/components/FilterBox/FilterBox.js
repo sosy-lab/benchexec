@@ -60,7 +60,6 @@ export default class FilterBox extends React.PureComponent {
   }
 
   createFiltersFromReactTableStructure(filters) {
-    const start = Date.now();
     if (!filters || !filters.length) {
       return [];
     }
@@ -80,7 +79,6 @@ export default class FilterBox extends React.PureComponent {
       }
       out[tool] = toolArr;
     }
-    console.log(`creation of filter structure took ${Date.now() - start} ms`);
     return out;
   }
 

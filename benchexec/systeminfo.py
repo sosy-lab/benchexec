@@ -115,18 +115,17 @@ class CPUThrottleCheck(object):
         Create an instance that monitors the given list of cores (or all CPUs).
         """
         self.cpu_throttle_count = {}
-        cpu_pattern = "[{0}]".format(",".join(map(str, cores))) if cores else "*"
-        for file in glob.glob(
-            "/sys/devices/system/cpu/cpu{}/thermal_throttle/*_throttle_count".format(
-                cpu_pattern
-            )
-        ):
-            try:
-                self.cpu_throttle_count[file] = int(util.read_file(file))
-            except Exception as e:
-                logging.warning(
-                    "Cannot read throttling count of CPU from kernel: %s", e
-                )
+        cores = [str(core) for core in cores] if cores else ["*"]
+        for core in cores:
+            for file in glob.iglob(
+                f"/sys/devices/system/cpu/cpu{core}/thermal_throttle/*_throttle_count"
+            ):
+                try:
+                    self.cpu_throttle_count[file] = int(util.read_file(file))
+                except Exception as e:
+                    logging.warning(
+                        "Cannot read throttling count of CPU from kernel: %s", e
+                    )
 
     def has_throttled(self):
         """
@@ -188,18 +187,18 @@ def is_turbo_boost_enabled():
             boost_enabled = int(util.read_file(_TURBO_BOOST_FILE))
             if not (0 <= boost_enabled <= 1):
                 raise ValueError(
-                    "Invalid value {} for turbo boost activation".format(boost_enabled)
+                    f"Invalid value {boost_enabled} for turbo boost activation"
                 )
             return boost_enabled != 0
         if os.path.exists(_TURBO_BOOST_FILE_PSTATE):
             boost_disabled = int(util.read_file(_TURBO_BOOST_FILE_PSTATE))
             if not (0 <= boost_disabled <= 1):
                 raise ValueError(
-                    "Invalid value {} for turbo boost activation".format(boost_disabled)
+                    f"Invalid value {boost_disabled} for turbo boost activation"
                 )
             return boost_disabled != 1
     except ValueError as e:
-        sys.exit("Could not read turbo-boost information from kernel: {0}".format(e))
+        sys.exit(f"Could not read turbo-boost information from kernel: {e}")
 
 
 def has_swap():

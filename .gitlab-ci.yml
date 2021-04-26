@@ -59,11 +59,6 @@ stages:
     paths:
       - coverage.xml
 
-unit-tests:python-3.5:
-  <<: *unit-tests
-  variables:
-    PYTHON_VERSION: '3.5'
-
 unit-tests:python-3.6:
   <<: *unit-tests
   variables:
@@ -179,12 +174,6 @@ reuse:
   only:
     - schedules
     - web
-
-build-docker:test:python-3.5:
-  extends: .build-docker
-  variables:
-    DOCKERFILE: test/Dockerfile.python-3.5
-    IMAGE: test:python-3.5
 
 build-docker:test:python-3.6:
   extends: .build-docker

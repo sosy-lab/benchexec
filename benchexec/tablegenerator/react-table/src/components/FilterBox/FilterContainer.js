@@ -88,7 +88,6 @@ export default class FilterContainer extends React.PureComponent {
     const { currentFilters } = this.props;
     if (!equals(prevFilters, currentFilters)) {
       // update set filters
-      console.log("updated container");
       let { filters } = this.state;
       for (const idx in currentFilters) {
         filters[idx] = {

@@ -16,7 +16,7 @@ build-backend = 'setuptools.build_meta'
 [tool.black]
 include = 'bin|\.py$'
 exclude = 'node_modules|\.eggs'
-target-version = ['py35']
+target-version = ['py36']
 
 [tool.coverage.run]
 branch = true

@@ -184,7 +184,7 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
         # Pretty-print JSON for better diffs
         content = json.dumps(json.loads(content), indent=" ", sort_keys=True)
         content = content.replace(
-            '\n "version": "{}"\n'.format(benchexec.__version__),
+            f'\n "version": "{benchexec.__version__}"\n',
             '\n "version": "(test)"\n',
         )
         return content
@@ -658,7 +658,7 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             output_path="-",
         )
         expected = benchexec.util.read_file(
-            here, "expected", "test.2015-03-03_1613.results.predicateAnalysis" + ".csv"
+            here, "expected", "test.2015-03-03_1613.results.predicateAnalysis.csv"
         )
         # Normalize line endings to avoid problems between OSs as Windows uses \r\n while Unix uses \n
         output = benchexec.tablegenerator.util.normalize_line_endings(output.strip())
