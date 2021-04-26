@@ -286,12 +286,6 @@ class P4Execution(object):
                         f"{self.switch_source_path}/{switch.name}/log/switch_log.txt"
                     )
 
-                    # switch_log_file = (
-                    #     self.switch_source_path
-                    #     + "/{0}".format(switch.name)
-                    #     + "/log/switch_log.txt"
-                    # )
-
                     switch_log_file_new = run.log_file[:-4] + f"_{switch.name}.log"
 
                     copyfile(switch_log_file, switch_log_file_new)
@@ -577,9 +571,15 @@ class P4Execution(object):
         """
         Cleans up all the running containers and clear all created namespaces. Should be called when test is done.
         """
-        logging.debug("Closing containers and cleaning up namespace")
+        logging.info("Closing containers and cleaning up namespace")
+        container_threads = []
+
         for container in self.nodes:
-            container.remove(force=True)
+            container_threads.append(
+                threading.Thread(
+                    target=lambda x: x.remove(force=True), args=(container,)
+                )
+            )
             if os.path.islink("/var/run/netns/{0}".format(container.name)):
                 os.remove("/var/run/netns/{0}".format(container.name))
 
@@ -587,15 +587,30 @@ class P4Execution(object):
             if os.path.isdir(self.switch_source_path + "/{0}".format(container.name)):
                 rmtree(self.switch_source_path + "/{0}".format(container.name))
 
-            container.remove(force=True)
+            container_threads.append(
+                threading.Thread(
+                    target=lambda x: x.remove(force=True), args=(container,)
+                )
+            )
             if os.path.islink("/var/run/netns/{0}".format(container.name)):
                 os.remove("/var/run/netns/{0}".format(container.name))
 
         if self.ptf_tester:
-            self.ptf_tester.remove(force=True)
+            container_threads.append(
+                threading.Thread(
+                    target=lambda x: x.remove(force=True), args=(self.ptf_tester,)
+                )
+            )
 
+        [x.start() for x in container_threads]
+        [x.join() for x in container_threads]
+
+        # Remove when all containers are closed
         if self.mgnt_network:
             self.mgnt_network.remove()
+
+    def thread_remove_container(self, container):
+        container.remove(force=True)
 
     def start_containers(self):
         """
