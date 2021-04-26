@@ -72,6 +72,16 @@ To run benchexec with p4, there are a few requirements. The first one is to crea
 2.	Path to switch folder. Format <option name="ptf_test_folder">path/to/ptf_test_folder</option>
 3.	Path to network configuration file <option name="network_config">path/tp/network_config_file</option>
 
+### Switch folder layout
+The switch folder `contrib/p4/docker_files/switch_bmv2` contains 3 folders, log, P4 and tables.
+
+1. Log - used by the program
+2. P4 - This is where the switch expect to find the setup file
+3. This is where the switch will look for the defined table entries
+
+### Writing test for the switch
+The program utilizes PTF to create and handle test. To write your own test, one can look the examples in this repository(`contrib/p4/docker_files/ptf_tester/tests`) or the [PTF documentation](https://github.com/p4lang/ptf)
+
 Finally, the user can define expected results for the test run. If the task is run with the include tag (can be replaced with the withoutfile tag), the user can include an expected results json file. An example of such a file is in `/doc/task_files_expected_results.json`. The format of the file is Modulename.testname. If no modules are defined, the module name is the file name. The test name is the name of the test. For more info, look at [PTF documentation](https://github.com/p4lang/ptf).
 
 A complete example of the xml file is in `contrib/p4/test_unput/simpleP4Test.XML`. The given example uses a pre-compiled json file for the switch. (Replace with the p4 file to be executed)The switch is a simple ipv4 forward switch from the p4 tutorial. The file also refers to a network configuration file which sets up the configuration as the picture below. Finally, it refers to some simple ipv4 forwarding test.
