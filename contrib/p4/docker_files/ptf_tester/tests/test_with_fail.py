@@ -1,9 +1,16 @@
+# SPDX-FileCopyrightText: 2020-2021 CASTOR Software Research Centre
+# <https://www.castor.kth.se/>
+# SPDX-FileCopyrightText: 2020-2021 Johan Paulsson
+
+# SPDX-License-Identifier: Apache-2.0
+
 import ptf
 from ptf.base_tests import BaseTest
 from ptf import config
 import ptf.testutils as testutils
 from scapy.all import *
 import re
+
 
 class DataplaneBaseTest(BaseTest):
     def __init__(self):
@@ -20,12 +27,13 @@ class DataplaneBaseTest(BaseTest):
         if config["log_dir"] != None:
             self.dataplane.stop_pcap()
 
+
 class OneTest(DataplaneBaseTest):
     def __init__(self):
         DataplaneBaseTest.__init__(self)
 
     def runTest(self):
-        #log_to_file("Staring first test")
+        # log_to_file("Staring first test")
         pkt = testutils.simple_tcp_packet(pktlen=100)
         pkt_failed = testutils.simple_tcp_packet(pktlen=11)
 
@@ -33,12 +41,11 @@ class OneTest(DataplaneBaseTest):
             testutils.send_packet(self, (0, 1), pkt)
         except Exception as e:
             print(e)
-        
+
         testutils.verify_packet(self, pkt, (1, 1))
+
 
 def log_to_file(msg):
     f = open("/app/app.log", "a")
     f.write(msg + "\n")
     f.close()
-
-        

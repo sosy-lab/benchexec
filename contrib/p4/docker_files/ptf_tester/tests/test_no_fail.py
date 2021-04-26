@@ -1,3 +1,9 @@
+# SPDX-FileCopyrightText: 2020-2021 CASTOR Software Research Centre
+# <https://www.castor.kth.se/>
+# SPDX-FileCopyrightText: 2020-2021 Johan Paulsson
+
+# SPDX-License-Identifier: Apache-2.0
+
 import ptf
 from ptf.base_tests import BaseTest
 from ptf import config
