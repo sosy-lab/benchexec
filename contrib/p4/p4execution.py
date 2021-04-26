@@ -653,6 +653,8 @@ class P4Execution(object):
             )
 
         for switch in self.switches:
+            switch_config = self.network_config["switches"][switch.name]
+
             switch_command = "simple_switch --log-file /app/log/switch_log --log-flush"
 
             used_ports = self.network_config["switches"][switch.name]["used_ports"]
@@ -661,7 +663,7 @@ class P4Execution(object):
                     " -i {0}@".format(port) + switch.name + "_{0}".format(port)
                 )
 
-            switch_command += " /app/P4/simple_switch.json"
+            switch_command += f" /app/P4/{switch_config['p4_file_name']}"
 
             container_threads.append(
                 threading.Thread(

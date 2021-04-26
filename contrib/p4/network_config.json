@@ -186,6 +186,7 @@
     },
     "switches": {
         "Switch1": {
+            "p4_file_name": "simple_switch.json",
             "table_entries": [
                 "ip_table1.json"
             ],
@@ -196,6 +197,7 @@
             ]
         },
         "Switch2": {
+            "p4_file_name": "simple_switch.json",
             "table_entries": [
                 "ip_table2.json"
             ],
@@ -209,6 +211,7 @@
             ]
         },
         "Switch3": {
+            "p4_file_name": "simple_switch.json",
             "table_entries": [
                 "ip_table3.json"
             ],
@@ -218,6 +221,7 @@
             ]
         },
         "Switch4": {
+            "p4_file_name": "simple_switch.json",
             "table_entries": [
                 "ip_table4.json"
             ],
@@ -227,6 +231,7 @@
             ]
         },
         "Switch5": {
+            "p4_file_name": "simple_switch.json",
             "table_entries": [
                 "ip_table5.json"
             ],
@@ -236,6 +241,7 @@
             ]
         },
         "Switch6": {
+            "p4_file_name": "simple_switch.json",
             "table_entries": [
                 "ip_table6.json"
             ],
