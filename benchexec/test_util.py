@@ -5,7 +5,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
 import sys
 import unittest
 from benchexec.util import ProcessExitCode
@@ -143,13 +142,3 @@ class TestRmtree(unittest.TestCase):
 
     def test_dir_without_any_permissions(self):
         self.create_and_delete_directory(0)
-
-    def test_read_local_time(self):
-        """Test on Python 3.6+ that the fallback for older Pythons does the same."""
-        try:
-            time = datetime.datetime.now().astimezone()  # desired code
-        except (ValueError, TypeError):
-            self.skipTest("datetime.datetime.now().astimezone() not supported")
-
-        time2 = util.read_local_time()  # contains backwards-compatible code
-        self.assertLess(time2 - time, datetime.timedelta(seconds=1))

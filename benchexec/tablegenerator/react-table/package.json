@@ -7,22 +7,22 @@
   "private": true,
   "license": "Apache-2.0",
   "dependencies": {
-    "@babel/runtime": "^7.12.5",
-    "@fortawesome/fontawesome-svg-core": "^1.2.32",
-    "@fortawesome/free-solid-svg-icons": "^5.15.1",
-    "@fortawesome/react-fontawesome": "^0.1.13",
-    "@zip.js/zip.js": "^2.2.12",
-    "classnames": "^2.2.6",
+    "@babel/runtime": "^7.13.17",
+    "@fortawesome/fontawesome-svg-core": "^1.2.35",
+    "@fortawesome/free-solid-svg-icons": "^5.15.3",
+    "@fortawesome/react-fontawesome": "^0.1.14",
+    "@zip.js/zip.js": "^2.2.27",
+    "classnames": "^2.3.1",
     "deep-equal": "^2.0.5",
-    "rc-slider": "^9.6.5",
-    "react": "^17.0.1",
-    "react-dom": "^17.0.1",
-    "react-modal": "^3.12.1",
+    "rc-slider": "^9.7.2",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-modal": "^3.13.1",
     "react-router-dom": "^5.2.0",
     "react-table": "6.11.4",
     "react-table-hoc-fixed-columns": "^2.3.3",
     "react-vis": "^1.11.7",
-    "yaml": "^1.10.0"
+    "yaml": "^1.10.2"
   },
   "engines": {
     "node": ">=12.0.0"
@@ -38,7 +38,7 @@
     "extends": [
       "react-app",
       "plugin:prettier/recommended",
-      "prettier/react"
+      "prettier"
     ],
     "rules": {
       "prettier/prettier": "warn"
@@ -73,15 +73,14 @@
   },
   "devDependencies": {
     "enzyme": "^3.11.0",
-    "enzyme-adapter-react-16": "^1.15.5",
-    "eslint-config-prettier": "^6.15.0",
-    "eslint-plugin-prettier": "^3.2.0",
-    "imports-loader": "^1.2.0",
+    "enzyme-adapter-react-16": "^1.15.6",
+    "eslint-config-prettier": "^8.2.0",
+    "eslint-plugin-prettier": "^3.4.0",
     "license-checker": "^25.0.1",
-    "node-sass": "^4.14.1",
+    "node-sass": "^5.0.0",
     "prettier": "^2.2.1",
-    "react-app-rewired": "^2.1.7",
-    "react-scripts": "4.0.1",
-    "react-test-renderer": "^17.0.1"
+    "react-app-rewired": "^2.1.8",
+    "react-scripts": "4.0.3",
+    "react-test-renderer": "^17.0.2"
   }
 }

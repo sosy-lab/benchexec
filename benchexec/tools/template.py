@@ -140,20 +140,22 @@ class BaseTool2(object, metaclass=ABCMeta):
         @return a (possibly empty) string of output of the tool
         """
         try:
-            process = subprocess.Popen(
-                [executable, arg], stdout=subprocess.PIPE, stderr=subprocess.PIPE
+            process = subprocess.run(
+                [executable, arg],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                universal_newlines=True,
             )
-            (stdout, stderr) = process.communicate()
         except OSError as e:
             logging.warning(
                 "Cannot run %s to determine version: %s", executable, e.strerror
             )
             return ""
-        if stderr and not use_stderr and not ignore_stderr:
+        if process.stderr and not use_stderr and not ignore_stderr:
             logging.warning(
                 "Cannot determine %s version, error output: %s",
                 executable,
-                util.decode_to_string(stderr),
+                process.stderr,
             )
             return ""
         if process.returncode:
@@ -164,7 +166,7 @@ class BaseTool2(object, metaclass=ABCMeta):
             )
             return ""
 
-        output = util.decode_to_string(stderr if use_stderr else stdout).strip()
+        output = (process.stderr if use_stderr else process.stdout).strip()
         if line_prefix:
             matches = (
                 line[len(line_prefix) :].strip()
@@ -339,12 +341,13 @@ class BaseTool2(object, metaclass=ABCMeta):
             other_file = benchexec.util.find_executable2(executable_name, dirs, os.F_OK)
             if other_file:
                 raise ToolNotFoundException(
-                    "Could not find executable '{}', but found file '{}' "
-                    "that is not executable.".format(executable_name, other_file)
+                    f"Could not find executable '{executable_name}', "
+                    f"but found file '{other_file}' that is not executable."
                 )
 
-            msg = "Could not find executable '{}'. The searched directories were: {}".format(
-                executable_name, "".join("\n  " + d for d in dirs)
+            msg = (
+                f"Could not find executable '{executable_name}'. "
+                f"The searched directories were: " + "".join("\n  " + d for d in dirs)
             )
             if not self.tool_directory:
                 msg += "\nYou can specify the tool's directory with --tool-directory."
@@ -385,11 +388,9 @@ class BaseTool2(object, metaclass=ABCMeta):
 
         def __new__(cls, input_files, identifier, property_file, options):
             input_files = tuple(input_files)  # make input_files immutable
-            assert bool(input_files) != bool(
-                identifier
-            ), "exactly one is required: input_files=%r identifier=%r" % (
-                input_files,
-                identifier,
+            assert bool(input_files) != bool(identifier), (
+                f"exactly one is required: "
+                f"input_files={input_files!r} identifier={identifier!r}"
             )
             options = copy.deepcopy(options)  # defensive copy because not immutable
             return super().__new__(cls, input_files, identifier, property_file, options)

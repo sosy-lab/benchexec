@@ -19,7 +19,7 @@ def parse_vcloud_run_result(values):
 
     def parse_time_value(s):
         if s[-1] != "s":
-            raise ValueError('Cannot parse "{0}" as a time value.'.format(s))
+            raise ValueError(f'Cannot parse "{s}" as a time value.')
         return float(s[:-1])
 
     def set_exitcode(new):
@@ -27,7 +27,7 @@ def parse_vcloud_run_result(values):
             old = result_values["exitcode"]
             assert (
                 old == new
-            ), "Inconsistent exit codes {} and {} from VerifierCloud".format(old, new)
+            ), f"Inconsistent exit codes {old} and {new} from VerifierCloud"
         else:
             result_values["exitcode"] = new
 
@@ -76,9 +76,7 @@ def parse_frequency_value(s):
     elif unit == "GHz":
         return int(number * 1000 * 1000 * 1000)
     else:
-        raise ValueError(
-            "unknown unit: {} (allowed are Hz, kHz, MHz, and GHz)".format(unit)
-        )
+        raise ValueError(f"unknown unit: {unit} (allowed are Hz, kHz, MHz, and GHz)")
 
 
 def is_windows():

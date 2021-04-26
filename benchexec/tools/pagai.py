@@ -30,7 +30,7 @@ class Tool(benchexec.tools.template.BaseTool):
         elif "RESULT: TRUE" in output:
             status = result.RESULT_TRUE_PROP
         elif returncode != 0:
-            status = "ERROR ({0})".format(returncode)
+            status = f"ERROR ({returncode})"
         elif "RESULT: UNKNOWN" in output:
             status = result.RESULT_UNKNOWN
         else:

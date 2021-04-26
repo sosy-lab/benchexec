@@ -37,7 +37,7 @@ class Tool(benchexec.tools.template.BaseTool2):
                 # so we set value of 0 explicitly (means unlimited)
                 options += ["-t", "0"]
             else:
-                options += ["-t", "{}s".format(rlimits.walltime)]
+                options += ["-t", f"{rlimits.walltime}s"]
 
         if "-m" not in options and "--memory_limit" not in options:
             if rlimits.memory:

@@ -1023,11 +1023,11 @@ def filter_rows_with_differences(rows):
         return []
 
     def get_index_of_column(name, cols):
-        assert cols, "Cannot look for column '{}' in empy column list".format(name)
+        assert cols, f"Cannot look for column '{name}' in empy column list"
         for i in range(0, len(cols)):
             if cols[i].title == name:
                 return i
-        assert False, "Column '{}' not found in columns '{}'".format(name, cols)
+        assert False, f"Column '{name}' not found in columns '{cols}'"
 
     def all_equal_result(listOfResults):
         relevant_columns = set()
@@ -1080,7 +1080,7 @@ def format_run_set_attributes_nicely(runSetResults):
                 else:
                     turbo = None
                 runSetResult.attributes["turbo"] = (
-                    ", Turbo Boost: {}".format(turbo) if turbo else ""
+                    f", Turbo Boost: {turbo}" if turbo else ""
                 )
 
             elif key == "timelimit":
@@ -1101,9 +1101,7 @@ def format_run_set_attributes_nicely(runSetResults):
                     if unit and unit != "B":
                         return value
                     try:
-                        return "{:.0f} MB".format(
-                            int(number) / _BYTE_FACTOR / _BYTE_FACTOR
-                        )
+                        return f"{int(number) / _BYTE_FACTOR / _BYTE_FACTOR:.0f} MB"
                     except ValueError:
                         return value
 
@@ -1116,7 +1114,7 @@ def format_run_set_attributes_nicely(runSetResults):
                     if unit and unit != "Hz":
                         return value
                     try:
-                        return "{:.0f} MHz".format(int(number) / 1000 / 1000)
+                        return f"{int(number) / 1000 / 1000:.0f} MHz"
                     except ValueError:
                         return value
 
@@ -1534,7 +1532,7 @@ def create_argument_parser():
         value = value.lstrip("#")
         if not value.startswith("/"):
             raise argparse.ArgumentTypeError(
-                "Invalid value '{}', needs to start with /".format(value)
+                f"Invalid value '{value}', needs to start with /"
             )
         return value
 
@@ -1597,9 +1595,7 @@ def main(args=None):
             if table_definition_lists_result_files(table_definition):
                 if options.tables:
                     arg_parser.error(
-                        "Invalid additional arguments '{}'.".format(
-                            " ".join(options.tables)
-                        )
+                        f"Invalid additional arguments '{' '.join(options.tables)}'."
                     )
 
                 runSetResults = load_results_from_table_definition(
@@ -1686,15 +1682,12 @@ def main(args=None):
     )
 
     if options.dump_counts:  # print some stats for Buildbot
-        print(
-            "REGRESSIONS {}".format(
-                get_regression_count(rows, options.ignoreFlappingTimeouts)
-            )
-        )
+        print("REGRESSIONS", get_regression_count(rows, options.ignoreFlappingTimeouts))
+
         countsList = get_counts(rows)
         print("STATS")
         for counts in countsList:
-            print(" ".join(str(e) for e in counts))
+            print(*counts)
 
     for f in futures:
         f.result()  # to get any exceptions that may have occurred

@@ -91,7 +91,7 @@ class ExpectedResult(collections.namedtuple("ExpectedResult", "result subpropert
     def __str__(self):
         result = {True: "true", False: "false"}.get(self.result, "")
         if result and self.subproperty:
-            return "{}({})".format(result, self.subproperty)
+            return f"{result}({self.subproperty})"
         return result
 
     @classmethod
@@ -100,7 +100,7 @@ class ExpectedResult(collections.namedtuple("ExpectedResult", "result subpropert
             return ExpectedResult(None, None)
         match = re.match(r"^(true|false)(\((.+)\))?$", s)
         if not match:
-            raise ValueError("Not a valid expected verdict: {}".format(s))
+            raise ValueError(f"Not a valid expected verdict: {s}")
         return ExpectedResult(match.group(1) == "true", match.group(3))
 
 

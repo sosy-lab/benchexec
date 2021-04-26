@@ -59,9 +59,8 @@ class Benchmark(benchexec.benchexec.BenchExec):
             if self.config.aws_config:
                 if not os.path.isfile(self.config.aws_config):
                     sys.exit(
-                        "Config param provided, but could not find a file at "
-                        "the corresponding path: "
-                        "{}".format(self.config.aws_config)
+                        f"Config param provided, but could not find a file "
+                        f"at the corresponding path: {self.config.aws_config}"
                     )
             elif not os.path.isfile(
                 os.path.join(

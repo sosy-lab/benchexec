@@ -60,7 +60,7 @@ class Tool(benchexec.tools.template.BaseTool):
                         if msg == "Out of memory":
                             status = "OUT OF MEMORY"
                         elif msg:
-                            status = "ERROR ({0})".format(msg)
+                            status = f"ERROR ({msg})"
                         else:
                             status = "ERROR"
                     else:

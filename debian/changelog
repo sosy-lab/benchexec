@@ -1,3 +1,9 @@
+benchexec (3.7-1) focal; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Wed, 21 Apr 2021 12:37:27 +0200
+
 benchexec (3.6-1) bionic; urgency=medium
 
   * New upstream version.

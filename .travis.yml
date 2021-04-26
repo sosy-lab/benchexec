@@ -7,11 +7,12 @@
 
 language: python
 sudo: required
-dist: xenial
+dist: bionic
 python:
-  - "3.5"
   - "3.6"
   - "3.7"
+  - "3.8"
+  - "3.9"
 install:
   - pip install .
   # Install code formatter black, but only on versions where it is available

@@ -98,7 +98,6 @@ export default class Overview extends React.Component {
       showSelectColumns: false,
       showLinkOverlay: false,
       filtered: [],
-      tabIndex: 0,
       filterBoxVisible: false,
       active: getActiveTab(),
       quantilePreSelection: tools[0].columns[1],
@@ -263,11 +262,22 @@ export default class Overview extends React.Component {
   // -----------------------Common Functions-----------------------
   getRowName = (row) => row.id.filter((s) => s).join(" | ");
 
-  changeTab = (_, column, tab) => {
-    this.setState({
-      tabIndex: tab,
-      quantilePreSelection: column,
-    });
+  // Return URL params that are important across different tabs, i.e. hidden cols and filter. Returns an empty string if there are none.
+  getRelevantUrlParams = () => {
+    let urlParams = document.location.href.split("?")[1] || "";
+    return urlParams
+      .split("&")
+      .filter(
+        (param) => param.startsWith("hidden") || param.startsWith("filter"),
+      )
+      .join("&");
+  };
+
+  // Open the quantile Plot with the given preselection
+  switchToQuantile = (quantilePreSelection) => {
+    this.setState({ quantilePreSelection });
+    const urlParams = this.getRelevantUrlParams();
+    document.location.hash = "#/quantile" + (urlParams ? "?" + urlParams : "");
   };
 
   render() {
@@ -283,13 +293,7 @@ export default class Overview extends React.Component {
         totalCount={this.originalTable.length}
       />
     );
-    let urlParams = document.location.href.split("?")[1] || "";
-    urlParams = urlParams
-      .split("&")
-      .filter(
-        (param) => param.startsWith("hidden") || param.startsWith("filter"),
-      )
-      .join("&");
+    const urlParams = this.getRelevantUrlParams();
     return (
       <Router ref={this.routerRef}>
         <div className="overview">
@@ -344,7 +348,7 @@ export default class Overview extends React.Component {
                     version={this.props.data.version}
                     selectColumn={this.toggleSelectColumns}
                     stats={this.stats}
-                    changeTab={this.changeTab}
+                    switchToQuantile={this.switchToQuantile}
                     hiddenCols={this.state.hiddenCols}
                   />
                 </Route>
@@ -358,7 +362,6 @@ export default class Overview extends React.Component {
                     filterPlotData={this.filterPlotData}
                     filtered={this.state.filtered}
                     toggleLinkOverlay={this.toggleLinkOverlay}
-                    changeTab={this.changeTab}
                     statusValues={this.statusValues}
                     categoryValues={this.categoryValues}
                     hiddenCols={this.state.hiddenCols}

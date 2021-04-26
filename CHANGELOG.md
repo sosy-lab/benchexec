@@ -9,6 +9,44 @@ SPDX-License-Identifier: Apache-2.0
 
 # BenchExec Changelog
 
+## BenchExec 3.7
+
+This is expected to be the last BenchExec release that supports Python 3.5,
+newer releases will require Python 3.6 or newer.
+Please [cf. issue #717](https://github.com/sosy-lab/benchexec/issues/717)
+for our plan on dropping support for further Python versions.
+
+We would like to note that Linux kernel 5.11
+brings a major improvement for BenchExec users not on Ubuntu:
+Now it should be possible to use the overlayfs feature as a regular user,
+no need to pass `--read-only-dir /` and similar parameters.
+We updated our [installation instructions](https://github.com/sosy-lab/benchexec/blob/master/doc/INSTALL.md)
+accordingly and also clarified that BenchExec requires x86 or ARM machines
+and recommend Linux kernel 4.14 or newer due to reduced cgroups overhead.
+
+Changes in this release:
+
+- In HTML tables, the following settings are now stored in the hash part of the URL:
+  - Column sorting
+  - Page size of the table, i.e., how many rows are shown
+  - Filters for task names that are defined by entering text
+    into the left-most input field of the filter row of the table.
+    Previously this would only work for task-name filters defined in the filter sidebar.
+  This means that using the back/forward navigation of the browser
+  will change these settings and that they can be present in shared links.
+- Fix a few cases of printing of statistics information in HTML tables.
+  This affects corner cases like the number of visible decimal digits for `0`
+  and trailing zeroes for the standard deviation in the tooltip.
+- When a user requests rounding to a certain number of decimal digits,
+  the filtering functionality of the HTML tables will now use the raw values,
+  not the rounded values.
+  This is consistent with the behavior when rounding is not explicitly requested
+  and BenchExec applies the default rounding rules.
+- Fix harmless stack trace printed at end of `benchexec` execution
+  in cases like of early termination, e.g., if the tool could not be found.
+- Some improvements to tool-info modules.
+- Several updates of JS libraries, but this should not bring user-visible changes.
+
 ## BenchExec 3.6
 
 - One tool-info module improved.

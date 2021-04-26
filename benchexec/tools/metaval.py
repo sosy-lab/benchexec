@@ -77,7 +77,7 @@ class Tool(benchexec.tools.template.BaseTool2):
     def cmdline(self, executable, options, task, rlimits):
         if not task.property_file:
             raise UnsupportedFeatureException(
-                "Execution without property file is not supported by %s!" % self.name()
+                f"Execution without property file is not supported by {self.name()}!"
             )
         parser = argparse.ArgumentParser(add_help=False, usage=argparse.SUPPRESS)
         parser.add_argument("--metavalWitness", required=True)

@@ -28,7 +28,5 @@ class Tool(benchexec.tools.template.BaseTool):
         return [
             "/bin/sh",
             "-c",
-            'echo "scale={digits}; a(1)*4" | {executable} -l'.format(
-                digits=digits, executable=executable
-            ),
+            f'echo "scale={digits}; a(1)*4" | {executable} -l',
         ]
