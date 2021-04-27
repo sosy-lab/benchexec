@@ -1165,7 +1165,7 @@ class Run(object):
         return status
 
     def _is_timeout(self):
-        """ try to find out whether the tool terminated because of a timeout """
+        """try to find out whether the tool terminated because of a timeout"""
         rlimits = self.runSet.benchmark.rlimits
         cputime = self.values.get("cputime")
         walltime = self.values.get("walltime")
