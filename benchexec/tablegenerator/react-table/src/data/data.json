@@ -264,7 +264,7 @@
           "href": "results/test.2015-03-03_1613.logfiles/predicateAnalysis.example.c.log",
           "values": [
             {
-              "raw": "true"
+              "raw": "UNKNOWN: test"
             },
             {
               "raw": "2270"
