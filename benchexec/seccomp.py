@@ -78,7 +78,8 @@ def _load_seccomp():
     # Load library with utility functions.
     global _lib
     try:
-        _lib = ctypes.CDLL("libseccomp.so.2", use_errno=True)
+        libseccomp = os.environ.get("LIBSECCOMP", "libseccomp.so.2")
+        _lib = ctypes.CDLL(libseccomp, use_errno=True)
     except OSError as e:
         logging.warning(
             "Could not load libseccomp2, "
