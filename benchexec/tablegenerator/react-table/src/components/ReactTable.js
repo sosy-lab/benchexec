@@ -65,7 +65,7 @@ const TableRender = (props) => {
 
   function FilterInputField(props) {
     const elementId = props.column.id + "_filter";
-    let typingTimer;
+    let [typingTimer, setTypingTimer] = useState("");
     let [value, setValue] = useState("");
 
     useEffect(() => setValue(props.filter ? props.filter.value : ""), [
@@ -81,10 +81,12 @@ const TableRender = (props) => {
       const newValue = event.target.value;
       setValue(newValue);
       clearTimeout(typingTimer);
-      typingTimer = setTimeout(() => {
-        props.onChange(newValue);
-        document.getElementById(elementId).focus();
-      }, 500);
+      setTypingTimer(
+        setTimeout(() => {
+          props.onChange(newValue);
+          document.getElementById(elementId).focus();
+        }, 500),
+      );
     };
 
     return (
