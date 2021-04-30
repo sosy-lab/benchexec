@@ -313,6 +313,7 @@ exports[`Render Summary for benchmark-example-true.2019-11-06_0932.results.no op
        id="id_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -396,6 +397,7 @@ exports[`Render Summary for benchmark-example-true.2019-11-06_0932.results.no op
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -418,6 +420,7 @@ exports[`Render Summary for benchmark-example-true.2019-11-06_0932.results.no op
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -440,6 +443,7 @@ exports[`Render Summary for benchmark-example-true.2019-11-06_0932.results.no op
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -462,6 +466,7 @@ exports[`Render Summary for benchmark-example-true.2019-11-06_0932.results.no op
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
     </div>
@@ -4831,6 +4836,7 @@ exports[`Render Summary for big-table.diff.html 1`] = `
        id="id_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -4934,6 +4940,7 @@ exports[`Render Summary for big-table.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -4956,6 +4963,7 @@ exports[`Render Summary for big-table.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -4978,6 +4986,7 @@ exports[`Render Summary for big-table.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -5000,6 +5009,7 @@ exports[`Render Summary for big-table.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -5022,6 +5032,7 @@ exports[`Render Summary for big-table.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -5044,6 +5055,7 @@ exports[`Render Summary for big-table.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -5066,6 +5078,7 @@ exports[`Render Summary for big-table.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -5087,6 +5100,7 @@ exports[`Render Summary for big-table.diff.html 1`] = `
        id="0_host_8_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -5185,6 +5199,7 @@ exports[`Render Summary for big-table.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -5207,6 +5222,7 @@ exports[`Render Summary for big-table.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -5229,6 +5245,7 @@ exports[`Render Summary for big-table.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -5327,6 +5344,7 @@ exports[`Render Summary for big-table.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -5349,6 +5367,7 @@ exports[`Render Summary for big-table.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -5371,6 +5390,7 @@ exports[`Render Summary for big-table.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -5392,6 +5412,7 @@ exports[`Render Summary for big-table.diff.html 1`] = `
        id="2_host_4_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
     </div>
@@ -18217,6 +18238,7 @@ exports[`Render Summary for cbmc.2015-12-11_1211.results.Simple.html 1`] = `
        id="id_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -18310,6 +18332,7 @@ exports[`Render Summary for cbmc.2015-12-11_1211.results.Simple.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -18332,6 +18355,7 @@ exports[`Render Summary for cbmc.2015-12-11_1211.results.Simple.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -18354,6 +18378,7 @@ exports[`Render Summary for cbmc.2015-12-11_1211.results.Simple.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
     </div>
@@ -24662,6 +24687,7 @@ exports[`Render Summary for multi-table.diff.html 1`] = `
        id="id_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -24750,6 +24776,7 @@ exports[`Render Summary for multi-table.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -24772,6 +24799,7 @@ exports[`Render Summary for multi-table.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -24794,6 +24822,7 @@ exports[`Render Summary for multi-table.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -24892,6 +24921,7 @@ exports[`Render Summary for multi-table.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -24914,6 +24944,7 @@ exports[`Render Summary for multi-table.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -24936,6 +24967,7 @@ exports[`Render Summary for multi-table.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -25024,6 +25056,7 @@ exports[`Render Summary for multi-table.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -25046,6 +25079,7 @@ exports[`Render Summary for multi-table.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -25068,6 +25102,7 @@ exports[`Render Summary for multi-table.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -25166,6 +25201,7 @@ exports[`Render Summary for multi-table.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -25188,6 +25224,7 @@ exports[`Render Summary for multi-table.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -25210,6 +25247,7 @@ exports[`Render Summary for multi-table.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
     </div>
@@ -27185,6 +27223,7 @@ exports[`Render Summary for multi-table.table.html 1`] = `
        id="id_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -27283,6 +27322,7 @@ exports[`Render Summary for multi-table.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -27305,6 +27345,7 @@ exports[`Render Summary for multi-table.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -27327,6 +27368,7 @@ exports[`Render Summary for multi-table.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -27435,6 +27477,7 @@ exports[`Render Summary for multi-table.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -27457,6 +27500,7 @@ exports[`Render Summary for multi-table.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -27479,6 +27523,7 @@ exports[`Render Summary for multi-table.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -27577,6 +27622,7 @@ exports[`Render Summary for multi-table.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -27599,6 +27645,7 @@ exports[`Render Summary for multi-table.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -27621,6 +27668,7 @@ exports[`Render Summary for multi-table.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -27729,6 +27777,7 @@ exports[`Render Summary for multi-table.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -27751,6 +27800,7 @@ exports[`Render Summary for multi-table.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -27773,6 +27823,7 @@ exports[`Render Summary for multi-table.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
     </div>
@@ -30889,6 +30940,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
        id="id_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -30976,6 +31028,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
        id="0_category_1_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -30997,6 +31050,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
        id="0_score_2_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -31019,6 +31073,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -31041,6 +31096,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -31062,6 +31118,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
        id="0_non-existent_5_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -31084,6 +31141,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -31105,6 +31163,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
        id="0_variable count_7_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -31202,6 +31261,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
        id="1_category_1_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -31223,6 +31283,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
        id="1_score_2_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -31245,6 +31306,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -31267,6 +31329,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -31288,6 +31351,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
        id="1_non-existent_5_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -31309,6 +31373,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
        id="1_SMT time_6_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -31331,6 +31396,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -31418,6 +31484,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
        id="2_category_1_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -31439,6 +31506,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
        id="2_score_2_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -31461,6 +31529,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -31483,6 +31552,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -31504,6 +31574,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
        id="2_non-existent_5_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -31526,6 +31597,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -31547,6 +31619,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
        id="2_variable count_7_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -31644,6 +31717,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
        id="3_category_1_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -31665,6 +31739,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
        id="3_score_2_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -31687,6 +31762,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -31709,6 +31785,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -31730,6 +31807,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
        id="3_non-existent_5_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -31751,6 +31829,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
        id="3_SMT time_6_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -31773,6 +31852,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
     </div>
@@ -34808,6 +34888,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
        id="id_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -34905,6 +34986,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
        id="0_category_1_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -34926,6 +35008,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
        id="0_score_2_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -34948,6 +35031,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -34970,6 +35054,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -34991,6 +35076,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
        id="0_non-existent_5_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -35013,6 +35099,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -35034,6 +35121,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
        id="0_variable count_7_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -35141,6 +35229,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
        id="1_category_1_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -35162,6 +35251,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
        id="1_score_2_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -35184,6 +35274,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -35206,6 +35297,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -35227,6 +35319,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
        id="1_non-existent_5_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -35248,6 +35341,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
        id="1_SMT time_6_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -35270,6 +35364,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -35367,6 +35462,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
        id="2_category_1_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -35388,6 +35484,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
        id="2_score_2_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -35410,6 +35507,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -35432,6 +35530,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -35453,6 +35552,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
        id="2_non-existent_5_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -35475,6 +35575,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -35496,6 +35597,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
        id="2_variable count_7_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -35603,6 +35705,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
        id="3_category_1_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -35624,6 +35727,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
        id="3_score_2_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -35646,6 +35750,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -35668,6 +35773,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -35689,6 +35795,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
        id="3_non-existent_5_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -35710,6 +35817,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
        id="3_SMT time_6_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -35732,6 +35840,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
     </div>
@@ -39910,6 +40019,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
        id="id_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -39997,6 +40107,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
        id="0_category_1_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -40018,6 +40129,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
        id="0_score_2_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -40040,6 +40152,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -40062,6 +40175,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -40083,6 +40197,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
        id="0_non-existent_5_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -40105,6 +40220,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -40126,6 +40242,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
        id="0_variable count_7_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -40223,6 +40340,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
        id="1_category_1_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -40244,6 +40362,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
        id="1_score_2_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -40266,6 +40385,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -40288,6 +40408,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -40309,6 +40430,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
        id="1_non-existent_5_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -40330,6 +40452,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
        id="1_SMT time_6_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -40352,6 +40475,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -40439,6 +40563,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
        id="2_category_1_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -40460,6 +40585,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
        id="2_score_2_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -40482,6 +40608,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -40504,6 +40631,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -40525,6 +40653,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
        id="2_non-existent_5_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -40547,6 +40676,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -40644,6 +40774,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
        id="3_category_1_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -40665,6 +40796,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
        id="3_score_2_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -40687,6 +40819,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -40709,6 +40842,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -40730,6 +40864,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
        id="3_non-existent_5_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -40752,6 +40887,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
     </div>
@@ -43659,6 +43795,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
        id="id_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -43756,6 +43893,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
        id="0_category_1_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -43777,6 +43915,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
        id="0_score_2_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -43799,6 +43938,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -43821,6 +43961,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -43842,6 +43983,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
        id="0_non-existent_5_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -43864,6 +44006,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -43885,6 +44028,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
        id="0_variable count_7_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -43992,6 +44136,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
        id="1_category_1_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -44013,6 +44158,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
        id="1_score_2_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -44035,6 +44181,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -44057,6 +44204,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -44078,6 +44226,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
        id="1_non-existent_5_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -44099,6 +44248,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
        id="1_SMT time_6_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -44121,6 +44271,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -44218,6 +44369,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
        id="2_category_1_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -44239,6 +44391,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
        id="2_score_2_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -44261,6 +44414,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -44283,6 +44437,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -44304,6 +44459,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
        id="2_non-existent_5_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -44326,6 +44482,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -44433,6 +44590,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
        id="3_category_1_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -44454,6 +44612,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
        id="3_score_2_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -44476,6 +44635,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -44498,6 +44658,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -44519,6 +44680,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
        id="3_non-existent_5_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -44541,6 +44703,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
     </div>
@@ -48639,6 +48802,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
        id="id_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -48736,6 +48900,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
        id="0_category_1_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -48757,6 +48922,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
        id="0_score_2_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -48779,6 +48945,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -48801,6 +48968,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -48822,6 +48990,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
        id="0_non-existent_5_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -48844,6 +49013,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -48865,6 +49035,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
        id="0_variable count_7_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -48967,6 +49138,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
        id="1_category_1_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -48988,6 +49160,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
        id="1_score_2_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -49010,6 +49183,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -49032,6 +49206,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -49053,6 +49228,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
        id="1_non-existent_5_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -49074,6 +49250,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
        id="1_SMT time_6_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -49096,6 +49273,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -49193,6 +49371,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
        id="2_category_1_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -49214,6 +49393,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
        id="2_score_2_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -49236,6 +49416,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -49258,6 +49439,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -49279,6 +49461,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
        id="2_non-existent_5_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -49301,6 +49484,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -49322,6 +49506,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
        id="2_variable count_7_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -49424,6 +49609,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
        id="3_category_1_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -49445,6 +49631,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
        id="3_score_2_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -49467,6 +49654,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -49489,6 +49677,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -49510,6 +49699,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
        id="3_non-existent_5_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -49531,6 +49721,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
        id="3_SMT time_6_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -49553,6 +49744,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
     </div>
@@ -53220,6 +53412,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
        id="id_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -53317,6 +53510,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
        id="0_category_1_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -53338,6 +53532,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
        id="0_score_2_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -53360,6 +53555,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -53382,6 +53578,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -53403,6 +53600,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
        id="0_non-existent_5_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -53425,6 +53623,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -53446,6 +53645,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
        id="0_variable count_7_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -53553,6 +53753,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
        id="1_category_1_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -53574,6 +53775,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
        id="1_score_2_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -53596,6 +53798,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -53618,6 +53821,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -53639,6 +53843,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
        id="1_non-existent_5_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -53660,6 +53865,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
        id="1_SMT time_6_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -53682,6 +53888,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -53779,6 +53986,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
        id="2_category_1_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -53800,6 +54008,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
        id="2_score_2_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -53822,6 +54031,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -53844,6 +54054,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -53865,6 +54076,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
        id="2_non-existent_5_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -53887,6 +54099,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -53908,6 +54121,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
        id="2_variable count_7_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -54015,6 +54229,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
        id="3_category_1_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -54036,6 +54251,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
        id="3_score_2_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -54058,6 +54274,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -54080,6 +54297,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -54101,6 +54319,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
        id="3_non-existent_5_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -54122,6 +54341,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
        id="3_SMT time_6_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -54144,6 +54364,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
     </div>
@@ -57976,6 +58197,7 @@ exports[`Render Summary for multi-table-with-wildcards.diff.html 1`] = `
        id="id_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -58064,6 +58286,7 @@ exports[`Render Summary for multi-table-with-wildcards.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -58086,6 +58309,7 @@ exports[`Render Summary for multi-table-with-wildcards.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -58108,6 +58332,7 @@ exports[`Render Summary for multi-table-with-wildcards.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -58196,6 +58421,7 @@ exports[`Render Summary for multi-table-with-wildcards.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -58218,6 +58444,7 @@ exports[`Render Summary for multi-table-with-wildcards.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -58240,6 +58467,7 @@ exports[`Render Summary for multi-table-with-wildcards.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -58338,6 +58566,7 @@ exports[`Render Summary for multi-table-with-wildcards.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -58360,6 +58589,7 @@ exports[`Render Summary for multi-table-with-wildcards.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -58382,6 +58612,7 @@ exports[`Render Summary for multi-table-with-wildcards.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -58480,6 +58711,7 @@ exports[`Render Summary for multi-table-with-wildcards.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -58502,6 +58734,7 @@ exports[`Render Summary for multi-table-with-wildcards.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -58524,6 +58757,7 @@ exports[`Render Summary for multi-table-with-wildcards.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
     </div>
@@ -60499,6 +60733,7 @@ exports[`Render Summary for multi-table-with-wildcards.table.html 1`] = `
        id="id_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -60597,6 +60832,7 @@ exports[`Render Summary for multi-table-with-wildcards.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -60619,6 +60855,7 @@ exports[`Render Summary for multi-table-with-wildcards.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -60641,6 +60878,7 @@ exports[`Render Summary for multi-table-with-wildcards.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -60739,6 +60977,7 @@ exports[`Render Summary for multi-table-with-wildcards.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -60761,6 +61000,7 @@ exports[`Render Summary for multi-table-with-wildcards.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -60783,6 +61023,7 @@ exports[`Render Summary for multi-table-with-wildcards.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -60891,6 +61132,7 @@ exports[`Render Summary for multi-table-with-wildcards.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -60913,6 +61155,7 @@ exports[`Render Summary for multi-table-with-wildcards.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -60935,6 +61178,7 @@ exports[`Render Summary for multi-table-with-wildcards.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -61043,6 +61287,7 @@ exports[`Render Summary for multi-table-with-wildcards.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -61065,6 +61310,7 @@ exports[`Render Summary for multi-table-with-wildcards.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -61087,6 +61333,7 @@ exports[`Render Summary for multi-table-with-wildcards.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
     </div>
@@ -63533,6 +63780,7 @@ exports[`Render Summary for nan_and_inf.html 1`] = `
        id="id_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -63616,6 +63864,7 @@ exports[`Render Summary for nan_and_inf.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -63638,6 +63887,7 @@ exports[`Render Summary for nan_and_inf.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -63660,6 +63910,7 @@ exports[`Render Summary for nan_and_inf.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -63682,6 +63933,7 @@ exports[`Render Summary for nan_and_inf.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -63704,6 +63956,7 @@ exports[`Render Summary for nan_and_inf.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -63726,6 +63979,7 @@ exports[`Render Summary for nan_and_inf.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -63748,6 +64002,7 @@ exports[`Render Summary for nan_and_inf.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -63769,6 +64024,7 @@ exports[`Render Summary for nan_and_inf.html 1`] = `
        id="0_Config_8_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -63791,6 +64047,7 @@ exports[`Render Summary for nan_and_inf.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -63813,6 +64070,7 @@ exports[`Render Summary for nan_and_inf.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -63834,6 +64092,7 @@ exports[`Render Summary for nan_and_inf.html 1`] = `
        id="0_host_11_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
     </div>
@@ -65160,6 +65419,7 @@ exports[`Render Summary for predicateAnalysis.table.html 1`] = `
        id="id_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -65258,6 +65518,7 @@ exports[`Render Summary for predicateAnalysis.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -65280,6 +65541,7 @@ exports[`Render Summary for predicateAnalysis.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -65302,6 +65564,7 @@ exports[`Render Summary for predicateAnalysis.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -65400,6 +65663,7 @@ exports[`Render Summary for predicateAnalysis.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -65422,6 +65686,7 @@ exports[`Render Summary for predicateAnalysis.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -65444,6 +65709,7 @@ exports[`Render Summary for predicateAnalysis.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
     </div>
@@ -67038,6 +67304,7 @@ exports[`Render Summary for predicateAnalysis-reverse.table.html 1`] = `
        id="id_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -67136,6 +67403,7 @@ exports[`Render Summary for predicateAnalysis-reverse.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -67158,6 +67426,7 @@ exports[`Render Summary for predicateAnalysis-reverse.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -67180,6 +67449,7 @@ exports[`Render Summary for predicateAnalysis-reverse.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -67278,6 +67548,7 @@ exports[`Render Summary for predicateAnalysis-reverse.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -67300,6 +67571,7 @@ exports[`Render Summary for predicateAnalysis-reverse.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -67322,6 +67594,7 @@ exports[`Render Summary for predicateAnalysis-reverse.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
     </div>
@@ -68970,6 +69243,7 @@ exports[`Render Summary for rows-with-scores.html 1`] = `
        id="id_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -69063,6 +69337,7 @@ exports[`Render Summary for rows-with-scores.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -69085,6 +69360,7 @@ exports[`Render Summary for rows-with-scores.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -69107,6 +69383,7 @@ exports[`Render Summary for rows-with-scores.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -69129,6 +69406,7 @@ exports[`Render Summary for rows-with-scores.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -69222,6 +69500,7 @@ exports[`Render Summary for rows-with-scores.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -69244,6 +69523,7 @@ exports[`Render Summary for rows-with-scores.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -69266,6 +69546,7 @@ exports[`Render Summary for rows-with-scores.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -69288,6 +69569,7 @@ exports[`Render Summary for rows-with-scores.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
     </div>
@@ -74067,6 +74349,7 @@ exports[`Render Summary for simple-table-with-columns.table.html 1`] = `
        id="id_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -74164,6 +74447,7 @@ exports[`Render Summary for simple-table-with-columns.table.html 1`] = `
        id="0_category_1_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -74185,6 +74469,7 @@ exports[`Render Summary for simple-table-with-columns.table.html 1`] = `
        id="0_score_2_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -74207,6 +74492,7 @@ exports[`Render Summary for simple-table-with-columns.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -74229,6 +74515,7 @@ exports[`Render Summary for simple-table-with-columns.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -74250,6 +74537,7 @@ exports[`Render Summary for simple-table-with-columns.table.html 1`] = `
        id="0_non-existent_5_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
     </div>
@@ -75392,6 +75680,7 @@ exports[`Render Summary for simple-table-with-links.table.html 1`] = `
        id="id_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -75490,6 +75779,7 @@ exports[`Render Summary for simple-table-with-links.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -75511,6 +75801,7 @@ exports[`Render Summary for simple-table-with-links.table.html 1`] = `
        id="0_witness_2_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -75532,6 +75823,7 @@ exports[`Render Summary for simple-table-with-links.table.html 1`] = `
        id="0_benchexec_3_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
     </div>
@@ -76566,6 +76858,7 @@ exports[`Render Summary for simple-table-with-numberOfDigits.table.html 1`] = `
        id="id_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -76664,6 +76957,7 @@ exports[`Render Summary for simple-table-with-numberOfDigits.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -76686,6 +76980,7 @@ exports[`Render Summary for simple-table-with-numberOfDigits.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -76708,6 +77003,7 @@ exports[`Render Summary for simple-table-with-numberOfDigits.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
     </div>
@@ -77832,6 +78128,7 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
        id="id_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -77930,6 +78227,7 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -77952,6 +78250,7 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -77974,6 +78273,7 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -77996,6 +78296,7 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -78018,6 +78319,7 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -78040,6 +78342,7 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -78062,6 +78365,7 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
     </div>
@@ -79672,6 +79976,7 @@ exports[`Render Summary for smt.diff.html 1`] = `
        id="id_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -79774,6 +80079,7 @@ exports[`Render Summary for smt.diff.html 1`] = `
        id="0_category_1_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -79795,6 +80101,7 @@ exports[`Render Summary for smt.diff.html 1`] = `
        id="0_score_2_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -79817,6 +80124,7 @@ exports[`Render Summary for smt.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -79839,6 +80147,7 @@ exports[`Render Summary for smt.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -79861,6 +80170,7 @@ exports[`Render Summary for smt.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -79963,6 +80273,7 @@ exports[`Render Summary for smt.diff.html 1`] = `
        id="1_category_1_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -79984,6 +80295,7 @@ exports[`Render Summary for smt.diff.html 1`] = `
        id="1_score_2_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -80006,6 +80318,7 @@ exports[`Render Summary for smt.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -80028,6 +80341,7 @@ exports[`Render Summary for smt.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -80050,6 +80364,7 @@ exports[`Render Summary for smt.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
     </div>
@@ -81496,6 +81811,7 @@ exports[`Render Summary for smt.table.html 1`] = `
        id="id_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -81608,6 +81924,7 @@ exports[`Render Summary for smt.table.html 1`] = `
        id="0_category_1_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -81629,6 +81946,7 @@ exports[`Render Summary for smt.table.html 1`] = `
        id="0_score_2_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -81651,6 +81969,7 @@ exports[`Render Summary for smt.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -81673,6 +81992,7 @@ exports[`Render Summary for smt.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -81695,6 +82015,7 @@ exports[`Render Summary for smt.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -81797,6 +82118,7 @@ exports[`Render Summary for smt.table.html 1`] = `
        id="1_category_1_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -81818,6 +82140,7 @@ exports[`Render Summary for smt.table.html 1`] = `
        id="1_score_2_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -81840,6 +82163,7 @@ exports[`Render Summary for smt.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -81862,6 +82186,7 @@ exports[`Render Summary for smt.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -81884,6 +82209,7 @@ exports[`Render Summary for smt.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
     </div>
@@ -83550,6 +83876,7 @@ exports[`Render Summary for task-def-files.table.html 1`] = `
        id="id_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -83643,6 +83970,7 @@ exports[`Render Summary for task-def-files.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -83665,6 +83993,7 @@ exports[`Render Summary for task-def-files.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -83687,6 +84016,7 @@ exports[`Render Summary for task-def-files.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -83709,6 +84039,7 @@ exports[`Render Summary for task-def-files.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -83802,6 +84133,7 @@ exports[`Render Summary for task-def-files.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -83824,6 +84156,7 @@ exports[`Render Summary for task-def-files.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -83846,6 +84179,7 @@ exports[`Render Summary for task-def-files.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -83868,6 +84202,7 @@ exports[`Render Summary for task-def-files.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
     </div>
@@ -85865,6 +86200,7 @@ exports[`Render Summary for test.2015-03-03_1613.diff.html 1`] = `
        id="id_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -85953,6 +86289,7 @@ exports[`Render Summary for test.2015-03-03_1613.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -85975,6 +86312,7 @@ exports[`Render Summary for test.2015-03-03_1613.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -85997,6 +86335,7 @@ exports[`Render Summary for test.2015-03-03_1613.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -86095,6 +86434,7 @@ exports[`Render Summary for test.2015-03-03_1613.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -86117,6 +86457,7 @@ exports[`Render Summary for test.2015-03-03_1613.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -86139,6 +86480,7 @@ exports[`Render Summary for test.2015-03-03_1613.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
     </div>
@@ -87201,6 +87543,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.all-c
        id="id_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -87298,6 +87641,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.all-c
        id="0_category_1_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -87320,6 +87664,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.all-c
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -87342,6 +87687,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.all-c
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -87364,6 +87710,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.all-c
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -87386,6 +87733,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.all-c
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
     </div>
@@ -88572,6 +88920,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.corre
        id="id_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -88670,6 +89019,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.corre
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -88692,6 +89042,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.corre
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -88714,6 +89065,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.corre
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
     </div>
@@ -89731,6 +90083,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.custo
        id="id_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -89824,6 +90177,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.custo
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -89846,6 +90200,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.custo
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -89868,6 +90223,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.custo
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -89890,6 +90246,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.custo
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
     </div>
@@ -90701,6 +91058,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.html 
        id="id_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -90799,6 +91157,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.html 
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -90821,6 +91180,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.html 
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -90843,6 +91203,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.html 
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
     </div>
@@ -91859,6 +92220,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.valueAnalysis.html 1`] 
        id="id_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -91962,6 +92324,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.valueAnalysis.html 1`] 
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -91984,6 +92347,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.valueAnalysis.html 1`] 
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -92006,6 +92370,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.valueAnalysis.html 1`] 
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
     </div>
@@ -92899,6 +93264,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.valueAnalysis.table.htm
        id="id_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -93002,6 +93368,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.valueAnalysis.table.htm
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -93024,6 +93391,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.valueAnalysis.table.htm
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -93046,6 +93414,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.valueAnalysis.table.htm
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
     </div>
@@ -94097,6 +94466,7 @@ exports[`Render Summary for test.2015-03-03_1613.table.html 1`] = `
        id="id_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -94195,6 +94565,7 @@ exports[`Render Summary for test.2015-03-03_1613.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -94217,6 +94588,7 @@ exports[`Render Summary for test.2015-03-03_1613.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -94239,6 +94611,7 @@ exports[`Render Summary for test.2015-03-03_1613.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -94347,6 +94720,7 @@ exports[`Render Summary for test.2015-03-03_1613.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -94369,6 +94743,7 @@ exports[`Render Summary for test.2015-03-03_1613.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -94391,6 +94766,7 @@ exports[`Render Summary for test.2015-03-03_1613.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
     </div>
@@ -95970,6 +96346,7 @@ exports[`Render Summary for test.2015-03-03_1613-common.diff.html 1`] = `
        id="id_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -96058,6 +96435,7 @@ exports[`Render Summary for test.2015-03-03_1613-common.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -96080,6 +96458,7 @@ exports[`Render Summary for test.2015-03-03_1613-common.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -96102,6 +96481,7 @@ exports[`Render Summary for test.2015-03-03_1613-common.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -96195,6 +96575,7 @@ exports[`Render Summary for test.2015-03-03_1613-common.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -96217,6 +96598,7 @@ exports[`Render Summary for test.2015-03-03_1613-common.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -96239,6 +96621,7 @@ exports[`Render Summary for test.2015-03-03_1613-common.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
     </div>
@@ -97217,6 +97600,7 @@ exports[`Render Summary for test.2015-03-03_1613-common.table.html 1`] = `
        id="id_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -97315,6 +97699,7 @@ exports[`Render Summary for test.2015-03-03_1613-common.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -97337,6 +97722,7 @@ exports[`Render Summary for test.2015-03-03_1613-common.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -97359,6 +97745,7 @@ exports[`Render Summary for test.2015-03-03_1613-common.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -97462,6 +97849,7 @@ exports[`Render Summary for test.2015-03-03_1613-common.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -97484,6 +97872,7 @@ exports[`Render Summary for test.2015-03-03_1613-common.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -97506,6 +97895,7 @@ exports[`Render Summary for test.2015-03-03_1613-common.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
     </div>
@@ -98893,6 +99283,7 @@ exports[`Render Summary for test.2015-03-03_1613-correct-only.diff.html 1`] = `
        id="id_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -98981,6 +99372,7 @@ exports[`Render Summary for test.2015-03-03_1613-correct-only.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -99003,6 +99395,7 @@ exports[`Render Summary for test.2015-03-03_1613-correct-only.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -99025,6 +99418,7 @@ exports[`Render Summary for test.2015-03-03_1613-correct-only.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -99123,6 +99517,7 @@ exports[`Render Summary for test.2015-03-03_1613-correct-only.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -99145,6 +99540,7 @@ exports[`Render Summary for test.2015-03-03_1613-correct-only.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -99167,6 +99563,7 @@ exports[`Render Summary for test.2015-03-03_1613-correct-only.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
     </div>
@@ -100313,6 +100710,7 @@ exports[`Render Summary for test.2015-03-03_1613-correct-only.table.html 1`] = `
        id="id_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -100411,6 +100809,7 @@ exports[`Render Summary for test.2015-03-03_1613-correct-only.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -100433,6 +100832,7 @@ exports[`Render Summary for test.2015-03-03_1613-correct-only.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -100455,6 +100855,7 @@ exports[`Render Summary for test.2015-03-03_1613-correct-only.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -100563,6 +100964,7 @@ exports[`Render Summary for test.2015-03-03_1613-correct-only.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -100585,6 +100987,7 @@ exports[`Render Summary for test.2015-03-03_1613-correct-only.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -100607,6 +101010,7 @@ exports[`Render Summary for test.2015-03-03_1613-correct-only.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
     </div>
@@ -102138,6 +102542,7 @@ exports[`Render Summary for test.2015-03-03_1613-reverse.diff.html 1`] = `
        id="id_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -102236,6 +102641,7 @@ exports[`Render Summary for test.2015-03-03_1613-reverse.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -102258,6 +102664,7 @@ exports[`Render Summary for test.2015-03-03_1613-reverse.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -102280,6 +102687,7 @@ exports[`Render Summary for test.2015-03-03_1613-reverse.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -102368,6 +102776,7 @@ exports[`Render Summary for test.2015-03-03_1613-reverse.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -102390,6 +102799,7 @@ exports[`Render Summary for test.2015-03-03_1613-reverse.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -102412,6 +102822,7 @@ exports[`Render Summary for test.2015-03-03_1613-reverse.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
     </div>
@@ -103582,6 +103993,7 @@ exports[`Render Summary for test.2015-03-03_1613-reverse.table.html 1`] = `
        id="id_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -103690,6 +104102,7 @@ exports[`Render Summary for test.2015-03-03_1613-reverse.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -103712,6 +104125,7 @@ exports[`Render Summary for test.2015-03-03_1613-reverse.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -103734,6 +104148,7 @@ exports[`Render Summary for test.2015-03-03_1613-reverse.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -103832,6 +104247,7 @@ exports[`Render Summary for test.2015-03-03_1613-reverse.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -103854,6 +104270,7 @@ exports[`Render Summary for test.2015-03-03_1613-reverse.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -103876,6 +104293,7 @@ exports[`Render Summary for test.2015-03-03_1613-reverse.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
     </div>
@@ -105455,6 +105873,7 @@ exports[`Render Summary for test-error.2015-03-03_1613.diff.html 1`] = `
        id="id_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -105543,6 +105962,7 @@ exports[`Render Summary for test-error.2015-03-03_1613.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -105565,6 +105985,7 @@ exports[`Render Summary for test-error.2015-03-03_1613.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -105587,6 +106008,7 @@ exports[`Render Summary for test-error.2015-03-03_1613.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -105685,6 +106107,7 @@ exports[`Render Summary for test-error.2015-03-03_1613.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -105707,6 +106130,7 @@ exports[`Render Summary for test-error.2015-03-03_1613.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -105729,6 +106153,7 @@ exports[`Render Summary for test-error.2015-03-03_1613.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
     </div>
@@ -106899,6 +107324,7 @@ exports[`Render Summary for test-error.2015-03-03_1613.table.html 1`] = `
        id="id_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -106997,6 +107423,7 @@ exports[`Render Summary for test-error.2015-03-03_1613.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -107019,6 +107446,7 @@ exports[`Render Summary for test-error.2015-03-03_1613.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -107041,6 +107469,7 @@ exports[`Render Summary for test-error.2015-03-03_1613.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -107149,6 +107578,7 @@ exports[`Render Summary for test-error.2015-03-03_1613.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -107171,6 +107601,7 @@ exports[`Render Summary for test-error.2015-03-03_1613.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -107193,6 +107624,7 @@ exports[`Render Summary for test-error.2015-03-03_1613.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
     </div>
@@ -108772,6 +109204,7 @@ exports[`Render Summary for union-table.diff.html 1`] = `
        id="id_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -108860,6 +109293,7 @@ exports[`Render Summary for union-table.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -108882,6 +109316,7 @@ exports[`Render Summary for union-table.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -108904,6 +109339,7 @@ exports[`Render Summary for union-table.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -109002,6 +109438,7 @@ exports[`Render Summary for union-table.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -109024,6 +109461,7 @@ exports[`Render Summary for union-table.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -109046,6 +109484,7 @@ exports[`Render Summary for union-table.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
     </div>
@@ -110216,6 +110655,7 @@ exports[`Render Summary for union-table.table.html 1`] = `
        id="id_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -110314,6 +110754,7 @@ exports[`Render Summary for union-table.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -110336,6 +110777,7 @@ exports[`Render Summary for union-table.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -110358,6 +110800,7 @@ exports[`Render Summary for union-table.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -110466,6 +110909,7 @@ exports[`Render Summary for union-table.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -110488,6 +110932,7 @@ exports[`Render Summary for union-table.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -110510,6 +110955,7 @@ exports[`Render Summary for union-table.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
     </div>
@@ -112089,6 +112535,7 @@ exports[`Render Summary for union-table-duplicate-results.diff.html 1`] = `
        id="id_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -112177,6 +112624,7 @@ exports[`Render Summary for union-table-duplicate-results.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -112199,6 +112647,7 @@ exports[`Render Summary for union-table-duplicate-results.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -112221,6 +112670,7 @@ exports[`Render Summary for union-table-duplicate-results.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -112319,6 +112769,7 @@ exports[`Render Summary for union-table-duplicate-results.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -112341,6 +112792,7 @@ exports[`Render Summary for union-table-duplicate-results.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -112363,6 +112815,7 @@ exports[`Render Summary for union-table-duplicate-results.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
     </div>
@@ -113533,6 +113986,7 @@ exports[`Render Summary for union-table-duplicate-results.table.html 1`] = `
        id="id_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -113631,6 +114085,7 @@ exports[`Render Summary for union-table-duplicate-results.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -113653,6 +114108,7 @@ exports[`Render Summary for union-table-duplicate-results.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -113675,6 +114131,7 @@ exports[`Render Summary for union-table-duplicate-results.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -113783,6 +114240,7 @@ exports[`Render Summary for union-table-duplicate-results.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -113805,6 +114263,7 @@ exports[`Render Summary for union-table-duplicate-results.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -113827,6 +114286,7 @@ exports[`Render Summary for union-table-duplicate-results.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
     </div>
@@ -115564,6 +116024,7 @@ exports[`Render Summary for union-table-mixed.diff.html 1`] = `
        id="id_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -115652,6 +116113,7 @@ exports[`Render Summary for union-table-mixed.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -115674,6 +116136,7 @@ exports[`Render Summary for union-table-mixed.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -115696,6 +116159,7 @@ exports[`Render Summary for union-table-mixed.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -115794,6 +116258,7 @@ exports[`Render Summary for union-table-mixed.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -115816,6 +116281,7 @@ exports[`Render Summary for union-table-mixed.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -115838,6 +116304,7 @@ exports[`Render Summary for union-table-mixed.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -115926,6 +116393,7 @@ exports[`Render Summary for union-table-mixed.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -115948,6 +116416,7 @@ exports[`Render Summary for union-table-mixed.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -115970,6 +116439,7 @@ exports[`Render Summary for union-table-mixed.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
     </div>
@@ -117550,6 +118020,7 @@ exports[`Render Summary for union-table-mixed.table.html 1`] = `
        id="id_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -117648,6 +118119,7 @@ exports[`Render Summary for union-table-mixed.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -117670,6 +118142,7 @@ exports[`Render Summary for union-table-mixed.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -117692,6 +118165,7 @@ exports[`Render Summary for union-table-mixed.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -117800,6 +118274,7 @@ exports[`Render Summary for union-table-mixed.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -117822,6 +118297,7 @@ exports[`Render Summary for union-table-mixed.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -117844,6 +118320,7 @@ exports[`Render Summary for union-table-mixed.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -117942,6 +118419,7 @@ exports[`Render Summary for union-table-mixed.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -117964,6 +118442,7 @@ exports[`Render Summary for union-table-mixed.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -117986,6 +118465,7 @@ exports[`Render Summary for union-table-mixed.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
     </div>
@@ -119985,6 +120465,7 @@ exports[`Render Summary for union-table-multiple-results.diff.html 1`] = `
        id="id_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -120073,6 +120554,7 @@ exports[`Render Summary for union-table-multiple-results.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -120095,6 +120577,7 @@ exports[`Render Summary for union-table-multiple-results.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -120117,6 +120600,7 @@ exports[`Render Summary for union-table-multiple-results.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -120215,6 +120699,7 @@ exports[`Render Summary for union-table-multiple-results.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -120237,6 +120722,7 @@ exports[`Render Summary for union-table-multiple-results.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -120259,6 +120745,7 @@ exports[`Render Summary for union-table-multiple-results.diff.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
     </div>
@@ -122065,6 +122552,7 @@ exports[`Render Summary for union-table-multiple-results.table.html 1`] = `
        id="id_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -122163,6 +122651,7 @@ exports[`Render Summary for union-table-multiple-results.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -122185,6 +122674,7 @@ exports[`Render Summary for union-table-multiple-results.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -122207,6 +122697,7 @@ exports[`Render Summary for union-table-multiple-results.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -122315,6 +122806,7 @@ exports[`Render Summary for union-table-multiple-results.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -122337,6 +122829,7 @@ exports[`Render Summary for union-table-multiple-results.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -122359,6 +122852,7 @@ exports[`Render Summary for union-table-multiple-results.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
     </div>
@@ -124845,6 +125339,7 @@ exports[`Render Summary for union-table-predicateAnalysis.table.html 1`] = `
        id="id_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -124943,6 +125438,7 @@ exports[`Render Summary for union-table-predicateAnalysis.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -124965,6 +125461,7 @@ exports[`Render Summary for union-table-predicateAnalysis.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -124987,6 +125484,7 @@ exports[`Render Summary for union-table-predicateAnalysis.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
     </div>
@@ -126003,6 +126501,7 @@ exports[`Render Summary for union-table-valueAnalysis.table.html 1`] = `
        id="id_filter"
        placeholder="text"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -126106,6 +126605,7 @@ exports[`Render Summary for union-table-valueAnalysis.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -126128,6 +126628,7 @@ exports[`Render Summary for union-table-valueAnalysis.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
      <div
@@ -126150,6 +126651,7 @@ exports[`Render Summary for union-table-valueAnalysis.table.html 1`] = `
        pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
        placeholder="Min:Max"
        type="search"
+       value=""
       />
      </div>
     </div>
