@@ -141,6 +141,13 @@ export default class Overview extends React.Component {
     }
   }
 
+  addTypeToFilter = (filters) =>
+    filters.forEach((filter) => {
+      const [runsetIdx, name, columnIdx] = filter.id.split("_");
+      const type = this.state.tools[runsetIdx]["columns"][columnIdx].type;
+      filter.type = type;
+    });
+
   componentDidMount() {
     this.removeHistoryListener = this.routerRef.current.history.listen(
       (_, action) => {
@@ -160,6 +167,7 @@ export default class Overview extends React.Component {
     const deserializedFilters = this.filterUrlRetriever() || [];
     if (!deepEqual(this.lastFiltered, deserializedFilters)) {
       // we only want to kick off filtering when filters changed
+      this.addTypeToFilter(deserializedFilters);
       return deserializedFilters;
     }
     return null;
