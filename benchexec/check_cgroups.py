@@ -133,7 +133,7 @@ def main(argv=None):
         "--no-thread",
         action="store_true",
         help="run check on the main thread instead of a separate thread"
-        + "(behavior of cgrulesengd differs depending on this)",
+        " (behavior of cgrulesengd differs depending on this)",
     )
 
     options = parser.parse_args(argv[1:])

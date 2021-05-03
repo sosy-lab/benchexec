@@ -576,7 +576,7 @@ def _get_scale_factor(unit, source_unit, column):
         # If the display unit is different from the source unit, a scale factor must be given explicitly
         raise util.TableDefinitionError(
             "Attribute displayUnit is different from sourceUnit,"
-            + f" but scaleFactor is not defined (in column {column.title})"
+            f" but scaleFactor is not defined (in column {column.title})"
         )
 
 

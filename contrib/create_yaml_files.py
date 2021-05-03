@@ -274,4 +274,4 @@ if __name__ == "__main__":
             remaining -= set(globbed_tasks)
         if task_set != DUMMY_SET:
             with open(task_set, "w+") as outp:
-                outp.writelines(line + "\n" for line in new_content)
+                outp.writelines(f"{line}\n" for line in new_content)

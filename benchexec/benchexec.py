@@ -398,11 +398,9 @@ class BenchExec(object):
                 util.add_files_to_git_repository(
                     self.config.output_path,
                     output_handler.all_created_files,
-                    self.config.commit_message
-                    + "\n\n"
-                    + output_handler.description
-                    + "\n\n"
-                    + str(output_handler.statistics),
+                    f"{self.config.commit_message}\n\n"
+                    f"{output_handler.description}\n\n"
+                    f"{output_handler.statistics}",
                 )
             except OSError as e:
                 logging.warning("Could not add files to git repository: %s", e)

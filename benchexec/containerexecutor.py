@@ -826,8 +826,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                         )
                     raise OSError(
                         0,
-                        "Child process of RunExecutor terminated with "
-                        + str(child_exitcode),
+                        f"Child process of RunExecutor terminated with {child_exitcode}",
                     )
 
             # Close unnecessary ends of pipes such that read() does not block forever

@@ -150,7 +150,7 @@ def load_tool_info(tool_name, config):
     Either a full Python package name or a name within the benchexec.tools package.
     @return: A tuple of the full name of the used tool-info module and an instance of the tool-info class.
     """
-    tool_module = tool_name if "." in tool_name else ("benchexec.tools." + tool_name)
+    tool_module = tool_name if "." in tool_name else f"benchexec.tools.{tool_name}"
     try:
         if config.container:
             # lazy import because it can fail if container mode is not supported
@@ -552,7 +552,7 @@ class RunSet(object):
             # there is exactly one source-file set to run, append its name to run-set name
             names.append(self.blocks[0].real_name)
         self.name = ".".join(filter(None, names))
-        self.full_name = self.benchmark.name + (("." + self.name) if self.name else "")
+        self.full_name = self.benchmark.name + (f".{self.name}" if self.name else "")
 
         # Currently we store logfiles as "basename.log",
         # so we cannot distinguish sourcefiles in different folder with same basename.

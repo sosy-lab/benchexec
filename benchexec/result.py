@@ -129,7 +129,7 @@ class Property(collections.namedtuple("Property", "filename is_svcomp name")):
         return (
             ("SV-COMP-" if self.is_svcomp else "")
             + "Property "
-            + (("from " + self.filename) if self.filename else self.name)
+            + (f"from {self.filename}" if self.filename else self.name)
         )
 
     def __str__(self):
