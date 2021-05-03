@@ -355,11 +355,17 @@ def main(argv=None):
         type=argparse.FileType("r"),
         help="optional name of task-definition files to test the module with",
     )
+    parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="enable debug output",
+    )
     benchexec.benchexec.add_container_args(parser)
 
     options = parser.parse_args(argv[1:])
     logging.basicConfig(
-        format=COLOR_WARNING + "%(levelname)s: %(message)s" + COLOR_DEFAULT
+        format=COLOR_WARNING + "%(levelname)s: %(message)s" + COLOR_DEFAULT,
+        level=logging.DEBUG if options.debug else logging.INFO,
     )
     tool_locator = tooladapter.create_tool_locator(options)
 
