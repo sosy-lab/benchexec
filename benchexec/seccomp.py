@@ -78,6 +78,7 @@ def _load_seccomp():
     # Load library with utility functions.
     global _lib
     try:
+        # Allow overriding library lookup for cases like NixOS
         libseccomp = os.environ.get("LIBSECCOMP", "libseccomp.so.2")
         _lib = ctypes.CDLL(libseccomp, use_errno=True)
     except OSError as e:
