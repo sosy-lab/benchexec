@@ -45,11 +45,11 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def cmdline(self, executable, options, task, rlimits):
         if task.property_file:
-            options += ["--property-file=" + task.property_file]
+            options += [f"--property-file={task.property_file}"]
         if rlimits.memory:
-            options += ["--max-memory=" + str(rlimits.memory)]
+            options += [f"--max-memory={rlimits.memory}"]
         if rlimits.cputime:
-            options += ["--max-cputime-soft=" + str(rlimits.cputime)]
+            options += [f"--max-cputime-soft={rlimits.cputime}"]
 
         data_model_param = get_data_model_from_task(task, {ILP32: "--32", LP64: "--64"})
         if data_model_param and data_model_param not in options:

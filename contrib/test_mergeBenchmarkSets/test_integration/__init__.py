@@ -41,7 +41,7 @@ class MergeBenchmarkSetsIntegrationTests(unittest.TestCase):
             expected = os.path.join(
                 here,
                 "expected",
-                os.path.basename(resultfile) + ".merged" + merge_suffix + ".xml.bz2",
+                f"{os.path.basename(resultfile)}.merged{merge_suffix}.xml.bz2",
             )
             if OVERWRITE_MODE:
                 os.replace(result, expected)

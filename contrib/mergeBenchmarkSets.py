@@ -101,14 +101,14 @@ def get_witness_result(witness, verification_result):
     # An invalid witness counts as error of the verifier.
     if status_from_validation == "ERROR (invalid witness syntax)":
         return (
-            "witness invalid (" + status_from_verification + ")",
+            f"witness invalid ({status_from_verification})",
             result.CATEGORY_ERROR,
         )
     # Other unconfirmed witnesses count as CATEGORY_CORRECT_UNCONFIRMED.
     if category_from_verification == result.CATEGORY_CORRECT:
         return status_from_verification, result.CATEGORY_CORRECT_UNCONFIRMED
 
-    return "result invalid (" + status_from_verification + ")", result.CATEGORY_ERROR
+    return f"result invalid ({status_from_verification})", result.CATEGORY_ERROR
 
 
 def get_validation_result(

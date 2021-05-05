@@ -123,13 +123,13 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
         expected_counts=None,
     ):
         def expected_file_name(ending):
-            return [here, "expected", (result_prefix or table_prefix) + "." + ending]
+            return [here, "expected", f"{result_prefix or table_prefix}.{ending}"]
 
         def expected_diff_file_name(ending):
             return [
                 here,
                 "expected",
-                (result_diff_prefix or diff_prefix) + "." + ending,
+                f"{result_diff_prefix or diff_prefix}.{ending}",
             ]
 
         (

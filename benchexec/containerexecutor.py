@@ -946,7 +946,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         temp_base = self._get_result_files_base(temp_dir).encode()
         temp_dir = temp_dir.encode()
 
-        tmpfs_opts = ["size=" + str(memlimit or "100%")]
+        tmpfs_opts = [f"size={memlimit or '100%'}"]
         if memory_nodes:
             tmpfs_opts.append("mpol=bind:" + ",".join(map(str, memory_nodes)))
         tmpfs_opts = (",".join(tmpfs_opts)).encode()

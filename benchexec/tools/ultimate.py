@@ -174,7 +174,7 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
             return wrapper_version
 
         ultimate_version = self._ultimate_version(executable)
-        return ultimate_version + "-" + wrapper_version
+        return f"{ultimate_version}-{wrapper_version}"
 
     @functools.lru_cache()
     def _is_svcomp17_version(self, executable):
@@ -256,7 +256,7 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
             cmdline += ["-ea"]
 
         if mem_bytes:
-            cmdline += ["-Xmx" + str(mem_bytes)]
+            cmdline += [f"-Xmx{mem_bytes}"]
         cmdline += ["-Xss4m"]
         cmdline += ["-jar", self._get_current_launcher_jar(executable)]
 

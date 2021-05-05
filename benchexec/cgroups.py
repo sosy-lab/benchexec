@@ -170,7 +170,7 @@ def _parse_proc_pid_cgroup(content):
         try:
             path = ownCgroup[2][1:]  # remove leading /
         except IndexError:
-            raise IndexError("index out of range for " + str(ownCgroup))
+            raise IndexError(f"index out of range for {ownCgroup}")
         for subsystem in ownCgroup[1].split(","):
             yield (subsystem, path)
 
@@ -461,7 +461,7 @@ class Cgroup(object):
         """
         assert subsystem in self
         return os.path.isfile(
-            os.path.join(self.per_subsystem[subsystem], subsystem + "." + option)
+            os.path.join(self.per_subsystem[subsystem], f"{subsystem}.{option}")
         )
 
     def get_value(self, subsystem, option):
@@ -471,7 +471,7 @@ class Cgroup(object):
         Only call this method if the given subsystem is available.
         """
         assert subsystem in self, f"Subsystem {subsystem} is missing"
-        return util.read_file(self.per_subsystem[subsystem], subsystem + "." + option)
+        return util.read_file(self.per_subsystem[subsystem], f"{subsystem}.{option}")
 
     def get_file_lines(self, subsystem, option):
         """
@@ -481,7 +481,7 @@ class Cgroup(object):
         """
         assert subsystem in self
         with open(
-            os.path.join(self.per_subsystem[subsystem], subsystem + "." + option)
+            os.path.join(self.per_subsystem[subsystem], f"{subsystem}.{option}")
         ) as f:
             for line in f:
                 yield line
@@ -495,7 +495,7 @@ class Cgroup(object):
         """
         assert subsystem in self
         return util.read_key_value_pairs_from_file(
-            self.per_subsystem[subsystem], subsystem + "." + filename
+            self.per_subsystem[subsystem], f"{subsystem}.{filename}"
         )
 
     def set_value(self, subsystem, option, value):
@@ -506,7 +506,7 @@ class Cgroup(object):
         """
         assert subsystem in self
         util.write_file(
-            str(value), self.per_subsystem[subsystem], subsystem + "." + option
+            str(value), self.per_subsystem[subsystem], f"{subsystem}.{option}"
         )
 
     def remove(self):

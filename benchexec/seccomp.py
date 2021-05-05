@@ -43,7 +43,7 @@ def _check_null(result, func, arguments):
         return result
 
     func_name = getattr(func, "__name__", "__unknown__")
-    raise OSError(func_name + "(" + ", ".join(map(str, arguments)) + ") returned null")
+    raise OSError(f"{func_name}({', '.join(map(str, arguments))}) returned null")
 
 
 def _load_seccomp():
@@ -78,7 +78,9 @@ def _load_seccomp():
     # Load library with utility functions.
     global _lib
     try:
-        _lib = ctypes.CDLL("libseccomp.so.2", use_errno=True)
+        # Allow overriding library lookup for cases like NixOS
+        libseccomp = os.environ.get("LIBSECCOMP", "libseccomp.so.2")
+        _lib = ctypes.CDLL(libseccomp, use_errno=True)
     except OSError as e:
         logging.warning(
             "Could not load libseccomp2, "

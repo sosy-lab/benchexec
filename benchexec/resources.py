@@ -308,7 +308,7 @@ def _get_cpu_cores_per_run0(
     assert all(len(cores) == coreLimit for cores in result)
     assert (
         len(set(itertools.chain(*result))) == num_of_threads * coreLimit
-    ), "Cores are not uniquely assigned to runs: " + str(result)
+    ), f"Cores are not uniquely assigned to runs: {result}"
 
     logging.debug("Final core assignment: %s.", result)
     return result

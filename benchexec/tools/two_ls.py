@@ -42,7 +42,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         elif run.exit_code.signal == 9:
             status = "OUT OF MEMORY"
         elif run.exit_code.signal:
-            status = "ERROR(SIGNAL " + str(run.exit_code.signal) + ")"
+            status = f"ERROR(SIGNAL {run.exit_code.signal})"
         elif run.exit_code.value == 0:
             status = result.RESULT_TRUE_PROP
         elif run.exit_code.value == 10:

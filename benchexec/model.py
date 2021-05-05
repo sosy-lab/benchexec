@@ -93,9 +93,9 @@ def load_task_definition_file(task_def_file):
         with open(task_def_file) as f:
             task_def = yaml.safe_load(f)
     except OSError as e:
-        raise BenchExecException("Cannot open task-definition file: " + str(e))
+        raise BenchExecException(f"Cannot open task-definition file: {e}")
     except yaml.YAMLError as e:
-        raise BenchExecException("Invalid task definition: " + str(e))
+        raise BenchExecException(f"Invalid task definition: {e}")
 
     if not task_def:
         raise BenchExecException("Invalid task definition: empty file " + task_def_file)
@@ -207,7 +207,7 @@ def cmdline_for_run(
     )
 
     args = tool.cmdline(rel_executable, list(options), task, rlimits)
-    assert all(args), "Tool cmdline contains empty or None argument: " + str(args)
+    assert all(args), f"Tool cmdline contains empty or None argument: {args}"
     args = [os.path.expandvars(arg) for arg in args]
     args = [os.path.expanduser(arg) for arg in args]
     return args
@@ -267,10 +267,10 @@ class Benchmark(object):
         self.start_time = start_time
         self.instance = start_time.strftime(util.TIMESTAMP_FILENAME_FORMAT)
 
-        self.output_base_name = config.output_path + self.name + "." + self.instance
-        self.log_folder = self.output_base_name + ".logfiles" + os.path.sep
-        self.log_zip = self.output_base_name + ".logfiles.zip"
-        self.result_files_folder = self.output_base_name + ".files"
+        self.output_base_name = f"{config.output_path}{self.name}.{self.instance}"
+        self.log_folder = f"{self.output_base_name}.logfiles{os.path.sep}"
+        self.log_zip = f"{self.output_base_name}.logfiles.zip"
+        self.result_files_folder = f"{self.output_base_name}.files"
 
         # parse XML
         try:
@@ -866,7 +866,7 @@ class RunSet(object):
                 and expected_result.subproperty
                 and "(" in expected_result_filter
             ):
-                expected_result_str += "(" + expected_result.subproperty + ")"
+                expected_result_str += f"({expected_result.subproperty})"
             if expected_result_str != expected_result_filter:
                 logging.debug(
                     "Ignoring run '%s' because "
@@ -946,7 +946,7 @@ class Run(object):
         self.task_options = task_options
         self.runSet = runSet
         self.specific_options = fileOptions  # options that are specific for this run
-        self.log_file = runSet.log_folder + os.path.basename(self.identifier) + ".log"
+        self.log_file = f"{runSet.log_folder}{os.path.basename(self.identifier)}.log"
         self.result_files_folder = os.path.join(
             runSet.result_files_folder, os.path.basename(self.identifier)
         )
@@ -1131,7 +1131,7 @@ class Run(object):
                 elif exitcode.signal == 15:
                     tool_status = "KILLED"
                 elif exitcode.signal:
-                    tool_status = "KILLED BY SIGNAL " + str(exitcode.signal)
+                    tool_status = f"KILLED BY SIGNAL {exitcode.signal}"
 
                 elif exitcode.value and tool_status != result.RESULT_UNKNOWN:
                     tool_status = f"{result.RESULT_ERROR} ({exitcode.value})"
@@ -1165,7 +1165,7 @@ class Run(object):
         return status
 
     def _is_timeout(self):
-        """ try to find out whether the tool terminated because of a timeout """
+        """try to find out whether the tool terminated because of a timeout"""
         rlimits = self.runSet.benchmark.rlimits
         cputime = self.values.get("cputime")
         walltime = self.values.get("walltime")
@@ -1256,10 +1256,10 @@ class Requirements(object):
     def __str__(self):
         s = ""
         if self.cpu_model:
-            s += " CPU='" + self.cpu_model + "'"
+            s += f" CPU='{self.cpu_model}'"
         if self.cpu_cores:
-            s += " Cores=" + str(self.cpu_cores)
+            s += f" Cores={self.cpu_cores}"
         if self.memory:
-            s += " Memory=" + str(self.memory / _BYTE_FACTOR / _BYTE_FACTOR) + " MB"
+            s += f" Memory={self.memory / _BYTE_FACTOR / _BYTE_FACTOR} MB"
 
         return f"Requirements: {s or ' None'}"

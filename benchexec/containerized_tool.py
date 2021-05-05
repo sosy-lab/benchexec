@@ -117,7 +117,7 @@ def _init_container_and_load_tool(tool_module, *args, **kwargs):
     try:
         _init_container(*args, **kwargs)
     except OSError as e:
-        raise BenchExecException("Failed to configure container: " + str(e))
+        raise BenchExecException(f"Failed to configure container: {e}")
     return _load_tool(tool_module)
 
 

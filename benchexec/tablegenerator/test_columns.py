@@ -407,7 +407,7 @@ class ColumnsTest(unittest.TestCase):
         column = Column("empty_column", None, self.sig_figures, None)
         column.set_column_type_from(values)
         self.assertEqual(
-            column.type.type, expected_type, msg="Actual type: " + str(column.type)
+            column.type.type, expected_type, msg=f"Actual type: {column.type}"
         )
 
     def test_column_type_text_value_starts_with_number(self):

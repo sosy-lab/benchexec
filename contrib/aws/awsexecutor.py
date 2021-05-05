@@ -81,7 +81,7 @@ def execute_benchmark(benchmark, output_handler):
         requestId = msg["requestId"]
 
         # Upload verifier
-        prefix = benchmark.tool_name + "_" + benchmark.instance + "_"
+        prefix = f"{benchmark.tool_name}_{benchmark.instance}_"
         with tempfile.SpooledTemporaryFile(
             mode="w+b", prefix=prefix, suffix=".zip"
         ) as tempfile_verifier:
@@ -113,7 +113,7 @@ def execute_benchmark(benchmark, output_handler):
             http_request.raise_for_status()
 
         # Upload tasks
-        prefix = "BenchExec_tasks_" + benchmark.instance + "_"
+        prefix = f"BenchExec_tasks_{benchmark.instance}_"
         with tempfile.SpooledTemporaryFile(
             mode="w+b", prefix=prefix, suffix=".zip"
         ) as tempfile_tasks:
