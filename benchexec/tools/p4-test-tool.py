@@ -11,17 +11,17 @@ import benchexec.result as result
 
 
 class Tool(benchexec.tools.template.BaseTool2):
-    
-    #Needed for benchexec to run, but irrelevant for p4 extension
-    def executable(self, tool):      
+
+    # Needed for benchexec to run, but irrelevant for p4 extension
+    def executable(self, tool):
         return "/"
-        
+
     def name(self):
         return "P4 Test"
 
     def determine_result(self, run):
         run_succreded = False
-        #Traverse through the output and check for and Ok
+        # Traverse through the output and check for and Ok
         for line in run.output:
             if "OK" in line:
                 run_succreded = True
