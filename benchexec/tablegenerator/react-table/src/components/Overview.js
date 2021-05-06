@@ -165,9 +165,9 @@ export default class Overview extends React.Component {
 
   getFiltersFromUrl = () => {
     const deserializedFilters = this.filterUrlRetriever() || [];
+    this.addTypeToFilter(deserializedFilters);
     if (!deepEqual(this.lastFiltered, deserializedFilters)) {
       // we only want to kick off filtering when filters changed
-      this.addTypeToFilter(deserializedFilters);
       return deserializedFilters;
     }
     return null;
