@@ -112,7 +112,8 @@ pytype:
   stage: test
   image: python:3.7
   before_script:
-    - pip install coloredlogs pytype
+    # attrs is temporary workaround for https://github.com/google/pytype/issues/909
+    - pip install coloredlogs pytype attrs==20.3.0
   script:
     - pytype -k
   cache:
