@@ -142,11 +142,13 @@ export default class Overview extends React.Component {
   }
 
   addTypeToFilter = (filters) =>
-    filters.forEach((filter) => {
-      const [runsetIdx, name, columnIdx] = filter.id.split("_");
-      const type = this.state.tools[runsetIdx]["columns"][columnIdx].type;
-      filter.type = type;
-    });
+    filters
+      .filter((filter) => filter.id !== "id")
+      .forEach((filter) => {
+        const [runsetIdx, name, columnIdx] = filter.id.split("_");
+        const type = this.state.tools[runsetIdx]["columns"][columnIdx].type;
+        filter.type = type;
+      });
 
   componentDidMount() {
     this.removeHistoryListener = this.routerRef.current.history.listen(
@@ -373,6 +375,7 @@ export default class Overview extends React.Component {
                     statusValues={this.statusValues}
                     categoryValues={this.categoryValues}
                     hiddenCols={this.state.hiddenCols}
+                    addTypeToFilter={this.addTypeToFilter}
                   />
                 </Route>
                 <Route path="/quantile">
