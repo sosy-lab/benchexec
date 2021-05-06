@@ -152,7 +152,7 @@ const buildMatcher = (filters) => {
       acc.id = { value, values };
       return acc;
     }
-    const [tool, name, columnIdx] = id.split("_");
+    const [tool, , columnIdx] = id.split("_");
     if (value === "diff") {
       // this branch is noop as of now
       if (!acc.diff) {
