@@ -143,7 +143,7 @@ def handle_files_from_task_definition(patterns, task_def_file):
     return result
 
 
-def load_tool_info(tool_name, config):
+def load_tool_info(tool_name: str, config):
     """
     Load the tool-info class.
     @param tool_name: The name of the tool-info module.

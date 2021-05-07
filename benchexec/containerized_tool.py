@@ -27,7 +27,7 @@ from benchexec import (
 )
 
 
-tool = None  # type: tooladapter.CURRENT_BASETOOL
+tool: tooladapter.CURRENT_BASETOOL = None
 
 
 @tooladapter.CURRENT_BASETOOL.register  # mark as instance of CURRENT_BASETOOL

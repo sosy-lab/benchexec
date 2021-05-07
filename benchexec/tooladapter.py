@@ -12,6 +12,7 @@ This is an internal module for BenchExec and not to be used by tool-info modules
 """
 
 import inspect
+from typing import cast, Union
 
 from benchexec.tools.template import BaseTool, BaseTool2, ToolNotFoundException
 
@@ -38,7 +39,7 @@ class Tool1To2:
         "environment",
     ]
 
-    def __init__(self, wrapped):
+    def __init__(self, wrapped: BaseTool):
         self._wrapped = wrapped
         for method in Tool1To2._FORWARDED_METHODS:
             # This binds wrapped to the first argument of the method
@@ -89,7 +90,7 @@ class Tool1To2:
         pass
 
 
-def adapt_to_current_version(tool):
+def adapt_to_current_version(tool: Union[BaseTool, BaseTool2]) -> CURRENT_BASETOOL:
     """
     Given an instance of a tool-info module's class, return an instance that conforms to
     the current API. Might be either the same or a different instance.
@@ -97,7 +98,7 @@ def adapt_to_current_version(tool):
     if isinstance(tool, BaseTool2):
         return tool
     elif isinstance(tool, BaseTool):
-        return Tool1To2(tool)
+        return cast(BaseTool2, Tool1To2(tool))  # ptype does not support @register yet
     else:
         raise TypeError(
             f"{tool.__class__} is not a subclass of one of the expected base classes "
@@ -105,7 +106,7 @@ def adapt_to_current_version(tool):
         )
 
 
-def create_tool_locator(config):
+def create_tool_locator(config) -> CURRENT_BASETOOL.ToolLocator:
     """
     Create an instance of ToolLocator with the standard behavior based on the given
     command-line options.
