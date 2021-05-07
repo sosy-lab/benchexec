@@ -462,6 +462,8 @@ const TableRender = (props) => {
           /* There may be filters without values left over when the filter tab
              overrides the table tab filters. Remove those if any exist. */
           filtered = filtered.filter((filter) => filter.value);
+          props.addTypeToFilter(filtered);
+
           // We only want to consider filters that were set by ReactTable on this update
           const newFilters = filtered.filter(
             (filter) => !props.filtered.includes(filter),
@@ -478,8 +480,8 @@ const TableRender = (props) => {
           let additionalFilters = [];
 
           // We are only interested in applying additional filters based on status filters
-          const statusFilter = newFilters.filter(({ id, value }) =>
-            id.includes("status"),
+          const statusFilter = newFilters.filter(
+            ({ type }) => type === "status",
           );
           if (statusFilter && statusFilter.length) {
             const parsed = statusFilter.map(({ id, value }) => {
@@ -517,6 +519,7 @@ const TableRender = (props) => {
               }
             }
           }
+          props.addTypeToFilter(additionalFilters);
           props.filterPlotData([...filteredCopy, ...additionalFilters], true);
         }}
         onPageSizeChange={(pageSize) => setParam({ pageSize })}

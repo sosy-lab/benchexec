@@ -141,6 +141,15 @@ export default class Overview extends React.Component {
     }
   }
 
+  addTypeToFilter = (filters) =>
+    filters
+      .filter((filter) => filter.id !== "id")
+      .forEach((filter) => {
+        const [runsetIdx, , columnIdx] = filter.id.split("_");
+        const type = this.state.tools[runsetIdx]["columns"][columnIdx].type;
+        filter.type = type;
+      });
+
   componentDidMount() {
     this.removeHistoryListener = this.routerRef.current.history.listen(
       (_, action) => {
@@ -158,6 +167,7 @@ export default class Overview extends React.Component {
 
   getFiltersFromUrl = () => {
     const deserializedFilters = this.filterUrlRetriever() || [];
+    this.addTypeToFilter(deserializedFilters);
     if (!deepEqual(this.lastFiltered, deserializedFilters)) {
       // we only want to kick off filtering when filters changed
       return deserializedFilters;
@@ -365,6 +375,7 @@ export default class Overview extends React.Component {
                     statusValues={this.statusValues}
                     categoryValues={this.categoryValues}
                     hiddenCols={this.state.hiddenCols}
+                    addTypeToFilter={this.addTypeToFilter}
                   />
                 </Route>
                 <Route path="/quantile">

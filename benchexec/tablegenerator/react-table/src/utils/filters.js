@@ -5,7 +5,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { isNil, getRawOrDefault, omit } from "./utils";
+import { isNil, getRawOrDefault, omit, isNumericColumn } from "./utils";
 
 /**
  * Prepares raw data for filtering by retrieving available distinct values as min
@@ -141,7 +141,7 @@ const applyTextFilter = (filter, row, cell) => {
  * @param {Array<Object>} filters - List of filters
  */
 const buildMatcher = (filters) => {
-  const out = filters.reduce((acc, { id, value, values }) => {
+  const out = filters.reduce((acc, { id, value, type, values }) => {
     if (
       (isNil(value) && isNil(values)) ||
       (typeof value === "string" && value.trim() === "all")
@@ -152,7 +152,7 @@ const buildMatcher = (filters) => {
       acc.id = { value, values };
       return acc;
     }
-    const [tool, name, columnIdx] = id.split("_");
+    const [tool, , columnIdx] = id.split("_");
     if (value === "diff") {
       // this branch is noop as of now
       if (!acc.diff) {
@@ -165,7 +165,7 @@ const buildMatcher = (filters) => {
       acc[tool] = {};
     }
     let filter;
-    if (value.includes(":")) {
+    if (isNumericColumn({ type }) && value.includes(":")) {
       let [minV, maxV] = value.split(":");
       minV = minV === "" ? -Infinity : Number(minV);
       maxV = maxV === "" ? Infinity : Number(maxV);
@@ -173,7 +173,7 @@ const buildMatcher = (filters) => {
     } else {
       if (value[value.length - 1] === " ") {
         filter = { category: value.substr(0, value.length - 1) };
-      } else if (name === "status") {
+      } else if (type === "status") {
         filter = { status: value };
       } else {
         filter = { value };
