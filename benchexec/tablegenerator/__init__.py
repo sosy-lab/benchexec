@@ -480,7 +480,8 @@ class RunSetResult(object):
         run_results = _get_run_tags_from_xml(resultElem)
         if not run_results:
             logging.warning("Result file '%s' is empty.", resultFile)
-            return []
+            # completely empty results break stuff, add at least status column
+            return [MAIN_COLUMNS[0]]
         else:  # show all available columns
             column_names = {
                 c.get("title")
