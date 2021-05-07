@@ -131,7 +131,7 @@ export default class FilterContainer extends React.PureComponent {
               key={`${this.props.toolName}-${filter.display_title}-${filter.numCards}`}
             />
           ))}
-        {availableFilters.length && (
+        {(availableFilters.length && (
           <FilterCard
             availableFilters={availableFilters}
             editable="true"
@@ -139,7 +139,8 @@ export default class FilterContainer extends React.PureComponent {
             addFilter={(idx) => this.addFilter(idx)}
             onFilterUpdate={(vals) => this.setFilter(vals)}
           />
-        )}
+        )) ||
+          undefined}
         <br />
       </div>
     );

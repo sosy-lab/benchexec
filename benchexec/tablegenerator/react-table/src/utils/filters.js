@@ -32,20 +32,20 @@ const getFilterableData = ({ tools, rows }) => {
       return { ...col, min: Infinity, max: -Infinity, idx };
     });
 
-    if (isNil(statusIdx)) {
-      return undefined;
+    if (!isNil(statusIdx)) {
+      columns[statusIdx] = {
+        ...columns[statusIdx],
+        categories: {},
+        statuses: {},
+      };
     }
-
-    columns[statusIdx] = {
-      ...columns[statusIdx],
-      categories: {},
-      statuses: {},
-    };
 
     for (const row of rows) {
       const result = row.results[idx];
       // convention as of writing this commit is to postfix categories with a space character
-      columns[statusIdx].categories[`${result.category} `] = true;
+      if (!isNil(statusIdx)) {
+        columns[statusIdx].categories[`${result.category} `] = true;
+      }
 
       for (const colIdx in result.values) {
         const col = result.values[colIdx];
