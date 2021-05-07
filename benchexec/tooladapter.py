@@ -85,6 +85,9 @@ class Tool1To2:
     def get_value_from_output(self, output, identifier):
         return self._wrapped.get_value_from_output(output._lines, identifier)
 
+    def close(self):
+        pass
+
 
 def adapt_to_current_version(tool):
     """

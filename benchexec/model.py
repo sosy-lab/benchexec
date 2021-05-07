@@ -160,8 +160,6 @@ def load_tool_info(tool_name, config):
         else:
             tool = __import__(tool_module, fromlist=["Tool"]).Tool()
             tool = tooladapter.adapt_to_current_version(tool)
-            # Provide dummy close method
-            tool.close = lambda: None
     except ImportError as ie:
         logging.debug(
             "Did not find module '%s'. "

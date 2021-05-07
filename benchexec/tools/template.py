@@ -314,6 +314,13 @@ class BaseTool2(object, metaclass=ABCMeta):
         @return a (possibly empty) string, optional with HTML tags
         """
 
+    def close(self):
+        """
+        OPTIONAL, called before tool-info module is no longer used,
+        but no strict guarantee about this.
+        """
+        pass
+
     # Classes that are used in parameters above
 
     class ToolLocator(

@@ -69,6 +69,7 @@ class ContainerizedTool(object):
                 os.rmdir(temp_dir)
 
     def close(self):
+        self._forward_call("close", [], {})
         self._pool.close()
 
     def _forward_call(self, method_name, args, kwargs):
