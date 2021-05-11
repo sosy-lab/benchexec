@@ -15,7 +15,7 @@ from benchexec.benchexec import BenchExecException
 from benchexec.benchexec import BenchExec
 
 
-class P4_BenchExec(BenchExec):
+class P4BenchExec(BenchExec):
     """
     Extension of the basic BenchExec. It overrides the executor and
     changes it to the p4execution executor to examine p4 programs.
@@ -46,7 +46,7 @@ def main(benchexec=None, argv=None):
         sys.exit("p4-benchmark needs root access to run")
     try:
         if not benchexec:
-            benchexec = P4_BenchExec()
+            benchexec = P4BenchExec()
 
         def signal_stop(signum, frame):
             logging.debug("Received signal %d, terminating.", signum)
