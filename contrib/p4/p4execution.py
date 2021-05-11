@@ -747,7 +747,8 @@ class P4Execution(object):
         os.mkdir(switch_path + "/P4")
         os.mkdir(switch_path + "/tables")
 
-        copy_tree(self.switch_source_path + "/log", switch_path + "/log")
+        # Create log file for switch to use
+        open(switch_path + "/log/switch_log.txt", "x")
         copy_tree(self.switch_source_path + "/P4", switch_path + "/P4")
         copy_tree(self.switch_source_path + "/tables", switch_path + "/tables")
 
