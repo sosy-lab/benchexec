@@ -1,5 +1,9 @@
 <?xml version="1.0"?>
+<!-- SPDX-FileCopyrightText: 2020-2021 CASTOR Software Research Centre
+<https://www.castor.kth.se/>
+SPDX-FileCopyrightText: 2020-2021 Johan Paulsson
 
+SPDX-License-Identifier: Apache-2.0 -->
 
 <!DOCTYPE benchmark PUBLIC "+//IDN sosy-lab.org//DTD BenchExec benchmark 2.3//EN" "https://www.sosy-lab.org/benchexec/benchmark-2.3.dtd">
 
