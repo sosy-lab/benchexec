@@ -10,8 +10,6 @@ import json
 import os
 import logging
 
-STATIC_PROPERY_FILE_PATH = "test/tasks/test.prp"
-
 
 class P4SetupHandler(object):
     """
