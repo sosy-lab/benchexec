@@ -11,7 +11,7 @@ import time
 import threading
 from benchexec import systeminfo
 from p4.p4_run_setup import P4SetupHandler
-from p4.Counter import Counter
+from p4.counter import Counter
 
 from benchexec import tooladapter
 from benchexec import util
@@ -84,12 +84,16 @@ class P4Execution(object):
         ) = self.read_folder_paths(benchmark)
 
         if not os.path.isdir(self.switch_source_path):
-            logging.critical(f"Switch folder path not found: {self.switch_source_path}")
+            logging.critical(
+                "Switch folder path not found: %s, {self.switch_source_path}"
+            )
             raise BenchExecException(
                 "Switch folder path not found. Look over setup definition"
             )
         if not os.path.isdir(self.ptf_folder_path):
-            logging.critical(f"Ptf test folder path not found: {self.ptf_folder_path}")
+            logging.critical(
+                "Ptf test folder path not found: %s, {self.ptf_folder_path}"
+            )
             raise (
                 BenchExecException(
                     f"Ptf test folder path not found: {self.ptf_folder_path}"
@@ -99,7 +103,7 @@ class P4Execution(object):
         if not self.switch_source_path or not self.ptf_folder_path:
             raise BenchExecException(
                 "Switch or Ptf folder path not defined."
-                + f"Switch path: {self.switch_source_path} Folder path: {self.ptf_folder_path}"
+                f"Switch path: {self.switch_source_path} Folder path: {self.ptf_folder_path}"
             )
 
         # Extract network config info
@@ -214,7 +218,7 @@ class P4Execution(object):
 
                 copyfile(switch_command_output, switch_command_output_new)
             else:
-                logging.info(f"No tables was loaded for switch: {switch.name}")
+                logging.info("No tables was loaded for switch: %s, {switch.name}")
 
             # Clear log file
             with open(switch_log_file, "r+") as f:
@@ -730,7 +734,7 @@ class P4Execution(object):
                         detach=True,
                     )
                 else:
-                    logging.info("Could not find table: \n {0}".format(table_file_path))
+                    logging.info("Could not find table: \n %s", table_file_path)
 
         self.nr_of_active_containers.increment()
 

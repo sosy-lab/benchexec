@@ -17,8 +17,10 @@ class Counter(object):
         self.value = start
 
     def increment(self):
-        self.lock.acquire()
-        try:
+        with self.lock:
             self.value += 1
-        finally:
-            self.lock.release()
+        # self.lock.acquire()
+        # try:
+        #     self.value += 1
+        # finally:
+        #     self.lock.release()
