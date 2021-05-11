@@ -1,7 +1,12 @@
+<!-- PDX-FileCopyrightText: 2020-2021 CASTOR Software Research Centre
+<https://www.castor.kth.se/>
+SPDX-FileCopyrightText: 2020-2021 Johan Paulsson
+
+SPDX-License-Identifier: Apache-2.0 -->
+
 # P4 Extension for Benchexec
 
 ## Installation
-
 
 ### Dependencies
 
