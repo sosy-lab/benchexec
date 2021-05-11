@@ -4,32 +4,27 @@
 
 # SPDX-License-Identifier: Apache-2.0
 
-import sys
 import os
 import logging
 
 import time
-import re
 import threading
 from benchexec import systeminfo
-from benchexec.model import Run
 from p4.p4_run_setup import P4SetupHandler
 from p4.Counter import Counter
 
 from benchexec import tooladapter
 from benchexec import util
-from benchexec import benchexec
 from benchexec import BenchExecException
 
 # File handling
-import zipfile
 from shutil import copyfile, rmtree
 import json
 from distutils.dir_util import copy_tree
 
 try:
     import docker
-except Exception as e:
+except ModuleNotFoundError:
     raise BenchExecException(
         "Python-docker package not found. Try reinstalling python docker module"
     )
@@ -37,7 +32,7 @@ except Exception as e:
 try:
     from pyroute2 import IPRoute
     from pyroute2 import NetNS
-except:
+except ModuleNotFoundError:
     raise BenchExecException(
         "pyroute2 python package not found. Try reinstalling pyroute2"
     )
@@ -172,7 +167,7 @@ class P4Execution(object):
                             mounts=[mount_switch],
                         )
                     )
-                except docker.errors.APIError as e:
+                except docker.errors.APIError:
                     self.switches.append(self.client.containers.get(switch_info))
 
             logging.info("Setting up network")
@@ -264,7 +259,7 @@ class P4Execution(object):
 
                 try:
                     with open(run.log_file, "w") as ouputFile:
-                        for i in range(6):
+                        for _i in range(6):
                             ouputFile.write("\n")
 
                         # for result in test_results:
@@ -274,8 +269,6 @@ class P4Execution(object):
 
                 values = {}
                 values["exitcode"] = util.ProcessExitCode.from_raw(return_code)
-
-                test = run.cmdline()
                 run._cmdline = command.split(" ")
 
                 run.set_result(values)
@@ -475,8 +468,8 @@ class P4Execution(object):
 
             for interface in net_interfaces[2:]:
                 iface_name = interface["attrs"][0][1]
-                id = ns.link_lookup(ifname=iface_name)[0]
-                ns.link("set", index=id, state="up")
+                id_switch = ns.link_lookup(ifname=iface_name)[0]
+                ns.link("set", index=id_switch, state="up")
 
     def read_tests(self):
         """
@@ -526,19 +519,12 @@ class P4Execution(object):
         option_index = 0
 
         while option_index < len(benchmark.options):
-            try:
-                if "switch" in benchmark.options[option_index].lower():
-                    switch_folder = benchmark.options[option_index + 1]
-                elif "ptf" in benchmark.options[option_index].lower():
-                    ptf_folder = benchmark.options[option_index + 1]
-                elif "network_config" in benchmark.options[option_index].lower():
-                    network_config = benchmark.options[option_index + 1]
-            except:
-                self.close()
-                raise BenchExecException(
-                    benchmark.options[option_index]
-                    + " did not match any expected options"
-                )
+            if "switch" in benchmark.options[option_index].lower():
+                switch_folder = benchmark.options[option_index + 1]
+            elif "ptf" in benchmark.options[option_index].lower():
+                ptf_folder = benchmark.options[option_index + 1]
+            elif "network_config" in benchmark.options[option_index].lower():
+                network_config = benchmark.options[option_index + 1]
 
             option_index += 2
 
@@ -788,7 +774,7 @@ class P4Execution(object):
             return False
         else:
             # Check nodes
-            if not "nodes" in self.network_config:
+            if "nodes" not in self.network_config:
                 logging.debug("No nodes defined in network config")
                 return False
             elif len(self.network_config["nodes"]) == 0:
@@ -804,7 +790,7 @@ class P4Execution(object):
                     return False
 
             # Check switches
-            if not "switches" in self.network_config:
+            if "switches" not in self.network_config:
                 logging.debug("No switches defined")
                 return False
             elif len(self.network_config["switches"]) == 0:
