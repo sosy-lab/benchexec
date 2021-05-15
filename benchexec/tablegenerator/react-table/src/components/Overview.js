@@ -66,7 +66,7 @@ export default class Overview extends React.Component {
       taskIdNames,
       tools,
       columns,
-      table,
+      tableData,
       stats,
       initial,
     } = prepareTableData(props.data);
@@ -76,7 +76,7 @@ export default class Overview extends React.Component {
     }
 
     const filterable = getFilterableData(this.props.data);
-    this.originalTable = table;
+    this.originalTable = tableData;
     this.originalTools = tools;
 
     this.taskIdNames = taskIdNames;
@@ -93,7 +93,7 @@ export default class Overview extends React.Component {
     //To change data in component (e.g. filter): function to change has to be in overview
     this.state = {
       tools,
-      table,
+      tableData,
       filterable,
       showSelectColumns: false,
       showLinkOverlay: false,
@@ -135,7 +135,7 @@ export default class Overview extends React.Component {
       this.lastFiltered = deserializedFilters;
       this.state = {
         ...this.state,
-        table: this.filteredData,
+        tableData: this.filteredData,
         filtered: deserializedFilters,
       };
     }
@@ -170,7 +170,7 @@ export default class Overview extends React.Component {
     if (newFilters) {
       this.filteredData = this.runFilter(newFilters);
       this.setState({
-        table: this.filteredData,
+        tableData: this.filteredData,
         filtered: newFilters,
       });
       this.lastFiltered = newFilters;
@@ -234,13 +234,14 @@ export default class Overview extends React.Component {
       this.setFilter(this.runFilter(filter), true);
     }
     this.setState({
-      table: this.filteredData,
+      tableData: this.filteredData,
       filtered: filter,
     });
   };
+
   resetFilters = () => {
     this.setState({
-      table: this.originalTable,
+      tableData: this.originalTable,
       filtered: [],
     });
   };
@@ -289,7 +290,7 @@ export default class Overview extends React.Component {
         enabled={enabled}
         isFiltered={!!this.state.filtered.length}
         resetFilters={this.resetFilters}
-        filteredCount={this.state.table.length}
+        filteredCount={this.state.tableData.length}
         totalCount={this.originalTable.length}
       />
     );
@@ -347,20 +348,18 @@ export default class Overview extends React.Component {
                     tableHeader={this.tableHeader}
                     version={this.props.data.version}
                     selectColumn={this.toggleSelectColumns}
-                    stats={this.stats}
                     switchToQuantile={this.switchToQuantile}
+                    tableData={this.stats}
                     hiddenCols={this.state.hiddenCols}
                   />
                 </Route>
                 <Route path="/table">
                   <Table
-                    tableHeader={this.tableHeader}
-                    data={this.state.table}
+                    tableData={this.state.tableData}
                     tools={this.state.tools}
                     selectColumn={this.toggleSelectColumns}
-                    setFilter={this.setFilter}
                     filterPlotData={this.filterPlotData}
-                    filtered={this.state.filtered}
+                    filters={this.state.filtered}
                     toggleLinkOverlay={this.toggleLinkOverlay}
                     statusValues={this.statusValues}
                     categoryValues={this.categoryValues}
@@ -369,7 +368,7 @@ export default class Overview extends React.Component {
                 </Route>
                 <Route path="/quantile">
                   <QuantilePlot
-                    table={this.state.table}
+                    table={this.state.tableData}
                     tools={this.state.tools}
                     preSelection={this.state.quantilePreSelection}
                     getRowName={this.getRowName}
@@ -379,7 +378,7 @@ export default class Overview extends React.Component {
                 </Route>
                 <Route path="/scatter">
                   <ScatterPlot
-                    table={this.state.table}
+                    table={this.state.tableData}
                     columns={this.columns}
                     tools={this.state.tools}
                     getRowName={this.getRowName}

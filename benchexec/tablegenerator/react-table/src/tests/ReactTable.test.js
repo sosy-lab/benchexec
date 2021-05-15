@@ -22,13 +22,13 @@ expect.addSnapshotSerializer({
 test_snapshot_of("Render Summary", (overview) => (
   <Table
     tableHeader={overview.tableHeader}
-    data={overview.originalTable}
+    tableData={overview.originalTable}
     tools={overview.state.tools}
     selectColumn={overview.toggleSelectColumns}
     prepareTableValues={overview.prepareTableValues}
     setFilter={overview.setFilter}
     filterPlotData={overview.filterPlotData}
-    filtered={overview.state.filtered}
+    filters={overview.state.filtered}
     toggleLinkOverlay={overview.toggleLinkOverlay}
     changeTab={overview.changeTab}
     statusValues={overview.statusValues}
