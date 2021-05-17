@@ -5,16 +5,12 @@ SPDX-FileCopyrightText: 2020-2021 Johan Paulsson
 SPDX-License-Identifier: Apache-2.0 -->
 
 # P4 Extension for Benchexec
+This extension allows Benchexec to be used to analyze P4 programs for programmable switches. The user can alter the way the test should
+be executed by providing different input files to define the test.
 
 ## Installation
 
 ### Dependencies
-
-Pyroute2 python package is required to handle network setup. Install via:
-```
-sudo pip3 install pyroute2
-```
-
 #### Docker Engine
 To install docker, follow the instruction on [dockers website](https://docs.docker.com/engine/install/)
 
@@ -35,22 +31,20 @@ sudo apt-get update
 sudo apt-get install docker-ce docker-ce-cli containerd.io
 ```
 
-Also install the module for docker in python:
+Also install the required python modules,
 
 ```
 sudo pip3 install docker
+sudo pip3 install pyroute2
 ```
 
 ### Benchexec installation
 
-To install benchexecute with p4 extensions follow these steps. First clone the repository, switch to correct
-branch and install the application:
+To install benchexecute with p4 extensions follow these steps. First clone the repository and then install with pip. 
 
 ```
 git clone https://github.com/thaprau/benchexec.git
-cd benchexec
-git checkout bench_p4
-pip3 install .
+sudo pip3 install .
 ```
 
 ### Dockerfile setup
@@ -71,7 +65,6 @@ sudo docker build -t ptf_tester ptf_tester
 ## Setup
 
 To run benchexec with p4, there are a few requirements. The first one is to create a benchmark file. The structure of the benchmark file is the same as the regular benchexec, but with 3 extra option tags. The tags are:
-
 
 1.    Path to ptf test folder. Format: <option name="switch_folder">path/to/switch_folder</option>
 2.    Path to switch folder. Format <option name="ptf_test_folder">path/to/ptf_test_folder</option>
