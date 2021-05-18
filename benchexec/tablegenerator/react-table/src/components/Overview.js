@@ -26,6 +26,7 @@ import {
   getFilterableData,
   buildMatcher,
   applyMatcher,
+  statusForEmptyRows,
 } from "../utils/filters";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faQuestionCircle } from "@fortawesome/free-solid-svg-icons";
@@ -107,6 +108,19 @@ export default class Overview extends React.Component {
     this.statusValues = this.findAllValuesOfColumn(
       (_tool, column) => column.type === "status",
       (_runResult, value) => getRawOrDefault(value),
+    );
+    // Add statusForEmptyRows to status values array if there is a corresponding empty row for the runset
+    this.originalTools.forEach((tool, j) =>
+      tool.columns
+        .filter((column) => column.type === "status")
+        .forEach((col, i) => {
+          const hasEmptyRow = this.originalTable.some(
+            (row) => row.results[j].category === "empty",
+          );
+          if (hasEmptyRow) {
+            this.statusValues[j][i].push(statusForEmptyRows);
+          }
+        }),
     );
     this.categoryValues = this.findAllValuesOfColumn(
       (_tool, column) => column.type === "status",
@@ -327,6 +341,7 @@ export default class Overview extends React.Component {
                 this.setState({ filterBoxVisible: false });
               }}
               ids={getTaskIdParts(this.originalTable, this.taskIdNames)}
+              addTypeToFilter={this.addTypeToFilter}
             />
             <div className="menu">
               {menuItems.map(({ key, title, path, icon }) => (

@@ -6,6 +6,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { isNil, getRawOrDefault, omit, isNumericColumn } from "./utils";
+/* Status that will be used to identify whether empty rows should be shown. Currently,
+   filtering for either categories or statuses creates filters for the other one as well.
+   Since empty rows don't have a status, they will be filtered out all the time.
+   To prevent this, this status placeholder will be used to indicate that empty rows
+   should pass the status filtering. */
+const statusForEmptyRows = "empty_row";
 
 /**
  * Prepares raw data for filtering by retrieving available distinct values as min
@@ -261,8 +267,13 @@ const applyMatcher = (matcher) => (data) => {
               row.results[tool].category === category || categoryPass;
             columnPass = categoryPass && statusPass;
           } else if (!isNil(status)) {
+            const emptyRowPass =
+              row.results[tool].category === "empty" &&
+              status === statusForEmptyRows;
             statusPass =
-              row.results[tool].values[column].raw === status || statusPass;
+              row.results[tool].values[column].raw === status ||
+              statusPass ||
+              emptyRowPass;
             columnPass = categoryPass && statusPass;
           } else {
             const rawValue = row.results[tool].values[column].raw;
@@ -300,4 +311,5 @@ export {
   applyTextFilter,
   applyMatcher,
   buildMatcher,
+  statusForEmptyRows,
 };

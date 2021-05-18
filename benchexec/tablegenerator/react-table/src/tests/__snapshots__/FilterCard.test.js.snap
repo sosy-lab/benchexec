@@ -250,20 +250,6 @@ exports[`FilterCard tests FilterCard should correctly reflect already set status
     >
       <li>
         <input
-          checked={true}
-          name="stat-true"
-          onChange={[Function]}
-          type="checkbox"
-        />
-        <label
-          htmlFor="stat-true"
-          onClick={[Function]}
-        >
-          true
-        </label>
-      </li>
-      <li>
-        <input
           checked={false}
           name="stat-false(reach)"
           onChange={[Function]}
@@ -274,6 +260,20 @@ exports[`FilterCard tests FilterCard should correctly reflect already set status
           onClick={[Function]}
         >
           false(reach)
+        </label>
+      </li>
+      <li>
+        <input
+          checked={true}
+          name="stat-true"
+          onChange={[Function]}
+          type="checkbox"
+        />
+        <label
+          htmlFor="stat-true"
+          onClick={[Function]}
+        >
+          true
         </label>
       </li>
     </ul>
@@ -384,20 +384,6 @@ exports[`FilterCard tests FilterCard should display checkboxes for status filter
       <li>
         <input
           checked={false}
-          name="stat-true"
-          onChange={[Function]}
-          type="checkbox"
-        />
-        <label
-          htmlFor="stat-true"
-          onClick={[Function]}
-        >
-          true
-        </label>
-      </li>
-      <li>
-        <input
-          checked={false}
           name="stat-false(reach)"
           onChange={[Function]}
           type="checkbox"
@@ -407,6 +393,20 @@ exports[`FilterCard tests FilterCard should display checkboxes for status filter
           onClick={[Function]}
         >
           false(reach)
+        </label>
+      </li>
+      <li>
+        <input
+          checked={false}
+          name="stat-true"
+          onChange={[Function]}
+          type="checkbox"
+        />
+        <label
+          htmlFor="stat-true"
+          onClick={[Function]}
+        >
+          true
         </label>
       </li>
     </ul>
