@@ -9,6 +9,7 @@ import {
   buildMatcher,
   applyMatcher,
   applyNumericFilter,
+  statusForEmptyRows,
 } from "../utils/filters";
 //Example data set to test the filtering by regex
 const numericRows = [
@@ -93,6 +94,14 @@ const generalRows = [
       },
     ],
   },
+  {
+    results: [
+      {
+        category: "empty",
+        values: [{}],
+      },
+    ],
+  },
 ];
 
 //Function to test filtering by regex for data set 'rows' (return number of truely returnd values)
@@ -154,6 +163,11 @@ test("applyNumericFilter with string", () => {
   expect(getFilteredNumericalData("a").length).toBe(0);
 });
 
+test("applyMatcher for all results", () => {
+  const filters = [];
+  expect(getFilteredDataWithMatcher(filters).length).toBe(generalRows.length);
+});
+
 test("applyMatcher for category", () => {
   const filters = [
     { id: "0_test_0", value: "correct ", type: "status" },
@@ -175,6 +189,14 @@ test("applyMatcher for status with colon", () => {
   const filters = [
     { id: "0_test_0", value: "UNKNOWN: test", type: "status" },
     { id: "0_test_0", value: "missing ", type: "status" },
+  ];
+  expect(getFilteredDataWithMatcher(filters).length).toBe(1);
+});
+
+test("applyMatcher for empty row", () => {
+  const filters = [
+    { id: "0_test_0", value: "empty ", type: "status" },
+    { id: "0_test_0", value: statusForEmptyRows, type: "status" },
   ];
   expect(getFilteredDataWithMatcher(filters).length).toBe(1);
 });
