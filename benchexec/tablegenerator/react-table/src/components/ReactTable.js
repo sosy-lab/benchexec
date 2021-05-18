@@ -347,6 +347,7 @@ const TableRender = (props) => {
           <optgroup label="Category">
             {categoryValues
               .filter((category) => !(category in SPECIAL_CATEGORIES))
+              .sort()
               .map((category) => (
                 // category filters are marked with space at end
                 <option value={category + " "} key={category}>
@@ -357,6 +358,7 @@ const TableRender = (props) => {
           <optgroup label="Status">
             {props.statusValues[runSetIdx][columnIdx]
               .filter((status) => status !== statusForEmptyRows)
+              .sort()
               .map((status) => (
                 <option value={status} key={status}>
                   {status}

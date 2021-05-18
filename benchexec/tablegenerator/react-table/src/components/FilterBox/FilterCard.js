@@ -243,6 +243,7 @@ export default class FilterCard extends React.PureComponent {
             <ul className="filter-card--body--list">
               {categories
                 .filter((category) => category !== "empty ")
+                .sort()
                 .map((category) => {
                   console.log(category);
                   const ref = React.createRef();
@@ -278,7 +279,7 @@ export default class FilterCard extends React.PureComponent {
             </ul>
             Status
             <ul className="filter-card--body--list">
-              {statuses.map((status) => {
+              {statuses.sort().map((status) => {
                 const ref = React.createRef();
                 return (
                   <li key={status}>
