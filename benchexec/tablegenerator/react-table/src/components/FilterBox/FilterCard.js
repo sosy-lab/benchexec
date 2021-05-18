@@ -245,7 +245,6 @@ export default class FilterCard extends React.PureComponent {
                 .filter((category) => category !== "empty ")
                 .sort()
                 .map((category) => {
-                  console.log(category);
                   const ref = React.createRef();
                   return (
                     <li key={category}>
