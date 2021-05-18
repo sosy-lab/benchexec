@@ -327,6 +327,7 @@ export default class Overview extends React.Component {
                 this.setState({ filterBoxVisible: false });
               }}
               ids={getTaskIdParts(this.originalTable, this.taskIdNames)}
+              addTypeToFilter={this.addTypeToFilter}
             />
             <div className="menu">
               {menuItems.map(({ key, title, path, icon }) => (
