@@ -18,6 +18,7 @@ import {
   getStep,
   NumberFormatterBuilder,
 } from "../../utils/utils";
+import { statusForEmptyRows } from "../../utils/filters";
 
 const Range = createSliderWithTooltip(Slider.Range);
 
@@ -64,7 +65,14 @@ export default class FilterCard extends React.PureComponent {
   }
 
   sendFilterUpdate(values) {
-    const { type } = this.props.filter;
+    const { type, categories } = this.props.filter;
+    if (
+      categories &&
+      categories.includes("empty ") &&
+      !values.includes(statusForEmptyRows)
+    ) {
+      values = values.concat(statusForEmptyRows);
+    }
     if (values.length === 0 && type === "status") {
       this.props.onFilterUpdate({
         values: [emptyStateValue],

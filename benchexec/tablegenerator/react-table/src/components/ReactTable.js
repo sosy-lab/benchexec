@@ -29,6 +29,7 @@ import {
   setParam,
   getHashSearch,
 } from "../utils/utils";
+import { statusForEmptyRows } from "../utils/filters";
 
 const numericPattern = "([+-]?[0-9]*(\\.[0-9]*)?)(:[+-]?[0-9]*(\\.[0-9]*)?)?";
 
@@ -354,11 +355,13 @@ const TableRender = (props) => {
               ))}
           </optgroup>
           <optgroup label="Status">
-            {props.statusValues[runSetIdx][columnIdx].map((status) => (
-              <option value={status} key={status}>
-                {status}
-              </option>
-            ))}
+            {props.statusValues[runSetIdx][columnIdx]
+              .filter((status) => status !== statusForEmptyRows)
+              .map((status) => (
+                <option value={status} key={status}>
+                  {status}
+                </option>
+              ))}
           </optgroup>
         </select>
       );
