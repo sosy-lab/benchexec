@@ -135,6 +135,9 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
         &--list {
           list-style: none;
         }
+        &--empty-rows {
+          margin-bottom: 1em;
+        }
         .task-id-filters {
           display: flex;
           flex-direction: column;

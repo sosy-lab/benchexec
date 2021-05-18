@@ -210,42 +210,71 @@ export default class FilterCard extends React.PureComponent {
       } = filter;
       let { min, max } = filter;
       let body;
+      const emptyRowRef = React.createRef();
       if (type === "status") {
         body = (
           <>
+            {this.props.filter.categories &&
+              this.props.filter.categories.includes("empty ") && (
+                <div className="filter-card--body--empty-rows">
+                  Empty rows{" "}
+                  <input
+                    type="checkbox"
+                    name={`empty-rows`}
+                    ref={emptyRowRef}
+                    checked={values.includes("empty ")}
+                    onChange={({ target: { checked } }) => {
+                      const emptyValue = "empty ";
+                      if (checked) {
+                        const newValues = [...values, emptyValue];
+                        this.setState({ values: newValues });
+                        this.sendFilterUpdate(newValues);
+                      } else {
+                        const newValues = without(emptyValue, values);
+
+                        this.setState({ values: newValues });
+                        this.sendFilterUpdate(newValues);
+                      }
+                    }}
+                  />
+                </div>
+              )}
             Category
             <ul className="filter-card--body--list">
-              {categories.map((category) => {
-                const ref = React.createRef();
-                return (
-                  <li key={category}>
-                    <input
-                      type="checkbox"
-                      name={`cat-${category}`}
-                      checked={values.includes(category)}
-                      ref={ref}
-                      onChange={({ target: { checked } }) => {
-                        if (checked) {
-                          const newValues = [...values, category];
-                          this.setState({ values: newValues });
-                          this.sendFilterUpdate(newValues);
-                        } else {
-                          const newValues = without(category, values);
+              {categories
+                .filter((category) => category !== "empty ")
+                .map((category) => {
+                  console.log(category);
+                  const ref = React.createRef();
+                  return (
+                    <li key={category}>
+                      <input
+                        type="checkbox"
+                        name={`cat-${category}`}
+                        checked={values.includes(category)}
+                        ref={ref}
+                        onChange={({ target: { checked } }) => {
+                          if (checked) {
+                            const newValues = [...values, category];
+                            this.setState({ values: newValues });
+                            this.sendFilterUpdate(newValues);
+                          } else {
+                            const newValues = without(category, values);
 
-                          this.setState({ values: newValues });
-                          this.sendFilterUpdate(newValues);
-                        }
-                      }}
-                    />
-                    <label
-                      htmlFor={`cat-${category}`}
-                      onClick={() => ref.current.click()}
-                    >
-                      {category}
-                    </label>
-                  </li>
-                );
-              })}
+                            this.setState({ values: newValues });
+                            this.sendFilterUpdate(newValues);
+                          }
+                        }}
+                      />
+                      <label
+                        htmlFor={`cat-${category}`}
+                        onClick={() => ref.current.click()}
+                      >
+                        {category}
+                      </label>
+                    </li>
+                  );
+                })}
             </ul>
             Status
             <ul className="filter-card--body--list">
