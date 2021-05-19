@@ -737,6 +737,8 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
 .ReactModal__Body--open {
   // stop body from scrolling while overlay is open
   overflow: hidden;
+  // avoid Ctrl+A select parts of the main UI while overlay is open
+  user-select: none;
 }
 .ReactModal__Overlay {
   z-index: 900;
@@ -751,6 +753,7 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
   background: white;
   border: 5px solid grey;
   border-radius: 5px;
+  user-select: text;
 
   h1 {
     margin-bottom: 40px;
