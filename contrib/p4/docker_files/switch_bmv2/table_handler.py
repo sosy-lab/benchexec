@@ -27,18 +27,11 @@ def main():
         with open("/app/table_input.txt", "w") as fstdin:
             for table_entry in data["table_entries"]:
                 CLI_command = (
-                    "table_add"
-                    " " + str(table_entry["table_name"]) + ""
-                    " " + str(table_entry["action_name"]) + ""
-                    " "
-                    + str(table_entry["match"][0])
-                    + "/"
-                    + str(table_entry["match"][1])
-                    + ""
-                    " => "
-                    + str(table_entry["action_params"]["dstAddr"])
-                    + " "
-                    + str(table_entry["action_params"]["port"])
+                    f"table_add "
+                    f"{table_entry['table_name']} {table_entry['action_name']} "
+                    f"{table_entry['match'][0]}/{table_entry['match'][1]} "
+                    f"=> {table_entry['action_params']['dstAddr']} "
+                    f"{table_entry['action_params']['port']}"
                 )
 
                 fstdin.write(CLI_command + "\n")

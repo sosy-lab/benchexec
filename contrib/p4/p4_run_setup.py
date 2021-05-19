@@ -41,7 +41,7 @@ class P4SetupHandler(object):
                 runSet.runs = []
                 for module_name in self.test_dict:
                     for test_name in self.test_dict[module_name]:
-                        run = Run(module_name + "." + test_name, "", "", "", runSet)
+                        run = Run(f"{module_name}.{test_name}", "", "", "", runSet)
                         prop = [result.Property("/", False, "Yo")]
                         run.properties = prop
                         if run.identifier in expected_dict and len(prop) > 0:

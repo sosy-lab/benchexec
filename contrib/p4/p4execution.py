@@ -206,9 +206,9 @@ class P4Execution(object):
                 f"{self.switch_source_path}/{switch.name}/table_command_output.txt"
             )
 
-            switch_log_file_new = benchmark.log_folder + f"{switch.name}_Setup.log"
+            switch_log_file_new = f"{benchmark.log_folder}{switch.name}_Setup.log"
             switch_command_output_new = (
-                benchmark.log_folder + f"{switch.name}_table_entry.log"
+                f"{benchmark.log_folder}{switch.name}_table_entry.log"
             )
 
             copyfile(switch_log_file, switch_log_file_new)
@@ -283,7 +283,7 @@ class P4Execution(object):
                         f"{self.switch_source_path}/{switch.name}/log/switch_log.txt"
                     )
 
-                    switch_log_file_new = run.log_file[:-4] + f"_{switch.name}.log"
+                    switch_log_file_new = f"{run.log_file[:-4]}_{switch.name}.log"
 
                     copyfile(switch_log_file, switch_log_file_new)
 
@@ -337,7 +337,7 @@ class P4Execution(object):
         for node in self.nodes:
             node_config = self.network_config["nodes"][node.name]
 
-            ip_addr = MGNT_NETWORK_SUBNET + ".0.{0}".format(node_config["id"] + 3)
+            ip_addr = f"{MGNT_NETWORK_SUBNET}.0.{node_config['id'] + 3}"
             self.mgnt_network.connect(node, ipv4_address=ip_addr)
 
     def connect_nodes_to_switch(self):
@@ -366,33 +366,31 @@ class P4Execution(object):
 
             # If connectiong to switch. Make sure it is setup
             if link["type"] == "Node_to_Switch":
-                switch_is_setup = os.path.exists("/proc/{0}/ns/net".format(pid_device2))
+                switch_is_setup = os.path.exists(f"/proc/{pid_device2}/ns/net")
                 # Wait until switch is setup
                 max_wait_seconds = 10
                 seconds_waited = 0
                 while not switch_is_setup and seconds_waited <= max_wait_seconds:
-                    switch_is_setup = os.path.exists(
-                        "/proc/{0}/ns/net".format(pid_device2)
-                    )
+                    switch_is_setup = os.path.exists(f"/proc/{pid_device2}/ns/net")
                     time.sleep(1)
                     seconds_waited += 1
 
                 # Check if namespaces are addad. If not add simlinuk to namespace
-                if not os.path.islink("/var/run/netns/{0}".format(device1)):
+                if not os.path.islink(f"/var/run/netns/{device1}"):
                     os.symlink(
-                        "/proc/{0}/ns/net".format(pid_device1),
-                        "/var/run/netns/{0}".format(device1),
+                        f"/proc/{pid_device1}/ns/net",
+                        f"/var/run/netns/{device1}",
                     )
 
-                if not os.path.islink("/var/run/netns/{0}".format(device2)):
-                    if not os.path.exists("/var/run/netns/{0}".format(device2)):
+                if not os.path.islink(f"/var/run/netns/{device2}"):
+                    if not os.path.exists(f"/var/run/netns/{device2}"):
                         os.symlink(
-                            "/proc/{0}/ns/net".format(pid_device2),
-                            "/var/run/netns/{0}".format(device2),
+                            f"/proc/{pid_device2}/ns/net",
+                            f"/var/run/netns/{device2}",
                         )
 
-                iface_device1 = link["device1"] + "_{0}".format(link["device1_port"])
-                iface_device2 = link["device2"] + "_{0}".format(link["device2_port"])
+                iface_device1 = f"{link['device1']}_{link['device1_port']}"
+                iface_device2 = f"{link['device2']}_{link['device2_port']}"
 
                 # Create Veth pair and put them in the right namespace
                 ip.link("add", ifname=iface_device1, peer=iface_device2, kind="veth")
@@ -419,41 +417,33 @@ class P4Execution(object):
                     continue
 
             if link["type"] == "Switch_to_Switch":
-                switch_is_setup1 = os.path.exists(
-                    "/proc/{0}/ns/net".format(pid_device1)
-                )
-                switch_is_setup2 = os.path.exists(
-                    "/proc/{0}/ns/net".format(pid_device2)
-                )
+                switch_is_setup1 = os.path.exists(f"/proc/{pid_device1}/ns/net")
+                switch_is_setup2 = os.path.exists(f"/proc/{pid_device2}/ns/net")
 
                 max_wait_seconds = 10
                 seconds_waited = 0
                 while not switch_is_setup1 and switch_is_setup2:
-                    switch_is_setup1 = os.path.exists(
-                        "/proc/{0}/ns/net".format(pid_device1)
-                    )
-                    switch_is_setup2 = os.path.exists(
-                        "/proc/{0}/ns/net".format(pid_device2)
-                    )
+                    switch_is_setup1 = os.path.exists(f"/proc/{pid_device1}/ns/net")
+                    switch_is_setup2 = os.path.exists(f"/proc/{pid_device2}/ns/net")
                     time.sleep(1)
                     seconds_waited += 1
 
                 # Check if namespaces are addad. If not add simlink to namespace
-                if not os.path.islink("/var/run/netns/{0}".format(device1)):
+                if not os.path.islink(f"/var/run/netns/{device1}"):
                     os.symlink(
-                        "/proc/{0}/ns/net".format(pid_device1),
-                        "/var/run/netns/{0}".format(device1),
+                        f"/proc/{pid_device1}/ns/net",
+                        f"/var/run/netns/{device1}",
                     )
 
-                if not os.path.islink("/var/run/netns/{0}".format(device2)):
-                    if not os.path.exists("/var/run/netns/{0}".format(device2)):
+                if not os.path.islink(f"/var/run/netns/{device2}"):
+                    if not os.path.exists(f"/var/run/netns/{device2}"):
                         os.symlink(
-                            "/proc/{0}/ns/net".format(pid_device2),
-                            "/var/run/netns/{0}".format(device2),
+                            f"/proc/{pid_device2}/ns/net",
+                            f"/var/run/netns/{device2}",
                         )
 
-                iface_switch1 = link["device1"] + "_{0}".format(link["device1_port"])
-                iface_switch2 = link["device2"] + "_{0}".format(link["device2_port"])
+                iface_switch1 = f"{link['device1']}_{link['device1_port']}"
+                iface_switch2 = f"{link['device2']}_{link['device2_port']}"
 
                 # Create Veth pair and put them in the right namespace
                 ip.link("add", ifname=iface_switch1, peer=iface_switch2, kind="veth")
@@ -494,7 +484,7 @@ class P4Execution(object):
         test_modules = test_info.split("Module ")
         nr_of_modules = len(test_modules) - 1
         test_modules[len(test_modules) - 1] = test_modules[len(test_modules) - 1].split(
-            "\n{0}".format(nr_of_modules)
+            f"\n{nr_of_modules}"
         )[0]
 
         test_dict = {}
@@ -570,20 +560,20 @@ class P4Execution(object):
                     target=lambda x: x.remove(force=True), args=(container,)
                 )
             )
-            if os.path.islink("/var/run/netns/{0}".format(container.name)):
-                os.remove("/var/run/netns/{0}".format(container.name))
+            if os.path.islink(f"/var/run/netns/{container.name}"):
+                os.remove(f"/var/run/netns/{container.name}")
 
         for container in self.switches:
-            if os.path.isdir(self.switch_source_path + "/{0}".format(container.name)):
-                rmtree(self.switch_source_path + "/{0}".format(container.name))
+            if os.path.isdir(f"{self.switch_source_path}/{container.name}"):
+                rmtree(f"{self.switch_source_path}/{container.name}")
 
             container_threads.append(
                 threading.Thread(
                     target=lambda x: x.remove(force=True), args=(container,)
                 )
             )
-            if os.path.islink("/var/run/netns/{0}".format(container.name)):
-                os.remove("/var/run/netns/{0}".format(container.name))
+            if os.path.islink(f"/var/run/netns/{container.name}"):
+                os.remove(f"/var/run/netns/{container.name}")
 
         if self.ptf_tester:
             container_threads.append(
@@ -638,11 +628,8 @@ class P4Execution(object):
             node_config = self.network_config["nodes"][node_container.name]
 
             node_command = (
-                "python3 /usr/local/src/ptf/ptf_nn/ptf_nn_agent.py --device-socket {0}@tcp://".format(
-                    node_config["id"]
-                )
-                + MGNT_NETWORK_SUBNET
-                + ".0.{0}:10001".format(node_config["id"] + 3)
+                f"python3 /usr/local/src/ptf/ptf_nn/ptf_nn_agent.py --device-socket "
+                f"{node_config['id']}@tcp://{MGNT_NETWORK_SUBNET}.0.{node_config['id'] + 3}:10001"
             )
             used_ports = self.network_config["nodes"][node_container.name]["used_ports"]
 
@@ -664,9 +651,7 @@ class P4Execution(object):
 
             used_ports = self.network_config["switches"][switch.name]["used_ports"]
             for port in used_ports:
-                switch_command += (
-                    " -i {0}@".format(port) + switch.name + "_{0}".format(port)
-                )
+                switch_command += f" -i {port}@{switch.name}_{port}"
 
             switch_command += f" /app/P4/{switch_config['p4_file_name']}"
 
@@ -701,10 +686,7 @@ class P4Execution(object):
         switch_container.exec_run(switch_command, detach=True)
         switch_is_setup = False
         switch_log_file_path = (
-            self.switch_source_path
-            + "/"
-            + switch_container.name
-            + "/log/switch_log.txt"
+            f"{self.switch_source_path}/{switch_container.name}/log/switch_log.txt"
         )
 
         # This loop will wait until server is started up
@@ -720,17 +702,11 @@ class P4Execution(object):
             for table_name in self.network_config["switches"][switch_container.name][
                 "table_entries"
             ]:
-                table_file_path = (
-                    self.switch_source_path
-                    + "/"
-                    + switch_container.name
-                    + "/tables/{0}".format(table_name)
-                )
+                table_file_path = f"{self.switch_source_path}/{switch_container.name}/tables/{table_name}"
                 if os.path.exists(table_file_path):
                     switch_container.exec_run(
-                        "python3 /app/table_handler.py "
-                        + self.switch_target_path
-                        + "/tables/{0}".format(table_name),
+                        f"python3 /app/table_handler.py "
+                        f"{self.switch_target_path}/tables/{table_name}",
                         detach=True,
                     )
                 else:
@@ -743,7 +719,7 @@ class P4Execution(object):
         self.nr_of_active_containers.increment()
 
     def create_switch_mount_copy(self, switch_name):
-        switch_path = self.switch_source_path + "/" + switch_name
+        switch_path = f"{self.switch_source_path}/{switch_name}"
         os.mkdir(switch_path)
 
         # Copy relevant folders
