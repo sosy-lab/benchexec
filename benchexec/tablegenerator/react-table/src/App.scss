@@ -402,9 +402,9 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
             align-items: stretch;
 
             &:nth-of-type(2) {
-              .th:first-of-type:hover {
-                background-color: #fff;
-              }
+              box-shadow: 0 2px 15px 0 rgba(0, 0, 0, 0.15);
+              position: relative;
+              z-index: 10;
             }
 
             .th {
@@ -412,6 +412,14 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
               align-items: stretch;
               justify-content: center;
               padding: 5px;
+
+              &:not(:first-of-type) {
+                border-right: 1px solid rgba(0, 0, 0, 0.05);
+              }
+
+              &.select-column-header:hover {
+                background: #fff;
+              }
 
               &.outer {
                 padding: 5px;
@@ -577,6 +585,10 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
           a {
             width: 100%;
           }
+
+          div {
+            padding: 5px 3px;
+          }
         }
       }
 
@@ -585,25 +597,36 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
         top: 0;
         z-index: 3;
 
-        .tr {
+        > .tr {
           &:first-of-type {
             border-bottom: 1px solid rgba(0, 0, 0, 0.05);
             border-bottom-color: #f2f2f2;
-            background: rgba(0, 0, 0, 0.03);
 
-            .th:hover {
-              background-color: #fff;
-              cursor: auto;
+            .th {
+              background-color: #f7f7f7;
+
+              &:hover {
+                background-color: #f7f7f7;
+                cursor: auto;
+              }
             }
           }
+        }
 
-          &:nth-of-type(2) {
-            box-shadow: 0 2px 15px 0 rgba(0, 0, 0, 0.15);
-          }
+        .shadow-container {
+          box-shadow: 0 2px 15px 0 rgba(0, 0, 0, 0.15);
+          position: relative;
+          z-index: 10;
 
-          &.filter {
-            border-bottom: 1px solid #fff;
+          .th {
+            &:not(:first-of-type) {
+              border-right: 1px solid rgba(0, 0, 0, 0.05);
+            }
           }
+        }
+
+        .tr.filter {
+          border-bottom: 1px solid rgba(0, 0, 0, 0.05);
         }
       }
 
@@ -672,6 +695,12 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
 
         .tr {
           border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+
+          &:hover {
+            .td {
+              background: rgba(0, 0, 0, 0.05);
+            }
+          }
         }
 
         .row_id:not(:nth-child(1)) {

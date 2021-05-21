@@ -617,50 +617,50 @@ const Table = (props) => {
     }
   }, [props.filters, filteredColumnValues, gotoPage, pageIndex, pageCount]);
 
+  const renderHeaderGroup = (headerGroup) => (
+    <div className="tr headergroup" {...headerGroup.getHeaderGroupProps()}>
+      {headerGroup.headers.map((header) => (
+        <div
+          {...header.getHeaderProps({
+            className: `th header ${header.headers ? "outer " : ""}${
+              header.className
+            }`,
+          })}
+        >
+          <div
+            className={`header-sort-container ${
+              header.isSorted
+                ? header.isSortedDesc
+                  ? "sorted-desc "
+                  : "sorted-asc "
+                : ""
+            }`}
+            {...header.getSortByToggleProps()}
+          >
+            {header.render("Header")}
+          </div>
+          {(!header.className || !header.className.includes("separator")) && (
+            <div
+              {...header.getResizerProps()}
+              className={`resizer ${header.isResizing ? "isResizing" : ""}`}
+            />
+          )}
+        </div>
+      ))}
+    </div>
+  );
+
   const renderTableHeaders = (headerGroups) => {
+    const runsetHeaderGroup = headerGroups[0];
     const headerGroupsWithFilters = headerGroups.filter((headerGroup) =>
       headerGroup.headers.some((header) => header.canFilter),
     );
     return (
       <div className="table-header">
-        {headerGroups.map((headerGroup) => (
-          <div
-            className="tr headergroup"
-            {...headerGroup.getHeaderGroupProps()}
-          >
-            {headerGroup.headers.map((header) => (
-              <div
-                {...header.getHeaderProps({
-                  className: `th header ${header.headers ? "outer " : ""}${
-                    header.className
-                  }`,
-                })}
-              >
-                <div
-                  className={`header-sort-container ${
-                    header.isSorted
-                      ? header.isSortedDesc
-                        ? "sorted-desc "
-                        : "sorted-asc "
-                      : ""
-                  }`}
-                  {...header.getSortByToggleProps()}
-                >
-                  {header.render("Header")}
-                </div>
-                {(!header.className ||
-                  !header.className.includes("separator")) && (
-                  <div
-                    {...header.getResizerProps()}
-                    className={`resizer ${
-                      header.isResizing ? "isResizing" : ""
-                    }`}
-                  />
-                )}
-              </div>
-            ))}
-          </div>
-        ))}
+        {renderHeaderGroup(runsetHeaderGroup)}
+        <div className="shadow-container">
+          {headerGroups.slice(1).map(renderHeaderGroup)}
+        </div>
         {headerGroupsWithFilters.map((headerGroup) => (
           <div
             className="tr headergroup filter"
