@@ -660,25 +660,25 @@ const Table = (props) => {
         {renderHeaderGroup(runsetHeaderGroup)}
         <div className="shadow-container">
           {headerGroups.slice(1).map(renderHeaderGroup)}
+          {headerGroupsWithFilters.map((headerGroup) => (
+            <div
+              className="tr headergroup filter"
+              {...headerGroup.getHeaderGroupProps()}
+            >
+              {headerGroup.headers.map((header) => (
+                <div
+                  {...header.getHeaderProps({
+                    className: `th header filter ${
+                      header.headers ? "outer " : ""
+                    }${header.className}`,
+                  })}
+                >
+                  {header.canFilter ? header.render("Filter") : null}
+                </div>
+              ))}
+            </div>
+          ))}
         </div>
-        {headerGroupsWithFilters.map((headerGroup) => (
-          <div
-            className="tr headergroup filter"
-            {...headerGroup.getHeaderGroupProps()}
-          >
-            {headerGroup.headers.map((header) => (
-              <div
-                {...header.getHeaderProps({
-                  className: `th header filter ${
-                    header.headers ? "outer " : ""
-                  }${header.className}`,
-                })}
-              >
-                {header.canFilter ? header.render("Filter") : null}
-              </div>
-            ))}
-          </div>
-        ))}
       </div>
     );
   };
