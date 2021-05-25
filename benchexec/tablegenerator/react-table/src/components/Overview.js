@@ -353,6 +353,7 @@ export default class Overview extends React.Component {
                     changeTab={this.changeTab}
                     switchToQuantile={this.switchToQuantile}
                     hiddenCols={this.state.hiddenCols}
+                    filtered={this.filteredData.length > 0}
                   />
                 </Route>
                 <Route path="/table">

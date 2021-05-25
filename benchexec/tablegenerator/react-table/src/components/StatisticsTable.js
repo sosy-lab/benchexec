@@ -141,28 +141,26 @@ const subStatSelector = {
   "incorrect false": "wrong-false",
 };
 
-const transformStatsFromWorkers = ({ newStats, stats, setStats }) => {
+const transformStatsFromWorkers = ({ newStats, stats, setStats, filtered }) => {
   // our stats template to steal from
 
-  const templ = stats;
+  const templ = [...stats];
 
-  // we currently only handle the cases that are described in "selector"
-  // for now, we want to skip all other cases and take them from the original stats
-  const transformed = templ.map((row) => {
-    const title = row.title.replace(/&nbsp;/g, "");
-    row.content = row.content.map((tool, toolIdx) => {
-      const key = subStatSelector[title];
-      if (!key || !newStats[toolIdx]) {
-        return tool;
-      }
-
-      return newStats[toolIdx].map((col) => col[key]);
-    });
-
-    return row;
+  const filteredRow = newStats.map((tool) =>
+    tool.map(({ total }) => ({ ...total })),
+  );
+  // Add filtered stats row to the set and move it to the second position
+  templ.unshift({
+    description: "Aggregations applied over filtered set",
+    title: "filtered",
+    content: filteredRow,
   });
+  const temp = templ[0];
+  templ[0] = templ[1];
+  templ[1] = temp;
 
-  setStats(transformed);
+  setStats(templ);
+  return templ;
 };
 
 /**
@@ -181,6 +179,7 @@ const updateStats = async ({
   skipStats,
   stats,
   setStats,
+  filtered,
 }) => {
   const formatter = buildFormatter(tools);
   let res = skipStats
@@ -223,6 +222,7 @@ const updateStats = async ({
       pointer++;
       curr = toolColumns[pointer];
     }
+
     return out;
   });
 
@@ -247,6 +247,7 @@ const StatisticsTable = ({
   onStatsReady,
   headerWidth,
   stats: defaultStats,
+  filtered = false,
 }) => {
   // We want to skip stat calculation in a test environment if not
   // specifically wanted (signaled by a passed onStatsReady callback function)
@@ -275,8 +276,9 @@ const StatisticsTable = ({
       skipStats,
       stats: statRef.current,
       setStats,
+      filtered,
     });
-  }, [tools, data, onStatsReady, skipStats, statRef]);
+  }, [tools, data, onStatsReady, skipStats, statRef, filtered]);
 
   const statColumns = tools
     .map((runSet, runSetIdx) =>
