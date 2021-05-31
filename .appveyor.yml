@@ -7,10 +7,10 @@
 
 environment:
   matrix:
-    - PYTHON: "C:\\Python35"
     - PYTHON: "C:\\Python36"
     - PYTHON: "C:\\Python37"
     - PYTHON: "C:\\Python38"
+    - PYTHON: "C:\\Python39"
 
 build: off
 
@@ -18,8 +18,7 @@ install:
   - set PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%
   # The package installation via our setup.py file uses easy_install, which fails to correctly install lxml.
   # As some Python environments don't have lxml preinstalled, install it here to avoid errors during the execution in those cases.
-  # Furthermore, since the move to setup.cfg on Python 3.5 it fails to automatically install nose before running nosetests.
-  - python -m pip install lxml nose
+  - python -m pip install lxml
   - python -m pip install --user .
 
 test_script:

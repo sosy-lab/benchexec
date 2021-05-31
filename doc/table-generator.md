@@ -46,6 +46,8 @@ or special setup of the web server, for example by using
 If you want to use direct links to log files, you also need to either unpack the archives
 or use a solution like the PHP script.
 
+### Complex Tables with Custom Columns or Combination of Results
+
 Alternatively, `table-generator` also supports using a special table-definition file as input
 that defines the layout of the generated tables
 and allows even more customizations,
@@ -73,6 +75,13 @@ or pass them on the command line):
 A small example that can be used with arbitrary result files
 and provides nicer column titles and a better unit for memory consumption
 is available in [doc/table-generator-basic.xml](table-generator-basic.xml).
+
+Table-definition files can also be used to combine several result files
+for distinct task sets into a single table (in the same column),
+for example after using several `benchexec` executions
+to benchmark a single configuration of a tool for different tasks.
+This is done by wrapping one or more `<result>` tags with references to result files
+in a `<union>` tag (cf. [doc/table-generator.xml](table-generator.xml)).
 
 ### Column Features
 

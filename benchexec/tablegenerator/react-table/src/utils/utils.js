@@ -20,7 +20,7 @@ const prepareTableData = ({ head, tools, rows, stats, props, initial }) => {
         ...column,
         colIdx: idx,
       })),
-      scoreBased: rows.some((row) => row.results[idx].score !== undefined),
+      scoreBased: rows.every((row) => row.results[idx].score !== undefined),
     })),
     columns: tools.map((tool) => tool.columns.map((column) => column.title)),
     tableData: rows,

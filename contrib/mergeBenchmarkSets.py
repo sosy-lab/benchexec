@@ -101,14 +101,14 @@ def get_witness_result(witness, verification_result):
     # An invalid witness counts as error of the verifier.
     if status_from_validation == "ERROR (invalid witness syntax)":
         return (
-            "witness invalid (" + status_from_verification + ")",
+            f"witness invalid ({status_from_verification})",
             result.CATEGORY_ERROR,
         )
     # Other unconfirmed witnesses count as CATEGORY_CORRECT_UNCONFIRMED.
     if category_from_verification == result.CATEGORY_CORRECT:
         return status_from_verification, result.CATEGORY_CORRECT_UNCONFIRMED
 
-    return "result invalid (" + status_from_verification + ")", result.CATEGORY_ERROR
+    return f"result invalid ({status_from_verification})", result.CATEGORY_ERROR
 
 
 def get_validation_result(
@@ -230,12 +230,12 @@ def main(argv=None):
     assert os.path.exists(out_dir) and os.path.isdir(out_dir)
 
     if not os.path.exists(result_file) or not os.path.isfile(result_file):
-        sys.exit("File {0} does not exist.".format(repr(result_file)))
+        sys.exit(f"File {result_file!r} does not exist.")
     result_xml = tablegenerator.parse_results_file(result_file)
     witness_sets = []
     for witnessFile in witness_files:
         if not os.path.exists(witnessFile) or not os.path.isfile(witnessFile):
-            sys.exit("File {0} does not exist.".format(repr(witnessFile)))
+            sys.exit(f"File {witnessFile!r} does not exist.")
         witness_xml = tablegenerator.parse_results_file(witnessFile)
         witness_sets.append(get_witnesses(witness_xml))
 

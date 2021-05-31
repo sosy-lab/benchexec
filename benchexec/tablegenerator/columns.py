@@ -115,7 +115,7 @@ class ColumnMeasureType(object):
         return self._max_decimal_digits
 
     def __str__(self):
-        return "{}({})".format(self._type, self._max_decimal_digits)
+        return f"{self._type}({self._max_decimal_digits})"
 
 
 class Column(object):
@@ -153,9 +153,7 @@ class Column(object):
         # If scaling on the variables is performed, a display unit must be defined, explicitly
         if scale_factor is not None and scale_factor != 1 and unit is None:
             raise util.TableDefinitionError(
-                "Scale factor is defined, but display unit is not (in column {})".format(
-                    title
-                )
+                f"Scale factor is defined, but display unit is not (in column {title})"
             )
 
         self.title = title
@@ -197,7 +195,7 @@ class Column(object):
         title = self.display_title or self.title
         if self.is_numeric() and (self.unit or self.source_unit):
             used_unit = self.unit or self.source_unit
-            return "{} ({})".format(title, used_unit)
+            return f"{title} ({used_unit})"
 
         else:
             return title
@@ -229,7 +227,7 @@ class Column(object):
             number = value
             number_str = util.print_decimal(number)
         else:
-            raise TypeError("Unexpected number type " + str(type(value)))
+            raise TypeError(f"Unexpected number type {type(value)}")
 
         if number.is_nan():
             return "NaN"
@@ -307,15 +305,15 @@ class Column(object):
         self.max_width = max(title_width, values_width)
 
     def __str__(self):
-        return "{}(title={}, pattern={}, num_of_digits={}, href={}, col_type={}, unit={}, scale_factor={})".format(
-            self.__class__.__name__,
-            self.title,
-            self.pattern,
-            self.number_of_significant_digits,
-            self.href,
-            self.type,
-            self.unit,
-            self.scale_factor,
+        return (
+            f"{self.__class__.__name__}("
+            f"title={self.title}, "
+            f"pattern={self.pattern}, "
+            f"num_of_digits={self.number_of_significant_digits}, "
+            f"href={self.href}, "
+            f"col_type={self.type}, "
+            f"unit={self.unit}, "
+            f"scale_factor={self.scale_factor})"
         )
 
 
@@ -483,9 +481,8 @@ def _get_column_type_heur(column, column_values):
                     column_source_unit = curr_column_unit
                 elif column_source_unit != curr_column_unit:
                     raise util.TableDefinitionError(
-                        "Attribute sourceUnit different from real source unit: {} and {} (in column {})".format(
-                            column_source_unit, curr_column_unit, column.title
-                        )
+                        f"Attribute sourceUnit different from real source unit: "
+                        f"{column_source_unit} and {curr_column_unit} (in column {column.title})"
                     )
                 if column_unit and curr_column_unit != column_unit:
                     if explicit_unit_defined:
@@ -519,9 +516,7 @@ def _get_column_type_heur(column, column_values):
                 0, dec_digits_before_scale - ceil(log10(column_scale_factor))
             )
 
-            scaled_value = "{0:.{1}f}".format(
-                scaled_value, max_number_of_dec_digits_after_scale
-            )
+            scaled_value = f"{scaled_value:.{max_number_of_dec_digits_after_scale}f}"
             scaled_value_match = REGEX_MEASURE.match(scaled_value)
 
             curr_dec_digits = _get_decimal_digits(
@@ -581,7 +576,7 @@ def _get_scale_factor(unit, source_unit, column):
         # If the display unit is different from the source unit, a scale factor must be given explicitly
         raise util.TableDefinitionError(
             "Attribute displayUnit is different from sourceUnit,"
-            + " but scaleFactor is not defined (in column {})".format(column.title)
+            f" but scaleFactor is not defined (in column {column.title})"
         )
 
 
@@ -651,11 +646,11 @@ def _get_int_digits(decimal_number_match):
 def _check_unit_consistency(actual_unit, wanted_unit, column):
     if actual_unit and wanted_unit is None:
         raise util.TableDefinitionError(
-            "Trying to convert from one unit to another, but source unit not specified"
-            " (in column {})".format(column.title)
+            f"Trying to convert from one unit to another, "
+            f"but source unit not specified (in column {column.title})"
         )
     elif wanted_unit != actual_unit:
         raise util.TableDefinitionError(
-            "Source value of different unit than specified source unit: " + "{} and {}"
-            " (in column {})".format(actual_unit, wanted_unit, column.title)
+            f"Source value of different unit than specified source unit: "
+            f"{actual_unit} and {wanted_unit} (in column {column.title})"
         )

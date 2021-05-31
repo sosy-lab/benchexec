@@ -5,7 +5,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import {
   useTable,
   useFilters,
@@ -35,6 +35,7 @@ import {
   getHiddenColIds,
 } from "../utils/utils";
 import deepEqual from "deep-equal";
+import { statusForEmptyRows } from "../utils/filters";
 
 const numericPattern = "([+-]?[0-9]*(\\.[0-9]*)?)(:[+-]?[0-9]*(\\.[0-9]*)?)?";
 
@@ -102,231 +103,262 @@ const Table = (props) => {
   const [columnsResizeValues, setColumnsResizeValues] = useState({});
   const [disableTaskText, setDisableTaskText] = useState(false);
 
-  const columns = useMemo(() => {
-    // General filter input field
-    function FilterInputField({ column: { id, filter } }) {
-      const elementId = id + "_filter";
-      const setFilter = props.filters.find((filter) => filter.id === id);
-      let value = setFilter ? setFilter.value : "";
-      let typingTimer;
+  /**
+   * This function automatically creates additional filters for status or category filters.
+   * This is due to the fact that status and category filters are AND connected.
+   * As only one status or category at a time can be selected in the Table view, this would
+   * result in Filters like
+   *      <Status X> AND <no categories>
+   *  or
+   *      <no status> AND <Category Y>
+   *
+   * which would always result in an empty result set.
+   *
+   */
+  const createAdditionalFilters = ({ tool, name, column, isCategory }) => {
+    const fill = isCategory ? props.statusValues : props.categoryValues;
+    const out = [];
 
-      const textPlaceholder =
-        id === "id" && disableTaskText
-          ? "To edit, please clear task filter in the sidebar"
-          : "text";
-
-      const onChange = (event) => {
-        value = event.target.value;
-        clearTimeout(typingTimer);
-        typingTimer = setTimeout(() => {
-          setCustomFilters({ id, value });
-          document.getElementById(elementId).focus();
-        }, 500);
-      };
-
-      return (
-        <input
-          id={elementId}
-          className="filter-field"
-          placeholder={textPlaceholder}
-          defaultValue={value}
-          onChange={onChange}
-          disabled={id === "id" ? disableTaskText : false}
-          type="search"
-        />
-      );
-    }
-
-    // Filter dropdown menu used for status columns
-    function StatusFilter({ column: { id, filter }, runSetIdx, columnIdx }) {
-      const categoryValues = props.categoryValues[runSetIdx][columnIdx];
-      const selectedCategoryFilters = pathOr(
-        [runSetIdx, "categories"],
-        [],
-        filteredColumnValues,
-      );
-      const selectedStatusValues = pathOr(
-        [runSetIdx, columnIdx],
-        [],
-        filteredColumnValues,
-      );
-      const selectedFilters = createRelevantFilterLabel({
-        categoryFilters: selectedCategoryFilters,
-        statusFilters: selectedStatusValues,
-        categoryFilterValues: categoryValues.map((item) => `${item} `),
-        statusFilterValues: props.statusValues[runSetIdx][columnIdx],
+    for (const val of fill[tool][column]) {
+      out.push({
+        id: `${tool}_${name}_${column}`,
+        value: `${val}${isCategory ? "" : " "}`,
       });
+    }
+    return out;
+  };
 
-      const allSelected = selectedFilters.length === 0;
-      const multipleSelected =
-        selectedFilters.length > 1 || selectedFilters[0] === emptyStateValue;
-      const singleFilterValue = selectedFilters && selectedFilters[0];
-      const selectValue =
-        (allSelected && "all ") ||
-        (multipleSelected && "multiple") ||
-        singleFilterValue;
+  const selectAllStatusFields = ({ tool, name, column }) => {
+    const out = [];
 
-      return (
-        <select
-          className="filter-field"
-          onChange={(event) =>
-            setCustomFilters({ id, value: event.target.value })
-          }
-          value={selectValue}
-        >
-          {multipleSelected && (
-            <option value="multiple" disabled>
-              {selectedFilters
-                .map((x) => x.trim())
-                .filter((x) => x !== "all" && x !== emptyStateValue)
-                .join(", ") || "No filters selected"}
+    for (const val of props.statusValues[tool][column]) {
+      const value = val;
+      out.push({
+        id: `${tool}_${name}_${column}`,
+        value,
+      });
+    }
+    for (const val of props.categoryValues[tool][column]) {
+      const value = `${val} `;
+      out.push({
+        id: `${tool}_${name}_${column}`,
+        value, // categories are identified by the trailing space
+      });
+    }
+    return out;
+  };
+
+  // Updates the filters that were set by React-Table in our backend
+  const setCustomFilters = (newFilter) => {
+    if (newFilter.id === "id") {
+      newFilter.isTableTabFilter = true;
+    }
+    let filters = [
+      ...props.filters.filter((propFilter) => propFilter.id !== newFilter.id),
+      newFilter,
+    ];
+    // Filters with empty values represent filters that should be removed
+    filters = filters.filter((filter) => filter.value !== "");
+    props.addTypeToFilter(filters);
+
+    let additionalFilters = [];
+
+    if (newFilter.type === "status") {
+      const [tool, name, column] = newFilter.id.split("_");
+      const value = newFilter.value;
+
+      if (value.trim() === "all") {
+        additionalFilters = selectAllStatusFields({
+          tool,
+          name,
+          column,
+        });
+        filters = filters.filter(
+          ({ id, value }) => !(id === newFilter.id && value.trim() === "all"),
+        );
+      } else {
+        const isCategory = value[value.length - 1] === " ";
+        additionalFilters = createAdditionalFilters({
+          tool,
+          name,
+          column,
+          isCategory,
+        });
+      }
+    }
+    props.addTypeToFilter(additionalFilters);
+    props.filterPlotData([...filters, ...additionalFilters], true);
+  };
+
+  // General filter input field
+  function FilterInputField({ column: { id, filter }, currFilters }) {
+    const elementId = id + "_filter";
+    const setFilter = currFilters.find((filter) => filter.id === id);
+    const initFilterValue = setFilter ? setFilter.value : "";
+    let [typingTimer, setTypingTimer] = useState("");
+    let [value, setValue] = useState(initFilterValue);
+
+    const textPlaceholder =
+      id === "id" && disableTaskText
+        ? "To edit, please clear task filter in the sidebar"
+        : "text";
+
+    const onChange = (event) => {
+      const newValue = event.target.value;
+      setValue(newValue);
+      clearTimeout(typingTimer);
+      setTypingTimer(
+        setTimeout(() => {
+          setCustomFilters({ id, value: newValue });
+          document.getElementById(elementId).focus();
+        }, 500),
+      );
+    };
+
+    return (
+      <input
+        id={elementId}
+        className="filter-field"
+        placeholder={textPlaceholder}
+        defaultValue={value}
+        onChange={onChange}
+        disabled={id === "id" ? disableTaskText : false}
+        type="search"
+      />
+    );
+  }
+
+  // Filter dropdown menu used for status columns
+  function StatusFilter({ column: { id, filter }, runSetIdx, columnIdx }) {
+    const categoryValues = props.categoryValues[runSetIdx][columnIdx];
+    const selectedCategoryFilters = pathOr(
+      [runSetIdx, "categories"],
+      [],
+      filteredColumnValues,
+    );
+    const selectedStatusValues = pathOr(
+      [runSetIdx, columnIdx],
+      [],
+      filteredColumnValues,
+    );
+    const selectedFilters = createRelevantFilterLabel({
+      categoryFilters: selectedCategoryFilters,
+      statusFilters: selectedStatusValues,
+      categoryFilterValues: categoryValues.map((item) => `${item} `),
+      statusFilterValues: props.statusValues[runSetIdx][columnIdx],
+    });
+
+    const allSelected = selectedFilters.length === 0;
+    const multipleSelected =
+      selectedFilters.length > 1 || selectedFilters[0] === emptyStateValue;
+    const singleFilterValue = selectedFilters && selectedFilters[0];
+    const selectValue =
+      (allSelected && "all ") ||
+      (multipleSelected && "multiple") ||
+      singleFilterValue;
+
+    return (
+      <select
+        className="filter-field"
+        onChange={(event) =>
+          setCustomFilters({ id, value: event.target.value })
+        }
+        value={selectValue}
+      >
+        {multipleSelected && (
+          <option value="multiple" disabled>
+            {selectedFilters
+              .map((x) => x.trim())
+              .filter((x) => x !== "all" && x !== emptyStateValue)
+              .join(", ") || "No filters selected"}
+          </option>
+        )}
+        <option value="all ">Show all</option>
+        {categoryValues
+          .filter((category) => category in SPECIAL_CATEGORIES)
+          .map((category) => (
+            // category filters are marked with space at end
+            <option value={category + " "} key={category}>
+              {SPECIAL_CATEGORIES[category]}
             </option>
-          )}
-          <option value="all ">Show all</option>
+          ))}
+        <optgroup label="Category">
           {categoryValues
-            .filter((category) => category in SPECIAL_CATEGORIES)
+            .filter((category) => !(category in SPECIAL_CATEGORIES))
+            .sort()
             .map((category) => (
               // category filters are marked with space at end
               <option value={category + " "} key={category}>
-                {SPECIAL_CATEGORIES[category]}
+                {category}
               </option>
             ))}
-          <optgroup label="Category">
-            {categoryValues
-              .filter((category) => !(category in SPECIAL_CATEGORIES))
-              .map((category) => (
-                // category filters are marked with space at end
-                <option value={category + " "} key={category}>
-                  {category}
-                </option>
-              ))}
-          </optgroup>
-          <optgroup label="Status">
-            {props.statusValues[runSetIdx][columnIdx].map((status) => (
+        </optgroup>
+        <optgroup label="Status">
+          {props.statusValues[runSetIdx][columnIdx]
+            .filter((status) => status !== statusForEmptyRows)
+            .sort()
+            .map((status) => (
               <option value={status} key={status}>
                 {status}
               </option>
             ))}
-          </optgroup>
-        </select>
-      );
-    }
+        </optgroup>
+      </select>
+    );
+  }
 
-    // Filter input field used for columns with numerical values
-    function MinMaxFilterInputField({ column: { id, filter, setFilter } }) {
-      const elementId = id + "_filter";
-      const propsSetFilter = props.filters.find((filter) => filter.id === id);
-      let value = propsSetFilter ? propsSetFilter.value : "";
-      let typingTimer;
+  // Filter input field used for columns with numerical values
+  function MinMaxFilterInputField({ column: { id, filter }, currFilters }) {
+    const elementId = id + "_filter";
+    const setFilter = currFilters.find((filter) => filter.id === id);
+    const initFilterValue = setFilter ? setFilter.value : "";
+    let [typingTimer, setTypingTimer] = useState("");
+    let [value, setValue] = useState(initFilterValue);
 
-      const onChange = (event) => {
-        clearTimeout(typingTimer);
-        typingTimer = setTimeout(() => {
-          value = event.target.value;
-          setFilter(value);
-          setCustomFilters({ id, value });
+    const onChange = (event) => {
+      const newValue = event.target.value;
+      setValue(newValue);
+      clearTimeout(typingTimer);
+      setTypingTimer(
+        setTimeout(() => {
+          setCustomFilters({ id, value: newValue });
           document.getElementById(elementId).focus();
-        }, 500);
-      };
-
-      return (
-        <input
-          id={elementId}
-          className="filter-field"
-          placeholder="Min:Max"
-          defaultValue={value}
-          onChange={onChange}
-          type="search"
-          pattern={numericPattern}
-        />
+        }, 500),
       );
-    }
-
-    /**
-     * This function automatically creates additional filters for status or category filters.
-     * This is due to the fact that status and category filters are AND connected.
-     * As only one status or category at a time can be selected in the Table view, this would
-     * result in Filters like
-     *      <Status X> AND <no categories>
-     *  or
-     *      <no status> AND <Category Y>
-     *
-     * which would always result in an empty result set.
-     *
-     */
-    const createAdditionalFilters = ({ tool, name, column, isCategory }) => {
-      const fill = isCategory ? props.statusValues : props.categoryValues;
-      const out = [];
-
-      for (const val of fill[tool][column]) {
-        out.push({
-          id: `${tool}_${name}_${column}`,
-          value: `${val}${isCategory ? "" : " "}`,
-        });
-      }
-      return out;
     };
 
-    const selectAllStatusFields = ({ tool, name, column }) => {
-      const out = [];
+    return (
+      <input
+        id={elementId}
+        className="filter-field"
+        placeholder="Min:Max"
+        defaultValue={value}
+        onChange={onChange}
+        type="search"
+        pattern={numericPattern}
+      />
+    );
+  }
 
-      for (const val of props.statusValues[tool][column]) {
-        const value = val;
-        out.push({
-          id: `${tool}_${name}_${column}`,
-          value,
-        });
-      }
-      for (const val of props.categoryValues[tool][column]) {
-        const value = `${val} `;
-        out.push({
-          id: `${tool}_${name}_${column}`,
-          value, // categories are identified by the trailing space
-        });
-      }
-      return out;
-    };
+  const textFilterInputField = useCallback(
+    (filterProps) => (
+      <FilterInputField
+        disableTaskText={disableTaskText}
+        {...filterProps}
+        currFilters={props.filters}
+      />
+    ),
+    [disableTaskText, props.filters],
+  );
 
-    // Updates the filters that were set by React-Table in our backend
-    const setCustomFilters = (newFilter) => {
-      if (newFilter.id === "id") {
-        newFilter.isTableTabFilter = true;
-      }
-      let filters = [
-        ...props.filters.filter((propFilter) => propFilter.id !== newFilter.id),
-        newFilter,
-      ];
-      // Filters with empty values represent filters that should be removed
-      filters = filters.filter((filter) => filter.value !== "");
+  const minMaxFilterInputField = useCallback(
+    (filterProps) => (
+      <MinMaxFilterInputField {...filterProps} currFilters={props.filters} />
+    ),
+    [props.filters],
+  );
 
-      let additionalFilters = [];
-
-      if (newFilter.id.includes("status")) {
-        const [tool, name, column] = newFilter.id.split("_");
-        const value = newFilter.value;
-
-        if (value.trim() === "all") {
-          additionalFilters = selectAllStatusFields({
-            tool,
-            name,
-            column,
-          });
-          filters = filters.filter(
-            ({ id, value }) => !(id === newFilter.id && value.trim() === "all"),
-          );
-        } else {
-          const isCategory = value[value.length - 1] === " ";
-          additionalFilters = createAdditionalFilters({
-            tool,
-            name,
-            column,
-            isCategory,
-          });
-        }
-      }
-      props.filterPlotData([...filters, ...additionalFilters], true);
-    };
-
+  const columns = useMemo(() => {
     const createStatusColumn = (runSetIdx, column, columnIdx) => {
       const columnId = `${runSetIdx}_${column.display_title}_${columnIdx}`;
       const resizeWidth = columnsResizeValues[columnId];
@@ -384,6 +416,9 @@ const Table = (props) => {
 
       const columnId = `${runSetIdx}_${column.display_title}_${columnIdx}`;
       const resizeWidth = columnsResizeValues[columnId];
+      const filterType = isNumericColumn(column)
+        ? minMaxFilterInputField
+        : textFilterInputField;
 
       return {
         id: columnId,
@@ -401,12 +436,7 @@ const Table = (props) => {
         ),
         // Don't let React-Table actually filter anything, we do it ourselves
         filter: (rows) => rows,
-        Filter: (filter) =>
-          isNumericColumn(column) ? (
-            <MinMaxFilterInputField {...filter} />
-          ) : (
-            <FilterInputField {...filter} />
-          ),
+        Filter: filterType,
         sortType: (rowA, rowB, columnID, desc) =>
           isNumericColumn(column)
             ? numericSortMethod(rowA.values[columnID], rowB.values[columnID])
@@ -467,7 +497,7 @@ const Table = (props) => {
               <span title="This task has no associated file">{content}</span>
             );
           },
-          Filter: FilterInputField,
+          Filter: textFilterInputField,
           sortType: (rowA, rowB, columnID, desc) => {
             const aValue = Array.isArray(rowA.values[columnID])
               ? rowA.values[columnID].join()
@@ -489,11 +519,11 @@ const Table = (props) => {
 
     return [createTaskIdColumn()].concat(resultColumns);
   }, [
-    disableTaskText,
     columnsResizeValues,
-    filteredColumnValues,
     isFixed,
     props,
+    textFilterInputField,
+    minMaxFilterInputField,
   ]);
 
   const data = useMemo(() => props.tableData, [props.tableData]);

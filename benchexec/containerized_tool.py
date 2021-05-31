@@ -27,7 +27,7 @@ from benchexec import (
 )
 
 
-tool = None  # type: tooladapter.CURRENT_BASETOOL
+tool: tooladapter.CURRENT_BASETOOL = None
 
 
 @tooladapter.CURRENT_BASETOOL.register  # mark as instance of CURRENT_BASETOOL
@@ -69,6 +69,7 @@ class ContainerizedTool(object):
                 os.rmdir(temp_dir)
 
     def close(self):
+        self._forward_call("close", [], {})
         self._pool.close()
 
     def _forward_call(self, method_name, args, kwargs):
@@ -117,7 +118,7 @@ def _init_container_and_load_tool(tool_module, *args, **kwargs):
     try:
         _init_container(*args, **kwargs)
     except OSError as e:
-        raise BenchExecException("Failed to configure container: " + str(e))
+        raise BenchExecException(f"Failed to configure container: {e}")
     return _load_tool(tool_module)
 
 

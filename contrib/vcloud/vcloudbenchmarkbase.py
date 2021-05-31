@@ -87,7 +87,7 @@ class VcloudBenchmarkBase(benchexec.benchexec.BenchExec):
         )
 
     def get_param_name(self, pname):
-        return "--" + "v" + pname
+        return "--v" + pname
 
     def check_existing_results(self, benchmark):
         if not self.config.reprocessResults:

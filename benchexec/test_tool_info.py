@@ -42,16 +42,10 @@ else:
 
 
 def print_value(description, value, extra_line=False):
+    sep = "\n\t" if extra_line else " "
     print(
-        "{}{}{}:{}“{}{}{}”".format(
-            COLOR_DESCRIPTION,
-            description,
-            COLOR_DEFAULT,
-            "\n\t" if extra_line else " ",
-            COLOR_VALUE,
-            value,
-            COLOR_DEFAULT,
-        ),
+        f"{COLOR_DESCRIPTION}{description}{COLOR_DEFAULT}:{sep}"
+        f"“{COLOR_VALUE}{value}{COLOR_DEFAULT}”",
         file=sys.stderr,
     )
 
@@ -61,44 +55,31 @@ def print_list(description, value):
 
 
 def print_multiline_list(description, values):
-    print(
-        "{}{}{}:".format(COLOR_DESCRIPTION, description, COLOR_DEFAULT), file=sys.stderr
-    )
+    print(f"{COLOR_DESCRIPTION}{description}{COLOR_DEFAULT}:", file=sys.stderr)
     for value in values:
-        print("\t“{}{}{}”".format(COLOR_VALUE, value, COLOR_DEFAULT), file=sys.stderr)
+        print(f"\t“{COLOR_VALUE}{value}{COLOR_DEFAULT}”", file=sys.stderr)
 
 
 def print_multiline_text(description, value):
     if value is None:
         print(
-            "{}{}{}: {}None{}".format(
-                COLOR_DESCRIPTION,
-                description,
-                COLOR_DEFAULT,
-                COLOR_WARNING,
-                COLOR_DEFAULT,
-            ),
+            f"{COLOR_DESCRIPTION}{description}{COLOR_DEFAULT}: "
+            f"{COLOR_WARNING}None{COLOR_DEFAULT}",
             file=sys.stderr,
         )
     elif not value.strip():
         print(
-            "{}{}{}: {}“{}”{}".format(
-                COLOR_DESCRIPTION,
-                description,
-                COLOR_DEFAULT,
-                COLOR_WARNING,
-                value,
-                COLOR_DEFAULT,
-            ),
+            f"{COLOR_DESCRIPTION}{description}{COLOR_DEFAULT}: "
+            f"{COLOR_WARNING}“{value}”{COLOR_DEFAULT}",
             file=sys.stderr,
         )
     else:
         print(
-            "{}{}{}:".format(COLOR_DESCRIPTION, description, COLOR_DEFAULT),
+            f"{COLOR_DESCRIPTION}{description}{COLOR_DEFAULT}:",
             file=sys.stderr,
         )
         for line in value.splitlines():
-            print("\t{}{}{}".format(COLOR_VALUE, line, COLOR_DEFAULT), file=sys.stderr)
+            print(f"\t{COLOR_VALUE}{line}{COLOR_DEFAULT}", file=sys.stderr)
 
 
 @contextlib.contextmanager
@@ -176,17 +157,14 @@ def print_tool_info(tool, tool_locator):
     if new_environment:
         print_multiline_list(
             "Additional environment variables",
-            (
-                "{}={}".format(variable, value)
-                for (variable, value) in new_environment.items()
-            ),
+            (f"{variable}={value}" for (variable, value) in new_environment.items()),
         )
     append_environment = environment.pop("additionalEnv", {})
     if append_environment:
         print_multiline_list(
             "Appended environment variables",
             (
-                "{}=${{{}}}{}".format(variable, variable, value)
+                f"{variable}=${{{variable}}}{value}"
                 for (variable, value) in append_environment.items()
             ),
         )
@@ -377,11 +355,17 @@ def main(argv=None):
         type=argparse.FileType("r"),
         help="optional name of task-definition files to test the module with",
     )
+    parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="enable debug output",
+    )
     benchexec.benchexec.add_container_args(parser)
 
     options = parser.parse_args(argv[1:])
     logging.basicConfig(
-        format=COLOR_WARNING + "%(levelname)s: %(message)s" + COLOR_DEFAULT
+        format=COLOR_WARNING + "%(levelname)s: %(message)s" + COLOR_DEFAULT,
+        level=logging.DEBUG if options.debug else logging.INFO,
     )
     tool_locator = tooladapter.create_tool_locator(options)
 

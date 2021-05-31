@@ -45,7 +45,7 @@ def mock_witness_sets():
 
 
 def mock_get_verification_result(name):
-    return results_xml.find("run[@name='{}']".format(name))
+    return results_xml.find(f"run[@name='{name}']")
 
 
 def mock_get_witness(name):
@@ -118,9 +118,9 @@ class TestMergeBenchmarkSets(unittest.TestCase):
             self.assertListEqual(
                 [line.strip() for line in xml.splitlines()[1:4]],
                 [
-                    "<!DOCTYPE {}".format(qualified_name),
-                    "PUBLIC '{}'".format(public_id),
-                    "'{}'>".format(system_id),
+                    f"<!DOCTYPE {qualified_name}",
+                    f"PUBLIC '{public_id}'",
+                    f"'{system_id}'>",
                 ],
             )
 

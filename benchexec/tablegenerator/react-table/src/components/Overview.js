@@ -26,6 +26,7 @@ import {
   getFilterableData,
   buildMatcher,
   applyMatcher,
+  statusForEmptyRows,
 } from "../utils/filters";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faQuestionCircle } from "@fortawesome/free-solid-svg-icons";
@@ -108,6 +109,19 @@ export default class Overview extends React.Component {
       (_tool, column) => column.type === "status",
       (_runResult, value) => getRawOrDefault(value),
     );
+    // Add statusForEmptyRows to status values array if there is a corresponding empty row for the runset
+    this.originalTools.forEach((tool, j) =>
+      tool.columns
+        .filter((column) => column.type === "status")
+        .forEach((col, i) => {
+          const hasEmptyRow = this.originalTable.some(
+            (row) => row.results[j].category === "empty",
+          );
+          if (hasEmptyRow) {
+            this.statusValues[j][i].push(statusForEmptyRows);
+          }
+        }),
+    );
     this.categoryValues = this.findAllValuesOfColumn(
       (_tool, column) => column.type === "status",
       (runResult, _value) => runResult.category,
@@ -141,6 +155,15 @@ export default class Overview extends React.Component {
     }
   }
 
+  addTypeToFilter = (filters) =>
+    filters
+      .filter((filter) => filter.id !== "id")
+      .forEach((filter) => {
+        const [runsetIdx, , columnIdx] = filter.id.split("_");
+        const type = this.state.tools[runsetIdx]["columns"][columnIdx].type;
+        filter.type = type;
+      });
+
   componentDidMount() {
     this.removeHistoryListener = this.routerRef.current.history.listen(
       (_, action) => {
@@ -158,6 +181,7 @@ export default class Overview extends React.Component {
 
   getFiltersFromUrl = () => {
     const deserializedFilters = this.filterUrlRetriever() || [];
+    this.addTypeToFilter(deserializedFilters);
     if (!deepEqual(this.lastFiltered, deserializedFilters)) {
       // we only want to kick off filtering when filters changed
       return deserializedFilters;
@@ -318,6 +342,7 @@ export default class Overview extends React.Component {
                 this.setState({ filterBoxVisible: false });
               }}
               ids={getTaskIdParts(this.originalTable, this.taskIdNames)}
+              addTypeToFilter={this.addTypeToFilter}
             />
             <div className="menu">
               {menuItems.map(({ key, title, path, icon }) => (
@@ -364,6 +389,7 @@ export default class Overview extends React.Component {
                     statusValues={this.statusValues}
                     categoryValues={this.categoryValues}
                     hiddenCols={this.state.hiddenCols}
+                    addTypeToFilter={this.addTypeToFilter}
                   />
                 </Route>
                 <Route path="/quantile">

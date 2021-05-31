@@ -85,7 +85,7 @@ class Tool(benchexec.tools.template.BaseTool2):
     def _get_additional_options(self, existing_options, task, rlimits):
         options = []
         if rlimits.cputime and "-timelimit" not in existing_options:
-            options += ["-timelimit", str(rlimits.cputime) + "s"]
+            options += ["-timelimit", f"{rlimits.cputime}s"]
 
         if "-stats" not in existing_options:
             options += ["-stats"]
@@ -102,9 +102,7 @@ class Tool(benchexec.tools.template.BaseTool2):
                         options += [data_model_option]
                 else:
                     raise benchexec.tools.template.UnsupportedFeatureException(
-                        "Unsupported data_model '{}' defined for task '{}'".format(
-                            data_model, task
-                        )
+                        f"Unsupported data_model '{data_model}' defined for task '{task}'"
                     )
 
         return options
@@ -193,14 +191,14 @@ class Tool(benchexec.tools.template.BaseTool2):
                         line,
                     )
                     if match:
-                        newStatus += "(" + match.group(1) + ")"
+                        newStatus += f"({match.group(1)})"
                 else:
                     newStatus = result.RESULT_UNKNOWN
 
                 if not status:
                     status = newStatus
                 elif newStatus != result.RESULT_UNKNOWN and status != newStatus:
-                    status = "{0} ({1})".format(status, newStatus)
+                    status = f"{status} ({newStatus})"
             elif line == "Finished." and not status:
                 status = result.RESULT_DONE
 
