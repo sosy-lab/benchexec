@@ -32,7 +32,7 @@ files
       // Fixed width and height because the FlexibleXYPlot doesn't work well with the react-test-renderer
       const quantilePlotJSX = (
         <QuantilePlot
-          table={overviewInstance.state.table}
+          table={overviewInstance.state.tableData}
           tools={overviewInstance.state.tools}
           preSelection={overviewInstance.state.quantilePreSelection}
           getRowName={overviewInstance.getRowName}
