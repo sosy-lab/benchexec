@@ -19,7 +19,7 @@ expect.addSnapshotSerializer({
   test: (val) => val && val.props && val.props.hasOwnProperty("title"),
 });
 
-test_snapshot_of("Render Summary", (overview) => (
+test_snapshot_of("Render ReactTable", (overview) => (
   <Table
     tableHeader={overview.tableHeader}
     tableData={overview.originalTable}
