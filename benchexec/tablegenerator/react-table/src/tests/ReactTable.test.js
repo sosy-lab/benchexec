@@ -7,6 +7,7 @@
 
 import React from "react";
 import Table from "../components/ReactTable.js";
+import { HashRouter as Router } from "react-router-dom";
 
 import { test_snapshot_of } from "./utils.js";
 
@@ -20,19 +21,21 @@ expect.addSnapshotSerializer({
 });
 
 test_snapshot_of("Render ReactTable", (overview) => (
-  <Table
-    tableHeader={overview.tableHeader}
-    tableData={overview.originalTable}
-    tools={overview.state.tools}
-    selectColumn={overview.toggleSelectColumns}
-    prepareTableValues={overview.prepareTableValues}
-    setFilter={overview.setFilter}
-    filterPlotData={overview.filterPlotData}
-    filters={overview.state.filtered}
-    toggleLinkOverlay={overview.toggleLinkOverlay}
-    changeTab={overview.changeTab}
-    statusValues={overview.statusValues}
-    categoryValues={overview.categoryValues}
-    hiddenCols={overview.state.hiddenCols}
-  />
+  <Router>
+    <Table
+      tableHeader={overview.tableHeader}
+      tableData={overview.originalTable}
+      tools={overview.state.tools}
+      selectColumn={overview.toggleSelectColumns}
+      prepareTableValues={overview.prepareTableValues}
+      setFilter={overview.setFilter}
+      filterPlotData={overview.filterPlotData}
+      filters={overview.state.filtered}
+      toggleLinkOverlay={overview.toggleLinkOverlay}
+      changeTab={overview.changeTab}
+      statusValues={overview.statusValues}
+      categoryValues={overview.categoryValues}
+      hiddenCols={overview.state.hiddenCols}
+    />
+  </Router>
 ));

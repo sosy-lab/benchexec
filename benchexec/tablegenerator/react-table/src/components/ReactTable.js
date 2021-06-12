@@ -15,6 +15,7 @@ import {
   useFlexLayout,
 } from "react-table";
 import { useSticky } from "react-table-sticky";
+import { useHistory } from "react-router-dom";
 import {
   createRunSetColumns,
   StandardCell,
@@ -102,6 +103,7 @@ const Table = (props) => {
   const [filteredColumnValues, setFilteredColumnValues] = useState({});
   const [columnsResizeValues, setColumnsResizeValues] = useState({});
   const [disableTaskText, setDisableTaskText] = useState(false);
+  const history = useHistory();
 
   /**
    * This function automatically creates additional filters for status or category filters.
@@ -549,6 +551,7 @@ const Table = (props) => {
     nextPage,
     previousPage,
     setPageSize,
+    setSortBy,
     state: { pageIndex, pageSize, sortBy, columnResizing },
   } = useTable(
     {
@@ -646,6 +649,15 @@ const Table = (props) => {
       gotoPage(pageCount - 1);
     }
   }, [props.filters, filteredColumnValues, gotoPage, pageIndex, pageCount]);
+
+  // Update table relevant parameters after URL change
+  useEffect(() => {
+    return history.listen((location) => {
+      setPageSize(getHashSearch().pageSize || initialPageSize);
+      setSortBy(getSortingSettingsFromURL());
+      gotoPage(getHashSearch().page - 1 || 0);
+    });
+  }, [history, gotoPage, setPageSize, setSortBy]);
 
   const renderHeaderGroup = (headerGroup) => (
     <div className="tr headergroup" {...headerGroup.getHeaderGroupProps()}>
