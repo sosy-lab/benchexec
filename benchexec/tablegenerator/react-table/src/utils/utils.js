@@ -663,6 +663,7 @@ const getTaskIdParts = (rows, taskIdNames) =>
  *
  * @returns {Number} The result of the addition
  */
+// WHEN EDITING THIS FUNCTION, ALSO EDIT THE COPY OF THIS FUNCTION IN src/woerks/scrips/stats.worker.js
 const safeAdd = (a, b) => {
   let aNum = a;
   let bNum = b;
