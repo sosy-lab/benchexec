@@ -154,10 +154,35 @@ const updateMaxDecimalMetaInfo = ({ columnType, column, bucket }) => {
   }
 };
 
+/**
+ * @typedef  MetaInfo
+ *  Additional metainformation to be used for post-processing (like number formatting)
+ * @prop {string|null} type - The column type
+ * @prop {number} maxDecimals - The maximum amount of decimals across all numbers in the bucket
+ *                              used for number formatting
+ */
+
+/**
+ * @typedef Bucket
+ * Statistics to be displayed in the react table are calculated in buckets, each bucket representing one "row" in the
+ * statistics table (total, correct, correct true, etc).
+ * This object stores all accumulated information about this bucket.
+ *
+ * @prop {number} sum - The sum of the bucket
+ * @prop {number} avg - The average of the bucket
+ * @prop {number|string} max - The maximal value of the bucket
+ * @prop {number} median - The median value of the bucket
+ * @prop {number|string} min - The minimum value of the bucket
+ * @prop {number} stdev - The standard deviation of the bucket
+ * @prop {number} variance - The variance of the bucket
+ * @prop {MetaInfo} [meta] - Meta information of the bucket
+ */
+
 onmessage = function (e) {
   const { data, transaction } = e.data;
 
   // template
+  /** @const { Bucket } */
   const defaultObj = {
     sum: 0,
     avg: 0,
@@ -168,6 +193,7 @@ onmessage = function (e) {
     variance: 0,
   };
 
+  /** @const {MetaInfo} */
   const metaTemplate = {
     type: null,
     maxDecimals: 0,
@@ -195,9 +221,11 @@ onmessage = function (e) {
 
   copy.sort((a, b) => a.column - b.column);
 
+  /** @type {Object.<string, Bucket>} */
   const buckets = {};
   const bucketNaNInfo = {}; // used to store NaN info of buckets
 
+  /** @type {Bucket} */
   let total = { ...defaultObj, items: [], meta: { ...metaTemplate } };
 
   total.max = copy[copy.length - 1].column;
