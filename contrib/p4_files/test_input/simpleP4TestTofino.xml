@@ -8,9 +8,9 @@ SPDX-License-Identifier: Apache-2.0 -->
 <!DOCTYPE benchmark PUBLIC "+//IDN sosy-lab.org//DTD BenchExec benchmark 2.3//EN" "https://www.sosy-lab.org/benchexec/benchmark-2.3.dtd">
 
 <benchmark tool="p4-test-tool" displayName="P4 test">
-    <option name="switch_folder">~/benchexec/contrib/p4/docker_files/switch_bmv2</option>
-    <option name="ptf_test_folder">~/benchexec/contrib/p4/docker_files/ptf_tester/tests</option>
-    <option name="network_config">~/benchexec/contrib/p4/network_config.json</option>
+    <option name="switch_folder">/home/p4/bf_benchexec/benchexec/contrib/p4_files/docker_files/switch_tofino</option>
+    <option name="ptf_test_folder">~/bf_benchexec/benchexec/contrib/p4_files/docker_files/ptf_tester/tests</option>
+    <option name="network_config">/home/p4/bf_benchexec/benchexec/contrib/p4_files/network_config.json</option>
 
     <rundefinition>
         <tasks>

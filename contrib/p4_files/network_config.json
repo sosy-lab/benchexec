@@ -1,0 +1,52 @@
+{
+    "links": [
+        {
+            "device1": "Node1",
+            "device1_port": 0,
+            "device2": "Switch1",
+            "device2_port": 0,
+            "type": "Node_to_Switch"
+        }
+    ],
+    "nodes": {
+        "Node1": {
+            "id": 0,
+            "ipv4_addr": "192.168.1.1",
+            "used_ports": [
+                0,
+                1
+            ]
+        },
+        "Node2": {
+            "id": 1,
+            "ipv4_addr": "192.168.1.2",
+            "used_ports": []
+        }
+    },
+    "switches": {
+        "Switch1": {
+            "p4_file_name": "simple_switch.json",
+            "table_entries": [
+                {
+                    "table_name": "Ingress.ipv4_lpm",
+                    "action_name": "Ingress.ipv4_forward",
+                    "match_fields": {
+                        "hdr.ipv4.dst_addr": [
+                            "192.168.1.2",
+                            32
+                        ]
+                    },
+                    "action_params": {
+                        "egress_port": 0
+                    }
+                }
+            ],
+            "used_ports": [
+                0,
+                1
+            ],
+            "server_port": 50051,
+            "p4_info_path": "/home/p4/installations/bf-sde-9.5.0/build/p4-build/tofino/simple_switch/tofino/p4info2.pb.txt"
+        }
+    }
+}
