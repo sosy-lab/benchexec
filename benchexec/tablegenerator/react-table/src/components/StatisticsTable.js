@@ -149,12 +149,15 @@ const transformStatsFromWorkers = ({ newStats, stats, setStats, filtered }) => {
   const filteredRow = newStats.map((tool) =>
     tool.map(({ total }) => ({ ...total })),
   );
+
   // Add filtered stats row to the set and move it to the second position
-  templ.unshift({
-    description: "Aggregations applied over filtered set",
-    title: "filtered",
-    content: filteredRow,
-  });
+  if (filtered) {
+    templ.unshift({
+      description: "Aggregations applied over filtered set",
+      title: "filtered",
+      content: filteredRow,
+    });
+  }
   const temp = templ[0];
   templ[0] = templ[1];
   templ[1] = temp;
@@ -226,7 +229,13 @@ const updateStats = async ({
     return out;
   });
 
-  transformStatsFromWorkers({ newStats: res, stats, setStats, formatter });
+  transformStatsFromWorkers({
+    newStats: res,
+    stats,
+    setStats,
+    formatter,
+    filtered,
+  });
 
   if (onStatsReady) {
     console.log("calling onStatsReady");
