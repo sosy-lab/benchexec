@@ -135,6 +135,9 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
         &--list {
           list-style: none;
         }
+        &--empty-rows {
+          margin-bottom: 1em;
+        }
         .task-id-filters {
           display: flex;
           flex-direction: column;
@@ -331,29 +334,35 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
 #summary {
   padding-top: 30px;
   text-align: center;
+
   #benchmark_setup {
     width: 100%;
     overflow-x: scroll;
     margin: 40px 0;
+
     table {
       border-collapse: collapse;
       width: 100%;
+
       td,
       th {
         border: 1px solid #ddd;
         padding: 8px;
       }
+
       .options {
         ul {
           margin: 0;
           padding: 0 0 0 17px;
         }
+
         li {
           text-align: left;
           font-size: 9pt;
           list-style: none;
         }
       }
+
       .benchmark,
       th {
         font-weight: bold;
@@ -375,26 +384,93 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
       }
     }
   }
-  #statistics .rt-table {
-    .rt-td {
-      padding-top: 8px;
-      padding-bottom: 8px;
-      .cell {
-        text-align: right;
+  #statistics {
+    #statistic-table.table {
+      height: auto;
+      white-space: nowrap;
+
+      .table-content {
+        overflow: hidden;
+
+        .td {
+          padding: 8px 5px;
+
+          &:not(.separator) {
+            align-self: center;
+          }
+        }
+
+        .table-header {
+          .tr {
+            align-items: stretch;
+
+            &:nth-of-type(2) {
+              box-shadow: 0 2px 15px 0 rgba(0, 0, 0, 0.15);
+              position: relative;
+              z-index: 10;
+            }
+
+            .th {
+              display: flex !important;
+              align-items: stretch;
+              justify-content: center;
+              padding: 5px;
+
+              &:not(:first-of-type) {
+                border-right: 1px solid rgba(0, 0, 0, 0.05);
+              }
+
+              &.select-column-header:hover {
+                background: #fff;
+              }
+
+              &.outer {
+                padding: 5px;
+              }
+
+              &.separator {
+                align-self: stretch;
+              }
+
+              .header-data {
+                display: flex;
+                align-items: baseline;
+                justify-content: center;
+                width: 100%;
+              }
+
+              > span {
+                text-overflow: ellipsis;
+                overflow: hidden;
+              }
+            }
+          }
+        }
+
+        .table-body {
+          .td {
+            .cell {
+              text-align: right;
+              padding: 0;
+            }
+          }
+
+          .row-title {
+            font-weight: 700;
+            text-align: left;
+          }
+
+          .tr {
+            border-bottom: 1px solid #adadad;
+          }
+        }
       }
-    }
-    .row-title {
-      font-weight: 700;
-    }
-    .rt-tr {
-      &-group {
-        border-bottom: 1px solid $border-color !important;
-      }
-    }
-    .columns {
-      cursor: pointer;
-      &:hover {
-        background-color: $hover-color;
+
+      .columns {
+        cursor: pointer;
+        &:hover {
+          background-color: $hover-color;
+        }
       }
     }
   }
@@ -405,97 +481,355 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
 }
 
 //------------------table------------------
-.mainTable {
-  a {
-    text-decoration: none;
-    display: block;
-  }
-  a:hover {
-    background-color: $hover-color;
-  }
-  a:focus {
-    outline: 1px dotted red;
-  }
-  .fixed {
-    justify-content: space-around;
-    width: 33%;
-    margin: auto;
-
-    input {
-      margin-right: 40px;
-    }
-  }
-  .ReactTable {
-    // Add scroll bar inside table instead of relying on outer scroll bar.
-    // otherwise scroll bar extends besides pagination bar.
+.main-table {
+  .table {
+    display: flex;
+    flex-direction: column;
     height: $content-height;
-    .rt-table {
+    white-space: nowrap;
+
+    .resizer {
+      display: inline-block;
+      position: absolute;
+      width: 36px;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 2;
+      transform: translateX(50%);
+      background-color: rgba(0, 0, 0, 0) !important;
+
+      &.isResizing {
+        background: red;
+      }
+    }
+
+    &.sticky {
+      .td,
+      .th {
+        background: #fff;
+      }
+
+      .header {
+        position: sticky;
+        width: fit-content;
+        text-align: center;
+      }
+
+      .body {
+        position: relative;
+        z-index: 0;
+      }
+
+      [data-sticky-td] {
+        position: sticky;
+      }
+
+      [data-sticky-last-left-td] {
+        border-right: 1px solid #ccc;
+      }
+
+      [data-sticky-first-right-td] {
+        border-left: 1px solid #ccc;
+      }
+    }
+
+    a {
+      text-decoration: none;
+      display: block;
+
+      &:hover {
+        background-color: $hover-color;
+      }
+
+      &:focus {
+        outline: 1px dotted red;
+      }
+    }
+
+    .tr {
+      .td:first-of-type,
+      .th:first-of-type {
+        border-right: 1px solid #ccc;
+      }
+    }
+
+    .fixed-task-header {
+      justify-content: space-around;
+      width: 33%;
+      margin: auto;
+
+      input {
+        width: 100%;
+      }
+    }
+
+    .separator {
+      max-width: 2px;
+    }
+
+    .table-container {
+      min-width: fit-content !important;
+    }
+
+    .table-content {
       // Better have vertical scroll bar always visible (less jumping around)
       overflow-y: scroll;
-    }
+      flex: auto 1;
 
-    // force pagination bar to bottom by preventing other elements from growing
-    .rt-thead,
-    .rt-tbody,
-    .rt-tr-group {
-      flex-grow: 0;
-    }
-  }
+      .td {
+        border-right: 1px solid rgba(0, 0, 0, 0.02);
 
-  .rt-thead {
-    &.-headerGroups > div > div {
-      &:first-child {
-        width: 30vw;
+        &.reg-column {
+          display: flex;
+          align-items: center;
+          justify-content: flex-end;
+
+          a {
+            width: 100%;
+          }
+
+          div {
+            padding: 5px 3px;
+          }
+        }
+      }
+
+      .table-header {
+        position: sticky;
+        top: 0;
+        z-index: 3;
+
+        > .tr {
+          &:first-of-type {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            border-bottom-color: #f2f2f2;
+
+            .th {
+              background-color: #f7f7f7;
+
+              &:hover {
+                background-color: #f7f7f7;
+                cursor: auto;
+              }
+            }
+          }
+        }
+
+        .shadow-container {
+          box-shadow: 0 2px 15px 0 rgba(0, 0, 0, 0.15);
+          position: relative;
+          z-index: 10;
+
+          .th {
+            &:not(:first-of-type) {
+              border-right: 1px solid rgba(0, 0, 0, 0.05);
+            }
+          }
+        }
+
+        .tr.filter {
+          border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+      }
+
+      .th.header {
+        position: relative;
+
+        &:last-child {
+          overflow: hidden;
+        }
+
+        &:not(.filter) {
+          &:hover {
+            background-color: $hover-color;
+            cursor: pointer;
+          }
+        }
+
+        &.separator {
+          align-self: stretch;
+        }
+
+        &.fixed-task,
+        &.reg-column {
+          font-weight: normal;
+        }
+
+        .header-sort-container {
+          height: calc(100% - 2 * 5px);
+          padding: 5px;
+          display: flex;
+          justify-content: center;
+
+          > span {
+            text-overflow: ellipsis;
+            overflow: hidden;
+          }
+
+          &.sorted-asc {
+            box-shadow: inset 0 3px 0 0 rgba(0, 0, 0, 0.6);
+          }
+
+          &.sorted-desc {
+            box-shadow: inset 0 -3px 0 0 rgba(0, 0, 0, 0.6);
+          }
+        }
+
+        &.filter {
+          padding: 5px;
+
+          .filter-field {
+            width: 100%;
+            text-align: right;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            background: #fff;
+            padding: 5px 7px;
+            font-size: inherit;
+            border-radius: 3px;
+          }
+        }
+      }
+
+      .table-body {
+        span {
+          text-align: center;
+        }
+
+        .tr {
+          border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+
+          &:hover {
+            .td {
+              background: rgba(0, 0, 0, 0.05);
+            }
+          }
+        }
+
+        .row_id:not(:nth-child(1)) {
+          font-size: 9pt;
+          border-left: 1px solid black;
+          margin-left: 5px;
+          padding-left: 5px;
+          height: 100%;
+          color: #484848;
+        }
+
+        .td {
+          padding: 1px;
+          text-align: right;
+          overflow: hidden;
+
+          > a {
+            padding: 5px 3px;
+          }
+        }
+
+        .row__name--cellLink {
+          color: black;
+        }
       }
     }
-    .rt-resizable-header:hover {
-      // TODO: Something like :not(:has(.selectColumns:hover)) would be good
-      // to avoid coloring the background if the user hovers over a nested button,
-      // but :has is not usable yet.
-      background-color: $hover-color;
-    }
-  }
 
-  .rt-tbody {
-    span {
-      text-align: center;
-    }
-    .row_id:not(:nth-child(1)) {
-      font-size: 9pt;
-      border-left: 1px solid black;
-      margin-left: 5px;
-      padding-left: 5px;
-      height: 100%;
-      color: #484848;
-    }
-    .rt-td {
-      padding: 1px;
-      text-align: right;
-      > * {
-        padding: 5px 3px;
+    .pagination {
+      position: sticky;
+      bottom: 0;
+      z-index: 99;
+      background: white;
+      z-index: 1;
+      display: flex;
+      justify-content: space-between;
+      align-items: stretch;
+      align-items: center;
+      flex-wrap: wrap;
+      box-shadow: 0 0 15px 0 rgba(0, 0, 0, 0.1);
+      border-top: 2px solid rgba(0, 0, 0, 0.1);
+      padding: 3px;
+
+      .pagination-container {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
         height: 100%;
-      }
-    }
-    .row__name {
-      text-align: left;
-      display: inline-block;
-      width: auto !important;
-      color: black;
-      &--cellLink {
-        color: black;
-      }
-    }
-    .rt-tr-group:last-child {
-      // re-add same border as react-table does to last row, where it would be missing
-      border-bottom: solid 1px rgba(0, 0, 0, 0.05) !important;
-    }
-  }
 
-  .pagination-bottom {
-    position: sticky;
-    bottom: 0;
-    z-index: 99;
-    background: white;
+        &#pagination-previous,
+        &#pagination-next {
+          flex: 1 1;
+
+          .pagination-element {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+        }
+
+        &#pagination-center {
+          display: flex;
+          flex: 1.5 1;
+          justify-content: space-around;
+          flex-direction: row;
+          flex-wrap: wrap;
+
+          input,
+          select {
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            background: #fff;
+          }
+
+          .pagination-element {
+            margin: 3px 10px;
+          }
+        }
+
+        .pagination-element {
+          text-align: center;
+          border-radius: 3px;
+
+          &.button {
+            color: rgba(0, 0, 0, 0.6);
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 3px;
+            transition: all 0.1s ease;
+            cursor: pointer;
+            outline-width: 0;
+
+            &.disabled {
+              cursor: default;
+              opacity: 0.5;
+            }
+
+            &:not(.disabled):hover {
+              background: rgba(0, 0, 0, 0.3);
+              color: white;
+            }
+          }
+
+          &#goto-page-element {
+            white-space: nowrap;
+
+            input {
+              width: 55px;
+              margin: 0 5px;
+              padding: 5px 7px;
+              text-align: center;
+              font-size: inherit;
+              border-radius: 3px;
+            }
+          }
+
+          &#set-page-element {
+            select {
+              font-size: inherit;
+              padding: 5px 7px;
+
+              border-radius: 3px;
+            }
+          }
+        }
+      }
+    }
   }
 
   .correct {
@@ -517,15 +851,8 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
   .aborted:after {
     content: "—";
   }
-  input {
-    width: 100%;
-    text-align: right;
-    &::placeholder {
-      color: lightgray;
-    }
-  }
-  select {
-    height: 100%;
+  input::placeholder {
+    color: lightgray;
   }
 }
 
@@ -734,6 +1061,8 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
 .ReactModal__Body--open {
   // stop body from scrolling while overlay is open
   overflow: hidden;
+  // avoid Ctrl+A select parts of the main UI while overlay is open
+  user-select: none;
 }
 .ReactModal__Overlay {
   z-index: 900;
@@ -748,6 +1077,7 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
   background: white;
   border: 5px solid grey;
   border-radius: 5px;
+  user-select: text;
 
   h1 {
     margin-bottom: 40px;

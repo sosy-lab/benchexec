@@ -1,0 +1,8 @@
+{
+    "FileName_1.TestName1": "False",
+    "FileName_1.TestName2": "True",
+    "FileName_2.TestName1": "False",
+    "test_with_fail.TwoTest": "false",
+    "test_with_fail.SimpleUdpPacket": "false",
+    "test_with_fail.OneTest": "False"
+}

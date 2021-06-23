@@ -58,7 +58,7 @@ class Tool(benchexec.tools.template.BaseTool2):
                 if "timeout" in line.lower():
                     return "TIMEOUT"
                 else:
-                    return "ERROR ({0})".format(run.exit_code.value)
+                    return f"ERROR ({run.exit_code.value})"
             elif line.startswith("Result: FALSE"):
                 return result.RESULT_FALSE_REACH
             elif line.startswith("Result: TRUE"):
@@ -76,7 +76,7 @@ class Tool(benchexec.tools.template.BaseTool2):
             pattern = identifier
             if pattern[-1] != ":":
                 pattern += ":"
-            match = re.match("^" + pattern + "([^(]*)", line)
+            match = re.match(f"^{pattern}([^(]*)", line)
             if match and match.group(1):
                 return match.group(1).strip()
         return None

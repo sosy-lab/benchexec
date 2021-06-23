@@ -38,9 +38,7 @@ class ToolInfoModuleTest(unittest.TestCase):
                     "Cannot load tool-info module %s: %s", tool_info_name, e
                 )
             except BaseException as e:
-                self.fail(
-                    "Loading tool-info module {} failed: {}".format(tool_info_name, e)
-                )
+                self.fail(f"Loading tool-info module {tool_info_name} failed: {e}")
 
 
 class Config(object):

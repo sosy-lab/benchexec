@@ -20,10 +20,12 @@ class Tool(benchexec.tools.smtlib2.Smtlib2Tool):
         return util.find_executable("java")
 
     def version(self, executable):
-        stderr = subprocess.Popen(
-            self.cmdline(executable, ["-version"], []), stderr=subprocess.PIPE
-        ).communicate()[1]
-        stderr = util.decode_to_string(stderr)
+        stderr = subprocess.run(
+            self.cmdline(executable, ["-version"], []),
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            universal_newlines=True,
+        ).stderr
         line = next(
             line for line in stderr.splitlines() if line.startswith("SMTInterpol")
         )

@@ -12,6 +12,7 @@ This is an internal module for BenchExec and not to be used by tool-info modules
 """
 
 import inspect
+from typing import cast, Union
 
 from benchexec.tools.template import BaseTool, BaseTool2, ToolNotFoundException
 
@@ -38,7 +39,7 @@ class Tool1To2:
         "environment",
     ]
 
-    def __init__(self, wrapped):
+    def __init__(self, wrapped: BaseTool):
         self._wrapped = wrapped
         for method in Tool1To2._FORWARDED_METHODS:
             # This binds wrapped to the first argument of the method
@@ -51,10 +52,11 @@ class Tool1To2:
     def executable(self, tool_locator):
         if tool_locator.tool_directory:
             raise ToolNotFoundException(
-                "Tool-info module for {} does not support parameter --tool-directory. "
-                "Instead, you can add the tool to PATH, "
-                "execute benchexec from the tool directory, "
-                "or upgrade the tool-info module.".format(self._wrapped.name())
+                f"Tool-info module for {self._wrapped.name()} "
+                f"does not support parameter --tool-directory. "
+                f"Instead, you can add the tool to PATH, "
+                f"execute benchexec from the tool directory, "
+                f"or upgrade the tool-info module."
             )
 
         assert tool_locator.use_path and tool_locator.use_current
@@ -84,8 +86,11 @@ class Tool1To2:
     def get_value_from_output(self, output, identifier):
         return self._wrapped.get_value_from_output(output._lines, identifier)
 
+    def close(self):
+        pass
 
-def adapt_to_current_version(tool):
+
+def adapt_to_current_version(tool: Union[BaseTool, BaseTool2]) -> CURRENT_BASETOOL:
     """
     Given an instance of a tool-info module's class, return an instance that conforms to
     the current API. Might be either the same or a different instance.
@@ -93,15 +98,15 @@ def adapt_to_current_version(tool):
     if isinstance(tool, BaseTool2):
         return tool
     elif isinstance(tool, BaseTool):
-        return Tool1To2(tool)
+        return cast(BaseTool2, Tool1To2(tool))  # ptype does not support @register yet
     else:
         raise TypeError(
-            "{} is not a subclass of one of the expected base classes "
-            "in benchexec.tools.template".format(tool.__class__)
+            f"{tool.__class__} is not a subclass of one of the expected base classes "
+            f"in benchexec.tools.template"
         )
 
 
-def create_tool_locator(config):
+def create_tool_locator(config) -> CURRENT_BASETOOL.ToolLocator:
     """
     Create an instance of ToolLocator with the standard behavior based on the given
     command-line options.

@@ -20,10 +20,10 @@ const prepareTableData = ({ head, tools, rows, stats, props, initial }) => {
         ...column,
         colIdx: idx,
       })),
-      scoreBased: rows.some((row) => row.results[idx].score !== undefined),
+      scoreBased: rows.every((row) => row.results[idx].score !== undefined),
     })),
     columns: tools.map((tool) => tool.columns.map((column) => column.title)),
-    table: rows,
+    tableData: rows,
     stats: stats,
     properties: props,
     initial: initial,
@@ -212,7 +212,6 @@ const setHashSearch = (
     return hrefString;
   }
   if (history) {
-    console.log({ searchString });
     history.push(searchString);
     return;
   }
@@ -309,10 +308,13 @@ const makeFilterSerializer = ({
   categoryValues: allCategoryValues,
 }) => (filter) => {
   const groupedFilters = {};
-  for (const { id, value, values } of filter) {
+  const tableTabIdFilters = [];
+  for (const { id, value, values, isTableTabFilter } of filter) {
     if (id === "id") {
       if (values && values.length > 0) {
         groupedFilters.ids = { values: values.map((val) => (val ? val : "")) };
+      } else if (isTableTabFilter) {
+        tableTabIdFilters.push({ id, value });
       }
       continue;
     }
@@ -360,6 +362,11 @@ const makeFilterSerializer = ({
   const runsetFilters = [];
   if (ids) {
     runsetFilters.push(`id(values(${ids.values.map(escape).join(",")}))`);
+  }
+  if (tableTabIdFilters) {
+    tableTabIdFilters.forEach((filter) => {
+      runsetFilters.push(`id_any(value(${filter.value}))`);
+    });
   }
   for (const [tool, column] of Object.entries(rest)) {
     const columnFilters = [];
@@ -506,6 +513,12 @@ const makeFilterDeserializer = ({
       out.push({
         id: "id",
         ...tokenHandlers("values", tokenized["values"])[0],
+      });
+      continue;
+    } else if (token === "id_any") {
+      out.push({
+        id: "id",
+        ...tokenizePart(filter),
       });
       continue;
     }
@@ -911,6 +924,22 @@ const getStep = (num) => {
   return out;
 };
 
+/**
+ * Computes and returns all ids of the given columns that are hidden. Assumes that
+ * the columns object is in the format that is used in the ReactTable and Summary component.
+ */
+const getHiddenColIds = (columns) => {
+  const hiddenColIds = [];
+  // Idx 0 is the title column and every uneven idx is the separator column, so only check for hidden cols in every even column entry greater than 0
+  columns = columns.filter((col, idx) => idx % 2 === 0 && idx !== 0);
+  columns.forEach((col) =>
+    hiddenColIds.push(
+      col.columns.filter((column) => column.hidden).map((column) => column.id),
+    ),
+  );
+  return hiddenColIds.flat();
+};
+
 export {
   prepareTableData,
   getRawOrDefault,
@@ -945,4 +974,5 @@ export {
   makeUrlFilterSerializer,
   makeFilterSerializer,
   makeFilterDeserializer,
+  getHiddenColIds,
 };

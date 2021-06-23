@@ -87,7 +87,7 @@ class Tool(OldSymbiotic):
 
     def determine_result(self, run):
         if not run.output:
-            return "{0}(no output)".format(result.RESULT_ERROR)
+            return f"{result.RESULT_ERROR}(no output)"
 
         if self._version_newer_than("4.0.1"):
             for line in run.output:
@@ -119,14 +119,13 @@ class Tool(OldSymbiotic):
         if run.was_timeout:
             return self._getPhase(run.output)  # generates TIMEOUT(phase)
         elif run.exit_code.signal:
-            return "KILLED (signal {0}, {1})".format(
-                run.exit_code.signal, self._getPhase(run.output)
+            return (
+                f"KILLED (signal {run.exit_code.signal}, {self._getPhase(run.output)})"
             )
         elif run.exit_code.value != 0:
-            return "{0}(returned {1}, {2})".format(
-                result.RESULT_ERROR, run.exit_code.value, self._getPhase(run.output)
+            return (
+                f"{result.RESULT_ERROR}"
+                f"(returned {run.exit_code.value}, {self._getPhase(run.output)})"
             )
 
-        return "{0}(unknown, {1})".format(
-            result.RESULT_ERROR, self._getPhase(run.output)
-        )
+        return f"{result.RESULT_ERROR}(unknown, {self._getPhase(run.output)})"

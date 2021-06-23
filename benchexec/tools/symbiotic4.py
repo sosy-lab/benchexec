@@ -44,7 +44,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         """
 
         if task.property_file:
-            options = options + ["--prp={0}".format(task.property_file)]
+            options = options + [f"--prp={task.property_file}"]
 
         data_model_param = get_data_model_from_task(task, {ILP32: "--32", LP64: "--64"})
         if data_model_param and data_model_param not in options:

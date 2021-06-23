@@ -30,7 +30,6 @@ image: ${CI_REGISTRY_IMAGE}/test:python-${PYTHON_VERSION}
 stages:
   - images
   - test
-  - deploy
 
 .unit-tests: &unit-tests
   stage: test
@@ -60,11 +59,6 @@ stages:
     paths:
       - coverage.xml
 
-unit-tests:python-3.5:
-  <<: *unit-tests
-  variables:
-    PYTHON_VERSION: '3.5'
-
 unit-tests:python-3.6:
   <<: *unit-tests
   variables:
@@ -85,24 +79,6 @@ unit-tests:python-3.9:
   variables:
     PYTHON_VERSION: '3.9'
 
-deploy-coverage:
-  stage: deploy
-  variables:
-    PYTHON_VERSION: '3.9'
-  before_script:
-    - pip install -e git+https://github.com/codacy/python-codacy-coverage.git#egg=codacy-coverage
-  script:
-    - python-codacy-coverage -r coverage.xml
-  dependencies:
-    - unit-tests:python-3.9
-  only:
-    refs:
-      - master
-    variables:
-      - $CODACY_PROJECT_TOKEN # required for job
-      - $CI_PROJECT_PATH == $PROJECT_PATH # not on forks
-  <<: *pip-cache
-
 # Static checks
 check-format:
   stage: test
@@ -111,6 +87,16 @@ check-format:
     - pip install black
   script:
     - black . --check --diff
+  <<: *pip-cache
+
+flynt:
+  # Use flynt (https://github.com/ikamensh/flynt) for converting string formatting to f-strings
+  stage: test
+  image: python:3.9
+  before_script:
+    - pip install flynt
+  script:
+    - flynt . --exclude node_modules --line-length 10000 --aggressive --fail-on-change --dry-run
   <<: *pip-cache
 
 flake8:
@@ -126,7 +112,8 @@ pytype:
   stage: test
   image: python:3.7
   before_script:
-    - pip install coloredlogs pytype
+    # attrs is temporary workaround for https://github.com/google/pytype/issues/909
+    - pip install coloredlogs pytype attrs==20.3.0
   script:
     - pytype -k
   cache:
@@ -198,12 +185,6 @@ reuse:
   only:
     - schedules
     - web
-
-build-docker:test:python-3.5:
-  extends: .build-docker
-  variables:
-    DOCKERFILE: test/Dockerfile.python-3.5
-    IMAGE: test:python-3.5
 
 build-docker:test:python-3.6:
   extends: .build-docker

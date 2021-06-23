@@ -46,7 +46,7 @@ class Tool(benchexec.tools.template.BaseTool2):
                     ]
                 else:
                     raise benchexec.tools.template.UnsupportedFeatureException(
-                        "Unsupported data_model '{}'".format(data_model)
+                        f"Unsupported data_model '{data_model}'"
                     )
 
         return [
@@ -69,7 +69,7 @@ class Tool(benchexec.tools.template.BaseTool2):
                         line,
                     )
                     if m:
-                        return "EXCEPTION ({})".format(m.group(1))
+                        return f"EXCEPTION ({m.group(1)})"
                     else:
                         return "EXCEPTION"
             else:
