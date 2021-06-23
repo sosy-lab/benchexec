@@ -23,13 +23,13 @@ class Tool(benchexec.tools.template.BaseTool2):
     REQUIRED_PATHS = [
         "lib/*.jar",
         "scripts",
-        "igml-deps.jar"
+        "igml.jar"
     ]
 
     def executable(self, tool_locator):
         executable = tool_locator.find_executable("igml.sh", subdir="scripts")
         base_dir = os.path.join(os.path.dirname(executable), os.path.pardir)
-        jar_file = os.path.join(base_dir, "igml-deps.jar")
+        jar_file = os.path.join(base_dir, "igml.jar")
         bin_dir = os.path.join(base_dir, "target")
         src_dir = os.path.join(base_dir, "src")
         return executable
@@ -92,10 +92,36 @@ class Tool(benchexec.tools.template.BaseTool2):
 
         for line in run.output:
             if "IMGLs FINAL RESULT:" in line:
-                if "incorrect" in line:
-                    return result.RESULT_FALSE_PROP
+                if "Correct_True" in line \
+                        or "Correct_False" in line \
+                        or "Valid_Inv" in line \
+                        or "Invalid_Inv" in line \
+                        or "Trivial_Inv" in line:
+                    return result.CATEGORY_CORRECT
+                elif "False_Positive" in line or "False_Negative":
+                    return result.CATEGORY_WRONG
+                elif "Unknown" in line:
+                    return result.CATEGORY_UNKNOWN + "(No oracle)"
+                elif "Aborted" in line:
+                    return result.CATEGORY_ERROR + "(Aborted)"
+                elif "Timeout" in line:
+                    return result.CATEGORY_ERROR+ "(Timeout)"
+        return
+
+    def get_value_from_output(self, output, identifier):
+        match = None
+        for line in output:
+            if line.lstrip().startswith(identifier):
+                startPosition = line.find(":") + 1
+                endPosition = line.find("(", startPosition)
+                if endPosition == -1:
+                    endPosition = len(line)
+                if match is None:
+                    match = line[startPosition:endPosition].strip()
                 else:
-                    return result.RESULT_TRUE_PROP
-            if "Cannot check validity of the computed invariant!" in line:
-                return result.RESULT_UNKNOWN + "(No oracle)"
-        return result.RESULT_UNKNOWN
+                    logging.warning(
+                        "skipping repeated match for identifier '%s': '%s'",
+                        identifier,
+                        line,
+                    )
+        return match
