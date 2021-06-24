@@ -43,8 +43,6 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def _get_additional_options(self, existing_options, task, rlimits):
         options = []
-        print("Existing options are '{}', task is '{}'".format(existing_options, task))
-
         if rlimits.cputime and "-timelimit" not in existing_options:
             options += ["-timelimit", str(rlimits.cputime)]
 
@@ -73,7 +71,6 @@ class Tool(benchexec.tools.template.BaseTool2):
                             data_model, task
                         )
                     )
-        print("computed options are {}".format(options))
         return options
 
     def cmdline(self, executable, options, task, rlimits):
@@ -84,9 +81,6 @@ class Tool(benchexec.tools.template.BaseTool2):
         """
         @return: status of IGML after executing a run
         """
-
-        status = None
-
         for line in run.output:
             if "IMGLs FINAL RESULT:" in line:
                 if (
@@ -100,12 +94,12 @@ class Tool(benchexec.tools.template.BaseTool2):
                 elif "False_Positive" in line or "False_Negative":
                     return result.CATEGORY_WRONG
                 elif "Unknown" in line:
-                    return result.CATEGORY_UNKNOWN + "(No oracle)"
+                    return result.CATEGORY_UNKNOWN
                 elif "Aborted" in line:
                     return result.CATEGORY_ERROR + "(Aborted)"
                 elif "Timeout" in line:
                     return result.CATEGORY_ERROR + "(Timeout)"
-        return
+        return result.CATEGORY_UNKNOWN
 
     def get_value_from_output(self, output, identifier):
         match = None
