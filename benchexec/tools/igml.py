@@ -47,6 +47,8 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def _get_additional_options(self, existing_options, task, rlimits):
         options = []
+        print("Existing options are '{}', task is '{}'".format(existing_options, task))
+
         if rlimits.cputime and "-timelimit" not in existing_options:
             options += ["-timelimit", str(rlimits.cputime)]
 
@@ -72,7 +74,7 @@ class Tool(benchexec.tools.template.BaseTool2):
                             data_model, task
                         )
                     )
-
+        print("computed options are {}".format(options))
         return options
 
     def cmdline(self, executable, options, task, rlimits):
@@ -105,7 +107,7 @@ class Tool(benchexec.tools.template.BaseTool2):
                 elif "Aborted" in line:
                     return result.CATEGORY_ERROR + "(Aborted)"
                 elif "Timeout" in line:
-                    return result.CATEGORY_ERROR+ "(Timeout)"
+                    return result.CATEGORY_ERROR + "(Timeout)"
         return
 
     def get_value_from_output(self, output, identifier):
