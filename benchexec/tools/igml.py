@@ -10,6 +10,8 @@ import os
 import re
 import sys
 
+from numpy.matlib import identity
+
 import benchexec.result as result
 import benchexec.tools.template
 import benchexec.tools.template
@@ -82,27 +84,28 @@ class Tool(benchexec.tools.template.BaseTool2):
         @return: status of IGML after executing a run
         """
         for line in run.output:
-            if "IMGLs FINAL RESULT:" in line:
+            if "IMGL-FINAL-RESULT:" in line:
                 if (
                     "Correct_True" in line
-                    or "Correct_False" in line
+                    or "False_Positive" in line
                     or "Valid_Inv" in line
                     or "Invalid_Inv" in line
                     or "Trivial_Inv" in line
                 ):
-                    return result.CATEGORY_CORRECT
-                elif "False_Positive" in line or "False_Negative":
-                    return result.CATEGORY_WRONG
+                    return result.RESULT_TRUE_PROP
+                elif "Correct_False" in line or "False_Negative" in line:
+                    return result.RESULT_FALSE_PROP
                 elif "Unknown" in line:
-                    return result.CATEGORY_UNKNOWN
+                    return result.RESULT_UNKNOWN
                 elif "Aborted" in line:
-                    return result.CATEGORY_ERROR + "(Aborted)"
+                    return result.RESULT_ERROR + "(Aborted)"
                 elif "Timeout" in line:
-                    return result.CATEGORY_ERROR + "(Timeout)"
-        return result.CATEGORY_UNKNOWN
+                    return result.RESULT_ERROR + "(Timeout)"
+        return result.RESULT_UNKNOWN
 
     def get_value_from_output(self, output, identifier):
         match = None
+        print("Asking for property {}".format(identifier))
         for line in output:
             if line.lstrip().startswith(identifier):
                 startPosition = line.find(":") + 1
