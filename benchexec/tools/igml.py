@@ -17,14 +17,10 @@ from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, 
 
 
 class Tool(benchexec.tools.template.BaseTool2):
-    """     Tool info for IGML
-       The tool will be available soon"""
+    """Tool info for IGML
+    The tool will be available soon"""
 
-    REQUIRED_PATHS = [
-        "lib/*.jar",
-        "scripts",
-        "igml.jar"
-    ]
+    REQUIRED_PATHS = ["lib/*.jar", "scripts", "igml.jar"]
 
     def executable(self, tool_locator):
         executable = tool_locator.find_executable("igml.sh", subdir="scripts")
@@ -55,16 +51,19 @@ class Tool(benchexec.tools.template.BaseTool2):
         if task.property_file:
             options += ["-p", task.property_file]
 
-        try:
-            options += ["-f", task.single_input_file]
-        except benchexec.tools.template.UnsupportedFeatureException:
-            raise benchexec.tools.template.UnsupportedFeatureException(
-                "Unsupported task with multiple input files for task '{}'".format(task))
+        # try:
+        #     options += ["-f", task.single_input_file]
+        # except benchexec.tools.template.UnsupportedFeatureException:
+        #     raise benchexec.tools.template.UnsupportedFeatureException(
+        #         "Unsupported task with multiple input files for task '{}'".format(task)
+        # )
 
         if isinstance(task.options, dict) and task.options.get("language") == "C":
             data_model = task.options.get("data_model")
             if data_model:
-                data_model_option = get_data_model_from_task(task, {ILP32: "-m 32", LP64: "-m 64"})
+                data_model_option = get_data_model_from_task(
+                    task, {ILP32: "-m 32", LP64: "-m 64"}
+                )
                 if data_model_option:
                     if data_model_option not in existing_options:
                         options += [data_model_option]
@@ -79,11 +78,7 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def cmdline(self, executable, options, task, rlimits):
         additional_options = self._get_additional_options(options, task, rlimits)
-        return (
-                [executable]
-                + options
-                + additional_options
-        )
+        return [executable] + options + additional_options
 
     def determine_result(self, run):
         """
@@ -94,11 +89,13 @@ class Tool(benchexec.tools.template.BaseTool2):
 
         for line in run.output:
             if "IMGLs FINAL RESULT:" in line:
-                if "Correct_True" in line \
-                        or "Correct_False" in line \
-                        or "Valid_Inv" in line \
-                        or "Invalid_Inv" in line \
-                        or "Trivial_Inv" in line:
+                if (
+                    "Correct_True" in line
+                    or "Correct_False" in line
+                    or "Valid_Inv" in line
+                    or "Invalid_Inv" in line
+                    or "Trivial_Inv" in line
+                ):
                     return result.CATEGORY_CORRECT
                 elif "False_Positive" in line or "False_Negative":
                     return result.CATEGORY_WRONG
