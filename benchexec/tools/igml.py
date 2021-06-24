@@ -107,8 +107,8 @@ class Tool(benchexec.tools.template.BaseTool2):
         match = None
         print("Asking for property {}".format(identifier))
         for line in output:
-            if line.lstrip().startswith(identifier):
-                startPosition = line.find(":") + 1
+            if identifier in line:
+                startPosition = line.rindex(":") + 1
                 endPosition = line.find("(", startPosition)
                 if endPosition == -1:
                     endPosition = len(line)
