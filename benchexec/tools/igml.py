@@ -105,7 +105,6 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def get_value_from_output(self, output, identifier):
         match = None
-        print("Asking for property {}".format(identifier))
         for line in output:
             if identifier in line:
                 startPosition = line.rindex(":") + 1
