@@ -89,12 +89,13 @@ class Tool(benchexec.tools.template.BaseTool2):
                     "Correct_True" in line
                     or "False_Positive" in line
                     or "Valid_Inv" in line
-                    or "Invalid_Inv" in line
                     or "Trivial_Inv" in line
                 ):
                     return result.RESULT_TRUE_PROP
                 elif "Correct_False" in line or "False_Negative" in line:
                     return result.RESULT_FALSE_PROP
+                elif "Invalid_Inv" in line:
+                    return result.RESULT_UNKNOWN + "(INVALID)"
                 elif "Unknown" in line:
                     return result.RESULT_UNKNOWN
                 elif "Aborted" in line:
