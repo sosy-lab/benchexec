@@ -6,6 +6,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import re
+
 import benchexec.result as result
 from benchexec.tools.template import ToolNotFoundException
 
@@ -30,7 +32,6 @@ class Tool(OldSymbiotic):
             # this may be the old version of Symbiotic
             executable = OldSymbiotic.executable(self, tool_locator)
 
-        self._version = self.version(executable)
         return executable
 
     def program_files(self, executable):
@@ -85,10 +86,21 @@ class Tool(OldSymbiotic):
 
         return lastphase
 
+    def _version_of_run(self, tool_output):
+        version_regex = re.compile(
+            r"([0-9]+\.[0-9]+\.[0-9]+(-dev|-pre)?)[a-zA-Z0-9\.-]*-symbiotic:"
+        )
+        for line in tool_output:
+            matches = version_regex.match(line)
+            if matches:
+                return matches.group(1)
+        return None
+
     def determine_result(self, run):
         if not run.output:
             return f"{result.RESULT_ERROR}(no output)"
 
+        self._version = self._version_of_run(run.output)
         if self._version_newer_than("4.0.1"):
             for line in run.output:
                 line = line.strip()
