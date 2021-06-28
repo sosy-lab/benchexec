@@ -44,13 +44,22 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def __init__(self):
         self.lock = threading.Lock()
-        self.wrappedTools = {}
 
     def executable(self, toolLocator):
         return toolLocator.find_executable("metaval.sh")
 
     def name(self):
         return "MetaVal"
+
+    def _import_tool(self, verifierName):
+        with self.lock:
+            tool = __import__(
+                "benchexec.tools." + verifierName, fromlist=["Tool"]
+            ).Tool()
+        assert isinstance(
+            tool, BaseTool2
+        ), "we expect that all wrapped tools extend BaseTool2"
+        return tool
 
     def determine_result(self, run):
         verifierDir = None
@@ -60,18 +69,11 @@ class Tool(benchexec.tools.template.BaseTool2):
             if match is not None:
                 verifierDir = match.group(1)
                 break
-        if (
-            not verifierDir
-            or verifierDir not in self.PATH_TO_TOOL_MAP
-            or self.PATH_TO_TOOL_MAP[verifierDir] not in self.wrappedTools
-        ):
+        if not verifierDir or verifierDir not in self.PATH_TO_TOOL_MAP:
             return "METAVAL ERROR"
         verifierName = self.PATH_TO_TOOL_MAP[verifierDir]
 
-        tool = self.wrappedTools[verifierName]
-        assert isinstance(
-            tool, BaseTool2
-        ), "we expect that all wrapped tools extend BaseTool2"
+        tool = self._import_tool(verifierName)
         return tool.determine_result(run)
 
     def cmdline(self, executable, options, task, rlimits):
@@ -97,16 +99,7 @@ class Tool(benchexec.tools.template.BaseTool2):
             if knownargs.metavalWitnessType
             else []
         )
-        with self.lock:
-            if verifierName not in self.wrappedTools:
-                self.wrappedTools[verifierName] = __import__(
-                    "benchexec.tools." + verifierName, fromlist=["Tool"]
-                ).Tool()
-
-        tool = self.wrappedTools[verifierName]
-        assert isinstance(
-            tool, BaseTool2
-        ), "we expect that all wrapped tools extend BaseTool2"
+        tool = self._import_tool(verifierName)
         wrapped_executable = tool.executable(
             BaseTool2.ToolLocator(
                 tool_directory=self._resource(
