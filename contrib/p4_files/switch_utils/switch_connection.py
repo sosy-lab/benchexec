@@ -101,6 +101,14 @@ class SwitchConnection(object):
 
             self.setup_stream()
 
+            # Check for error. If failed, close created thread
+            if not self.connected:
+                if self.stream_out_q:
+                    self.stream_out_q.put(None)
+                    self.stream_recv_thread.join()
+
+            time.sleep(1)
+
     def handshake(self):
         req = p4runtime_pb2.StreamMessageRequest()
         arbitration = req.arbitration
@@ -268,10 +276,10 @@ def main():
 
     print("Done")
 
-    connection = SwitchConnection("127.0.0.1:50051", 0, (0, 1))
+    connection = SwitchConnection("127.0.0.1:50053", 0, (0, 1))
     connection.wait_for_setup()
 
-    connection.SetForwadingPipelineConfig2(P4_INFO_FILEPATH, COMBINED_BIN_PATH)
+    # connection.SetForwadingPipelineConfig2(P4_INFO_FILEPATH, COMBINED_BIN_PATH)
 
     test = connection.read_table_entries(id)
 
