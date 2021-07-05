@@ -757,10 +757,6 @@ class P4Execution(object):
                 )
             )
 
-        # Wait for all to setup befor leaveing the method
-        [x.start() for x in container_threads]
-        [x.join() for x in container_threads]
-
         for switch in self.switches:
             switch_config = self.network_config["switches"][switch.name]
             server_port = switch_config["server_port"]
@@ -784,16 +780,16 @@ class P4Execution(object):
                 logging.error(f"P4 info file not found.{path} doesnt exist")
                 raise Exception("Failed")
 
-            switch_command = "rm -rf /bf-sde/install/share/ & cp -RT /app/share /bf-sde/install/ & /bf-sde/run_tofino_model.sh -p tna_simple_switch -f /app/ports.json >> /app/log1.txt & /bf-sde/run_switchd.sh -p tna_simple_switch"
+            container_threads.append(
+                threading.Thread(
+                    target=self.thread_setup_switch,
+                    args=(switch, command_list, switch_config),
+                )
+            )
 
-            self.thread_setup_switch(switch, command_list, switch_config)
-
-            # container_threads.append(
-            #     threading.Thread(
-            #         target=self.thread_setup_switch,
-            #         args=(switch, command_list, switch_config),
-            #     )
-            # )
+        # Wait for all to setup befor leaveing the method
+        [x.start() for x in container_threads]
+        [x.join() for x in container_threads]
 
     def set_link_state(self, ns, state, iface_ids):
         available_states = ["UP", "DOWN"]
