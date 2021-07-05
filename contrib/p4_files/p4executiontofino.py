@@ -183,7 +183,7 @@ class P4Execution(object):
                             name=switch_info,
                             mounts=[mount_switch],
                             privileged=True,
-                            ports={f"{server_port}/tcp": ("127.0.0.1", 50051)},
+                            ports={f"{server_port}/tcp": ("127.0.0.1", server_port)},
                         )
                     )
                 except docker.errors.APIError:
@@ -293,23 +293,23 @@ class P4Execution(object):
                 run.set_result(values)
 
                 # Save all switch log_files
-                for switch in self.switches:
-                    switch_log_file = (
-                        f"{self.switch_source_path}/{switch.name}/log/switch_log.txt"
-                    )
+                # for switch in self.switches:
+                #     switch_log_file = (
+                #         f"{self.switch_source_path}/{switch.name}/log/switch_log.txt"
+                #     )
 
-                    switch_log_file_new = f"{run.log_file[:-4]}_{switch.name}.log"
+                #     switch_log_file_new = f"{run.log_file[:-4]}_{switch.name}.log"
 
-                    copyfile(switch_log_file, switch_log_file_new)
+                #     copyfile(switch_log_file, switch_log_file_new)
 
-                    # Clear the log file for next test
-                    with open(switch_log_file, "r+") as f:
-                        f.truncate()
+                #     # Clear the log file for next test
+                #     with open(switch_log_file, "r+") as f:
+                #         f.truncate()
 
-                    if output_handler.compress_results:
-                        self.move_file_to_zip(
-                            switch_log_file_new, output_handler, benchmark
-                        )
+                #     if output_handler.compress_results:
+                #         self.move_file_to_zip(
+                #             switch_log_file_new, output_handler, benchmark
+                #         )
 
                 print(run.identifier + ":   ", end="")
                 output_handler.output_after_run(run)
@@ -426,7 +426,7 @@ class P4Execution(object):
                 # Allow for the veth to have same names. So change back
                 iface_device2 = f"veth{device2_port}"
 
-                ip.link("set", index=id_switch, iface_name=iface_device2)
+                ip.link("set", index=id_switch, ifname=iface_device2)
                 ip.link("set", index=id_switch, state="up")
                 ip.link("set", index=id_switch, net_ns_fd=link["device2"])
 
@@ -469,18 +469,39 @@ class P4Execution(object):
                             f"/var/run/netns/{device2}",
                         )
 
-                iface_switch1 = f"{link['device1']}_{link['device1_port']}"
-                iface_switch2 = f"{link['device2']}_{link['device2_port']}"
+                device1_port = link["device1_port"]
+                device2_port = link["device2_port"]
+                iface_device1 = f"veth{device1_port}"
+                iface_device2 = f"veth{device1_port+1}"
+
+                # iface_device1 = f"{link['device1']}_{link['device1_port']}"
+                # iface_device2 = "veth0"  # f"{link['device2']}_{link['device2_port']}"
 
                 # Create Veth pair and put them in the right namespace
-                ip.link("add", ifname=iface_switch1, peer=iface_switch2, kind="veth")
-                id_switch1 = ip.link_lookup(ifname=iface_switch1)[0]
-                ip.link("set", index=id_switch1, state="up")
-                ip.link("set", index=id_switch1, net_ns_fd=link["device1"])
+                ip.link("add", ifname=iface_device1, peer=iface_device2, kind="veth")
 
-                id_switch2 = ip.link_lookup(ifname=iface_switch2)[0]
-                ip.link("set", index=id_switch2, state="up")
-                ip.link("set", index=id_switch2, net_ns_fd=link["device2"])
+                id_node = ip.link_lookup(ifname=iface_device1)[0]
+                ip.link("set", index=id_node, state="up")
+                ip.link("set", index=id_node, net_ns_fd=link["device1"])
+
+                id_switch = ip.link_lookup(ifname=iface_device2)[0]
+
+                # Allow for the veth to have same names. So change back
+                iface_device2 = f"veth{device2_port}"
+
+                ip.link("set", index=id_switch, ifname=iface_device2)
+                ip.link("set", index=id_switch, state="up")
+                ip.link("set", index=id_switch, net_ns_fd=link["device2"])
+
+                # # Create Veth pair and put them in the right namespace
+                # ip.link("add", ifname=iface_device1, peer=iface_device2, kind="veth")
+                # id_switch1 = ip.link_lookup(ifname=iface_device1)[0]
+                # ip.link("set", index=id_switch1, state="up")
+                # ip.link("set", index=id_switch1, net_ns_fd=link["device1"])
+
+                # id_switch2 = ip.link_lookup(ifname=iface_device2)[0]
+                # ip.link("set", index=id_switch2, state="up")
+                # ip.link("set", index=id_switch2, net_ns_fd=link["device2"])
 
             link_nr += 1
 
@@ -493,6 +514,20 @@ class P4Execution(object):
                 iface_name = interface["attrs"][0][1]
                 id_switch = ns.link_lookup(ifname=iface_name)[0]
                 ns.link("set", index=id_switch, state="up")
+
+    def create_port_config(self, switch_config, file_path):
+        """
+        Create the portinfo file required for the tofino switch
+        """
+        port_dict = {}
+        port_dict["PortToVeth"] = []
+        for port_id in switch_config["used_ports"]:
+            port_dict["PortToVeth"].append(
+                {"device_port": port_id, "veth1": port_id, "veth2": 999}
+            )
+
+        with open(file_path, "w") as ports_file:
+            ports_file.write(json.dumps(port_dict, indent=4))
 
     def read_tests(self):
         """
@@ -714,15 +749,17 @@ class P4Execution(object):
             used_ports = self.network_config["nodes"][node_container.name]["used_ports"]
 
             for port_nr in used_ports:
-                node_command += " -i {0}-{1}@{2}_{1}".format(
-                    node_config["id"], port_nr, node_container.name
-                )
+                node_command += " -i {0}-{1}@veth{1}".format(node_config["id"], port_nr)
 
             container_threads.append(
                 threading.Thread(
                     target=self.thread_setup_node, args=(node_container, node_command)
                 )
             )
+
+        # Wait for all to setup befor leaveing the method
+        [x.start() for x in container_threads]
+        [x.join() for x in container_threads]
 
         for switch in self.switches:
             switch_config = self.network_config["switches"][switch.name]
@@ -731,11 +768,11 @@ class P4Execution(object):
                 "rm -rf /bf-sde/install/share/ /bf-sde/build/p4-build",
                 "cp -r /app/share /bf-sde/install/share",
                 "cp -r /app/p4-build /bf-sde/build/p4-build",
-                "/bf-sde/run_tofino_model.sh -p simple_switch &",
+                "/bf-sde/run_tofino_model.sh -p simple_switch -f /app/ports.json --log-dir /app &",
             ]
 
             command_list.append(
-                f"/bf-sde/run_switchd.sh -p simple_switch -- --p4rt-server 0.0.0.0:{server_port}"
+                f"/bf-sde/run_switchd.sh -p simple_switch -r /app/log_driver.txt -- --p4rt-server 0.0.0.0:{server_port}"
             )
 
             if not "p4_info_path" in switch_config:
@@ -749,16 +786,14 @@ class P4Execution(object):
 
             switch_command = "rm -rf /bf-sde/install/share/ & cp -RT /app/share /bf-sde/install/ & /bf-sde/run_tofino_model.sh -p tna_simple_switch -f /app/ports.json >> /app/log1.txt & /bf-sde/run_switchd.sh -p tna_simple_switch"
 
-            container_threads.append(
-                threading.Thread(
-                    target=self.thread_setup_switch,
-                    args=(switch, command_list, switch_config),
-                )
-            )
+            self.thread_setup_switch(switch, command_list, switch_config)
 
-        # Wait for all to setup befor leaveing the method
-        [x.start() for x in container_threads]
-        [x.join() for x in container_threads]
+            # container_threads.append(
+            #     threading.Thread(
+            #         target=self.thread_setup_switch,
+            #         args=(switch, command_list, switch_config),
+            #     )
+            # )
 
     def set_link_state(self, ns, state, iface_ids):
         available_states = ["UP", "DOWN"]
@@ -779,6 +814,7 @@ class P4Execution(object):
             time.sleep(1)
 
         for command in switch_command_list:
+            logging.info(f"{switch_container.name} is running: {command}")
             switch_container.exec_run(command, detach=True)
 
         switch_server_port = switch_conf["server_port"]
@@ -789,14 +825,15 @@ class P4Execution(object):
 
         # Wait for switch to setup
         logging.info(f"Waiting for {switch_container.name} to start")
-        switch_con.wait_for_setup()
-        logging.info(f"{switch_container.name} started!")
+        switch_con.wait_for_setup(timeout=120)
 
         if not switch_con.connected:
             logging.debug(
                 f"Failed to establish connection to switch {switch_container.name}"
             )
-            raise Exception("Switch error")
+            raise Exception("Switch error: Failed to connect to switch")
+
+        logging.info(f"{switch_container.name} started!")
 
         # TODO Read file path automatic
         P4_INFO_PATH = switch_conf["p4_info_path"]
@@ -862,6 +899,8 @@ class P4Execution(object):
         if os.path.exists(switch_path):
             shutil.rmtree(switch_path)
 
+        os.mkdir(switch_path)
+
         # Share and and p4-build contains files for running the switch
         if not os.path.exists(f"{SDE_INSTALL}/share"):
             logging.debug(f"Could not find path: {SDE_INSTALL}/share")
@@ -879,9 +918,8 @@ class P4Execution(object):
             f"{switch_path}/build/p4-build",
         )
 
-        shutil.copy(
-            "/home/p4/bf_benchexec/benchexec/contrib/p4_files/docker_files/switch_tofino/ports.json",
-            f"{switch_path}/ports.json",
+        self.create_port_config(
+            self.network_config["switches"][switch_name], f"{switch_path}/ports.json"
         )
 
         return switch_path
