@@ -69,6 +69,7 @@ class P4Execution(object):
 
         # Includes all nodes and switches, not the ptf tester
         self.nr_of_active_containers = Counter()
+        self.lock = threading.Lock()
 
         self.client = None
         self.node_networks = []
@@ -411,9 +412,6 @@ class P4Execution(object):
                 iface_device1 = f"veth{device1_port}"
                 iface_device2 = f"veth{device1_port+1}"
 
-                # iface_device1 = f"{link['device1']}_{link['device1_port']}"
-                # iface_device2 = "veth0"  # f"{link['device2']}_{link['device2_port']}"
-
                 # Create Veth pair and put them in the right namespace
                 ip.link("add", ifname=iface_device1, peer=iface_device2, kind="veth")
 
@@ -421,14 +419,14 @@ class P4Execution(object):
                 ip.link("set", index=id_node, state="up")
                 ip.link("set", index=id_node, net_ns_fd=link["device1"])
 
-                id_switch = ip.link_lookup(ifname=iface_device2)[0]
+                id_device2 = ip.link_lookup(ifname=iface_device2)[0]
 
                 # Allow for the veth to have same names. So change back
                 iface_device2 = f"veth{device2_port}"
 
-                ip.link("set", index=id_switch, ifname=iface_device2)
-                ip.link("set", index=id_switch, state="up")
-                ip.link("set", index=id_switch, net_ns_fd=link["device2"])
+                ip.link("set", index=id_device2, ifname=iface_device2)
+                ip.link("set", index=id_device2, state="up")
+                ip.link("set", index=id_device2, net_ns_fd=link["device2"])
 
                 # Start all veth port in Nodes
                 ns = NetNS(device1)
@@ -615,46 +613,60 @@ class P4Execution(object):
         """
         Cleans up all the running containers and clear all created namespaces. Should be called when test is done.
         """
-        logging.info("Closing containers and cleaning up namespace")
-        container_threads = []
 
-        for container in self.nodes:
-            container_threads.append(
-                threading.Thread(
-                    target=lambda x: x.remove(force=True), args=(container,)
-                )
-            )
-            if os.path.islink(f"/var/run/netns/{container.name}"):
-                os.remove(f"/var/run/netns/{container.name}")
+        # TODO Cancel switch connections
 
-        for container in self.switches:
-            if os.path.isdir(f"{self.switch_source_path}/{container.name}"):
-                rmtree(f"{self.switch_source_path}/{container.name}")
+        if threading.current_thread() is threading.main_thread():
+            self.lock.acquire()
+            logging.info(f"Am cleaning up. ID: {threading.current_thread().native_id}")
 
-            container_threads.append(
-                threading.Thread(
-                    target=lambda x: x.remove(force=True), args=(container,)
-                )
-            )
-            if os.path.islink(f"/var/run/netns/{container.name}"):
-                os.remove(f"/var/run/netns/{container.name}")
+            container_threads = []
 
-        if self.ptf_tester:
-            container_threads.append(
-                threading.Thread(
-                    target=lambda x: x.remove(force=True), args=(self.ptf_tester,)
-                )
-            )
+            while len(self.nodes) > 0:
+                cont = self.nodes.pop(0)
 
-        [x.start() for x in container_threads]
-        [x.join() for x in container_threads]
+                self.thread_remove_container(cont)
+                if os.path.islink(f"/var/run/netns/{cont.name}"):
+                    os.remove(f"/var/run/netns/{cont.name}")
 
-        # Remove when all containers are closed
-        if self.mgnt_network:
-            self.mgnt_network.remove()
+            while len(self.switches):
+                cont = self.switches.pop(0)
+                self.thread_remove_container(cont)
+
+                if os.path.isdir(f"{self.switch_source_path}/{cont.name}"):
+                    rmtree(f"{self.switch_source_path}/{cont.name}")
+                if os.path.islink(f"/var/run/netns/{cont.name}"):
+                    os.remove(f"/var/run/netns/{cont.name}")
+
+            if self.ptf_tester:
+                self.thread_remove_container(self.ptf_tester)
+
+            [x.start() for x in container_threads]
+            [x.join() for x in container_threads]
+
+            self.nodes.clear()
+            self.switches.clear()
+            self.ptf_tester = None
+            # Remove when all containers are closed
+            if self.mgnt_network:
+                try:
+                    self.mgnt_network.remove()
+                except Exception as e:
+                    logging.debug(f"Failed to remove network. Error {e}")
+            logging.info("Done Cleaning")
+
+            self.lock.release()
 
     def thread_remove_container(self, container):
-        container.remove(force=True)
+        """
+        Try remove the container
+        """
+
+        try:
+            container.remove(force=True)
+        except Exception as e:
+            logging.debug(e)
+            return
 
     def start_containers(self):
         """
@@ -711,7 +723,8 @@ class P4Execution(object):
         for switch in self.switches:
             switch_config = self.network_config["switches"][switch.name]
 
-            switch_command = "simple_switch --log-file /app/log/switch_log --log-flush"
+            prog_name = switch_config["name"]
+            switch_command = f"{prog_name} --log-file /app/log/switch_log --log-flush"
 
             used_ports = self.network_config["switches"][switch.name]["used_ports"]
             for port in used_ports:
@@ -810,7 +823,6 @@ class P4Execution(object):
             time.sleep(1)
 
         for command in switch_command_list:
-            logging.info(f"{switch_container.name} is running: {command}")
             switch_container.exec_run(command, detach=True)
 
         switch_server_port = switch_conf["server_port"]
@@ -821,6 +833,7 @@ class P4Execution(object):
 
         # Wait for switch to setup
         logging.info(f"Waiting for {switch_container.name} to start")
+
         switch_con.wait_for_setup(timeout=120)
 
         if not switch_con.connected:
@@ -1006,3 +1019,33 @@ class P4Execution(object):
                         return False
 
         return True
+
+    def is_switch_setup(self, switch_name, port_nr):
+
+        switch_path = f"{self.switch_source_path}/{switch_name}"
+
+        logging.info(switch_path)
+        files = os.listdir(switch_path)
+        log_file_path = ""
+
+        logging.info(files)
+
+        time.sleep(30)
+
+        for file in files:
+            if "driver" in file:
+                log_file_path = switch_path + f"/{file}"
+
+        while True:
+            if log_file_path:
+                logging.info(log_file_path)
+                with open(log_file_path, "r") as log_file:
+                    if str(port_nr) in log_file.read():
+                        return True
+
+            files = os.listdir(switch_path)
+            for file in files:
+                if "driver" in file:
+                    log_file_path = switch_path + f"/{file}"
+
+            time.sleep(1)
