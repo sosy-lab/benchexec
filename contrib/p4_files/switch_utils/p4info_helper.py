@@ -13,6 +13,7 @@
 # limitations under the License.
 #
 import re
+import struct
 from .convert import encode
 
 import google.protobuf.text_format
@@ -34,6 +35,23 @@ def get_match_field_value(match_field):
         return match_field.range.low, match_field.range.high
     else:
         raise Exception("Unsupported match type with type %r" % match_type)
+
+
+# Taken from p4-runtime-sh
+def build_config(prog_name, ctx_json_path, tofino_bin_path, out_path):
+    # we open the context JSON file in binary mode so that no encoding step is required
+    with open(ctx_json_path, "rb") as ctx_json_f, open(
+        tofino_bin_path, "rb"
+    ) as bin_f, open(out_path, "wb") as out_f:
+        prog_name_bytes = prog_name.encode()
+        out_f.write(struct.pack("<i", len(prog_name_bytes)))
+        out_f.write(prog_name_bytes)
+        tofino_bin = bin_f.read()
+        out_f.write(struct.pack("<i", len(tofino_bin)))
+        out_f.write(tofino_bin)
+        ctx_json = ctx_json_f.read()
+        out_f.write(struct.pack("<i", len(ctx_json)))
+        out_f.write(ctx_json)
 
 
 class P4InfoHelper(object):
