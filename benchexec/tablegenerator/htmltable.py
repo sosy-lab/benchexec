@@ -65,16 +65,14 @@ def write_html_table(
         out.write("\n")
 
     out.write(
-        """<!DOCTYPE html>
+        f"""<!DOCTYPE html>
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<meta name="generator" content="BenchExec table-generator {version}">
+<meta name="generator" content="BenchExec table-generator {__version__}">
 <title>{title} &ndash; BenchExec results</title>
 
-""".format(
-            title=title, version=__version__
-        )
+"""
     )
     write_tags("style", app_css)
     out.write(
@@ -291,7 +289,7 @@ def _prepare_stats(all_column_stats, rows, columns):
     ]
 
     task_counts = (
-        "in total {0} true tasks, {1} false tasks".format(count_true, count_false)
+        f"in total {count_true} true tasks, {count_false} false tasks"
         if count_true or count_false
         else ""
     )
@@ -410,7 +408,7 @@ def _prepare_stats(all_column_stats, rows, columns):
         stat_rows.append(
             dict(  # noqa: C408
                 id="score",
-                title="score ({0} tasks, max score: {1})".format(len(rows), max_score),
+                title=f"score ({len(rows)} tasks, max score: {max_score})",
                 description=task_counts,
                 content=get_stat_row("score"),
             )

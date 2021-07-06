@@ -1,6 +1,6 @@
 {
     "access_right": "open",
-    "license": "Apache-2.0 AND BSD-3-Clause AND CC-BY-4.0 AND MIT AND ISC AND LicenseRef-BSD-3-Clause-CMU",
+    "license": "Apache-2.0",
     "creators": [
         {
             "name": "Philipp Wendler",

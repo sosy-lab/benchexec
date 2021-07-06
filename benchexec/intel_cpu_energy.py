@@ -97,7 +97,7 @@ def format_energy_results(energy):
         for domain, value in domains.items():
             if domain == DOMAIN_PACKAGE:
                 cpuenergy += value
-            result["cpuenergy-pkg{}-{}".format(pkg, domain)] = value
+            result[f"cpuenergy-pkg{pkg}-{domain}"] = value
     result["cpuenergy"] = cpuenergy
     result = collections.OrderedDict(sorted(result.items()))
     return result

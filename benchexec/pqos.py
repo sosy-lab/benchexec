@@ -186,15 +186,13 @@ class Pqos(object):
                 if isinstance(val, dict):
                     for sub_key, sub_val in val.items():
                         if len(mon_data) > 1:
-                            flatten_key = "{0}_{1}_cpus{2}".format(
-                                key, sub_key, core_str
-                            )
+                            flatten_key = f"{key}_{sub_key}_cpus{core_str}"
                         else:
-                            flatten_key = "{0}_{1}".format(key, sub_key)
+                            flatten_key = f"{key}_{sub_key}"
                         flatten_dict[flatten_key] = sub_val
                 else:
                     if len(mon_data) > 1:
-                        flatten_key = "{0}_cpus{1}".format(key, core_str)
+                        flatten_key = f"{key}_cpus{core_str}"
                     else:
                         flatten_key = key
                     flatten_dict[flatten_key] = val

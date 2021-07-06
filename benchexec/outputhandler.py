@@ -169,9 +169,9 @@ class OutputHandler(object):
         Mark the benchmark as erroneous, e.g., because the benchmarking tool crashed.
         The message is intended as explanation for the user.
         """
-        self.xml_header.set("error", msg if msg else "unknown error")
+        self.xml_header.set("error", msg or "unknown error")
         if runSet:
-            runSet.xml.set("error", msg if msg else "unknown error")
+            runSet.xml.set("error", msg or "unknown error")
 
     def store_header_in_xml(self, version, memlimit, timelimit, corelimit):
 
@@ -334,9 +334,7 @@ class OutputHandler(object):
         # write run set name to terminal
         numberOfFiles = len(runSet.runs)
         numberOfFilesStr = (
-            "     (1 file)"
-            if numberOfFiles == 1
-            else "     ({0} files)".format(numberOfFiles)
+            "     (1 file)" if numberOfFiles == 1 else f"     ({numberOfFiles} files)"
         )
         util.printOut(
             "\nexecuting run set"
@@ -412,9 +410,10 @@ class OutputHandler(object):
         runSetInfo = "\n\n"
         if runSet.name:
             runSetInfo += runSet.name + "\n"
-        runSetInfo += "Run set {0} of {1}: skipped {2}".format(
-            runSet.index, len(self.benchmark.run_sets), reason or ""
-        ).rstrip()
+        runSetInfo += (
+            f"Run set {runSet.index} of {len(self.benchmark.run_sets)}: "
+            f"skipped {reason or ''}".rstrip()
+        )
         runSetInfo += "\n"
         self.txt_file.append(runSetInfo)
 
@@ -427,12 +426,9 @@ class OutputHandler(object):
         if runSet.name:
             runSetInfo += runSet.name + "\n"
         runSetInfo += (
-            "Run set {0} of {1} with options '{2}' and propertyfile '{3}'\n\n".format(
-                runSet.index,
-                len(self.benchmark.run_sets),
-                " ".join(runSet.options),
-                util.text_or_none(runSet.propertytag),
-            )
+            f"Run set {runSet.index} of {len(self.benchmark.run_sets)} "
+            f"with options '{' '.join(runSet.options)}' and "
+            f"propertyfile '{util.text_or_none(runSet.propertytag)}'\n\n"
         )
 
         titleLine = self.create_output_line(
@@ -470,9 +466,7 @@ class OutputHandler(object):
                 runSet.started_runs = 1
 
             timeStr = time.strftime("%H:%M:%S", time.localtime()) + "   "
-            progressIndicator = " ({0}/{1})".format(
-                runSet.started_runs, len(runSet.runs)
-            )
+            progressIndicator = f" ({runSet.started_runs}/{len(runSet.runs)})"
             terminalTitle = TERMINAL_TITLE.format(runSet.full_name + progressIndicator)
             if self.benchmark.num_of_threads == 1:
                 util.printOut(
@@ -615,7 +609,7 @@ class OutputHandler(object):
         lines.append(runSet.simpleLine)
 
         # write endline into txt_file
-        endline = "Run set {0}".format(runSet.index)
+        endline = f"Run set {runSet.index}"
 
         # format time, type is changed from float to string!
         cputime_str = (
@@ -724,7 +718,7 @@ class OutputHandler(object):
             elif title.startswith("mbm"):
                 value_suffix = "B/s"
 
-        value = "{}{}".format(value, value_suffix)
+        value = f"{value}{value_suffix}"
 
         element = ElementTree.Element("column", title=title, value=value)
         if hidden:

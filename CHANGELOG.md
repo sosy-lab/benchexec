@@ -9,6 +9,35 @@ SPDX-License-Identifier: Apache-2.0
 
 # BenchExec Changelog
 
+## BenchExec 3.8
+
+This release works only on Python 3.6 and newer!
+
+- Add possibility to have a `close()` method to tool-info modules.
+- The `test_tool_info` utility now has a `--debug` argument
+  that will show the debug log, e.g., from the tool-info module.
+- Fix bug in detection of CPU throttling during benchmarking,
+  for which we warn if we detect it.
+  This did not work for cases with core numbers longer than one digit.
+- Properly escape the suggested command line for running table-generator
+  that is shown by benchexec before it terminates.
+- Allow specifying path to libseccomp via environment variable `LIBSECCOMP`.
+  This is useful for environments like NixOS.
+- Fix handling of empty result files in table-generator,
+  the generated HTML tables will work again.
+- Fix handling of empty run results when filtering rows in HTML tables.
+- Make filters for status and textual columns in HTML tables work
+  if filter string contains a colon.
+- When entering a filter in the HTML tables' filter row,
+  do not loose focus on the input field when applying the filter,
+  such that users can continue typing.
+- Fix invalid values shown in score-based quantile plot
+  if some runs of a table do not have a score value.
+  Now a run set is only shown in a score-based quantile plot
+  if all values have scores (otherwise the plot would be misleading).
+- Text selection now works as expected while an overlay window is open
+  in the HTML tables (only text in the overlay will be selected).
+
 ## BenchExec 3.7
 
 This is expected to be the last BenchExec release that supports Python 3.5,

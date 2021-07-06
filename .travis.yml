@@ -21,8 +21,8 @@ before_script:
   - sudo ./.travis-setup.sh "$USER"
   # Disable one specific test that often fails on Travis.
   # This is due to a deadlock in the Python interpreter or used libraries
-  # and there is nothing we can do. Luckily on new Python it does not occur.
-  - sed -i benchexec/test_integration/__init__.py -e '/test_simple_parallel/ i \    @unittest.skipIf(sys.version_info < (3,7), "Fails nondeterministically if load is high")'
+  # and this is difficult to fix, but occurs only in high-load environments.
+  - sed -i benchexec/test_integration/__init__.py -e '/test_simple_parallel/ i \    @unittest.skip("Fails nondeterministically on Travis, probably issue 656")'
 script:
   - python setup.py test
   # Revert local modification before checking source format

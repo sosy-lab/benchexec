@@ -218,9 +218,8 @@ def main(argv=None):
                 raise ValueError()
         except ValueError:
             parser.error(
-                'Cgroup value "{}" has invalid format, needs to be "subsystem.option=value".'.format(
-                    arg
-                )
+                f'Cgroup value "{arg}" has invalid format, '
+                f'needs to be "subsystem.option=value".'
             )
         cgroup_values[(subsystem, option)] = value
         cgroup_subsystems.add(subsystem)
@@ -280,26 +279,26 @@ def main(argv=None):
 
     def print_optional_result(key, unit="", format_fn=str):
         if key in result:
-            print(key + "=" + format_fn(result[key]) + unit)
+            print(f"{key}={format_fn(result[key])}{unit}")
 
     # output results
     print_optional_result("starttime", unit="", format_fn=datetime.datetime.isoformat)
     print_optional_result("terminationreason")
     if exit_code is not None and exit_code.value is not None:
-        print("returnvalue=" + str(exit_code.value))
+        print(f"returnvalue={exit_code.value}")
     if exit_code is not None and exit_code.signal is not None:
-        print("exitsignal=" + str(exit_code.signal))
+        print(f"exitsignal={exit_code.signal}")
     print_optional_result("walltime", "s")
     print_optional_result("cputime", "s")
     for key in sorted(result.keys()):
         if key.startswith("cputime-"):
-            print("{}={:.9f}s".format(key, result[key]))
+            print(f"{key}={result[key]:.9f}s")
     print_optional_result("memory", "B")
     print_optional_result("blkio-read", "B")
     print_optional_result("blkio-write", "B")
     energy = intel_cpu_energy.format_energy_results(result.get("cpuenergy"))
     for energy_key, energy_value in energy.items():
-        print("{}={}J".format(energy_key, energy_value))
+        print(f"{energy_key}={energy_value}J")
 
 
 class RunExecutor(containerexecutor.ContainerExecutor):
@@ -432,9 +431,8 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             except OSError as e:
                 cgroups.remove()
                 sys.exit(
-                    '{} for setting cgroup option {}.{} to "{}" (error code {}).'.format(
-                        e.strerror, subsystem, option, value, e.errno
-                    )
+                    f"{e.strerror} for setting cgroup option {subsystem}.{option} "
+                    f'to "{value}" (error code {e.errno}).'
                 )
             logging.debug(
                 'Cgroup value %s.%s was set to "%s", new value is now "%s".',
@@ -673,13 +671,13 @@ class RunExecutor(containerexecutor.ContainerExecutor):
 
         if hardtimelimit is not None:
             if hardtimelimit <= 0:
-                sys.exit("Invalid time limit {0}.".format(hardtimelimit))
+                sys.exit(f"Invalid time limit {hardtimelimit}.")
             if CPUACCT not in self.cgroups:
                 logging.error("Time limit cannot be specified without cpuacct cgroup.")
                 critical_cgroups.add(CPUACCT)
         if softtimelimit is not None:
             if softtimelimit <= 0:
-                sys.exit("Invalid soft time limit {0}.".format(softtimelimit))
+                sys.exit(f"Invalid soft time limit {softtimelimit}.")
             if hardtimelimit and (softtimelimit > hardtimelimit):
                 sys.exit("Soft time limit cannot be larger than the hard time limit.")
             if CPUACCT not in self.cgroups:
@@ -695,7 +693,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 walltimelimit = softtimelimit + _WALLTIME_LIMIT_DEFAULT_OVERHEAD
         else:
             if walltimelimit <= 0:
-                sys.exit("Invalid wall time limit {0}.".format(walltimelimit))
+                sys.exit(f"Invalid wall time limit {walltimelimit}.")
 
         if cores is not None:
             if self.cpus is None:
@@ -704,15 +702,12 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             elif not cores:
                 sys.exit("Cannot execute run without any CPU core.")
             elif not set(cores).issubset(self.cpus):
-                sys.exit(
-                    "Cores {0} are not allowed to be used".format(
-                        list(set(cores).difference(self.cpus))
-                    )
-                )
+                forbidden_cores = list(set(cores).difference(self.cpus))
+                sys.exit(f"Cores {forbidden_cores} are not allowed to be used")
 
         if memlimit is not None:
             if memlimit <= 0:
-                sys.exit("Invalid memory limit {0}.".format(memlimit))
+                sys.exit(f"Invalid memory limit {memlimit}.")
             if MEMORY not in self.cgroups:
                 logging.error(
                     "Memory limit specified, but cannot be implemented without cgroup support."
@@ -726,45 +721,38 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             elif len(memory_nodes) == 0:
                 sys.exit("Cannot execute run without any memory node.")
             elif not set(memory_nodes).issubset(self.memory_nodes):
-                sys.exit(
-                    "Memory nodes {0} are not allowed to be used".format(
-                        list(set(memory_nodes).difference(self.memory_nodes))
-                    )
-                )
+                forbidden_nodes = list(set(memory_nodes).difference(self.memory_nodes))
+                sys.exit(f"Memory nodes {forbidden_nodes} are not allowed to be used")
 
         if workingDir:
             if not os.path.exists(workingDir):
-                sys.exit("Working directory {0} does not exist.".format(workingDir))
+                sys.exit(f"Working directory {workingDir} does not exist.")
             if not os.path.isdir(workingDir):
-                sys.exit("Working directory {0} is not a directory.".format(workingDir))
+                sys.exit(f"Working directory {workingDir} is not a directory.")
             if not os.access(workingDir, os.X_OK):
-                sys.exit(
-                    "Permission denied for working directory {0}.".format(workingDir)
-                )
+                sys.exit(f"Permission denied for working directory {workingDir}.")
 
         self.cgroups.handle_errors(critical_cgroups)
 
         for ((subsystem, option), _) in cgroupValues.items():
             if subsystem not in self._cgroup_subsystems:
                 sys.exit(
-                    'Cannot set option "{option}" for subsystem "{subsystem}" that is not enabled. '
-                    'Please specify "--require-cgroup-subsystem {subsystem}".'.format(
-                        option=option, subsystem=subsystem
-                    )
+                    f'Cannot set option "{option}" for subsystem "{subsystem}" '
+                    f"that is not enabled. "
+                    f'Please specify "--require-cgroup-subsystem {subsystem}".'
                 )
             if not self.cgroups.has_value(subsystem, option):
                 sys.exit(
-                    'Cannot set option "{option}" for subsystem "{subsystem}", it does not exist.'.format(
-                        option=option, subsystem=subsystem
-                    )
+                    f'Cannot set option "{option}" for subsystem "{subsystem}", '
+                    f"it does not exist."
                 )
 
         if files_count_limit is not None:
             if files_count_limit < 0:
-                sys.exit("Invalid files-count limit {0}.".format(files_count_limit))
+                sys.exit(f"Invalid files-count limit {files_count_limit}.")
         if files_size_limit is not None:
             if files_size_limit < 0:
-                sys.exit("Invalid files-size limit {0}.".format(files_size_limit))
+                sys.exit(f"Invalid files-size limit {files_size_limit}.")
 
         try:
             return self._execute(
@@ -1083,7 +1071,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                     coretime = int(coretime)
                     if coretime != 0:
                         # convert nanoseconds to seconds
-                        result["cputime-cpu" + str(core)] = coretime / 1_000_000_000
+                        result[f"cputime-cpu{core}"] = coretime / 1_000_000_000
                 except (OSError, ValueError) as e:
                     logging.debug(
                         "Could not read CPU time for core %s from kernel: %s", core, e

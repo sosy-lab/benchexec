@@ -89,6 +89,16 @@ check-format:
     - black . --check --diff
   <<: *pip-cache
 
+flynt:
+  # Use flynt (https://github.com/ikamensh/flynt) for converting string formatting to f-strings
+  stage: test
+  image: python:3.9
+  before_script:
+    - pip install flynt
+  script:
+    - flynt . --exclude node_modules --line-length 10000 --aggressive --fail-on-change --dry-run
+  <<: *pip-cache
+
 flake8:
   stage: test
   image: python:3.8
@@ -102,7 +112,8 @@ pytype:
   stage: test
   image: python:3.7
   before_script:
-    - pip install coloredlogs pytype
+    # attrs is temporary workaround for https://github.com/google/pytype/issues/909
+    - pip install coloredlogs pytype attrs==20.3.0
   script:
     - pytype -k
   cache:

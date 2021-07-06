@@ -104,7 +104,7 @@ export default class FilterBox extends React.PureComponent {
         .filter((i) => i !== null && i !== undefined),
     ];
     newFilter.push({ id: "id", values: idFilter });
-
+    this.props.addTypeToFilter(newFilter);
     this.props.setFilter(newFilter, true);
   }
 

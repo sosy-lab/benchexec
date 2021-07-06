@@ -84,13 +84,13 @@ class TestResult(unittest.TestCase):
 
         run = self.create_run(info_result=RESULT_TRUE_PROP)
         self.assertEqual(
-            "TIMEOUT (" + RESULT_TRUE_PROP + ")",
+            f"TIMEOUT ({RESULT_TRUE_PROP})",
             run._analyze_result(normal_result, "", "cputime"),
         )
 
         run = self.create_run(info_result=RESULT_FALSE_REACH)
         self.assertEqual(
-            "TIMEOUT (" + RESULT_FALSE_REACH + ")",
+            f"TIMEOUT ({RESULT_FALSE_REACH})",
             run._analyze_result(normal_result, "", "cputime"),
         )
 
@@ -115,13 +115,13 @@ class TestResult(unittest.TestCase):
 
         run = self.create_run(info_result=RESULT_TRUE_PROP)
         self.assertEqual(
-            "OUT OF MEMORY (" + RESULT_TRUE_PROP + ")",
+            f"OUT OF MEMORY ({RESULT_TRUE_PROP})",
             run._analyze_result(normal_result, "", "memory"),
         )
 
         run = self.create_run(info_result=RESULT_FALSE_REACH)
         self.assertEqual(
-            "OUT OF MEMORY (" + RESULT_FALSE_REACH + ")",
+            f"OUT OF MEMORY ({RESULT_FALSE_REACH})",
             run._analyze_result(normal_result, "", "memory"),
         )
 
@@ -144,14 +144,14 @@ class TestResult(unittest.TestCase):
         run = self.create_run(info_result=RESULT_TRUE_PROP)
         run._is_timeout = lambda: True
         self.assertEqual(
-            "TIMEOUT (" + RESULT_TRUE_PROP + ")",
+            f"TIMEOUT ({RESULT_TRUE_PROP})",
             run._analyze_result(normal_result, "", "memory"),
         )
 
         run = self.create_run(info_result=RESULT_FALSE_REACH)
         run._is_timeout = lambda: True
         self.assertEqual(
-            "TIMEOUT (" + RESULT_FALSE_REACH + ")",
+            f"TIMEOUT ({RESULT_FALSE_REACH})",
             run._analyze_result(normal_result, "", "memory"),
         )
 

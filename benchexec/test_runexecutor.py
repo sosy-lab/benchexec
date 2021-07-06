@@ -157,19 +157,19 @@ class TestRunExecutor(unittest.TestCase):
                 self.assertRegex(
                     key,
                     "^cputime-cpu[0-9]+$",
-                    "unexpected result entry '{}={}'".format(key, result[key]),
+                    f"unexpected result entry '{key}={result[key]}'",
                 )
             elif key.startswith("cpuenergy-"):
                 self.assertRegex(
                     key,
                     "^cpuenergy-pkg[0-9]+-(package|core|uncore|dram|psys)$",
-                    "unexpected result entry '{}={}'".format(key, result[key]),
+                    f"unexpected result entry '{key}={result[key]}'",
                 )
             else:
                 self.assertIn(
                     key,
                     expected_keys,
-                    "unexpected result entry '{}={}'".format(key, result[key]),
+                    f"unexpected result entry '{key}={result[key]}'",
                 )
 
     def check_exitcode(self, result, exitcode, msg=None):
@@ -675,11 +675,11 @@ class TestRunExecutor(unittest.TestCase):
         temp_dir = output[-1].split(" ")[1]
         self.assertFalse(
             os.path.exists(home_dir),
-            "temporary home directory {} was not cleaned up".format(home_dir),
+            f"temporary home directory {home_dir} was not cleaned up",
         )
         self.assertFalse(
             os.path.exists(temp_dir),
-            "temporary temp directory {} was not cleaned up".format(temp_dir),
+            f"temporary temp directory {temp_dir} was not cleaned up",
         )
 
     def test_home_is_writable(self):
@@ -689,7 +689,7 @@ class TestRunExecutor(unittest.TestCase):
         self.check_exitcode(
             result,
             0,
-            "Failed to write to $HOME/TEST_FILE, output was\n{}".format(output),
+            f"Failed to write to $HOME/TEST_FILE, output was\n{output}",
         )
 
     def test_no_cleanup_temp(self):
@@ -771,8 +771,8 @@ class TestRunExecutor(unittest.TestCase):
             outer_result, outer_output = self.execute_run(*inner_cmdline)
             inner_output = inner_output_file.read().strip().splitlines()
 
-        logging.info("Outer output:\n" + "\n".join(outer_output))
-        logging.info("Inner output:\n" + "\n".join(inner_output))
+        logging.info("Outer output:\n%s", "\n".join(outer_output))
+        logging.info("Inner output:\n%s", "\n".join(inner_output))
         self.check_result_keys(outer_result, "returnvalue")
         self.check_exitcode(outer_result, 0, "exit code of inner runexec is not zero")
         self.check_command_in_output(inner_output, "/bin/echo TEST_TOKEN")
@@ -798,7 +798,7 @@ class TestRunExecutorWithContainer(TestRunExecutor):
         try:
             container.execute_in_namespace(lambda: 0)
         except OSError as e:
-            self.skipTest("Namespaces not supported: {}".format(os.strerror(e.errno)))
+            self.skipTest(f"Namespaces not supported: {os.strerror(e.errno)}")
 
         dir_modes = kwargs.pop(
             "dir_modes",
@@ -856,12 +856,12 @@ class TestRunExecutorWithContainer(TestRunExecutor):
                 output_dir=output_dir,
                 result_files_patterns=result_files_patterns,
             )
+            output_str = "\n".join(output)
             self.assertEqual(
                 result["exitcode"].value,
                 0,
-                "exit code of {} is not zero,\nresult was {!r},\noutput was\n{}".format(
-                    " ".join(shell_cmd), result, "\n".join(output)
-                ),
+                f"exit code of {' '.join(shell_cmd)} is not zero,\n"
+                f"result was {result!r},\noutput was\n{output_str}",
             )
             result_files = []
             for root, _unused_dirs, files in os.walk(output_dir):
@@ -874,8 +874,8 @@ class TestRunExecutorWithContainer(TestRunExecutor):
             self.assertListEqual(
                 result_files,
                 expected_result_files,
-                "\nList of retrieved result files differs from expected list,\n"
-                "result was {!r},\noutput was\n{}".format(result, "\n".join(output)),
+                f"\nList of retrieved result files differs from expected list,\n"
+                f"result was {result!r},\noutput was\n{output_str}",
             )
         finally:
             shutil.rmtree(output_dir, ignore_errors=True)
@@ -1031,15 +1031,13 @@ class TestRunExecutorWithContainer(TestRunExecutor):
             )
             temp_file = os.path.join(temp_dir, "TEST_FILE")
             result, output = self.execute_run(
-                "/bin/sh", "-c", "echo TEST_TOKEN > '{}'".format(temp_file)
+                "/bin/sh", "-c", f"echo TEST_TOKEN > '{temp_file}'"
             )
             self.check_result_keys(result)
             self.check_exitcode(result, 0, "exit code of process is not 0")
             self.assertTrue(
                 os.path.exists(temp_file),
-                "File '{}' not created, output was:{}\n".format(
-                    temp_file, "\n".join(output)
-                ),
+                f"File '{temp_file}' not created, output was:\n" + "\n".join(output),
             )
             with open(temp_file, "r") as f:
                 self.assertEqual(f.read().strip(), "TEST_TOKEN")
@@ -1054,7 +1052,7 @@ class TestRunExecutorWithContainer(TestRunExecutor):
         self.check_exitcode(result, 0, "exit code for reading uptime is not zero")
         uptime = float(output[-1].split(" ")[0])
         self.assertLessEqual(
-            uptime, 10, "Uptime %ss unexpectedly high in container" % uptime
+            uptime, 10, f"Uptime {uptime}s unexpectedly high in container"
         )
 
     def test_uptime_without_lxcfs(self):
@@ -1068,7 +1066,7 @@ class TestRunExecutorWithContainer(TestRunExecutor):
         uptime = float(output[-1].split(" ")[0])
         # If uptime was less than 10s, LXCFS probably was in use
         self.assertGreaterEqual(
-            uptime, 10, "Uptime %ss unexpectedly low in container" % uptime
+            uptime, 10, f"Uptime {uptime}s unexpectedly low in container"
         )
 
 
@@ -1091,12 +1089,11 @@ class TestRunExecutorUnits(unittest.TestCase):
         invalid_utf8 = b"\xFF"
         with tempfile.NamedTemporaryFile(mode="w+b", delete=False) as report_file:
             with tempfile.NamedTemporaryFile(mode="w+b") as output:
-                output_content = """Dummy output
+                output_content = f"""Dummy output
 # An error report file with more information is saved as:
-# {}
+# {report_file.name}
 More output
-"""
-                output_content = output_content.format(report_file.name).encode()
+""".encode()  # noqa: E800 false alarm
                 report_content = b"Report output\nMore lines"
                 output_content += invalid_utf8
                 report_content += invalid_utf8

@@ -74,8 +74,9 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
             if "Ultimate" in file_names and "plugins" in dir_names:
                 return exe
             break
-        msg = "ERROR: Did find a Ultimate.py in {} but no 'Ultimate' or no 'plugins' directory besides it".format(
-            os.path.dirname(exe)
+        msg = (
+            f"ERROR: Did find a Ultimate.py in {os.path.dirname(exe)} "
+            f"but no 'Ultimate' or no 'plugins' directory besides it"
         )
         raise ToolNotFoundException(msg)
 
@@ -163,9 +164,7 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
             launcher_jar = os.path.join(ultimate_dir, jar)
             if os.path.isfile(launcher_jar):
                 return launcher_jar
-        raise FileNotFoundError(
-            "No suitable launcher jar found in {0}".format(ultimate_dir)
-        )
+        raise FileNotFoundError(f"No suitable launcher jar found in {ultimate_dir}")
 
     @functools.lru_cache()
     def version(self, executable):
@@ -175,7 +174,7 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
             return wrapper_version
 
         ultimate_version = self._ultimate_version(executable)
-        return ultimate_version + "-" + wrapper_version
+        return f"{ultimate_version}-{wrapper_version}"
 
     @functools.lru_cache()
     def _is_svcomp17_version(self, executable):
@@ -209,10 +208,8 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
                     executable, options, task, resource_limits
                 )
             msg = (
-                "Unsupported argument combination: "
-                "If you specify {}, you also need to give a toolchain (with '-tc' or '--toolchain')".format(
-                    _OPTION_NO_WRAPPER
-                )
+                f"Unsupported argument combination: If you specify {_OPTION_NO_WRAPPER}, "
+                f"you also need to give a toolchain (with '-tc' or '--toolchain')"
             )
             raise UnsupportedFeatureException(msg)
 
@@ -221,9 +218,10 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
 
         # there is no way to run ultimate; not enough parameters
         msg = (
-            "Unsupported argument combination: You either need a property file or a toolchain option (-tc).\n"
-            "options={}\n"
-            "resource_limits={}".format(options, resource_limits)
+            f"Unsupported argument combination: "
+            f"You either need a property file or a toolchain option (-tc).\n"
+            f"options={options}\n"
+            f"resource_limits={resource_limits}"
         )
         raise UnsupportedFeatureException(msg)
 
@@ -258,7 +256,7 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
             cmdline += ["-ea"]
 
         if mem_bytes:
-            cmdline += ["-Xmx" + str(mem_bytes)]
+            cmdline += [f"-Xmx{mem_bytes}"]
         cmdline += ["-Xss4m"]
         cmdline += ["-jar", self._get_current_launcher_jar(executable)]
 
@@ -273,18 +271,16 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
                     ]
                 if self.api == 1:
                     raise ValueError(
-                        "Illegal option -ultimatedata for API {} and Ultimate version {}".format(
-                            self.api, self.version(executable)
-                        )
+                        f"Illegal option -ultimatedata for API {self.api} "
+                        f"and Ultimate version {self.version(executable)}"
                     )
             elif "-ultimatedata" in options and "-data" not in options:
                 if self.api == 2:
                     cmdline += ["-data", "@noDefault"]
                 if self.api == 1:
                     raise ValueError(
-                        "Illegal option -ultimatedata for API {} and Ultimate version {}".format(
-                            self.api, self.version(executable)
-                        )
+                        f"Illegal option -ultimatedata for API {self.api} "
+                        f"and Ultimate version {self.version(executable)}"
                     )
         else:
             if "-data" not in options:
@@ -324,9 +320,7 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
     def __assert_cmdline(cmdline, mode):
         assert all(
             cmdline
-        ), "cmdline contains empty or None argument when using {} mode: {}".format(
-            mode, str(cmdline)
-        )
+        ), f"cmdline contains empty or None argument when using {mode} mode: {cmdline}"
         pass
 
     def program_files(self, executable):

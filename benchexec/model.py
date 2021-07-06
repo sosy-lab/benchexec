@@ -93,9 +93,9 @@ def load_task_definition_file(task_def_file):
         with open(task_def_file) as f:
             task_def = yaml.safe_load(f)
     except OSError as e:
-        raise BenchExecException("Cannot open task-definition file: " + str(e))
+        raise BenchExecException(f"Cannot open task-definition file: {e}")
     except yaml.YAMLError as e:
-        raise BenchExecException("Invalid task definition: " + str(e))
+        raise BenchExecException(f"Invalid task definition: {e}")
 
     if not task_def:
         raise BenchExecException("Invalid task definition: empty file " + task_def_file)
@@ -103,15 +103,14 @@ def load_task_definition_file(task_def_file):
     format_version = str(task_def.get("format_version"))
     if format_version not in _TASK_DEF_VERSIONS:
         raise BenchExecException(
-            "Task-definition file {} specifies invalid format_version '{}'.".format(
-                task_def_file, task_def.get("format_version")
-            )
+            f"Task-definition file {task_def_file} specifies "
+            f"invalid format_version '{task_def.get('format_version')}'."
         )
 
     if format_version != "2.0" and "options" in task_def:
         raise BenchExecException(
-            "Task-definition file {} specifies invalid key 'options', "
-            "format_version needs to be at least 2.0 for this.".format(task_def_file)
+            f"Task-definition file {task_def_file} specifies invalid key 'options', "
+            f"format_version needs to be at least 2.0 for this."
         )
 
     return task_def
@@ -136,23 +135,22 @@ def handle_files_from_task_definition(patterns, task_def_file):
         )
         if not expanded:
             raise BenchExecException(
-                "Pattern '{}' in task-definition file {} did not match any paths.".format(
-                    pattern, task_def_file
-                )
+                f"Pattern '{pattern}' in task-definition file {task_def_file} "
+                f"did not match any paths."
             )
         expanded.sort()
         result.extend(expanded)
     return result
 
 
-def load_tool_info(tool_name, config):
+def load_tool_info(tool_name: str, config):
     """
     Load the tool-info class.
     @param tool_name: The name of the tool-info module.
     Either a full Python package name or a name within the benchexec.tools package.
     @return: A tuple of the full name of the used tool-info module and an instance of the tool-info class.
     """
-    tool_module = tool_name if "." in tool_name else ("benchexec.tools." + tool_name)
+    tool_module = tool_name if "." in tool_name else f"benchexec.tools.{tool_name}"
     try:
         if config.container:
             # lazy import because it can fail if container mode is not supported
@@ -162,8 +160,6 @@ def load_tool_info(tool_name, config):
         else:
             tool = __import__(tool_module, fromlist=["Tool"]).Tool()
             tool = tooladapter.adapt_to_current_version(tool)
-            # Provide dummy close method
-            tool.close = lambda: None
     except ImportError as ie:
         logging.debug(
             "Did not find module '%s'. "
@@ -171,19 +167,13 @@ def load_tool_info(tool_name, config):
             tool_module,
             "\n  ".join(path or "." for path in sys.path),
         )
-        sys.exit(
-            'Unsupported tool "{0}" specified. ImportError: {1}'.format(tool_name, ie)
-        )
+        sys.exit(f'Unsupported tool "{tool_name}" specified. ImportError: {ie}')
     except AttributeError as ae:
         sys.exit(
-            'Unsupported tool "{0}" specified, class "Tool" is missing: {1}'.format(
-                tool_name, ae
-            )
+            f'Unsupported tool "{tool_name}" specified, class "Tool" is missing: {ae}'
         )
     except TypeError as te:
-        sys.exit(
-            'Unsupported tool "{0}" specified. TypeError: {1}'.format(tool_name, te)
-        )
+        sys.exit(f'Unsupported tool "{tool_name}" specified. TypeError: {te}')
     assert isinstance(tool, tooladapter.CURRENT_BASETOOL)
     return tool_module, tool
 
@@ -215,7 +205,7 @@ def cmdline_for_run(
     )
 
     args = tool.cmdline(rel_executable, list(options), task, rlimits)
-    assert all(args), "Tool cmdline contains empty or None argument: " + str(args)
+    assert all(args), f"Tool cmdline contains empty or None argument: {args}"
     args = [os.path.expandvars(arg) for arg in args]
     args = [os.path.expanduser(arg) for arg in args]
     return args
@@ -232,9 +222,9 @@ def get_propertytag(parent):
         and not re.match("false(.*)", expected_verdict)
     ):
         raise BenchExecException(
-            "Invalid value '{}' for expectedverdict of <propertyfile> in tag <{}>: "
-            "Only 'true', 'false', 'false(<subproperty>)' and 'unknown' "
-            "are allowed!".format(expected_verdict, parent.tag)
+            f"Invalid value '{expected_verdict}' for expectedverdict of <propertyfile> "
+            f"in tag <{parent.tag}>: "
+            f"Only 'true', 'false', 'false(<subproperty>)' and 'unknown' are allowed!"
         )
     return tag
 
@@ -268,28 +258,27 @@ class Benchmark(object):
                 self.description = util.read_file(config.description_file)
             except (OSError, UnicodeDecodeError) as e:
                 raise BenchExecException(
-                    "File '{}' given for description could not be read: {}".format(
-                        config.description_file, e
-                    )
+                    f"File '{config.description_file}' given for description "
+                    f"could not be read: {e}"
                 )
 
         self.start_time = start_time
         self.instance = start_time.strftime(util.TIMESTAMP_FILENAME_FORMAT)
 
-        self.output_base_name = config.output_path + self.name + "." + self.instance
-        self.log_folder = self.output_base_name + ".logfiles" + os.path.sep
-        self.log_zip = self.output_base_name + ".logfiles.zip"
-        self.result_files_folder = self.output_base_name + ".files"
+        self.output_base_name = f"{config.output_path}{self.name}.{self.instance}"
+        self.log_folder = f"{self.output_base_name}.logfiles{os.path.sep}"
+        self.log_zip = f"{self.output_base_name}.logfiles.zip"
+        self.result_files_folder = f"{self.output_base_name}.files"
 
         # parse XML
         try:
             rootTag = ElementTree.ElementTree().parse(benchmark_file)
         except ElementTree.ParseError as e:
-            sys.exit("Benchmark file {} is invalid: {}".format(benchmark_file, e))
+            sys.exit(f"Benchmark file {benchmark_file} is invalid: {e}")
         if "benchmark" != rootTag.tag:
             sys.exit(
-                "Benchmark file {} is invalid: "
-                "It's root element is not named 'benchmark'.".format(benchmark_file)
+                f"Benchmark file {benchmark_file} is invalid: "
+                f"Its root element is not named 'benchmark'."
             )
 
         # get tool
@@ -311,7 +300,7 @@ class Benchmark(object):
                 return util.parse_memory_value(value)
             else:
                 raise ValueError(
-                    "Memory limit must have a unit suffix, e.g., '{} MB'".format(value)
+                    f"Memory limit must have a unit suffix, e.g., '{value} MB'"
                 )
 
         rlimits = {}
@@ -329,13 +318,12 @@ class Benchmark(object):
                 try:
                     rlimits[to_key] = parse_fn(value)
                 except ValueError as e:
-                    sys.exit("Invalid value for {} limit: {}".format(name.lower(), e))
+                    sys.exit(f"Invalid value for {name.lower()} limit: {e}")
                 if rlimits[to_key] <= 0:
                     sys.exit(
-                        '{} limit "{}" is invalid, it needs to be a positive number '
-                        "(or -1 on the command line for disabling it).".format(
-                            name, value
-                        )
+                        f'{name} limit "{value}" is invalid, '
+                        f"it needs to be a positive number "
+                        f"(or -1 on the command line for disabling it)."
                     )
 
         handle_limit_value(
@@ -398,8 +386,8 @@ class Benchmark(object):
         # get global source files, they are used in all run sets
         if rootTag.findall("sourcefiles"):
             sys.exit(
-                "Benchmark file {} has unsupported old format. "
-                "Rename <sourcefiles> tags to <tasks>.".format(benchmark_file)
+                f"Benchmark file {benchmark_file} has unsupported old format. "
+                f"Rename <sourcefiles> tags to <tasks>."
             )
         globalSourcefilesTags = rootTag.findall("tasks")
 
@@ -428,9 +416,7 @@ class Benchmark(object):
             ]
             for pattern in self.result_files_patterns:
                 if pattern.startswith(".."):
-                    sys.exit(
-                        "Invalid relative result-files pattern '{}'.".format(pattern)
-                    )
+                    sys.exit(f"Invalid relative result-files pattern '{pattern}'.")
         else:
             # default is "everything below current directory"
             self.result_files_patterns = ["."]
@@ -550,8 +536,8 @@ class RunSet(object):
         # get all runs, a run contains one sourcefile with options
         if rundefinitionTag.findall("sourcefiles"):
             sys.exit(
-                "Benchmark file {} has unsupported old format. "
-                "Rename <sourcefiles> tags to <tasks>.".format(benchmark.benchmark_file)
+                f"Benchmark file {benchmark.benchmark_file} has unsupported old format. "
+                f"Rename <sourcefiles> tags to <tasks>."
             )
         self.blocks = self.extract_runs_from_xml(
             globalSourcefilesTags + rundefinitionTag.findall("tasks"),
@@ -564,7 +550,7 @@ class RunSet(object):
             # there is exactly one source-file set to run, append its name to run-set name
             names.append(self.blocks[0].real_name)
         self.name = ".".join(filter(None, names))
-        self.full_name = self.benchmark.name + (("." + self.name) if self.name else "")
+        self.full_name = self.benchmark.name + (f".{self.name}" if self.name else "")
 
         # Currently we store logfiles as "basename.log",
         # so we cannot distinguish sourcefiles in different folder with same basename.
@@ -705,8 +691,8 @@ class RunSet(object):
                 input_files_in_set = list(_read_set_file(file))
                 if not input_files_in_set:
                     sys.exit(
-                        "Error: Nothing in includes file '{}' "
-                        "matches existing files.".format(file)
+                        f"Error: Nothing in includes file '{file}' "
+                        f"matches existing files."
                     )
                 sourcefiles += input_files_in_set
 
@@ -794,9 +780,7 @@ class RunSet(object):
         )
         if not input_files:
             raise BenchExecException(
-                "Task-definition file {} does not define any input files.".format(
-                    task_def_file
-                )
+                f"Task-definition file {task_def_file} does not define any input files."
             )
         required_files = handle_files_from_task_definition(
             task_def.get("required_files"), task_def_file
@@ -825,18 +809,17 @@ class RunSet(object):
         for prop_dict in task_def.get("properties", []):
             if not isinstance(prop_dict, dict) or "property_file" not in prop_dict:
                 raise BenchExecException(
-                    "Missing property file for property in task-definition file {}.".format(
-                        task_def_file
-                    )
+                    f"Missing property file for property "
+                    f"in task-definition file {task_def_file}."
                 )
             expanded = util.expand_filename_pattern(
                 prop_dict["property_file"], os.path.dirname(task_def_file)
             )
             if len(expanded) != 1:
                 raise BenchExecException(
-                    "Property pattern '{}' in task-definition file {} does not refer to exactly one file.".format(
-                        prop_dict["property_file"], task_def_file
-                    )
+                    f"Property pattern '{prop_dict['property_file']}' "
+                    f"in task-definition file {task_def_file} "
+                    f"does not refer to exactly one file."
                 )
 
             # TODO We could reduce I/O by checking absolute paths and using os.path.samestat
@@ -849,9 +832,9 @@ class RunSet(object):
                     expected_result, bool
                 ):
                     raise BenchExecException(
-                        "Invalid expected result '{}' for property {} in task-definition file {}.".format(
-                            expected_result, prop_dict["property_file"], task_def_file
-                        )
+                        f"Invalid expected result '{expected_result}' "
+                        f"for property {prop_dict['property_file']} "
+                        f"in task-definition file {task_def_file}."
                     )
                 run.expected_results[prop.filename] = result.ExpectedResult(
                     expected_result, prop_dict.get("subproperty")
@@ -866,9 +849,8 @@ class RunSet(object):
             return None
         elif len(run.expected_results) > 1:
             raise BenchExecException(
-                "Property '{}' specified multiple times in task-definition file {}.".format(
-                    prop.filename, task_def_file
-                )
+                f"Property '{prop.filename}' specified multiple times "
+                f"in task-definition file {task_def_file}."
             )
         assert len(run.expected_results) == 1
 
@@ -882,7 +864,7 @@ class RunSet(object):
                 and expected_result.subproperty
                 and "(" in expected_result_filter
             ):
-                expected_result_str += "(" + expected_result.subproperty + ")"
+                expected_result_str += f"({expected_result.subproperty})"
             if expected_result_str != expected_result_filter:
                 logging.debug(
                     "Ignoring run '%s' because "
@@ -962,7 +944,7 @@ class Run(object):
         self.task_options = task_options
         self.runSet = runSet
         self.specific_options = fileOptions  # options that are specific for this run
-        self.log_file = runSet.log_folder + os.path.basename(self.identifier) + ".log"
+        self.log_file = f"{runSet.log_folder}{os.path.basename(self.identifier)}.log"
         self.result_files_folder = os.path.join(
             runSet.result_files_folder, os.path.basename(self.identifier)
         )
@@ -1019,9 +1001,9 @@ class Run(object):
             if expandedPropertyFiles:
                 if len(expandedPropertyFiles) > 1:
                     log_property_file_once(
-                        "Pattern {0} for input file {1} in propertyfile tag matches more than one file. Only {2} will be used.".format(
-                            self.propertyfile, self.identifier, expandedPropertyFiles[0]
-                        )
+                        f"Pattern {self.propertyfile} for input file {self.identifier} "
+                        f"in propertyfile tag matches more than one file. "
+                        f"Only {expandedPropertyFiles[0]} will be used."
                     )
                 self.propertyfile = expandedPropertyFiles[0]
             elif substitutedPropertyfiles and os.path.isfile(
@@ -1030,9 +1012,8 @@ class Run(object):
                 self.propertyfile = substitutedPropertyfiles[0]
             else:
                 log_property_file_once(
-                    "Pattern {0} for input file {1} in propertyfile tag did not match any file. It will be ignored.".format(
-                        self.propertyfile, self.identifier
-                    )
+                    f"Pattern {self.propertyfile} for input file {self.identifier} "
+                    f"in propertyfile tag did not match any file. It will be ignored."
                 )
                 self.propertyfile = None
 
@@ -1148,10 +1129,10 @@ class Run(object):
                 elif exitcode.signal == 15:
                     tool_status = "KILLED"
                 elif exitcode.signal:
-                    tool_status = "KILLED BY SIGNAL " + str(exitcode.signal)
+                    tool_status = f"KILLED BY SIGNAL {exitcode.signal}"
 
                 elif exitcode.value and tool_status != result.RESULT_UNKNOWN:
-                    tool_status = "{} ({})".format(result.RESULT_ERROR, exitcode.value)
+                    tool_status = f"{result.RESULT_ERROR} ({exitcode.value})"
 
         # Tools sometimes produce a result even after violating a resource limit.
         # This should not be counted, so we overwrite the result with TIMEOUT/OOM
@@ -1177,12 +1158,12 @@ class Run(object):
             result.RESULT_LIST_OTHER + [status, "KILLED", "KILLED BY SIGNAL 9"]
         ):
             # timeout/OOM but tool still returned some result
-            status = "{} ({})".format(status, tool_status)
+            status = f"{status} ({tool_status})"
 
         return status
 
     def _is_timeout(self):
-        """ try to find out whether the tool terminated because of a timeout """
+        """try to find out whether the tool terminated because of a timeout"""
         rlimits = self.runSet.benchmark.rlimits
         cputime = self.values.get("cputime")
         walltime = self.values.get("walltime")
@@ -1265,20 +1246,18 @@ class Requirements(object):
             self.cpu_model = config.cpu_model
 
         if self.cpu_cores is not None and self.cpu_cores <= 0:
-            raise Exception(
-                "Invalid value {} for required CPU cores.".format(self.cpu_cores)
-            )
+            raise Exception(f"Invalid value {self.cpu_cores} for required CPU cores.")
 
         if self.memory is not None and self.memory <= 0:
-            raise Exception("Invalid value {} for required memory.".format(self.memory))
+            raise Exception(f"Invalid value {self.memory} for required memory.")
 
     def __str__(self):
         s = ""
         if self.cpu_model:
-            s += " CPU='" + self.cpu_model + "'"
+            s += f" CPU='{self.cpu_model}'"
         if self.cpu_cores:
-            s += " Cores=" + str(self.cpu_cores)
+            s += f" Cores={self.cpu_cores}"
         if self.memory:
-            s += " Memory=" + str(self.memory / _BYTE_FACTOR / _BYTE_FACTOR) + " MB"
+            s += f" Memory={self.memory / _BYTE_FACTOR / _BYTE_FACTOR} MB"
 
-        return "Requirements:" + (s if s else " None")
+        return f"Requirements: {s or ' None'}"

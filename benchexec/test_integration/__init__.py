@@ -133,23 +133,23 @@ class BenchExecIntegrationTests(unittest.TestCase):
         if rundefs is None or len(rundefs) != 1:
             expected_files += ["results.txt"]
         else:
-            expected_files += ["results." + rundefs[0] + ".txt"]
+            expected_files += [f"results.{rundefs[0]}.txt"]
 
         if rundefs is None:
-            expected_files += ["results." + task + xml_suffix for task in tasks]
-            expected_files += ["results" + xml_suffix]
+            expected_files += [f"results.{task}{xml_suffix}" for task in tasks]
+            expected_files += [f"results{xml_suffix}"]
         else:
             expected_files += [
-                "results." + rundef + "." + task + xml_suffix
+                f"results.{rundef}.{task}{xml_suffix}"
                 for task in tasks
                 for rundef in rundefs
             ]
-            expected_files += ["results." + rundef + xml_suffix for rundef in rundefs]
+            expected_files += [f"results.{rundef}{xml_suffix}" for rundef in rundefs]
 
         if name is None:
-            basename = test_name + ".2015-01-01_00-00-00."
+            basename = f"{test_name}.2015-01-01_00-00-00."
         else:
-            basename = test_name + "." + name + ".2015-01-01_00-00-00."
+            basename = f"{test_name}.{name}.2015-01-01_00-00-00."
 
         expected_files = set(map(lambda x: basename + x, expected_files))
         self.assertSetEqual(
@@ -166,7 +166,7 @@ class BenchExecIntegrationTests(unittest.TestCase):
                 self.assertIsNone(log_zip.testzip(), "Logfiles zip archive is broken")
                 for file in log_zip.namelist():
                     self.assertTrue(
-                        file.startswith(basename + "logfiles" + os.sep),
+                        file.startswith(f"{basename}logfiles{os.sep}"),
                         "Unexpected file in logfiles zip: " + file,
                     )
 
@@ -336,7 +336,7 @@ class BenchExecIntegrationTests(unittest.TestCase):
         )
         basename = "benchmark-example-rand.2015-01-01_00-00-00."
         xml_files = ["results.xml"] + [
-            "results." + files + ".xml" for files in benchmark_test_tasks
+            f"results.{files}.xml" for files in benchmark_test_tasks
         ]
         xml_files = map(
             lambda x: os.path.join(self.output_dir, basename + x), xml_files

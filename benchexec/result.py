@@ -91,7 +91,7 @@ class ExpectedResult(collections.namedtuple("ExpectedResult", "result subpropert
     def __str__(self):
         result = {True: "true", False: "false"}.get(self.result, "")
         if result and self.subproperty:
-            return "{}({})".format(result, self.subproperty)
+            return f"{result}({self.subproperty})"
         return result
 
     @classmethod
@@ -100,7 +100,7 @@ class ExpectedResult(collections.namedtuple("ExpectedResult", "result subpropert
             return ExpectedResult(None, None)
         match = re.match(r"^(true|false)(\((.+)\))?$", s)
         if not match:
-            raise ValueError("Not a valid expected verdict: {}".format(s))
+            raise ValueError(f"Not a valid expected verdict: {s}")
         return ExpectedResult(match.group(1) == "true", match.group(3))
 
 
@@ -129,7 +129,7 @@ class Property(collections.namedtuple("Property", "filename is_svcomp name")):
         return (
             ("SV-COMP-" if self.is_svcomp else "")
             + "Property "
-            + (("from " + self.filename) if self.filename else self.name)
+            + (f"from {self.filename}" if self.filename else self.name)
         )
 
     def __str__(self):
@@ -266,7 +266,7 @@ def get_result_category(expected_results, result, properties):
     if expected_result.subproperty:
         is_valid_result = result in {
             RESULT_TRUE_PROP,
-            RESULT_FALSE_PROP + "(" + expected_result.subproperty + ")",
+            f"{RESULT_FALSE_PROP}({expected_result.subproperty})",
         }
     else:
         is_valid_result = (result == RESULT_TRUE_PROP) or result.startswith(
@@ -282,7 +282,7 @@ def get_result_category(expected_results, result, properties):
         if expected_result.subproperty:
             return (
                 CATEGORY_CORRECT
-                if result == RESULT_FALSE_PROP + "(" + expected_result.subproperty + ")"
+                if result == f"{RESULT_FALSE_PROP}({expected_result.subproperty})"
                 else CATEGORY_WRONG
             )
         else:

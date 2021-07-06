@@ -5,7 +5,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { isNil, getRawOrDefault, omit } from "./utils";
+import { isNil, getRawOrDefault, omit, isNumericColumn } from "./utils";
+/* Status that will be used to identify whether empty rows should be shown. Currently,
+   filtering for either categories or statuses creates filters for the other one as well.
+   Since empty rows don't have a status, they will be filtered out all the time.
+   To prevent this, this status placeholder will be used to indicate that empty rows
+   should pass the status filtering. */
+const statusForEmptyRows = "empty_row";
 
 /**
  * Prepares raw data for filtering by retrieving available distinct values as min
@@ -32,20 +38,20 @@ const getFilterableData = ({ tools, rows }) => {
       return { ...col, min: Infinity, max: -Infinity, idx };
     });
 
-    if (isNil(statusIdx)) {
-      return undefined;
+    if (!isNil(statusIdx)) {
+      columns[statusIdx] = {
+        ...columns[statusIdx],
+        categories: {},
+        statuses: {},
+      };
     }
-
-    columns[statusIdx] = {
-      ...columns[statusIdx],
-      categories: {},
-      statuses: {},
-    };
 
     for (const row of rows) {
       const result = row.results[idx];
       // convention as of writing this commit is to postfix categories with a space character
-      columns[statusIdx].categories[`${result.category} `] = true;
+      if (!isNil(statusIdx)) {
+        columns[statusIdx].categories[`${result.category} `] = true;
+      }
 
       for (const colIdx in result.values) {
         const col = result.values[colIdx];
@@ -141,7 +147,7 @@ const applyTextFilter = (filter, row, cell) => {
  * @param {Array<Object>} filters - List of filters
  */
 const buildMatcher = (filters) => {
-  const out = filters.reduce((acc, { id, value, values }) => {
+  const out = filters.reduce((acc, { id, value, type, values }) => {
     if (
       (isNil(value) && isNil(values)) ||
       (typeof value === "string" && value.trim() === "all")
@@ -152,7 +158,7 @@ const buildMatcher = (filters) => {
       acc.id = { value, values };
       return acc;
     }
-    const [tool, name, columnIdx] = id.split("_");
+    const [tool, , columnIdx] = id.split("_");
     if (value === "diff") {
       // this branch is noop as of now
       if (!acc.diff) {
@@ -165,7 +171,7 @@ const buildMatcher = (filters) => {
       acc[tool] = {};
     }
     let filter;
-    if (value.includes(":")) {
+    if (isNumericColumn({ type }) && value.includes(":")) {
       let [minV, maxV] = value.split(":");
       minV = minV === "" ? -Infinity : Number(minV);
       maxV = maxV === "" ? Infinity : Number(maxV);
@@ -173,7 +179,7 @@ const buildMatcher = (filters) => {
     } else {
       if (value[value.length - 1] === " ") {
         filter = { category: value.substr(0, value.length - 1) };
-      } else if (name === "status") {
+      } else if (type === "status") {
         filter = { status: value };
       } else {
         filter = { value };
@@ -261,8 +267,13 @@ const applyMatcher = (matcher) => (data) => {
               row.results[tool].category === category || categoryPass;
             columnPass = categoryPass && statusPass;
           } else if (!isNil(status)) {
+            const emptyRowPass =
+              row.results[tool].category === "empty" &&
+              status === statusForEmptyRows;
             statusPass =
-              row.results[tool].values[column].raw === status || statusPass;
+              row.results[tool].values[column].raw === status ||
+              statusPass ||
+              emptyRowPass;
             columnPass = categoryPass && statusPass;
           } else {
             const rawValue = row.results[tool].values[column].raw;
@@ -300,4 +311,5 @@ export {
   applyTextFilter,
   applyMatcher,
   buildMatcher,
+  statusForEmptyRows,
 };

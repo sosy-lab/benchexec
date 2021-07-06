@@ -20,10 +20,10 @@ const prepareTableData = ({ head, tools, rows, stats, props, initial }) => {
         ...column,
         colIdx: idx,
       })),
-      scoreBased: rows.some((row) => row.results[idx].score !== undefined),
+      scoreBased: rows.every((row) => row.results[idx].score !== undefined),
     })),
     columns: tools.map((tool) => tool.columns.map((column) => column.title)),
-    table: rows,
+    tableData: rows,
     stats: stats,
     properties: props,
     initial: initial,
@@ -924,6 +924,22 @@ const getStep = (num) => {
   return out;
 };
 
+/**
+ * Computes and returns all ids of the given columns that are hidden. Assumes that
+ * the columns object is in the format that is used in the ReactTable and Summary component.
+ */
+const getHiddenColIds = (columns) => {
+  const hiddenColIds = [];
+  // Idx 0 is the title column and every uneven idx is the separator column, so only check for hidden cols in every even column entry greater than 0
+  columns = columns.filter((col, idx) => idx % 2 === 0 && idx !== 0);
+  columns.forEach((col) =>
+    hiddenColIds.push(
+      col.columns.filter((column) => column.hidden).map((column) => column.id),
+    ),
+  );
+  return hiddenColIds.flat();
+};
+
 export {
   prepareTableData,
   getRawOrDefault,
@@ -958,4 +974,5 @@ export {
   makeUrlFilterSerializer,
   makeFilterSerializer,
   makeFilterDeserializer,
+  getHiddenColIds,
 };

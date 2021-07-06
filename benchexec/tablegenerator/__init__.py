@@ -480,7 +480,8 @@ class RunSetResult(object):
         run_results = _get_run_tags_from_xml(resultElem)
         if not run_results:
             logging.warning("Result file '%s' is empty.", resultFile)
-            return []
+            # completely empty results break stuff, add at least status column
+            return [MAIN_COLUMNS[0]]
         else:  # show all available columns
             column_names = {
                 c.get("title")
@@ -675,7 +676,7 @@ def insert_logfile_names(resultFile, resultElem):
         if "logfile" in sourcefile.attrib:
             log_file = urllib.parse.urljoin(resultFile, sourcefile.get("logfile"))
         else:
-            log_file = log_folder + os.path.basename(sourcefile.get("name")) + ".log"
+            log_file = f"{log_folder}{os.path.basename(sourcefile.get('name'))}.log"
         sourcefile.set("logfile", log_file)
 
 
@@ -1023,11 +1024,11 @@ def filter_rows_with_differences(rows):
         return []
 
     def get_index_of_column(name, cols):
-        assert cols, "Cannot look for column '{}' in empy column list".format(name)
+        assert cols, f"Cannot look for column '{name}' in empy column list"
         for i in range(0, len(cols)):
             if cols[i].title == name:
                 return i
-        assert False, "Column '{}' not found in columns '{}'".format(name, cols)
+        assert False, f"Column '{name}' not found in columns '{cols}'"
 
     def all_equal_result(listOfResults):
         relevant_columns = set()
@@ -1080,7 +1081,7 @@ def format_run_set_attributes_nicely(runSetResults):
                 else:
                     turbo = None
                 runSetResult.attributes["turbo"] = (
-                    ", Turbo Boost: {}".format(turbo) if turbo else ""
+                    f", Turbo Boost: {turbo}" if turbo else ""
                 )
 
             elif key == "timelimit":
@@ -1101,9 +1102,7 @@ def format_run_set_attributes_nicely(runSetResults):
                     if unit and unit != "B":
                         return value
                     try:
-                        return "{:.0f} MB".format(
-                            int(number) / _BYTE_FACTOR / _BYTE_FACTOR
-                        )
+                        return f"{int(number) / _BYTE_FACTOR / _BYTE_FACTOR:.0f} MB"
                     except ValueError:
                         return value
 
@@ -1116,7 +1115,7 @@ def format_run_set_attributes_nicely(runSetResults):
                     if unit and unit != "Hz":
                         return value
                     try:
-                        return "{:.0f} MHz".format(int(number) / 1000 / 1000)
+                        return f"{int(number) / 1000 / 1000:.0f} MHz"
                     except ValueError:
                         return value
 
@@ -1147,7 +1146,7 @@ def format_run_set_attributes_nicely(runSetResults):
         elif allBenchmarkNamesEqual:
             niceName = name
         else:
-            niceName = benchmarkName + "." + name
+            niceName = f"{benchmarkName}.{name}"
 
         runSetResult.attributes["niceName"] = niceName
 
@@ -1534,7 +1533,7 @@ def create_argument_parser():
         value = value.lstrip("#")
         if not value.startswith("/"):
             raise argparse.ArgumentTypeError(
-                "Invalid value '{}', needs to start with /".format(value)
+                f"Invalid value '{value}', needs to start with /"
             )
         return value
 
@@ -1597,9 +1596,7 @@ def main(args=None):
             if table_definition_lists_result_files(table_definition):
                 if options.tables:
                     arg_parser.error(
-                        "Invalid additional arguments '{}'.".format(
-                            " ".join(options.tables)
-                        )
+                        f"Invalid additional arguments '{' '.join(options.tables)}'."
                     )
 
                 runSetResults = load_results_from_table_definition(
@@ -1648,7 +1645,7 @@ def main(args=None):
                 timestamp = time.strftime(
                     benchexec.util.TIMESTAMP_FILENAME_FORMAT, time.localtime()
                 )
-                name = NAME_START + "." + timestamp
+                name = f"{NAME_START}.{timestamp}"
 
         if inputFiles and not outputPath:
             path = os.path.dirname(inputFiles[0])
@@ -1686,15 +1683,12 @@ def main(args=None):
     )
 
     if options.dump_counts:  # print some stats for Buildbot
-        print(
-            "REGRESSIONS {}".format(
-                get_regression_count(rows, options.ignoreFlappingTimeouts)
-            )
-        )
+        print("REGRESSIONS", get_regression_count(rows, options.ignoreFlappingTimeouts))
+
         countsList = get_counts(rows)
         print("STATS")
         for counts in countsList:
-            print(" ".join(str(e) for e in counts))
+            print(*counts)
 
     for f in futures:
         f.result()  # to get any exceptions that may have occurred

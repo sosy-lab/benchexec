@@ -127,7 +127,7 @@ def format_number(number, number_of_digits):
     """
     if number is None:
         return ""
-    return "%.{0}f".format(number_of_digits) % number
+    return f"{number:.{number_of_digits}f}"
 
 
 def parse_int_list(s):
@@ -145,7 +145,7 @@ def parse_int_list(s):
             start, end = item
             result.extend(range(int(start), int(end) + 1))
         else:
-            raise ValueError("invalid range: '{0}'".format(s))
+            raise ValueError(f"invalid range: '{s}'")
     return result
 
 
@@ -181,9 +181,7 @@ def parse_memory_value(s):
     elif unit == "TB":
         return number * _BYTE_FACTOR * _BYTE_FACTOR * _BYTE_FACTOR * _BYTE_FACTOR
     else:
-        raise ValueError(
-            "unknown unit: {} (allowed are B, kB, MB, GB, and TB)".format(unit)
-        )
+        raise ValueError(f"unknown unit: {unit} (allowed are B, kB, MB, GB, and TB)")
 
 
 def parse_timespan_value(s):
@@ -200,7 +198,7 @@ def parse_timespan_value(s):
     elif unit == "d":
         return number * 24 * 60 * 60
     else:
-        raise ValueError("unknown unit: {} (allowed are s, min, h, and d)".format(unit))
+        raise ValueError(f"unknown unit: {unit} (allowed are s, min, h, and d)")
 
 
 def parse_frequency_value(s):
@@ -217,9 +215,7 @@ def parse_frequency_value(s):
     elif unit == "GHz":
         return number * _FREQUENCY_FACTOR * _FREQUENCY_FACTOR * _FREQUENCY_FACTOR
     else:
-        raise ValueError(
-            "unknown unit: {} (allowed are Hz, kHz, MHz, and GHz)".format(unit)
-        )
+        raise ValueError(f"unknown unit: {unit} (allowed are Hz, kHz, MHz, and GHz)")
 
 
 def non_empty_str(s):
@@ -304,14 +300,12 @@ def find_executable(program, fallback=None, exitOnError=True, use_current_dir=Tr
     if exitOnError:
         if found_non_executable:
             sys.exit(  # noqa: R503 always raises
-                "Could not find '{0}' executable, "
-                "but found file '{1}' that is not executable.".format(
-                    program, found_non_executable[0]
-                )
+                f"Could not find '{program}' executable, "
+                f"but found file '{found_non_executable[0]}' that is not executable."
             )
         else:
             sys.exit(  # noqa: R503 always raises
-                "Could not find '{0}' executable.".format(program)
+                f"Could not find '{program}' executable."
             )
     else:
         return fallback
@@ -485,7 +479,7 @@ class ProcessExitCode(collections.namedtuple("ProcessExitCode", "raw value signa
     @classmethod
     def from_raw(cls, exitcode):
         if not (0 <= exitcode < 2 ** 16):
-            raise ValueError("invalid exitcode " + str(exitcode))
+            raise ValueError(f"invalid exitcode {exitcode}")
         # calculation is: exitcode == (returnvalue * 256) + exitsignal
         # highest bit of exitsignal shows only whether a core file was produced, we clear it
         exitsignal = exitcode & 0x7F
@@ -494,9 +488,9 @@ class ProcessExitCode(collections.namedtuple("ProcessExitCode", "raw value signa
             # signal 0 does not exist, this means there was no signal that killed the process
             exitsignal = None
         else:
-            assert returnvalue == 0, "returnvalue {}, although exitsignal is {}".format(
-                returnvalue, exitsignal
-            )
+            assert (
+                returnvalue == 0
+            ), f"returnvalue {returnvalue}, although exitsignal is {exitsignal}"
             returnvalue = None
         return cls(exitcode, returnvalue, exitsignal)
 
@@ -511,18 +505,18 @@ class ProcessExitCode(collections.namedtuple("ProcessExitCode", "raw value signa
         if value is not None and signal is not None:
             raise ValueError("Cannot create ProcessExitCode with both value and signal")
         if value is not None and not (0 <= value <= 255):
-            raise ValueError("Invalid value {} for return value".format(value))
+            raise ValueError(f"Invalid value {value} for return value")
         if signal is not None and not (1 <= signal <= 127):
-            raise ValueError("Invalid value {} for exit signal".format(value))
+            raise ValueError(f"Invalid value {value} for exit signal")
 
         exitcode = ((value or 0) * 256) + (signal or 0)
         return cls(exitcode, value, signal)
 
     def __str__(self):
         return (
-            ("exit signal " + str(self.signal))
+            f"exit signal {self.signal}"
             if self.signal
-            else ("return value " + str(self.value))
+            else f"return value {self.value}"
         )
 
     def __bool__(self):
@@ -686,9 +680,9 @@ def _debug_current_process(sig, current_frame):
     current_thread = threading.current_thread()
     for thread_id, frame in sys._current_frames().items():
         if current_thread.ident != thread_id:
-            message += "\nTraceback of thread {}:\n".format(threads[thread_id])
+            message += f"\nTraceback of thread {threads[thread_id]}:\n"
             message += "".join(traceback.format_stack(frame))
-    message += "\nTraceback of current thread {}:\n".format(current_thread)
+    message += f"\nTraceback of current thread {current_thread}:\n"
     message += "".join(traceback.format_stack(current_frame))
     i.interact(message)
 
@@ -740,8 +734,8 @@ def check_msr():
     if res["loaded"]:
         cpu_dirs = os.listdir("/dev/cpu")
         cpu_dirs.remove("microcode")
-        if all(os.access("/dev/cpu/{}/msr".format(cpu), os.R_OK) for cpu in cpu_dirs):
+        if all(os.access(f"/dev/cpu/{cpu}/msr", os.R_OK) for cpu in cpu_dirs):
             res["read"] = True
-        if all(os.access("/dev/cpu/{}/msr".format(cpu), os.W_OK) for cpu in cpu_dirs):
+        if all(os.access(f"/dev/cpu/{cpu}/msr", os.W_OK) for cpu in cpu_dirs):
             res["write"] = True
     return res
