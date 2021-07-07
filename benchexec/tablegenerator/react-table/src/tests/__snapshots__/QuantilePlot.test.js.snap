@@ -198,7 +198,7 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
       title="In addition to which results are selected here, any defined filters will still be applied."
      >
       <span
-       className="setting-label"
+       className="setting-label with-tooltip"
       >
        Results:
       </span>
@@ -475,7 +475,7 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
       title="In addition to which results are selected here, any defined filters will still be applied."
      >
       <span
-       className="setting-label"
+       className="setting-label with-tooltip"
       >
        Results:
       </span>
@@ -752,7 +752,7 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
       title="In addition to which results are selected here, any defined filters will still be applied."
      >
       <span
-       className="setting-label"
+       className="setting-label with-tooltip"
       >
        Results:
       </span>
@@ -3028,7 +3028,7 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
       title="In addition to which results are selected here, any defined filters will still be applied."
      >
       <span
-       className="setting-label"
+       className="setting-label with-tooltip"
       >
        Results:
       </span>
@@ -4912,7 +4912,7 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
       title="In addition to which results are selected here, any defined filters will still be applied."
      >
       <span
-       className="setting-label"
+       className="setting-label with-tooltip"
       >
        Results:
       </span>
@@ -9018,7 +9018,7 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
       title="In addition to which results are selected here, any defined filters will still be applied."
      >
       <span
-       className="setting-label"
+       className="setting-label with-tooltip"
       >
        Results:
       </span>
@@ -11584,7 +11584,7 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
       title="In addition to which results are selected here, any defined filters will still be applied."
      >
       <span
-       className="setting-label"
+       className="setting-label with-tooltip"
       >
        Results:
       </span>
@@ -14279,7 +14279,7 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
       title="In addition to which results are selected here, any defined filters will still be applied."
      >
       <span
-       className="setting-label"
+       className="setting-label with-tooltip"
       >
        Results:
       </span>
@@ -18619,7 +18619,7 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
       title="In addition to which results are selected here, any defined filters will still be applied."
      >
       <span
-       className="setting-label"
+       className="setting-label with-tooltip"
       >
        Results:
       </span>
@@ -20174,7 +20174,7 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
       title="In addition to which results are selected here, any defined filters will still be applied."
      >
       <span
-       className="setting-label"
+       className="setting-label with-tooltip"
       >
        Results:
       </span>
@@ -22146,7 +22146,7 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
       title="In addition to which results are selected here, any defined filters will still be applied."
      >
       <span
-       className="setting-label"
+       className="setting-label with-tooltip"
       >
        Results:
       </span>
@@ -24368,7 +24368,7 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
       title="In addition to which results are selected here, any defined filters will still be applied."
      >
       <span
-       className="setting-label"
+       className="setting-label with-tooltip"
       >
        Results:
       </span>
@@ -26198,7 +26198,7 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
       title="In addition to which results are selected here, any defined filters will still be applied."
      >
       <span
-       className="setting-label"
+       className="setting-label with-tooltip"
       >
        Results:
       </span>
@@ -28806,7 +28806,7 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
       title="In addition to which results are selected here, any defined filters will still be applied."
      >
       <span
-       className="setting-label"
+       className="setting-label with-tooltip"
       >
        Results:
       </span>
@@ -31170,7 +31170,7 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
       title="In addition to which results are selected here, any defined filters will still be applied."
      >
       <span
-       className="setting-label"
+       className="setting-label with-tooltip"
       >
        Results:
       </span>
@@ -31447,7 +31447,7 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
       title="In addition to which results are selected here, any defined filters will still be applied."
      >
       <span
-       className="setting-label"
+       className="setting-label with-tooltip"
       >
        Results:
       </span>
@@ -31724,7 +31724,7 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
       title="In addition to which results are selected here, any defined filters will still be applied."
      >
       <span
-       className="setting-label"
+       className="setting-label with-tooltip"
       >
        Results:
       </span>
@@ -34000,7 +34000,7 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
       title="In addition to which results are selected here, any defined filters will still be applied."
      >
       <span
-       className="setting-label"
+       className="setting-label with-tooltip"
       >
        Results:
       </span>
@@ -35884,7 +35884,7 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
       title="In addition to which results are selected here, any defined filters will still be applied."
      >
       <span
-       className="setting-label"
+       className="setting-label with-tooltip"
       >
        Results:
       </span>
@@ -39990,7 +39990,7 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
       title="In addition to which results are selected here, any defined filters will still be applied."
      >
       <span
-       className="setting-label"
+       className="setting-label with-tooltip"
       >
        Results:
       </span>
@@ -42556,7 +42556,7 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
       title="In addition to which results are selected here, any defined filters will still be applied."
      >
       <span
-       className="setting-label"
+       className="setting-label with-tooltip"
       >
        Results:
       </span>
@@ -45251,7 +45251,7 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
       title="In addition to which results are selected here, any defined filters will still be applied."
      >
       <span
-       className="setting-label"
+       className="setting-label with-tooltip"
       >
        Results:
       </span>
@@ -49591,7 +49591,7 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
       title="In addition to which results are selected here, any defined filters will still be applied."
      >
       <span
-       className="setting-label"
+       className="setting-label with-tooltip"
       >
        Results:
       </span>
@@ -51146,7 +51146,7 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
       title="In addition to which results are selected here, any defined filters will still be applied."
      >
       <span
-       className="setting-label"
+       className="setting-label with-tooltip"
       >
        Results:
       </span>
@@ -53118,7 +53118,7 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
       title="In addition to which results are selected here, any defined filters will still be applied."
      >
       <span
-       className="setting-label"
+       className="setting-label with-tooltip"
       >
        Results:
       </span>
@@ -55340,7 +55340,7 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
       title="In addition to which results are selected here, any defined filters will still be applied."
      >
       <span
-       className="setting-label"
+       className="setting-label with-tooltip"
       >
        Results:
       </span>
@@ -57170,7 +57170,7 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
       title="In addition to which results are selected here, any defined filters will still be applied."
      >
       <span
-       className="setting-label"
+       className="setting-label with-tooltip"
       >
        Results:
       </span>
@@ -59778,7 +59778,7 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
       title="In addition to which results are selected here, any defined filters will still be applied."
      >
       <span
-       className="setting-label"
+       className="setting-label with-tooltip"
       >
        Results:
       </span>
@@ -62108,7 +62108,7 @@ exports[`Quantile Plot tests for file rows-with-scores.html Direct Plot should m
       title="Score-based Quantile Plots always show correct results offset by the score of wrong results. Any defined filters will still be applied."
      >
       <span
-       className="setting-label"
+       className="setting-label with-tooltip"
       >
        Results:
       </span>
@@ -63632,7 +63632,7 @@ exports[`Quantile Plot tests for file rows-with-scores.html Direct Plot should m
       title="Score-based Quantile Plots always show correct results offset by the score of wrong results. Any defined filters will still be applied."
      >
       <span
-       className="setting-label"
+       className="setting-label with-tooltip"
       >
        Results:
       </span>
@@ -65156,7 +65156,7 @@ exports[`Quantile Plot tests for file rows-with-scores.html Direct Plot should m
       title="Score-based Quantile Plots always show correct results offset by the score of wrong results. Any defined filters will still be applied."
      >
       <span
-       className="setting-label"
+       className="setting-label with-tooltip"
       >
        Results:
       </span>
@@ -66680,7 +66680,7 @@ exports[`Quantile Plot tests for file rows-with-scores.html Direct Plot should m
       title="Score-based Quantile Plots always show correct results offset by the score of wrong results. Any defined filters will still be applied."
      >
       <span
-       className="setting-label"
+       className="setting-label with-tooltip"
       >
        Results:
       </span>
@@ -68204,7 +68204,7 @@ exports[`Quantile Plot tests for file rows-with-scores.html Direct Plot should m
       title="Score-based Quantile Plots always show correct results offset by the score of wrong results. Any defined filters will still be applied."
      >
       <span
-       className="setting-label"
+       className="setting-label with-tooltip"
       >
        Results:
       </span>
@@ -69728,7 +69728,7 @@ exports[`Quantile Plot tests for file rows-with-scores.html Direct Plot should m
       title="Score-based Quantile Plots always show correct results offset by the score of wrong results. Any defined filters will still be applied."
      >
       <span
-       className="setting-label"
+       className="setting-label with-tooltip"
       >
        Results:
       </span>
@@ -71252,7 +71252,7 @@ exports[`Quantile Plot tests for file rows-with-scores.html Direct Plot should m
       title="Score-based Quantile Plots always show correct results offset by the score of wrong results. Any defined filters will still be applied."
      >
       <span
-       className="setting-label"
+       className="setting-label with-tooltip"
       >
        Results:
       </span>
@@ -72560,7 +72560,7 @@ exports[`Quantile Plot tests for file rows-with-scores.html Direct Plot should m
       title="Score-based Quantile Plots always show correct results offset by the score of wrong results. Any defined filters will still be applied."
      >
       <span
-       className="setting-label"
+       className="setting-label with-tooltip"
       >
        Results:
       </span>
@@ -73868,7 +73868,7 @@ exports[`Quantile Plot tests for file rows-with-scores.html Quantile Plot should
       title="Score-based Quantile Plots always show correct results offset by the score of wrong results. Any defined filters will still be applied."
      >
       <span
-       className="setting-label"
+       className="setting-label with-tooltip"
       >
        Results:
       </span>
@@ -75392,7 +75392,7 @@ exports[`Quantile Plot tests for file rows-with-scores.html Quantile Plot should
       title="Score-based Quantile Plots always show correct results offset by the score of wrong results. Any defined filters will still be applied."
      >
       <span
-       className="setting-label"
+       className="setting-label with-tooltip"
       >
        Results:
       </span>
@@ -76916,7 +76916,7 @@ exports[`Quantile Plot tests for file rows-with-scores.html Quantile Plot should
       title="Score-based Quantile Plots always show correct results offset by the score of wrong results. Any defined filters will still be applied."
      >
       <span
-       className="setting-label"
+       className="setting-label with-tooltip"
       >
        Results:
       </span>
@@ -78440,7 +78440,7 @@ exports[`Quantile Plot tests for file rows-with-scores.html Quantile Plot should
       title="Score-based Quantile Plots always show correct results offset by the score of wrong results. Any defined filters will still be applied."
      >
       <span
-       className="setting-label"
+       className="setting-label with-tooltip"
       >
        Results:
       </span>
@@ -79964,7 +79964,7 @@ exports[`Quantile Plot tests for file rows-with-scores.html Quantile Plot should
       title="Score-based Quantile Plots always show correct results offset by the score of wrong results. Any defined filters will still be applied."
      >
       <span
-       className="setting-label"
+       className="setting-label with-tooltip"
       >
        Results:
       </span>
@@ -81488,7 +81488,7 @@ exports[`Quantile Plot tests for file rows-with-scores.html Quantile Plot should
       title="Score-based Quantile Plots always show correct results offset by the score of wrong results. Any defined filters will still be applied."
      >
       <span
-       className="setting-label"
+       className="setting-label with-tooltip"
       >
        Results:
       </span>
@@ -83012,7 +83012,7 @@ exports[`Quantile Plot tests for file rows-with-scores.html Quantile Plot should
       title="Score-based Quantile Plots always show correct results offset by the score of wrong results. Any defined filters will still be applied."
      >
       <span
-       className="setting-label"
+       className="setting-label with-tooltip"
       >
        Results:
       </span>
@@ -84320,7 +84320,7 @@ exports[`Quantile Plot tests for file rows-with-scores.html Quantile Plot should
       title="Score-based Quantile Plots always show correct results offset by the score of wrong results. Any defined filters will still be applied."
      >
       <span
-       className="setting-label"
+       className="setting-label with-tooltip"
       >
        Results:
       </span>
@@ -85628,7 +85628,7 @@ exports[`Quantile Plot tests for file rows-with-scores.html Score-based Quantile
       title="Score-based Quantile Plots always show correct results offset by the score of wrong results. Any defined filters will still be applied."
      >
       <span
-       className="setting-label"
+       className="setting-label with-tooltip"
       >
        Results:
       </span>
@@ -87152,7 +87152,7 @@ exports[`Quantile Plot tests for file rows-with-scores.html Score-based Quantile
       title="Score-based Quantile Plots always show correct results offset by the score of wrong results. Any defined filters will still be applied."
      >
       <span
-       className="setting-label"
+       className="setting-label with-tooltip"
       >
        Results:
       </span>
