@@ -247,9 +247,12 @@ export default class ScatterPlot extends React.Component {
         new Set(regression.points.map(JSON.stringify)),
         JSON.parse,
       ).concat(endPoints);
+
+      const unitX = this.props.tools[this.state.toolX].columns[this.state.columnX].unit;
+      const unitY = this.props.tools[this.state.toolY].columns[this.state.columnY].unit;
       const helpText = `Estimation technique: ordinary least squares (OLS)
-      Predictor variable (X-Axis): ${this.state.nameX}
-      Response variable (Y-Axis): ${this.state.nameY}
+      Predictor variable (X-Axis) in ${unitX}: ${this.state.nameX}
+      Response variable (Y-Axis) in ${unitY}: ${this.state.nameY}
       Regression coefficient: ${regression.equation[0]}
       Intercept: ${regression.equation[1]}
       Equation: ${regression.string}
