@@ -210,8 +210,8 @@ export default class ScatterPlot extends React.Component {
             this.hasInvalidLog = true;
           } else {
             array.push({
-              x: parseInt(x),
-              y: parseInt(y),
+              x: x,
+              y: y,
               info: this.props.getRowName(row),
             });
           }
@@ -230,11 +230,13 @@ export default class ScatterPlot extends React.Component {
       if (!areSelectionsNumerical) {
         setParam({ regression: regressionOptions.none });
       } else {
-        const regression = calcRegression.linear(
-          array.map((data) => [data.x, data.y]),
-        );
+        const regressionDataArray = array.map((data) => [
+          parseFloat(data.x),
+          parseFloat(data.y),
+        ]);
+        const regression = calcRegression.linear(regressionDataArray);
         const confidenceIntervalBorders = getConfidenceIntervalBorders(
-          this.dataArray.map((data) => [data.x, data.y]),
+          regressionDataArray,
           regression.points,
           regression.predict,
           this.minX,
@@ -386,11 +388,14 @@ export default class ScatterPlot extends React.Component {
   }
 
   renderRegressionAndConfidenceIntervals() {
-    const dataPointsOfRegression = Array(this.maxX)
+    const minX = Math.floor(this.minX);
+    const maxX = Math.ceil(this.maxX);
+    const dataPointsOfRegression = Array(maxX)
       .fill()
       .map((x, index) => index)
-      .filter((int) => int >= this.minX)
+      .filter((int) => int >= minX)
       .map((number) => this.regressionData.regression.predict(number));
+
     return [
       this.renderConfidenceIntervalLine(
         this.regressionData.upperConfidenceBorderData,

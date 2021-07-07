@@ -121,7 +121,8 @@ function getConfidenceIntervalBorders(
   const getXValue = (data) => data[0];
   const getYValue = (data) => data[1];
   const sum = (x, y) => x + y;
-
+  minX = Math.floor(minX);
+  maxX = Math.ceil(maxX);
   // Value of the t-statistic for a 95% confidence interval
   const tValue = 1.96;
   const stdErr = Math.sqrt(
