@@ -175,6 +175,10 @@ export default class ScatterPlot extends React.Component {
     this.setState(this.setup());
   };
 
+  checkForNumericalSelections = () =>
+    this.handleType(this.state.toolY, this.state.columnY) !== "ordinal" &&
+    this.handleType(this.state.toolX, this.state.columnX) !== "ordinal";
+
   // --------------------rendering-----------------------------
   renderData = () => {
     let array = [];
@@ -219,50 +223,58 @@ export default class ScatterPlot extends React.Component {
     this.lineCount = array.length;
     this.dataArray = array;
 
-    const areSelectionsNumeric =
-      this.handleType(this.state.toolY, this.state.columnY) !== "ordinal" &&
-      this.handleType(this.state.toolX, this.state.columnX) !== "ordinal";
-    if (
-      this.state.regression !== regressionOptions.hidden &&
-      areSelectionsNumeric
-    ) {
-      const regression = calcRegression.linear(
-        array.map((data) => [data.x, data.y]),
-      );
-      const confidenceIntervalBorders = getConfidenceIntervalBorders(
-        this.dataArray.map((data) => [data.x, data.y]),
-        regression.points,
-        regression.predict,
-        this.minX,
-        this.maxX,
-      );
-      /* Due to points with same x but different y value, there may be many duplicates in the regression data. Those can be used for
-         easier calculation for the 95% Confidence Intervals, but aren't necessary afterwards since they'll only be used to draw the line.
-         To have a line from the start to the end of the coordinate system, the points at the borders are added here too. */
-      const endPoints = [
-        [this.minX, regression.predict(this.minX)[1]],
-        [this.maxX, regression.predict(this.maxX)[1]],
-      ];
-      regression.points = Array.from(
-        new Set(regression.points.map(JSON.stringify)),
-        JSON.parse,
-      ).concat(endPoints);
+    const isRegressionEnabled =
+      this.state.regression !== regressionOptions.hidden;
+    const areSelectionsNumerical = this.checkForNumericalSelections();
+    if (isRegressionEnabled) {
+      if (!areSelectionsNumerical) {
+        setParam({ regression: regressionOptions.hidden });
+      } else {
+        const regression = calcRegression.linear(
+          array.map((data) => [data.x, data.y]),
+        );
+        const confidenceIntervalBorders = getConfidenceIntervalBorders(
+          this.dataArray.map((data) => [data.x, data.y]),
+          regression.points,
+          regression.predict,
+          this.minX,
+          this.maxX,
+        );
+        /* Due to points with same x but different y value, there may be many duplicates in the regression data. Those can be used for
+           easier calculation for the 95% Confidence Intervals, but aren't necessary afterwards since they'll only be used to draw the line.
+           To have a line from the start to the end of the coordinate system, the points at the borders are added here too. */
+        const endPoints = [
+          [this.minX, regression.predict(this.minX)[1]],
+          [this.maxX, regression.predict(this.maxX)[1]],
+        ];
+        regression.points = Array.from(
+          new Set(regression.points.map(JSON.stringify)),
+          JSON.parse,
+        ).concat(endPoints);
 
-      const unitX = this.props.tools[this.state.toolX].columns[this.state.columnX].unit;
-      const unitY = this.props.tools[this.state.toolY].columns[this.state.columnY].unit;
-      const helpText = `Estimation technique: ordinary least squares (OLS)
-      Predictor variable (X-Axis) in ${unitX}: ${this.state.nameX}
-      Response variable (Y-Axis) in ${unitY}: ${this.state.nameY}
-      Regression coefficient: ${regression.equation[0]}
-      Intercept: ${regression.equation[1]}
-      Equation: ${regression.string}
-      Coefficient of Determination: ${regression.r2}`.replace(/^ +/gm, "");
-      this.regressionData = {
-        regression,
-        text: helpText,
-        upperConfidenceBorderData: confidenceIntervalBorders.upperBorderData,
-        lowerConfidenceBorderData: confidenceIntervalBorders.lowerBorderData,
-      };
+        const unitX = this.props.tools[this.state.toolX].columns[
+          this.state.columnX
+        ].unit;
+        const unitY = this.props.tools[this.state.toolY].columns[
+          this.state.columnY
+        ].unit;
+        const helpText = `Estimation technique: ordinary least squares (OLS)
+                          Predictor variable (X-Axis) in ${unitX}: ${this.state.nameX}
+                          Response variable (Y-Axis) in ${unitY}: ${this.state.nameY}
+                          Regression coefficient: ${regression.equation[0]}
+                          Intercept: ${regression.equation[1]}
+                          Equation: ${regression.string}
+                          Coefficient of Determination: ${regression.r2}`.replace(
+          /^ +/gm,
+          "",
+        );
+        this.regressionData = {
+          regression,
+          text: helpText,
+          upperConfidenceBorderData: confidenceIntervalBorders.upperBorderData,
+          lowerConfidenceBorderData: confidenceIntervalBorders.lowerBorderData,
+        };
+      }
     }
   };
 
@@ -352,7 +364,15 @@ export default class ScatterPlot extends React.Component {
             {renderSetting(
               "Regression",
               this.state.regression,
-              (ev) => setParam({ regression: ev.target.value }),
+              (ev) => {
+                if (this.checkForNumericalSelections()) {
+                  setParam({ regression: ev.target.value });
+                } else {
+                  alert(
+                    "Regressions are only available for numerical selections.",
+                  );
+                }
+              },
               regressionOptions,
               this.state.regression !== regressionOptions.hidden &&
                 this.regressionData
@@ -609,6 +629,7 @@ export default class ScatterPlot extends React.Component {
             }
           />
           {this.state.regression !== regressionOptions.hidden &&
+            this.checkForNumericalSelections() &&
             this.regressionData &&
             this.renderRegressionAndConfidenceIntervals()}
           {this.state.value ? <Hint value={this.state.value} /> : null}
