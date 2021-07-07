@@ -74,7 +74,7 @@ The respective mode can be specified with the command-line parameters
 `--hidden-dir`, `--read-only-dir`, `--overlay-dir`, and `--full-access-dir`.
 Directory modes are applied recursively,
 i.e., for all subdirectories which do not have a mode specified explicitly.
-For the overlay mode, please note the [INSTALL.md#kernel-requirements](system requirements).
+For the overlay mode, please note the [system requirements](INSTALL.md#kernel-requirements).
 
 The default configuration is `--overlay-dir / --hidden-dir /run --hidden-dir /tmp`,
 i.e., to mount an overlay filesystem over all directories except for `/run` and `/tmp`,
@@ -181,9 +181,9 @@ and the result files are placed in a directory besides the result XML file.
 Note that for investigating container-related problems, it can be easier to start an interactive shell
 in a container with `containerexec` than using `benchexec` or `runexec`.
 
-#### `Cannot execute ...: Unprivileged user namespaces forbidden on this system, please enable them with 'sysctl kernel.unprivileged_userns_clone=1' or disable container mode.`
+#### `Cannot execute ...: Unprivileged user namespaces forbidden on this system...`
 Unprivileged user namespaces are forbidden on your system
-(this is the default on Debian and Arch Linux).
+(this is the default on some distributions like Debian, Arch Linux, and CentOS).
 Please check the [system requirements](INSTALL.md#kernel-requirements)
 how to enable them.
 
@@ -203,9 +203,10 @@ You can use a different access mode for directories, e.g., with `--read-only-dir
 If some directories need to be writable, specify other directory modes for these directories as described above.
 
 #### `Failed to configure container: [Errno 1] Creating overlay mount for '...' failed: Operation not permitted`
-Your kernel does not allow mounting the overlay filesystem inside a container
-(this is only possible on Ubuntu).
-You can use a different access mode for directories, e.g., with `--read-only-dir /`.
+Your kernel does not allow mounting the overlay filesystem inside a container.
+For this you need either Ubuntu or kernel version 5.11 or newer.
+Alternatively, if you cannot use either,
+you can use a different access mode for directories, e.g., with `--read-only-dir /`.
 If some directories need to be writable, specify other directory modes for these directories as described above.
 
 #### `Cannot change into working directory inside container: [Errno 2] No such file or directory`

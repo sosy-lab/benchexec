@@ -5,41 +5,33 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import benchexec.util as util
 import benchexec.tools.template
 import benchexec.result as result
 
 
-class Tool(benchexec.tools.template.BaseTool):
+class Tool(benchexec.tools.template.BaseTool2):
     """
     Tool info for Dartagnan (https://github.com/hernanponcedeleon/Dat3M).
     """
 
-    REQUIRED_PATHS = [
-        "svcomp/target",
-        "dartagnan/target",
-        "cat",
-        "lib",
-        "smack",
-        "output",
-    ]
-
-    def executable(self):
-        return util.find_executable("./Dartagnan-SVCOMP.sh")
+    def executable(self, tool_locator):
+        return tool_locator.find_executable("Dartagnan-SVCOMP.sh")
 
     def name(self):
         return "Dartagnan"
 
-    def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
-        return [executable] + options + tasks
+    def cmdline(self, executable, options, task, rlimits):
+        if task.property_file:
+            options += [task.property_file]
+        return [executable] + options + list(task.input_files_or_identifier)
 
     def version(self, executable):
         return self._version_from_tool(executable)
 
-    def determine_result(self, returncode, returnsignal, output, isTimeout):
+    def determine_result(self, run):
         status = result.RESULT_ERROR
-        if output:
-            result_str = output[-1].strip()
+        if run.output:
+            result_str = run.output[-1].strip()
             if "FAIL" in result_str:
                 status = result.RESULT_FALSE_REACH
             elif "PASS" in result_str:

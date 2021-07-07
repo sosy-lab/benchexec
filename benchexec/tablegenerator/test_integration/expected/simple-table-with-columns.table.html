@@ -118,6 +118,7 @@
    "name": "Tool"
   }
  },
+ "initial": null,
  "rows": [
   {
    "href": "../results/test/programs/simple/bitvectors/implicitunsignedconversion_false-unreach-label.i",
@@ -322,6 +323,178 @@
    "description": "(This line contains some statistics from local execution. Only trust those values, if you use your own computer.)",
    "id": null,
    "title": "local summary"
+  },
+  {
+   "content": [
+    [
+     {
+      "sum": 3
+     },
+     null,
+     null,
+     {
+      "avg": "2.16",
+      "max": "2.23",
+      "median": "2.19",
+      "min": "2.06",
+      "stdev": "0.0730",
+      "sum": "6.48"
+     },
+     {
+      "avg": "1.58",
+      "max": "1.67",
+      "median": "1.59",
+      "min": "1.49",
+      "stdev": "0.0703",
+      "sum": "4.75"
+     },
+     null
+    ]
+   ],
+   "description": "(property holds + result is true) OR (property does not hold + result is false)",
+   "id": null,
+   "title": "&nbsp;&nbsp;&nbsp;&nbsp;correct results"
+  },
+  {
+   "content": [
+    [
+     {
+      "sum": 2
+     },
+     null,
+     null,
+     {
+      "avg": "2.14",
+      "max": "2.23",
+      "median": "2.14",
+      "min": "2.06",
+      "stdev": "0.0854",
+      "sum": "4.29"
+     },
+     {
+      "avg": "1.58",
+      "max": "1.67",
+      "median": "1.58",
+      "min": "1.49",
+      "stdev": "0.0860",
+      "sum": "3.16"
+     },
+     null
+    ]
+   ],
+   "description": "property holds + result is true",
+   "id": null,
+   "title": "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;correct true"
+  },
+  {
+   "content": [
+    [
+     {
+      "sum": 1
+     },
+     null,
+     null,
+     {
+      "avg": "2.19",
+      "max": "2.19",
+      "median": "2.19",
+      "min": "2.19",
+      "stdev": "0.000",
+      "sum": "2.19"
+     },
+     {
+      "avg": "1.59",
+      "max": "1.59",
+      "median": "1.59",
+      "min": "1.59",
+      "stdev": "0.000",
+      "sum": "1.59"
+     },
+     null
+    ]
+   ],
+   "description": "property does not hold + result is false",
+   "id": null,
+   "title": "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;correct false"
+  },
+  {
+   "content": [
+    [
+     {
+      "sum": 1
+     },
+     null,
+     null,
+     {
+      "avg": "2.17",
+      "max": "2.17",
+      "median": "2.17",
+      "min": "2.17",
+      "stdev": "0.000",
+      "sum": "2.17"
+     },
+     {
+      "avg": "1.62",
+      "max": "1.62",
+      "median": "1.62",
+      "min": "1.62",
+      "stdev": "0.000",
+      "sum": "1.62"
+     },
+     null
+    ]
+   ],
+   "description": "(property holds + result is false) OR (property does not hold + result is true)",
+   "id": null,
+   "title": "&nbsp;&nbsp;&nbsp;&nbsp;incorrect results"
+  },
+  {
+   "content": [
+    [
+     {
+      "sum": 1
+     },
+     null,
+     null,
+     {
+      "avg": "2.17",
+      "max": "2.17",
+      "median": "2.17",
+      "min": "2.17",
+      "stdev": "0.000",
+      "sum": "2.17"
+     },
+     {
+      "avg": "1.62",
+      "max": "1.62",
+      "median": "1.62",
+      "min": "1.62",
+      "stdev": "0.000",
+      "sum": "1.62"
+     },
+     null
+    ]
+   ],
+   "description": "property does not hold + result is true",
+   "id": null,
+   "title": "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;incorrect true"
+  },
+  {
+   "content": [
+    [
+     {
+      "sum": 0
+     },
+     null,
+     null,
+     null,
+     null,
+     null
+    ]
+   ],
+   "description": "property holds + result is false",
+   "id": null,
+   "title": "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;incorrect false"
   }
  ],
  "tools": [
@@ -332,7 +505,6 @@
      "display_title": "status",
      "max_width": 12,
      "relevant_for_diff": false,
-     "scale_factor": 1,
      "title": "status",
      "type": "status"
     },
@@ -340,7 +512,6 @@
      "display_title": "category",
      "max_width": 8,
      "relevant_for_diff": false,
-     "scale_factor": 1,
      "title": "category",
      "type": "text"
     },
@@ -348,7 +519,6 @@
      "display_title": "score",
      "max_width": 5,
      "relevant_for_diff": false,
-     "scale_factor": 1,
      "title": "score",
      "type": "text"
     },
@@ -357,8 +527,6 @@
      "max_width": 8,
      "number_of_significant_digits": 3,
      "relevant_for_diff": false,
-     "scale_factor": 1,
-     "source_unit": "s",
      "title": "cputime",
      "type": "measure",
      "unit": "s"
@@ -369,8 +537,6 @@
      "number_of_significant_digits": 3,
      "pattern": "Time for analysis setup",
      "relevant_for_diff": false,
-     "scale_factor": 1,
-     "source_unit": "s",
      "title": "setup",
      "type": "measure",
      "unit": "s"
@@ -380,7 +546,6 @@
      "max_width": 12,
      "pattern": "Pattern that does not match",
      "relevant_for_diff": false,
-     "scale_factor": 1,
      "title": "non-existent",
      "type": "text"
     }

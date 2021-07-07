@@ -5,27 +5,29 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import benchexec.util as util
+from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, LP64
 import benchexec.tools.template
 import benchexec.result as result
 
 
-class Tool(benchexec.tools.template.BaseTool):
+class Tool(benchexec.tools.template.BaseTool2):
     """
     Tool info for BRICK
     https://github.com/brick-tool-dev/brick-tool
     """
 
-    REQUIRED_PATHS = ["bin", "lib"]
-
-    def executable(self):
-        return util.find_executable("bin/brick")
+    def executable(self, tool_locator):
+        return tool_locator.find_executable("brick", subdir="bin")
 
     def name(self):
         return "BRICK"
 
-    def cmdline(self, executable, options, tasks, propertyfile, rlimits):
-        return [executable] + options + tasks
+    def cmdline(self, executable, options, task, rlimits):
+        data_model_param = get_data_model_from_task(task, {ILP32: "--32", LP64: "--64"})
+        if data_model_param and data_model_param not in options:
+            options += [data_model_param]
+
+        return [executable] + options + list(task.input_files_or_identifier)
 
     def version(self, executable):
         return self._version_from_tool(executable, arg="--version")
@@ -36,20 +38,17 @@ class Tool(benchexec.tools.template.BaseTool):
             executable, paths, parent_dir=True
         )
 
-    def determine_result(self, returncode, returnsignal, output, isTimeout):
+    def determine_result(self, run):
         status = result.RESULT_ERROR
 
-        for line in output:
-            if line == "VERIFICATION SUCCESSFUL\n":
+        for line in run.output:
+            if line == "VERIFICATION SUCCESSFUL":
                 status = result.RESULT_TRUE_PROP
                 break
-            elif line == "VERIFICATION FAILED\n":
+            elif line == "VERIFICATION FAILED":
                 status = result.RESULT_FALSE_REACH
                 break
-            elif (
-                line == "VERIFICATION UNKNOWN\n"
-                or line == "VERIFICATION BOUNDED TRUE\n"
-            ):
+            elif line == "VERIFICATION UNKNOWN" or line == "VERIFICATION BOUNDED TRUE":
                 status = result.RESULT_UNKNOWN
                 break
 

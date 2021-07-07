@@ -45,7 +45,7 @@ class Tool(benchexec.tools.template.BaseTool):
 
         if returnsignal == 0 and ((returncode == 0) or (returncode == 10)):
             try:
-                tree = ElementTree.fromstringlist(map(sanitizeXML, output))
+                tree = ElementTree.fromstringlist(list(map(sanitizeXML, output)))
                 status = tree.findtext("cprover-status")
 
                 if status is None:
@@ -60,7 +60,7 @@ class Tool(benchexec.tools.template.BaseTool):
                         if msg == "Out of memory":
                             status = "OUT OF MEMORY"
                         elif msg:
-                            status = "ERROR ({0})".format(msg)
+                            status = f"ERROR ({msg})"
                         else:
                             status = "ERROR"
                     else:

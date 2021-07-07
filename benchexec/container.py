@@ -47,7 +47,7 @@ __all__ = [
 
 
 DEFAULT_STACK_SIZE = 1024 * 1024
-GUARD_PAGE_SIZE = libc.sysconf(libc.SC_PAGESIZE)  # size of guard page at end of stack
+PAGE_SIZE = os.sysconf("SC_PAGESIZE")
 
 CONTAINER_UID = 1000
 CONTAINER_GID = 1000
@@ -69,31 +69,25 @@ rpc:            db files
 netgroup:       files
 automount:      files
 """
-CONTAINER_ETC_PASSWD = """
+CONTAINER_ETC_PASSWD = f"""
 root:x:0:0:root:/root:/bin/bash
-benchexec:x:{uid}:{gid}:benchexec:{home}:/bin/bash
+benchexec:x:{CONTAINER_UID}:{CONTAINER_GID}:benchexec:{CONTAINER_HOME}:/bin/bash
 nobody:x:65534:65534:nobody:/:/bin/false
-""".format(
-    uid=CONTAINER_UID, gid=CONTAINER_GID, home=CONTAINER_HOME
-)
+"""
 
-CONTAINER_ETC_GROUP = """
+CONTAINER_ETC_GROUP = f"""
 root:x:0:
-benchexec:x:{gid}:
+benchexec:x:{CONTAINER_GID}:
 nogroup:x:65534:
-""".format(
-    gid=CONTAINER_GID
-)
+"""
 
-CONTAINER_ETC_HOSTS = """
-127.0.0.1       localhost {host}
+CONTAINER_ETC_HOSTS = f"""
+127.0.0.1       localhost {CONTAINER_HOSTNAME}
 # The following lines are desirable for IPv6 capable hosts
 ::1     localhost ip6-localhost ip6-loopback
 ff02::1 ip6-allnodes
 ff02::2 ip6-allrouters
-""".format(
-    host=CONTAINER_HOSTNAME
-)
+"""
 
 CONTAINER_ETC_FILE_OVERRIDE = {
     b"nsswitch.conf": CONTAINER_ETC_NSSWITCH_CONF,
@@ -137,19 +131,19 @@ def allocate_stack(size=DEFAULT_STACK_SIZE):
     # Allocate memory with appropriate flags for a stack as in
     # https://blog.fefe.de/?ts=a85c8ba7
     base = libc.mmap_anonymous(
-        size + GUARD_PAGE_SIZE,
+        size + PAGE_SIZE,  # allocate one page more for a guard page
         libc.PROT_READ | libc.PROT_WRITE,
         libc.MAP_GROWSDOWN | libc.MAP_STACK,
     )
 
     try:
-        # create a guard page that crashes the application when it is written to
+        # configure guard page that crashes the application when it is written to
         # (on stack overflow)
-        libc.mprotect(base, GUARD_PAGE_SIZE, libc.PROT_NONE)
+        libc.mprotect(base, PAGE_SIZE, libc.PROT_NONE)
 
-        yield ctypes.c_void_p(base + size + GUARD_PAGE_SIZE)
+        yield ctypes.c_void_p(base + size + PAGE_SIZE)
     finally:
-        libc.munmap(base, size + GUARD_PAGE_SIZE)
+        libc.munmap(base, size + PAGE_SIZE)
 
 
 def execute_in_namespace(func, use_network_ns=True):
@@ -244,13 +238,13 @@ def _generate_native_clone_child_callback():
     # Inspired by https://csl.name/post/python-jit/
 
     # Allocate one page of memory where we put the code
-    page_size = libc.sysconf(libc.SC_PAGESIZE)
-    mem = libc.mmap_anonymous(page_size, libc.PROT_READ | libc.PROT_WRITE)
+    mem = libc.mmap_anonymous(PAGE_SIZE, libc.PROT_READ | libc.PROT_WRITE)
 
     # Get address of PyOS_AfterFork_Child that we want to call
     afterfork_address = ctypes.cast(
         ctypes.pythonapi.PyOS_AfterFork_Child, ctypes.c_void_p
-    ).value.to_bytes(8, sys.byteorder)
+    ).value
+    assert afterfork_address is not None  # ensured above
 
     # Generate machine code that does the same as _python_clone_child_callback
     # We use this C code as template (with dummy address for PyOS_AfterFork_Child)
@@ -291,7 +285,7 @@ def _generate_native_clone_child_callback():
     #     ff e7                   jmpq   *%rdi
     #
     # The following creates exactly the same machine code, just with the real address
-    movabsq_address_rdx = b"\x48\xba" + afterfork_address
+    movabsq_address_rdx = b"\x48\xba" + afterfork_address.to_bytes(8, sys.byteorder)
     subq_0x18_rsp = b"\x48\x83\xec\x18"
     xorl_eax_eax = b"\x32\xc0"
     movq_rdi_stack = b"\x48\x89\x7c\x24\x08"
@@ -313,7 +307,7 @@ def _generate_native_clone_child_callback():
     ctypes.memmove(mem, code, len(code))
 
     # Make code executable
-    libc.mprotect(mem, page_size, libc.PROT_READ | libc.PROT_EXEC)
+    libc.mprotect(mem, PAGE_SIZE, libc.PROT_READ | libc.PROT_EXEC)
     return libc.CLONE_CALLBACK(mem)
 
 
@@ -343,7 +337,7 @@ def setup_user_mapping(
     proc_child = os.path.join("/proc", str(pid))
     try:
         # map uid internally to our uid externally
-        uid_map = "{0} {1} 1".format(uid, parent_uid)
+        uid_map = f"{uid} {parent_uid} 1"
         util.write_file(uid_map, proc_child, "uid_map")
     except OSError as e:
         logging.warning("Creating UID mapping into container failed: %s", e)
@@ -358,7 +352,7 @@ def setup_user_mapping(
 
     try:
         # map gid internally to our gid externally
-        gid_map = "{0} {1} 1".format(gid, parent_gid)
+        gid_map = f"{gid} {parent_gid} 1"
         util.write_file(gid_map, proc_child, "gid_map")
     except OSError as e:
         logging.warning("Creating GID mapping into container failed: %s", e)
@@ -499,10 +493,9 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
                 mp = mountpoint.decode()
                 raise OSError(
                     e.errno,
-                    "Creating overlay mount for '{}' failed: {}. Please use "
-                    "other directory modes, for example '--read-only-dir {}'.".format(
-                        mp, os.strerror(e.errno), util.escape_string_shell(mp)
-                    ),
+                    f"Creating overlay mount for '{mp}' failed: {os.strerror(e.errno)}. "
+                    f"Please use other directory modes, "
+                    f"for example '--read-only-dir {util.escape_string_shell(mp)}'.",
                 )
 
         elif mode == DIR_HIDDEN:
@@ -774,7 +767,7 @@ def drop_capabilities(keep=[]):
     Drop all capabilities this process has.
     @param keep: list of capabilities to not drop
     """
-    capdata = (libc.CapData * 2)()
+    capdata = (libc.CapData * 2)()  # pytype: disable=not-callable
     for cap in keep:
         capdata[0].effective |= 1 << cap
         capdata[0].permitted |= 1 << cap
@@ -809,7 +802,7 @@ def setup_seccomp_filter():
 
 
 try:
-    _ALL_SIGNALS = signal.valid_signals()
+    _ALL_SIGNALS = signal.valid_signals()  # pytype: disable=module-attr
 except AttributeError:
     # Only exists on Python 3.8+
     _ALL_SIGNALS = range(1, signal.NSIG)

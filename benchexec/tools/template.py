@@ -140,33 +140,33 @@ class BaseTool2(object, metaclass=ABCMeta):
         @return a (possibly empty) string of output of the tool
         """
         try:
-            process = subprocess.Popen(
-                [executable, arg], stdout=subprocess.PIPE, stderr=subprocess.PIPE
+            process = subprocess.run(
+                [executable, arg],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                universal_newlines=True,
             )
-            (stdout, stderr) = process.communicate()
         except OSError as e:
             logging.warning(
-                "Cannot run {0} to determine version: {1}".format(
-                    executable, e.strerror
-                )
+                "Cannot run %s to determine version: %s", executable, e.strerror
             )
             return ""
-        if stderr and not use_stderr and not ignore_stderr:
+        if process.stderr and not use_stderr and not ignore_stderr:
             logging.warning(
-                "Cannot determine {0} version, error output: {1}".format(
-                    executable, util.decode_to_string(stderr)
-                )
+                "Cannot determine %s version, error output: %s",
+                executable,
+                process.stderr,
             )
             return ""
         if process.returncode:
             logging.warning(
-                "Cannot determine {0} version, exit code {1}".format(
-                    executable, process.returncode
-                )
+                "Cannot determine %s version, exit code %s",
+                executable,
+                process.returncode,
             )
             return ""
 
-        output = util.decode_to_string(stderr if use_stderr else stdout).strip()
+        output = (process.stderr if use_stderr else process.stdout).strip()
         if line_prefix:
             matches = (
                 line[len(line_prefix) :].strip()
@@ -314,6 +314,13 @@ class BaseTool2(object, metaclass=ABCMeta):
         @return a (possibly empty) string, optional with HTML tags
         """
 
+    def close(self):
+        """
+        OPTIONAL, called before tool-info module is no longer used,
+        but no strict guarantee about this.
+        """
+        pass
+
     # Classes that are used in parameters above
 
     class ToolLocator(
@@ -341,12 +348,13 @@ class BaseTool2(object, metaclass=ABCMeta):
             other_file = benchexec.util.find_executable2(executable_name, dirs, os.F_OK)
             if other_file:
                 raise ToolNotFoundException(
-                    "Could not find executable '{}', but found file '{}' "
-                    "that is not executable.".format(executable_name, other_file)
+                    f"Could not find executable '{executable_name}', "
+                    f"but found file '{other_file}' that is not executable."
                 )
 
-            msg = "Could not find executable '{}'. The searched directories were: {}".format(
-                executable_name, "".join("\n  " + d for d in dirs)
+            msg = (
+                f"Could not find executable '{executable_name}'. "
+                f"The searched directories were: " + "".join("\n  " + d for d in dirs)
             )
             if not self.tool_directory:
                 msg += "\nYou can specify the tool's directory with --tool-directory."
@@ -387,11 +395,9 @@ class BaseTool2(object, metaclass=ABCMeta):
 
         def __new__(cls, input_files, identifier, property_file, options):
             input_files = tuple(input_files)  # make input_files immutable
-            assert bool(input_files) != bool(
-                identifier
-            ), "exactly one is required: input_files=%r identifier=%r" % (
-                input_files,
-                identifier,
+            assert bool(input_files) != bool(identifier), (
+                f"exactly one is required: "
+                f"input_files={input_files!r} identifier={identifier!r}"
             )
             options = copy.deepcopy(options)  # defensive copy because not immutable
             return super().__new__(cls, input_files, identifier, property_file, options)
@@ -416,8 +422,22 @@ class BaseTool2(object, metaclass=ABCMeta):
 
         @property
         def input_files(self):
+            """
+            Return sequence of input files or raise appropriate exception if the task
+            has no input files.
+            """
             self.require_input_files()
             return self.input_files_or_empty
+
+        @property
+        def single_input_file(self):
+            """
+            Return string with the single given input file, or raise appropriate
+            exception if there is not exactly one input file.
+            """
+            self.require_input_files()
+            self.require_single_input_file()
+            return self.input_files_or_empty[0]
 
         @property
         def input_files_or_identifier(self):
@@ -435,6 +455,16 @@ class BaseTool2(object, metaclass=ABCMeta):
             if not self.input_files_or_empty:
                 raise UnsupportedFeatureException(
                     "Tool does not support tasks without input files"
+                )
+
+        def require_single_input_file(self):
+            """
+            Check that there is not more than one path in input_files and raise
+            appropriate exception otherwise.
+            """
+            if len(self.input_files_or_empty) > 1:
+                raise UnsupportedFeatureException(
+                    "Tool does not support tasks with more than one input file"
                 )
 
     class ResourceLimits(
@@ -540,6 +570,10 @@ class BaseTool2(object, metaclass=ABCMeta):
             self._text = None
 
         def __getitem__(self, index):
+            if isinstance(index, slice):
+                # We wrap the result in an RunOutput instance again such that
+                # all features also work on slices of the original instance.
+                return self.__class__(self._lines[index])
             return self._lines[index].rstrip(os.linesep)
 
         def __len__(self):

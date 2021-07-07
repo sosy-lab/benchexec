@@ -26,7 +26,7 @@ class Tool(benchexec.tools.template.BaseTool):
         elif returncode == 1 and "program correct: ERROR unreachable" in output:
             status = "SAFE"
         elif returncode != 0:
-            status = "ERROR ({0})".format(returncode)
+            status = f"ERROR ({returncode})"
         elif "ERROR reachable" in output:
             status = "UNSAFE"
         elif "program correct: ERROR unreachable" in output:

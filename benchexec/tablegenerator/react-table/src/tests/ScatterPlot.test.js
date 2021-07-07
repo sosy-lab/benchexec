@@ -27,14 +27,12 @@ const overviewInstance = renderer
 // Fixed width and height because the FlexibleXYPlot doesn't work well with the react-test-renderer
 const scatterPlotJSX = (
   <ScatterPlot
-    table={overviewInstance.state.table}
+    table={overviewInstance.state.tableData}
     columns={overviewInstance.columns}
     tools={overviewInstance.state.tools}
     getRowName={overviewInstance.getRowName}
     hiddenCols={overviewInstance.state.hiddenCols}
     isFlexible={false}
-    fixedWidth={1500}
-    fixedHeight={1000}
   />
 );
 const plot = renderer.create(scatterPlotJSX);

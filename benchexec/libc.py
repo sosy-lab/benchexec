@@ -70,13 +70,6 @@ unshare.argtypes = [c_int]
 unshare.errcheck = _check_errno
 
 
-sysconf = _libc.sysconf
-"""Retrieve information about system"""
-sysconf.argtypes = [c_int]
-sysconf.restype = c_long
-SC_PAGESIZE = 30  # /usr/include/bits/confname.h
-
-
 mmap = _libc.mmap
 """Map file into memory."""
 mmap.argtypes = [
@@ -185,7 +178,10 @@ class CapData(_ctypes.Structure):
 capset = _libc.capset
 """Configure the capabilities of the current thread."""
 capset.errcheck = _check_errno
-capset.argtypes = [_ctypes.POINTER(CapHeader), _ctypes.POINTER(CapData * 2)]
+capset.argtypes = [
+    _ctypes.POINTER(CapHeader),
+    _ctypes.POINTER(CapData * 2),  # pytype: disable=invalid-typevar
+]
 
 LINUX_CAPABILITY_VERSION_3 = 0x20080522  # /usr/include/linux/capability.h
 CAP_SYS_ADMIN = 21  # /usr/include/linux/capability.h

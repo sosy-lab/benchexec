@@ -8,7 +8,8 @@
 import benchexec.tools.coveriteam as coveriteam
 import benchexec.result as result
 from benchexec.tools.template import UnsupportedFeatureException
-import ast
+from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, LP64
+import re
 
 
 class Tool(coveriteam.Tool):
@@ -18,52 +19,47 @@ class Tool(coveriteam.Tool):
     URL: https://gitlab.com/sosy-lab/software/coveriteam.
     """
 
-    def cmdline(self, executable, options, tasks, propertyfile, rlimits):
+    def cmdline(self, executable, options, task, rlimits):
         """
         Prepare command for the coveriteam program for a verifier or a validator.
         These two programs are shipped with the CoVeriTeam package,
         and can be used with multiple verifiers and validators.
         """
-        self.check_inputs(tasks, propertyfile)
 
-        spec = ["--input", "spec_path=" + propertyfile]
-        prog = ["--input", "prog_path=" + tasks[0]]
-        additional_options = prog + spec
+        data_model_param = get_data_model_from_task(
+            task, {ILP32: "ILP32", LP64: "LP64"}
+        )
+        if data_model_param and "--data-model" not in options:
+            options += ["--data-model", data_model_param]
 
-        return [executable] + options + additional_options
+        if task.property_file:
+            options += ["--input", "specification_path=" + task.property_file]
+        else:
+            raise UnsupportedFeatureException(
+                "Can't execute CoVeriTeam-Verifier-Validator: "
+                "Specification is missing."
+            )
 
-    def determine_result(self, returncode, returnsignal, output, isTimeout):
+        options += ["--input", "program_path=" + task.single_input_file]
+
+        return [executable] + options
+
+    def determine_result(self, run):
         """
         It assumes that any verifier or validator implemented in CoVeriTeam
         will print out the produced aftifacts.
         If more than one dict is printed, the first matching one.
         """
-        for line in output:
+        verdict = None
+        verdict_regex = re.compile(r"'verdict': '([a-zA-Z\(\)\ \-]*)'")
+        for line in reversed(run.output):
             line = line.strip()
-            if "verdict" in line:
+            verdict_match = verdict_regex.search(line)
+            if verdict_match and verdict is None:
                 # CoVeriTeam outputs benchexec result categories as verdicts.
-                try:
-                    d = ast.literal_eval(line)
-                    if isinstance(d, dict):
-                        return d.get("verdict", result.RESULT_ERROR)
-                except SyntaxError:
-                    pass
-        return result.RESULT_ERROR
-
-    def check_inputs(self, tasks, propertyfile):
-        # We expect one tasks and a propertyfile.
-        if not tasks:
-            raise UnsupportedFeatureException(
-                "Can't execute CoVeriTeam-Verifier-Validator: "
-                "Input program is missing."
-            )
-        if len(tasks) > 1:
-            raise UnsupportedFeatureException(
-                "Can't execute CoVeriTeam-Verifier-Validator: "
-                "Too many input files to analyze"
-            )
-        if not propertyfile:
-            raise UnsupportedFeatureException(
-                "Can't execute CoVeriTeam-Verifier-Validator: "
-                "Specification is missing."
-            )
+                verdict = verdict_match.group(1)
+            if "Traceback (most recent call last)" in line:
+                verdict = "EXCEPTION"
+        if verdict is None:
+            return result.RESULT_UNKNOWN
+        return verdict

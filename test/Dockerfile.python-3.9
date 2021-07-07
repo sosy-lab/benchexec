@@ -10,17 +10,17 @@
 # and will be used by CI as declared in .gitlab-ci.yml.
 #
 # Commands for updating the image:
-# docker build -t registry.gitlab.com/sosy-lab/software/benchexec/test:python-3.5 - < test/Dockerfile.python-3.5
+# docker build --pull -t registry.gitlab.com/sosy-lab/software/benchexec/test:python-3.9 - < test/Dockerfile.python-3.9
 # docker push registry.gitlab.com/sosy-lab/software/benchexec/test
 
-FROM python:3.5
+FROM python:3.9
 
 RUN apt-get update && apt-get install -y \
   lxcfs \
   sudo
 
 RUN pip install \
-  coverage \
+  "coverage[toml] >= 5.0" \
   lxml \
   nose \
   pyyaml

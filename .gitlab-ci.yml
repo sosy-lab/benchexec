@@ -11,13 +11,25 @@
 
 variables:
   PRIMARY_USER: benchexec
+  PIP_CACHE_DIR: "${CI_PROJECT_DIR}/.cache/pip"
+
+.pip-cache: &pip-cache
+  cache:
+    key: "${CI_JOB_NAME}"
+    paths:
+      - ".cache/pip"
+
+.node-cache: &node-cache
+  cache:
+    key: "${CI_JOB_NAME}"
+    paths:
+      - "benchexec/tablegenerator/react-table/node_modules"
 
 image: ${CI_REGISTRY_IMAGE}/test:python-${PYTHON_VERSION}
 
 stages:
   - images
   - test
-  - deploy
 
 .unit-tests: &unit-tests
   stage: test
@@ -47,11 +59,6 @@ stages:
     paths:
       - coverage.xml
 
-unit-tests:python-3.5:
-  <<: *unit-tests
-  variables:
-    PYTHON_VERSION: '3.5'
-
 unit-tests:python-3.6:
   <<: *unit-tests
   variables:
@@ -67,41 +74,53 @@ unit-tests:python-3.8:
   variables:
     PYTHON_VERSION: '3.8'
 
-deploy-coverage:
-  stage: deploy
+unit-tests:python-3.9:
+  <<: *unit-tests
   variables:
-    PYTHON_VERSION: '3.7'
-  before_script:
-    - pip install -e git+https://github.com/codacy/python-codacy-coverage.git#egg=codacy
-  script:
-    - python-codacy-coverage -r coverage.xml
-  dependencies:
-    - unit-tests:python-3.7
-  only:
-    refs:
-      - master
-    variables:
-      - $CODACY_PROJECT_TOKEN # required for job
-      - $CI_PROJECT_PATH == $PROJECT_PATH # not on forks
-
+    PYTHON_VERSION: '3.9'
 
 # Static checks
 check-format:
   stage: test
-  image: python:3.7
+  image: python:3.9
   before_script:
     - pip install black
   script:
     - black . --check --diff
+  <<: *pip-cache
+
+flynt:
+  # Use flynt (https://github.com/ikamensh/flynt) for converting string formatting to f-strings
+  stage: test
+  image: python:3.9
+  before_script:
+    - pip install flynt
+  script:
+    - flynt . --exclude node_modules --line-length 10000 --aggressive --fail-on-change --dry-run
+  <<: *pip-cache
 
 flake8:
   stage: test
-  image: python:3.7
+  image: python:3.8
   before_script:
-    - pip install 'isort<5' # workaround for https://github.com/gforcada/flake8-isort/issues/88
     - pip install flake8-awesome
   script:
     - flake8
+  <<: *pip-cache
+
+pytype:
+  stage: test
+  image: python:3.7
+  before_script:
+    # attrs is temporary workaround for https://github.com/google/pytype/issues/909
+    - pip install coloredlogs pytype attrs==20.3.0
+  script:
+    - pytype -k
+  cache:
+    key: "${CI_JOB_NAME}"
+    paths:
+      - ".cache/pip"
+      - ".pytype"
 
 
 # For HTML tables, test that bundled files are uptodate
@@ -119,10 +138,7 @@ javascript-build:
     paths:
       - benchexec/tablegenerator/react-table/build
     when: on_failure
-  cache:
-    key: "$CI_JOB_NAME"
-    paths:
-      - "benchexec/tablegenerator/react-table/node_modules"
+  <<: *node-cache
 
 javascript-tests:
   stage: test
@@ -132,10 +148,7 @@ javascript-tests:
     - npm install
   script:
     - npm run test
-  cache:
-    key: "$CI_JOB_NAME"
-    paths:
-      - "benchexec/tablegenerator/react-table/node_modules"
+  <<: *node-cache
 
 javascript-eslint:
   stage: test
@@ -145,10 +158,7 @@ javascript-eslint:
     - npm install
   script:
     - npm run lint
-  cache:
-    key: "$CI_JOB_NAME"
-    paths:
-      - "benchexec/tablegenerator/react-table/node_modules"
+  <<: *node-cache
 
 
 # check license declarations etc.
@@ -176,12 +186,6 @@ reuse:
     - schedules
     - web
 
-build-docker:test:python-3.5:
-  extends: .build-docker
-  variables:
-    DOCKERFILE: test/Dockerfile.python-3.5
-    IMAGE: test:python-3.5
-
 build-docker:test:python-3.6:
   extends: .build-docker
   variables:
@@ -199,3 +203,9 @@ build-docker:test:python-3.8:
   variables:
     DOCKERFILE: test/Dockerfile.python-3.8
     IMAGE: test:python-3.8
+
+build-docker:test:python-3.9:
+  extends: .build-docker
+  variables:
+    DOCKERFILE: test/Dockerfile.python-3.9
+    IMAGE: test:python-3.9

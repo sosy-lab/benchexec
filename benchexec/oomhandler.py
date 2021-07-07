@@ -61,15 +61,13 @@ class KillProcessOnOomThread(threading.Thread):
             self._efd = _libc.eventfd(0, _EFD_CLOEXEC)
 
             try:
-                util.write_file(
-                    "{} {}".format(self._efd, ofd), cgroup, "cgroup.event_control"
-                )
+                util.write_file(f"{self._efd} {ofd}", cgroup, "cgroup.event_control")
 
                 # If everything worked, disable Kernel-side process killing.
                 # This is not allowed if memory.use_hierarchy is enabled,
                 # but we don't care.
                 try:
-                    os.write(ofd, "1".encode("ascii"))
+                    os.write(ofd, b"1")
                 except OSError as e:
                     logging.debug(
                         "Failed to disable kernel-side OOM killer: error %s (%s)",

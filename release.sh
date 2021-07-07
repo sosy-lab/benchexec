@@ -33,12 +33,22 @@ if [ ! -z "$(git status -uno -s)" ]; then
   exit 1
 fi
 
+git remote update origin
+if [ ! -z "$(git rev-list HEAD..origin/master)" ]; then
+  echo "Local branch is not up-to-date, please rebase."
+  exit 1
+fi
+
 if [ -z "$DEBFULLNAME" ]; then
   echo "Please define environment variable DEBFULLNAME with your name you want to use for the Debian package."
   exit 1
 fi
 if [ -z "$DEBEMAIL" ]; then
   echo "Please define environment variable DEBEMAIL with your name you want to use for the Debian package."
+  exit 1
+fi
+if [ -z "$DEBKEY" ]; then
+  echo "Please define environment variable DEBKEY with your key ID you want to use for signing the Debian package."
   exit 1
 fi
 if ! which twine > /dev/null; then
@@ -66,12 +76,12 @@ export SOURCE_DATE_EPOCH="$(dpkg-parsechangelog -STimestamp)"
 
 # Test and build under Python 3
 TEMP3="$(mktemp -d)"
-virtualenv -p /usr/bin/python3 "$TEMP3"
+python3 -m venv "$TEMP3"
 . "$TEMP3/bin/activate"
 git clone "file://$DIR" "$TEMP3/benchexec"
 pushd "$TEMP3/benchexec"
+pip install "pip >= 10.0" "setuptools >= 42.0.0" "wheel >= 0.32.0"
 pip install -e "."
-pip install 'wheel>=0.32.0' 'setuptools>=42.0.0'
 python setup.py nosetests
 python setup.py sdist bdist_wheel
 popd
@@ -92,13 +102,14 @@ cd "BenchExec-$VERSION"
 
 dh_make -p "benchexec_$VERSION" --createorig -f "../$TAR" -i -c apache || true
 
-dpkg-buildpackage -us -uc
+dpkg-buildpackage --build=binary --no-sign
+dpkg-buildpackage --build=source -sa "--sign-key=$DEBKEY"
 popd
-cp "$TEMP_DEB/benchexec_$VERSION-1_all.deb" "$DIST_DIR"
+cp "$TEMP_DEB/benchexec_$VERSION"{.orig.tar.gz,-1_all.deb,-1.dsc,-1.debian.tar.xz,-1_source.buildinfo,-1_source.changes} "$DIST_DIR"
 rm -rf "$TEMP_DEB"
 
-for f in "$DIST_DIR/"*; do
-  gpg --detach-sign -a "$f"
+for f in "$DIST_DIR/BenchExec-$VERSION"*.{whl,tar.gz} "$DIST_DIR/benchexec_$VERSION"*.deb; do
+  gpg --detach-sign -a -u "$DEBKEY" "$f"
 done
 git tag -s "$VERSION" -m "Release $VERSION"
 
@@ -112,6 +123,7 @@ fi
 
 git push --tags
 twine upload "$DIST_DIR/BenchExec"*
+dput ppa:sosy-lab/benchmarking "$DIST_DIR/benchexec_$VERSION-1_source.changes"
 
 read -p "Please enter next version number:  " -r
 sed -e "s/^__version__ = .*/__version__ = \"$REPLY\"/" -i benchexec/__init__.py
@@ -119,5 +131,7 @@ git commit benchexec/__init__.py -m"Prepare version number for next development 
 
 
 echo
-echo "Please create a release on GitHub and add content from CHANGELOG.md and files from $DIST_DIR/:"
-echo "https://github.com/sosy-lab/benchexec/releases"
+echo "Please create a release on GitHub and add content from CHANGELOG.md and the following files:"
+ls -1 "$DIST_DIR/BenchExec-$VERSION"*.{whl,whl.asc,tar.gz,tar.gz.asc} "$DIST_DIR/benchexec_$VERSION"*.{deb,deb.asc}
+echo "=> https://github.com/sosy-lab/benchexec/releases/new?tag=$VERSION&title=Release%20$VERSION"
+echo "Please also copy the binary PPA packages to all newer supported Ubuntu versions after they have been built by going to https://launchpad.net/%7Esosy-lab/+archive/ubuntu/benchmarking/+copy-packages"

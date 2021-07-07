@@ -30,11 +30,12 @@ input_files:
  - input_file: false_other_sub_task.yml
 properties:
  - property_file: 
- <button
+ <a
   className="link-overlay-file-link"
+  href="test.prp"
  >
   test.prp
- </button>
+ </a>
   expected_verdict: false
   subproperty: other_subproperty
 </pre>
@@ -53,25 +54,28 @@ exports[`Render TaskDefinitionViewer for input_files_brackets.yml 1`] = `
 format_version: "1.0"
 input_files:
  [
- <button
+ <a
   className="link-overlay-file-link"
+  href="false_sub_task.yml"
  >
   false_sub_task.yml
- </button>
+ </a>
  ,
- <button
+ <a
   className="link-overlay-file-link"
+  href="false_other_sub_task.yml"
  >
   false_other_sub_task.yml
- </button>
+ </a>
  ]
 properties:
  - property_file: 
- <button
+ <a
   className="link-overlay-file-link"
+  href="test.prp"
  >
   test.prp
- </button>
+ </a>
   expected_verdict: false
   subproperty: other_subproperty
 </pre>
@@ -89,18 +93,20 @@ exports[`Render TaskDefinitionViewer for input_files_multiline_string.yml 1`] = 
 # SPDX-License-Identifier: Apache-2.0
 format_version: "1.0"
 input_files: 
- <button
+ <a
   className="link-overlay-file-link"
+  href="false_other_sub_task.yml"
  >
   false_other_sub_task.yml
- </button>
+ </a>
 properties:
  - property_file: 
- <button
+ <a
   className="link-overlay-file-link"
+  href="test.prp"
  >
   test.prp
- </button>
+ </a>
   expected_verdict: false
   subproperty: other_subproperty
 </pre>
@@ -119,24 +125,27 @@ exports[`Render TaskDefinitionViewer for multiple_input_files.yml 1`] = `
 format_version: "1.0"
 input_files:
  - 
- <button
+ <a
   className="link-overlay-file-link"
+  href="false_sub_task.yml"
  >
   false_sub_task.yml
- </button>
+ </a>
  - 
- <button
+ <a
   className="link-overlay-file-link"
+  href="false_other_sub_task.yml"
  >
   false_other_sub_task.yml
- </button>
+ </a>
 properties:
  - property_file: 
- <button
+ <a
   className="link-overlay-file-link"
+  href="test.prp"
  >
   test.prp
- </button>
+ </a>
   expected_verdict: false
   subproperty: other_subproperty
 </pre>
@@ -154,26 +163,29 @@ exports[`Render TaskDefinitionViewer for multiple_property_files.yml 1`] = `
 # SPDX-License-Identifier: Apache-2.0
 format_version: "1.0"
 input_files: 
- <button
+ <a
   className="link-overlay-file-link"
+  href="false_other_sub_task.yml"
  >
   false_other_sub_task.yml
- </button>
+ </a>
 properties:
  - property_file: 
- <button
+ <a
   className="link-overlay-file-link"
+  href="test.prp"
  >
   test.prp
- </button>
+ </a>
   expected_verdict: false
   subproperty: other_subproperty
  - property_file: 
- <button
+ <a
   className="link-overlay-file-link"
+  href="other.prp"
  >
   other.prp
- </button>
+ </a>
   expected_verdict: false
 </pre>
 `;
@@ -206,19 +218,21 @@ format_version: "1.0"
 input_files: []
 properties:
  - property_file: 
- <button
+ <a
   className="link-overlay-file-link"
+  href="test.prp"
  >
   test.prp
- </button>
+ </a>
   expected_verdict: false
   subproperty: other_subproperty
  - property_file: 
- <button
+ <a
   className="link-overlay-file-link"
+  href="other.prp"
  >
   other.prp
- </button>
+ </a>
   expected_verdict: false
 </pre>
 `;
@@ -236,17 +250,19 @@ exports[`Render TaskDefinitionViewer for no_property_files.yml 1`] = `
 format_version: "1.0"
 input_files:
  - 
- <button
+ <a
   className="link-overlay-file-link"
+  href="false_sub_task.yml"
  >
   false_sub_task.yml
- </button>
+ </a>
  - 
- <button
+ <a
   className="link-overlay-file-link"
+  href="false_other_sub_task.yml"
  >
   false_other_sub_task.yml
- </button>
+ </a>
 properties: []
 </pre>
 `;
@@ -263,25 +279,28 @@ exports[`Render TaskDefinitionViewer for one_input_file.yml 1`] = `
 # SPDX-License-Identifier: Apache-2.0
 format_version: "1.0"
 input_files: 
- <button
+ <a
   className="link-overlay-file-link"
+  href="false_other_sub_task.yml"
  >
   false_other_sub_task.yml
- </button>
+ </a>
 properties:
  - property_file: 
- <button
+ <a
   className="link-overlay-file-link"
+  href="test.prp"
  >
   test.prp
- </button>
+ </a>
   expected_verdict: false
  - property_file: 
- <button
+ <a
   className="link-overlay-file-link"
+  href="other.prp"
  >
   other.prp
- </button>
+ </a>
 </pre>
 `;
 
@@ -297,18 +316,20 @@ exports[`Render TaskDefinitionViewer for one_property_file.yml 1`] = `
 # SPDX-License-Identifier: Apache-2.0
 format_version: "1.0"
 input_files: 
- <button
+ <a
   className="link-overlay-file-link"
+  href="false_other_sub_task.yml"
  >
   false_other_sub_task.yml
- </button>
+ </a>
 properties:
  - property_file: 
- <button
+ <a
   className="link-overlay-file-link"
+  href="test.prp"
  >
   test.prp
- </button>
+ </a>
   subproperty: other_subproperty
 </pre>
 `;
@@ -378,31 +399,34 @@ exports[`Render TaskDefinitionViewer for property_files_brackets.yml 1`] = `
 # SPDX-License-Identifier: Apache-2.0
 format_version: "1.0"
 input_files: 
- <button
+ <a
   className="link-overlay-file-link"
+  href="false_other_sub_task.yml"
  >
   false_other_sub_task.yml
- </button>
+ </a>
 properties:
  [
   {
     property_file: 
- <button
+ <a
   className="link-overlay-file-link"
+  href="test.prp"
  >
   test.prp
- </button>
+ </a>
  ,
     expected_verdict: false,
     subproperty: other_subproperty
    },
   {
     property_file: 
- <button
+ <a
   className="link-overlay-file-link"
+  href="other.prp"
  >
   other.prp
- </button>
+ </a>
  ,
     expected_verdict: false
    }
@@ -422,18 +446,20 @@ exports[`Render TaskDefinitionViewer for property_files_multiline_string.yml 1`]
 # SPDX-License-Identifier: Apache-2.0
 format_version: "1.0"
 input_files: 
- <button
+ <a
   className="link-overlay-file-link"
+  href="false_other_sub_task.yml"
  >
   false_other_sub_task.yml
- </button>
+ </a>
 properties:
  - property_file: "
- <button
+ <a
   className="link-overlay-file-link"
+  href="test.prp"
  >
   test.prp
- </button>
+ </a>
  "
   expected_verdict: false
   subproperty: "other_subproperty"
@@ -452,11 +478,12 @@ exports[`Render TaskDefinitionViewer for property_files_no_mapping.yml 1`] = `
 # SPDX-License-Identifier: Apache-2.0
 format_version: "1.0"
 input_files: 
- <button
+ <a
   className="link-overlay-file-link"
+  href="false_other_sub_task.yml"
  >
   false_other_sub_task.yml
- </button>
+ </a>
 properties:
  - test.prp
  - other.prp
@@ -480,18 +507,20 @@ format_version: "1.0"
 # Each matching file or directory will be given as input to the tool.
 input_files:
  - '
- <button
+ <a
   className="link-overlay-file-link"
+  href="*.md"
  >
   *.md
- </button>
+ </a>
  '
  - '
- <button
+ <a
   className="link-overlay-file-link"
+  href="../*.md"
  >
   ../*.md
- </button>
+ </a>
  '
 # Optional, either a string or a list of strings with file-name patterns.
 # Relative paths interpreted as relative to this file.
@@ -504,27 +533,30 @@ required_files:
 # If given, benchexec will compare expected verdicts against actual verdicts.
 properties:
  - property_file: 
- <button
+ <a
   className="link-overlay-file-link"
+  href="properties/memsafety.prp"
  >
   properties/memsafety.prp
- </button>
+ </a>
  # string with file-name pattern that matches exactly one file
   expected_verdict: false # optional boolean
   subproperty: valid-deref # optional string, contains violated subproperty
  - property_file: 
- <button
+ <a
   className="link-overlay-file-link"
+  href="properties/unreach-call.prp"
  >
   properties/unreach-call.prp
- </button>
+ </a>
   expected_verdict: true
  - property_file: 
- <button
+ <a
   className="link-overlay-file-link"
+  href="properties/overflow.prp"
  >
   properties/overflow.prp
- </button>
+ </a>
 </pre>
 `;
 
@@ -541,18 +573,20 @@ exports[`Render TaskDefinitionViewer for undefined_input_files.yml 1`] = `
 format_version: "1.0"
 properties:
  - property_file: 
- <button
+ <a
   className="link-overlay-file-link"
+  href="test.prp"
  >
   test.prp
- </button>
+ </a>
   subproperty: other_subproperty
  - property_file: 
- <button
+ <a
   className="link-overlay-file-link"
+  href="other.prp"
  >
   other.prp
- </button>
+ </a>
   expected_verdict: false
 </pre>
 `;
@@ -569,11 +603,12 @@ exports[`Render TaskDefinitionViewer for undefined_property_files.yml 1`] = `
 # SPDX-License-Identifier: Apache-2.0
 format_version: "1.0"
 input_files: 
- <button
+ <a
   className="link-overlay-file-link"
+  href="false_task.yml"
  >
   false_task.yml
- </button>
+ </a>
 </pre>
 `;
 
@@ -590,17 +625,19 @@ exports[`Render TaskDefinitionViewer for with_html_tags.yml 1`] = `
 format_version: "1.0"
 input_files:
  - 
- <button
+ <a
   className="link-overlay-file-link"
+  href="<span>false_other_sub_task.<b>yml</b></span>"
  >
   &lt;span&gt;false_other_sub_task.&lt;b&gt;yml&lt;/b&gt;&lt;/span&gt;
- </button>
+ </a>
  - 
- <button
+ <a
   className="link-overlay-file-link"
+  href="<div>false_other_sub_task.yml</div>"
  >
   &lt;div&gt;false_other_sub_task.yml&lt;/div&gt;
- </button>
+ </a>
 &lt;button style="padding-right:3px" onClick="console.log("This should not work")"&gt;&lt;/button&gt;: &lt;button&gt;test&lt;/button&gt;
 properties:
  - property_file: 

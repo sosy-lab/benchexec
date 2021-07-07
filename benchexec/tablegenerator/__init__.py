@@ -15,11 +15,13 @@ import io
 import itertools
 import logging
 import os.path
+import platform
 import signal
 import subprocess
 import sys
 import time
 import types
+import typing
 import urllib.parse
 import urllib.request
 from xml.etree import ElementTree
@@ -56,7 +58,7 @@ MAIN_COLUMNS = [
 
 NAME_START = "results"  # first part of filename of table
 
-DEFAULT_OUTPUT_PATH = "results/"
+DEFAULT_OUTPUT_PATH = "results"
 
 TEMPLATE_FORMATS = ["html", "csv"]
 
@@ -338,9 +340,9 @@ def load_tool(result):
     if tool_module in loaded_tools:
         return loaded_tools[tool_module]
     else:
-        result = load_tool_module(tool_module)
-        loaded_tools[tool_module] = result
-        return result
+        loaded_tool = load_tool_module(tool_module)
+        loaded_tools[tool_module] = loaded_tool
+        return loaded_tool
 
 
 class RunSetResult(object):
@@ -401,8 +403,11 @@ class RunSetResult(object):
             This method searches for values in lines of the content.
             It uses a tool-specific method to so.
             """
+            tool = load_tool(self)
+            if not tool:
+                return None
             output = tooladapter.CURRENT_BASETOOL.RunOutput(lines)
-            return load_tool(self).get_value_from_output(output, identifier)
+            return tool.get_value_from_output(output, identifier)
 
         # Opening the ZIP archive with the logs for every run is too slow, we cache it.
         log_zip_cache = {}
@@ -475,7 +480,8 @@ class RunSetResult(object):
         run_results = _get_run_tags_from_xml(resultElem)
         if not run_results:
             logging.warning("Result file '%s' is empty.", resultFile)
-            return []
+            # completely empty results break stuff, add at least status column
+            return [MAIN_COLUMNS[0]]
         else:  # show all available columns
             column_names = {
                 c.get("title")
@@ -612,7 +618,7 @@ def parse_results_file(resultFile, run_set_id=None, ignore_errors=False):
         with util.open_url_seekable(url, mode="rb") as f:
             try:
                 try:
-                    resultElem = parse(gzip.GzipFile(fileobj=f))
+                    resultElem = parse(typing.cast(typing.IO, gzip.GzipFile(fileobj=f)))
                 except OSError:
                     f.seek(0)
                     resultElem = parse(bz2.BZ2File(f))
@@ -670,7 +676,7 @@ def insert_logfile_names(resultFile, resultElem):
         if "logfile" in sourcefile.attrib:
             log_file = urllib.parse.urljoin(resultFile, sourcefile.get("logfile"))
         else:
-            log_file = log_folder + os.path.basename(sourcefile.get("name")) + ".log"
+            log_file = f"{log_folder}{os.path.basename(sourcefile.get('name'))}.log"
         sourcefile.set("logfile", log_file)
 
 
@@ -1018,11 +1024,11 @@ def filter_rows_with_differences(rows):
         return []
 
     def get_index_of_column(name, cols):
-        assert cols, "Cannot look for column '{}' in empy column list".format(name)
+        assert cols, f"Cannot look for column '{name}' in empy column list"
         for i in range(0, len(cols)):
             if cols[i].title == name:
                 return i
-        assert False, "Column '{}' not found in columns '{}'".format(name, cols)
+        assert False, f"Column '{name}' not found in columns '{cols}'"
 
     def all_equal_result(listOfResults):
         relevant_columns = set()
@@ -1075,7 +1081,7 @@ def format_run_set_attributes_nicely(runSetResults):
                 else:
                     turbo = None
                 runSetResult.attributes["turbo"] = (
-                    ", Turbo Boost: {}".format(turbo) if turbo else ""
+                    f", Turbo Boost: {turbo}" if turbo else ""
                 )
 
             elif key == "timelimit":
@@ -1096,9 +1102,7 @@ def format_run_set_attributes_nicely(runSetResults):
                     if unit and unit != "B":
                         return value
                     try:
-                        return "{:.0f} MB".format(
-                            int(number) / _BYTE_FACTOR / _BYTE_FACTOR
-                        )
+                        return f"{int(number) / _BYTE_FACTOR / _BYTE_FACTOR:.0f} MB"
                     except ValueError:
                         return value
 
@@ -1111,7 +1115,7 @@ def format_run_set_attributes_nicely(runSetResults):
                     if unit and unit != "Hz":
                         return value
                     try:
-                        return "{:.0f} MHz".format(int(number) / 1000 / 1000)
+                        return f"{int(number) / 1000 / 1000:.0f} MHz"
                     except ValueError:
                         return value
 
@@ -1142,7 +1146,7 @@ def format_run_set_attributes_nicely(runSetResults):
         elif allBenchmarkNamesEqual:
             niceName = name
         else:
-            niceName = benchmarkName + "." + name
+            niceName = f"{benchmarkName}.{name}"
 
         runSetResult.attributes["niceName"] = niceName
 
@@ -1374,7 +1378,7 @@ def write_csv_table(
         for run_result in row.results:
             for value, column in zip(run_result.values, run_result.columns):
                 out.write(sep)
-                out.write(column.format_value(value or "", False, "csv"))
+                out.write(column.format_value(value or "", "csv"))
         out.write("\n")
 
 
@@ -1391,12 +1395,19 @@ def write_table_in_format(template_format, outfile, options, **kwargs):
             callback(out, options=options, **kwargs)
 
         if options.show_table and template_format == "html":
+            system = platform.system()
             try:
-                subprocess.Popen(
-                    ["xdg-open", outfile],
-                    stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL,
-                )
+                if system == "Windows":
+                    os.startfile(  # pytype: disable=module-attr # noqa: S606
+                        os.path.normpath(outfile), "open"
+                    )
+                else:
+                    cmd = "open" if system == "Darwin" else "xdg-open"
+                    subprocess.Popen(
+                        [cmd, outfile],
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL,
+                    )
             except OSError:
                 pass
 
@@ -1517,6 +1528,23 @@ def create_argument_parser():
         action="store_true",
         help="Do not show informational messages, only warnings.",
     )
+
+    def handle_initial_table_state(value):
+        value = value.lstrip("#")
+        if not value.startswith("/"):
+            raise argparse.ArgumentTypeError(
+                f"Invalid value '{value}', needs to start with /"
+            )
+        return value
+
+    parser.add_argument(
+        "--initial-table-state",
+        action="store",
+        type=handle_initial_table_state,
+        help="Set initial state of HTML table, e.g., if another tab should be shown "
+        "by default. Valid values can be copied from the URL part after '#' of a table "
+        "when the table is in the desired state. (Example: '/table')",
+    )
     parser.add_argument(
         "--version", action="version", version="%(prog)s " + __version__
     )
@@ -1568,9 +1596,7 @@ def main(args=None):
             if table_definition_lists_result_files(table_definition):
                 if options.tables:
                     arg_parser.error(
-                        "Invalid additional arguments '{}'.".format(
-                            " ".join(options.tables)
-                        )
+                        f"Invalid additional arguments '{' '.join(options.tables)}'."
                     )
 
                 runSetResults = load_results_from_table_definition(
@@ -1619,7 +1645,7 @@ def main(args=None):
                 timestamp = time.strftime(
                     benchexec.util.TIMESTAMP_FILENAME_FORMAT, time.localtime()
                 )
-                name = NAME_START + "." + timestamp
+                name = f"{NAME_START}.{timestamp}"
 
         if inputFiles and not outputPath:
             path = os.path.dirname(inputFiles[0])
@@ -1657,15 +1683,12 @@ def main(args=None):
     )
 
     if options.dump_counts:  # print some stats for Buildbot
-        print(
-            "REGRESSIONS {}".format(
-                get_regression_count(rows, options.ignoreFlappingTimeouts)
-            )
-        )
+        print("REGRESSIONS", get_regression_count(rows, options.ignoreFlappingTimeouts))
+
         countsList = get_counts(rows)
         print("STATS")
         for counts in countsList:
-            print(" ".join(str(e) for e in counts))
+            print(*counts)
 
     for f in futures:
         f.result()  # to get any exceptions that may have occurred

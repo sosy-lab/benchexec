@@ -7,11 +7,11 @@
 
 import re
 import benchexec.result as result
-import benchexec.util as util
 import benchexec.tools.template
+from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, LP64
 
 
-class Tool(benchexec.tools.template.BaseTool):
+class Tool(benchexec.tools.template.BaseTool2):
     """
     Tool info for TestCov (https://gitlab.com/sosy-lab/software/test-suite-validator).
     """
@@ -23,15 +23,19 @@ class Tool(benchexec.tools.template.BaseTool):
             executable, self.REQUIRED_PATHS, parent_dir=True
         )
 
-    def executable(self):
-        return util.find_executable("testcov", "bin/testcov")
+    def executable(self, tool_locator):
+        return tool_locator.find_executable("testcov", subdir="bin")
 
-    def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
+    def cmdline(self, executable, options, task, rlimits):
+        data_model_param = get_data_model_from_task(task, {ILP32: "-32", LP64: "-64"})
+        if data_model_param and data_model_param not in options:
+            options += [data_model_param]
+
         cmd = [executable] + options
-        if propertyfile:
-            cmd += ["--goal", propertyfile]
+        if task.property_file:
+            cmd += ["--goal", task.property_file]
 
-        return cmd + tasks
+        return cmd + list(task.input_files_or_identifier)
 
     def version(self, executable):
         return self._version_from_tool(executable)
@@ -39,7 +43,7 @@ class Tool(benchexec.tools.template.BaseTool):
     def name(self):
         return "TestCov"
 
-    def determine_result(self, returncode, returnsignal, output, isTimeout):
+    def determine_result(self, run):
         """
         Parse the output of the tool and extract the verification result.
         This method always needs to be overridden.
@@ -49,12 +53,12 @@ class Tool(benchexec.tools.template.BaseTool):
         and should give some indication of the failure reason
         (e.g., "CRASH", "OUT_OF_MEMORY", etc.).
         """
-        for line in reversed(output):
+        for line in reversed(run.output):
             if line.startswith("ERROR:"):
                 if "timeout" in line.lower():
                     return "TIMEOUT"
                 else:
-                    return "ERROR ({0})".format(returncode)
+                    return f"ERROR ({run.exit_code.value})"
             elif line.startswith("Result: FALSE"):
                 return result.RESULT_FALSE_REACH
             elif line.startswith("Result: TRUE"):
@@ -72,7 +76,7 @@ class Tool(benchexec.tools.template.BaseTool):
             pattern = identifier
             if pattern[-1] != ":":
                 pattern += ":"
-            match = re.match("^" + pattern + "([^(]*)", line)
+            match = re.match(f"^{pattern}([^(]*)", line)
             if match and match.group(1):
                 return match.group(1).strip()
         return None

@@ -27,6 +27,9 @@ from benchexec import (
 )
 
 
+tool: tooladapter.CURRENT_BASETOOL = None
+
+
 @tooladapter.CURRENT_BASETOOL.register  # mark as instance of CURRENT_BASETOOL
 class ContainerizedTool(object):
     """Wrapper for an instance of any subclass of one of the base-tool classes in
@@ -66,6 +69,7 @@ class ContainerizedTool(object):
                 os.rmdir(temp_dir)
 
     def close(self):
+        self._forward_call("close", [], {})
         self._pool.close()
 
     def _forward_call(self, method_name, args, kwargs):
@@ -114,7 +118,7 @@ def _init_container_and_load_tool(tool_module, *args, **kwargs):
     try:
         _init_container(*args, **kwargs)
     except OSError as e:
-        raise BenchExecException("Failed to configure container: " + str(e))
+        raise BenchExecException(f"Failed to configure container: {e}")
     return _load_tool(tool_module)
 
 
@@ -168,8 +172,18 @@ def _init_container(
         ):
             raise BenchExecException(
                 "Unprivileged user namespaces forbidden on this system, please "
-                "enable them with 'sysctl kernel.unprivileged_userns_clone=1' "
+                "enable them with 'sysctl -w kernel.unprivileged_userns_clone=1' "
                 "or disable container mode"
+            )
+        elif (
+            e.errno in {errno.ENOSPC, errno.EINVAL}
+            and util.try_read_file("/proc/sys/user/max_user_namespaces") == "0"
+        ):
+            # Ubuntu has ENOSPC, Centos seems to produce EINVAL in this case
+            raise BenchExecException(
+                "Unprivileged user namespaces forbidden on this system, please "
+                "enable by using 'sysctl -w user.max_user_namespaces=10000' "
+                "(or another value) or disable container mode"
             )
         else:
             raise BenchExecException(

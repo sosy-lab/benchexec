@@ -6,17 +6,17 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import collections
+import decimal
 from decimal import Decimal, InvalidOperation
 import itertools
-import math
 
 from benchexec import result
 from benchexec.tablegenerator import util
 from benchexec.tablegenerator.columns import ColumnType
 
 
-nan = float("nan")
-inf = float("inf")
+nan = Decimal("nan")
+inf = Decimal("inf")
 
 
 class ColumnStatistics(object):
@@ -38,9 +38,10 @@ class ColumnStatistics(object):
     )
 
     def __getattr__(self, name):
+        # This is called for fields that have not been set previously, default is None
         if name in ColumnStatistics._fields:
-            return None
-        return super().__getattr__(name)
+            return None  # noqa: R501 specifying None explicitly is clearer
+        raise AttributeError("can't get attribute " + name)
 
     def __setattr__(self, name, value):
         if name in ColumnStatistics._fields:
@@ -64,14 +65,12 @@ class StatValue(object):
 
     @classmethod
     def from_list(cls, values):
-        if not values:
-            return None
-        if any(math.isnan(v) for v in values if v is not None):
+        if any(v is not None and v.is_nan() for v in values):
             return StatValue(nan, nan, nan, nan, nan, nan)
 
         values = sorted(v for v in values if v is not None)
         if not values:
-            return StatValue(0)
+            return None
 
         values_len = len(values)
         min_value = values[0]
@@ -93,7 +92,9 @@ class StatValue(object):
             values_sum = sum(values)
             mean = values_sum / values_len
 
-            stdev = Decimal(0)
+            # The scaling is just to avoid having too few decimal digits when printing,
+            # the value is still just 0.
+            stdev = Decimal(0).scaleb(-decimal.getcontext().prec)
             for v in values:
                 diff = v - mean
                 stdev += diff * diff

@@ -36,8 +36,6 @@ REQUEST_URL = {
 STOPPED_BY_INTERRUPT = False
 event_handler = Event()
 
-ENCODING_UTF_8 = "utf-8"
-
 # Number of seconds a http request will wait to establish a connection to the
 # remote machine.
 HTTP_REQUEST_TIMEOUT = 10
@@ -74,9 +72,7 @@ def execute_benchmark(benchmark, output_handler):
 
         # Create
         logging.info("Sending http-request for the specific upload destinations")
-        url = (
-            REQUEST_URL["create"].format(aws_endpoint, aws_token).encode(ENCODING_UTF_8)
-        )
+        url = REQUEST_URL["create"].format(aws_endpoint, aws_token)
         logging.debug("Url of the 'create' HTTP -request: \n%s", url)
         http_response = requests.get(url, timeout=HTTP_REQUEST_TIMEOUT)
         http_response.raise_for_status()
@@ -85,7 +81,7 @@ def execute_benchmark(benchmark, output_handler):
         requestId = msg["requestId"]
 
         # Upload verifier
-        prefix = benchmark.tool_name + "_" + benchmark.instance + "_"
+        prefix = f"{benchmark.tool_name}_{benchmark.instance}_"
         with tempfile.SpooledTemporaryFile(
             mode="w+b", prefix=prefix, suffix=".zip"
         ) as tempfile_verifier:
@@ -97,11 +93,7 @@ def execute_benchmark(benchmark, output_handler):
             tempfile_verifier.seek(0)  # resets the file pointer
 
             payload = {"file": prefix + ".zip"}
-            url = (
-                REQUEST_URL["upload"]
-                .format(aws_endpoint, aws_token, requestId)
-                .encode(ENCODING_UTF_8)
-            )
+            url = REQUEST_URL["upload"].format(aws_endpoint, aws_token, requestId)
             logging.debug("Sending http-request for uploading the verifier: \n%s", url)
             http_response = requests.get(
                 url, params=payload, timeout=HTTP_REQUEST_TIMEOUT
@@ -121,7 +113,7 @@ def execute_benchmark(benchmark, output_handler):
             http_request.raise_for_status()
 
         # Upload tasks
-        prefix = "BenchExec_tasks_" + benchmark.instance + "_"
+        prefix = f"BenchExec_tasks_{benchmark.instance}_"
         with tempfile.SpooledTemporaryFile(
             mode="w+b", prefix=prefix, suffix=".zip"
         ) as tempfile_tasks:
@@ -133,11 +125,7 @@ def execute_benchmark(benchmark, output_handler):
             tempfile_tasks.seek(0)  # resets the file pointer
 
             payload = {"file": prefix + ".zip"}
-            url = (
-                REQUEST_URL["upload"]
-                .format(aws_endpoint, aws_token, requestId)
-                .encode(ENCODING_UTF_8)
-            )
+            url = REQUEST_URL["upload"].format(aws_endpoint, aws_token, requestId)
             logging.debug("Sending http-request for uploading tasks: \n%s", url)
             http_response = requests.get(
                 url, params=payload, timeout=HTTP_REQUEST_TIMEOUT
@@ -158,11 +146,7 @@ def execute_benchmark(benchmark, output_handler):
 
         # Upload commands
         payload = {"file": "commands.json"}
-        url = (
-            REQUEST_URL["upload"]
-            .format(aws_endpoint, aws_token, requestId)
-            .encode(ENCODING_UTF_8)
-        )
+        url = REQUEST_URL["upload"].format(aws_endpoint, aws_token, requestId)
         logging.debug("Sending http-request for uploading commands: \n%s", url)
         http_response = requests.get(url, params=payload, timeout=HTTP_REQUEST_TIMEOUT)
         http_response.raise_for_status()
@@ -187,11 +171,7 @@ def execute_benchmark(benchmark, output_handler):
             "tasksS3": tasks_s3_key,
             "commandsS3": commands_s3_key,
         }
-        url = (
-            REQUEST_URL["launchBatch"]
-            .format(aws_endpoint, aws_token, requestId)
-            .encode(ENCODING_UTF_8)
-        )
+        url = REQUEST_URL["launchBatch"].format(aws_endpoint, aws_token, requestId)
         logging.debug("Sending http-request for launch: \n%s", url)
         http_response = requests.get(url, params=payload, timeout=HTTP_REQUEST_TIMEOUT)
         http_response.raise_for_status()
@@ -201,10 +181,8 @@ def execute_benchmark(benchmark, output_handler):
             "Executing Runexec on the AWS workers. "
             "Depending on the size of the tasks, this might take a while."
         )
-        progress_url = (
-            REQUEST_URL["progressBatch"]
-            .format(aws_endpoint, aws_token, requestId)
-            .encode(ENCODING_UTF_8)
+        progress_url = REQUEST_URL["progressBatch"].format(
+            aws_endpoint, aws_token, requestId
         )
         logging.debug("Sending http-request for progress: \n%s", progress_url)
         printMsg = 0
@@ -247,11 +225,7 @@ def execute_benchmark(benchmark, output_handler):
                 break
 
         # Results
-        url = (
-            REQUEST_URL["results"]
-            .format(aws_endpoint, aws_token, requestId)
-            .encode(ENCODING_UTF_8)
-        )
+        url = REQUEST_URL["results"].format(aws_endpoint, aws_token, requestId)
         logging.debug("Sending http-request for collecting the results: \n%s", url)
         http_response = requests.get(url, timeout=HTTP_REQUEST_TIMEOUT)
         http_response.raise_for_status()
@@ -266,9 +240,7 @@ def execute_benchmark(benchmark, output_handler):
         stop()
     finally:
         # Clean
-        url = (
-            REQUEST_URL["clean"].format(aws_endpoint, aws_token).encode(ENCODING_UTF_8)
-        )
+        url = REQUEST_URL["clean"].format(aws_endpoint, aws_token)
         logging.debug(
             "Sending http-request for cleaning the aws services up: \n%s", url
         )
@@ -350,9 +322,8 @@ def _createArchiveFile(archive_path, abs_base_dir, abs_paths):
                     os.remove(archive_path)
 
                 raise BenchExecException(
-                    "Missing file '{0}', cannot run benchmark without it.".format(
-                        os.path.normpath(file)
-                    )
+                    f"Missing file '{os.path.normpath(file)}', "
+                    f"cannot run benchmark without it."
                 )
 
             if os.path.isdir(file):
@@ -415,7 +386,7 @@ def getBenchmarkData(benchmark):
             run_definition = {}
 
             # wrap list-elements in quotations-marks if they contain whitespace
-            cmdline = ["'{}'".format(x) if " " in x else x for x in run.cmdline()]
+            cmdline = [f"'{x}'" if " " in x else x for x in run.cmdline()]
             cmdline = " ".join(cmdline)
             log_file = os.path.relpath(run.log_file, benchmark.log_folder)
 
@@ -449,7 +420,7 @@ def getToolData(benchmark):
     working_dir = benchmark.working_directory()
     if not os.path.isdir(working_dir):
         raise BenchExecException(
-            "Missing working directory '{0}', cannot run tool.".format(working_dir)
+            f"Missing working directory '{working_dir}', cannot run tool."
         )
     logging.debug("Working dir: %s", working_dir)
 
@@ -458,9 +429,8 @@ def getToolData(benchmark):
     for file in toolpaths:
         if not os.path.exists(file):
             raise BenchExecException(
-                "Missing file '{0}', not runing benchmark without it.".format(
-                    os.path.normpath(file)
-                )
+                f"Missing file '{os.path.normpath(file)}', "
+                f"not running benchmark without it."
             )
         for glob in benchexec.util.expand_filename_pattern(file, working_dir):
             valid_toolpaths.add(glob)
@@ -584,7 +554,7 @@ def parse_aws_run_result(values):
 
     def parse_time_value(s):
         if s[-1] != "s":
-            raise ValueError('Cannot parse "{0}" as a time value.'.format(s))
+            raise ValueError(f'Cannot parse "{s}" as a time value.')
         return float(s[:-1])
 
     def set_exitcode(new):
@@ -592,7 +562,7 @@ def parse_aws_run_result(values):
             old = result_values["exitcode"]
             assert (
                 old == new
-            ), "Inconsistent exit codes {} and {} from AWS execution".format(old, new)
+            ), f"Inconsistent exit codes {old} and {new} from AWS execution"
         else:
             result_values["exitcode"] = new
 

@@ -6,16 +6,16 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import argparse
-import benchexec.util as util
 import benchexec.tools.template
-import contextlib
 import os
 import re
-import sys
 import threading
 
+from benchexec.tools.template import BaseTool2
+from benchexec.tools.template import UnsupportedFeatureException
 
-class Tool(benchexec.tools.template.BaseTool):
+
+class Tool(benchexec.tools.template.BaseTool2):
     """
     This is the tool info module for MetaVal.
 
@@ -28,45 +28,35 @@ class Tool(benchexec.tools.template.BaseTool):
     """
 
     TOOL_TO_PATH_MAP = {
-        "cpachecker-metaval": "CPAchecker",
-        "cpachecker": "CPAchecker-1.7-svn 29852-unix",
+        "cpachecker-metaval": "CPAchecker-frontend",
+        "cpachecker": "CPAchecker",
         "esbmc": "esbmc",
         "symbiotic": "symbiotic",
         "yogar-cbmc": "yogar-cbmc",
         "ultimateautomizer": "UAutomizer-linux",
     }
     PATH_TO_TOOL_MAP = {v: k for k, v in TOOL_TO_PATH_MAP.items()}
-    REQUIRED_PATHS = list(TOOL_TO_PATH_MAP.values())
+    REQUIRED_PATHS = list(TOOL_TO_PATH_MAP.values()) + [
+        "VERSION.txt",
+        "metaval.py",
+        "metaval.sh",
+    ]
 
     def __init__(self):
         self.lock = threading.Lock()
         self.wrappedTools = {}
 
-    def executable(self):
-        return util.find_executable("metaval.sh")
+    def executable(self, toolLocator):
+        return toolLocator.find_executable("metaval.sh")
 
     def name(self):
-        return "metaval"
+        return "MetaVal"
 
-    @contextlib.contextmanager
-    def _in_tool_directory(self, verifierName):
-        """
-        Context manager that sets the current working directory to the tool's directory
-        and resets its afterward. The returned value is the previous working directory.
-        """
-        with self.lock:
-            try:
-                oldcwd = os.getcwd()
-                os.chdir(os.path.join(oldcwd, self.TOOL_TO_PATH_MAP[verifierName]))
-                yield oldcwd
-            finally:
-                os.chdir(oldcwd)
-
-    def determine_result(self, returncode, returnsignal, output, isTimeout):
+    def determine_result(self, run):
         verifierDir = None
         regex = re.compile("verifier used in MetaVal is (.*)")
-        for line in output[:20]:
-            match = regex.match(line)
+        for line in run.output[:20]:
+            match = regex.search(line)
             if match is not None:
                 verifierDir = match.group(1)
                 break
@@ -77,12 +67,18 @@ class Tool(benchexec.tools.template.BaseTool):
         ):
             return "METAVAL ERROR"
         verifierName = self.PATH_TO_TOOL_MAP[verifierDir]
-        with self._in_tool_directory(verifierName):
-            return self.wrappedTools[verifierName].determine_result(
-                returncode, returnsignal, output, isTimeout
-            )
 
-    def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
+        tool = self.wrappedTools[verifierName]
+        assert isinstance(
+            tool, BaseTool2
+        ), "we expect that all wrapped tools extend BaseTool2"
+        return tool.determine_result(run)
+
+    def cmdline(self, executable, options, task, rlimits):
+        if not task.property_file:
+            raise UnsupportedFeatureException(
+                f"Execution without property file is not supported by {self.name()}!"
+            )
         parser = argparse.ArgumentParser(add_help=False, usage=argparse.SUPPRESS)
         parser.add_argument("--metavalWitness", required=True)
         parser.add_argument("--metavalVerifierBackend", required=True)
@@ -107,31 +103,48 @@ class Tool(benchexec.tools.template.BaseTool):
                     "benchexec.tools." + verifierName, fromlist=["Tool"]
                 ).Tool()
 
-        if verifierName in self.wrappedTools:
-            with self._in_tool_directory(verifierName) as oldcwd:
-                wrappedOptions = self.wrappedTools[verifierName].cmdline(
-                    self.wrappedTools[verifierName].executable(),
-                    options,
-                    [os.path.relpath(os.path.join(oldcwd, "output/ARG.c"))],
-                    os.path.relpath(os.path.join(oldcwd, propertyfile)),
-                    rlimits,
+        tool = self.wrappedTools[verifierName]
+        assert isinstance(
+            tool, BaseTool2
+        ), "we expect that all wrapped tools extend BaseTool2"
+        wrapped_executable = tool.executable(
+            BaseTool2.ToolLocator(
+                tool_directory=self._resource(
+                    executable, self.TOOL_TO_PATH_MAP[verifierName]
                 )
-            return (
-                [
-                    executable,
-                    "--verifier",
-                    self.TOOL_TO_PATH_MAP[verifierName],
-                    "--witness",
-                    witnessName,
-                ]
-                + additionalPathArgument
-                + witnessTypeArgument
-                + tasks
-                + ["--"]
-                + wrappedOptions
             )
-        else:
-            sys.exit("ERROR: Could not find wrapped tool")  # noqa: R503 always raises
+        )
+        wrappedtask = BaseTool2.Task(
+            input_files=[self._resource(executable, "output/ARG.c")],
+            identifier=task.identifier,
+            property_file=task.property_file,
+            options=task.options,
+        )
+        wrappedOptions = tool.cmdline(
+            wrapped_executable,
+            options,
+            wrappedtask,
+            rlimits,
+        )
+
+        return (
+            [
+                executable,
+                "--verifier",
+                self.TOOL_TO_PATH_MAP[verifierName],
+                "--witness",
+                witnessName,
+            ]
+            + additionalPathArgument
+            + witnessTypeArgument
+            + ["--property", task.property_file]
+            + [task.single_input_file]
+            + ["--"]
+            + wrappedOptions
+        )
+
+    def _resource(self, executable, relpath):
+        return os.path.join(os.path.dirname(executable), relpath)
 
     def version(self, executable):
         stdout = self._version_from_tool(executable, "--version")

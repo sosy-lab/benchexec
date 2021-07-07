@@ -51,14 +51,18 @@ class Pqos(object):
             args_list = [self.executable_path] + list(args)
             try:
                 if "-m" in args_list:
-                    self.mon_process = Popen(args_list, stdout=PIPE, stderr=PIPE)
+                    self.mon_process = Popen(
+                        args_list, stdout=PIPE, stderr=PIPE, universal_newlines=True
+                    )
                 else:
-                    ret = json.loads(check_output(args_list, stderr=STDOUT).decode())
+                    ret = json.loads(
+                        check_output(args_list, stderr=STDOUT, universal_newlines=True)
+                    )
                     logging.debug(ret[function]["message"])
                 return True
             except CalledProcessError as e:
                 if self.show_warnings and (not suppress_warning):
-                    self.print_error_message(e.output.decode(), __type, args_list)
+                    self.print_error_message(e.output, __type, args_list)
         return False
 
     def print_error_message(self, err, __type, args_list):
@@ -75,13 +79,13 @@ class Pqos(object):
         }
         try:
             ret = json.loads(err)
-            logging.warning("{0}...{1}".format(msg_prefix[__type], ret["message"]))
+            logging.warning("%s...%s", msg_prefix[__type], ret["message"])
             self.check_for_errors()
         except ValueError:
             logging.warning(
-                "{0}...Unable to execute command {1}".format(
-                    msg_prefix[__type], " ".join(args_list)
-                )
+                "%s...Unable to execute command %s",
+                msg_prefix[__type],
+                " ".join(args_list),
             )
 
     def check_capacity(self, technology):
@@ -143,7 +147,7 @@ class Pqos(object):
             self.mon_process.send_signal(SIGINT)
             mon_output = self.mon_process.communicate()
             if self.mon_process.returncode == 0:
-                mon_data = json.loads(mon_output[0].decode())
+                mon_data = json.loads(mon_output[0])
                 logging.debug(mon_data["monitor_events"]["message"])
                 ret = self.flatten_mon_data(
                     mon_data["monitor_events"]["function_output"]["monitoring_data"]
@@ -151,7 +155,7 @@ class Pqos(object):
             else:
                 if self.show_warnings:
                     self.print_error_message(
-                        mon_output[1].decode(), "mon", self.mon_process.args
+                        mon_output[1], "mon", self.mon_process.args
                     )
             self.mon_process.kill()
             self.mon_process = None
@@ -182,15 +186,13 @@ class Pqos(object):
                 if isinstance(val, dict):
                     for sub_key, sub_val in val.items():
                         if len(mon_data) > 1:
-                            flatten_key = "{0}_{1}_cpus{2}".format(
-                                key, sub_key, core_str
-                            )
+                            flatten_key = f"{key}_{sub_key}_cpus{core_str}"
                         else:
-                            flatten_key = "{0}_{1}".format(key, sub_key)
+                            flatten_key = f"{key}_{sub_key}"
                         flatten_dict[flatten_key] = sub_val
                 else:
                     if len(mon_data) > 1:
-                        flatten_key = "{0}_cpus{1}".format(key, core_str)
+                        flatten_key = f"{key}_cpus{core_str}"
                     else:
                         flatten_key = key
                     flatten_dict[flatten_key] = val
@@ -225,15 +227,11 @@ class Pqos(object):
             if msr["read"]:
                 if not msr["write"]:
                     logging.warning(
-                        "Add write permissions for msr module for {}".format(
-                            current_user
-                        )
+                        "Add write permissions for msr module for %s", current_user
                     )
             else:
                 logging.warning(
-                    "Add read and write permissions for msr module for {}".format(
-                        current_user
-                    )
+                    "Add read and write permissions for msr module for %s", current_user
                 )
         else:
             logging.warning("Load msr module for using cache allocation/monitoring")

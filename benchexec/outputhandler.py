@@ -169,9 +169,9 @@ class OutputHandler(object):
         Mark the benchmark as erroneous, e.g., because the benchmarking tool crashed.
         The message is intended as explanation for the user.
         """
-        self.xml_header.set("error", msg if msg else "unknown error")
+        self.xml_header.set("error", msg or "unknown error")
         if runSet:
-            runSet.xml.set("error", msg if msg else "unknown error")
+            runSet.xml.set("error", msg or "unknown error")
 
     def store_header_in_xml(self, version, memlimit, timelimit, corelimit):
 
@@ -229,7 +229,7 @@ class OutputHandler(object):
         def format_line(key, value):
             if value is None:
                 return ""
-            return (key + ":").ljust(columnWidth) + str(value).strip() + "\n"
+            return ((key + ":").ljust(columnWidth) + str(value)).strip() + "\n"
 
         def format_byte(key, value):
             if value is None:
@@ -334,9 +334,7 @@ class OutputHandler(object):
         # write run set name to terminal
         numberOfFiles = len(runSet.runs)
         numberOfFilesStr = (
-            "     (1 file)"
-            if numberOfFiles == 1
-            else "     ({0} files)".format(numberOfFiles)
+            "     (1 file)" if numberOfFiles == 1 else f"     ({numberOfFiles} files)"
         )
         util.printOut(
             "\nexecuting run set"
@@ -412,9 +410,11 @@ class OutputHandler(object):
         runSetInfo = "\n\n"
         if runSet.name:
             runSetInfo += runSet.name + "\n"
-        runSetInfo += "Run set {0} of {1}: skipped {2}\n".format(
-            runSet.index, len(self.benchmark.run_sets), reason or ""
+        runSetInfo += (
+            f"Run set {runSet.index} of {len(self.benchmark.run_sets)}: "
+            f"skipped {reason or ''}".rstrip()
         )
+        runSetInfo += "\n"
         self.txt_file.append(runSetInfo)
 
     def writeRunSetInfoToLog(self, runSet):
@@ -426,12 +426,9 @@ class OutputHandler(object):
         if runSet.name:
             runSetInfo += runSet.name + "\n"
         runSetInfo += (
-            "Run set {0} of {1} with options '{2}' and propertyfile '{3}'\n\n".format(
-                runSet.index,
-                len(self.benchmark.run_sets),
-                " ".join(runSet.options),
-                util.text_or_none(runSet.propertytag),
-            )
+            f"Run set {runSet.index} of {len(self.benchmark.run_sets)} "
+            f"with options '{' '.join(runSet.options)}' and "
+            f"propertyfile '{util.text_or_none(runSet.propertytag)}'\n\n"
         )
 
         titleLine = self.create_output_line(
@@ -469,9 +466,7 @@ class OutputHandler(object):
                 runSet.started_runs = 1
 
             timeStr = time.strftime("%H:%M:%S", time.localtime()) + "   "
-            progressIndicator = " ({0}/{1})".format(
-                runSet.started_runs, len(runSet.runs)
-            )
+            progressIndicator = f" ({runSet.started_runs}/{len(runSet.runs)})"
             terminalTitle = TERMINAL_TITLE.format(runSet.full_name + progressIndicator)
             if self.benchmark.num_of_threads == 1:
                 util.printOut(
@@ -614,7 +609,7 @@ class OutputHandler(object):
         lines.append(runSet.simpleLine)
 
         # write endline into txt_file
-        endline = "Run set {0}".format(runSet.index)
+        endline = f"Run set {runSet.index}"
 
         # format time, type is changed from float to string!
         cputime_str = (
@@ -723,7 +718,7 @@ class OutputHandler(object):
             elif title.startswith("mbm"):
                 value_suffix = "B/s"
 
-        value = "{}{}".format(value, value_suffix)
+        value = f"{value}{value_suffix}"
 
         element = ElementTree.Element("column", title=title, value=value)
         if hidden:
@@ -786,13 +781,18 @@ class OutputHandler(object):
                 Find a file with the given name in the same directory as this script.
                 Returns a path relative to the current directory, or None.
                 """
-                path = os.path.join(os.path.dirname(sys.argv[0]), name)
-                if not os.path.isfile(path):
-                    path = os.path.join(os.path.dirname(__file__), os.path.pardir, name)
-                    if not os.path.isfile(path):
-                        return None
+                main_dir = os.path.dirname(sys.argv[0])
+                search_dirs = [
+                    main_dir,
+                    os.path.join(main_dir, os.path.pardir, "bin"),
+                    os.path.join(os.path.dirname(__file__), os.path.pardir),
+                ]
+                path = util.find_executable2(name, search_dirs)
 
-                if os.path.dirname(path) in os.environ["PATH"].split(os.pathsep):
+                if not path:
+                    return None
+
+                if os.path.dirname(path) in util.get_path():
                     # in PATH, just use command name
                     return os.path.basename(path)
 
@@ -810,10 +810,10 @@ class OutputHandler(object):
                     if self.compress_results
                     else self.xml_file_names
                 )
+                cmdline = [tableGeneratorPath] + xml_file_names
                 util.printOut(
-                    "In order to get HTML and CSV tables, run\n{0} '{1}'".format(
-                        tableGeneratorPath, "' '".join(xml_file_names)
-                    )
+                    "In order to get HTML and CSV tables, run\n"
+                    + " ".join(map(util.escape_string_shell, cmdline)),
                 )
 
         if isStoppedByInterrupt:
@@ -823,10 +823,24 @@ class OutputHandler(object):
 
     def close(self):
         """Do all necessary cleanup."""
+        self.txt_file.close()
+
         if self.compress_results:
             with self.log_zip_lock:
+                zip_is_empty = not self.log_zip.namelist()
                 self.log_zip.close()
-        self.txt_file.close()
+
+                if zip_is_empty:
+                    # remove useless ZIP file, e.g., because all runs were skipped
+                    os.remove(self.benchmark.log_zip)
+                    self.all_created_files.remove(self.benchmark.log_zip)
+
+        # remove useless log folder if it is empty,
+        # e.g., because all logs were written to the ZIP file
+        try:
+            os.rmdir(self.benchmark.log_folder)
+        except OSError:
+            pass
 
     def get_filename(self, runSetName, fileExtension):
         """

@@ -9,6 +9,7 @@
 This module allows to retrieve information about the current system.
 """
 
+from decimal import Decimal
 import glob
 import logging
 import os
@@ -66,17 +67,17 @@ class SystemInfo(object):
             .replace("(tm)", "")
         )
         if "cpu MHz" in cpuInfo:
-            # convert to Hz
-            self.cpu_max_frequency = int(float(cpuInfo["cpu MHz"])) * 1000 * 1000
+            freq_hz = Decimal(cpuInfo["cpu MHz"]) * 1000 * 1000  # convert to Hz
+            self.cpu_max_frequency = int((freq_hz).to_integral_value())
 
         # modern cpus may not work with full speed the whole day
         # read the number from cpufreq and overwrite cpu_max_frequency from above
         freqInfoFilename = "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq"
-        if os.path.isfile(freqInfoFilename) and os.access(freqInfoFilename, os.R_OK):
-            frequencyInfoFile = open(freqInfoFilename, "rt")
-            cpu_max_frequency = frequencyInfoFile.read().strip("\n")
-            frequencyInfoFile.close()
+        try:
+            cpu_max_frequency = util.read_file(freqInfoFilename)
             self.cpu_max_frequency = int(cpu_max_frequency) * 1000  # convert to Hz
+        except OSError:
+            pass  # does not necessarily exist
 
         self.cpu_turboboost = is_turbo_boost_enabled()
 
@@ -114,18 +115,17 @@ class CPUThrottleCheck(object):
         Create an instance that monitors the given list of cores (or all CPUs).
         """
         self.cpu_throttle_count = {}
-        cpu_pattern = "[{0}]".format(",".join(map(str, cores))) if cores else "*"
-        for file in glob.glob(
-            "/sys/devices/system/cpu/cpu{}/thermal_throttle/*_throttle_count".format(
-                cpu_pattern
-            )
-        ):
-            try:
-                self.cpu_throttle_count[file] = int(util.read_file(file))
-            except Exception as e:
-                logging.warning(
-                    "Cannot read throttling count of CPU from kernel: %s", e
-                )
+        cores = [str(core) for core in cores] if cores else ["*"]
+        for core in cores:
+            for file in glob.iglob(
+                f"/sys/devices/system/cpu/cpu{core}/thermal_throttle/*_throttle_count"
+            ):
+                try:
+                    self.cpu_throttle_count[file] = int(util.read_file(file))
+                except Exception as e:
+                    logging.warning(
+                        "Cannot read throttling count of CPU from kernel: %s", e
+                    )
 
     def has_throttled(self):
         """
@@ -187,18 +187,18 @@ def is_turbo_boost_enabled():
             boost_enabled = int(util.read_file(_TURBO_BOOST_FILE))
             if not (0 <= boost_enabled <= 1):
                 raise ValueError(
-                    "Invalid value {} for turbo boost activation".format(boost_enabled)
+                    f"Invalid value {boost_enabled} for turbo boost activation"
                 )
             return boost_enabled != 0
         if os.path.exists(_TURBO_BOOST_FILE_PSTATE):
             boost_disabled = int(util.read_file(_TURBO_BOOST_FILE_PSTATE))
             if not (0 <= boost_disabled <= 1):
                 raise ValueError(
-                    "Invalid value {} for turbo boost activation".format(boost_enabled)
+                    f"Invalid value {boost_disabled} for turbo boost activation"
                 )
             return boost_disabled != 1
     except ValueError as e:
-        sys.exit("Could not read turbo-boost information from kernel: {0}".format(e))
+        sys.exit(f"Could not read turbo-boost information from kernel: {e}")
 
 
 def has_swap():

@@ -11,3 +11,5 @@ import "./index.css";
 import App from "./App";
 
 ReactDOM.render(<App />, document.getElementById("root"));
+// Remove loading message
+document.getElementById("msg-container").remove();

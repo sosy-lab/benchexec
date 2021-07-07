@@ -5,6 +5,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import copy
 import json
 import logging
 import os
@@ -30,7 +31,7 @@ def write_html_table(
     relevant_id_columns,
     output_path,
     common_prefix,
-    **kwargs
+    **kwargs,
 ):
     app_css = [util.read_bundled_file(path + "css") for path in _REACT_FILES]
     app_js = [util.read_bundled_file(path + "js") for path in _REACT_FILES]
@@ -42,6 +43,7 @@ def write_html_table(
     tools = _prepare_run_sets_for_js(run_sets)
     href_base = os.path.dirname(options.xmltablefile) if options.xmltablefile else None
     rows_js = _prepare_rows_for_js(rows, output_path, href_base, relevant_id_columns)
+    initial_state = options.initial_table_state
 
     def write_tags(tag_name, contents):
         for content in contents:
@@ -63,29 +65,46 @@ def write_html_table(
         out.write("\n")
 
     out.write(
-        """<!DOCTYPE html>
+        f"""<!DOCTYPE html>
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<meta name="generator" content="BenchExec table-generator {version}">
+<meta name="generator" content="BenchExec table-generator {__version__}">
 <title>{title} &ndash; BenchExec results</title>
 
-""".format(
-            title=title, version=__version__
-        )
+"""
     )
     write_tags("style", app_css)
     out.write(
-        """</head>
+        """<style>
+    #msg-container {
+        text-align: center;
+        margin-top: 2rem;
+        font-size: 1.2rem;
+    }
+</style>
+</head>
+
 <body>
 
-<div id="root"></div>
+<div id="msg-container">
+    Please wait while the page is being loaded.
+</div>
+<div id="root">
+</div>
 <noscript>
   This is an interactive table for viewing results produced by
   <a href="https://github.com/sosy-lab/benchexec" target="_blank" rel="noopener noreferrer">BenchExec</a>.
   Please enable JavaScript to use it.
 </noscript>
-
+<script>
+    try {
+        [0].flat();
+    } catch (err) {
+        var msgContainer = document.getElementById("msg-container");
+        msgContainer.innerHTML = "Your browser is not supported. Please consider using another browser such as Firefox or Google Chrome."
+    }
+</script>
 <script>
 const data = {
 """
@@ -94,6 +113,7 @@ const data = {
     write_json_part("head", benchmark_setup)
     write_json_part("tools", tools)
     write_json_part("rows", rows_js)
+    write_json_part("initial", initial_state)
     write_json_part("stats", stats, last=True)
     out.write(
         """};
@@ -226,9 +246,11 @@ def _statistics_has_value_for(all_column_stats, field):
 def _convert_statvalue_to_json(column_stats, field, column):
     def format_stat_value(key, value):
         if key == "sum":
-            return column.format_value(value, True, "html_cell")
+            return column.format_value(value, "html_cell")
+        elif key == "avg" or key == "stdev":
+            return column.format_value(value, "tooltip_stochastic")
         else:
-            return column.format_value(value, False, "tooltip")
+            return column.format_value(value, "tooltip")
 
     if column_stats is None:
         return None
@@ -245,8 +267,29 @@ def _convert_statvalue_to_json(column_stats, field, column):
 def _prepare_stats(all_column_stats, rows, columns):
     max_score, count_true, count_false = _get_task_counts(rows)
 
+    # Column instances contain the info about how to format (round and align) values.
+    # However, alignment info is based on the values in the actual table, whereas for
+    # the stats table often less whitespace for alignment is necessary.
+    # So we replace the Column instances with adjusted ones.
+    def adjust_column_to_statistics_values(column, column_stats):
+        if not column_stats:
+            return column
+        # Compute alignment info from the values shown in the statistics table (sums).
+        values = [stat.sum for stat in column_stats.__dict__.values() if stat]
+        new_column = copy.copy(column)
+        new_column.set_column_type_from(values)
+        return new_column
+
+    columns = [
+        [
+            adjust_column_to_statistics_values(column, column_stats)
+            for column_stats, column in zip(run_set_stats, run_set_columns)
+        ]
+        for run_set_stats, run_set_columns in zip(all_column_stats, columns)
+    ]
+
     task_counts = (
-        "in total {0} true tasks, {1} false tasks".format(count_true, count_false)
+        f"in total {count_true} true tasks, {count_false} false tasks"
         if count_true or count_false
         else ""
     )
@@ -282,7 +325,9 @@ def _prepare_stats(all_column_stats, rows, columns):
             )
         )
 
-    if count_true or count_false:
+    has_correct = _statistics_has_value_for(all_column_stats, "correct")
+    has_wrong = _statistics_has_value_for(all_column_stats, "wrong")
+    if has_correct or has_wrong:
         stat_rows.append(
             dict(  # noqa: C408
                 id=None,
@@ -363,7 +408,7 @@ def _prepare_stats(all_column_stats, rows, columns):
         stat_rows.append(
             dict(  # noqa: C408
                 id="score",
-                title="score ({0} tasks, max score: {1})".format(len(rows), max_score),
+                title=f"score ({len(rows)} tasks, max score: {max_score})",
                 description=task_counts,
                 content=get_stat_row("score"),
             )
@@ -378,6 +423,8 @@ def _prepare_run_sets_for_js(run_sets):
 
     def prepare_column(column):
         result = {k: v for k, v in column.__dict__.items() if v is not None}
+        result.pop("scale_factor", None)
+        result.pop("source_unit", None)
         if "href" in result:
             # href may contain an url created from an os-dependant path, so standardize it between OSs
             result["href"] = util.fix_path_if_on_windows(result["href"])
@@ -404,14 +451,14 @@ def _prepare_rows_for_js(rows, base_dir, href_base, relevant_id_columns):
     def prepare_value(column, value, run_result):
         """
         Return a dict that represents one value (table cell).
-        We always add the raw value (as in CSV), and sometimes a version that is
+        We always add the raw value (never rounded), and sometimes a version that is
         formatted for HTML (e.g., with spaces for alignment).
         """
-        raw_value = column.format_value(value, False, "csv")
+        raw_value = column.format_value(value, "raw")
         # We need to make sure that formatted_value is safe (no unescaped tool output),
         # but for text columns format_value returns the same for csv and html_cell,
         # and for number columns the HTML result is safe.
-        formatted_value = column.format_value(value, True, "html_cell")
+        formatted_value = column.format_value(value, "html_cell")
         result = {}
         if column.href:
             result["href"] = _create_link(column.href, base_dir, run_result, href_base)

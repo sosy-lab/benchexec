@@ -30,9 +30,9 @@ class Tool(benchexec.tools.template.BaseTool2):
         return (
             [executable, "--echo", "--"]
             + options
-            + ["Input file: " + f for f in task.input_files_or_empty]
-            + ["Property file: " + (task.property_file or "None")]
-            + (["Task options: " + repr(task.options)] if task.options else [])
+            + [f"Input file: {f}" for f in task.input_files_or_empty]
+            + [f"Property file: {task.property_file or 'None'}"]
+            + ([f"Task options: {task.options!r}"] if task.options else [])
         )
 
     def determine_result(self, run):

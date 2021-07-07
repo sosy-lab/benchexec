@@ -26,10 +26,17 @@ import {
   getFilterableData,
   buildMatcher,
   applyMatcher,
+  statusForEmptyRows,
 } from "../utils/filters";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faQuestionCircle } from "@fortawesome/free-solid-svg-icons";
-import { createHiddenColsFromURL } from "../utils/utils";
+import {
+  createHiddenColsFromURL,
+  makeUrlFilterDeserializer,
+  makeUrlFilterSerializer,
+  setConstantHashSearch,
+} from "../utils/utils";
+import deepEqual from "deep-equal";
 
 const menuItems = [
   { key: "summary", title: "Summary", path: "/" },
@@ -44,7 +51,12 @@ const menuItems = [
   },
 ];
 
-const getCurrentPath = () => document.location.hash.split("?")[0].substr(1);
+const getActiveTab = () =>
+  (
+    menuItems.find(
+      (i) => i.path === document.location.hash.split("?")[0].substr(1),
+    ) || { key: "summary" }
+  ).key;
 
 export default class Overview extends React.Component {
   constructor(props) {
@@ -55,12 +67,17 @@ export default class Overview extends React.Component {
       taskIdNames,
       tools,
       columns,
-      table,
+      tableData,
       stats,
+      initial,
     } = prepareTableData(props.data);
 
+    if (initial && !document.location.href.includes("#")) {
+      setConstantHashSearch(initial);
+    }
+
     const filterable = getFilterableData(this.props.data);
-    this.originalTable = table;
+    this.originalTable = tableData;
     this.originalTools = tools;
 
     this.taskIdNames = taskIdNames;
@@ -71,21 +88,19 @@ export default class Overview extends React.Component {
 
     this.filteredData = [];
 
+    this.routerRef = React.createRef();
+
     //data is handled and changed here; To use it in other components hand it over with component
     //To change data in component (e.g. filter): function to change has to be in overview
     this.state = {
       tools,
-      table,
+      tableData,
       filterable,
       showSelectColumns: false,
       showLinkOverlay: false,
       filtered: [],
-      tabIndex: 0,
       filterBoxVisible: false,
-      active: (
-        menuItems.find((i) => i.path === getCurrentPath()) || { key: "summary" }
-      ).key,
-
+      active: getActiveTab(),
       quantilePreSelection: tools[0].columns[1],
       hiddenCols: createHiddenColsFromURL(tools),
     };
@@ -94,23 +109,103 @@ export default class Overview extends React.Component {
       (_tool, column) => column.type === "status",
       (_runResult, value) => getRawOrDefault(value),
     );
+    // Add statusForEmptyRows to status values array if there is a corresponding empty row for the runset
+    this.originalTools.forEach((tool, j) =>
+      tool.columns
+        .filter((column) => column.type === "status")
+        .forEach((col, i) => {
+          const hasEmptyRow = this.originalTable.some(
+            (row) => row.results[j].category === "empty",
+          );
+          if (hasEmptyRow) {
+            this.statusValues[j][i].push(statusForEmptyRows);
+          }
+        }),
+    );
     this.categoryValues = this.findAllValuesOfColumn(
       (_tool, column) => column.type === "status",
       (runResult, _value) => runResult.category,
     );
+
+    const categoryValuesWithTrailingSpace = this.categoryValues.map(
+      (tool) =>
+        tool &&
+        tool.map((column) => column && column.map((item) => `${item} `)),
+    );
+
+    this.filterUrlSetter = makeUrlFilterSerializer(
+      this.statusValues,
+      categoryValuesWithTrailingSpace,
+    );
+
+    this.filterUrlRetriever = makeUrlFilterDeserializer(
+      this.statusValues,
+      categoryValuesWithTrailingSpace,
+    );
+
+    const deserializedFilters = this.getFiltersFromUrl();
+    if (deserializedFilters) {
+      this.filteredData = this.runFilter(deserializedFilters);
+      this.lastFiltered = deserializedFilters;
+      this.state = {
+        ...this.state,
+        tableData: this.filteredData,
+        filtered: deserializedFilters,
+      };
+    }
   }
 
+  addTypeToFilter = (filters) =>
+    filters
+      .filter((filter) => filter.id !== "id")
+      .forEach((filter) => {
+        const [runsetIdx, , columnIdx] = filter.id.split("_");
+        const type = this.state.tools[runsetIdx]["columns"][columnIdx].type;
+        filter.type = type;
+      });
+
   componentDidMount() {
-    window.addEventListener("popstate", this.updateHiddenCols, false);
+    this.removeHistoryListener = this.routerRef.current.history.listen(
+      (_, action) => {
+        this.updateState();
+        if (action === "POP") {
+          this.updateFiltersFromUrl();
+        }
+      },
+    );
   }
 
   componentWillUnmount() {
-    window.removeEventListener("popstate", this.updateHiddenCols, false);
+    this.removeHistoryListener();
   }
 
-  updateHiddenCols = () => {
-    this.setState({ hiddenCols: createHiddenColsFromURL(this.state.tools) });
+  getFiltersFromUrl = () => {
+    const deserializedFilters = this.filterUrlRetriever() || [];
+    this.addTypeToFilter(deserializedFilters);
+    if (!deepEqual(this.lastFiltered, deserializedFilters)) {
+      // we only want to kick off filtering when filters changed
+      return deserializedFilters;
+    }
+    return null;
   };
+
+  updateFiltersFromUrl = () => {
+    const newFilters = this.getFiltersFromUrl();
+    if (newFilters) {
+      this.filteredData = this.runFilter(newFilters);
+      this.setState({
+        tableData: this.filteredData,
+        filtered: newFilters,
+      });
+      this.lastFiltered = newFilters;
+    }
+  };
+
+  updateState = () =>
+    this.setState({
+      active: getActiveTab(),
+      hiddenCols: createHiddenColsFromURL(this.state.tools),
+    });
 
   // -----------------------SelectColumns-----------------------
   toggleSelectColumns = (ev) => {
@@ -133,7 +228,6 @@ export default class Overview extends React.Component {
 
   // -----------------------Filter-----------------------
   setFilter = (filteredData, raw = false) => {
-    console.log({ filteredData });
     if (raw) {
       this.filteredData = filteredData;
       return;
@@ -142,20 +236,36 @@ export default class Overview extends React.Component {
       return row._original;
     });
   };
+
+  runFilter(filter) {
+    const matcher = buildMatcher(filter);
+    return applyMatcher(matcher)(this.originalTable);
+  }
+
   filterPlotData = (filter, runFilterLogic = true) => {
-    console.log({ filter });
+    // updating url filters on next tick to ensure that state is already set
+    // when handler is called);
+    if (this.lastImmediate) {
+      clearImmediate(this.lastImmediate);
+    }
+    this.lastImmediate = setImmediate(() => {
+      this.filterUrlSetter(filter, { history: this.routerRef.current.history });
+      this.lastFiltered = filter.filter(
+        (item) => (item.values && item.values.length > 0) || item.value,
+      );
+    });
     if (runFilterLogic) {
-      const matcher = buildMatcher(filter);
-      this.setFilter(applyMatcher(matcher)(this.originalTable), true);
+      this.setFilter(this.runFilter(filter), true);
     }
     this.setState({
-      table: this.filteredData,
+      tableData: this.filteredData,
       filtered: filter,
     });
   };
+
   resetFilters = () => {
     this.setState({
-      table: this.originalTable,
+      tableData: this.originalTable,
       filtered: [],
     });
   };
@@ -177,11 +287,22 @@ export default class Overview extends React.Component {
   // -----------------------Common Functions-----------------------
   getRowName = (row) => row.id.filter((s) => s).join(" | ");
 
-  changeTab = (_, column, tab) => {
-    this.setState({
-      tabIndex: tab,
-      quantilePreSelection: column,
-    });
+  // Return URL params that are important across different tabs, i.e. hidden cols and filter. Returns an empty string if there are none.
+  getRelevantUrlParams = () => {
+    let urlParams = document.location.href.split("?")[1] || "";
+    return urlParams
+      .split("&")
+      .filter(
+        (param) => param.startsWith("hidden") || param.startsWith("filter"),
+      )
+      .join("&");
+  };
+
+  // Open the quantile Plot with the given preselection
+  switchToQuantile = (quantilePreSelection) => {
+    this.setState({ quantilePreSelection });
+    const urlParams = this.getRelevantUrlParams();
+    document.location.hash = "#/quantile" + (urlParams ? "?" + urlParams : "");
   };
 
   render() {
@@ -193,17 +314,13 @@ export default class Overview extends React.Component {
         enabled={enabled}
         isFiltered={!!this.state.filtered.length}
         resetFilters={this.resetFilters}
-        filteredCount={this.state.table.length}
+        filteredCount={this.state.tableData.length}
         totalCount={this.originalTable.length}
       />
     );
-    let urlParams = document.location.href.split("?")[1] || "";
-    urlParams = urlParams
-      .split("&")
-      .filter((param) => param.startsWith("hidden"))
-      .join("&");
+    const urlParams = this.getRelevantUrlParams();
     return (
-      <Router>
+      <Router ref={this.routerRef}>
         <div className="overview">
           <div className="overview-container">
             <FilterBox
@@ -225,6 +342,7 @@ export default class Overview extends React.Component {
                 this.setState({ filterBoxVisible: false });
               }}
               ids={getTaskIdParts(this.originalTable, this.taskIdNames)}
+              addTypeToFilter={this.addTypeToFilter}
             />
             <div className="menu">
               {menuItems.map(({ key, title, path, icon }) => (
@@ -255,45 +373,43 @@ export default class Overview extends React.Component {
                     tableHeader={this.tableHeader}
                     version={this.props.data.version}
                     selectColumn={this.toggleSelectColumns}
-                    stats={this.stats}
-                    changeTab={this.changeTab}
+                    switchToQuantile={this.switchToQuantile}
+                    tableData={this.stats}
                     hiddenCols={this.state.hiddenCols}
                   />
                 </Route>
                 <Route path="/table">
                   <Table
-                    tableHeader={this.tableHeader}
-                    data={this.state.table}
+                    tableData={this.state.tableData}
                     tools={this.state.tools}
                     selectColumn={this.toggleSelectColumns}
-                    setFilter={this.setFilter}
                     filterPlotData={this.filterPlotData}
-                    filtered={this.state.filtered}
+                    filters={this.state.filtered}
                     toggleLinkOverlay={this.toggleLinkOverlay}
-                    changeTab={this.changeTab}
                     statusValues={this.statusValues}
                     categoryValues={this.categoryValues}
                     hiddenCols={this.state.hiddenCols}
+                    addTypeToFilter={this.addTypeToFilter}
                   />
                 </Route>
                 <Route path="/quantile">
                   <QuantilePlot
-                    table={this.state.table}
+                    table={this.state.tableData}
                     tools={this.state.tools}
                     preSelection={this.state.quantilePreSelection}
                     getRowName={this.getRowName}
                     hiddenCols={this.state.hiddenCols}
-                    isFlexible={true}
+                    isFlexible={this.props.renderPlotsFlexible}
                   />
                 </Route>
                 <Route path="/scatter">
                   <ScatterPlot
-                    table={this.state.table}
+                    table={this.state.tableData}
                     columns={this.columns}
                     tools={this.state.tools}
                     getRowName={this.getRowName}
                     hiddenCols={this.state.hiddenCols}
-                    isFlexible={true}
+                    isFlexible={this.props.renderPlotsFlexible}
                   />
                 </Route>
                 <Route path="/info">
@@ -313,6 +429,7 @@ export default class Overview extends React.Component {
                 tableHeader={this.tableHeader}
                 tools={this.state.tools}
                 hiddenCols={this.state.hiddenCols}
+                history={this.routerRef.current.history}
               />
             )}
             {this.state.showLinkOverlay && (

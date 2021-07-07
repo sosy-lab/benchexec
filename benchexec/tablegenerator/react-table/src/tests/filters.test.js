@@ -5,10 +5,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { applyNumericFilter } from "../utils/filters";
-
+import {
+  buildMatcher,
+  applyMatcher,
+  applyNumericFilter,
+  statusForEmptyRows,
+} from "../utils/filters";
 //Example data set to test the filtering by regex
-const rows = [
+const numericRows = [
   {},
   {
     test: {},
@@ -45,11 +49,69 @@ const rows = [
       raw: "-1",
     },
   },
+  {
+    test: {
+      raw: "UNKNOWN: test",
+    },
+  },
+];
+
+// Example data for tests on status and category filtering
+const generalRows = [
+  {
+    results: [
+      {
+        category: "correct",
+        values: [
+          {
+            raw: "true",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    results: [
+      {
+        category: "correct",
+        values: [
+          {
+            raw: "false(reach)",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    results: [
+      {
+        category: "missing",
+        values: [
+          {
+            raw: "UNKNOWN: test",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    results: [
+      {
+        category: "empty",
+        values: [{}],
+      },
+    ],
+  },
 ];
 
 //Function to test filtering by regex for data set 'rows' (return number of truely returnd values)
-const getFilteredData = (regex) =>
-  rows.filter((row) => applyNumericFilter({ id: "test", value: regex }, row));
+const getFilteredNumericalData = (regex) =>
+  numericRows.filter((row) =>
+    applyNumericFilter({ id: "test", value: regex }, row),
+  );
+
+const getFilteredDataWithMatcher = (filters) =>
+  applyMatcher(buildMatcher(filters))(generalRows);
 
 test("applyNumericFilter single entry without result", () => {
   expect(
@@ -70,33 +132,71 @@ test("applyNumericFilter single entry without result", () => {
 //use function getFilteredData to generate test cases with data set 'rows'
 
 test("applyNumericFilter greater 10", () => {
-  expect(getFilteredData("10:").length).toBe(4);
+  expect(getFilteredNumericalData("10:").length).toBe(4);
 });
 
 test("applyNumericFilter less than 10", () => {
-  expect(getFilteredData(":10").length).toBe(3);
+  expect(getFilteredNumericalData(":10").length).toBe(3);
 });
 
 test("applyNumericFilter equals 10", () => {
-  expect(getFilteredData("10").length).toBe(2);
+  expect(getFilteredNumericalData("10").length).toBe(2);
 });
 
 test("applyNumericFilter between 10.3 and 10.7", () => {
-  expect(getFilteredData("10.3:10.7").length).toBe(1);
+  expect(getFilteredNumericalData("10.3:10.7").length).toBe(1);
 });
 
 test("applyNumericFilter non-positive numbers", () => {
-  expect(getFilteredData(":0").length).toBe(1);
+  expect(getFilteredNumericalData(":0").length).toBe(1);
 });
 
 test("applyNumericFilter non-negative numbers", () => {
-  expect(getFilteredData("0:").length).toBe(5);
+  expect(getFilteredNumericalData("0:").length).toBe(5);
 });
 
 test("applyNumericFilter all numbers", () => {
-  expect(getFilteredData(":").length).toBe(6);
+  expect(getFilteredNumericalData(":").length).toBe(6);
 });
 
 test("applyNumericFilter with string", () => {
-  expect(getFilteredData("a").length).toBe(0);
+  expect(getFilteredNumericalData("a").length).toBe(0);
+});
+
+test("applyMatcher for all results", () => {
+  const filters = [];
+  expect(getFilteredDataWithMatcher(filters).length).toBe(generalRows.length);
+});
+
+test("applyMatcher for category", () => {
+  const filters = [
+    { id: "0_test_0", value: "correct ", type: "status" },
+    { id: "0_test_0", value: "true", type: "status" },
+    { id: "0_test_0", value: "false(reach)", type: "status" },
+  ];
+  expect(getFilteredDataWithMatcher(filters).length).toBe(2);
+});
+
+test("applyMatcher for status", () => {
+  const filters = [
+    { id: "0_test_0", value: "true", type: "status" },
+    { id: "0_test_0", value: "correct ", type: "status" },
+  ];
+  expect(getFilteredDataWithMatcher(filters).length).toBe(1);
+});
+
+test("applyMatcher for status with colon", () => {
+  const filters = [
+    { id: "0_test_0", value: "UNKNOWN: test", type: "status" },
+    { id: "0_test_0", value: "missing ", type: "status" },
+  ];
+  expect(getFilteredDataWithMatcher(filters).length).toBe(1);
+});
+
+test("applyMatcher for empty row", () => {
+  const filters = [
+    { id: "0_test_0", value: "empty ", type: "status" },
+    { id: "0_test_0", value: statusForEmptyRows, type: "status" },
+  ];
+  expect(getFilteredDataWithMatcher(filters).length).toBe(1);
 });

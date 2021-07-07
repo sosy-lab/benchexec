@@ -14,7 +14,6 @@ import argparse
 import datetime
 import logging
 import os
-import signal
 import sys
 
 from benchexec import __version__
@@ -37,8 +36,9 @@ class BenchExec(object):
     DEFAULT_OUTPUT_PATH = "results/"
 
     def __init__(self):
-        self.executor = None
+        self.executor = None  # set by start()
         self.stopped_by_interrupt = False
+        self.config = None  # set by start()
 
     def start(self, argv):
         """
@@ -56,7 +56,7 @@ class BenchExec(object):
 
         for arg in self.config.files:
             if not os.path.exists(arg) or not os.path.isfile(arg):
-                parser.error("File {0} does not exist.".format(repr(arg)))
+                parser.error(f"File {arg!r} does not exist.")
 
         if os.path.isdir(self.config.output_path):
             self.config.output_path = os.path.normpath(self.config.output_path) + os.sep
@@ -85,11 +85,14 @@ class BenchExec(object):
         """
         parser = argparse.ArgumentParser(
             fromfile_prefix_chars="@",
-            description="""Execute benchmarks for a given tool with a set of input files.
-               Benchmarks are defined in an XML file given as input.
-               Command-line parameters can additionally be read from a file if file name prefixed with '@' is given as argument.
-               The tool table-generator can be used to create tables for the results.
-               Part of BenchExec: https://github.com/sosy-lab/benchexec/""",
+            description="""
+                Execute benchmarks for a given tool with a set of input files.
+                Benchmarks are defined in an XML file given as input.
+                Command-line parameters can additionally be read from a file
+                if file name prefixed with '@' is given as argument.
+                The tool table-generator can be used to create tables for the results.
+                Part of BenchExec: https://github.com/sosy-lab/benchexec/
+            """,
         )
 
         parser.add_argument(
@@ -110,8 +113,11 @@ class BenchExec(object):
             "--rundefinition",
             dest="selected_run_definitions",
             action="append",
-            help="Run only the specified RUN_DEFINITION from the benchmark definition file. "
-            + "This option can be specified several times and can contain wildcards.",
+            help="""
+                Execute only the specified RUN_DEFINITION from the benchmark-definition
+                file.
+                This option can be specified several times and can contain wildcards.
+            """,
             metavar="RUN_DEFINITION",
         )
 
@@ -120,15 +126,19 @@ class BenchExec(object):
             "--tasks",
             dest="selected_sourcefile_sets",
             action="append",
-            help="Run only the tasks from the tasks tag with TASKS as name. "
-            + "This option can be specified several times and can contain wildcards.",
+            help="""
+                Run only the tasks from the tasks tag with TASKS as name.
+                This option can be specified several times and can contain wildcards.
+            """,
             metavar="TASKS",
         )
 
         parser.add_argument(
             "--tool-directory",
-            help="Use benchmarked tool from given directory "
-            "instead of looking in PATH and the current directory",
+            help="""
+                Use benchmarked tool from given directory
+                instead of looking in PATH and the current directory.
+            """,
             metavar="DIR",
             type=util.non_empty_str,
         )
@@ -148,15 +158,19 @@ class BenchExec(object):
             dest="output_path",
             type=str,
             default=self.DEFAULT_OUTPUT_PATH,
-            help="Output prefix for the generated results. "
-            + "If the path is a folder files are put into it,"
-            + "otherwise it is used as a prefix for the resulting files.",
+            help="""
+                Output prefix for the generated results.
+                If the path is a folder files are put into it,
+                otherwise it is used as a prefix for the resulting files.
+            """,
         )
 
         parser.add_argument(
             "--description-file",
-            help="Path to a text file whose contents will be included in the results "
-            "as their description",
+            help="""
+                Path to a text file whose contents will be included in the results
+                as their description
+            """,
         )
 
         parser.add_argument(
@@ -164,9 +178,11 @@ class BenchExec(object):
             "--timelimit",
             dest="timelimit",
             default=None,
-            help='Time limit for each run, e.g. "90s" '
-            "(overwrites time limit and hard time limit from XML file, "
-            'use "-1" to disable time limits completely)',
+            help="""
+                Time limit for each run, e.g. "90s"
+                (overwrites time limit and hard time limit from XML file,
+                use "-1" to disable time limits completely)
+            """,
             metavar="SECONDS",
         )
 
@@ -175,9 +191,12 @@ class BenchExec(object):
             "--walltimelimit",
             dest="walltimelimit",
             default=None,
-            help='Wall time limit for each run, e.g. "90s" '
-            "(overwrites wall time limit from XML file, "
-            'use "-1" to use CPU time limit plus a few seconds, such value is also used by default)',
+            help="""
+                Wall time limit for each run, e.g. "90s"
+                (overwrites wall time limit from XML file,
+                use "-1" to use CPU time limit plus a few seconds,
+                such value is also used by default)
+            """,
             metavar="SECONDS",
         )
 
@@ -214,8 +233,10 @@ class BenchExec(object):
             dest="coreset",
             default=None,
             type=util.parse_int_list,
-            help="Limit the set of cores BenchExec will use for all runs "
-            "(Applied only if the number of CPU cores is limited).",
+            help="""
+                Limit the set of cores BenchExec will use for all runs "
+                (Applied only if the number of CPU cores is limited).
+            """,
             metavar="N,M-K",
         )
         parser.add_argument(
@@ -223,7 +244,10 @@ class BenchExec(object):
             dest="use_hyperthreading",
             action="store_false",
             default=True,
-            help="Disable assignment of more than one sibling virtual core to a single run",
+            help="""
+                Disable assignment of more than one sibling virtual core
+                to a single run
+            """,
         )
 
         parser.add_argument(
@@ -239,8 +263,8 @@ class BenchExec(object):
                 if value == -1:
                     return None
                 logging.warning(
-                    'Value "%s" for logfile size interpreted as MB for backwards compatibility, '
-                    "specify a unit to make this unambiguous.",
+                    'Value "%s" for logfile size interpreted as MB for '
+                    "backwards compatibility, specify a unit to make this unambiguous.",
                     value,
                 )
                 value = value * _BYTE_FACTOR * _BYTE_FACTOR
@@ -262,21 +286,31 @@ class BenchExec(object):
             "--filesCountLimit",
             type=int,
             metavar="COUNT",
-            help="maximum number of files the tool may write to (checked periodically, counts only files written in container mode or to temporary directories)",
+            help="""
+                maximum number of files the tool may write to
+                (checked periodically, counts only files written in container mode
+                or to temporary directories)
+            """,
         )
         parser.add_argument(
             "--filesSizeLimit",
             type=util.parse_memory_value,
             metavar="BYTES",
-            help="maximum size of files the tool may write (checked periodically, counts only files written in container mode or to temporary directories)",
+            help="""
+                Maximum size of files the tool may write
+                (checked periodically, counts only files written in container mode
+                or to temporary directories)
+            """,
         )
 
         parser.add_argument(
             "--commit",
             dest="commit",
             action="store_true",
-            help="If the output path is a git repository without local changes, "
-            + "add and commit the result files.",
+            help="""
+                If the output path is a git repository without local changes, "
+                add and commit the result files.
+            """,
         )
 
         parser.add_argument(
@@ -337,42 +371,36 @@ class BenchExec(object):
             self.config,
             self.config.start_time or util.read_local_time(),
         )
-        self.check_existing_results(benchmark)
-
-        self.executor.init(self.config, benchmark)
-        output_handler = OutputHandler(
-            benchmark, self.executor.get_system_info(), self.config.compress_results
-        )
-
-        logging.debug(
-            "I'm benchmarking %r consisting of %s run sets using %s %s.",
-            benchmark_file,
-            len(benchmark.run_sets),
-            benchmark.tool_name,
-            benchmark.tool_version or "(unknown version)",
-        )
-
         try:
-            result = self.executor.execute_benchmark(benchmark, output_handler)
+            self.check_existing_results(benchmark)
+
+            self.executor.init(self.config, benchmark)
+            output_handler = OutputHandler(
+                benchmark, self.executor.get_system_info(), self.config.compress_results
+            )
+            try:
+                logging.debug(
+                    "I'm benchmarking %r consisting of %s run sets using %s %s.",
+                    benchmark_file,
+                    len(benchmark.run_sets),
+                    benchmark.tool_name,
+                    benchmark.tool_version or "(unknown version)",
+                )
+
+                result = self.executor.execute_benchmark(benchmark, output_handler)
+            finally:
+                output_handler.close()
         finally:
             benchmark.tool.close()
-            output_handler.close()
-            # remove useless log folder if it is empty
-            try:
-                os.rmdir(benchmark.log_folder)
-            except OSError:
-                pass
 
         if self.config.commit and not self.stopped_by_interrupt:
             try:
                 util.add_files_to_git_repository(
                     self.config.output_path,
                     output_handler.all_created_files,
-                    self.config.commit_message
-                    + "\n\n"
-                    + output_handler.description
-                    + "\n\n"
-                    + str(output_handler.statistics),
+                    f"{self.config.commit_message}\n\n"
+                    f"{output_handler.description}\n\n"
+                    f"{output_handler.statistics}",
                 )
             except OSError as e:
                 logging.warning("Could not add files to git repository: %s", e)
@@ -385,15 +413,13 @@ class BenchExec(object):
         """
         if os.path.exists(benchmark.log_folder):
             sys.exit(
-                "Output directory {0} already exists, will not overwrite existing results.".format(
-                    benchmark.log_folder
-                )
+                f"Output directory {benchmark.log_folder} already exists, "
+                f"will not overwrite existing results."
             )
         if os.path.exists(benchmark.log_zip):
             sys.exit(
-                "Output archive {0} already exists, will not overwrite existing results.".format(
-                    benchmark.log_zip
-                )
+                f"Output archive {benchmark.log_zip} already exists, "
+                f"will not overwrite existing results."
             )
 
     def stop(self):
@@ -417,7 +443,7 @@ def add_container_args(parser):
         # This fails e.g. on MacOS X because of missing libc.
         # We want to keep BenchExec usable for cases where the
         # localexecutor is replaced by something else.
-        logging.debug("Could not import container feature:", exc_info=1)
+        logging.debug("Could not import container feature:", exc_info=True)
         container_args.add_argument(
             "--no-container",
             action="store_false",
@@ -465,19 +491,21 @@ def main(benchexec=None, argv=None):
     if sys.version_info < (3,):
         sys.exit("benchexec needs Python 3 to run.")
 
-    def signal_stop(signum, frame):
-        logging.debug("Received signal %d, terminating.", signum)
-        benchexec.stop()
-
     try:
         if not benchexec:
             benchexec = BenchExec()
-        signal.signal(signal.SIGINT, signal_stop)
-        signal.signal(signal.SIGQUIT, signal_stop)
-        signal.signal(signal.SIGTERM, signal_stop)
+
+        def signal_stop(signum, frame):
+            logging.debug("Received signal %d, terminating.", signum)
+            benchexec.stop()
+
+        # Handle termination-request signals that are available on the current platform
+        for signal_name in ["SIGINT", "SIGQUIT", "SIGTERM", "SIGBREAK"]:
+            util.try_set_signal_handler(signal_name, signal_stop)
+
         sys.exit(benchexec.start(argv or sys.argv))
     except BenchExecException as e:
-        sys.exit("Error: " + str(e))
+        sys.exit(f"Error: {e}")
 
 
 if __name__ == "__main__":

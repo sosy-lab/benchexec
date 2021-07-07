@@ -11,18 +11,14 @@ SPDX-License-Identifier: Apache-2.0
 ## A Framework for Reliable Benchmarking and Resource Measurement
 
 [![Build Status](https://travis-ci.org/sosy-lab/benchexec.svg?branch=master)](https://travis-ci.org/sosy-lab/benchexec)
-[![Code Quality](https://api.codacy.com/project/badge/grade/d9926a7a5cb04bcaa8d43caae38a9c36)](https://www.codacy.com/app/PhilippWendler/benchexec)
-[![Test Coverage](https://api.codacy.com/project/badge/coverage/d9926a7a5cb04bcaa8d43caae38a9c36)](https://www.codacy.com/app/PhilippWendler/benchexec)
 [![Apache 2.0 License](https://img.shields.io/badge/license-Apache--2-brightgreen.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 [![PyPI version](https://img.shields.io/pypi/v/BenchExec.svg)](https://pypi.python.org/pypi/BenchExec)
 [![DOI](https://zenodo.org/badge/30758422.svg)](https://zenodo.org/badge/latestdoi/30758422)
 
 
 **News**:
-- BenchExec 2.3 produces improved HTML tables that load much faster and provide more features.
-- BenchExec 2.0 isolates runs by default using [containers](https://github.com/sosy-lab/benchexec/blob/master/doc/container.md).
-- BenchExec 1.16 adds [energy measurements](https://github.com/sosy-lab/benchexec/blob/master/doc/resources.md#energy)
-  if the tool [cpu-energy-meter](https://github.com/sosy-lab/cpu-energy-meter) is installed on the system.
+- Linux kernel 5.11 finally [makes it possible](https://github.com/sosy-lab/benchexec/blob/master/doc/INSTALL.md#kernel-requirements) to use all BenchExec features on other distributions than Ubuntu!
+- We now provide an [Ubuntu PPA](https://launchpad.net/~sosy-lab/+archive/ubuntu/benchmarking) that makes installing and upgrading BenchExec easier ([docs](https://github.com/sosy-lab/benchexec/blob/master/doc/INSTALL.md#debianubuntu)).
 - An extended version of our paper on BenchExec and its background was published in [STTT](https://link.springer.com/article/10.1007/s10009-017-0469-y),
   you can read the preprint of [Reliable Benchmarking: Requirements and Solutions](https://www.sosy-lab.org/research/pub/2019-STTT.Reliable_Benchmarking_Requirements_and_Solutions.pdf) online.
   We also provide a set of [overview slides](https://www.sosy-lab.org/research/prs/Current_ReliableBenchmarking.pdf).

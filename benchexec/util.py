@@ -18,18 +18,14 @@ import glob
 import logging
 import os
 import shutil
-import signal
+import signal as _signal
 import stat
 import subprocess
 import sys
 from ctypes.util import find_library
 import ctypes
 from xml.etree import ElementTree
-
-try:
-    from shlex import quote as escape_string_shell
-except ImportError:
-    from pipes import quote as escape_string_shell  # noqa: F401 @UnusedImport
+from shlex import quote as escape_string_shell  # noqa: F401 @UnusedImport
 
 
 _BYTE_FACTOR = 1000  # byte in kilobyte
@@ -48,25 +44,8 @@ def printOut(value, end="\n"):
     sys.stdout.flush()
 
 
-def is_code(filename):
-    """
-    This function returns True, if  a line of the file contains bracket '{'.
-    """
-    with open(filename, "r") as file:
-        for line in file:
-            # ignore comments and empty lines
-            if not is_comment(line) and "{" in line:  # <-- simple indicator for code
-                if "${" not in line:  # <-- ${abc} variable to substitute
-                    return True
-    return False
-
-
 def is_comment(line):
     return not line or line.startswith("#") or line.startswith("//")
-
-
-def remove_all(list_, elemToRemove):
-    return [elem for elem in list_ if elem != elemToRemove]
 
 
 def flatten(iterable, exclude=[]):
@@ -126,8 +105,9 @@ def copy_of_xml_element(elem):
 
 def decode_to_string(toDecode):
     """
-    This function is needed for Python 3,
-    because a subprocess can return bytes instead of a string.
+    Decode a byte string to a string, return input unchanged if it is already a string.
+    This method should usually not be used because it should be clear if calling
+    decode() is necessary, and because it hardcodes the UTF-8 encoding.
     """
     try:
         return toDecode.decode("utf-8")
@@ -147,7 +127,7 @@ def format_number(number, number_of_digits):
     """
     if number is None:
         return ""
-    return "%.{0}f".format(number_of_digits) % number
+    return f"{number:.{number_of_digits}f}"
 
 
 def parse_int_list(s):
@@ -165,7 +145,7 @@ def parse_int_list(s):
             start, end = item
             result.extend(range(int(start), int(end) + 1))
         else:
-            raise ValueError("invalid range: '{0}'".format(s))
+            raise ValueError(f"invalid range: '{s}'")
     return result
 
 
@@ -201,9 +181,7 @@ def parse_memory_value(s):
     elif unit == "TB":
         return number * _BYTE_FACTOR * _BYTE_FACTOR * _BYTE_FACTOR * _BYTE_FACTOR
     else:
-        raise ValueError(
-            "unknown unit: {} (allowed are B, kB, MB, GB, and TB)".format(unit)
-        )
+        raise ValueError(f"unknown unit: {unit} (allowed are B, kB, MB, GB, and TB)")
 
 
 def parse_timespan_value(s):
@@ -220,7 +198,7 @@ def parse_timespan_value(s):
     elif unit == "d":
         return number * 24 * 60 * 60
     else:
-        raise ValueError("unknown unit: {} (allowed are s, min, h, and d)".format(unit))
+        raise ValueError(f"unknown unit: {unit} (allowed are s, min, h, and d)")
 
 
 def parse_frequency_value(s):
@@ -237,9 +215,7 @@ def parse_frequency_value(s):
     elif unit == "GHz":
         return number * _FREQUENCY_FACTOR * _FREQUENCY_FACTOR * _FREQUENCY_FACTOR
     else:
-        raise ValueError(
-            "unknown unit: {} (allowed are Hz, kHz, MHz, and GHz)".format(unit)
-        )
+        raise ValueError(f"unknown unit: {unit} (allowed are Hz, kHz, MHz, and GHz)")
 
 
 def non_empty_str(s):
@@ -324,14 +300,12 @@ def find_executable(program, fallback=None, exitOnError=True, use_current_dir=Tr
     if exitOnError:
         if found_non_executable:
             sys.exit(  # noqa: R503 always raises
-                "Could not find '{0}' executable, "
-                "but found file '{1}' that is not executable.".format(
-                    program, found_non_executable[0]
-                )
+                f"Could not find '{program}' executable, "
+                f"but found file '{found_non_executable[0]}' that is not executable."
             )
         else:
             sys.exit(  # noqa: R503 always raises
-                "Could not find '{0}' executable.".format(program)
+                f"Could not find '{program}' executable."
             )
     else:
         return fallback
@@ -505,7 +479,7 @@ class ProcessExitCode(collections.namedtuple("ProcessExitCode", "raw value signa
     @classmethod
     def from_raw(cls, exitcode):
         if not (0 <= exitcode < 2 ** 16):
-            raise ValueError("invalid exitcode " + str(exitcode))
+            raise ValueError(f"invalid exitcode {exitcode}")
         # calculation is: exitcode == (returnvalue * 256) + exitsignal
         # highest bit of exitsignal shows only whether a core file was produced, we clear it
         exitsignal = exitcode & 0x7F
@@ -514,9 +488,9 @@ class ProcessExitCode(collections.namedtuple("ProcessExitCode", "raw value signa
             # signal 0 does not exist, this means there was no signal that killed the process
             exitsignal = None
         else:
-            assert returnvalue == 0, "returnvalue {}, although exitsignal is {}".format(
-                returnvalue, exitsignal
-            )
+            assert (
+                returnvalue == 0
+            ), f"returnvalue {returnvalue}, although exitsignal is {exitsignal}"
             returnvalue = None
         return cls(exitcode, returnvalue, exitsignal)
 
@@ -531,18 +505,18 @@ class ProcessExitCode(collections.namedtuple("ProcessExitCode", "raw value signa
         if value is not None and signal is not None:
             raise ValueError("Cannot create ProcessExitCode with both value and signal")
         if value is not None and not (0 <= value <= 255):
-            raise ValueError("Invalid value {} for return value".format(value))
+            raise ValueError(f"Invalid value {value} for return value")
         if signal is not None and not (1 <= signal <= 127):
-            raise ValueError("Invalid value {} for exit signal".format(value))
+            raise ValueError(f"Invalid value {value} for exit signal")
 
         exitcode = ((value or 0) * 256) + (signal or 0)
         return cls(exitcode, value, signal)
 
     def __str__(self):
         return (
-            ("exit signal " + str(self.signal))
+            f"exit signal {self.signal}"
             if self.signal
-            else ("return value " + str(self.value))
+            else f"return value {self.value}"
         )
 
     def __bool__(self):
@@ -555,7 +529,8 @@ class ProcessExitCode(collections.namedtuple("ProcessExitCode", "raw value signa
 def kill_process(pid, sig=None):
     """Try to send signal to given process."""
     if sig is None:
-        sig = signal.SIGKILL  # set default lazily, otherwise importing fails on Windows
+        # set default lazily, otherwise importing fails on Windows
+        sig = _signal.SIGKILL
     try:
         os.kill(pid, sig)
     except OSError as e:
@@ -578,6 +553,16 @@ def kill_process(pid, sig=None):
             )
 
 
+def try_set_signal_handler(signal_name, handler):
+    """
+    Set signal handler like signal.signal(), but only if signal name exists on this
+    platform. Signal name must be a string starting with "SIG".
+    """
+    sig = getattr(_signal, signal_name, None)
+    if sig:
+        _signal.signal(sig, handler)
+
+
 def dummy_fn(*args, **kwargs):
     """Dummy function that accepts all parameters but does nothing."""
     pass
@@ -597,50 +582,52 @@ def add_files_to_git_repository(base_dir, files, description):
         return
 
     # find out root directory of repository
-    gitRoot = subprocess.Popen(
+    gitRoot = subprocess.run(
         ["git", "rev-parse", "--show-toplevel"],
         cwd=base_dir,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
+        universal_newlines=True,
     )
-    stdout = gitRoot.communicate()[0]
     if gitRoot.returncode != 0:
         printOut(
             "Cannot commit results to repository: git rev-parse failed, perhaps output path is not a git directory?"
         )
         return
-    gitRootDir = decode_to_string(stdout).splitlines()[0]
+    gitRootDir = gitRoot.stdout.splitlines()[0]
 
     # check whether repository is clean
-    gitStatus = subprocess.Popen(
+    gitStatus = subprocess.run(
         ["git", "status", "--porcelain", "--untracked-files=no"],
         cwd=gitRootDir,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
+        universal_newlines=True,
     )
-    (stdout, stderr) = gitStatus.communicate()
     if gitStatus.returncode != 0:
-        printOut("Git status failed! Output was:\n" + decode_to_string(stderr))
+        printOut("Git status failed! Output was:\n" + gitStatus.stderr)
         return
 
-    if stdout:
+    if gitStatus.stdout:
         printOut("Git repository has local changes, not commiting results.")
         return
 
     # add files to staging area
     files = [os.path.realpath(file) for file in files]
     # Use --force to add all files in result-files directory even if .gitignore excludes them
-    gitAdd = subprocess.Popen(["git", "add", "--force", "--"] + files, cwd=gitRootDir)
-    if gitAdd.wait() != 0:
+    gitAdd = subprocess.run(["git", "add", "--force", "--"] + files, cwd=gitRootDir)
+    if gitAdd.returncode != 0:
         printOut("Git add failed, will not commit results!")
         return
 
     # commit files
     printOut("Committing results files to git repository in " + gitRootDir)
-    gitCommit = subprocess.Popen(
-        ["git", "commit", "--file=-", "--quiet"], cwd=gitRootDir, stdin=subprocess.PIPE
+    gitCommit = subprocess.run(
+        ["git", "commit", "--file=-", "--quiet"],
+        input=description,
+        cwd=gitRootDir,
+        universal_newlines=True,
     )
-    gitCommit.communicate(description.encode("UTF-8"))
     if gitCommit.returncode != 0:
         printOut("Git commit failed!")
         return
@@ -652,8 +639,7 @@ def wildcard_match(word, wildcard):
 
 def read_local_time():
     """Get "aware" datetime.datetime instance with local time (including time zone)."""
-    # On Python 3.6+ can be simplified (cf. test case in test_util.py)
-    return datetime.datetime.now(datetime.timezone.utc).astimezone()
+    return datetime.datetime.now().astimezone()
 
 
 def should_color_output():
@@ -694,18 +680,18 @@ def _debug_current_process(sig, current_frame):
     current_thread = threading.current_thread()
     for thread_id, frame in sys._current_frames().items():
         if current_thread.ident != thread_id:
-            message += "\nTraceback of thread {}:\n".format(threads[thread_id])
+            message += f"\nTraceback of thread {threads[thread_id]}:\n"
             message += "".join(traceback.format_stack(frame))
-    message += "\nTraceback of current thread {}:\n".format(current_thread)
+    message += f"\nTraceback of current thread {current_thread}:\n"
     message += "".join(traceback.format_stack(current_frame))
     i.interact(message)
 
 
 def activate_debug_shell_on_signal():
     """Install a signal handler for USR1 that dumps stack traces
-    and gives an interactive debugging shell.
+    and gives an interactive debugging shell. Does nothing on Windows.
     """
-    signal.signal(signal.SIGUSR1, _debug_current_process)  # Register handler
+    try_set_signal_handler("SIGUSR1", _debug_current_process)
 
 
 def get_capability(filename):
@@ -720,14 +706,14 @@ def get_capability(filename):
         libcap = ctypes.cdll.LoadLibrary(libcap_path)
     except OSError:
         res["error"] = True
-        logging.warning("Unable to find capabilities for {0}".format(filename))
+        logging.warning("Unable to find capabilities for %s", filename)
         return res
-    cap_t = libcap.cap_get_file(ctypes.create_string_buffer(filename.encode("utf-8")))
+    cap_t = libcap.cap_get_file(ctypes.create_string_buffer(filename.encode()))
     libcap.cap_to_text.restype = ctypes.c_char_p
     cap_object = libcap.cap_to_text(cap_t, None)
     libcap.cap_free(cap_t)
     if cap_object is not None:
-        cap_string = cap_object.decode("utf-8")
+        cap_string = cap_object.decode()
         res["capabilities"] = (cap_string.split("+")[0])[2:].split(",")
         res["set"] = list(cap_string.split("+")[1])
     return res
@@ -739,15 +725,17 @@ def check_msr():
     benchexec has the read and write permissions for msr.
     """
     res = {"loaded": False, "write": False, "read": False}
-    loaded_modules = subprocess.check_output(["lsmod"]).decode("utf-8").split("\n")
+    loaded_modules = subprocess.check_output(
+        ["lsmod"], universal_newlines=True
+    ).splitlines()
 
     if any("msr" in module for module in loaded_modules):
         res["loaded"] = True
     if res["loaded"]:
         cpu_dirs = os.listdir("/dev/cpu")
         cpu_dirs.remove("microcode")
-        if all(os.access("/dev/cpu/{}/msr".format(cpu), os.R_OK) for cpu in cpu_dirs):
+        if all(os.access(f"/dev/cpu/{cpu}/msr", os.R_OK) for cpu in cpu_dirs):
             res["read"] = True
-        if all(os.access("/dev/cpu/{}/msr".format(cpu), os.W_OK) for cpu in cpu_dirs):
+        if all(os.access(f"/dev/cpu/{cpu}/msr", os.W_OK) for cpu in cpu_dirs):
             res["write"] = True
     return res

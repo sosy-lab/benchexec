@@ -81,6 +81,11 @@ export default class TaskDefinitionViewer extends React.Component {
     );
   };
 
+  loadFileInViewer = (event, contentPart) => {
+    event.preventDefault();
+    this.props.loadNewFile(contentPart);
+  };
+
   render() {
     const contentBySplitter = this.state.content.split(this.state.splitterTag);
     const jsxContent = contentBySplitter.map((contentPart) => {
@@ -93,13 +98,17 @@ export default class TaskDefinitionViewer extends React.Component {
           "",
         );
         return (
-          <button
-            onClick={() => this.props.loadNewFile(contentPart)}
+          /* Custom onClick disables the default behavior of an <a> tag to load a new page and instead loads
+             the file in the same LinkOverlay. At the same time other benefits from <a> tags such as downloading
+             or opening in a new tab are preserved, because they don't affect the onClick event. */
+          <a
+            onClick={(e) => this.loadFileInViewer(e, contentPart)}
             className="link-overlay-file-link"
             key={contentPart}
+            href={this.props.createHref(contentPart)}
           >
             {contentPart}
-          </button>
+          </a>
         );
       } else {
         return contentPart;

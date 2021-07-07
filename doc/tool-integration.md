@@ -115,7 +115,7 @@ how the command line is constructed etc.
 
 To execute this utility, run
 
-    python3 -m benchexec.test_tool_info <TOOL> --tool-output <OUTPUT_FILE> ...
+    python3 -m benchexec.test_tool_info <TOOL> [--debug] [--tool-output <OUTPUT_FILE>] ...
 
 `<TOOL>` is the name of a tool-info module
 as it would be given in the `tool` attribute of the `<benchmark>` tag.

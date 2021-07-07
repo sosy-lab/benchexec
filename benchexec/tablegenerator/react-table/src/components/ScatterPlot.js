@@ -33,6 +33,8 @@ import {
   getConfidenceIntervalBorders,
 } from "../utils/plot";
 import calcRegression from "regression";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faExchangeAlt } from "@fortawesome/free-solid-svg-icons";
 
 const scalingOptions = {
   linear: "Linear",
@@ -299,6 +301,12 @@ export default class ScatterPlot extends React.Component {
               (ev) => this.setAxis(ev, "X"),
               axisOptions,
             )}
+            <span className="setting icon">
+              <FontAwesomeIcon
+                icon={faExchangeAlt}
+                onClick={() => this.swapAxes()}
+              />
+            </span>
             {renderOptgroupsSetting(
               "Y-Axis",
               this.state.dataY,
@@ -462,6 +470,16 @@ export default class ScatterPlot extends React.Component {
     setParam({ [`tool${axis}`]: tool, [`column${axis}`]: column });
   };
 
+  swapAxes = () => {
+    this.array = [];
+    setParam({
+      toolX: this.state.toolY,
+      toolY: this.state.toolX,
+      columnX: this.state.columnY,
+      columnY: this.state.columnX,
+    });
+  };
+
   render() {
     this.renderData();
     const isLinear = this.state.scaling === scalingOptions.linear;
@@ -471,8 +489,8 @@ export default class ScatterPlot extends React.Component {
           height: window.innerHeight - 200,
         }
       : {
-          height: this.props.fixedHeight,
-          width: this.props.fixedWidth,
+          height: 1000,
+          width: 1500,
         };
     const highestAxisValue = this.maxX > this.maxY ? this.maxX : this.maxY;
     return (

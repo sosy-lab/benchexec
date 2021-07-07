@@ -57,10 +57,12 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
     def run_cmd(self, *args):
         try:
             output = subprocess.check_output(
-                args=args, stderr=subprocess.STDOUT
-            ).decode()
+                args=args,
+                stderr=subprocess.STDOUT,
+                universal_newlines=True,
+            )
         except subprocess.CalledProcessError as e:
-            print(e.output.decode())
+            print(e.output)
             raise e
         print(output)
         return output
@@ -121,13 +123,13 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
         expected_counts=None,
     ):
         def expected_file_name(ending):
-            return [here, "expected", (result_prefix or table_prefix) + "." + ending]
+            return [here, "expected", f"{result_prefix or table_prefix}.{ending}"]
 
         def expected_diff_file_name(ending):
             return [
                 here,
                 "expected",
-                (result_diff_prefix or diff_prefix) + "." + ending,
+                f"{result_diff_prefix or diff_prefix}.{ending}",
             ]
 
         (
@@ -182,7 +184,7 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
         # Pretty-print JSON for better diffs
         content = json.dumps(json.loads(content), indent=" ", sort_keys=True)
         content = content.replace(
-            '\n "version": "{}"\n'.format(benchexec.__version__),
+            f'\n "version": "{benchexec.__version__}"\n',
             '\n "version": "(test)"\n',
         )
         return content
@@ -190,9 +192,9 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
     def test_no_files_given(self):
         self.assertEqual(
             1,
-            subprocess.call(
+            subprocess.run(
                 tablegenerator, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-            ),
+            ).returncode,
             "expected error return code",
         )
 
@@ -205,7 +207,9 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
         ]
         self.assertEqual(
             2,
-            subprocess.call(cmdline, stdout=subprocess.PIPE, stderr=subprocess.PIPE),
+            subprocess.run(
+                cmdline, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+            ).returncode,
             "expected error return code",
         )
 
@@ -213,7 +217,9 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
         cmdline = [*tablegenerator, "-x", os.path.join(here, "table-only-columns.xml")]
         self.assertEqual(
             2,
-            subprocess.call(cmdline, stdout=subprocess.PIPE, stderr=subprocess.PIPE),
+            subprocess.run(
+                cmdline, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+            ).returncode,
             "expected error return code",
         )
 
@@ -652,7 +658,7 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             output_path="-",
         )
         expected = benchexec.util.read_file(
-            here, "expected", "test.2015-03-03_1613.results.predicateAnalysis" + ".csv"
+            here, "expected", "test.2015-03-03_1613.results.predicateAnalysis.csv"
         )
         # Normalize line endings to avoid problems between OSs as Windows uses \r\n while Unix uses \n
         output = benchexec.tablegenerator.util.normalize_line_endings(output.strip())
@@ -720,7 +726,7 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
                 table_prefix="cbmc.2015-12-11_1211.results.Simple",
             )
         except subprocess.CalledProcessError as e:
-            if "HTTP Error" or "urlopen error" in e.output.decode():
+            if "HTTP Error" or "urlopen error" in e.output:
                 self.skipTest("HTTP access to GitHub failed")
             else:
                 raise

@@ -43,7 +43,7 @@ def check_cgroup_availability(wait=1):
 
     with tempfile.NamedTemporaryFile(mode="rt") as tmp:
         runexecutor.execute_run(
-            ["sh", "-c", "sleep {0}; cat /proc/self/cgroup".format(wait)],
+            ["sh", "-c", f"sleep {wait}; cat /proc/self/cgroup"],
             tmp.name,
             memlimit=1024 * 1024,  # set memlimit to force check for swapaccount
             # set cores and memory_nodes to force usage of CPUSET
@@ -55,7 +55,7 @@ def check_cgroup_availability(wait=1):
             line = line.strip()
             if (
                 line
-                and not line == "sh -c 'sleep {0}; cat /proc/self/cgroup'".format(wait)
+                and not line == f"sh -c 'sleep {wait}; cat /proc/self/cgroup'"
                 and not all(c == "-" for c in line)
             ):
                 lines.append(line)
@@ -133,7 +133,7 @@ def main(argv=None):
         "--no-thread",
         action="store_true",
         help="run check on the main thread instead of a separate thread"
-        + "(behavior of cgrulesengd differs depending on this)",
+        " (behavior of cgrulesengd differs depending on this)",
     )
 
     options = parser.parse_args(argv[1:])

@@ -37,26 +37,25 @@ class Tool(benchexec.tools.template.BaseTool):
 
             cmd = [executable, trivial_example.name]
             try:
-                process = subprocess.Popen(
-                    cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+                process = subprocess.run(
+                    cmd,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    universal_newlines=True,
                 )
-                (stdout, stderr) = process.communicate()
             except OSError as e:
-                logging.warning(
-                    "Unable to determine AProVE version: {0}".format(e.strerror)
-                )
+                logging.warning("Unable to determine AProVE version: %s", e.strerror)
                 return ""
 
             version_aprove_match = re.search(
                 r"^# AProVE Commit ID: (.*)",
-                util.decode_to_string(stdout),
+                process.stdout,
                 re.MULTILINE,
             )
             if not version_aprove_match:
                 logging.warning(
-                    "Unable to determine AProVE version: {0}".format(
-                        util.decode_to_string(stdout)
-                    )
+                    "Unable to determine AProVE version: %s",
+                    process.stdout,
                 )
                 return ""
             return version_aprove_match.group(1)[:10]

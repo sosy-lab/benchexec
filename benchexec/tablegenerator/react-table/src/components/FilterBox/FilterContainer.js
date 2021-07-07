@@ -12,7 +12,15 @@ import equals from "deep-equal";
 export default class FilterContainer extends React.PureComponent {
   constructor(props) {
     super(props);
-    const { filters, toolName } = props;
+    const { filters, toolName, currentFilters } = props;
+    for (const idx in currentFilters) {
+      filters[idx] = {
+        ...filters[idx],
+        ...currentFilters[idx],
+        touched: filters[idx].touched + 1,
+        filtering: true,
+      };
+    }
     this.props.resetFilterHook(() => this.resetAllFilters());
     this.state = { filters, toolName, addingFilter: false, numCards: 0 };
   }
@@ -80,7 +88,6 @@ export default class FilterContainer extends React.PureComponent {
     const { currentFilters } = this.props;
     if (!equals(prevFilters, currentFilters)) {
       // update set filters
-      console.log("updated container");
       let { filters } = this.state;
       for (const idx in currentFilters) {
         filters[idx] = {
@@ -124,7 +131,7 @@ export default class FilterContainer extends React.PureComponent {
               key={`${this.props.toolName}-${filter.display_title}-${filter.numCards}`}
             />
           ))}
-        {availableFilters.length && (
+        {(availableFilters.length && (
           <FilterCard
             availableFilters={availableFilters}
             editable="true"
@@ -132,7 +139,8 @@ export default class FilterContainer extends React.PureComponent {
             addFilter={(idx) => this.addFilter(idx)}
             onFilterUpdate={(vals) => this.setFilter(vals)}
           />
-        )}
+        )) ||
+          undefined}
         <br />
       </div>
     );
