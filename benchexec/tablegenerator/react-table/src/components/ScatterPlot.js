@@ -247,9 +247,15 @@ export default class ScatterPlot extends React.Component {
         new Set(regression.points.map(JSON.stringify)),
         JSON.parse,
       ).concat(endPoints);
+      const helpText = `Predictor variable (X-Axis): ${this.state.nameX}
+      Response variable (Y-Axis): ${this.state.nameY}
+      Regression coefficient: ${regression.equation[0]}
+      Intercept: ${regression.equation[1]}
+      Equation: ${regression.string}
+      Coefficient of Determination: ${regression.r2}`.replace(/^ +/gm, "");
       this.regressionData = {
         regression,
-        text: `Predictor variable (X-Axis): ${this.state.nameX}\nResponse variable (Y-Axis): ${this.state.nameY}\nRegression coefficient: ${regression.equation[0]}\nIntercept: ${regression.equation[1]}\nEquation: ${regression.string}\nCoefficient of Determination: ${regression.r2}`,
+        text: helpText,
         upperConfidenceBorderData: confidenceIntervalBorders.upperBorderData,
         lowerConfidenceBorderData: confidenceIntervalBorders.lowerBorderData,
       };
