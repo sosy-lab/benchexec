@@ -47,7 +47,7 @@ const resultsOptions = {
 };
 
 const regressionOptions = {
-  hidden: "Hidden",
+  none: "None",
   linear: "Linear",
 };
 
@@ -76,7 +76,7 @@ const lineOptgroupOptions = {
 const defaultValues = {
   scaling: scalingOptions.logarithmic,
   results: resultsOptions.correct,
-  regression: regressionOptions.hidden,
+  regression: regressionOptions.none,
   line: Object.values(lineOptgroupOptions)[0][11].value,
 };
 
@@ -224,11 +224,11 @@ export default class ScatterPlot extends React.Component {
     this.dataArray = array;
 
     const isRegressionEnabled =
-      this.state.regression !== regressionOptions.hidden;
+      this.state.regression !== regressionOptions.none;
     const areSelectionsNumerical = this.checkForNumericalSelections();
     if (isRegressionEnabled) {
       if (!areSelectionsNumerical) {
-        setParam({ regression: regressionOptions.hidden });
+        setParam({ regression: regressionOptions.none });
       } else {
         const regression = calcRegression.linear(
           array.map((data) => [data.x, data.y]),
@@ -374,7 +374,7 @@ export default class ScatterPlot extends React.Component {
                 }
               },
               regressionOptions,
-              this.state.regression !== regressionOptions.hidden &&
+              this.state.regression !== regressionOptions.none &&
                 this.regressionData
                 ? this.regressionData.text
                 : undefined,
@@ -628,7 +628,7 @@ export default class ScatterPlot extends React.Component {
               this.setState({ value: null })
             }
           />
-          {this.state.regression !== regressionOptions.hidden &&
+          {this.state.regression !== regressionOptions.none &&
             this.checkForNumericalSelections() &&
             this.regressionData &&
             this.renderRegressionAndConfidenceIntervals()}
