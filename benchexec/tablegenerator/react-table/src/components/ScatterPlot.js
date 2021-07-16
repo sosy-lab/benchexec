@@ -227,7 +227,7 @@ export default class ScatterPlot extends React.Component {
       this.state.regression !== this.regressionOptions.none;
     const areSelectionsNumerical = this.checkForNumericalSelections();
     if (isRegressionEnabled) {
-      if (!areSelectionsNumerical) {
+      if (this.lineCount === 0 || !areSelectionsNumerical) {
         setParam({ regression: this.regressionOptions.none });
       } else {
         const regressionDataArray = array.map((data) => [
@@ -636,6 +636,7 @@ export default class ScatterPlot extends React.Component {
           {this.state.regression !== this.regressionOptions.none &&
             this.checkForNumericalSelections() &&
             this.regressionData &&
+            this.lineCount !== 0 &&
             this.renderRegressionAndConfidenceIntervals()}
           {this.state.value ? <Hint value={this.state.value} /> : null}
         </Plot>
