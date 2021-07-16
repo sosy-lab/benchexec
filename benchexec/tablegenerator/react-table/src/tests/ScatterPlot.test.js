@@ -10,7 +10,6 @@ import ScatterPlot from "../components/ScatterPlot.js";
 import Overview from "../components/Overview";
 import renderer from "react-test-renderer";
 import { setParam } from "../utils/utils";
-import { getPlotOptions } from "./utils.js";
 const fs = require("fs");
 
 const content = fs.readFileSync(
@@ -115,7 +114,11 @@ function getSelectionResultInput(selectionOptions) {
     selectionOptions
       .slice(i)
       .flatMap((yAxis) =>
-        getPlotOptions(plot, "Results").map((result) => [xAxis, yAxis, result]),
+        Object.keys(plotInstance.resultsOptions).map((result) => [
+          xAxis,
+          yAxis,
+          result,
+        ]),
       ),
   );
 }
