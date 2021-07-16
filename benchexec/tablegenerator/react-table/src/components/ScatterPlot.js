@@ -399,9 +399,11 @@ export default class ScatterPlot extends React.Component {
     return [
       this.renderConfidenceIntervalLine(
         this.regressionData.upperConfidenceBorderData,
+        "upper",
       ),
       this.renderConfidenceIntervalLine(
         this.regressionData.lowerConfidenceBorderData,
+        "lower",
       ),
       this.renderRegressionLine(dataPointsOfRegression),
     ];
@@ -416,7 +418,7 @@ export default class ScatterPlot extends React.Component {
         style={{
           stroke: "green",
         }}
-        key={dataPoints}
+        key={"reg-line-" + dataPoints}
         onValueMouseOver={(datapoint, event) =>
           this.setState({ value: datapoint })
         }
@@ -426,7 +428,7 @@ export default class ScatterPlot extends React.Component {
     );
   };
 
-  renderConfidenceIntervalLine = (dataPoints) => {
+  renderConfidenceIntervalLine = (dataPoints, identifier) => {
     const lineData = this.prepareLineData(dataPoints);
     return (
       <LineSeries
@@ -435,7 +437,7 @@ export default class ScatterPlot extends React.Component {
         style={{
           stroke: "gray",
         }}
-        key={dataPoints}
+        key={`conf-line-${identifier}-${dataPoints}`}
       />
     );
   };
