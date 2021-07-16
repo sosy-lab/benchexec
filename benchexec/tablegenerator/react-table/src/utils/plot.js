@@ -129,8 +129,7 @@ function getConfidenceIntervalBorders(
     actualData
       .map((data, index) => [getYValue(data), getYValue(predictedData[index])])
       .map((yValues) => Math.pow(yValues[1] - yValues[0], 2))
-      .reduce(sum) /
-      (actualData.length - 2),
+      .reduce(sum) / actualData.length,
   );
   const meanOfX =
     actualData.map((data) => getXValue(data)).reduce(sum) / actualData.length;
