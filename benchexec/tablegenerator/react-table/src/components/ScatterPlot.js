@@ -31,6 +31,7 @@ import {
   renderSetting,
   renderOptgroupsSetting,
   getConfidenceIntervalBorders,
+  getDataPointsOfRegression,
 } from "../utils/plot";
 import calcRegression from "regression";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -390,12 +391,11 @@ export default class ScatterPlot extends React.Component {
   renderRegressionAndConfidenceIntervals() {
     const minX = Math.floor(this.minX);
     const maxX = Math.ceil(this.maxX);
-    const dataPointsOfRegression = Array(maxX)
-      .fill()
-      .map((x, index) => index)
-      .filter((int) => int >= minX)
-      .map((number) => this.regressionData.regression.predict(number));
-
+    const dataPointsOfRegression = getDataPointsOfRegression(
+      minX,
+      maxX,
+      this.regressionData.regression.predict,
+    );
     return [
       this.renderConfidenceIntervalLine(
         this.regressionData.upperConfidenceBorderData,

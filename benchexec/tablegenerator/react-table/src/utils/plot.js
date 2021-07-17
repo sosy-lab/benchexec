@@ -139,11 +139,11 @@ function getConfidenceIntervalBorders(
       .reduce(sum) / actualData.length,
   );
 
-  const dataPointsOfRegression = Array(maxX)
-    .fill()
-    .map((x, index) => index)
-    .filter((int) => int >= minX)
-    .map((number) => regressionFunction(number));
+  const dataPointsOfRegression = getDataPointsOfRegression(
+    minX,
+    maxX,
+    regressionFunction,
+  );
 
   const diffMargins = dataPointsOfRegression.map(
     (data) =>
@@ -167,5 +167,31 @@ function getConfidenceIntervalBorders(
     ]),
   };
 }
+/* Computes the data points that will be plotted for a regression. The maximum
+   number of data points will not exceed 10.000. If there were more, the lines
+   will be plotted in intervals. */
+function getDataPointsOfRegression(minX, maxX, regF) {
+  const thresholds = [100000000, 10000000, 1000000, 100000, 10000];
+  const threshold = thresholds.find((threshold) => maxX > threshold);
+  const numberPointsDivider = threshold ? threshold / 1000 : 1;
+  const dataPointsOfRegression = Array(Math.ceil(maxX / numberPointsDivider))
+    .fill()
+    .map((x, index) => index * numberPointsDivider);
 
-export { renderSetting, renderOptgroupsSetting, getConfidenceIntervalBorders };
+  return dataPointsOfRegression
+    .filter((int) => int >= minX)
+    .map((number) => {
+      const pred = regF(number);
+      return [
+        Number.parseFloat(pred[0].toPrecision(4)),
+        Number.parseFloat(pred[1].toPrecision(4)),
+      ];
+    });
+}
+
+export {
+  renderSetting,
+  renderOptgroupsSetting,
+  getConfidenceIntervalBorders,
+  getDataPointsOfRegression,
+};
