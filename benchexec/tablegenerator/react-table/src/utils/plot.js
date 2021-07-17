@@ -145,16 +145,22 @@ function getConfidenceIntervalBorders(
     regressionFunction,
   );
 
-  const diffMargins = dataPointsOfRegression.map(
-    (data) =>
-      tValue *
-      stdErr *
-      Math.sqrt(
-        1 / actualData.length +
-          Math.pow(getXValue(data) - meanOfX, 2) /
-            ((actualData.length - 1) * Math.pow(stdOfX, 2)),
-      ),
-  );
+  const diffMargins =
+    stdErr === 0 || stdOfX === 0
+      ? dataPointsOfRegression.map((data) => 0)
+      : dataPointsOfRegression.map((data) =>
+          Number.parseFloat(
+            (
+              tValue *
+              stdErr *
+              Math.sqrt(
+                1 / actualData.length +
+                  Math.pow(getXValue(data) - meanOfX, 2) /
+                    ((actualData.length - 1) * Math.pow(stdOfX, 2)),
+              )
+            ).toPrecision(4),
+          ),
+        );
 
   return {
     upperBorderData: dataPointsOfRegression.map((data, index) => [
