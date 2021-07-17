@@ -56,7 +56,8 @@ describe("Scatter Plot with columns of same runset should match HTML snapshot", 
   it.each(selectionResultInput)(
     "with X-Axis %s and Y-Axis %s and %s results",
     (xSelection, ySelection, results) => {
-      setSelections(xSelection, ySelection, results);
+      const params = getSelections(xSelection, ySelection);
+      setUrlParams({ ...params, results });
       expect(plot).toMatchSnapshot();
     },
   );
@@ -79,7 +80,8 @@ describe("Scatter Plot with columns of different runsets should match HTML snaps
   it.each(selectionResultInput)(
     "with X-Axis %s and Y-Axis %s and %s results",
     (xSelection, ySelection, results) => {
-      setSelections(xSelection, ySelection, results);
+      const params = getSelections(xSelection, ySelection);
+      setUrlParams({ ...params, results });
       expect(plot).toMatchSnapshot();
     },
   );
@@ -102,11 +104,47 @@ describe("Scatter Plot with columns of different types should match HTML snapsho
   it.each(selectionResultInput)(
     "with X-Axis of the type %s and Y-Axis of the type %s and %s results",
     (xSelection, ySelection, results) => {
-      setSelections(xSelection, ySelection, results);
+      const params = getSelections(xSelection, ySelection, results);
+      setUrlParams({ ...params, results });
       expect(plot).toMatchSnapshot();
     },
   );
 });
+
+describe("Scatter Plot linear regression should match HTML snapshot", () => {
+  /* Objects of all ordinal columns of all runsets of the format {runsetIdx}-{colIdx}.
+     Overriding of toString() method is used for better identifying test cases. */
+  const selectionOptions = colsWithToolRef
+    .filter(
+      (col) => plotInstance.handleType(col.toolIdx, col.colIdx) !== "ordinal",
+    )
+    .map((col) => ({
+      value: col.toolIdx + "-" + col.colIdx,
+      toString: () => col.display_title + " of runset " + col.toolIdx,
+    }));
+
+  // All paired combinations of all columns.
+  const selectionInput = getSelectionInput(selectionOptions);
+
+  it.each(selectionInput)(
+    "with X-Axis of the type %s and Y-Axis of the type %s",
+    (xSelection, ySelection) => {
+      const params = getSelections(xSelection, ySelection);
+      setUrlParams({
+        ...params,
+        regression: plotInstance.regressionOptions.linear,
+      });
+      expect(plot).toMatchSnapshot();
+    },
+  );
+});
+
+// Creates an array of tuples of the selection for the X-axis and Y-axis
+function getSelectionInput(selectionOptions) {
+  return selectionOptions.flatMap((xAxis, i) =>
+    selectionOptions.slice(i).map((yAxis) => [xAxis, yAxis]),
+  );
+}
 
 // Creates an array of triples of the selection for the X-axis, Y-axis and shown results as test data
 function getSelectionResultInput(selectionOptions) {
@@ -123,11 +161,15 @@ function getSelectionResultInput(selectionOptions) {
   );
 }
 
-function setSelections(xSelection, ySelection, results) {
+function getSelections(xSelection, ySelection) {
   let [toolX, columnX] = xSelection.value.split("-");
   let [toolY, columnY] = ySelection.value.split("-");
   columnX = columnX.replace("___", "-");
   columnY = columnY.replace("___", "-");
-  setParam({ toolX, columnX, toolY, columnY, results });
+  return { toolX, columnX, toolY, columnY };
+}
+
+function setUrlParams(params) {
+  setParam(params);
   plotInstance.refreshUrlState();
 }
