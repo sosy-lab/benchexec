@@ -1093,7 +1093,7 @@ class TestRunExecutorUnits(unittest.TestCase):
 # An error report file with more information is saved as:
 # {report_file.name}
 More output
-""".encode()
+""".encode()  # noqa: E800 false alarm
                 report_content = b"Report output\nMore lines"
                 output_content += invalid_utf8
                 report_content += invalid_utf8

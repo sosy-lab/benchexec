@@ -55,13 +55,16 @@ class BaseTool2(object, metaclass=ABCMeta):
 
     BenchExec will then instantiate the tool-info module's class
     and call the methods that return general information about the tool first.
-    Afterwards, the run-specific methods will be called.
+    In this phase, executable() will always be called, other methods may be called.
+    Afterwards, the run-specific methods will be called,
+    and for each run, cmdline() will always be called before determine_result().
     Apart from this, no guarantee is made about which methods are called
     and in which order. In particular, the class must not assume that determine_result()
     will be called for a run result immediately after cmdline() was called for that run.
     It is guaranteed, however, that one instance of the class will only be used for
-    one instance of the tool (in one location), so for example the result from version()
-    may be stored in an attribute and other methods can safely rely on this.
+    one instance of the tool (in one location), so for example executable() can store
+    some information about the tool (e.g., its version) in an attribute
+    and other methods can safely rely on this.
 
     In special circumstances, it can make sense to not inherit from this class.
     In such cases the tool-info module's class needs to implement all the methods
