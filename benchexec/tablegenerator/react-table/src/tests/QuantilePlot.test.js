@@ -10,7 +10,6 @@ import QuantilePlot from "../components/QuantilePlot.js";
 import Overview from "../components/Overview";
 import renderer from "react-test-renderer";
 import { setParam } from "../utils/utils";
-import { getPlotOptions } from "./utils.js";
 const fs = require("fs");
 
 const testDir = "../test_integration/expected/";
@@ -58,7 +57,7 @@ files
             toString: () => "runset",
           })),
         );
-      const resultOptions = getPlotOptions(plot, "Results");
+      const resultOptions = Object.values(plotInstance.resultsOptions);
 
       // Array of pairs of selection and shown results as test data
       const selectionResultInput = selectionOptions.flatMap((selection) =>
