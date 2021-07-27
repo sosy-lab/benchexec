@@ -237,12 +237,9 @@ const updateStats = async ({
     filtered,
   });
 
+  // calling onStatsReady callback if available
   if (onStatsReady) {
-    console.log("calling onStatsReady");
-    // calling onStatsReady callback if available
     onStatsReady();
-  } else {
-    console.log("onStatsReady not found");
   }
 };
 

@@ -308,7 +308,6 @@ export const processData = async ({ tools, table, formatter, stats }) => {
 
   const allPromises = promises.map((p) => Promise.all(p));
   const res = await Promise.all(allPromises);
-  console.log(`Calculation took ${Date.now() - start}ms`);
 
   return res;
 };
