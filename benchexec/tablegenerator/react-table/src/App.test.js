@@ -7,13 +7,16 @@
 
 import React from "react";
 import ReactDOM from "react-dom";
+import { act } from "react-dom/test-utils";
 import App from "./App";
 
 it("renders without crashing", async () => {
   const div = document.createElement("div");
   let statsResolver;
   const StatsReadyPromise = new Promise((resolve) => (statsResolver = resolve));
-  ReactDOM.render(<App onStatsReady={statsResolver} />, div);
-  await StatsReadyPromise;
+  await act(async () => {
+    ReactDOM.render(<App onStatsReady={statsResolver} />, div);
+    await StatsReadyPromise;
+  });
   ReactDOM.unmountComponentAtNode(div);
 });
