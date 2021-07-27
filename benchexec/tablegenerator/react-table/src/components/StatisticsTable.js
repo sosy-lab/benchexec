@@ -157,10 +157,10 @@ const transformStatsFromWorkers = ({ newStats, stats, setStats, filtered }) => {
       title: "filtered",
       content: filteredRow,
     });
+    const temp = templ[0];
+    templ[0] = templ[1];
+    templ[1] = temp;
   }
-  const temp = templ[0];
-  templ[0] = templ[1];
-  templ[1] = temp;
 
   setStats(templ);
   return templ;
