@@ -279,7 +279,6 @@ export const splitColumnsWithMeta = (tools) => (preppedRows, toolIdx) => {
 export const processData = async ({ tools, table, formatter, stats }) => {
   const catAccessor = (toolIdx, row) => row.results[toolIdx].category;
   const statAccessor = (toolIdx, row) => row.results[toolIdx].values[0].raw;
-  const start = Date.now();
   const promises = [];
 
   const splitRows = [];
