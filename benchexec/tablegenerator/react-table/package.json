@@ -22,7 +22,8 @@
     "react-table": "^7.6.3",
     "react-table-sticky": "^1.1.3",
     "react-vis": "^1.11.7",
-    "yaml": "^1.10.2"
+    "regression": "^2.0.1",
+    "yaml": "^1.10.0"
   },
   "engines": {
     "node": ">=12.0.0"
