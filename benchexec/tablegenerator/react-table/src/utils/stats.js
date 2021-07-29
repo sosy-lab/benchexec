@@ -276,7 +276,7 @@ export const splitColumnsWithMeta = (tools) => (preppedRows, toolIdx) => {
  *
  * @param {object} options
  */
-export const processData = async ({ tools, table, formatter, stats }) => {
+export const processData = async ({ tools, tableData, formatter, stats }) => {
   const catAccessor = (toolIdx, row) => row.results[toolIdx].category;
   const statAccessor = (toolIdx, row) => row.results[toolIdx].values[0].raw;
   const promises = [];
@@ -284,7 +284,7 @@ export const processData = async ({ tools, table, formatter, stats }) => {
   const splitRows = [];
   for (const toolIdx in tools) {
     splitRows.push(
-      prepareRows(table, toolIdx, catAccessor, statAccessor, formatter),
+      prepareRows(tableData, toolIdx, catAccessor, statAccessor, formatter),
     );
   }
   const columnSplitter = splitColumnsWithMeta(tools);

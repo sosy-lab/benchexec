@@ -47,7 +47,7 @@ class TestExpectedResult(unittest.TestCase):
 
     def test_invalid_string(self):
         def test(s):
-            with self.assertRaises(ValueError, msg="for '{}'".format(s)):
+            with self.assertRaises(ValueError, msg=f"for '{s}'"):
                 ExpectedResult.from_str(s)
 
         test("foo")

@@ -5,9 +5,15 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { useState, useCallback, useEffect, useRef } from "react";
-import withFixedColumns from "react-table-hoc-fixed-columns";
-import ReactTable from "react-table";
+import React, { useState, useMemo, useEffect, useRef } from "react";
+
+import {
+  useTable,
+  useFilters,
+  useResizeColumns,
+  useFlexLayout,
+} from "react-table";
+import { useSticky } from "react-table-sticky";
 import {
   createRunSetColumns,
   SelectColumnsButton,
@@ -19,117 +25,18 @@ import {
   isNumericColumn,
   isNil,
   isNotNil,
+  getHiddenColIds,
 } from "../utils/utils";
 
 const isTestEnv = process.env.NODE_ENV === "test";
 
-const ReactTableFixedColumns = withFixedColumns(ReactTable);
-
-const createRowTitleColumn = ({
-  selectColumn,
-  fixed,
-  handleInputChange,
-  headerWidth,
-}) => ({
-  Header: () => (
-    <div className="toolsHeader">
-      <form>
-        <label title="Fix the first column">
-          Fixed row title:
-          <input
-            id="fixed-row-title"
-            name="fixed"
-            type="checkbox"
-            checked={fixed}
-            onChange={handleInputChange}
-          />
-        </label>
-      </form>
-    </div>
-  ),
-  fixed: fixed ? "left" : "",
-  minWidth: headerWidth,
-  columns: [
-    {
-      id: "summary",
-      minWidth: headerWidth,
-      Header: <SelectColumnsButton handler={selectColumn} />,
-      accessor: "",
-      Cell: (cell) => (
-        <div
-          dangerouslySetInnerHTML={{ __html: cell.value.title }}
-          title={cell.value.description}
-          className="row-title"
-        />
-      ),
-    },
-  ],
-});
+const titleColWidth = window.innerWidth * 0.15;
 
 const renderTooltip = (cell) =>
   Object.keys(cell)
     .filter((key) => cell[key] && key !== "sum")
     .map((key) => `${key}: ${cell[key]}`)
     .join(", ") || undefined;
-
-const createColumnBuilder = ({ changeTab, hiddenCols }) => (
-  runSetIdx,
-  column,
-  columnIdx,
-) => ({
-  id: `${runSetIdx}_${column.display_title}_${columnIdx}`,
-  Header: (
-    <StandardColumnHeader
-      column={column}
-      className="columns"
-      title="Show Quantile Plot of this column"
-      onClick={(e) => changeTab(e, column, 2)}
-    />
-  ),
-  show:
-    !hiddenCols[runSetIdx].includes(columnIdx) &&
-    (isNumericColumn(column) || column.type === "status"),
-  minWidth: determineColumnWidth(
-    column,
-    null,
-    column.type === "status" ? 6 : null,
-  ),
-  accessor: (row) => row.content[runSetIdx][columnIdx],
-  Cell: (cell) => {
-    let valueToRender = cell.value?.sum;
-    // We handle status differently as the main aggregation (denoted "sum")
-    // is of type "count" for this column type.
-    // This means that the default value if no data is available is 0
-    if (column.type === "status") {
-      if (cell.value === undefined) {
-        // No data is available, default to 0
-        valueToRender = 0;
-      } else if (cell.value === null) {
-        // We receive a null value directly from the stats object of the dataset.
-        // Will be rendered as "-"
-        // This edge case only applies to the local summary as it contains static values
-        // that we can not calculate and therefore directly take them from the stats object.
-
-        valueToRender = null;
-      } else {
-        valueToRender = Number.isInteger(Number(cell.value.sum))
-          ? Number(cell.value.sum)
-          : cell.value.sum;
-      }
-    }
-    return !isNil(valueToRender) ? (
-      <div
-        dangerouslySetInnerHTML={{
-          __html: valueToRender,
-        }}
-        className="cell"
-        title={column.type !== "status" ? renderTooltip(cell.value) : undefined}
-      ></div>
-    ) : (
-      <div className="cell">-</div>
-    );
-  },
-});
 
 const subStatSelector = {
   total: "total",
@@ -177,7 +84,7 @@ const transformStatsFromWorkers = ({ newStats, stats, setStats, filtered }) => {
  */
 const updateStats = async ({
   tools,
-  data: table,
+  tableData,
   onStatsReady,
   skipStats,
   stats,
@@ -187,7 +94,7 @@ const updateStats = async ({
   const formatter = buildFormatter(tools);
   let res = skipStats
     ? []
-    : await processData({ tools, table, formatter, stats });
+    : await processData({ tools, tableData, formatter, stats });
 
   const availableStats = stats
     .map((row) => subStatSelector[row.title.replace(/&nbsp;/g, "")])
@@ -244,14 +151,12 @@ const updateStats = async ({
 };
 
 const StatisticsTable = ({
-  width,
   selectColumn,
   tools,
-  changeTab,
+  switchToQuantile,
   hiddenCols,
-  data,
+  tableData,
   onStatsReady,
-  headerWidth,
   stats: defaultStats,
   filtered = false,
 }) => {
@@ -259,58 +164,226 @@ const StatisticsTable = ({
   // specifically wanted (signaled by a passed onStatsReady callback function)
   const skipStats = isTestEnv && !onStatsReady;
 
-  const [fixed, setFixed] = useState(true);
   const [stats, setStats] = useState(defaultStats);
+  const [isTitleColSticky, setTitleColSticky] = useState(true);
 
   // we wrap stats in a ref to mitigate unwanted re-renders
   const statRef = useRef(stats);
-
-  const handleInputChange = ({ target }) => setFixed(target.checked);
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const createColumn = useCallback(
-    createColumnBuilder({ changeTab, hiddenCols }),
-    [changeTab, hiddenCols, createColumnBuilder],
-  );
 
   // we want to trigger a re-calculation of our stats whenever data changes.
   useEffect(() => {
     updateStats({
       tools,
-      data,
+      tableData,
       onStatsReady,
       skipStats,
       stats: statRef.current,
       setStats,
       filtered,
     });
-  }, [tools, data, onStatsReady, skipStats, statRef, filtered]);
+  }, [tools, tableData, onStatsReady, skipStats, statRef, filtered]);
 
-  const statColumns = tools
-    .map((runSet, runSetIdx) =>
-      createRunSetColumns(runSet, runSetIdx, createColumn),
-    )
-    .flat();
+  const renderTableHeaders = (headerGroups) => (
+    <div className="table-header">
+      {headerGroups.map((headerGroup) => (
+        <div className="tr headergroup" {...headerGroup.getHeaderGroupProps()}>
+          {headerGroup.headers.map((header) => (
+            <div
+              {...header.getHeaderProps({
+                className: `th header ${header.headers ? "outer " : ""}${
+                  header.className || ""
+                }`,
+              })}
+            >
+              {header.render("Header")}
+
+              <div
+                {...header.getResizerProps()}
+                className={`resizer ${header.isResizing ? "isResizing" : ""}`}
+              />
+            </div>
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+
+  const renderTableData = (rows) => (
+    <div {...getTableBodyProps()} className="table-body body">
+      {rows.map((row) => {
+        prepareRow(row);
+        return (
+          <div {...row.getRowProps()} className="tr">
+            {row.cells.map((cell) => (
+              <div
+                {...cell.getCellProps({
+                  className: "td " + (cell.column.className || ""),
+                })}
+              >
+                {cell.render("Cell")}
+              </div>
+            ))}
+          </div>
+        );
+      })}
+    </div>
+  );
+
+  const renderTable = (headerGroups, rows) => {
+    return (
+      <div className="main-table">
+        <div id="statistic-table" className="table sticky" {...getTableProps()}>
+          <div className="table-content">
+            {renderTableHeaders(headerGroups)}
+            {renderTableData(rows)}
+          </div>
+          <div className="-loading"></div>
+        </div>
+      </div>
+    );
+  };
+
+  const columns = useMemo(() => {
+    const createColumnBuilder = ({ switchToQuantile, hiddenCols }) => (
+      runSetIdx,
+      column,
+      columnIdx,
+    ) => ({
+      id: `${runSetIdx}_${column.display_title}_${columnIdx}`,
+      Header: (
+        <StandardColumnHeader
+          column={column}
+          className="header-data"
+          title="Show Quantile Plot of this column"
+          onClick={(e) => switchToQuantile(column)}
+        />
+      ),
+      hidden:
+        hiddenCols[runSetIdx].includes(column.colIdx) ||
+        !(isNumericColumn(column) || column.type === "status"),
+      width: determineColumnWidth(
+        column,
+        null,
+        column.type === "status" ? 6 : null,
+      ),
+      minWidth: 30,
+      accessor: (row) => row.content[runSetIdx][columnIdx],
+      Cell: (cell) => {
+        let valueToRender = cell.value?.sum;
+        // We handle status differently as the main aggregation (denoted "sum")
+        // is of type "count" for this column type.
+        // This means that the default value if no data is available is 0
+        if (column.type === "status") {
+          if (cell.value === undefined) {
+            // No data is available, default to 0
+            valueToRender = 0;
+          } else if (cell.value === null) {
+            // We receive a null value directly from the stats object of the dataset.
+            // Will be rendered as "-"
+            // This edge case only applies to the local summary as it contains static values
+            // that we can not calculate and therefore directly take them from the stats object.
+
+            valueToRender = null;
+          } else {
+            valueToRender = Number.isInteger(Number(cell.value.sum))
+              ? Number(cell.value.sum)
+              : cell.value.sum;
+          }
+        }
+        return !isNil(valueToRender) ? (
+          <div
+            dangerouslySetInnerHTML={{
+              __html: valueToRender,
+            }}
+            className="cell"
+            title={
+              column.type !== "status" ? renderTooltip(cell.value) : undefined
+            }
+          ></div>
+        ) : (
+          <div className="cell">-</div>
+        );
+      },
+    });
+
+    const createRowTitleColumn = () => ({
+      Header: () => (
+        <div className="toolsHeader">
+          <form>
+            <label title="Fix the first column">
+              Fixed row title:
+              <input
+                id="fixed-row-title"
+                name="fixed"
+                type="checkbox"
+                checked={isTitleColSticky}
+                onChange={({ target }) => setTitleColSticky(target.checked)}
+              />
+            </label>
+          </form>
+        </div>
+      ),
+      id: "row-title",
+      fixed: isTitleColSticky ? "left" : "",
+      width: titleColWidth,
+      minWidth: 100,
+      columns: [
+        {
+          id: "summary",
+          className: "select-column-header",
+          width: titleColWidth,
+          minWidth: 100,
+          Header: <SelectColumnsButton handler={selectColumn} />,
+          Cell: (cell) => (
+            <div
+              dangerouslySetInnerHTML={{ __html: cell.row.original.title }}
+              title={cell.row.original.description}
+              className="row-title"
+            />
+          ),
+        },
+      ],
+    });
+
+    const statColumns = tools
+      .map((runSet, runSetIdx) =>
+        createRunSetColumns(
+          runSet,
+          runSetIdx,
+          createColumnBuilder({ switchToQuantile, hiddenCols }),
+        ),
+      )
+      .flat();
+
+    return [createRowTitleColumn()].concat(statColumns);
+  }, [isTitleColSticky, switchToQuantile, hiddenCols, selectColumn, tools]);
+
+  const data = useMemo(() => stats, [stats]);
+
+  const {
+    getTableProps,
+    getTableBodyProps,
+    headerGroups,
+    rows,
+    prepareRow,
+  } = useTable(
+    {
+      columns,
+      data,
+      initialState: {
+        hiddenColumns: getHiddenColIds(columns),
+      },
+    },
+    useFilters,
+    useResizeColumns,
+    useFlexLayout,
+    useSticky,
+  );
 
   return (
     <div id="statistics">
       <h2>Statistics</h2>
-      <ReactTableFixedColumns
-        data={stats}
-        columns={[
-          createRowTitleColumn({
-            fixed,
-            selectColumn,
-            headerWidth,
-            handleInputChange,
-          }),
-        ].concat(statColumns)}
-        showPagination={false}
-        className="-highlight"
-        minRows={0}
-        sortable={false}
-        width={width}
-      />
+      {renderTable(headerGroups, rows)}
     </div>
   );
 };

@@ -19,7 +19,7 @@ sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
 DEFAULT_CLOUD_TIMELIMIT = 300  # s
 
-DEFAULT_CLOUD_MEMORY_REQUIREMENT = 7000000000  # 7 GB
+DEFAULT_CLOUD_MEMORY_REQUIREMENT = 7_000_000_000  # 7 GB
 DEFAULT_CLOUD_CPUCORE_REQUIREMENT = 2  # one core with hyperthreading
 DEFAULT_CLOUD_CPUMODEL_REQUIREMENT = ""  # empty string matches every model
 
@@ -83,7 +83,7 @@ def execute_benchmark(benchmark, output_handler):
         # vcloud_jar is to be set by the calling script, i.e., (vcloud-)benchmark.py
         cmdLine = [
             "java",
-            "-Xmx" + str(heapSize) + "m",
+            f"-Xmx{heapSize}m",
             "-jar",
             vcloud_jar,
             "benchmark",
@@ -110,10 +110,13 @@ def execute_benchmark(benchmark, output_handler):
         start_time = benchexec.util.read_local_time()
 
         cloud = subprocess.Popen(
-            cmdLine, stdin=subprocess.PIPE, shell=vcloudutil.is_windows()  # noqa: S602
+            cmdLine,
+            stdin=subprocess.PIPE,
+            universal_newlines=True,
+            shell=vcloudutil.is_windows(),  # noqa: S602
         )
         try:
-            cloud.communicate(cloudInput.encode("utf-8"))
+            cloud.communicate(cloudInput)
         except KeyboardInterrupt:
             stop()
         returnCode = cloud.wait()
@@ -124,7 +127,7 @@ def execute_benchmark(benchmark, output_handler):
             if STOPPED_BY_INTERRUPT:
                 output_handler.set_error("interrupted")
             else:
-                errorMsg = "Cloud return code: {0}".format(returnCode)
+                errorMsg = f"Cloud return code: {returnCode}"
                 logging.warning(errorMsg)
                 output_handler.set_error(errorMsg)
     else:
@@ -144,7 +147,7 @@ def stop():
 
 
 def formatEnvironment(environment):
-    return ";".join(k + "=" + v for k, v in environment.get("newEnv", {}).items())
+    return ";".join(f"{k}={v}" for k, v in environment.get("newEnv", {}).items())
 
 
 def toTabList(items):
@@ -259,8 +262,8 @@ def getToolDataForCloud(benchmark):
 
     workingDir = benchmark.working_directory()
     if not os.path.isdir(workingDir):
-        sys.exit("Missing working directory '{0}', cannot run tool.".format(workingDir))
-    logging.debug("Working dir: " + workingDir)
+        sys.exit(f"Missing working directory '{workingDir}', cannot run tool.")
+    logging.debug("Working dir: %s", workingDir)
 
     toolpaths = benchmark.required_files()
     if benchmark.config.additional_files:
@@ -269,9 +272,8 @@ def getToolDataForCloud(benchmark):
     for file in toolpaths:
         if not os.path.exists(file):
             sys.exit(
-                "Missing file '{0}', cannot run benchmark within cloud.".format(
-                    os.path.normpath(file)
-                )
+                f"Missing file '{os.path.normpath(file)}', "
+                f"cannot run benchmark within cloud."
             )
         if os.path.isdir(file) and not os.listdir(file):
             # VCloud can not handle empty directories, lets ignore them
@@ -416,7 +418,7 @@ def parseAndSetCloudWorkerHostInformation(outputDir, output_handler, benchmark):
         else:
             os.remove(filePath)
     except IOError:
-        logging.warning("Host information file not found: " + filePath)
+        logging.warning("Host information file not found: %s", filePath)
 
 
 def parseCloudRunResultFile(filePath):

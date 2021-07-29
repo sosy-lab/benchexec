@@ -81,7 +81,7 @@ def execute_benchmark(benchmark, output_handler):
         requestId = msg["requestId"]
 
         # Upload verifier
-        prefix = benchmark.tool_name + "_" + benchmark.instance + "_"
+        prefix = f"{benchmark.tool_name}_{benchmark.instance}_"
         with tempfile.SpooledTemporaryFile(
             mode="w+b", prefix=prefix, suffix=".zip"
         ) as tempfile_verifier:
@@ -113,7 +113,7 @@ def execute_benchmark(benchmark, output_handler):
             http_request.raise_for_status()
 
         # Upload tasks
-        prefix = "BenchExec_tasks_" + benchmark.instance + "_"
+        prefix = f"BenchExec_tasks_{benchmark.instance}_"
         with tempfile.SpooledTemporaryFile(
             mode="w+b", prefix=prefix, suffix=".zip"
         ) as tempfile_tasks:
@@ -322,9 +322,8 @@ def _createArchiveFile(archive_path, abs_base_dir, abs_paths):
                     os.remove(archive_path)
 
                 raise BenchExecException(
-                    "Missing file '{0}', cannot run benchmark without it.".format(
-                        os.path.normpath(file)
-                    )
+                    f"Missing file '{os.path.normpath(file)}', "
+                    f"cannot run benchmark without it."
                 )
 
             if os.path.isdir(file):
@@ -387,7 +386,7 @@ def getBenchmarkData(benchmark):
             run_definition = {}
 
             # wrap list-elements in quotations-marks if they contain whitespace
-            cmdline = ["'{}'".format(x) if " " in x else x for x in run.cmdline()]
+            cmdline = [f"'{x}'" if " " in x else x for x in run.cmdline()]
             cmdline = " ".join(cmdline)
             log_file = os.path.relpath(run.log_file, benchmark.log_folder)
 
@@ -421,7 +420,7 @@ def getToolData(benchmark):
     working_dir = benchmark.working_directory()
     if not os.path.isdir(working_dir):
         raise BenchExecException(
-            "Missing working directory '{0}', cannot run tool.".format(working_dir)
+            f"Missing working directory '{working_dir}', cannot run tool."
         )
     logging.debug("Working dir: %s", working_dir)
 
@@ -430,9 +429,8 @@ def getToolData(benchmark):
     for file in toolpaths:
         if not os.path.exists(file):
             raise BenchExecException(
-                "Missing file '{0}', not runing benchmark without it.".format(
-                    os.path.normpath(file)
-                )
+                f"Missing file '{os.path.normpath(file)}', "
+                f"not running benchmark without it."
             )
         for glob in benchexec.util.expand_filename_pattern(file, working_dir):
             valid_toolpaths.add(glob)
@@ -556,7 +554,7 @@ def parse_aws_run_result(values):
 
     def parse_time_value(s):
         if s[-1] != "s":
-            raise ValueError('Cannot parse "{0}" as a time value.'.format(s))
+            raise ValueError(f'Cannot parse "{s}" as a time value.')
         return float(s[:-1])
 
     def set_exitcode(new):
@@ -564,7 +562,7 @@ def parse_aws_run_result(values):
             old = result_values["exitcode"]
             assert (
                 old == new
-            ), "Inconsistent exit codes {} and {} from AWS execution".format(old, new)
+            ), f"Inconsistent exit codes {old} and {new} from AWS execution"
         else:
             result_values["exitcode"] = new
 

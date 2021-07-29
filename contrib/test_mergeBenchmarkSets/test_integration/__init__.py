@@ -41,7 +41,7 @@ class MergeBenchmarkSetsIntegrationTests(unittest.TestCase):
             expected = os.path.join(
                 here,
                 "expected",
-                os.path.basename(resultfile) + ".merged" + merge_suffix + ".xml.bz2",
+                f"{os.path.basename(resultfile)}.merged{merge_suffix}.xml.bz2",
             )
             if OVERWRITE_MODE:
                 os.replace(result, expected)
@@ -51,7 +51,7 @@ class MergeBenchmarkSetsIntegrationTests(unittest.TestCase):
     def assert_content_equals(self, result, expected):
         self.assertTrue(
             filecmp.cmp(result, expected, shallow=False),
-            "Contents of {0} do not match contents of {1}".format(result, expected),
+            f"Contents of {result} do not match contents of {expected}",
         )
 
     def test_no_files(self):

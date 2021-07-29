@@ -105,7 +105,7 @@ const getOverviewProps = (data) => {
     taskIdNames,
     tools,
     columns,
-    table,
+    tableData,
     stats,
   } = prepareTableData(data);
 
@@ -115,7 +115,7 @@ const getOverviewProps = (data) => {
         if (!columnFilter(tool, column)) {
           return undefined;
         }
-        const values = table
+        const values = tableData
           .map((row) => valueAccessor(row.results[j], row.results[j].values[i]))
           .filter(Boolean);
         return [...new Set(values)].sort();
@@ -123,7 +123,7 @@ const getOverviewProps = (data) => {
     );
 
   const filterable = getFilterableData(data);
-  const originalTable = table;
+  const originalTable = tableData;
   const originalTools = tools;
 
   const filteredData = [];
@@ -143,7 +143,7 @@ const getOverviewProps = (data) => {
     taskIdNames,
     tools,
     columns,
-    table,
+    tableData,
     filteredData,
     filterable,
     hiddenCols,

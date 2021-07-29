@@ -28,7 +28,7 @@ const transformWorkerStats = async (overviewProps) => {
   const formatter = buildFormatter(overviewProps.tools);
   let jsStats = await processData({
     tools: overviewProps.tools,
-    table: overviewProps.table,
+    tableData: overviewProps.tableData,
     formatter,
     stats: overviewProps.stats,
   });
@@ -80,6 +80,7 @@ const transformWorkerStats = async (overviewProps) => {
 
 fs.readdirSync(testDir)
   .filter((file) => file.endsWith(".html"))
+  //.filter((file) => file.endsWith("big-table.diff.html"))
   .forEach((file) => {
     describe("StatisticsTable for " + file, () => {
       let content;
@@ -95,13 +96,11 @@ fs.readdirSync(testDir)
         await renderer.act(async () => {
           pythonStatComponent = renderer.create(
             <StatisticsTable
-              width={1000}
               selectColumn={overviewProps.toggleSelectColumns}
               tools={overviewProps.tools}
-              changeTab={overviewProps.changeTab}
+              switchToQuantile={overviewProps.switchToQuantile}
               hiddenCols={overviewProps.hiddenCols}
-              data={overviewProps.table}
-              headerWidth={1000}
+              tableData={overviewProps.tableData}
               stats={overviewProps.stats}
               filtered={overviewProps.filteredData.length > 0}
             />,
@@ -112,13 +111,11 @@ fs.readdirSync(testDir)
         await renderer.act(async () => {
           jsStatComponent = renderer.create(
             <StatisticsTable
-              width={1000}
               selectColumn={overviewProps.toggleSelectColumns}
               tools={overviewProps.tools}
-              changeTab={overviewProps.changeTab}
+              switchToQuantile={overviewProps.switchToQuantile}
               hiddenCols={overviewProps.hiddenCols}
-              data={overviewProps.table}
-              headerWidth={1000}
+              tableData={overviewProps.tableData}
               stats={jsStats}
               filtered={overviewProps.filteredData.length > 0}
             />,
