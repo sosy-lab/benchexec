@@ -83,7 +83,20 @@ class Tool(benchexec.tools.template.BaseTool2):
         """
         @return: status of IGML after executing a run
         """
+
+        reason = ""
         for line in run.output:
+            if "de.upb.cs.sms.igml.errors.LearningFailedException" in line:
+                reason = "(Learner failed)"
+            if "de.upb.cs.sms.igml.errors.DataGenerationFaildException" in line:
+                reason = "(Data generation failed)"
+            if "Error: Invalid configuration (Cannot handle programs with arrays!)" in line:
+                return result.RESULT_UNKNOWN + "(Arrays)"
+            if "org.sosy_lab.common.configuration.InvalidConfigurationException: " \
+               "The generation of the strongest post conditions failed!" in line:
+                return result.RESULT_UNKNOWN + "(SP generation failed)"
+            elif "The configuration was invalid. Reason:" in line:
+                return result.RESULT_UNKNOWN + "(Invalid configuration)"
             if "IMGL-FINAL-RESULT:" in line:
                 if (
                     "Correct_True" in line
@@ -97,7 +110,7 @@ class Tool(benchexec.tools.template.BaseTool2):
                 elif "Invalid_Inv" in line:
                     return result.RESULT_UNKNOWN + "(INVALID)"
                 elif "Unknown" in line:
-                    return result.RESULT_UNKNOWN
+                    return result.RESULT_UNKNOWN + reason
                 elif "Aborted" in line:
                     return result.RESULT_ERROR + "(Aborted)"
                 elif "Timeout" in line:
