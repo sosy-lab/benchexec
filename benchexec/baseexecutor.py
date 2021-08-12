@@ -110,6 +110,8 @@ class BaseExecutor(object):
 
         parent_setup = parent_setup_fn()
 
+        logging.debug("Executing run with args %s.", args)
+        logging.debug("Executing run with env %s.", env)
         p = subprocess.Popen(
             args,
             stdin=stdin,

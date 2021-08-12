@@ -24,7 +24,7 @@ from benchexec import __version__
 from benchexec import baseexecutor
 from benchexec import BenchExecException
 from benchexec import containerexecutor
-from benchexec.cgroups import BLKIO, CPUACCT, CPUSET, FREEZER, MEMORY, find_my_cgroups
+from benchexec.cgroupsv2 import BLKIO, CPUACCT, CPUSET, FREEZER, MEMORY, find_my_cgroups
 from benchexec.filehierarchylimit import FileHierarchyLimitThread
 from benchexec import intel_cpu_energy
 from benchexec import oomhandler
@@ -377,14 +377,16 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         if CPUSET in self.cgroups:
             # Read available cpus/memory nodes:
             try:
-                self.cpus = util.parse_int_list(self.cgroups.get_value(CPUSET, "cpus"))
+                # FIXME self.cpus = util.parse_int_list(self.cgroups.get_value(CPUSET, "cpus"))
+                self.cpus = util.parse_int_list(self.cgroups.get_value(CPUSET, "cpus.effective"))
             except ValueError as e:
                 logging.warning("Could not read available CPU cores from kernel: %s", e)
             logging.debug("List of available CPU cores is %s.", self.cpus)
 
             try:
                 self.memory_nodes = util.parse_int_list(
-                    self.cgroups.get_value(CPUSET, "mems")
+                    # FIXME self.cgroups.get_value(CPUSET, "mems")
+                    self.cgroups.get_value(CPUSET, "mems.effective")
                 )
             except ValueError as e:
                 logging.warning(
@@ -489,7 +491,8 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 # https://www.kernel.org/doc/Documentation/cgroups/memory.txt
                 # (unlike setting the global swappiness to 0).
                 # Our process might get killed because of this.
-                cgroups.set_value(MEMORY, "swappiness", "0")
+                # FIXME v1 cgroups.set_value(MEMORY, "swappiness", "0")
+                cgroups.set_value(MEMORY, "swap.max", "0")
             except OSError as e:
                 logging.warning(
                     "Could not disable swapping for benchmarked process: %s", e

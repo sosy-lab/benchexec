@@ -14,7 +14,7 @@ import threading
 import time
 
 from benchexec import BenchExecException
-from benchexec import cgroups
+from benchexec import cgroupsv2 as cgroups
 from benchexec import containerexecutor
 from benchexec import resources
 from benchexec.runexecutor import RunExecutor

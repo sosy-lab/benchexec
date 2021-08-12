@@ -23,27 +23,36 @@ from benchexec import util
 __all__ = [
     "find_my_cgroups",
     "BLKIO",
+    "CPU"
     "CPUACCT",
     "CPUSET",
     "FREEZER",
     "MEMORY",
 ]
 
-CGROUP_FALLBACK_PATH = "system.slice/benchexec-cgroup.service"
+CGROUP_FALLBACK_PATH = "system.slice/benchexec-cgroup.service/benchexec_root"
 """If we do not have write access to the current cgroup,
 attempt to use this cgroup as fallback."""
 
 CGROUP_NAME_PREFIX = "benchmark_"
 
+BLKIO = "io"  # FIXME legacy
+CPUACCT = "cpu"  # FIXME legacy
+FREEZER = "freeze"  # FIXME legacy
+
 IO = "io"
 CPU = "cpu"
+CPUSET = "cpuset"
 MEMORY = "memory"
 ALL_KNOWN_SUBSYSTEMS = {
     # cgroups for BenchExec
-    BLKIO,
+    IO,
     CPU,
+    CPUSET,
     MEMORY,
     "pids",
+
+    FREEZER,  # FIXME v1 bc
 }
 
 _PERMISSION_HINT_GROUPS = """
@@ -91,15 +100,17 @@ def find_my_cgroups(cgroup_procinfo=None, fallback=True):
     logging.debug(
         "Analyzing /proc/mounts and /proc/self/cgroup for determining cgroups."
     )
-    if cgroup_paths is None:
-        my_cgroups = _find_own_cgroups()
+    if cgroup_procinfo is None:
+        cgroup_path = _find_own_cgroups()
     else:
-        my_cgroups = _parse_proc_pid_cgroup(cgroup_path)
+        cgroup_path = _parse_proc_pid_cgroup(cgroup_procinfo)
 
     if fallback:
-        raise "not implemented"
+        mount = _find_cgroup_mount()
+        fallback_path = mount / CGROUP_FALLBACK_PATH
+        cgroup_path = fallback_path
 
-    cgroup_path, controllers = my_cgroups
+    controllers = _supported_cgroup_controllers(cgroup_path)
 
     return Cgroup(cgroup_path, controllers)
 
@@ -127,9 +138,18 @@ def _find_own_cgroups():
     """
     try:
         with open("/proc/self/cgroup", "rt") as ownCgroupsFile:
-            return _parse_proc_pid_cgroup(ownCgroupsFile):
+            return _parse_proc_pid_cgroup(ownCgroupsFile)
     except OSError:
         logging.exception("Cannot read /proc/self/cgroup")
+
+
+def _supported_cgroup_controllers(path: pathlib.Path):
+    with open(path / "cgroup.controllers") as controllers_file:
+        controllers = controllers_file.readline().strip().split()
+
+    controllers.append(FREEZER)  # FIXME bc, always supported in v2
+
+    return controllers
 
 
 def _parse_proc_pid_cgroup(cgroup_file):
@@ -141,10 +161,8 @@ def _parse_proc_pid_cgroup(cgroup_file):
     mountpoint = _find_cgroup_mount()
     own_cgroup = cgroup_file.readline().strip().split(":")
     path = mountpoint / own_cgroup[2]
-    with open(path / "cgroup.controllers") as controllers_file:
-        controllers = controllers_file.readline().strip().split()
 
-    return (path, controllers)
+    return path
 
 
 def kill_all_tasks_in_cgroup(cgroup, ensure_empty=True):
@@ -199,11 +217,11 @@ def _register_process_with_cgrulesengd(pid):
     """Tell cgrulesengd daemon to not move the given process into other cgroups,
     if libcgroup is available.
     """
+    # FIXME is there a libcgroup for v2?
+
     # Logging/printing from inside preexec_fn would end up in the output file,
     # not in the correct logger, thus it is disabled here.
     from ctypes import cdll
-
-    raise 'not implemented'
 
     try:
         libcgroup = cdll.LoadLibrary("libcgroup.so.1")
@@ -223,7 +241,7 @@ def _register_process_with_cgrulesengd(pid):
         pass
 
 
-class CgroupV2(object):
+class Cgroup(object):
     def __init__(self, cgroup_path, controllers):
         assert set(controllers) <= ALL_KNOWN_SUBSYSTEMS
         # Also update self.paths on every update to this!
@@ -237,7 +255,7 @@ class CgroupV2(object):
         return key in self.controllers
 
     def __getitem__(self, key):
-        raise 'not implemented'
+        raise Exception('not implemented')
         return self.per_subsystem[key]
 
     def __str__(self):
@@ -338,44 +356,19 @@ class CgroupV2(object):
         Create child cgroups of the current cgroup for at least the given subsystems.
         @return: A Cgroup instance representing the new child cgroup(s).
         """
-        assert set(subsystems).issubset(self.per_subsystem.keys())
-        createdCgroupsPerSubsystem = {}
-        createdCgroupsPerParent = {}
-        for subsystem in subsystems:
-            parentCgroup = self.per_subsystem[subsystem]
-            if parentCgroup in createdCgroupsPerParent:
-                # reuse already created cgroup
-                createdCgroupsPerSubsystem[subsystem] = createdCgroupsPerParent[
-                    parentCgroup
-                ]
-                continue
+        # assert set(subsystems).issubset(self.per_subsystem.keys())
+        cgroup_path = pathlib.Path(tempfile.mkdtemp(prefix=CGROUP_NAME_PREFIX, dir=self.path))
 
-            cgroup = tempfile.mkdtemp(prefix=CGROUP_NAME_PREFIX, dir=parentCgroup)
-            createdCgroupsPerSubsystem[subsystem] = cgroup
-            createdCgroupsPerParent[parentCgroup] = cgroup
-
-            # add allowed cpus and memory to cgroup if necessary
-            # (otherwise we can't add any tasks)
-            def copy_parent_to_child(name):
-                shutil.copyfile(
-                    os.path.join(parentCgroup, name), os.path.join(cgroup, name)
-                )
-
-            try:
-                copy_parent_to_child("cpuset.cpus")
-                copy_parent_to_child("cpuset.mems")
-            except OSError:
-                # expected to fail if cpuset subsystem is not enabled in this hierarchy
-                pass
-
-        return Cgroup(createdCgroupsPerSubsystem)
+        # FIXME do something with subsystems, also subtree_control?
+        return Cgroup(cgroup_path, self.controllers)
 
     def add_task(self, pid):
         """
         Add a process to the cgroups represented by this instance.
         """
         _register_process_with_cgrulesengd(pid)
-        with open(self.path / "cgroup.procs"), "w") as tasksFile:
+        with open(self.path / "cgroup.procs", "w") as tasksFile:
+            print(tasksFile)
             tasksFile.write(str(pid))
 
     def get_all_tasks(self, subsystem):
@@ -437,7 +430,7 @@ class CgroupV2(object):
         Only call this method if the given subsystem is available.
         """
         assert subsystem in self, f"Subsystem {subsystem} is missing"
-        return util.read_file(self.per_subsystem[subsystem], f"{subsystem}.{option}")
+        return util.read_file(self.path / f"{subsystem}.{option}")
 
     def get_file_lines(self, subsystem, option):
         """
@@ -460,9 +453,7 @@ class CgroupV2(object):
         Only call this method if the given subsystem is available.
         """
         assert subsystem in self
-        return util.read_key_value_pairs_from_file(
-            self.per_subsystem[subsystem], f"{subsystem}.{filename}"
-        )
+        return util.read_key_value_pairs_from_file(self.path / f"{subsystem}.{filename}")
 
     def set_value(self, subsystem, option, value):
         """
@@ -472,7 +463,7 @@ class CgroupV2(object):
         """
         assert subsystem in self
         util.write_file(
-            str(value), self.per_subsystem[subsystem], f"{subsystem}.{option}"
+            str(value), self.path / f"{subsystem}.{option}"
         )
 
     def remove(self):
@@ -490,8 +481,9 @@ class CgroupV2(object):
         Read the cputime usage of this cgroup. CPU cgroup needs to be available.
         @return cputime usage in seconds
         """
-        # convert micro-seconds to seconds
-        return float(self.get_value(CPU, "stat")) / 1_000_000
+        cpu_stats = dict(self.get_key_value_pairs(CPU, "stat"))
+
+        return float(cpu_stats['usage_usec']) / 1_000_000
 
     def read_allowed_memory_banks(self):
         """Get the list of all memory banks allowed by this cgroup."""

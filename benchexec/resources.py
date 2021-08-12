@@ -16,7 +16,7 @@ import math
 import os
 import sys
 
-from benchexec import cgroups
+from benchexec import cgroupsv2 as cgroups
 from benchexec import util
 
 __all__ = [

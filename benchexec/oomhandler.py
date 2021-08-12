@@ -9,7 +9,7 @@ import logging
 import os
 import threading
 
-from benchexec.cgroups import MEMORY
+from benchexec.cgroupsv2 import MEMORY
 from benchexec import util
 
 from ctypes import cdll

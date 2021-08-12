@@ -12,7 +12,7 @@ import sys
 import tempfile
 import threading
 
-from benchexec.cgroups import CPUACCT, CPUSET, FREEZER, MEMORY, find_my_cgroups
+from benchexec.cgroupsv2 import CPUACCT, CPUSET, FREEZER, MEMORY, find_my_cgroups
 from benchexec.runexecutor import RunExecutor
 from benchexec import util
 
