@@ -120,13 +120,15 @@ const Summary = (props) => {
 
   const renderTable = (headerGroups, rows) => {
     return (
-      <div className="main-table">
-        <div id="statistic-table" className="table sticky" {...getTableProps()}>
+      <div id="statistics-table">
+        <div className="table sticky">
           <div className="table-content">
-            {renderTableHeaders(headerGroups)}
-            {renderTableData(rows)}
+            <div className="table-container" {...getTableProps()}>
+              {renderTableHeaders(headerGroups)}
+              {renderTableData(rows)}
+            </div>
+            <div className="-loading"></div>
           </div>
-          <div className="-loading"></div>
         </div>
       </div>
     );
@@ -184,7 +186,7 @@ const Summary = (props) => {
         </div>
       ),
       id: "row-title",
-      fixed: isTitleColSticky ? "left" : "",
+      sticky: isTitleColSticky ? "left" : "",
       width: titleColWidth,
       minWidth: 100,
       columns: [

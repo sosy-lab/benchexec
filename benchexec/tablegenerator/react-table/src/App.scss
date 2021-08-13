@@ -84,6 +84,50 @@ $hover-color: darken(white, 20%);
   background: $border-color !important;
 }
 
+.table {
+  white-space: nowrap;
+  .table-container {
+    min-width: fit-content !important;
+  }
+  .table-content {
+    overflow: auto;
+  }
+  &.sticky {
+    .td,
+    .th {
+      background: #fff;
+    }
+
+    .header {
+      position: sticky;
+      width: fit-content;
+      text-align: center;
+    }
+
+    .body {
+      position: relative;
+      z-index: 0;
+    }
+
+    [data-sticky-td] {
+      position: sticky;
+    }
+
+    [data-sticky-last-left-td] {
+      border-right: 1px solid #ccc;
+    }
+
+    [data-sticky-first-right-td] {
+      border-left: 1px solid #ccc;
+    }
+  }
+
+  .td,
+  .th {
+    overflow: hidden;
+  }
+}
+
 //------------------overview------------------
 $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
 
@@ -385,13 +429,8 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
     }
   }
   #statistics {
-    #statistic-table.table {
-      height: auto;
-      white-space: nowrap;
-
+    #statistics-table > .table {
       .table-content {
-        overflow: hidden;
-
         .td {
           padding: 8px 5px;
 
@@ -483,10 +522,10 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
 //------------------table------------------
 .main-table {
   .table {
+    // make full height with pagination at bottom
     display: flex;
     flex-direction: column;
     height: $content-height;
-    white-space: nowrap;
 
     .resizer {
       display: inline-block;
@@ -501,36 +540,6 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
 
       &.isResizing {
         background: red;
-      }
-    }
-
-    &.sticky {
-      .td,
-      .th {
-        background: #fff;
-      }
-
-      .header {
-        position: sticky;
-        width: fit-content;
-        text-align: center;
-      }
-
-      .body {
-        position: relative;
-        z-index: 0;
-      }
-
-      [data-sticky-td] {
-        position: sticky;
-      }
-
-      [data-sticky-last-left-td] {
-        border-right: 1px solid #ccc;
-      }
-
-      [data-sticky-first-right-td] {
-        border-left: 1px solid #ccc;
       }
     }
 
@@ -566,10 +575,6 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
 
     .separator {
       max-width: 2px;
-    }
-
-    .table-container {
-      min-width: fit-content !important;
     }
 
     .table-content {
@@ -718,7 +723,6 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
         .td {
           padding: 1px;
           text-align: right;
-          overflow: hidden;
 
           > a {
             padding: 5px 3px;
