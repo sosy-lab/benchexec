@@ -214,34 +214,6 @@ def remove_cgroup(cgroup):
             )
 
 
-def _register_process_with_cgrulesengd(pid):
-    """Tell cgrulesengd daemon to not move the given process into other cgroups,
-    if libcgroup is available.
-    """
-    # FIXME is there a libcgroup for v2?
-
-    # Logging/printing from inside preexec_fn would end up in the output file,
-    # not in the correct logger, thus it is disabled here.
-    from ctypes import cdll
-
-    try:
-        libcgroup = cdll.LoadLibrary("libcgroup.so.1")
-        failure = libcgroup.cgroup_init()
-        if failure:
-            pass
-        else:
-            CGROUP_DAEMON_UNCHANGE_CHILDREN = 0x1
-            failure = libcgroup.cgroup_register_unchanged_process(
-                pid, CGROUP_DAEMON_UNCHANGE_CHILDREN
-            )
-            if failure:
-                pass
-                # print(f'Could not register process to cgrulesndg, error {success}. '
-                #      'Probably the daemon will mess up our cgroups.')
-    except OSError:
-        pass
-
-
 class Cgroup(object):
     def __init__(self, cgroup_path, controllers):
         assert set(controllers) <= ALL_KNOWN_SUBSYSTEMS
@@ -367,9 +339,7 @@ class Cgroup(object):
         """
         Add a process to the cgroups represented by this instance.
         """
-        _register_process_with_cgrulesengd(pid)
         with open(self.path / "cgroup.procs", "w") as tasksFile:
-            print(tasksFile)
             tasksFile.write(str(pid))
 
     def get_all_tasks(self, subsystem):
