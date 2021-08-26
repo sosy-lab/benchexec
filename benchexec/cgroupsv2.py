@@ -30,7 +30,8 @@ __all__ = [
     "MEMORY",
 ]
 
-CGROUP_FALLBACK_PATH = "system.slice/benchexec-cgroup.service/benchexec_root"
+# FIXME uid
+CGROUP_FALLBACK_PATH = "user.slice/user-1000.slice/user@1000.service/app.slice/benchexec-cgroup.service/benchexec_root"
 """If we do not have write access to the current cgroup,
 attempt to use this cgroup as fallback."""
 
