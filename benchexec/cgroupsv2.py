@@ -201,7 +201,7 @@ def remove_cgroup(cgroup):
     if not os.path.exists(cgroup):
         logging.warning("Cannot remove CGroup %s, because it does not exist.", cgroup)
         return
-    assert os.path.getsize(os.path.join(cgroup, "tasks")) == 0
+    assert os.path.getsize(cgroup / "cgroup.procs") == 0
     try:
         os.rmdir(cgroup)
     except OSError:
@@ -421,7 +421,7 @@ class Cgroup(object):
         """
         assert subsystem in self
         return os.path.isfile(
-            os.path.join(self.per_subsystem[subsystem], f"{subsystem}.{option}")
+            self.path / f"{subsystem}.{option}"
         )
 
     def get_value(self, subsystem, option):
