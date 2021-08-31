@@ -450,16 +450,10 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
       .table-content {
         .td {
           padding: 8px 5px;
-
-          &:not(.separator) {
-            align-self: center;
-          }
         }
 
         .table-header {
           .tr {
-            align-items: stretch;
-
             &:nth-of-type(2) {
               box-shadow: 0 2px 15px 0 rgba(0, 0, 0, 0.15);
               position: relative;
@@ -467,35 +461,22 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
             }
 
             .th {
-              display: flex !important;
-              align-items: stretch;
-              justify-content: center;
               padding: 5px;
 
               &:not(:first-of-type) {
                 border-right: 1px solid rgba(0, 0, 0, 0.05);
               }
 
-              &.select-column-header:hover {
-                background: #fff;
-              }
-
-              &.outer {
-                padding: 5px;
-              }
-
-              &.separator {
-                align-self: stretch;
-              }
-
               .header-data {
+                // to avoid padding when column is too narrow
                 display: flex;
-                align-items: baseline;
                 justify-content: center;
+                height: 100%;
                 width: 100%;
               }
 
-              > span {
+              .selectColumns {
+                display: block;
                 text-overflow: ellipsis;
                 overflow: hidden;
               }
@@ -519,13 +500,6 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
           .tr {
             border-bottom: 1px solid #adadad;
           }
-        }
-      }
-
-      .columns {
-        cursor: pointer;
-        &:hover {
-          background-color: $hover-color;
         }
       }
     }
