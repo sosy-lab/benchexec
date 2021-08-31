@@ -623,10 +623,6 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
           }
         }
 
-        &.separator {
-          align-self: stretch;
-        }
-
         &.fixed-task,
         &.reg-column {
           font-weight: normal;
