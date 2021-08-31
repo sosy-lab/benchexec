@@ -222,18 +222,7 @@ exports[`Render Summary for benchmark-example-true.2019-11-06_0932.results.no op
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={5}
@@ -329,16 +318,6 @@ exports[`Render Summary for benchmark-example-true.2019-11-06_0932.results.no op
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -1162,18 +1141,7 @@ exports[`Render Summary for big-table.diff.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={8}
@@ -1218,18 +1186,7 @@ exports[`Render Summary for big-table.diff.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -1274,18 +1231,7 @@ exports[`Render Summary for big-table.diff.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -1381,16 +1327,6 @@ exports[`Render Summary for big-table.diff.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -1661,16 +1597,6 @@ exports[`Render Summary for big-table.diff.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -1817,16 +1743,6 @@ exports[`Render Summary for big-table.diff.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -4695,18 +4611,7 @@ exports[`Render Summary for cbmc.2015-12-11_1211.results.Simple.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -4802,16 +4707,6 @@ exports[`Render Summary for cbmc.2015-12-11_1211.results.Simple.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -6243,18 +6138,7 @@ exports[`Render Summary for multi-table.diff.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -6299,18 +6183,7 @@ exports[`Render Summary for multi-table.diff.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -6355,18 +6228,7 @@ exports[`Render Summary for multi-table.diff.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -6411,18 +6273,7 @@ exports[`Render Summary for multi-table.diff.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -6518,16 +6369,6 @@ exports[`Render Summary for multi-table.diff.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -6674,16 +6515,6 @@ exports[`Render Summary for multi-table.diff.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -6830,16 +6661,6 @@ exports[`Render Summary for multi-table.diff.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -6986,16 +6807,6 @@ exports[`Render Summary for multi-table.diff.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -10053,18 +9864,7 @@ exports[`Render Summary for multi-table.table.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -10109,18 +9909,7 @@ exports[`Render Summary for multi-table.table.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -10165,18 +9954,7 @@ exports[`Render Summary for multi-table.table.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -10221,18 +9999,7 @@ exports[`Render Summary for multi-table.table.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -10328,16 +10095,6 @@ exports[`Render Summary for multi-table.table.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -10484,16 +10241,6 @@ exports[`Render Summary for multi-table.table.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -10640,16 +10387,6 @@ exports[`Render Summary for multi-table.table.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -10796,16 +10533,6 @@ exports[`Render Summary for multi-table.table.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -14226,18 +13953,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -14282,18 +13998,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -14338,18 +14043,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -14394,18 +14088,7 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -14501,16 +14184,6 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -14657,16 +14330,6 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -14811,16 +14474,6 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -14967,16 +14620,6 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -18032,18 +17675,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -18088,18 +17720,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -18144,18 +17765,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -18200,18 +17810,7 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -18307,16 +17906,6 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -18463,16 +18052,6 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -18617,16 +18196,6 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -18773,16 +18342,6 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -22205,18 +21764,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -22261,18 +21809,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -22317,18 +21854,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -22373,18 +21899,7 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -22480,16 +21995,6 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -22636,16 +22141,6 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -22790,16 +22285,6 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -22946,16 +22431,6 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -26011,18 +25486,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -26067,18 +25531,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -26123,18 +25576,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -26179,18 +25621,7 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -26286,16 +25717,6 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -26442,16 +25863,6 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -26596,16 +26007,6 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -26752,16 +26153,6 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -30184,18 +29575,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -30240,18 +29620,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -30296,18 +29665,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -30352,18 +29710,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -30459,16 +29806,6 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -30615,16 +29952,6 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -30769,16 +30096,6 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -30925,16 +30242,6 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -33990,18 +33297,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -34046,18 +33342,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -34102,18 +33387,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -34158,18 +33432,7 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -34265,16 +33528,6 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -34421,16 +33674,6 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -34575,16 +33818,6 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -34731,16 +33964,6 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -38187,18 +37410,7 @@ exports[`Render Summary for multi-table-with-wildcards.diff.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -38243,18 +37455,7 @@ exports[`Render Summary for multi-table-with-wildcards.diff.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -38299,18 +37500,7 @@ exports[`Render Summary for multi-table-with-wildcards.diff.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -38355,18 +37545,7 @@ exports[`Render Summary for multi-table-with-wildcards.diff.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -38462,16 +37641,6 @@ exports[`Render Summary for multi-table-with-wildcards.diff.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -38618,16 +37787,6 @@ exports[`Render Summary for multi-table-with-wildcards.diff.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -38774,16 +37933,6 @@ exports[`Render Summary for multi-table-with-wildcards.diff.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -38930,16 +38079,6 @@ exports[`Render Summary for multi-table-with-wildcards.diff.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -42021,18 +41160,7 @@ exports[`Render Summary for multi-table-with-wildcards.table.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -42077,18 +41205,7 @@ exports[`Render Summary for multi-table-with-wildcards.table.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -42133,18 +41250,7 @@ exports[`Render Summary for multi-table-with-wildcards.table.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -42189,18 +41295,7 @@ exports[`Render Summary for multi-table-with-wildcards.table.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -42296,16 +41391,6 @@ exports[`Render Summary for multi-table-with-wildcards.table.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -42452,16 +41537,6 @@ exports[`Render Summary for multi-table-with-wildcards.table.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -42608,16 +41683,6 @@ exports[`Render Summary for multi-table-with-wildcards.table.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -42764,16 +41829,6 @@ exports[`Render Summary for multi-table-with-wildcards.table.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -46111,18 +45166,7 @@ exports[`Render Summary for nan_and_inf.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={10}
@@ -46218,16 +45262,6 @@ exports[`Render Summary for nan_and_inf.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -48654,18 +47688,7 @@ exports[`Render Summary for predicateAnalysis.table.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -48710,18 +47733,7 @@ exports[`Render Summary for predicateAnalysis.table.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -48817,16 +47829,6 @@ exports[`Render Summary for predicateAnalysis.table.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -48973,16 +47975,6 @@ exports[`Render Summary for predicateAnalysis.table.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -51021,18 +50013,7 @@ exports[`Render Summary for predicateAnalysis-reverse.table.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -51077,18 +50058,7 @@ exports[`Render Summary for predicateAnalysis-reverse.table.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -51184,16 +50154,6 @@ exports[`Render Summary for predicateAnalysis-reverse.table.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -51340,16 +50300,6 @@ exports[`Render Summary for predicateAnalysis-reverse.table.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -53387,18 +52337,7 @@ exports[`Render Summary for rows-with-scores.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={5}
@@ -53443,18 +52382,7 @@ exports[`Render Summary for rows-with-scores.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={5}
@@ -53550,16 +52478,6 @@ exports[`Render Summary for rows-with-scores.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -53739,16 +52657,6 @@ exports[`Render Summary for rows-with-scores.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -56303,18 +55211,7 @@ exports[`Render Summary for simple-table-with-columns.table.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={3}
@@ -56410,16 +55307,6 @@ exports[`Render Summary for simple-table-with-columns.table.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -57579,18 +56466,7 @@ exports[`Render Summary for simple-table-with-links.table.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={2}
@@ -57686,16 +56562,6 @@ exports[`Render Summary for simple-table-with-links.table.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -58678,18 +57544,7 @@ exports[`Render Summary for simple-table-with-numberOfDigits.table.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -58785,16 +57640,6 @@ exports[`Render Summary for simple-table-with-numberOfDigits.table.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -60128,18 +58973,7 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={8}
@@ -60235,16 +59069,6 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -62287,18 +61111,7 @@ exports[`Render Summary for smt.diff.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -62343,18 +61156,7 @@ exports[`Render Summary for smt.diff.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -62450,16 +61252,6 @@ exports[`Render Summary for smt.diff.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -62604,16 +61396,6 @@ exports[`Render Summary for smt.diff.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -63207,18 +61989,7 @@ exports[`Render Summary for smt.table.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -63263,18 +62034,7 @@ exports[`Render Summary for smt.table.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -63370,16 +62130,6 @@ exports[`Render Summary for smt.table.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -63524,16 +62274,6 @@ exports[`Render Summary for smt.table.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -64363,18 +63103,7 @@ exports[`Render Summary for task-def-files.table.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={5}
@@ -64419,18 +63148,7 @@ exports[`Render Summary for task-def-files.table.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={5}
@@ -64526,16 +63244,6 @@ exports[`Render Summary for task-def-files.table.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -64715,16 +63423,6 @@ exports[`Render Summary for task-def-files.table.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -67307,18 +66005,7 @@ exports[`Render Summary for test.2015-03-03_1613.diff.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -67363,18 +66050,7 @@ exports[`Render Summary for test.2015-03-03_1613.diff.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -67470,16 +66146,6 @@ exports[`Render Summary for test.2015-03-03_1613.diff.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -67626,16 +66292,6 @@ exports[`Render Summary for test.2015-03-03_1613.diff.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -69435,18 +68091,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.all-c
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={5}
@@ -69542,16 +68187,6 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.all-c
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -71062,18 +69697,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.corre
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -71169,16 +69793,6 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.corre
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -72410,18 +71024,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.custo
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={5}
@@ -72517,16 +71120,6 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.custo
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -73902,18 +72495,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.html 
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -74009,16 +72591,6 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.html 
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -75354,18 +73926,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.valueAnalysis.html 1`] 
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -75461,16 +74022,6 @@ exports[`Render Summary for test.2015-03-03_1613.results.valueAnalysis.html 1`] 
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -76806,18 +75357,7 @@ exports[`Render Summary for test.2015-03-03_1613.results.valueAnalysis.table.htm
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -76913,16 +75453,6 @@ exports[`Render Summary for test.2015-03-03_1613.results.valueAnalysis.table.htm
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -78286,18 +76816,7 @@ exports[`Render Summary for test.2015-03-03_1613.table.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -78342,18 +76861,7 @@ exports[`Render Summary for test.2015-03-03_1613.table.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -78449,16 +76957,6 @@ exports[`Render Summary for test.2015-03-03_1613.table.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -78605,16 +77103,6 @@ exports[`Render Summary for test.2015-03-03_1613.table.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -80641,18 +79129,7 @@ exports[`Render Summary for test.2015-03-03_1613-common.diff.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -80697,18 +79174,7 @@ exports[`Render Summary for test.2015-03-03_1613-common.diff.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -80804,16 +79270,6 @@ exports[`Render Summary for test.2015-03-03_1613-common.diff.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -80960,16 +79416,6 @@ exports[`Render Summary for test.2015-03-03_1613-common.diff.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -82797,18 +81243,7 @@ exports[`Render Summary for test.2015-03-03_1613-common.table.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -82853,18 +81288,7 @@ exports[`Render Summary for test.2015-03-03_1613-common.table.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -82960,16 +81384,6 @@ exports[`Render Summary for test.2015-03-03_1613-common.table.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -83116,16 +81530,6 @@ exports[`Render Summary for test.2015-03-03_1613-common.table.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -84953,18 +83357,7 @@ exports[`Render Summary for test.2015-03-03_1613-correct-only.diff.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -85009,18 +83402,7 @@ exports[`Render Summary for test.2015-03-03_1613-correct-only.diff.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -85116,16 +83498,6 @@ exports[`Render Summary for test.2015-03-03_1613-correct-only.diff.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -85272,16 +83644,6 @@ exports[`Render Summary for test.2015-03-03_1613-correct-only.diff.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -87109,18 +85471,7 @@ exports[`Render Summary for test.2015-03-03_1613-correct-only.table.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -87165,18 +85516,7 @@ exports[`Render Summary for test.2015-03-03_1613-correct-only.table.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -87272,16 +85612,6 @@ exports[`Render Summary for test.2015-03-03_1613-correct-only.table.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -87428,16 +85758,6 @@ exports[`Render Summary for test.2015-03-03_1613-correct-only.table.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -89265,18 +87585,7 @@ exports[`Render Summary for test.2015-03-03_1613-reverse.diff.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -89321,18 +87630,7 @@ exports[`Render Summary for test.2015-03-03_1613-reverse.diff.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -89428,16 +87726,6 @@ exports[`Render Summary for test.2015-03-03_1613-reverse.diff.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -89584,16 +87872,6 @@ exports[`Render Summary for test.2015-03-03_1613-reverse.diff.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -91421,18 +89699,7 @@ exports[`Render Summary for test.2015-03-03_1613-reverse.table.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -91477,18 +89744,7 @@ exports[`Render Summary for test.2015-03-03_1613-reverse.table.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -91584,16 +89840,6 @@ exports[`Render Summary for test.2015-03-03_1613-reverse.table.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -91740,16 +89986,6 @@ exports[`Render Summary for test.2015-03-03_1613-reverse.table.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -93776,18 +92012,7 @@ exports[`Render Summary for test-error.2015-03-03_1613.diff.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -93832,18 +92057,7 @@ exports[`Render Summary for test-error.2015-03-03_1613.diff.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -93939,16 +92153,6 @@ exports[`Render Summary for test-error.2015-03-03_1613.diff.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -94095,16 +92299,6 @@ exports[`Render Summary for test-error.2015-03-03_1613.diff.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -95932,18 +94126,7 @@ exports[`Render Summary for test-error.2015-03-03_1613.table.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -95988,18 +94171,7 @@ exports[`Render Summary for test-error.2015-03-03_1613.table.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -96095,16 +94267,6 @@ exports[`Render Summary for test-error.2015-03-03_1613.table.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -96251,16 +94413,6 @@ exports[`Render Summary for test-error.2015-03-03_1613.table.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -98287,18 +96439,7 @@ exports[`Render Summary for union-table.diff.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -98343,18 +96484,7 @@ exports[`Render Summary for union-table.diff.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -98450,16 +96580,6 @@ exports[`Render Summary for union-table.diff.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -98606,16 +96726,6 @@ exports[`Render Summary for union-table.diff.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -100443,18 +98553,7 @@ exports[`Render Summary for union-table.table.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -100499,18 +98598,7 @@ exports[`Render Summary for union-table.table.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -100606,16 +98694,6 @@ exports[`Render Summary for union-table.table.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -100762,16 +98840,6 @@ exports[`Render Summary for union-table.table.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -102599,18 +100667,7 @@ exports[`Render Summary for union-table-duplicate-results.diff.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -102655,18 +100712,7 @@ exports[`Render Summary for union-table-duplicate-results.diff.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -102762,16 +100808,6 @@ exports[`Render Summary for union-table-duplicate-results.diff.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -102918,16 +100954,6 @@ exports[`Render Summary for union-table-duplicate-results.diff.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -104755,18 +102781,7 @@ exports[`Render Summary for union-table-duplicate-results.table.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -104811,18 +102826,7 @@ exports[`Render Summary for union-table-duplicate-results.table.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -104918,16 +102922,6 @@ exports[`Render Summary for union-table-duplicate-results.table.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -105074,16 +103068,6 @@ exports[`Render Summary for union-table-duplicate-results.table.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -106951,18 +104935,7 @@ exports[`Render Summary for union-table-mixed.diff.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -107007,18 +104980,7 @@ exports[`Render Summary for union-table-mixed.diff.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -107063,18 +105025,7 @@ exports[`Render Summary for union-table-mixed.diff.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -107170,16 +105121,6 @@ exports[`Render Summary for union-table-mixed.diff.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -107326,16 +105267,6 @@ exports[`Render Summary for union-table-mixed.diff.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -107482,16 +105413,6 @@ exports[`Render Summary for union-table-mixed.diff.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -109940,18 +107861,7 @@ exports[`Render Summary for union-table-mixed.table.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -109996,18 +107906,7 @@ exports[`Render Summary for union-table-mixed.table.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -110052,18 +107951,7 @@ exports[`Render Summary for union-table-mixed.table.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -110159,16 +108047,6 @@ exports[`Render Summary for union-table-mixed.table.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -110315,16 +108193,6 @@ exports[`Render Summary for union-table-mixed.table.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -110471,16 +108339,6 @@ exports[`Render Summary for union-table-mixed.table.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -113172,18 +111030,7 @@ exports[`Render Summary for union-table-multiple-results.diff.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -113228,18 +111075,7 @@ exports[`Render Summary for union-table-multiple-results.diff.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -113335,16 +111171,6 @@ exports[`Render Summary for union-table-multiple-results.diff.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -113491,16 +111317,6 @@ exports[`Render Summary for union-table-multiple-results.diff.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -115328,18 +113144,7 @@ exports[`Render Summary for union-table-multiple-results.table.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -115384,18 +113189,7 @@ exports[`Render Summary for union-table-multiple-results.table.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -115491,16 +113285,6 @@ exports[`Render Summary for union-table-multiple-results.table.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -115647,16 +113431,6 @@ exports[`Render Summary for union-table-multiple-results.table.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -117456,18 +115230,7 @@ exports[`Render Summary for union-table-predicateAnalysis.table.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -117563,16 +115326,6 @@ exports[`Render Summary for union-table-predicateAnalysis.table.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "
@@ -118791,18 +116544,7 @@ exports[`Render Summary for union-table-valueAnalysis.table.html 1`] = `
            "width": "2px",
           }
          }
-        >
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
-        </div>
+        />
         <div
          className="th header outer "
          colSpan={4}
@@ -118898,16 +116640,6 @@ exports[`Render Summary for union-table-valueAnalysis.table.html 1`] = `
          }
         >
          
-         <div
-          className="resizer "
-          draggable={false}
-          role="separator"
-          style={
-           Object {
-            "cursor": "col-resize",
-           }
-          }
-         />
         </div>
         <div
          className="th header "

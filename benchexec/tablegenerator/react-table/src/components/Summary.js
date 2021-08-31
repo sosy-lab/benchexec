@@ -86,10 +86,13 @@ const Summary = (props) => {
             >
               {header.render("Header")}
 
-              <div
-                {...header.getResizerProps()}
-                className={`resizer ${header.isResizing ? "isResizing" : ""}`}
-              />
+              {(!header.className ||
+                !header.className.includes("separator")) && (
+                <div
+                  {...header.getResizerProps()}
+                  className={`resizer ${header.isResizing ? "isResizing" : ""}`}
+                />
+              )}
             </div>
           ))}
         </div>
