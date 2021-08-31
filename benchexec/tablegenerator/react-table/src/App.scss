@@ -78,12 +78,6 @@ $hover-color: darken(white, 20%);
   font-weight: 700;
 }
 
-.separator {
-  margin: 0 !important;
-  padding: 0 !important;
-  background: $border-color !important;
-}
-
 .table {
   white-space: nowrap;
   .table-container {
@@ -141,6 +135,13 @@ $hover-color: darken(white, 20%);
     &.isResizing {
       background: red;
     }
+  }
+
+  .separator {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: $border-color !important;
+    max-width: 2px;
   }
 }
 
@@ -571,10 +572,6 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
       input {
         width: 100%;
       }
-    }
-
-    .separator {
-      max-width: 2px;
     }
 
     .table-content {
