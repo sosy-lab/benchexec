@@ -116,6 +116,12 @@ $hover-color: darken(white, 20%);
     }
   }
 
+  .table-header {
+    .th.outer {
+      background-color: #f7f7f7;
+    }
+  }
+
   .td,
   .th {
     overflow: hidden;
@@ -582,8 +588,6 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
             border-bottom-color: #f2f2f2;
 
             .th {
-              background-color: #f7f7f7;
-
               &:hover {
                 background-color: #f7f7f7;
                 cursor: auto;
