@@ -126,6 +126,22 @@ $hover-color: darken(white, 20%);
   .th {
     overflow: hidden;
   }
+
+  .resizer {
+    display: inline-block;
+    position: absolute;
+    width: 36px;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 2;
+    transform: translateX(50%);
+    background-color: rgba(0, 0, 0, 0) !important;
+
+    &.isResizing {
+      background: red;
+    }
+  }
 }
 
 //------------------overview------------------
@@ -526,22 +542,6 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
     display: flex;
     flex-direction: column;
     height: $content-height;
-
-    .resizer {
-      display: inline-block;
-      position: absolute;
-      width: 36px;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      z-index: 2;
-      transform: translateX(50%);
-      background-color: rgba(0, 0, 0, 0) !important;
-
-      &.isResizing {
-        background: red;
-      }
-    }
 
     a {
       text-decoration: none;
