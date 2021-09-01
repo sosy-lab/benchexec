@@ -484,6 +484,10 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
                 border-right: 1px solid rgba(0, 0, 0, 0.05);
               }
 
+              &.outer {
+                text-overflow: ellipsis;
+              }
+
               .header-data {
                 height: 100%;
               }
@@ -508,6 +512,8 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
           .row-title {
             font-weight: 700;
             text-align: left;
+            overflow: hidden;
+            text-overflow: ellipsis;
           }
 
           .tr {
