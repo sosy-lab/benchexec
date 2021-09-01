@@ -173,20 +173,18 @@ const Summary = (props) => {
 
     const createRowTitleColumn = () => ({
       Header: () => (
-        <div className="toolsHeader">
-          <form>
-            <label title="Fix the first column">
-              Fixed row title:
-              <input
-                id="fixed-row-title"
-                name="fixed"
-                type="checkbox"
-                checked={isTitleColSticky}
-                onChange={({ target }) => setTitleColSticky(target.checked)}
-              />
-            </label>
-          </form>
-        </div>
+        <form>
+          <label title="Fix the first column">
+            Fixed row title:
+            <input
+              id="fixed-row-title"
+              name="fixed"
+              type="checkbox"
+              checked={isTitleColSticky}
+              onChange={({ target }) => setTitleColSticky(target.checked)}
+            />
+          </label>
+        </form>
       ),
       id: "row-title",
       sticky: isTitleColSticky ? "left" : "",
@@ -195,7 +193,6 @@ const Summary = (props) => {
       columns: [
         {
           id: "summary",
-          className: "select-column-header",
           width: titleColWidth,
           minWidth: 100,
           Header: <SelectColumnsButton handler={selectColumn} />,
