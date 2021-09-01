@@ -670,14 +670,17 @@ const Table = (props) => {
           })}
         >
           <div
-            className={`header-sort-container ${
-              header.isSorted
-                ? header.isSortedDesc
-                  ? "sorted-desc "
-                  : "sorted-asc "
-                : ""
-            }`}
-            {...header.getSortByToggleProps()}
+            {...(header.canSort &&
+              (!header.className || !header.className.includes("separator")) &&
+              header.getSortByToggleProps({
+                className: `header-sort-container clickable ${
+                  header.isSorted
+                    ? header.isSortedDesc
+                      ? "sorted-desc "
+                      : "sorted-asc "
+                    : ""
+                }`,
+              }))}
           >
             {header.render("Header")}
           </div>

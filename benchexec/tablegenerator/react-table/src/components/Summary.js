@@ -144,7 +144,7 @@ const Summary = (props) => {
       Header: (
         <StandardColumnHeader
           column={column}
-          className="header-data"
+          className="header-data clickable"
           title="Show Quantile Plot of this column"
           onClick={(e) => switchToQuantile(column)}
         />
