@@ -60,13 +60,16 @@ class VcloudBenchmark(VcloudBenchmarkBase):
     """
 
     def load_executor(self):
-        download_required_jars(self.config)
-
         import vcloud.benchmarkclient_executor as executor
 
-        executor.set_vcloud_jar_path(
-            os.path.join(_ROOT_DIR, "lib", "vcloud-jars", "vcloud.jar")
-        )
+        if self.config.vcloud_jar:
+            print(self.config.vcloud_jar)
+            executor.set_vcloud_jar_path(self.config.vcloud_jar)
+        else:
+            download_required_jars(self.config)
+            executor.set_vcloud_jar_path(
+                os.path.join(_ROOT_DIR, "lib", "vcloud-jars", "vcloud.jar")
+            )
 
         logging.debug(
             "This is vcloud-benchmark.py (based on benchexec %s) "

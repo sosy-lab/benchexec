@@ -85,6 +85,13 @@ class VcloudBenchmarkBase(benchexec.benchexec.BenchExec):
             type=str,
             help="Specify files or paths that shall also be transferred and be made available to the run in the cloud.",
         )
+        vcloud_args.add_argument(
+            self.get_param_name("cloudJar"),
+            dest="vcloud_jar",
+            metavar="FILE_OR_PATH",
+            type=str,
+            help="Use this vcloud jar instead of downloading it from the ivy repository.",
+        )
 
     def get_param_name(self, pname):
         return "--v" + pname
