@@ -18,9 +18,8 @@ class P4SetupHandler(object):
     property file or expected file is given, default will be used.
     """
 
-    def __init__(self, benchmark, test_dict):
+    def __init__(self, benchmark):
         self.benchmark = benchmark
-        self.test_dict = test_dict
 
     def update_runsets(self):
         for runSet in self.benchmark.run_sets:
@@ -39,9 +38,32 @@ class P4SetupHandler(object):
                     expected_dict = {}
                 prop = old_run.properties
                 runSet.runs = []
-                for module_name in self.test_dict:
-                    for test_name in self.test_dict[module_name]:
-                        run = Run(f"{module_name}.{test_name}", "", "", "", runSet)
+
+                # Check for most relevant option
+                if len(runSet.options) != len(old_run.options):
+                    run_specific_options = []
+                    final_index = None
+                    for i in range(len(runSet.options) - 1):
+                        final_index = i
+                        if not (
+                            runSet.options[i] == old_run.options[i]
+                            and runSet.options[i + 1] == old_run.options[i + 1]
+                        ):
+                            run_specific_options.append(old_run[i])
+                            run_specific_options.append(old_run[i + 1])
+
+                    run_specific_options.append(old_run.options[final_index:])
+
+                for module_name in old_run.test_dict:
+                    for test_name in old_run.test_dict[module_name]:
+                        run = Run(
+                            f"{module_name}.{test_name}",
+                            "",
+                            "",
+                            old_run.options,
+                            runSet,
+                        )
+                        run.test_folder_name = old_run.test_folder_name
                         prop = [result.Property("/", False, "Yo")]
                         run.properties = prop
                         if run.identifier in expected_dict and len(prop) > 0:
