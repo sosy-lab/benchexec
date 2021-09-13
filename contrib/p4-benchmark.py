@@ -25,7 +25,7 @@ class P4BenchExec(BenchExec):
         BenchExec.__init__(self)
 
     def load_executor(self):
-        from p4.p4execution import P4Execution
+        from p4_files.p4execution import P4Execution
 
         return P4Execution()
 
