@@ -14,7 +14,13 @@
 #
 import re
 import struct
-from .convert import encode
+
+# Required to handles both test case and real case
+try:
+    from .convert import encode
+except:
+    from convert import encode
+
 
 import google.protobuf.text_format
 from p4.config.v1 import p4info_pb2

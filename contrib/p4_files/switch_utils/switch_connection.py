@@ -7,9 +7,13 @@ import socket
 from functools import wraps
 from p4.v1 import p4runtime_pb2, p4runtime_pb2_grpc
 from p4.config.v1 import p4info_pb2
-from .p4info_helper import P4InfoHelper
 
-from p4.tmp import p4config_pb2
+try:
+    from .p4info_helper import P4InfoHelper
+except:
+    from p4info_helper import P4InfoHelper
+
+# from p4.tmp import p4config_pb2
 
 import google.protobuf.text_format
 from google.rpc import status_pb2, code_pb2
@@ -45,21 +49,23 @@ class SwitchConnection(object):
     Defines a gRPC connection to a switch.
     """
 
-    def __init__(self, grpc_address, device_id, election_id) -> None:
+    def __init__(self, switch_name, grpc_address, device_id, election_id) -> None:
+        self.switch_name = switch_name
         self.grpc_addr = grpc_address
         self.device_id = device_id
         self.election_id = election_id
 
         self.connected = False
+        self.do_shutdown = False
+
+        self.stream_recv_thread = None  # Setup by setup_stream
 
         try:
             self.channel = grpc.insecure_channel(self.grpc_addr)
         except:
             logging.critical("Failed to connect to P4Runtime server")
-            sys.exit(1)
 
         self.stub = p4runtime_pb2_grpc.P4RuntimeStub(self.channel)
-        # self.setup_stream()
 
     def setup_stream(self):
         self.stream_out_q = queue.Queue()
@@ -75,15 +81,20 @@ class SwitchConnection(object):
 
         def stream_recv_wrapper(stream):
             def stream_recv():
-                try:
-                    for p in stream:
-                        self.stream_in_q.put(p)
-                except grpc.RpcError as e:
-                    self.error_q.put(e)
+                for p in stream:
+                    self.stream_in_q.put(p)
 
-            stream_recv()
+            try:
+                stream_recv()
+            except grpc.RpcError as e:
+                self.error_q.put(e)
+                self.stream_in_q.put(None)
 
         self.stream = self.stub.StreamChannel(stream_req_iterator())
+
+        if self.stream_recv_thread:
+            self.stream_recv_thread.join()
+
         self.stream_recv_thread = threading.Thread(
             target=stream_recv_wrapper, args=(self.stream,)
         )
@@ -92,22 +103,22 @@ class SwitchConnection(object):
         self.handshake()
 
     def wait_for_setup(self, timeout=60):
+        self.setup_stream()
         start = time.time()
         while True:
+            if self.do_shutdown:
+                self.shutdown()
+                break
             time_passed = time.time() - start
 
             if time_passed > timeout or self.connected:
                 break
 
-            self.setup_stream()
-
             # Check for error. If failed, close created thread
             if not self.connected:
-                if self.stream_out_q:
-                    self.stream_out_q.put(None)
-                    self.stream_recv_thread.join()
+                self.setup_stream()
 
-            time.sleep(1)
+            time.sleep(5)
 
     def handshake(self):
         req = p4runtime_pb2.StreamMessageRequest()
@@ -142,19 +153,26 @@ class SwitchConnection(object):
         return None
 
     def write_table_entry(self, table_entry):
-        request = p4runtime_pb2.WriteRequest()
-        request.device_id = self.device_id
-        request.election_id.low = self.election_id[0]
-        request.election_id.high = self.election_id[1]
-        update = request.updates.add()
+        if self.connected:
+            request = p4runtime_pb2.WriteRequest()
+            request.device_id = self.device_id
+            request.election_id.low = self.election_id[0]
+            request.election_id.high = self.election_id[1]
+            update = request.updates.add()
 
-        if table_entry.is_default_action:
-            update.type = p4runtime_pb2.Update.MODIFY
-        else:
-            update.type = p4runtime_pb2.Update.INSERT
-        update.entity.table_entry.CopyFrom(table_entry)
+            if table_entry.is_default_action:
+                update.type = p4runtime_pb2.Update.MODIFY
+            else:
+                update.type = p4runtime_pb2.Update.INSERT
+            update.entity.table_entry.CopyFrom(table_entry)
 
-        self.stub.Write(request)
+            try:
+                self.stub.Write(request)
+            except grpc.RpcError as e:
+                logging.error(
+                    "--- Failed to write table entry ---\n" + f"{table_entry}"
+                )
+                logging.debug(e)
 
     def read_table_entries(self, table_id=None):
         request = p4runtime_pb2.ReadRequest()
@@ -213,6 +231,7 @@ class SwitchConnection(object):
         self.stub.SetForwardingPipelineConfig(req)
 
     def SetForwadingPipelineConfig2(self, p4info_path, bin_path):
+
         request = p4runtime_pb2.SetForwardingPipelineConfigRequest()
         request.election_id.low = self.election_id[0]
         request.election_id.high = self.election_id[1]
@@ -232,9 +251,10 @@ class SwitchConnection(object):
         with open(bin_path, "rb") as bin_file:
             request.config.p4_device_config = bin_file.read()
 
-        msg = self.stub.SetForwardingPipelineConfig(request)
+        if not self.do_shutdown:
+            msg = self.stub.SetForwardingPipelineConfig(request)
 
-        return msg
+            return msg
 
     def GetForwardingPipelineConfig(self):
         req = p4runtime_pb2.GetForwardingPipelineConfigRequest()
@@ -243,6 +263,7 @@ class SwitchConnection(object):
         return test.config.p4info
 
     def shutdown(self):
+        self.connected = False
         if self.stream_out_q:
             self.stream_out_q.put(None)
             self.stream_recv_thread.join()
@@ -251,7 +272,7 @@ class SwitchConnection(object):
 
 def main():
 
-    P4_INFO_FILEPATH = "/home/p4/installations/bf-sde-9.5.0/build/p4-build/tofino/simple_switch/tofino/p4info2.pb.txt"
+    P4_INFO_FILEPATH = "/home/p4/installations/bf-sde-9.5.0/build/p4-build/tofino/simple_switch2/tofino/p4info2.pb.txt"
     INFO_PATH = (
         "/home/p4/installations/bf-sde-9.5.0/install/share/tofinopd/simple_switch"
     )
@@ -260,7 +281,7 @@ def main():
     CONTEXT_PATH = f"{INFO_PATH}/pipe/context.json"
     PROG_NAME = "simple_switch"
 
-    COMBINED_BIN_PATH = "/home/p4/P4_Runtime/out.bin"
+    COMBINED_BIN_PATH = "/home/p4/installations/p4runtime-shell/out.bin"
 
     # Test P4Info
     p4_info_helper = P4InfoHelper(P4_INFO_FILEPATH)
@@ -269,17 +290,24 @@ def main():
 
     table_entry = p4_info_helper.build_table_entry(
         table_name="Ingress.ipv4_lpm",
-        match_fields={"hdr.ipv4.dst_addr": ("192.0.0.2", 32)},
+        match_fields={"hdr.ipv4.dst_addr": ("192.168.1.1", 32)},
         action_name="Ingress.ipv4_forward",
         action_params={"egress_port": 10},
     )
 
-    print("Done")
+    table_entry2 = p4_info_helper.build_table_entry(
+        table_name="Ingress.ipv4_lpm",
+        match_fields={"hdr.ipv4.dst_addr": ("192.168.1.2", 32)},
+        action_name="Ingress.ipv4_forward",
+        action_params={"egress_port": 9},
+    )
 
-    connection = SwitchConnection("127.0.0.1:50053", 0, (0, 1))
+    print(table_entry)
+
+    connection = SwitchConnection("S1", "127.0.0.1:50051", 0, (0, 1))
     connection.wait_for_setup()
 
-    # connection.SetForwadingPipelineConfig2(P4_INFO_FILEPATH, COMBINED_BIN_PATH)
+    connection.SetForwadingPipelineConfig2(P4_INFO_FILEPATH, COMBINED_BIN_PATH)
 
     test = connection.read_table_entries(id)
 
@@ -287,14 +315,14 @@ def main():
         print(i)
 
     connection.write_table_entry(table_entry)
+    connection.write_table_entry(table_entry2)
 
     test = connection.read_table_entries(id)
 
     for i in test:
         print(i)
 
-    # connection.bindPipelineConfig()
-    # print(connection.get_bfrt_info())
+    connection.shutdown()
 
 
 if __name__ == "__main__":
