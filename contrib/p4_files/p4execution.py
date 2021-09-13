@@ -10,8 +10,8 @@ import logging
 import time
 import threading
 from benchexec import systeminfo
-from p4.p4_run_setup import P4SetupHandler
-from p4.counter import Counter
+from p4_files.p4_run_setup import P4SetupHandler
+from p4_files.counter import Counter
 
 from benchexec import tooladapter
 from benchexec import util
