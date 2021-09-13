@@ -12,7 +12,13 @@ import threading
 from benchexec import systeminfo
 from .p4_run_setup import P4SetupHandler
 from p4_files.counter import Counter
-from . import constants
+from .constants import *
+from .helper_functions import (
+    parse_netlink_error,
+    create_tofino_bin,
+    find_bin_and_context,
+    find_test_network_configs,
+)
 
 from benchexec import tooladapter
 from benchexec import util
@@ -64,9 +70,15 @@ class P4Execution(object):
         self.nodes = None  # Set by init
         self.switches = None  # Set by init
         self.ptf_tester = None  # Set by init
+        self.switch_connections = []
+
+        self.terminate = False
 
         # Includes all nodes and switches, not the ptf tester
         self.nr_of_active_containers = Counter()
+
+        self.switch_connections = []  # Holds all connections to the active switches
+
         self.lock = threading.Lock()
 
         self.client = None
@@ -83,12 +95,23 @@ class P4Execution(object):
         benchmark.executable = benchmark.tool.executable(tool_locator)
         benchmark.tool_version = benchmark.tool.version(benchmark.executable)
 
+        self.tmp_folder = __file__.rpartition("/")[0] + "/tmp"
+
+        if os.path.exists(self.tmp_folder):
+            rmtree(self.tmp_folder)
+        os.mkdir(self.tmp_folder)
+
         # Read test inputs paths
         (
             self.switch_source_path,
             self.ptf_folder_path,
             self.network_config_path,
         ) = self.read_folder_paths(benchmark)
+
+        if not self.switch_source_path:
+            self.switch_source_path = (
+                __file__.rpartition("/")[0] + f"/docker_files/switch_tofino"
+            )
 
         if not os.path.isdir(self.switch_source_path):
             logging.critical(
@@ -113,71 +136,80 @@ class P4Execution(object):
                 f"Switch path: {self.switch_source_path} Folder path: {self.ptf_folder_path}"
             )
 
-        # Extract network config info
+        # Check if user defined network config. Else look if test has a network config
         if not self.network_config_path:
             logging.error("No network config file was defined")
             raise BenchExecException("No network config file was defined")
+        else:
+            with open(self.network_config_path) as json_file:
+                self.network_config = json.load(json_file)
 
-        with open(self.network_config_path) as json_file:
-            self.network_config = json.load(json_file)
+            setup_is_valid = self.network_file_isValid()
 
-        setup_is_valid = self.network_file_isValid()
+            if not setup_is_valid:
+                raise BenchExecException("Network config file is not valid")
 
-        if not setup_is_valid:
-            raise BenchExecException("Network config file is not valid")
+        # Read all required ptf tests folders
+        self.ptf_folder_paths = self.read_ptf_folder_paths(benchmark)
 
         # Container setup
         self.client = docker.from_env()
-        self.switch_target_path = f"{constants.CONTAINTER_BASE_DIR}"
-        self.nrOfNodes = len(self.network_config[constants.KEY_NODES])
+        self.switch_target_path = f"{CONTAINTER_BASE_DIR}"
+        self.nrOfNodes = len(self.network_config[KEY_NODES])
 
         try:
             # Create the ptf tester container
-            mount_ptf_tester = docker.types.Mount(
-                f"{constants.CONTAINTER_BASE_DIR}", self.ptf_folder_path, type="bind"
-            )
-            try:
-                self.ptf_tester = self.client.containers.create(
-                    constants.PTF_IMAGE_NAME,
-                    detach=True,
-                    name=constants.PTF_IMAGE_NAME,
-                    mounts=[mount_ptf_tester],
-                    tty=True,
+            mounts = []
+            for path in self.ptf_folder_paths:
+                folder_name = path.split("/")[-1]
+                mounts.append(
+                    docker.types.Mount(
+                        f"{CONTAINTER_BASE_DIR}/{folder_name}",
+                        path,
+                        type="bind",
+                    )
                 )
-            except docker.errors.APIError:
-                self.ptf_tester = self.client.containers.get(constants.PTF_IMAGE_NAME)
+
+            self.ptf_tester = self.client.containers.create(
+                PTF_IMAGE_NAME,
+                detach=True,
+                name=PTF_IMAGE_NAME,
+                mounts=mounts,
+                tty=True,
+            )
 
             # Create node containers
             self.nodes = []
 
-            for node_name in self.network_config[constants.KEY_NODES]:
+            for node_name in self.network_config[KEY_NODES]:
                 try:
                     self.nodes.append(
                         self.client.containers.create(
-                            constants.NODE_IMAGE_NAME, detach=True, name=node_name
+                            NODE_IMAGE_NAME, detach=True, name=node_name
                         )
                     )
-                except docker.errors.APIError:
-                    logging.error("Failed to setup node container.")
+                except docker.errors.APIError as e:
+                    logging.error(f"Error creating container {node_name}")
+                    raise BenchExecException(str(e))
 
             self.switches = []
 
             # Each switch needs their own mount copy
-            for switch_info in self.network_config[constants.KEY_SWITCHES]:
+            for switch_info in self.network_config[KEY_SWITCHES]:
 
-                switch_config = self.network_config[constants.KEY_SWITCHES][switch_info]
+                switch_config = self.network_config[KEY_SWITCHES][switch_info]
 
                 mount_path = self.create_tofino_switch_mount_copy(switch_info)
                 mount_switch = docker.types.Mount(
                     self.switch_target_path, mount_path, type="bind"
                 )
 
-                server_port = switch_config[constants.KEY_SERVER_PORT]
+                server_port = switch_config[KEY_SERVER_PORT]
 
                 try:
                     self.switches.append(
                         self.client.containers.create(
-                            constants.SWITCH_IMAGE_NAME,
+                            SWITCH_IMAGE_NAME,
                             detach=True,
                             name=switch_info,
                             mounts=[mount_switch],
@@ -201,27 +233,31 @@ class P4Execution(object):
         Excecutes the benchmark.
         """
 
+        self.active_net_conf = None
         self.start_container_listening_tofino()
 
         # Wait until all nodes and switches are setup
         while self.nr_of_active_containers.value < len(self.nodes + self.switches):
             time.sleep(1)
 
-        test_dict = self.read_tests()
-        setup_handler = P4SetupHandler(benchmark, test_dict)
+        self.read_tests(benchmark)
+
+        setup_handler = P4SetupHandler(benchmark)
         setup_handler.update_runsets()
+
+        # Read if any test specific test configs
+        self.test_configs = find_test_network_configs(self.ptf_folder_path)
 
         # Read all switch setup logs
         for switch in self.switches:
-            files = os.listdir(f"{self.switch_source_path}/{switch.name}")
+            files = os.listdir(f"{self.tmp_folder}/{switch.name}")
             model_log_file = ""
             driver_log_file = ""
-
             for file in files:
                 if "model" in file:
-                    model_log_file = f"{self.switch_source_path}/{switch.name}/{file}"
+                    model_log_file = f"{self.tmp_folder}/{switch.name}/{file}"
                 if "driver" in file:
-                    driver_log_file = f"{self.switch_source_path}/{switch.name}/{file}"
+                    driver_log_file = f"{self.tmp_folder}/{switch.name}/{file}"
 
             # Store the setup logs and then clear them
             switch_model_setup = f"{benchmark.log_folder}{switch.name}_model_setup.log"
@@ -237,7 +273,7 @@ class P4Execution(object):
             with open(model_log_file, "r+") as f:
                 f.truncate()
 
-            # # Clear log file
+            # Clear log file
             with open(driver_log_file, "r+") as f:
                 f.truncate()
 
@@ -260,8 +296,16 @@ class P4Execution(object):
             output_handler.output_before_run_set(runSet)
 
             for run in runSet.runs:
+                # Check if network setup needs to be updated
+                net_work_conf = self.run_network_conf_path(run)
+
+                if not self.active_net_conf or self.active_net_conf != net_work_conf:
+                    self.active_net_conf = net_work_conf
+
+                    self.update_network_config(self.active_net_conf)
+
                 # Create ptf command depending on nr of nodes
-                command = f"ptf --test-dir /app {run.identifier}"
+                command = f"ptf --test-dir /app/{run.test_folder_name} {run.identifier}"
 
                 for node in self.nodes:
                     node_config = self.network_config["nodes"][node.name]
@@ -292,19 +336,15 @@ class P4Execution(object):
 
                 # Save all switch log_files
                 for switch in self.switches:
-                    files = os.listdir(f"{self.switch_source_path}/{switch.name}")
+                    files = os.listdir(f"{self.tmp_folder}/{switch.name}")
                     model_log_file = ""
                     driver_log_file = ""
 
                     for file in files:
                         if "model" in file:
-                            model_log_file = (
-                                f"{self.switch_source_path}/{switch.name}/{file}"
-                            )
+                            model_log_file = f"{self.tmp_folder}/{switch.name}/{file}"
                         if "driver" in file:
-                            driver_log_file = (
-                                f"{self.switch_source_path}/{switch.name}/{file}"
-                            )
+                            driver_log_file = f"{self.tmp_folder}/{switch.name}/{file}"
 
                     model_log_file_new = f"{run.log_file[:-4]}_{switch.name}.log"
 
@@ -324,9 +364,11 @@ class P4Execution(object):
                 print(run.identifier + ":   ", end="")
                 output_handler.output_after_run(run)
 
-            output_handler.output_after_benchmark(STOPPED_BY_INTERRUPT)
+        output_handler.output_after_benchmark(STOPPED_BY_INTERRUPT)
 
         self.close()
+
+        return 0
 
     def _execute_benchmark(self, run, command):
 
@@ -365,6 +407,74 @@ class P4Execution(object):
             ip_addr = f"{MGNT_NETWORK_SUBNET}.0.{node_config['id'] + 3}"
             self.mgnt_network.connect(node, ipv4_address=ip_addr)
 
+    def create_docker_containers(self):
+        try:
+            # Create the ptf tester container
+            mounts = []
+            for path in self.ptf_folder_paths:
+                folder_name = path.split("/")[-1]
+                mounts.append(
+                    docker.types.Mount(
+                        f"{CONTAINTER_BASE_DIR}/{folder_name}",
+                        path,
+                        type="bind",
+                    )
+                )
+
+            self.ptf_tester = self.client.containers.create(
+                PTF_IMAGE_NAME,
+                detach=True,
+                name=PTF_IMAGE_NAME,
+                mounts=mounts,
+                tty=True,
+            )
+
+            # Create node containers
+            self.nodes = []
+
+            for node_name in self.network_config[KEY_NODES]:
+                try:
+                    self.nodes.append(
+                        self.client.containers.create(
+                            NODE_IMAGE_NAME, detach=True, name=node_name
+                        )
+                    )
+                except docker.errors.APIError as e:
+                    logging.error(f"Error creating container {node_name}")
+                    raise BenchExecException(str(e))
+
+            self.switches = []
+
+            # Each switch needs their own mount copy
+            for switch_info in self.network_config[KEY_SWITCHES]:
+
+                switch_config = self.network_config[KEY_SWITCHES][switch_info]
+
+                mount_path = self.create_tofino_switch_mount_copy(switch_info)
+                mount_switch = docker.types.Mount(
+                    self.switch_target_path, mount_path, type="bind"
+                )
+
+                server_port = switch_config[KEY_SERVER_PORT]
+
+                try:
+                    self.switches.append(
+                        self.client.containers.create(
+                            SWITCH_IMAGE_NAME,
+                            detach=True,
+                            name=switch_info,
+                            mounts=[mount_switch],
+                            privileged=True,
+                            ports={f"{server_port}/tcp": ("127.0.0.1", server_port)},
+                        )
+                    )
+                except docker.errors.APIError:
+                    self.switches.append(self.client.containers.get(switch_info))
+        except docker.errors.APIError as e:
+            self.close()
+            raise BenchExecException(str(e))
+
+    @parse_netlink_error
     def connect_nodes_to_switch(self):
         """
         This will create veth pairs for all links definid in the network config.
@@ -391,6 +501,26 @@ class P4Execution(object):
             iface_device1 = ""
             iface_device2 = ""
 
+            # Check namespaces. Clear if any previous is still existing from prev runs
+            if os.path.islink(f"/var/run/netns/{device1}"):
+                os.remove(f"/var/run/netns/{device1}")
+            os.symlink(
+                f"/proc/{pid_device1}/ns/net",
+                f"/var/run/netns/{device1}",
+            )
+
+            if os.path.islink(f"/var/run/netns/{device2}"):
+                os.remove(f"/var/run/netns/{device2}")
+            os.symlink(
+                f"/proc/{pid_device2}/ns/net",
+                f"/var/run/netns/{device2}",
+            )
+
+            device1_port = link["device1_port"]
+            device2_port = link["device2_port"]
+            iface_device1 = f"veth{device1_port}"
+            iface_device2 = f"veth{device1_port+1}"
+
             # If connectiong to switch. Make sure it is setup
             if link["type"] == "Node_to_Switch":
                 switch_is_setup = os.path.exists(f"/proc/{pid_device2}/ns/net")
@@ -402,24 +532,27 @@ class P4Execution(object):
                     time.sleep(1)
                     seconds_waited += 1
 
-                # Check if namespaces are addad. If not add simlinuk to namespace
-                if not os.path.islink(f"/var/run/netns/{device1}"):
-                    os.symlink(
-                        f"/proc/{pid_device1}/ns/net",
-                        f"/var/run/netns/{device1}",
-                    )
+                # # Check if namespaces are addad. If not add simlinuk to namespace
+                # if os.path.islink(f"/var/run/netns/{device1}"):
+                #     os.remove(f"/var/run/netns/{device1}")
 
-                if not os.path.islink(f"/var/run/netns/{device2}"):
-                    if not os.path.exists(f"/var/run/netns/{device2}"):
-                        os.symlink(
-                            f"/proc/{pid_device2}/ns/net",
-                            f"/var/run/netns/{device2}",
-                        )
+                # os.symlink(
+                #     f"/proc/{pid_device1}/ns/net",
+                #     f"/var/run/netns/{device1}",
+                # )
 
-                device1_port = link["device1_port"]
-                device2_port = link["device2_port"]
-                iface_device1 = f"veth{device1_port}"
-                iface_device2 = f"veth{device1_port+1}"
+                # if os.path.islink(f"/var/run/netns/{device2}"):
+                #     os.remove(f"/var/run/netns/{device1}")
+                # if not os.path.exists(f"/var/run/netns/{device2}"):
+                #     os.symlink(
+                #         f"/proc/{pid_device2}/ns/net",
+                #         f"/var/run/netns/{device2}",
+                #     )
+
+                # device1_port = link["device1_port"]
+                # device2_port = link["device2_port"]
+                # iface_device1 = f"veth{device1_port}"
+                # iface_device2 = f"veth{device1_port+1}"
 
                 # Create Veth pair and put them in the right namespace
                 ip.link("add", ifname=iface_device1, peer=iface_device2, kind="veth")
@@ -462,28 +595,6 @@ class P4Execution(object):
                     time.sleep(1)
                     seconds_waited += 1
 
-                # Check if namespaces are addad. If not add simlink to namespace
-                if not os.path.islink(f"/var/run/netns/{device1}"):
-                    os.symlink(
-                        f"/proc/{pid_device1}/ns/net",
-                        f"/var/run/netns/{device1}",
-                    )
-
-                if not os.path.islink(f"/var/run/netns/{device2}"):
-                    if not os.path.exists(f"/var/run/netns/{device2}"):
-                        os.symlink(
-                            f"/proc/{pid_device2}/ns/net",
-                            f"/var/run/netns/{device2}",
-                        )
-
-                device1_port = link["device1_port"]
-                device2_port = link["device2_port"]
-                iface_device1 = f"veth{device1_port}"
-                iface_device2 = f"veth{device1_port+1}"
-
-                # iface_device1 = f"{link['device1']}_{link['device1_port']}"
-                # iface_device2 = "veth0"  # f"{link['device2']}_{link['device2_port']}"
-
                 # Create Veth pair and put them in the right namespace
                 ip.link("add", ifname=iface_device1, peer=iface_device2, kind="veth")
 
@@ -499,16 +610,6 @@ class P4Execution(object):
                 ip.link("set", index=id_switch, ifname=iface_device2)
                 ip.link("set", index=id_switch, state="up")
                 ip.link("set", index=id_switch, net_ns_fd=link["device2"])
-
-                # # Create Veth pair and put them in the right namespace
-                # ip.link("add", ifname=iface_device1, peer=iface_device2, kind="veth")
-                # id_switch1 = ip.link_lookup(ifname=iface_device1)[0]
-                # ip.link("set", index=id_switch1, state="up")
-                # ip.link("set", index=id_switch1, net_ns_fd=link["device1"])
-
-                # id_switch2 = ip.link_lookup(ifname=iface_device2)[0]
-                # ip.link("set", index=id_switch2, state="up")
-                # ip.link("set", index=id_switch2, net_ns_fd=link["device2"])
 
             link_nr += 1
 
@@ -536,21 +637,41 @@ class P4Execution(object):
         with open(file_path, "w") as ports_file:
             ports_file.write(json.dumps(port_dict, indent=4))
 
-    def read_tests(self):
+    def read_tests(self, benchmark):
         """
-        Read the test from the ptf container
+        Asks the ptf container for
         """
         # Make sure it's started. This is a blocking call
         self.ptf_tester.start()
 
-        _, test_info = self.ptf_tester.exec_run("ptf --test-dir /app --list")
-        test_info = test_info.decode()
+        for run_set in benchmark.run_sets:
+            for run in run_set.runs:
+                run.ptf_test_path = ""
+                i = 0
+                for option in run.options:
 
-        test_dict = self.extract_info_from_test_info(test_info)
+                    if option == KEY_PTF_FOLDER_PATH:
+                        run.ptf_test_path = self.extract_path(run.options[i + 1])
+                    i += 1
 
-        return test_dict
+                run.test_folder_name = run.ptf_test_path.split("/")[-1]
+                _, test_info = self.ptf_tester.exec_run(
+                    f"ptf --test-dir /app/{run.test_folder_name} --list"
+                )
+                test_info = test_info.decode()
+
+                run.test_dict = self.extract_info_from_test_info(test_info)
 
     def extract_info_from_test_info(self, test_info):
+        """
+        Extracts test infomation regarding ptf test
+
+        Args:
+            test_info ([Info string]): [Info about tests]
+
+        Returns:
+            [dict]: [Dictionary containing test names]
+        """
         test_info = test_info.split("Test List:")[1]
         test_modules = test_info.split("Module ")
         nr_of_modules = len(test_modules) - 1
@@ -577,7 +698,9 @@ class P4Execution(object):
         return systeminfo.SystemInfo()
 
     def read_folder_paths(self, benchmark):
-
+        """ "
+        Reads the folder paths from from the benchmark file
+        """
         switch_folder = ""
         ptf_folder = ""
         network_config = ""
@@ -602,7 +725,13 @@ class P4Execution(object):
 
         return switch_folder, ptf_folder, network_config
 
-    def extract_path(self, path):
+    def extract_path(self, path) -> str:
+        """ "
+        Used to be able to enter ~ char in path
+        """
+        if not "~" in path:
+            return path
+
         import subprocess
 
         split = subprocess.run(["pwd"], capture_output=True).stdout.decode().split("/")
@@ -617,35 +746,38 @@ class P4Execution(object):
         Needed for automatic cleanup for benchec.
         """
         self.close()
+        raise BenchExecException("")
 
     def close(self):
         """
         Cleans up all the running containers and clear all created namespaces. Should be called when test is done.
         """
+        self.terminate = True
 
-        # TODO Cancel switch connections
-
-        if threading.current_thread() is threading.main_thread():
-            self.lock.acquire()
-            logging.info(f"Am cleaning up. ID: {threading.current_thread().native_id}")
+        if threading.current_thread().native_id == threading.main_thread().native_id:
+            # Cancel switch connections
+            for switch_con in self.switch_connections:
+                switch_con.shutdown()
 
             container_threads = []
 
-            while len(self.nodes) > 0:
-                cont = self.nodes.pop(0)
+            if self.nodes:
+                while len(self.nodes) > 0:
+                    cont = self.nodes.pop(0)
 
-                self.thread_remove_container(cont)
-                if os.path.islink(f"/var/run/netns/{cont.name}"):
-                    os.remove(f"/var/run/netns/{cont.name}")
+                    self.thread_remove_container(cont)
+                    if os.path.islink(f"/var/run/netns/{cont.name}"):
+                        os.remove(f"/var/run/netns/{cont.name}")
 
-            while len(self.switches):
-                cont = self.switches.pop(0)
-                self.thread_remove_container(cont)
+            if self.switches:
+                while len(self.switches):
+                    cont = self.switches.pop(0)
+                    self.thread_remove_container(cont)
 
-                if os.path.isdir(f"{self.switch_source_path}/{cont.name}"):
-                    rmtree(f"{self.switch_source_path}/{cont.name}")
-                if os.path.islink(f"/var/run/netns/{cont.name}"):
-                    os.remove(f"/var/run/netns/{cont.name}")
+                    if os.path.isdir(f"{self.tmp_folder}/{cont.name}"):
+                        rmtree(f"{self.tmp_folder}/{cont.name}")
+                    if os.path.islink(f"/var/run/netns/{cont.name}"):
+                        os.remove(f"/var/run/netns/{cont.name}")
 
             if self.ptf_tester:
                 self.thread_remove_container(self.ptf_tester)
@@ -653,8 +785,11 @@ class P4Execution(object):
             [x.start() for x in container_threads]
             [x.join() for x in container_threads]
 
-            self.nodes.clear()
-            self.switches.clear()
+            if self.nodes:
+                self.nodes.clear()
+            if self.switches:
+                self.switches.clear()
+
             self.ptf_tester = None
             # Remove when all containers are closed
             if self.mgnt_network:
@@ -662,19 +797,15 @@ class P4Execution(object):
                     self.mgnt_network.remove()
                 except Exception as e:
                     logging.debug(f"Failed to remove network. Error {e}")
-            logging.info("Done Cleaning")
-
-            self.lock.release()
+            logging.debug("Done Cleaning")
 
     def thread_remove_container(self, container):
         """
         Try remove the container
         """
-
         try:
             container.remove(force=True)
-        except Exception as e:
-            logging.debug(e)
+        except:
             return
 
     def start_containers(self):
@@ -695,9 +826,6 @@ class P4Execution(object):
         # Start and wait for all to finish
         [x.start() for x in container_threads]
         [x.join() for x in container_threads]
-
-    def thread_container_start(self, container):
-        container.start()
 
     def start_container_listening(self):
         """
@@ -730,14 +858,12 @@ class P4Execution(object):
             )
 
         for switch in self.switches:
-            switch_config = self.network_config[constants.KEY_SWITCHES][switch.name]
+            switch_config = self.network_config[KEY_SWITCHES][switch.name]
 
             prog_name = switch_config["name"]
             switch_command = f"{prog_name} --log-file /app/log/switch_log --log-flush"
 
-            used_ports = self.network_config[constants.KEY_SWITCHES][switch.name][
-                "used_ports"
-            ]
+            used_ports = self.network_config[KEY_SWITCHES][switch.name]["used_ports"]
             for port in used_ports:
                 switch_command += f" -i {port}@{switch.name}_{port}"
 
@@ -777,32 +903,34 @@ class P4Execution(object):
 
             container_threads.append(
                 threading.Thread(
-                    target=self.thread_setup_node, args=(node_container, node_command)
+                    target=self.thread_setup_node,
+                    args=(node_container, node_command),
+                    daemon=True,
                 )
             )
 
         for switch in self.switches:
-            switch_config = self.network_config[constants.KEY_SWITCHES][switch.name]
-            server_port = switch_config[constants.KEY_SERVER_PORT]
+            switch_config = self.network_config[KEY_SWITCHES][switch.name]
+            server_port = switch_config[KEY_SERVER_PORT]
             command_list = [
                 "rm -rf /bf-sde/install/share/ /bf-sde/build/p4-build",
                 "cp -r /app/share /bf-sde/install/share",
                 "cp -r /app/p4-build /bf-sde/build/p4-build",
-                "/bf-sde/run_tofino_model.sh -p simple_switch -f /app/ports.json --log-dir /app &",
+                f"/bf-sde/run_tofino_model.sh -p {switch_config[KEY_P4_PROG_NAME]} -f /app/ports.json --log-dir /app &",
             ]
 
             command_list.append(
-                f"/bf-sde/run_switchd.sh -p simple_switch -r /app/log_driver.txt -- --p4rt-server 0.0.0.0:{server_port}"
+                f"/bf-sde/run_switchd.sh -p {switch_config[KEY_P4_PROG_NAME]} -r /app/log_driver.txt -- --p4rt-server 0.0.0.0:{server_port}"
             )
 
-            if not "p4_info_path" in switch_config:
-                logging.ERROR("No path defined for P4 info file. Cant setup switch")
-                raise Exception("Failed")
+            # if not "p4_info_path" in switch_config:
+            #     logging.ERROR("No path defined for P4 info file. Cant setup switch")
+            #     raise Exception("No path defined for P4 info file. Cant setup switch")
 
-            if not os.path.exists(switch_config["p4_info_path"]):
-                path = switch_config["p4_info_path"]
-                logging.error(f"P4 info file not found.{path} doesnt exist")
-                raise Exception("Failed")
+            # if not os.path.exists(switch_config["p4_info_path"]):
+            #     path = switch_config["p4_info_path"]
+            #     logging.error(f"P4 info file not found.{path} doesnt exist")
+            #     raise Exception(f"P4 info file not found.{path} doesnt exist")
 
             container_threads.append(
                 threading.Thread(
@@ -836,18 +964,19 @@ class P4Execution(object):
         for command in switch_command_list:
             switch_container.exec_run(command, detach=True)
 
-        switch_server_port = switch_conf[constants.KEY_SERVER_PORT]
+        switch_server_port = switch_conf[KEY_SERVER_PORT]
 
-        p4_helper = P4InfoHelper(switch_conf["p4_info_path"])
-
-        switch_con = SwitchConnection(f"127.0.0.1:{switch_server_port}", 0, (0, 1))
+        switch_con = SwitchConnection(
+            switch_container.name, f"127.0.0.1:{switch_server_port}", 0, (0, 1)
+        )
+        self.switch_connections.append(switch_con)
 
         # Wait for switch to setup
         logging.info(f"Waiting for {switch_container.name} to start")
 
         switch_con.wait_for_setup(timeout=120)
 
-        if not switch_con.connected:
+        if not switch_con.connected and not switch_con.do_shutdown:
             logging.debug(
                 f"Failed to establish connection to switch {switch_container.name}"
             )
@@ -855,61 +984,28 @@ class P4Execution(object):
 
         logging.info(f"{switch_container.name} started!")
 
+        self.nr_of_active_containers.increment()
+
         # TODO Read file path automatic
         P4_INFO_PATH = switch_conf["p4_info_path"]
-        BIN_PATH = "/home/p4/P4_Runtime/out.bin"
+        # BIN_PATH = "/home/p4/P4_Runtime/out.bin"
+        BIN_PATH = "/home/p4/installations/p4runtime-shell/out.bin"
+
+        p4_helper = P4InfoHelper(switch_conf["p4_info_path"])
         msg = switch_con.SetForwadingPipelineConfig2(P4_INFO_PATH, BIN_PATH)
 
-        print(msg)
-
-        if (
-            "table_entries"
-            in self.network_config[constants.KEY_SWITCHES][switch_container.name]
-        ):
-            for table_entry_info in self.network_config[constants.KEY_SWITCHES][
+        if "table_entries" in self.network_config[KEY_SWITCHES][switch_container.name]:
+            for table_entry_info in self.network_config[KEY_SWITCHES][
                 switch_container.name
             ]["table_entries"]:
-                # table_entry_info = self.network_config[constants.KEY_SWITCHES][
-                #     switch_container.name
-                # ]["table_entries"]
-
-                print(table_entry_info)
-
                 table_entry = p4_helper.build_table_entry(
                     table_entry_info["table_name"],
                     match_fields=table_entry_info["match_fields"],
                     action_name=table_entry_info["action_name"],
                     action_params=table_entry_info["action_params"],
                 )
-
-                switch_con.write_table_entry(table_entry)
-
-        # switch_log_file_path = (
-        #     f"{self.switch_source_path}/{switch_container.name}/log/switch_log.txt"
-        # )
-
-        # # This loop will wait until server is started up
-        # while not switch_is_setup:
-        #     with open(switch_log_file_path, "r") as f:
-        #         info_string = f.read()
-        #         switch_is_setup = "Thrift server was started" in info_string
-
-        #     time.sleep(1)
-
-        # # Load tables
-        # if "table_entries" in self.network_config[constants.KEY_SWITCHES][switch_container.name]:
-        #     for table_name in self.network_config[constants.KEY_SWITCHES][switch_container.name][
-        #         "table_entries"
-        #     ]:
-        #         table_file_path = f"{self.switch_source_path}/{switch_container.name}/tables/{table_name}"
-        #         if os.path.exists(table_file_path):
-        #             switch_container.exec_run(
-        #                 f"python3 /app/table_handler.py "
-        #                 f"{self.switch_target_path}/tables/{table_name}",
-        #                 detach=True,
-        #             )
-        #         else:
-        #             logging.info("Could not find table: \n %s", table_file_path)
+                if switch_con.connected:
+                    switch_con.write_table_entry(table_entry)
 
         self.nr_of_active_containers.increment()
 
@@ -917,8 +1013,112 @@ class P4Execution(object):
         node_container.exec_run(node_command, detach=True)
         self.nr_of_active_containers.increment()
 
+    def update_network_config(self, network_config_path):
+        with open(network_config_path) as json_file:
+            network_config = json.load(json_file)
+
+        if self.is_same_base_setup(self.network_config, network_config):
+            for switch_name in network_config[KEY_SWITCHES]:
+                switch_conf = network_config[KEY_SWITCHES][switch_name]
+                p4_info_helper = P4InfoHelper(switch_conf[KEY_P4_INFO_PATH])
+                switch_con = self.get_switch_connection(switch_name)
+                for table_entry_info in switch_conf[KEY_TABLE_ENTRIES]:
+                    # TODO Read file path automatic
+                    # BIN_PATH = "/home/p4/P4_Runtime/out.bin"
+                    BIN_PATH = "/home/p4/installations/p4runtime-shell/out.bin"
+
+                    msg = switch_con.SetForwadingPipelineConfig2(
+                        switch_conf[KEY_P4_INFO_PATH], BIN_PATH
+                    )
+
+                    table_entry2 = p4_info_helper.build_table_entry(
+                        table_entry_info["table_name"],
+                        match_fields=table_entry_info["match_fields"],
+                        action_name=table_entry_info["action_name"],
+                        action_params=table_entry_info["action_params"],
+                    )
+
+                    table_entry = p4_info_helper.build_table_entry(
+                        table_name="Ingress.ipv4_lpm",
+                        match_fields={"hdr.ipv4.dst_addr": ["10.0.2.2", 32]},
+                        action_name="Ingress.ipv4_forward",
+                        action_params={"egress_port": 1},
+                    )
+
+                    if switch_con.connected:
+                        switch_con.write_table_entry(table_entry2)
+
+            # if "table_entries" in network_config[KEY_SWITCHES][switch_name]:
+            #     for table_entry_info in self.network_config[KEY_SWITCHES][switch_name][
+            #         "table_entries"
+            #     ]:
+            #         table_entry2 = p4_info_helper.build_table_entry(
+            #             table_entry_info["table_name"],
+            #             match_fields=table_entry_info["match_fields"],
+            #             action_name=table_entry_info["action_name"],
+            #             action_params=table_entry_info["action_params"],
+            #         )
+
+            #     table_entry = p4_info_helper.build_table_entry(
+            #         table_name="Ingress.ipv4_lpm",
+            #         match_fields={"hdr.ipv4.dst_addr": ["10.10.4.4", 16]},
+            #         action_name="Ingress.ipv4_forward",
+            #         action_params={"egress_port": 3},
+            #     )
+            #     if switch_con.connected:
+            #         switch_con.write_table_entry(table_entry)
+        else:
+            self.close()
+
+            # Update network
+            self.network_config = network_config
+            self.create_docker_containers()
+            self.setup_network()
+            self.connect_nodes_to_switch()
+            self.start_container_listening_tofino()
+
+    def is_same_base_setup(self, conf1: dict, conff2: dict) -> bool:
+        """
+        Compares two network files to check if the all the nodes, switches and links are the same.
+        If they are, no need remove and create new ones.
+
+        Args:
+            conf1 (dict): Path to the active network configuration
+            conff2 (dict): Path to new network configuration
+
+        Returns:
+            bool:
+        """
+        setup_is_same = True
+
+        # Check Nodes, Links and Switches
+        for link in conff2[KEY_LINKS]:
+            if not link in conf1[KEY_LINKS]:
+                setup_is_same = False
+
+        for node in conff2[KEY_NODES]:
+            if not node in conf1[KEY_NODES]:
+                setup_is_same = False
+
+        active_switches = conf1["switches"].keys()
+        for switch_name in conff2[KEY_SWITCHES]:
+
+            if not switch_name in active_switches:
+                setup_is_same = False
+            else:
+                switch = conff2[KEY_SWITCHES][switch_name]
+                switch_active = conf1[KEY_SWITCHES][switch_name]
+                if (
+                    not switch[KEY_P4_INFO_PATH] == switch_active[KEY_P4_INFO_PATH]
+                    or not switch[KEY_P4_PROG_NAME] == switch_active[KEY_P4_PROG_NAME]
+                    or not switch[KEY_SERVER_PORT] == switch_active[KEY_SERVER_PORT]
+                ):
+                    setup_is_same = False
+
+        return setup_is_same
+
     def create_tofino_switch_mount_copy(self, switch_name):
-        switch_path = f"{self.switch_source_path}/{switch_name}"
+        switch_path = f"{self.tmp_folder}/{switch_name}"
         if os.path.exists(switch_path):
             shutil.rmtree(switch_path)
 
@@ -942,7 +1142,7 @@ class P4Execution(object):
         )
 
         self.create_port_config(
-            self.network_config[constants.KEY_SWITCHES][switch_name],
+            self.network_config[KEY_SWITCHES][switch_name],
             f"{switch_path}/ports.json",
         )
 
@@ -986,10 +1186,10 @@ class P4Execution(object):
             return False
         else:
             # Check nodes
-            if "nodes" not in self.network_config:
-                logging.debug("No nodes defined in network config")
-                return False
-            elif len(self.network_config["nodes"]) == 0:
+            if (
+                "nodes" not in self.network_config
+                or len(self.network_config["nodes"]) == 0
+            ):
                 logging.debug("No nodes defined in network config")
                 return False
 
@@ -1002,14 +1202,14 @@ class P4Execution(object):
                     return False
 
             # Check switches
-            if constants.KEY_SWITCHES not in self.network_config:
+            if (
+                KEY_SWITCHES not in self.network_config
+                or len(self.network_config[KEY_SWITCHES]) < 1
+            ):
                 logging.debug("No switches defined")
                 return False
-            elif len(self.network_config[constants.KEY_SWITCHES]) == 0:
-                logging.debug("No nodes defined in network config")
-                return False
 
-            switch_names = list(self.network_config[constants.KEY_SWITCHES].keys())
+            switch_names = list(self.network_config[KEY_SWITCHES].keys())
 
             for switch_name in switch_names:
                 if switch_names.count(switch_name) > 1:
@@ -1036,8 +1236,7 @@ class P4Execution(object):
         return True
 
     def is_switch_setup(self, switch_name, port_nr):
-
-        switch_path = f"{self.switch_source_path}/{switch_name}"
+        switch_path = f"{self.tmp_folder}/{switch_name}"
 
         logging.info(switch_path)
         files = os.listdir(switch_path)
@@ -1064,3 +1263,70 @@ class P4Execution(object):
                     log_file_path = switch_path + f"/{file}"
 
             time.sleep(1)
+
+    def run_network_conf_path(self, run):
+        """
+        Returns the most specific network config from the setup file. The order is:
+        1. Run option
+        2. Rundefinition option
+        3 Global option
+
+        Args:
+            run ([Run]): Run to inspect
+            run_net_configs(dict): Network config for specific runs
+        Returns:
+            string: Path to the network config file
+        """
+
+        # Get most exclusive ptf folder path
+        i = 0
+        ptf_folder_index = 0
+        for option in run.options:
+            if option == KEY_PTF_FOLDER_PATH:
+                ptf_folder_index = i + 1
+            i += 1
+
+        test_configs = find_test_network_configs(
+            self.extract_path(run.options[ptf_folder_index])
+        )
+
+        # Check if test a defined net conf file
+        if run.identifier in test_configs:
+            return test_configs[run.identifier]
+
+        net_con_index = 0
+        i = 0
+        for option in run.options:
+            if option == KEY_NETWORK_CONFIG:
+                net_con_index = i + 1
+            i += 1
+
+        return run.options[net_con_index]
+
+    def get_switch_connection(self, switch_name):
+        for con in self.switch_connections:
+            if con.switch_name == switch_name:
+                return con
+        return None
+
+    def read_ptf_folder_paths(self, benchmark) -> list:
+        """
+        Goes through the benchmark and returns all unique ptf test folder paths.
+        """
+        folder_paths = []
+
+        for run_set in benchmark.run_sets:
+            for run in run_set.runs:
+                i = 0
+                for option in run.options:
+                    if option == KEY_PTF_FOLDER_PATH:
+                        if not run.options[i + 1] in folder_paths:
+                            folder_paths.append(run.options[i + 1])
+                    i += 1
+
+        i = 0
+        for path in folder_paths:
+            folder_paths[i] = self.extract_path(path)
+            i += 1
+
+        return folder_paths
