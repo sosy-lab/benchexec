@@ -15,9 +15,9 @@ from p4_files.counter import Counter
 from .constants import *
 from .helper_functions import (
     parse_netlink_error,
-    create_tofino_bin,
-    find_bin_and_context,
+    find_context_and_bin,
     find_test_network_configs,
+    create_tofino_bin,
 )
 
 from benchexec import tooladapter
@@ -57,6 +57,7 @@ MGNT_NETWORK_SUBNET = "172.19"  # Subnet 192.19.x.x/16
 
 SDE = "/home/p4/installations/bf-sde-9.5.0"
 SDE_INSTALL = f"{SDE}/install"
+SDE_BUILD = f"{SDE}/build"
 
 
 class P4Execution(object):
@@ -103,23 +104,10 @@ class P4Execution(object):
 
         # Read test inputs paths
         (
-            self.switch_source_path,
             self.ptf_folder_path,
             self.network_config_path,
         ) = self.read_folder_paths(benchmark)
 
-        if not self.switch_source_path:
-            self.switch_source_path = (
-                __file__.rpartition("/")[0] + f"/docker_files/switch_tofino"
-            )
-
-        if not os.path.isdir(self.switch_source_path):
-            logging.critical(
-                "Switch folder path not found: %s, {self.switch_source_path}"
-            )
-            raise BenchExecException(
-                "Switch folder path not found. Look over setup definition"
-            )
         if not os.path.isdir(self.ptf_folder_path):
             logging.critical(
                 "Ptf test folder path not found: %s, {self.ptf_folder_path}"
@@ -128,12 +116,6 @@ class P4Execution(object):
                 BenchExecException(
                     f"Ptf test folder path not found: {self.ptf_folder_path}"
                 )
-            )
-
-        if not self.switch_source_path or not self.ptf_folder_path:
-            raise BenchExecException(
-                "Switch or Ptf folder path not defined."
-                f"Switch path: {self.switch_source_path} Folder path: {self.ptf_folder_path}"
             )
 
         # Check if user defined network config. Else look if test has a network config
@@ -707,23 +689,19 @@ class P4Execution(object):
         option_index = 0
 
         while option_index < len(benchmark.options):
-            if "switch" in benchmark.options[option_index].lower():
-                switch_folder = benchmark.options[option_index + 1]
-            elif "ptf" in benchmark.options[option_index].lower():
+            if "ptf" in benchmark.options[option_index].lower():
                 ptf_folder = benchmark.options[option_index + 1]
             elif "network_config" in benchmark.options[option_index].lower():
                 network_config = benchmark.options[option_index + 1]
 
             option_index += 2
 
-        if "~" in switch_folder:
-            switch_folder = self.extract_path(switch_folder)
         if "~" in ptf_folder:
             ptf_folder = self.extract_path(ptf_folder)
         if "~" in network_config:
             network_config = self.extract_path(network_config)
 
-        return switch_folder, ptf_folder, network_config
+        return ptf_folder, network_config
 
     def extract_path(self, path) -> str:
         """ "
@@ -932,6 +910,9 @@ class P4Execution(object):
             #     logging.error(f"P4 info file not found.{path} doesnt exist")
             #     raise Exception(f"P4 info file not found.{path} doesnt exist")
 
+            # self.thread_setup_switch(switch, command_list, switch_config)
+
+            # TODO uncomment this
             container_threads.append(
                 threading.Thread(
                     target=self.thread_setup_switch,
@@ -988,8 +969,20 @@ class P4Execution(object):
 
         # TODO Read file path automatic
         P4_INFO_PATH = switch_conf["p4_info_path"]
-        # BIN_PATH = "/home/p4/P4_Runtime/out.bin"
-        BIN_PATH = "/home/p4/installations/p4runtime-shell/out.bin"
+
+        # Create bin for switch
+        ctx_path, tof_path = find_context_and_bin(
+            SDE_BUILD, switch_conf[KEY_P4_PROG_NAME]
+        )
+
+        BIN_PATH = f"{self.tmp_folder}/{switch_container.name}/out.bin"
+
+        create_tofino_bin(
+            switch_conf[KEY_P4_PROG_NAME],
+            ctx_path,
+            tof_path,
+            BIN_PATH,
+        )
 
         p4_helper = P4InfoHelper(switch_conf["p4_info_path"])
         msg = switch_con.SetForwadingPipelineConfig2(P4_INFO_PATH, BIN_PATH)

@@ -66,7 +66,7 @@ def create_tofino_bin(prog_name, ctx_json_path, tofino_bin_path, out_path):
         out_f.write(ctx_json)
 
 
-def find_bin_and_context(p4_build_path, prog_name):
+def find_context_and_bin(p4_build_path, prog_name):
     """
     Walks through given path and looks for a folder containing the program name
     and contains a context.json and tofino.bin
@@ -76,8 +76,7 @@ def find_bin_and_context(p4_build_path, prog_name):
         prog_name (string): Name of the p4 program
 
     Returns:
-        [(string, string)]: Tuple with path to context.json and tofino.bin. Returns empty strings if nothing
-        was found.
+        [(string, string)]: (context.json, tofino.bin)
     """
     context_path = ""
     tofino_bin_path = ""
