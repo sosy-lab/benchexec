@@ -7,7 +7,7 @@
 import threading
 
 """
-Simple counter for threads to increase
+Simple counter for threads to increase or decrease
 """
 
 
@@ -19,3 +19,7 @@ class Counter(object):
     def increment(self):
         with self.lock:
             self.value += 1
+
+    def decrease(self):
+        with self.lock:
+            self.value -= 1

@@ -114,7 +114,9 @@ class SwitchConnection(object):
             if time_passed > timeout or self.connected:
                 break
 
-            # Check for error. If failed, close created thread
+            if time_passed % 30 < 5 and time_passed >= 30:
+                self.__complete_reset()
+
             if not self.connected:
                 self.setup_stream()
 
@@ -268,6 +270,13 @@ class SwitchConnection(object):
             self.stream_out_q.put(None)
             self.stream_recv_thread.join()
         self.channel.close()
+
+    def __complete_reset(self):
+        logging.info(f"Reset switch{self.switch_name}")
+        self.shutdown()
+        self.__init__(
+            self.switch_name, self.grpc_addr, self.device_id, self.election_id
+        )
 
 
 def main():
