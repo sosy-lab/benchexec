@@ -6,9 +6,11 @@
 import os
 import logging
 import shutil
-
 import time
 import threading
+import psutil
+
+# Local imports
 from benchexec import systeminfo
 from .p4_run_setup import P4SetupHandler
 from p4_files.counter import Counter
@@ -33,6 +35,7 @@ from .switch_utils.p4info_helper import P4InfoHelper
 from shutil import copyfile, rmtree
 import json
 from distutils.dir_util import copy_tree, remove_tree
+from .network_illustrator import NetworkIllustrator
 
 try:
     import docker
@@ -81,10 +84,12 @@ class P4Execution(object):
         self.switch_connections = []  # Holds all connections to the active switches
 
         self.lock = threading.Lock()
+        self.illustrator = NetworkIllustrator()
 
         self.client = None
         self.node_networks = []
         self.mgnt_network = None
+        self.network_config = None  # Set by exec benchmark
 
     def init(self, config, benchmark):
         """
@@ -118,18 +123,18 @@ class P4Execution(object):
                 )
             )
 
-        # Check if user defined network config. Else look if test has a network config
-        if not self.network_config_path:
-            logging.error("No network config file was defined")
-            raise BenchExecException("No network config file was defined")
-        else:
-            with open(self.network_config_path) as json_file:
-                self.network_config = json.load(json_file)
+        # # Check if user defined network config. Else look if test has a network config
+        # if not self.network_config_path:
+        #     logging.error("No network config file was defined")
+        #     raise BenchExecException("No network config file was defined")
+        # else:
+        #     with open(self.network_config_path) as json_file:
+        #         self.network_config = json.load(json_file)
 
-            setup_is_valid = self.network_file_isValid()
+        #     setup_is_valid = self.network_file_isValid()
 
-            if not setup_is_valid:
-                raise BenchExecException("Network config file is not valid")
+        #     if not setup_is_valid:
+        #         raise BenchExecException("Network config file is not valid")
 
         # Read all required ptf tests folders
         self.ptf_folder_paths = self.read_ptf_folder_paths(benchmark)
@@ -137,7 +142,7 @@ class P4Execution(object):
         # Container setup
         self.client = docker.from_env()
         self.switch_target_path = f"{CONTAINTER_BASE_DIR}"
-        self.nrOfNodes = len(self.network_config[KEY_NODES])
+        # self.nrOfNodes = len(self.network_config[KEY_NODES])
 
         try:
             # Create the ptf tester container
@@ -160,51 +165,51 @@ class P4Execution(object):
                 tty=True,
             )
 
-            # Create node containers
-            self.nodes = []
+        #     # Create node containers
+        #     self.nodes = []
 
-            for node_name in self.network_config[KEY_NODES]:
-                try:
-                    self.nodes.append(
-                        self.client.containers.create(
-                            NODE_IMAGE_NAME, detach=True, name=node_name
-                        )
-                    )
-                except docker.errors.APIError as e:
-                    logging.error(f"Error creating container {node_name}")
-                    raise BenchExecException(str(e))
+        #     for node_name in self.network_config[KEY_NODES]:
+        #         try:
+        #             self.nodes.append(
+        #                 self.client.containers.create(
+        #                     NODE_IMAGE_NAME, detach=True, name=node_name
+        #                 )
+        #             )
+        #         except docker.errors.APIError as e:
+        #             logging.error(f"Error creating container {node_name}")
+        #             raise BenchExecException(str(e))
 
-            self.switches = []
+        #     self.switches = []
 
-            # Each switch needs their own mount copy
-            for switch_info in self.network_config[KEY_SWITCHES]:
+        #     # Each switch needs their own mount copy
+        #     for switch_info in self.network_config[KEY_SWITCHES]:
 
-                switch_config = self.network_config[KEY_SWITCHES][switch_info]
+        #         switch_config = self.network_config[KEY_SWITCHES][switch_info]
 
-                mount_path = self.create_tofino_switch_mount_copy(switch_info)
-                mount_switch = docker.types.Mount(
-                    self.switch_target_path, mount_path, type="bind"
-                )
+        #         mount_path = self.create_tofino_switch_mount_copy(switch_info)
+        #         mount_switch = docker.types.Mount(
+        #             self.switch_target_path, mount_path, type="bind"
+        #         )
 
-                server_port = switch_config[KEY_SERVER_PORT]
+        #         server_port = switch_config[KEY_SERVER_PORT]
 
-                try:
-                    self.switches.append(
-                        self.client.containers.create(
-                            SWITCH_IMAGE_NAME,
-                            detach=True,
-                            name=switch_info,
-                            mounts=[mount_switch],
-                            privileged=True,
-                            ports={f"{server_port}/tcp": ("127.0.0.1", server_port)},
-                        )
-                    )
-                except docker.errors.APIError:
-                    self.switches.append(self.client.containers.get(switch_info))
+        #         try:
+        #             self.switches.append(
+        #                 self.client.containers.create(
+        #                     SWITCH_IMAGE_NAME,
+        #                     detach=True,
+        #                     name=switch_info,
+        #                     mounts=[mount_switch],
+        #                     privileged=True,
+        #                     ports={f"{server_port}/tcp": ("127.0.0.1", server_port)},
+        #                 )
+        #             )
+        #         except docker.errors.APIError:
+        #             self.switches.append(self.client.containers.get(switch_info))
 
-            logging.info("Setting up network")
-            self.setup_network()
-            self.connect_nodes_to_switch()
+        #     logging.info("Setting up network")
+        #     self.setup_network()
+        #     self.connect_nodes_to_switch()
 
         except docker.errors.APIError as e:
             self.close()
@@ -215,13 +220,7 @@ class P4Execution(object):
         Excecutes the benchmark.
         """
 
-        self.active_net_conf = None
-        self.start_container_listening_tofino()
-
-        # Wait until all nodes and switches are setup
-        while self.nr_of_active_containers.value < len(self.nodes + self.switches):
-            time.sleep(1)
-
+        self.network_config_path = None
         self.read_tests(benchmark)
 
         setup_handler = P4SetupHandler(benchmark)
@@ -229,40 +228,6 @@ class P4Execution(object):
 
         # Read if any test specific test configs
         self.test_configs = find_test_network_configs(self.ptf_folder_path)
-
-        # Read all switch setup logs
-        for switch in self.switches:
-            files = os.listdir(f"{self.tmp_folder}/{switch.name}")
-            model_log_file = ""
-            driver_log_file = ""
-            for file in files:
-                if "model" in file:
-                    model_log_file = f"{self.tmp_folder}/{switch.name}/{file}"
-                if "driver" in file:
-                    driver_log_file = f"{self.tmp_folder}/{switch.name}/{file}"
-
-            # Store the setup logs and then clear them
-            switch_model_setup = f"{benchmark.log_folder}{switch.name}_model_setup.log"
-
-            switch_driver_setup = (
-                f"{benchmark.log_folder}{switch.name}_driver_setup.log"
-            )
-
-            copyfile(model_log_file, switch_model_setup)
-            copyfile(driver_log_file, switch_driver_setup)
-
-            # Clear log file
-            with open(model_log_file, "r+") as f:
-                f.truncate()
-
-            # Clear log file
-            with open(driver_log_file, "r+") as f:
-                f.truncate()
-
-            if output_handler.compress_results:
-                self.move_file_to_zip(switch_model_setup, output_handler, benchmark)
-                self.move_file_to_zip(switch_driver_setup, output_handler, benchmark)
-
         for runSet in benchmark.run_sets:
             if STOPPED_BY_INTERRUPT:
                 break
@@ -281,10 +246,27 @@ class P4Execution(object):
                 # Check if network setup needs to be updated
                 net_work_conf = self.run_network_conf_path(run)
 
-                if not self.active_net_conf or self.active_net_conf != net_work_conf:
-                    self.active_net_conf = net_work_conf
+                if not self.network_config_path:
+                    self.update_network_config(net_work_conf)
+                    self.read_switch_setup_logs(benchmark, output_handler)
 
-                    self.update_network_config(self.active_net_conf)
+                elif self.network_config_path != net_work_conf:
+                    new_base_setup = self.update_network_config(net_work_conf)
+                    if new_base_setup:
+                        self.read_switch_setup_logs(benchmark, output_handler)
+
+                        file_image_name = net_work_conf.split("/")[-1].replace(
+                            ".json", ".png"
+                        )
+                        self.create_setup_image(
+                            f"{benchmark.log_folder}{file_image_name}"
+                        )
+                        if output_handler.compress_results:
+                            self.move_file_to_zip(
+                                f"{benchmark.log_folder}{file_image_name}",
+                                output_handler,
+                                benchmark,
+                            )
 
                 # Create ptf command depending on nr of nodes
                 command = f"ptf --test-dir /app/{run.test_folder_name} {run.identifier}"
@@ -783,6 +765,7 @@ class P4Execution(object):
         """
         try:
             container.remove(force=True)
+            self.nr_of_active_containers.decrease()
         except:
             return
 
@@ -943,6 +926,7 @@ class P4Execution(object):
             time.sleep(1)
 
         for command in switch_command_list:
+            print(f"Switch{switch_container.name} running: {command}")
             switch_container.exec_run(command, detach=True)
 
         switch_server_port = switch_conf[KEY_SERVER_PORT]
@@ -955,7 +939,7 @@ class P4Execution(object):
         # Wait for switch to setup
         logging.info(f"Waiting for {switch_container.name} to start")
 
-        switch_con.wait_for_setup(timeout=120)
+        switch_con.wait_for_setup(timeout=500)
 
         if not switch_con.connected and not switch_con.do_shutdown:
             logging.debug(
@@ -964,8 +948,6 @@ class P4Execution(object):
             raise Exception("Switch error: Failed to connect to switch")
 
         logging.info(f"{switch_container.name} started!")
-
-        self.nr_of_active_containers.increment()
 
         # TODO Read file path automatic
         P4_INFO_PATH = switch_conf["p4_info_path"]
@@ -1007,12 +989,17 @@ class P4Execution(object):
         self.nr_of_active_containers.increment()
 
     def update_network_config(self, network_config_path):
-        with open(network_config_path) as json_file:
-            network_config = json.load(json_file)
+        self.network_config_path = network_config_path
+        old_config = self.network_config
 
-        if self.is_same_base_setup(self.network_config, network_config):
-            for switch_name in network_config[KEY_SWITCHES]:
-                switch_conf = network_config[KEY_SWITCHES][switch_name]
+        with open(network_config_path) as json_file:
+            self.network_config = json.load(json_file)
+
+        if self.is_same_base_setup(self.network_config, old_config):
+            self.network_config_path = network_config_path
+
+            for switch_name in self.network_config[KEY_SWITCHES]:
+                switch_conf = self.network_config[KEY_SWITCHES][switch_name]
                 p4_info_helper = P4InfoHelper(switch_conf[KEY_P4_INFO_PATH])
                 switch_con = self.get_switch_connection(switch_name)
                 for table_entry_info in switch_conf[KEY_TABLE_ENTRIES]:
@@ -1060,15 +1047,18 @@ class P4Execution(object):
             #     )
             #     if switch_con.connected:
             #         switch_con.write_table_entry(table_entry)
+
+            return False
         else:
             self.close()
 
             # Update network
-            self.network_config = network_config
+
             self.create_docker_containers()
             self.setup_network()
             self.connect_nodes_to_switch()
             self.start_container_listening_tofino()
+            return True
 
     def is_same_base_setup(self, conf1: dict, conff2: dict) -> bool:
         """
@@ -1083,6 +1073,9 @@ class P4Execution(object):
             bool:
         """
         setup_is_same = True
+
+        if not conf1 or not conff2:
+            return False
 
         # Check Nodes, Links and Switches
         for link in conff2[KEY_LINKS]:
@@ -1323,3 +1316,58 @@ class P4Execution(object):
             i += 1
 
         return folder_paths
+
+    def check_avaiable_memory(self):
+        free_ram = psutil.virtual_memory().available
+
+        # Each switch requires ~2GB of ram
+        free_ram_gb = free_ram / 1024000000
+
+        if len(self.switches) * 2 > free_ram_gb:
+            logging.info("Low on memory. Might not be able to start all switches")
+
+    # Test file reading and handling
+    def read_switch_setup_logs(self, benchmark, output_handler):
+        for switch in self.switches:
+            files = os.listdir(f"{self.tmp_folder}/{switch.name}")
+            model_log_file = ""
+            driver_log_file = ""
+            for file in files:
+                if "model" in file:
+                    model_log_file = f"{self.tmp_folder}/{switch.name}/{file}"
+                if "driver" in file:
+                    driver_log_file = f"{self.tmp_folder}/{switch.name}/{file}"
+
+            # Store the setup logs and then clear them
+            switch_model_setup = f"{benchmark.log_folder}{switch.name}_model_setup.log"
+
+            switch_driver_setup = (
+                f"{benchmark.log_folder}{switch.name}_driver_setup.log"
+            )
+
+            copyfile(model_log_file, switch_model_setup)
+            copyfile(driver_log_file, switch_driver_setup)
+
+            # Clear log file
+            with open(model_log_file, "r+") as f:
+                f.truncate()
+
+            # Clear log file
+            with open(driver_log_file, "r+") as f:
+                f.truncate()
+
+            if output_handler.compress_results:
+                self.move_file_to_zip(switch_model_setup, output_handler, benchmark)
+                self.move_file_to_zip(switch_driver_setup, output_handler, benchmark)
+
+    def create_setup_image(self, path):
+        """
+        Creates and image of the setup and stores it at given path
+        """
+        if self.network_config_path:
+            self.illustrator.load_file(self.network_config_path)
+            self.illustrator.draw(path)
+        else:
+            raise FileNotFoundError(
+                "Could not create network image. Config file not found"
+            )
