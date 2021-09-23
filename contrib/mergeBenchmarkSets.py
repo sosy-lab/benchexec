@@ -45,7 +45,7 @@ def parse_args(argv):
         "-o",
         "--outputpath",
         metavar="OUT_PATH",
-        help="Directoy in which the generated output files will be placed.",
+        help="Directory in which the generated output files will be placed.",
     )
     return parser.parse_args(argv)
 
