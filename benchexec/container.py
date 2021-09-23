@@ -509,7 +509,9 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
 
         elif mode == DIR_READ_ONLY:
             try:
-                remount_with_additional_flags(mount_path, options, libc.MS_RDONLY)
+                remount_with_additional_flags(
+                    mount_path, fstype, options, libc.MS_RDONLY
+                )
             except OSError as e:
                 if e.errno == errno.EACCES:
                     logging.warning(
@@ -525,12 +527,14 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
                     make_bind_mount(
                         mountpoint, mount_path, recursive=True, private=True
                     )
-                    remount_with_additional_flags(mount_path, options, libc.MS_RDONLY)
+                    remount_with_additional_flags(
+                        mount_path, fstype, options, libc.MS_RDONLY
+                    )
 
         elif mode == DIR_FULL_ACCESS:
             try:
                 # Ensure directory is still a mountpoint by attempting to remount.
-                remount_with_additional_flags(mount_path, options, 0)
+                remount_with_additional_flags(mount_path, fstype, options, 0)
             except OSError as e:
                 if e.errno == errno.EACCES:
                     logging.warning(
@@ -640,9 +644,10 @@ def get_mount_points():
             yield (decode_path(source), decode_path(target), fstype, options)
 
 
-def remount_with_additional_flags(mountpoint, existing_options, mountflags):
+def remount_with_additional_flags(mountpoint, fstype, existing_options, mountflags):
     """Remount an existing mount point with additional flags.
     @param mountpoint: the mount point as bytes
+    @param fstype: the file system as bytes
     @param existing_options: dict with current mount existing_options as bytes
     @param mountflags: int with additional mount existing_options
         (cf. libc.MS_* constants)
@@ -651,6 +656,11 @@ def remount_with_additional_flags(mountpoint, existing_options, mountflags):
     for option, flag in libc.MOUNT_FLAGS.items():
         if option in existing_options:
             mountflags |= flag
+
+    if fstype == b"sysfs":
+        # Always mount sysfs with these options.
+        # This won't hurt and seems to be necessary in edge cases like #749.
+        mountflags |= libc.MS_NODEV | libc.MS_NOSUID | libc.MS_NOEXEC
 
     libc.mount(None, mountpoint, None, mountflags, None)
 
