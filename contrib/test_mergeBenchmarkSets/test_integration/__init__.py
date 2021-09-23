@@ -37,7 +37,7 @@ class MergeBenchmarkSetsIntegrationTests(unittest.TestCase):
                 + (["--no-overwrite-status-true"] if no_overwrite else [])
                 + ["--outputpath", tmp_dir]
             )
-            result = os.path.join(tmp_dir, resultfile + ".merged.xml.bz2")
+            result = os.path.join(tmp_dir, os.path.basename(resultfile) + ".merged.xml.bz2")
             expected = os.path.join(
                 here,
                 "expected",
