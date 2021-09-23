@@ -44,9 +44,8 @@ def parse_args(argv):
     parser.add_argument(
         "-o",
         "--outputpath",
-        default=".",
         metavar="OUT_PATH",
-        help="Folder wherein the generated output files will be placed.",
+        help="Directoy in which the generated output files will be placed.",
     )
     return parser.parse_args(argv)
 
@@ -227,7 +226,6 @@ def main(argv=None):
     overwrite_status = not args.no_overwrite_status_true
     out_dir = args.outputpath
     assert witness_files or not overwrite_status
-    assert os.path.exists(out_dir) and os.path.isdir(out_dir)
 
     if not os.path.exists(result_file) or not os.path.isfile(result_file):
         sys.exit(f"File {result_file!r} does not exist.")
@@ -242,7 +240,10 @@ def main(argv=None):
     merge(result_xml, witness_sets, overwrite_status)
 
     filename = result_file + ".merged.xml.bz2"
-    outfile = os.path.join(out_dir, filename)
+    if out_dir is not None:
+        outfile = os.path.join(out_dir, os.path.basename(filename))
+    else:
+        outfile = filename
     os.makedirs(os.path.dirname(outfile), exist_ok=True)
     print("    " + outfile)
     with io.TextIOWrapper(bz2.BZ2File(outfile, "wb"), encoding="utf-8") as xml_file:
