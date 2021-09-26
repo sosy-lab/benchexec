@@ -30,6 +30,24 @@ CGROUP_NAME_PREFIX = "benchmark_"
 CGROUPS_V1 = 1
 CGROUPS_V2 = 2
 
+_PERMISSION_HINT_GROUPS = """
+You need to add your account to the following groups: {0}
+Remember to logout and login again afterwards to make group changes effective."""
+
+_PERMISSION_HINT_DEBIAN = """
+The recommended way to fix this is to install the Debian package for BenchExec and add your account to the group "benchexec":
+https://github.com/sosy-lab/benchexec/blob/master/doc/INSTALL.md#debianubuntu
+Alternatively, you can install benchexec-cgroup.service manually:
+https://github.com/sosy-lab/benchexec/blob/master/doc/INSTALL.md#setting-up-cgroups-on-machines-with-systemd"""
+
+_PERMISSION_HINT_SYSTEMD = """
+The recommended way to fix this is to add your account to a group named "benchexec" and install benchexec-cgroup.service:
+https://github.com/sosy-lab/benchexec/blob/master/doc/INSTALL.md#setting-up-cgroups-on-machines-with-systemd"""
+
+_PERMISSION_HINT_OTHER = """
+Please configure your system in way to allow your user to use cgroups:
+https://github.com/sosy-lab/benchexec/blob/master/doc/INSTALL.md#setting-up-cgroups-on-machines-without-systemd"""
+
 _ERROR_MSG_PERMISSIONS = """
 Required cgroups are not available because of missing permissions.{0}
 
