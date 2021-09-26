@@ -14,7 +14,7 @@ import threading
 import time
 
 from benchexec import BenchExecException
-from benchexec import cgroupsv2 as cgroups
+from benchexec.cgroups import Cgroups
 from benchexec import containerexecutor
 from benchexec import resources
 from benchexec.runexecutor import RunExecutor
@@ -69,7 +69,7 @@ def execute_benchmark(benchmark, output_handler):
             "only resource limits are used."
         )
 
-    my_cgroups = cgroups.find_my_cgroups()
+    my_cgroups = Cgroups.from_system()
 
     coreAssignment = None  # cores per run
     memoryAssignment = None  # memory banks per run

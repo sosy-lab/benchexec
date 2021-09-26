@@ -16,7 +16,7 @@ import math
 import os
 import sys
 
-from benchexec import cgroupsv2 as cgroups
+from benchexec import cgroups
 from benchexec import util
 
 __all__ = [
@@ -360,8 +360,8 @@ def _get_memory_banks_listed_in_dir(path):
 
 def check_memory_size(memLimit, num_of_threads, memoryAssignment, my_cgroups):
     """Check whether the desired amount of parallel benchmarks fits in the memory.
-    Implemented are checks for memory limits via cgroup controller "memory" and
-    memory bank restrictions via cgroup controller "cpuset",
+    Implemented are checks for memory limits via cgroup subsystem "memory" and
+    memory bank restrictions via cgroup subsystem "cpuset",
     as well as whether the system actually has enough memory installed.
     @param memLimit: the memory limit in bytes per run
     @param num_of_threads: the number of parallel benchmark executions

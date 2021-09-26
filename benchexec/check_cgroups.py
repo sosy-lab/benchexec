@@ -12,7 +12,7 @@ import sys
 import tempfile
 import threading
 
-from benchexec.cgroupsv2 import CPUACCT, CPUSET, FREEZER, MEMORY, find_my_cgroups
+from benchexec.cgroups import Cgroups
 from benchexec.runexecutor import RunExecutor
 from benchexec import util
 
@@ -34,10 +34,10 @@ def check_cgroup_availability(wait=1):
     my_cgroups = runexecutor.cgroups
 
     if not (
-        CPUACCT in my_cgroups
-        and CPUSET in my_cgroups
+        my_cgroups.CPU in my_cgroups
+        and my_cgroups.CPUSET in my_cgroups
         # and FREEZER in my_cgroups # For now, we do not require freezer
-        and MEMORY in my_cgroups
+        and my_cgroups.MEMORY in my_cgroups
     ):
         sys.exit(1)
 
@@ -47,7 +47,7 @@ def check_cgroup_availability(wait=1):
             tmp.name,
             memlimit=1024 * 1024,  # set memlimit to force check for swapaccount
             # set cores and memory_nodes to force usage of CPUSET
-            cores=util.parse_int_list(my_cgroups.get_value(CPUSET, "cpus")),
+            cores=util.parse_int_list(my_cgroups.get_value(my_cgroups.CPUSET, "cpus")),
             memory_nodes=my_cgroups.read_allowed_memory_banks(),
         )
         lines = []
@@ -59,10 +59,15 @@ def check_cgroup_availability(wait=1):
                 and not all(c == "-" for c in line)
             ):
                 lines.append(line)
-    task_cgroups = find_my_cgroups(lines, fallback=False)
+    task_cgroups = Cgroups.from_system(cgroup_procinfo=lines, fallback=False)
 
     fail = False
-    for subsystem in CPUACCT, CPUSET, MEMORY, FREEZER:
+    for subsystem in (
+        my_cgroups.CPU,
+        my_cgroups.CPUSET,
+        my_cgroups.MEMORY,
+        my_cgroups.FREEZE,
+    ):
         if subsystem in my_cgroups:
             if not task_cgroups[subsystem].startswith(
                 os.path.join(my_cgroups[subsystem], "benchmark_")

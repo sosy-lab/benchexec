@@ -19,16 +19,8 @@ import time
 
 from benchexec import systeminfo
 from benchexec import util
+from benchexec.cgroups import Cgroups
 
-__all__ = [
-    "find_my_cgroups",
-    "BLKIO",
-    "CPU"
-    "CPUACCT",
-    "CPUSET",
-    "FREEZER",
-    "MEMORY",
-]
 
 # FIXME uid
 CGROUP_FALLBACK_PATH = "user.slice/user-1000.slice/user@1000.service/app.slice/benchexec-cgroup.service/benchexec_root"
@@ -37,24 +29,6 @@ attempt to use this cgroup as fallback."""
 
 CGROUP_NAME_PREFIX = "benchmark_"
 
-BLKIO = "io"  # FIXME legacy
-CPUACCT = "cpu"  # FIXME legacy
-FREEZER = "freeze"  # FIXME legacy
-
-IO = "io"
-CPU = "cpu"
-CPUSET = "cpuset"
-MEMORY = "memory"
-ALL_KNOWN_SUBSYSTEMS = {
-    # cgroups for BenchExec
-    IO,
-    CPU,
-    CPUSET,
-    MEMORY,
-    "pids",
-
-    FREEZER,  # FIXME v1 bc
-}
 
 _PERMISSION_HINT_GROUPS = """
 You need to add your account to the following groups: {0}
@@ -73,47 +47,6 @@ https://github.com/sosy-lab/benchexec/blob/master/doc/INSTALL.md#setting-up-cgro
 _PERMISSION_HINT_OTHER = """
 Please configure your system in way to allow your user to use cgroups:
 https://github.com/sosy-lab/benchexec/blob/master/doc/INSTALL.md#setting-up-cgroups-on-machines-without-systemd"""
-
-_ERROR_MSG_PERMISSIONS = """
-Required cgroups are not available because of missing permissions.{0}
-
-As a temporary workaround, you can also run
-"sudo chmod o+wt {1}"
-Note that this will grant permissions to more users than typically desired and it will only last until the next reboot."""
-
-_ERROR_MSG_OTHER = """
-Required cgroups are not available.
-If you are using BenchExec within a container, please make "/sys/fs/cgroup" available."""
-
-
-def find_my_cgroups(cgroup_procinfo=None, fallback=True):
-    """
-    Return a Cgroup object with the cgroups of the current process.
-    Note that it is not guaranteed that all subsystems are available
-    in the returned object, as a subsystem may not be mounted.
-    Check with "subsystem in <instance>" before using.
-    A subsystem may also be present but we do not have the rights to create
-    child cgroups, this can be checked with require_subsystem().
-    @param cgroup_procinfo: If given, use this instead of reading /proc/self/cgroup.
-    @param fallback: Whether to look for a default cgroup as fallback is our cgroup
-        is not accessible.
-    """
-    logging.debug(
-        "Analyzing /proc/mounts and /proc/self/cgroup for determining cgroups."
-    )
-    if cgroup_procinfo is None:
-        cgroup_path = _find_own_cgroups()
-    else:
-        cgroup_path = _parse_proc_pid_cgroup(cgroup_procinfo)
-
-    if fallback:
-        mount = _find_cgroup_mount()
-        fallback_path = mount / CGROUP_FALLBACK_PATH
-        cgroup_path = fallback_path
-
-    controllers = _supported_cgroup_controllers(cgroup_path)
-
-    return Cgroup(cgroup_path, controllers)
 
 
 def _find_cgroup_mount():
@@ -142,15 +75,6 @@ def _find_own_cgroups():
             return _parse_proc_pid_cgroup(ownCgroupsFile)
     except OSError:
         logging.exception("Cannot read /proc/self/cgroup")
-
-
-def _supported_cgroup_controllers(path: pathlib.Path):
-    with open(path / "cgroup.controllers") as controllers_file:
-        controllers = controllers_file.readline().strip().split()
-
-    controllers.append(FREEZER)  # FIXME bc, always supported in v2
-
-    return controllers
 
 
 def _parse_proc_pid_cgroup(cgroup_file):
@@ -214,126 +138,66 @@ def remove_cgroup(cgroup):
             )
 
 
-class Cgroup(object):
-    def __init__(self, cgroup_path, controllers):
-        assert set(controllers) <= ALL_KNOWN_SUBSYSTEMS
-        # Also update self.paths on every update to this!
-        self.controllers = controllers
-        self.path = cgroup_path
-        # for error messages:
-        self.unusable_subsystems = set()
-        self.denied_subsystems = {}
+class CgroupsV2(Cgroups):
+    def __init__(self, subsystems=None, cgroup_procinfo=None, fallback=True):
+        self.version = 2
 
-    def __contains__(self, key):
-        return key in self.controllers
+        self.IO = "io"
+        self.CPU = "cpu"
+        self.CPUSET = "cpuset"
+        self.MEMORY = "memory"
+        self.PID = "pids"
+        self.FREEZE = "freeze"
 
-    def __getitem__(self, key):
-        raise Exception('not implemented')
-        return self.per_subsystem[key]
+        self.KNOWN_SUBSYSTEMS = {
+            # cgroups for BenchExec
+            self.IO,
+            self.CPU,
+            self.CPUSET,
+            self.MEMORY,
+            self.PID,
+            # not really a subsystem anymore, but implicitly supported
+            self.FREEZE,
+        }
 
-    def __str__(self):
-        return str(self.path)
+        super(CgroupsV2, self).__init__(subsystems, cgroup_procinfo, fallback)
 
-    def require_subsystem(self, subsystem, log_method=logging.warning):
-        """
-        Check whether the given subsystem is enabled and is writable
-        (i.e., new cgroups can be created for it).
-        Produces a log message for the user if one of the conditions is not fulfilled.
-        If the subsystem is enabled but not writable, it will be removed from
-        this instance such that further checks with "in" will return "False".
-        @return A boolean value.
-        """
-        if subsystem not in self:
-            if subsystem not in self.unusable_subsystems:
-                self.unusable_subsystems.add(subsystem)
-                log_method(
-                    "Cgroup subsystem %s is not available. "
-                    "Please make sure it is supported by your kernel and mounted.",
-                    subsystem,
-                )
-            return False
+        self.path = next(iter(self.subsystems.values()))
 
-        # try:
-        #     test_cgroup = self.create_fresh_child_cgroup(subsystem)
-        #     test_cgroup.remove()
-        # except OSError as e:
-        #     log_method(
-        #         "Cannot use cgroup %s for subsystem %s, reason: %s (%s).",
-        #         self.per_subsystem[subsystem],
-        #         subsystem,
-        #         e.strerror,
-        #         e.errno,
-        #     )
-        #     self.unusable_subsystems.add(subsystem)
-        #     if e.errno == errno.EACCES:
-        #         self.denied_subsystems[subsystem] = self.per_subsystem[subsystem]
-        #     del self.per_subsystem[subsystem]
-        #     self.paths = set(self.per_subsystem.values())
-        #     return False
-
-        return True
-
-    def handle_errors(self, critical_cgroups):
-        """
-        If there were errors in calls to require_subsystem() and critical_cgroups
-        is not empty, terminate the program with an error message that explains how to
-        fix the problem.
-
-        @param critical_cgroups: set of unusable but required cgroups
-        """
-        if not critical_cgroups:
-            return
-        assert critical_cgroups.issubset(self.unusable_subsystems)
-
-        if critical_cgroups.issubset(self.denied_subsystems):
-            # All errors were because of permissions for these directories
-            paths = sorted(set(self.denied_subsystems.values()))
-
-            # Check if all cgroups have group permissions and user could just be added
-            # to some groups to get access. But group 0 (root) of course does not count.
-            groups = {}
-            try:
-                if all(stat.S_IWGRP & os.stat(path).st_mode for path in paths):
-                    groups = {os.stat(path).st_gid for path in paths}
-            except OSError:
-                pass
-            if groups and 0 not in groups:
-
-                def get_group_name(gid):
-                    try:
-                        name = grp.getgrgid(gid).gr_name
-                    except KeyError:
-                        name = None
-                    return util.escape_string_shell(name or str(gid))
-
-                groups = " ".join(sorted(set(map(get_group_name, groups))))
-                permission_hint = _PERMISSION_HINT_GROUPS.format(groups)
-
-            elif systeminfo.has_systemd():
-                if systeminfo.is_debian():
-                    permission_hint = _PERMISSION_HINT_DEBIAN
-                else:
-                    permission_hint = _PERMISSION_HINT_SYSTEMD
-
-            else:
-                permission_hint = _PERMISSION_HINT_OTHER
-
-            paths = " ".join(map(util.escape_string_shell, paths))
-            sys.exit(_ERROR_MSG_PERMISSIONS.format(permission_hint, paths))
-
+    def _supported_cgroup_subsystems(self, cgroup_procinfo=None, fallback=True):
+        logging.debug(
+            "Analyzing /proc/mounts and /proc/self/cgroup to determine cgroups."
+        )
+        if cgroup_procinfo is None:
+            cgroup_path = _find_own_cgroups()
         else:
-            sys.exit(_ERROR_MSG_OTHER)  # e.g., subsystem not mounted
+            cgroup_path = _parse_proc_pid_cgroup(cgroup_procinfo)
+
+        if fallback:
+            mount = _find_cgroup_mount()
+            fallback_path = mount / CGROUP_FALLBACK_PATH
+            cgroup_path = fallback_path
+
+        with open(cgroup_path / "cgroup.subsystems") as subsystems_file:
+            subsystems = subsystems_file.readline().strip().split()
+
+        # always supported in v2
+        subsystems.append(self.FREEZE)
+
+        return {k: cgroup_path for k in subsystems}
 
     def create_fresh_child_cgroup(self, *subsystems):
         """
         Create child cgroups of the current cgroup for at least the given subsystems.
         @return: A Cgroup instance representing the new child cgroup(s).
         """
-        # assert set(subsystems).issubset(self.per_subsystem.keys())
-        cgroup_path = pathlib.Path(tempfile.mkdtemp(prefix=CGROUP_NAME_PREFIX, dir=self.path))
+        assert set(subsystems).issubset(self.subsystems.keys())
+        cgroup_path = pathlib.Path(
+            tempfile.mkdtemp(prefix=CGROUP_NAME_PREFIX, dir=self.path)
+        )
 
         # FIXME do something with subsystems, also subtree_control?
-        return Cgroup(cgroup_path, self.controllers)
+        return CgroupsV2({c: cgroup_path for c in self.subsystems})
 
     def add_task(self, pid):
         """
@@ -390,9 +254,7 @@ class Cgroup(object):
         Only call this method if the given subsystem is available.
         """
         assert subsystem in self
-        return os.path.isfile(
-            self.path / f"{subsystem}.{option}"
-        )
+        return os.path.isfile(self.path / f"{subsystem}.{option}")
 
     def get_value(self, subsystem, option):
         """
@@ -423,8 +285,11 @@ class Cgroup(object):
         Do not include the subsystem name in the option name.
         Only call this method if the given subsystem is available.
         """
-        assert subsystem in self
-        return util.read_key_value_pairs_from_file(self.path / f"{subsystem}.{filename}")
+        # FIXME v2 has basic cpu support even if not enabled
+        # assert subsystem in self
+        return util.read_key_value_pairs_from_file(
+            self.path / f"{subsystem}.{filename}"
+        )
 
     def set_value(self, subsystem, option, value):
         """
@@ -434,7 +299,7 @@ class Cgroup(object):
         """
         assert subsystem in self
         util.write_file(
-            str(value), self.path / f"{subsystem}.{option}"
+            str(value), self.subsystems[subsystem] / f"{subsystem}.{option}"
         )
 
     def remove(self):
@@ -444,18 +309,34 @@ class Cgroup(object):
         """
         remove_cgroup(self.path)
 
-        del self.path
-        del self.controllers
+        # FIXME why, we're not C?
+        del self.subsystems
 
     def read_cputime(self):
         """
         Read the cputime usage of this cgroup. CPU cgroup needs to be available.
         @return cputime usage in seconds
         """
-        cpu_stats = dict(self.get_key_value_pairs(CPU, "stat"))
+        cpu_stats = dict(self.get_key_value_pairs(self.CPU, "stat"))
 
-        return float(cpu_stats['usage_usec']) / 1_000_000
+        return float(cpu_stats["usage_usec"]) / 1_000_000
 
     def read_allowed_memory_banks(self):
         """Get the list of all memory banks allowed by this cgroup."""
         return util.parse_int_list(self.get_value(CPUSET, "mems"))
+
+    def read_max_mem_usage(self):
+        logging.debug("Memory-usage not supported in cgroups v2")
+
+        return None
+
+    def read_usage_per_cpu(self):
+        logging.debug("Usage per CPU not supported in cgroups v2")
+
+        return {}
+
+    def read_available_cpus(self):
+        return util.parse_int_list(self.get_value(self.CPUSET, "cpus.effective"))
+
+    def read_available_mems(self):
+        return util.parse_int_list(self.get_value(self.CPUSET, "mems.effective"))

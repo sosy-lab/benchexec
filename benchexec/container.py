@@ -591,6 +591,7 @@ def determine_directory_mode(dir_modes, path, fstype=None):
             or fstype == b"autofs"
             or fstype == b"vfat"
             or fstype == b"ntfs"
+            or fstype == b"zfs"
         )
     ):
         # Overlayfs does not support these as underlying file systems.

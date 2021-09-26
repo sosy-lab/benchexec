@@ -9,7 +9,7 @@ import logging
 import os
 import threading
 
-from benchexec.cgroupsv2 import MEMORY
+from benchexec.cgroups import Cgroups
 from benchexec import util
 
 from ctypes import cdll
@@ -53,7 +53,8 @@ class KillProcessOnOomThread(threading.Thread):
         self._cgroups = cgroups
         self._callback = callbackFn
 
-        cgroup = cgroups[MEMORY]  # for raw access
+        # FIXME
+        cgroup = cgroups[cgroups.MEMORY]  # for raw access
         ofd = os.open(os.path.join(cgroup, "memory.oom_control"), os.O_WRONLY)
         try:
             # Important to use CLOEXEC, otherwise the benchmarked tool inherits
@@ -103,6 +104,7 @@ class KillProcessOnOomThread(threading.Thread):
                 )
                 util.kill_process(self._pid_to_kill)
                 # Also kill all children of subprocesses directly.
+                # FIXME
                 with open(os.path.join(self._cgroups[MEMORY], "tasks"), "rt") as tasks:
                     for task in tasks:
                         util.kill_process(int(task))

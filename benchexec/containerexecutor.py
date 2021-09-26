@@ -22,7 +22,7 @@ import tempfile
 from benchexec import __version__
 from benchexec import baseexecutor
 from benchexec import BenchExecException
-from benchexec.cgroups import Cgroup
+from benchexec.cgroups import Cgroups
 from benchexec import container
 from benchexec import libc
 from benchexec import util
@@ -439,7 +439,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 root_dir=rootDir,
                 cwd=workingDir,
                 temp_dir=temp_dir,
-                cgroups=Cgroup({}),
+                cgroups=Cgroups(),
                 output_dir=output_dir,
                 result_files_patterns=result_files_patterns,
                 child_setup_fn=util.dummy_fn,
