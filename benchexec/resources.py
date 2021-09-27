@@ -320,7 +320,7 @@ def get_memory_banks_per_run(coreAssignment, cgroups):
     to one of its CPU cores."""
     try:
         # read list of available memory banks
-        allMems = set(cgroups.read_allowed_memory_banks())
+        allMems = set(cgroups.read_available_mems())
 
         result = []
         for cores in coreAssignment:
@@ -401,7 +401,7 @@ def check_memory_size(memLimit, num_of_threads, memoryAssignment, my_cgroups):
         # Get list of all memory banks, either from memory assignment or from system.
         if not memoryAssignment:
             if cgroups.CPUSET in my_cgroups:
-                allMems = my_cgroups.read_allowed_memory_banks()
+                allMems = my_cgroups.read_available_mems()
             else:
                 allMems = _get_memory_banks_listed_in_dir("/sys/devices/system/node/")
             memoryAssignment = [

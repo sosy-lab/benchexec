@@ -6,17 +6,13 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import errno
-import grp
 import logging
 import os
 import shutil
 import signal
-import stat
-import sys
 import tempfile
 import time
 
-from benchexec import systeminfo
 from benchexec import util
 from benchexec.cgroups import Cgroups
 
@@ -89,23 +85,6 @@ def kill_all_tasks_in_cgroup(cgroup, ensure_empty=True):
                     return  # No process was hanging, exit
             # wait for the process to exit, this might take some time
             time.sleep(i * 0.5)
-
-
-def remove_cgroup(cgroup):
-    if not os.path.exists(cgroup):
-        logging.warning("Cannot remove CGroup %s, because it does not exist.", cgroup)
-        return
-    assert os.path.getsize(os.path.join(cgroup, "tasks")) == 0
-    try:
-        os.rmdir(cgroup)
-    except OSError:
-        # sometimes this fails because the cgroup is still busy, we try again once
-        try:
-            os.rmdir(cgroup)
-        except OSError as e:
-            logging.warning(
-                "Failed to remove cgroup %s: error %s (%s)", cgroup, e.errno, e.strerror
-            )
 
 
 def _register_process_with_cgrulesengd(pid):
@@ -181,7 +160,7 @@ class CgroupsV1(Cgroups):
         if cgroup_procinfo is None:
             my_cgroups = dict(_find_own_cgroups())
         else:
-            my_cgroups = dict(_parse_proc_pid_cgroup(cgroup_procingo))
+            my_cgroups = dict(_parse_proc_pid_cgroup(cgroup_procinfo))
 
         cgroupsParents = {}
         for subsystem, mount in self._find_cgroup_mounts():
@@ -286,7 +265,7 @@ class CgroupsV1(Cgroups):
                     kill_all_tasks_in_cgroup(subCgroup, ensure_empty=delete)
 
                     if delete:
-                        remove_cgroup(subCgroup)
+                        self._remove_cgroup(subCgroup)
 
             kill_all_tasks_in_cgroup(cgroup, ensure_empty=delete)
 
@@ -310,73 +289,6 @@ class CgroupsV1(Cgroups):
         for cgroup in self.paths:
             kill_all_tasks_in_cgroup_recursively(cgroup, delete=True)
 
-    def has_value(self, subsystem, option):
-        """
-        Check whether the given value exists in the given subsystem.
-        Does not make a difference whether the value is readable, writable, or both.
-        Do not include the subsystem name in the option name.
-        Only call this method if the given subsystem is available.
-        """
-        assert subsystem in self
-        return os.path.isfile(
-            os.path.join(self.subsystems[subsystem], f"{subsystem}.{option}")
-        )
-
-    def get_value(self, subsystem, option):
-        """
-        Read the given value from the given subsystem.
-        Do not include the subsystem name in the option name.
-        Only call this method if the given subsystem is available.
-        """
-        assert subsystem in self, f"Subsystem {subsystem} is missing"
-        return util.read_file(self.subsystems[subsystem], f"{subsystem}.{option}")
-
-    def get_file_lines(self, subsystem, option):
-        """
-        Read the lines of the given file from the given subsystem.
-        Do not include the subsystem name in the option name.
-        Only call this method if the given subsystem is available.
-        """
-        assert subsystem in self
-        with open(
-            os.path.join(self.subsystems[subsystem], f"{subsystem}.{option}")
-        ) as f:
-            for line in f:
-                yield line
-
-    def get_key_value_pairs(self, subsystem, filename):
-        """
-        Read the lines of the given file from the given subsystem
-        and split the lines into key-value pairs.
-        Do not include the subsystem name in the option name.
-        Only call this method if the given subsystem is available.
-        """
-        assert subsystem in self
-        return util.read_key_value_pairs_from_file(
-            self.subsystems[subsystem], f"{subsystem}.{filename}"
-        )
-
-    def set_value(self, subsystem, option, value):
-        """
-        Write the given value for the given subsystem.
-        Do not include the subsystem name in the option name.
-        Only call this method if the given subsystem is available.
-        """
-        assert subsystem in self
-        util.write_file(str(value), self.subsystems[subsystem], f"{subsystem}.{option}")
-
-    def remove(self):
-        """
-        Remove all cgroups this instance represents from the system.
-        This instance is afterwards not usable anymore!
-        """
-        for cgroup in self.paths:
-            remove_cgroup(cgroup)
-
-        # ?
-        del self.paths
-        del self.subsystems
-
     def read_cputime(self):
         """
         Read the cputime usage of this cgroup. CPUACCT cgroup needs to be available.
@@ -384,10 +296,6 @@ class CgroupsV1(Cgroups):
         """
         # convert nano-seconds to seconds
         return float(self.get_value(self.CPU, "usage")) / 1_000_000_000
-
-    def read_allowed_memory_banks(self):
-        """Get the list of all memory banks allowed by this cgroup."""
-        return util.parse_int_list(self.get_value(self.CPUSET, "mems"))
 
     def read_max_mem_usage(self):
         # This measurement reads the maximum number of bytes of RAM+Swap the process used.

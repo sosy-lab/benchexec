@@ -78,12 +78,12 @@ def execute_benchmark(benchmark, output_handler):
     pqos.reset_monitoring()
 
     if benchmark.rlimits.cpu_cores:
-        if not my_cgroups.require_subsystem(cgroups.CPUSET):
+        if not my_cgroups.require_subsystem(my_cgroups.CPUSET):
             logging.error(
                 "Cgroup subsystem cpuset is required "
                 "for limiting the number of CPU cores/memory nodes."
             )
-            my_cgroups.handle_errors({cgroups.CPUSET})
+            my_cgroups.handle_errors({my_cgroups.CPUSET})
         coreAssignment = resources.get_cpu_cores_per_run(
             benchmark.rlimits.cpu_cores,
             benchmark.num_of_threads,

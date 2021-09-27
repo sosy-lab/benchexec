@@ -6,16 +6,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from abc import ABC, abstractmethod
-import errno
 import grp
 import logging
 import os
-import shutil
-import signal
 import stat
 import sys
-import tempfile
-import time
 
 from benchexec import BenchExecException
 from benchexec import systeminfo
@@ -121,6 +116,80 @@ class Cgroups(ABC):
     def __str__(self):
         return str(self.paths)
 
+    def _remove_cgroup(self, path):
+        if not os.path.exists(path):
+            logging.warning("Cannot remove CGroup %s, because it does not exist.", path)
+            return
+        assert os.path.getsize(os.path.join(path, "tasks")) == 0
+        try:
+            os.rmdir(path)
+        except OSError:
+            # sometimes this fails because the cgroup is still busy, we try again once
+            try:
+                os.rmdir(path)
+            except OSError as e:
+                logging.warning(
+                    "Failed to remove cgroup %s: error %s (%s)",
+                    path,
+                    e.errno,
+                    e.strerror,
+                )
+
+    def has_value(self, subsystem, option):
+        """
+        Check whether the given value exists in the given subsystem.
+        Does not make a difference whether the value is readable, writable, or both.
+        Do not include the subsystem name in the option name.
+        Only call this method if the given subsystem is available.
+        """
+        assert subsystem in self
+        return os.path.isfile(self.subsystems[subsystem] / f"{subsystem}.{option}")
+
+    def get_value(self, subsystem, option):
+        """
+        Read the given value from the given subsystem.
+        Do not include the subsystem name in the option name.
+        Only call this method if the given subsystem is available.
+        """
+        assert subsystem in self, f"Subsystem {subsystem} is missing"
+        return util.read_file(self.subsystems[subsystem] / f"{subsystem}.{option}")
+
+    def get_file_lines(self, subsystem, option):
+        """
+        Read the lines of the given file from the given subsystem.
+        Do not include the subsystem name in the option name.
+        Only call this method if the given subsystem is available.
+        """
+        assert subsystem in self
+        with open(
+            os.path.join(self.subsystems[subsystem], f"{subsystem}.{option}")
+        ) as f:
+            for line in f:
+                yield line
+
+    def get_key_value_pairs(self, subsystem, filename):
+        """
+        Read the lines of the given file from the given subsystem
+        and split the lines into key-value pairs.
+        Do not include the subsystem name in the option name.
+        Only call this method if the given subsystem is available.
+        """
+        # assert subsystem in self
+        return util.read_key_value_pairs_from_file(
+            self.subsystems[subsystem] / f"{subsystem}.{filename}"
+        )
+
+    def set_value(self, subsystem, option, value):
+        """
+        Write the given value for the given subsystem.
+        Do not include the subsystem name in the option name.
+        Only call this method if the given subsystem is available.
+        """
+        assert subsystem in self
+        util.write_file(
+            str(value), self.subsystems[subsystem] / f"{subsystem}.{option}"
+        )
+
     # FIXME improve message for v2
     def require_subsystem(self, subsystem, log_method=logging.warning):
         """
@@ -192,108 +261,16 @@ class Cgroups(ABC):
         else:
             sys.exit(_ERROR_MSG_OTHER)  # e.g., subsystem not mounted
 
-    def create_fresh_child_cgroup(self, *subsystems):
-        """
-        Create child cgroups of the current cgroup for at least the given subsystems.
-        @return: A Cgroup instance representing the new child cgroup(s).
-        """
-        assert set(subsystems).issubset(self.per_subsystem.keys())
-        createdCgroupsPerSubsystem = {}
-        createdCgroupsPerParent = {}
-        for subsystem in subsystems:
-            parentCgroup = self.per_subsystem[subsystem]
-            if parentCgroup in createdCgroupsPerParent:
-                # reuse already created cgroup
-                createdCgroupsPerSubsystem[subsystem] = createdCgroupsPerParent[
-                    parentCgroup
-                ]
-                continue
-
-            cgroup = tempfile.mkdtemp(prefix=CGROUP_NAME_PREFIX, dir=parentCgroup)
-            createdCgroupsPerSubsystem[subsystem] = cgroup
-            createdCgroupsPerParent[parentCgroup] = cgroup
-
-            # add allowed cpus and memory to cgroup if necessary
-            # (otherwise we can't add any tasks)
-            def copy_parent_to_child(name):
-                shutil.copyfile(
-                    os.path.join(parentCgroup, name), os.path.join(cgroup, name)
-                )
-
-            try:
-                copy_parent_to_child("cpuset.cpus")
-                copy_parent_to_child("cpuset.mems")
-            except OSError:
-                # expected to fail if cpuset subsystem is not enabled in this hierarchy
-                pass
-
-        return Cgroup(createdCgroupsPerSubsystem)
-
-    def add_task(self, pid):
-        """
-        Add a process to the cgroups represented by this instance.
-        """
-        _register_process_with_cgrulesengd(pid)
-        for cgroup in self.paths:
-            with open(os.path.join(cgroup, "tasks"), "w") as tasksFile:
-                tasksFile.write(str(pid))
-
-    def kill_all_tasks(self):
-        """
-        Kill all tasks in this cgroup and all its children cgroups forcefully.
-        Additionally, the children cgroups will be deleted.
-        """
-
-        def kill_all_tasks_in_cgroup_recursively(cgroup, delete):
-            for dirpath, dirs, _files in os.walk(cgroup, topdown=False):
-                for subCgroup in dirs:
-                    subCgroup = os.path.join(dirpath, subCgroup)
-                    kill_all_tasks_in_cgroup(subCgroup, ensure_empty=delete)
-
-                    if delete:
-                        remove_cgroup(subCgroup)
-
-            kill_all_tasks_in_cgroup(cgroup, ensure_empty=delete)
-
-        # First, we go through all cgroups recursively while they are frozen and kill
-        # all processes. This helps against fork bombs and prevents processes from
-        # creating new subgroups while we are trying to kill everything.
-        # But this is only possible if we have freezer, and all processes will stay
-        # until they are thawed (so we cannot check for cgroup emptiness and we cannot
-        # delete subgroups).
-        if self.version == 2 or FREEZER in self.impl.per_subsystem:
-            self.impl.freeze()
-            kill_all_tasks_in_cgroup_recursively(cgroup, delete=False)
-            self.impl.unfreeze()
-
-        # Second, we go through all cgroups again, kill what is left,
-        # check for emptiness, and remove subgroups.
-        # Furthermore, we do this for all hierarchies, not only the one with freezer.
-        for cgroup in self.paths:
-            kill_all_tasks_in_cgroup_recursively(cgroup, delete=True)
-
     def remove(self):
         """
         Remove all cgroups this instance represents from the system.
         This instance is afterwards not usable anymore!
         """
         for cgroup in self.paths:
-            remove_cgroup(cgroup)
+            self._remove_cgroup(cgroup)
 
         del self.paths
-        del self.per_subsystem
-
-    def read_cputime(self):
-        """
-        Read the cputime usage of this cgroup. CPUACCT cgroup needs to be available.
-        @return cputime usage in seconds
-        """
-        # convert nano-seconds to seconds
-        return self.impl.read_cputime()
-
-    def read_allowed_memory_banks(self):
-        """Get the list of all memory banks allowed by this cgroup."""
-        return util.parse_int_list(self.get_value(CPUSET, "mems"))
+        del self.subsystems
 
     @abstractmethod
     def read_max_mem_usage(self):
