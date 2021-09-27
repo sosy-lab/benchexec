@@ -136,7 +136,7 @@ class CgroupsV2(Cgroups):
             fallback_path = mount / CGROUP_FALLBACK_PATH
             cgroup_path = fallback_path
 
-        with open(cgroup_path / "cgroup.subsystems") as subsystems_file:
+        with open(cgroup_path / "cgroup.controllers") as subsystems_file:
             subsystems = subsystems_file.readline().strip().split()
 
         # always supported in v2

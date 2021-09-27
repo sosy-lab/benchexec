@@ -6,6 +6,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from abc import ABC, abstractmethod
+import errno
 import grp
 import logging
 import os
@@ -209,6 +210,26 @@ class Cgroups(ABC):
                 )
             return False
 
+        try:
+            test_cgroup = self.create_fresh_child_cgroup(subsystem)
+            test_cgroup.remove()
+        except OSError as e:
+            log_method(
+                "Cannot use cgroup %s for subsystem %s, reason: %s (%s).",
+                self.subsystems[subsystem],
+                subsystem,
+                e.strerror,
+                e.errno,
+            )
+            self.unusable_subsystems.add(subsystem)
+            if e.errno == errno.EACCES:
+                self.denied_subsystems[subsystem] = self.subsystems[subsystem]
+            del self.subsystems[subsystem]
+            self.paths = set(self.subsystems.values())
+            return False
+
+        return True
+
     def handle_errors(self, critical_cgroups):
         """
         If there were errors in calls to require_subsystem() and critical_cgroups
@@ -229,8 +250,8 @@ class Cgroups(ABC):
             # to some groups to get access. But group 0 (root) of course does not count.
             groups = {}
             try:
-                if all(stat.S_IWGRP & os.stat(path).st_mode for path in paths):
-                    groups = {os.stat(path).st_gid for path in paths}
+                if all(stat.S_IWGRP & path.stat().st_mode for path in paths):
+                    groups = {path.stat().st_gid for path in paths}
             except OSError:
                 pass
             if groups and 0 not in groups:
@@ -270,6 +291,10 @@ class Cgroups(ABC):
 
         del self.paths
         del self.subsystems
+
+    @abstractmethod
+    def create_fresh_child_cgroup(self, subsystem):
+        pass
 
     @abstractmethod
     def read_max_mem_usage(self):
