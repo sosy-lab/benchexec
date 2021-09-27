@@ -69,8 +69,8 @@ def check_cgroup_availability(wait=1):
         my_cgroups.FREEZE,
     ):
         if subsystem in my_cgroups:
-            if not task_cgroups[subsystem].startswith(
-                os.path.join(my_cgroups[subsystem], "benchmark_")
+            if not str(task_cgroups[subsystem]).startswith(
+                str(my_cgroups[subsystem] / "benchmark_")
             ):
                 logging.warning(
                     "Task was in cgroup %s for subsystem %s, "

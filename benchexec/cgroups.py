@@ -9,6 +9,7 @@ from abc import ABC, abstractmethod
 import grp
 import logging
 import os
+import pathlib
 import stat
 import sys
 
@@ -116,11 +117,11 @@ class Cgroups(ABC):
     def __str__(self):
         return str(self.paths)
 
-    def _remove_cgroup(self, path):
+    def _remove_cgroup(self, path: pathlib.Path):
         if not os.path.exists(path):
             logging.warning("Cannot remove CGroup %s, because it does not exist.", path)
             return
-        assert os.path.getsize(os.path.join(path, "tasks")) == 0
+        assert os.path.getsize(path / "tasks") == 0
         try:
             os.rmdir(path)
         except OSError:
@@ -161,9 +162,7 @@ class Cgroups(ABC):
         Only call this method if the given subsystem is available.
         """
         assert subsystem in self
-        with open(
-            os.path.join(self.subsystems[subsystem], f"{subsystem}.{option}")
-        ) as f:
+        with open(self.subsystems[subsystem] / f"{subsystem}.{option}") as f:
             for line in f:
                 yield line
 

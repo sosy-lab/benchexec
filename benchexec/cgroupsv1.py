@@ -8,6 +8,7 @@
 import errno
 import logging
 import os
+import pathlib
 import shutil
 import signal
 import tempfile
@@ -57,7 +58,7 @@ def _parse_proc_pid_cgroup(content):
 
 
 def kill_all_tasks_in_cgroup(cgroup, ensure_empty=True):
-    tasksFile = os.path.join(cgroup, "tasks")
+    tasksFile = cgroup / "tasks"
 
     i = 0
     while True:
@@ -168,8 +169,8 @@ class CgroupsV1(Cgroups):
             # e.g. because a parent directory has insufficient permissions
             # (lxcfs mounts cgroups under /run/lxcfs in such a way).
             if os.access(mount, os.F_OK):
-                cgroupPath = os.path.join(mount, my_cgroups[subsystem])
-                fallbackPath = os.path.join(mount, CGROUP_FALLBACK_PATH)
+                cgroupPath = mount / my_cgroups[subsystem]
+                fallbackPath = mount / CGROUP_FALLBACK_PATH
                 if (
                     fallback
                     and not os.access(cgroupPath, os.W_OK)
@@ -190,7 +191,7 @@ class CgroupsV1(Cgroups):
                 for mount in mountsFile:
                     mount = mount.split(" ")
                     if mount[2] == "cgroup":
-                        mountpoint = mount[1]
+                        mountpoint = pathlib.Path(mount[1])
                         options = mount[3]
                         for option in options.split(","):
                             if option in self.KNOWN_SUBSYSTEMS:
@@ -215,16 +216,16 @@ class CgroupsV1(Cgroups):
                 ]
                 continue
 
-            cgroup = tempfile.mkdtemp(prefix=CGROUP_NAME_PREFIX, dir=parentCgroup)
+            cgroup = pathlib.Path(
+                tempfile.mkdtemp(prefix=CGROUP_NAME_PREFIX, dir=parentCgroup)
+            )
             createdCgroupsPerSubsystem[subsystem] = cgroup
             createdCgroupsPerParent[parentCgroup] = cgroup
 
             # add allowed cpus and memory to cgroup if necessary
             # (otherwise we can't add any tasks)
             def copy_parent_to_child(name):
-                shutil.copyfile(
-                    os.path.join(parentCgroup, name), os.path.join(cgroup, name)
-                )
+                shutil.copyfile(parentCgroup / name, cgroup / name)
 
             try:
                 copy_parent_to_child("cpuset.cpus")
@@ -241,14 +242,14 @@ class CgroupsV1(Cgroups):
         """
         _register_process_with_cgrulesengd(pid)
         for cgroup in self.paths:
-            with open(os.path.join(cgroup, "tasks"), "w") as tasksFile:
+            with open(cgroup / "tasks", "w") as tasksFile:
                 tasksFile.write(str(pid))
 
     def get_all_tasks(self, subsystem):
         """
         Return a generator of all PIDs currently in this cgroup for the given subsystem.
         """
-        with open(os.path.join(self.subsystems[subsystem], "tasks"), "r") as tasksFile:
+        with open(self.subsystems[subsystem] / "tasks", "r") as tasksFile:
             for line in tasksFile:
                 yield int(line)
 
@@ -277,7 +278,7 @@ class CgroupsV1(Cgroups):
         # delete subgroups).
         if self.FREEZE in self.subsystems:
             cgroup = self.subsystems[self.FREEZE]
-            freezer_file = os.path.join(cgroup, "freezer.state")
+            freezer_file = cgroup / "freezer.state"
 
             util.write_file("FROZEN", freezer_file)
             kill_all_tasks_in_cgroup_recursively(cgroup, delete=False)
