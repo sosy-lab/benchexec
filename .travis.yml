@@ -5,6 +5,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+# trigger build for only pull requests.
+if: type = pull_request
+
 language: python
 sudo: required
 dist: bionic
