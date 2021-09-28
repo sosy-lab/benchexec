@@ -9,6 +9,23 @@ SPDX-License-Identifier: Apache-2.0
 
 # BenchExec Changelog
 
+## BenchExec 3.9
+
+- Improved container mode to make it work more easily inside LXC containers.
+- The scatter plot in HTML tables produced by table-generator
+  can now show a linear-regression graph using ordinary least squares.
+  A tooltip shows more information such as the regression coefficient.
+- The library that is used for rendering the actual tables
+  in the HTML tables got a major upgrade, which required some work.
+  If you notice any regression in table behavior,
+  please file an [issue](https://github.com/sosy-lab/benchexec/issues/new).
+- One new tool-info module.
+
+For people using the git repository of BenchExec:
+Immediately after the release of BenchExec 3.9,
+the default branch of the repository will be renamed to `main`.
+Please adjust forks and checkouts if required.
+
 ## BenchExec 3.8
 
 This release works only on Python 3.6 and newer!
