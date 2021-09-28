@@ -69,7 +69,7 @@ please raise an issue.
    and update the version number in all references to this DTD in BenchExec.
 
  * The remaining steps can also be mostly automated with the script
-   [release.sh](https://github.com/sosy-lab/benchexec/blob/master/release.sh)
+   [release.sh](https://github.com/sosy-lab/benchexec/blob/main/release.sh)
    (make sure to follow the instructions printed at the end).
 
  * Update version number in field `__version__` of `benchexec/__init__.py`,

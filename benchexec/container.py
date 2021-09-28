@@ -169,7 +169,7 @@ def execute_in_namespace(func, use_network_ns=True):
     # three C functions that should be called before and after fork/clone:
     # https://docs.python.org/3/c-api/sys.html#c.PyOS_BeforeFork
     # This is the same that os.fork() does (cf. os_fork_impl
-    # in https://github.com/python/cpython/blob/master/Modules/posixmodule.c).
+    # in https://github.com/python/cpython/blob/main/Modules/posixmodule.c).
     # Furthermore, it is very important that we have the GIL during clone(),
     # otherwise the child will often deadlock when trying to execute Python code.
     # Luckily, the ctypes module allows us to hold the GIL while executing the

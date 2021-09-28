@@ -12,7 +12,7 @@ other base classes are provided for compatibility with older tool-info modules.
 The class that a tool-info module provides always has to have the name "Tool".
 
 For more information, please refer to
-https://github.com/sosy-lab/benchexec/blob/master/doc/tool-integration.md
+https://github.com/sosy-lab/benchexec/blob/main/doc/tool-integration.md
 """
 
 from abc import ABCMeta, abstractmethod
@@ -75,7 +75,7 @@ class BaseTool2(object, metaclass=ABCMeta):
 
     This class is supported since BenchExec 3.3.
     For older tool-info modules that still inherit from BaseTool we provide a
-    [migration guide](https://github.com/sosy-lab/benchexec/blob/master/doc/tool-integration.md#migrating-tool-info-modules-to-new-api).
+    [migration guide](https://github.com/sosy-lab/benchexec/blob/main/doc/tool-integration.md#migrating-tool-info-modules-to-new-api).
     """
 
     REQUIRED_PATHS = []
@@ -521,7 +521,7 @@ class BaseTool2(object, metaclass=ABCMeta):
             (contains return code or the signal that led to termination)
         @param output: the output of the tool as instance of class RunOutput
         @param termination_reason: reason why BenchExec terminated the run, if any
-            (cf. https://github.com/sosy-lab/benchexec/blob/master/doc/run-results.md,
+            (cf. https://github.com/sosy-lab/benchexec/blob/main/doc/run-results.md,
             useful to distinguish between program killed because of error and timeout)
         """
 
@@ -600,7 +600,7 @@ class BaseTool(object):
     Note that tool-info modules that inherit from this class cannot make use of all of
     BenchExec's features and that we may drop support for such modules in BenchExec 4.0.
     It is thus recommended to upgrade all such tool-info modules to BaseTool2, cf. our
-    [migration guide](https://github.com/sosy-lab/benchexec/blob/master/doc/tool-integration.md#migrating-tool-info-modules-to-new-api).
+    [migration guide](https://github.com/sosy-lab/benchexec/blob/main/doc/tool-integration.md#migrating-tool-info-modules-to-new-api).
     """
 
     REQUIRED_PATHS = []
