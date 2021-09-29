@@ -10,7 +10,7 @@
 import sys
 
 import argparse
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 import os
 import io
 from xml.etree import ElementTree
@@ -148,7 +148,7 @@ def get_validation_result(
             category_from_verification = result.CATEGORY_CORRECT
             try:
                 coverage_percentage = Decimal(coverage_value) / 100
-            except ValueError:
+            except InvalidOperation:
                 continue
             score_column = ElementTree.Element(
                 "column",
@@ -180,11 +180,11 @@ def merge(result_xml, witness_sets, overwrite_status):
     for run in result_xml.findall("run"):
         try:
             status_from_verification = run.find('column[@title="status"]').get("value")
-            category_from_verification = run.find('column[@title="category"]').get(
-                "value"
-            )
         except AttributeError:
             status_from_verification = "not found"
+        try:
+            category_from_verification = run.find('column[@title="category"]').get("value")
+        except AttributeError:
             category_from_verification = "not found"
         (
             statusWit,
@@ -210,9 +210,14 @@ def merge(result_xml, witness_sets, overwrite_status):
         ):
             try:
                 run.find('column[@title="status"]').set("value", statusWit)
+            except AttributeError:
+                status_column = ElementTree.Element("column", title="status", value=statusWit)
+                run.append(status_column)
+            try:
                 run.find('column[@title="category"]').set("value", categoryWit)
             except AttributeError:
-                pass
+                category_column = ElementTree.Element("column", title="category", value=categoryWit)
+                run.append(category_column)
         # Clean-up an entry that can be inferred by table-generator automatically, avoids path confusion
         del run.attrib["logfile"]
 
