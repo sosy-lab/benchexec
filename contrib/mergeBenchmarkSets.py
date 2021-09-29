@@ -183,7 +183,9 @@ def merge(result_xml, witness_sets, overwrite_status):
         except AttributeError:
             status_from_verification = "not found"
         try:
-            category_from_verification = run.find('column[@title="category"]').get("value")
+            category_from_verification = run.find('column[@title="category"]').get(
+                "value"
+            )
         except AttributeError:
             category_from_verification = "not found"
         (
@@ -211,12 +213,16 @@ def merge(result_xml, witness_sets, overwrite_status):
             try:
                 run.find('column[@title="status"]').set("value", statusWit)
             except AttributeError:
-                status_column = ElementTree.Element("column", title="status", value=statusWit)
+                status_column = ElementTree.Element(
+                    "column", title="status", value=statusWit
+                )
                 run.append(status_column)
             try:
                 run.find('column[@title="category"]').set("value", categoryWit)
             except AttributeError:
-                category_column = ElementTree.Element("column", title="category", value=categoryWit)
+                category_column = ElementTree.Element(
+                    "column", title="category", value=categoryWit
+                )
                 run.append(category_column)
         # Clean-up an entry that can be inferred by table-generator automatically, avoids path confusion
         del run.attrib["logfile"]
