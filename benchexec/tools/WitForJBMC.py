@@ -25,10 +25,6 @@ class Tool(benchexec.tools.template.BaseTool2):
     (https://github.com/Anthonysdu/MSc-project/blob/main/jbmc/Wit4JBMC.py).
     """
 
-    REQUIRED_PATHS = [
-        "",
-    ]
-
     def executable(self, tool_locator):
         return tool_locator.find_executable("Wit4JBMC.py")
 
