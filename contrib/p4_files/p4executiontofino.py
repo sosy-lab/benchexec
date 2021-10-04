@@ -15,6 +15,7 @@ from benchexec import systeminfo
 from .p4_run_setup import P4SetupHandler
 from p4_files.counter import Counter
 from .constants import *
+
 from .helper_functions import (
     parse_netlink_error,
     find_context_and_bin,
@@ -89,11 +90,11 @@ class P4Execution(object):
         self.client = None
         self.node_networks = []
         self.mgnt_network = None
-        self.network_config = None  # Set by exec benchmark
+        self.network_config = None
 
     def init(self, config, benchmark):
         """
-        This functions will set up the docker network to execute the test.
+        This functions will set up the docker tester which executes all the tests.
         As a result, it needs root permission for the setup part.
         """
 
@@ -113,36 +114,12 @@ class P4Execution(object):
             self.network_config_path,
         ) = self.read_folder_paths(benchmark)
 
-        if not os.path.isdir(self.ptf_folder_path):
-            logging.critical(
-                "Ptf test folder path not found: %s, {self.ptf_folder_path}"
-            )
-            raise (
-                BenchExecException(
-                    f"Ptf test folder path not found: {self.ptf_folder_path}"
-                )
-            )
-
-        # # Check if user defined network config. Else look if test has a network config
-        # if not self.network_config_path:
-        #     logging.error("No network config file was defined")
-        #     raise BenchExecException("No network config file was defined")
-        # else:
-        #     with open(self.network_config_path) as json_file:
-        #         self.network_config = json.load(json_file)
-
-        #     setup_is_valid = self.network_file_isValid()
-
-        #     if not setup_is_valid:
-        #         raise BenchExecException("Network config file is not valid")
-
         # Read all required ptf tests folders
         self.ptf_folder_paths = self.read_ptf_folder_paths(benchmark)
 
         # Container setup
         self.client = docker.from_env()
         self.switch_target_path = f"{CONTAINTER_BASE_DIR}"
-        # self.nrOfNodes = len(self.network_config[KEY_NODES])
 
         try:
             # Create the ptf tester container
@@ -164,52 +141,6 @@ class P4Execution(object):
                 mounts=mounts,
                 tty=True,
             )
-
-        #     # Create node containers
-        #     self.nodes = []
-
-        #     for node_name in self.network_config[KEY_NODES]:
-        #         try:
-        #             self.nodes.append(
-        #                 self.client.containers.create(
-        #                     NODE_IMAGE_NAME, detach=True, name=node_name
-        #                 )
-        #             )
-        #         except docker.errors.APIError as e:
-        #             logging.error(f"Error creating container {node_name}")
-        #             raise BenchExecException(str(e))
-
-        #     self.switches = []
-
-        #     # Each switch needs their own mount copy
-        #     for switch_info in self.network_config[KEY_SWITCHES]:
-
-        #         switch_config = self.network_config[KEY_SWITCHES][switch_info]
-
-        #         mount_path = self.create_tofino_switch_mount_copy(switch_info)
-        #         mount_switch = docker.types.Mount(
-        #             self.switch_target_path, mount_path, type="bind"
-        #         )
-
-        #         server_port = switch_config[KEY_SERVER_PORT]
-
-        #         try:
-        #             self.switches.append(
-        #                 self.client.containers.create(
-        #                     SWITCH_IMAGE_NAME,
-        #                     detach=True,
-        #                     name=switch_info,
-        #                     mounts=[mount_switch],
-        #                     privileged=True,
-        #                     ports={f"{server_port}/tcp": ("127.0.0.1", server_port)},
-        #                 )
-        #             )
-        #         except docker.errors.APIError:
-        #             self.switches.append(self.client.containers.get(switch_info))
-
-        #     logging.info("Setting up network")
-        #     self.setup_network()
-        #     self.connect_nodes_to_switch()
 
         except docker.errors.APIError as e:
             self.close()
@@ -603,7 +534,7 @@ class P4Execution(object):
 
     def read_tests(self, benchmark):
         """
-        Asks the ptf container for
+        Asks the ptf container for all test cases
         """
         # Make sure it's started. This is a blocking call
         self.ptf_tester.start()
