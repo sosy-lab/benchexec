@@ -19,9 +19,6 @@ class Tool(benchexec.tools.template.BaseTool2):
         "bin",
         "libs",
         "scripts",
-        "libs/slah/lib",
-        "libs/z3/lib",
-        "sesl-svcomp.sh",
     ]
 
     def executable(self, tool_locator):
