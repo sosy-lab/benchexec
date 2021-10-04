@@ -12,7 +12,17 @@ import benchexec.tools.template
 class Tool(benchexec.tools.template.BaseTool2):
     """
     A Symbolic Executor based on Separation Logic
+    https://spencerl-y.github.io/SESL/
     """
+
+    REQUIRED_PATHS = [
+        "bin",
+        "libs",
+        "scripts",
+        "libs/slah/lib",
+        "libs/z3/lib",
+        "sesl-svcomp.sh",
+    ]
 
     def executable(self, tool_locator):
         return tool_locator.find_executable("sesl-svcomp.sh")
@@ -27,7 +37,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         options += ["-t", "--sh-mem-leak", "--add-line-info"]
         if task.property_file:
             options += ["--svcomp-property", task.property_file]
-        options += list(task.input_files_or_identifier)
+        options += [task.single_input_file]
         return [executable] + options
 
     def determine_result(self, run):
@@ -39,4 +49,6 @@ class Tool(benchexec.tools.template.BaseTool2):
             return result.RESULT_FALSE_MEMTRACK
         elif run.output.any_line_contains("Memcleanup"):
             return result.RESULT_FALSE_MEMCLEANUP
-        return result.RESULT_UNKNOWN
+        elif run.output.any_line_contains("CHECKUNKNOWN"):
+            return result.RESULT_UNKNOWN
+        return result.RESULT_ERROR
