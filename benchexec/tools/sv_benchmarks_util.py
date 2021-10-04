@@ -7,7 +7,7 @@
 
 """
 This module contains some useful functions related to tasks in the sv-benchmarks
-repository: https://github.com/sosy-lab/sv-benchmarks
+repository: https://gitlab.com/sosy-lab/benchmarking/sv-benchmarks
 
 Note the following points before using any function in this util:
     1. This is not a part of stable benchexec API.
