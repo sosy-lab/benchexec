@@ -670,11 +670,11 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
         }
 
         .tr {
-          border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+          border-bottom: 1px solid darken(white, 5%);
 
           &:hover {
             .td {
-              background: rgba(0, 0, 0, 0.05);
+              background: darken(white, 5%);
             }
           }
         }
