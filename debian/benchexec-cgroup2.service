@@ -1,0 +1,49 @@
+# This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
+#
+# SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
+#
+# SPDX-License-Identifier: Apache-2.0
+
+[Unit]
+Description=Cgroup setup for BenchExec
+Documentation=https://github.com/sosy-lab/benchexec/blob/master/doc/INSTALL.md
+Documentation=https://github.com/sosy-lab/benchexec/blob/master/doc/INDEX.md
+
+[Service]
+# Adjust the following line to configure permissions for cgroup usage.
+# The default gives permissions to users in group "benchexec".
+# You can change the group name, or give permissions to everybody by
+# setting BENCHEXEC_CGROUP_PERM to "a+w".
+Environment=BENCHEXEC_CGROUP_GROUP=benchexec BENCHEXEC_CGROUP_PERM=g+w
+
+Restart=always
+Delegate=cpu cpuset memory io pids
+CPUAccounting=true
+IOAccounting=true
+MemoryAccounting=true
+ExecStartPre=/bin/bash -c '\
+set -e;\
+mkdir /sys/fs/cgroup/user.slice/user-$(id -u).slice/user@$(id -u).service/app.slice/benchexec-cgroup2.service/benchexec_root;\
+mkdir /sys/fs/cgroup/user.slice/user-$(id -u).slice/user@$(id -u).service/app.slice/benchexec-cgroup2.service/benchexec_root/dummy'
+
+ExecStart=/bin/bash -c '\
+set -e;\
+exec sleep $(( 10 * 365 * 24 * 3600 ))'
+
+ExecStartPost=/bin/bash -c '\
+set -e;\
+for p in $(cat /sys/fs/cgroup/user.slice/user-$(id -u).slice/user@$(id -u).service/app.slice/benchexec-cgroup2.service/cgroup.procs); do\
+  echo $p > /sys/fs/cgroup/user.slice/user-$(id -u).slice/user@$(id -u).service/app.slice/benchexec-cgroup2.service/benchexec_root/dummy/cgroup.procs;\
+done;\
+for cg in $(cat /sys/fs/cgroup/user.slice/user-$(id -u).slice/user@$(id -u).service/app.slice/benchexec-cgroup2.service/cgroup.controllers); do\
+  echo +$cg >/sys/fs/cgroup/user.slice/user-$(id -u).slice/user@$(id -u).service/app.slice/benchexec-cgroup2.service/cgroup.subtree_control;\
+  echo +$cg >/sys/fs/cgroup/user.slice/user-$(id -u).slice/user@$(id -u).service/app.slice/benchexec-cgroup2.service/benchexec_root/cgroup.subtree_control;\
+done'
+
+Restart=always
+TimeoutStartSec=360000
+
+
+[Install]
+WantedBy=default.target
