@@ -16,8 +16,8 @@ from benchexec import util
 from benchexec.cgroups import Cgroups
 
 
-# FIXME uid
-CGROUP_FALLBACK_PATH = "user.slice/user-1000.slice/user@1000.service/app.slice/benchexec-cgroup.service/benchexec_root"
+uid = os.getuid()
+CGROUP_FALLBACK_PATH = f"user.slice/user-{uid}.slice/user@{uid}.service/app.slice/benchexec-cgroup2.service/benchexec_root"
 """If we do not have write access to the current cgroup,
 attempt to use this cgroup as fallback."""
 
