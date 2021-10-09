@@ -10,9 +10,9 @@ import benchexec.util as util
 import benchexec.tools.template
 
 
-class Tool(benchexec.tools.template.BaseTool):
-    def executable(self):
-        return util.find_executable("deagle")
+class Tool(benchexec.tools.template.BaseTool2):
+    def executable(self, tool_locator):
+        return tool_locator.find_executable("deagle")
 
     def name(self):
         return "Deagle"
@@ -20,23 +20,26 @@ class Tool(benchexec.tools.template.BaseTool):
     def version(self, executable):
         return self._version_from_tool(executable)
 
-    def cmdline(self, executable, options, tasks, propertyfile, rlimits):
-        options = options + ["--32", "--no-unwinding-assertions", "--closure"]
-        return [executable] + options + tasks
+    def get_data_model(self, task):
+        if isinstance(task.options, dict) and task.options.get("language") == "C":
+            data_model = task.options.get("data_model")
+            if data_model == "LP64":
+                return ["--64"]
+        return ["--32"] # default
 
-    def determine_result(self, returncode, returnsignal, output, isTimeout):
+    def cmdline(self, executable, options, task, rlimits):
+        return [executable] + options + self.get_data_model(task) + list(task.input_files_or_identifier)
 
+    def determine_result(self, run):
         status = result.RESULT_UNKNOWN
+
+        output = run.output
         stroutput = str(output)
 
-        if isTimeout:
-            status = "TIMEOUT"
-        elif "SUCCESSFUL" in stroutput:
+        if "SUCCESSFUL" in stroutput:
             status = result.RESULT_TRUE_PROP
         elif "FAILED" in stroutput:
             status = result.RESULT_FALSE_REACH
-        elif "UNKNOWN" in stroutput:
-            status = result.RESULT_UNKNOWN
         else:
             status = result.RESULT_UNKNOWN
 
