@@ -43,7 +43,7 @@ class Tool(benchexec.tools.template.BaseTool2):
 
         if validation == "false":
             status = result.RESULT_FALSE_PROP
-        # print(exit_code)
+
         elif validation == "true":
             status = result.RESULT_TRUE_PROP
 
