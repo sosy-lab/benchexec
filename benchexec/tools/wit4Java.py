@@ -12,18 +12,18 @@ import benchexec.result as result
 class Tool(benchexec.tools.template.BaseTool2):
 
     """
-    Tool info for Wit4Java
-    (https://github.com/Anthonysdu/MSc-project/blob/main/jbmc/Wit4Java.py).
+    Tool info for wit4Java
+    (https://github.com/Anthonysdu/MSc-project/blob/main/jbmc/wit4Java.py).
     """
 
     def executable(self, tool_locator):
-        return tool_locator.find_executable("Wit4Java.py")
+        return tool_locator.find_executable("wit4Java.py")
 
     def version(self, executable):
         return self._version_from_tool(executable)
 
     def name(self):
-        return "Wit4Java"
+        return "wit4Java"
 
     def cmdline(self, executable, options, task, rlimits):
         return [executable] + options + list(task.input_files)
