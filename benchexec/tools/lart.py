@@ -53,13 +53,12 @@ class Tool(benchexec.tools.template.BaseTool2):
         the user-specified options, and the inputfile to analyze.
         This method can get overridden, if, for example, some options should
         be enabled or if the order of arguments must be changed.
-        All paths passed to this method (executable, tasks, and propertyfile)
+        All paths passed to this method (executable, tasks)
         are either absolute or have been made relative to the designated working directory.
         @param executable: the path to the executable of the tool (typically the result of executable())
         @param options: a list of options, in the same order as given in the XML-file.
         @param tasks: a list of tasks, that should be analysed with the tool in one run.
-                            In most cases we we have only _one_ inputfile.
-        @param propertyfile: contains a specification for the verifier.
+                      In most cases we we have only _one_ inputfile.
         @param rlimits: This dictionary contains resource-limits for a run,
                         for example: time-limit, soft-time-limit, hard-time-limit, memory-limit, cpu-core-limit.
                         All entries in rlimits are optional, so check for existence before usage!
@@ -72,7 +71,6 @@ class Tool(benchexec.tools.template.BaseTool2):
             options += [data_model_param]
 
         return [executable] + options + list(task.input_files_or_identifier)
-
 
     def determine_result(self, run):
         """
