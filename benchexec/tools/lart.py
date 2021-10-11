@@ -9,14 +9,14 @@ from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, 
 import benchexec.tools.template
 import benchexec.result as result
 
-import os
-
 
 class Tool(benchexec.tools.template.BaseTool2):
     """
     Tool info for LART, the LLVM Abstraction and Refinement Tool.
     URL: https://github.com/xlauko/lart
     """
+
+    REQUIRED_PATHS = ["."]
 
     RESMAP = {
         "true": result.RESULT_TRUE_PROP,
@@ -70,7 +70,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         if data_model_param and data_model_param not in options:
             options += [data_model_param]
 
-        return [executable] + options + list(task.input_files_or_identifier)
+        return [executable] + options + [task.single_input_file]
 
     def determine_result(self, run):
         """
@@ -82,19 +82,15 @@ class Tool(benchexec.tools.template.BaseTool2):
         and should give some indication of the failure reason
         (e.g., "CRASH", "OUT_OF_MEMORY", etc.).
         """
-        if run.was_timeout:
-            return "TIMEOUT"
-
         if not run.output:
             return "ERROR (no output)"
 
         last = run.output[-1]
 
         if run.exit_code.value and run.exit_code.value != 0:
-            return f"ERROR - {last}"
+            return result.RESULT_ERROR
 
         if "result:" in last:
             res = last.split(":", maxsplit=1)[1].strip()
             return self.RESMAP.get(res, result.RESULT_UNKNOWN)
-        else:
-            return result.RESULT_ERROR
+        return result.RESULT_ERROR
