@@ -18,11 +18,6 @@ from benchexec import BenchExecException
 from benchexec import systeminfo
 from benchexec import util
 
-CGROUP_FALLBACK_PATH = "system.slice/benchexec-cgroup.service"
-"""If we do not have write access to the current cgroup,
-attempt to use this cgroup as fallback."""
-
-CGROUP_NAME_PREFIX = "benchmark_"
 
 CGROUPS_V1 = 1
 CGROUPS_V2 = 2
