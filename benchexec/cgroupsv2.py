@@ -228,3 +228,12 @@ class CgroupsV2(Cgroups):
 
     def read_available_mems(self):
         return util.parse_int_list(self.get_value(self.CPUSET, "mems.effective"))
+
+    def disable_swap(self):
+        return self.set_value(self.MEMORY, "swap.max", "0")
+
+    def set_oom_handler(self):
+        logging.warn("OOM handling for cgroups 2 not implemented yet")
+
+    def reset_memory_limit(self):
+        logging.warn("OOM handling for cgroups 2 not implemented yet")

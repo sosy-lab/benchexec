@@ -492,12 +492,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
 
         if cgroups.MEMORY in cgroups:
             try:
-                # Note that this disables swapping completely according to
-                # https://www.kernel.org/doc/Documentation/cgroups/memory.txt
-                # (unlike setting the global swappiness to 0).
-                # Our process might get killed because of this.
-                # FIXME v1 cgroups.set_value(MEMORY, "swappiness", "0")
-                cgroups.set_value(cgroups.MEMORY, "swap.max", "0")
+                cgroups.disable_swap()
             except OSError as e:
                 logging.warning(
                     "Could not disable swapping for benchmarked process: %s", e
@@ -583,9 +578,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         """Start memory-limit handler.
         @return None or the memory-limit handler for calling cancel()
         """
-        # FIXME
-        if False:
-            # if memlimit is not None:
+        if memlimit is not None:
             try:
                 oomThread = oomhandler.KillProcessOnOomThread(
                     cgroups=cgroups,

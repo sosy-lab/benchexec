@@ -311,3 +311,15 @@ class Cgroups(ABC):
     @abstractmethod
     def read_available_mems(self):
         pass
+
+    @abstractmethod
+    def disable_swap(self):
+        pass
+
+    @abstractmethod
+    def set_oom_handler(self):
+        pass
+
+    @abstractmethod
+    def reset_memory_limit(self):
+        pass

@@ -17,6 +17,13 @@ import time
 from benchexec import util
 from benchexec.cgroups import Cgroups
 
+from ctypes import cdll
+
+_libc = cdll.LoadLibrary("libc.so.6")
+_EFD_CLOEXEC = 0x80000  # from <sys/eventfd.h>: mark eventfd as close-on-exec
+
+_BYTE_FACTOR = 1000  # byte in kilobyte
+
 # FIXME __all__ ?
 
 CGROUP_FALLBACK_PATH = "system.slice/benchexec-cgroup.service"
@@ -342,3 +349,65 @@ class CgroupsV1(Cgroups):
 
     def read_available_mems(self):
         return util.parse_int_list(self.get_value(self.CPUSET, "mems"))
+
+    def disable_swap(self):
+        # Note that this disables swapping completely according to
+        # https://www.kernel.org/doc/Documentation/cgroups/memory.txt
+        # (unlike setting the global swappiness to 0).
+        # Our process might get killed because of this.
+        return self.set_value(self.MEMORY, "swappiness", "0")
+
+    def set_oom_handler(self):
+        mem_cgroup = self[self.MEMORY]
+        ofd = os.open(os.path.join(mem_cgroup, "memory.oom_control"), os.O_WRONLY)
+        try:
+            # Important to use CLOEXEC, otherwise the benchmarked tool inherits
+            # the file descriptor.
+            efd = _libc.eventfd(0, _EFD_CLOEXEC)
+
+            try:
+                util.write_file(f"{efd} {ofd}", mem_cgroup, "cgroup.event_control")
+
+                # If everything worked, disable Kernel-side process killing.
+                # This is not allowed if memory.use_hierarchy is enabled,
+                # but we don't care.
+                try:
+                    os.write(ofd, b"1")
+                except OSError as e:
+                    logging.debug(
+                        "Failed to disable kernel-side OOM killer: error %s (%s)",
+                        e.errno,
+                        e.strerror,
+                    )
+            except OSError as e:
+                os.close(efd)
+                raise e
+        finally:
+            os.close(ofd)
+
+        return efd
+
+    def reset_memory_limit(self):
+        for limitFile in ("memory.memsw.limit_in_bytes", "memory.limit_in_bytes"):
+            if self._cgroups.has_value(self.MEMORY, limitFile):
+                try:
+                    # Write a high value (1 PB) as the limit
+                    self.set_value(
+                        self.MEMORY,
+                        limitFile,
+                        str(
+                            1
+                            * _BYTE_FACTOR
+                            * _BYTE_FACTOR
+                            * _BYTE_FACTOR
+                            * _BYTE_FACTOR
+                            * _BYTE_FACTOR
+                        ),
+                    )
+                except OSError as e:
+                    logging.warning(
+                        "Failed to increase %s after OOM: error %s (%s).",
+                        limitFile,
+                        e.errno,
+                        e.strerror,
+                    )
