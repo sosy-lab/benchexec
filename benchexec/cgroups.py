@@ -87,6 +87,8 @@ class Cgroups(ABC):
 
             return CgroupsV2(cgroup_procinfo=cgroup_procinfo, fallback=fallback)
 
+        raise BenchExecException("Could not detect Cgroup Version")
+
     def __init__(self, subsystems=None, cgroup_procinfo=None, fallback=True):
         if subsystems is None:
             self.subsystems = self._supported_subsystems()

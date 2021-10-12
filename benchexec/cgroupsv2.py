@@ -112,7 +112,6 @@ class CgroupsV2(Cgroups):
 
         self.path = next(iter(self.subsystems.values()))
 
-
     @property
     def known_subsystems(self):
         return {
@@ -126,7 +125,6 @@ class CgroupsV2(Cgroups):
             self.FREEZE,
             self.KILL,
         }
-
 
     def _supported_subsystems(self, cgroup_procinfo=None, fallback=True):
         logging.debug(
@@ -230,7 +228,7 @@ class CgroupsV2(Cgroups):
     def read_max_mem_usage(self):
         logging.debug("Memory-usage not supported in cgroups v2")
 
-        return None
+        return
 
     def read_usage_per_cpu(self):
         logging.debug("Usage per CPU not supported in cgroups v2")

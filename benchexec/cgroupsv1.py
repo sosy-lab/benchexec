@@ -133,7 +133,6 @@ class CgroupsV1(Cgroups):
 
         super(CgroupsV1, self).__init__(subsystems, cgroup_procinfo, fallback)
 
-
     @property
     def known_subsystems(self):
         return {
@@ -392,7 +391,7 @@ class CgroupsV1(Cgroups):
 
     def reset_memory_limit(self):
         for limitFile in ("memory.memsw.limit_in_bytes", "memory.limit_in_bytes"):
-            if self._cgroups.has_value(self.MEMORY, limitFile):
+            if self.has_value(self.MEMORY, limitFile):
                 try:
                     # Write a high value (1 PB) as the limit
                     self.set_value(
