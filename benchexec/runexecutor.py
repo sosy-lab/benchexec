@@ -1032,8 +1032,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         cputime_wait = ru_child.ru_utime + ru_child.ru_stime if ru_child else 0
         cputime_cgroups = None
 
-        # FIXME v2
-        if cgroups.CPU in cgroups:
+        if cgroups.CPU in cgroups or cgroups.version == 2:  # always possible in v2
             # We want to read the value from the cgroup.
             # The documentation warns about outdated values.
             # So we read twice with 0.1s time difference,
@@ -1081,26 +1080,23 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             else:
                 result["memory"] = max_mem_usage
 
-        # FIXME empty in v2 because of ...?
-        # if cgroups.IO in cgroups:
-        #    # blkio_bytes_file = "throttle.io_service_bytes"
-        #    # if cgroups.has_value(BLKIO, blkio_bytes_file):
-        #    if cgroups.has_value(cgroups.IO, 'stat'):
-        #        bytes_read = 0
-        #        bytes_written = 0
-        #        print(cgroups.get_value(cgroups.IO, 'stat'))
-        #        print(dict(cgroups.get_key_value_pairs(cgroups.IO, 'stat')))
-        #        #for blkio_line in cgroups.get_file_lines(BLKIO, blkio_bytes_file):
-        #        #    try:
-        #        #        dev_no, io_type, bytes_amount = blkio_line.split(" ")
-        #        #        if io_type == "Read":
-        #        #            bytes_read += int(bytes_amount)
-        #        #        elif io_type == "Write":
-        #        #            bytes_written += int(bytes_amount)
-        #        #    except ValueError:
-        #        #        pass  # There are irrelevant lines in this file with a different structure
-        #        result["blkio-read"] = bytes_read
-        #        result["blkio-write"] = bytes_written
+        if cgroups.IO in cgroups:
+            blkio_bytes_file = "throttle.io_service_bytes"
+            # FIXME v2? if cgroups.has_value(cgroups.IO, 'stat'):
+            if cgroups.has_value(cgroups.IO, blkio_bytes_file):
+                bytes_read = 0
+                bytes_written = 0
+                for blkio_line in cgroups.get_file_lines(cgroups.IO, blkio_bytes_file):
+                    try:
+                        dev_no, io_type, bytes_amount = blkio_line.split(" ")
+                        if io_type == "Read":
+                            bytes_read += int(bytes_amount)
+                        elif io_type == "Write":
+                            bytes_written += int(bytes_amount)
+                    except ValueError:
+                        pass  # There are irrelevant lines in this file with a different structure
+                result["blkio-read"] = bytes_read
+                result["blkio-write"] = bytes_written
 
         logging.debug(
             "Resource usage of run: walltime=%s, cputime=%s, cgroup-cputime=%s, memory=%s",
