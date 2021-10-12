@@ -106,6 +106,7 @@ class CgroupsV2(Cgroups):
         self.MEMORY = "memory"
         self.PID = "pids"
         self.FREEZE = "freeze"
+        self.KILL = "kill"
 
         self.KNOWN_SUBSYSTEMS = {
             # cgroups for BenchExec
@@ -116,6 +117,7 @@ class CgroupsV2(Cgroups):
             self.PID,
             # not really a subsystem anymore, but implicitly supported
             self.FREEZE,
+            self.KILL,
         }
 
         super(CgroupsV2, self).__init__(subsystems, cgroup_procinfo, fallback)
@@ -138,6 +140,10 @@ class CgroupsV2(Cgroups):
 
         with open(cgroup_path / "cgroup.controllers") as subsystems_file:
             subsystems = subsystems_file.readline().strip().split()
+
+        # introduced in 5.14
+        if (cgroup_path / "cgroup.kill").exists():
+            subsystems.append(self.KILL)
 
         # always supported in v2
         subsystems.append(self.FREEZE)
@@ -188,6 +194,10 @@ class CgroupsV2(Cgroups):
                         self._remove_cgroup(subCgroup)
 
             kill_all_tasks_in_cgroup(cgroup, ensure_empty=delete)
+
+        if self.KILL in self.subsystems:
+            util.write_file("1", self.path / "cgroup.kill")
+            return
 
         # First, we go through all cgroups recursively while they are frozen and kill
         # all processes. This helps against fork bombs and prevents processes from
