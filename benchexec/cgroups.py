@@ -89,11 +89,11 @@ class Cgroups(ABC):
 
     def __init__(self, subsystems=None, cgroup_procinfo=None, fallback=True):
         if subsystems is None:
-            self.subsystems = self._supported_cgroup_subsystems()
+            self.subsystems = self._supported_subsystems()
         else:
             self.subsystems = subsystems
 
-        assert set(self.subsystems.keys()) <= self.KNOWN_SUBSYSTEMS
+        assert set(self.subsystems.keys()) <= self.known_subsystems
         assert all(self.subsystems.values())
 
         self.paths = set(self.subsystems.values())  # without duplicates
@@ -286,6 +286,15 @@ class Cgroups(ABC):
 
         del self.paths
         del self.subsystems
+
+    @property
+    @abstractmethod
+    def known_subsystems(self):
+        pass
+
+    @abstractmethod
+    def _supported_subsystems(self, cgroup_procinfo=None, fallback=True):
+        pass
 
     @abstractmethod
     def create_fresh_child_cgroup(self, subsystem):

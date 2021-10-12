@@ -108,7 +108,14 @@ class CgroupsV2(Cgroups):
         self.FREEZE = "freeze"
         self.KILL = "kill"
 
-        self.KNOWN_SUBSYSTEMS = {
+        super(CgroupsV2, self).__init__(subsystems, cgroup_procinfo, fallback)
+
+        self.path = next(iter(self.subsystems.values()))
+
+
+    @property
+    def known_subsystems(self):
+        return {
             # cgroups for BenchExec
             self.IO,
             self.CPU,
@@ -120,11 +127,8 @@ class CgroupsV2(Cgroups):
             self.KILL,
         }
 
-        super(CgroupsV2, self).__init__(subsystems, cgroup_procinfo, fallback)
 
-        self.path = next(iter(self.subsystems.values()))
-
-    def _supported_cgroup_subsystems(self, cgroup_procinfo=None, fallback=True):
+    def _supported_subsystems(self, cgroup_procinfo=None, fallback=True):
         logging.debug(
             "Analyzing /proc/mounts and /proc/self/cgroup to determine cgroups."
         )

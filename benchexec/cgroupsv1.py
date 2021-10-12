@@ -131,7 +131,12 @@ class CgroupsV1(Cgroups):
         self.FREEZE = "freezer"
         self.MEMORY = "memory"
 
-        self.KNOWN_SUBSYSTEMS = {
+        super(CgroupsV1, self).__init__(subsystems, cgroup_procinfo, fallback)
+
+
+    @property
+    def known_subsystems(self):
+        return {
             # cgroups for BenchExec
             self.IO,
             self.CPU,
@@ -148,9 +153,7 @@ class CgroupsV1(Cgroups):
             "pids",
         }
 
-        super(CgroupsV1, self).__init__(subsystems, cgroup_procinfo, fallback)
-
-    def _supported_cgroup_subsystems(self, cgroup_procinfo=None, fallback=True):
+    def _supported_subsystems(self, cgroup_procinfo=None, fallback=True):
         """
         Return a Cgroup object with the cgroups of the current process.
         Note that it is not guaranteed that all subsystems are available
@@ -201,7 +204,7 @@ class CgroupsV1(Cgroups):
                         mountpoint = pathlib.Path(mount[1])
                         options = mount[3]
                         for option in options.split(","):
-                            if option in self.KNOWN_SUBSYSTEMS:
+                            if option in self.known_subsystems:
                                 yield (option, mountpoint)
         except OSError:
             logging.exception("Cannot read /proc/mounts")
