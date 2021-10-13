@@ -6,11 +6,15 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import benchexec.result as result
-import benchexec.util as util
 import benchexec.tools.template
 
 
 class Tool(benchexec.tools.template.BaseTool2):
+    """
+    Tool info for Deagle, an SMT-based concurrent program verification tool.
+        Project URL: https://github.com/Misasasa/Deagle
+    """
+
     def executable(self, tool_locator):
         return tool_locator.find_executable("deagle")
 
@@ -23,24 +27,35 @@ class Tool(benchexec.tools.template.BaseTool2):
     def get_data_model(self, task):
         if isinstance(task.options, dict) and task.options.get("language") == "C":
             data_model = task.options.get("data_model")
-            if data_model == "LP64":
+            if data_model == "ILP32":
+                return ["--32"]
+            elif data_model == "LP64":
                 return ["--64"]
-        return ["--32"] # default
+            else:
+                raise benchexec.tools.template.UnsupportedFeatureException(
+                    f"Unsupported data_model '{data_model}' defined for task '{task}'"
+                )
+
+        return ["--32"]  # default
 
     def cmdline(self, executable, options, task, rlimits):
-        return [executable] + options + self.get_data_model(task) + list(task.input_files_or_identifier)
+        return (
+            [executable]
+            + options
+            + self.get_data_model(task)
+            + [task.single_input_file]
+        )
 
     def determine_result(self, run):
-        status = result.RESULT_UNKNOWN
+        stroutput = run.output.text
 
-        output = run.output
-        stroutput = str(output)
-
-        if "SUCCESSFUL" in stroutput:
+        if run.output.any_line_contains("SUCCESSFUL"):
             status = result.RESULT_TRUE_PROP
-        elif "FAILED" in stroutput:
+        elif run.output.any_line_contains("FAILED"):
             status = result.RESULT_FALSE_REACH
-        else:
+        elif run.exit_code.value == 1:
             status = result.RESULT_UNKNOWN
+        else:
+            status = result.RESULT_ERROR
 
         return status
