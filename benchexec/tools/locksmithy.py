@@ -8,7 +8,6 @@
 import benchexec.tools.template
 import benchexec.result as result
 
-import re
 
 
 class Tool(benchexec.tools.template.BaseTool2):
@@ -32,7 +31,7 @@ class Tool(benchexec.tools.template.BaseTool2):
     def determine_result(self, run):
         status = result.RESULT_ERROR
         if run.output:
-            if any("Possible data race" in s for s in run.output):
+            if run.output.any_line_contains("Possible data race"):
                 status = result.RESULT_UNKNOWN
             elif any("Fatal error" in s for s in run.output):
                 status = result.RESULT_ERROR
