@@ -18,7 +18,6 @@ class Tool(benchexec.tools.template.BaseTool2):
         "legion.sh",
         "Legion.py",
         "__VERIFIER.c",
-        "symcc",
         "ubuntu2004",
         "dist",
     ]
