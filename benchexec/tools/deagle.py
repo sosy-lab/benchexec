@@ -5,6 +5,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, LP64
 import benchexec.result as result
 import benchexec.tools.template
 
@@ -21,27 +22,17 @@ class Tool(benchexec.tools.template.BaseTool2):
     def name(self):
         return "Deagle"
 
-    def get_data_model(self, task):
-        if isinstance(task.options, dict) and task.options.get("language") == "C":
-            data_model = task.options.get("data_model")
-            if data_model == "ILP32":
-                return ["--32"]
-            elif data_model == "LP64":
-                return ["--64"]
-            else:
-                raise benchexec.tools.template.UnsupportedFeatureException(
-                    f"Unsupported data_model '{data_model}' defined for task '{task}'"
-                )
-
-        return ["--32"]  # default
+    def version(self, executable):
+        return self._version_from_tool(executable, arg="--version")
 
     def cmdline(self, executable, options, task, rlimits):
-        return (
-            [executable]
-            + options
-            + self.get_data_model(task)
-            + [task.single_input_file]
-        )
+        data_model_param = get_data_model_from_task(task, {ILP32: "--32", LP64: "--64"})
+        if not data_model_param:
+            data_model_param = "--32"
+        if data_model_param not in options:
+            options += [data_model_param]
+
+        return [executable] + options + [task.single_input_file]
 
     def determine_result(self, run):
         if run.output.any_line_contains("SUCCESSFUL"):
