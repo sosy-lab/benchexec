@@ -1,16 +1,16 @@
 import benchexec.result as result
 import benchexec.tools.template
 
+
 class Tool(benchexec.tools.template.BaseTool2):
     """
     Theta
     A generic, modular and configurable model checking framework developed at the Critical Systems Research Group of Budapest University of Technology and Economics, aiming to support the design and evaluation of abstraction refinement-based algorithms for the reachability analysis of various formalisms.
-    
+
     https://github.com/ftsrg/theta
     """
 
     REQUIRED_PATHS = [".."]
-
 
     def executable(self, tool_locator):
         return tool_locator.find_executable("theta-start.sh", subdir="")
@@ -22,7 +22,9 @@ class Tool(benchexec.tools.template.BaseTool2):
         return self._version_from_tool(executable)
 
     def cmdline(self, executable, options, task, rlimits):
-        return [executable] + [task.single_input_file] + options # we only support unreach-call
+        return (
+            [executable] + [task.single_input_file] + options
+        )  # we only support unreach-call
 
     def determine_result(self, run):
         status = result.RESULT_UNKNOWN
@@ -47,7 +49,7 @@ class Tool(benchexec.tools.template.BaseTool2):
                 status = "ERROR (frontend failed)"
             elif run.exit_code.value == 213:
                 status = "ERROR (portfolio timeout)"
-            else: status = result.RESULT_ERROR
+            else:
+                status = result.RESULT_ERROR
 
         return status
- 
