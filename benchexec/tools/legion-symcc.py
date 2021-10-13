@@ -20,7 +20,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         "__VERIFIER.c",
         "symcc",
         "ubuntu2004",
-        "dist"
+        "dist",
     ]
 
     def executable(self, tool_locator):
