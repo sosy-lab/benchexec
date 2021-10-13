@@ -17,17 +17,15 @@ class Tool(benchexec.tools.template.BaseTool2):
     """
 
     REQUIRED_PATHS = ["."]
-    _TOOL_NAME = "infer-sv"
-    _SCRIPT_NAME = _TOOL_NAME + ".py"
 
     def executable(self, tool_locator):
-        return tool_locator.find_executable(Tool._SCRIPT_NAME)
+        return tool_locator.find_executable("infer-sv.py")
 
     def version(self, executable):
         return self._version_from_tool(executable)
 
     def name(self):
-        return Tool._TOOL_NAME
+        return "infer-sv"
 
     def cmdline(self, executable, options, task, rlimits):
         cmd = [executable, "--program"] + list(task.input_files)
