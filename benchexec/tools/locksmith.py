@@ -8,6 +8,7 @@
 import benchexec.tools.template
 import benchexec.result as result
 
+
 class Tool(benchexec.tools.template.BaseTool2):
     """
     Tool info for Locksmith.
@@ -18,7 +19,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         return tool_locator.find_executable("locksmith")
 
     def version(self, executable):
-        return self._version_from_tool(executable, line_prefix="Cil version: ")
+        return self._version_from_tool(executable, line_prefix="LockSmith version: ")
 
     def name(self):
         return "Locksmith"
