@@ -8,8 +8,6 @@
 import benchexec.tools.template
 import benchexec.result as result
 
-
-
 class Tool(benchexec.tools.template.BaseTool2):
     """
     Tool info for Locksmith.
@@ -33,7 +31,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         if run.output:
             if run.output.any_line_contains("Possible data race"):
                 status = result.RESULT_UNKNOWN
-            elif any("Fatal error" in s for s in run.output):
+            elif run.output.any_line_contains("Fatal error"):
                 status = result.RESULT_ERROR
             else:
                 status = result.RESULT_TRUE_PROP
