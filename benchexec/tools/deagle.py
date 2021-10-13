@@ -21,9 +21,6 @@ class Tool(benchexec.tools.template.BaseTool2):
     def name(self):
         return "Deagle"
 
-    def version(self, executable):
-        return self._version_from_tool(executable)
-
     def get_data_model(self, task):
         if isinstance(task.options, dict) and task.options.get("language") == "C":
             data_model = task.options.get("data_model")
@@ -47,8 +44,6 @@ class Tool(benchexec.tools.template.BaseTool2):
         )
 
     def determine_result(self, run):
-        stroutput = run.output.text
-
         if run.output.any_line_contains("SUCCESSFUL"):
             status = result.RESULT_TRUE_PROP
         elif run.output.any_line_contains("FAILED"):
