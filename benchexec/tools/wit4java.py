@@ -13,11 +13,11 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     """
     Tool info for wit4java
-    (https://github.com/Anthonysdu/MSc-project/blob/main/jbmc/wit4java.py).
+    (https://github.com/Anthonysdu/wit4java).
     """
 
     def executable(self, tool_locator):
-        return tool_locator.find_executable("wit4java.py")
+        return tool_locator.find_executable("wit4java")
 
     def version(self, executable):
         return self._version_from_tool(executable)
