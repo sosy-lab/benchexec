@@ -41,4 +41,6 @@ class Tool(benchexec.tools.template.BaseTool2):
             return result.RESULT_TRUE_PROP
         if run_result == "false":
             return result.RESULT_FALSE_PROP
+        if run_result == "error":
+            return result.RESULT_ERROR
         return result.RESULT_UNKNOWN
