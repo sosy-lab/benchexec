@@ -319,6 +319,10 @@ class Cgroups(ABC):
         pass
 
     @abstractmethod
+    def read_io_stat(self):
+        pass
+
+    @abstractmethod
     def disable_swap(self):
         pass
 

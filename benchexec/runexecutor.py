@@ -1081,22 +1081,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 result["memory"] = max_mem_usage
 
         if cgroups.IO in cgroups:
-            blkio_bytes_file = "throttle.io_service_bytes"
-            # FIXME v2? if cgroups.has_value(cgroups.IO, 'stat'):
-            if cgroups.has_value(cgroups.IO, blkio_bytes_file):
-                bytes_read = 0
-                bytes_written = 0
-                for blkio_line in cgroups.get_file_lines(cgroups.IO, blkio_bytes_file):
-                    try:
-                        dev_no, io_type, bytes_amount = blkio_line.split(" ")
-                        if io_type == "Read":
-                            bytes_read += int(bytes_amount)
-                        elif io_type == "Write":
-                            bytes_written += int(bytes_amount)
-                    except ValueError:
-                        pass  # There are irrelevant lines in this file with a different structure
-                result["blkio-read"] = bytes_read
-                result["blkio-write"] = bytes_written
+            result["blkio-read"], result["blkio-write"] = cgroups.read_io_stat()
 
         logging.debug(
             "Resource usage of run: walltime=%s, cputime=%s, cgroup-cputime=%s, memory=%s",

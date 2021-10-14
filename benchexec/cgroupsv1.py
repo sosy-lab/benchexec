@@ -350,6 +350,22 @@ class CgroupsV1(Cgroups):
     def read_available_mems(self):
         return util.parse_int_list(self.get_value(self.CPUSET, "mems"))
 
+    def read_io_stat(self):
+        blkio_bytes_file = "throttle.io_service_bytes"
+        if self.has_value(self.IO, blkio_bytes_file):
+            bytes_read = 0
+            bytes_written = 0
+            for blkio_line in self.get_file_lines(self.IO, blkio_bytes_file):
+                try:
+                    dev_no, io_type, bytes_amount = blkio_line.split(" ")
+                    if io_type == "Read":
+                        bytes_read += int(bytes_amount)
+                    elif io_type == "Write":
+                        bytes_written += int(bytes_amount)
+                except ValueError:
+                    pass  # There are irrelevant lines in this file with a different structure
+            return bytes_read, bytes_written
+
     def disable_swap(self):
         # Note that this disables swapping completely according to
         # https://www.kernel.org/doc/Documentation/cgroups/memory.txt

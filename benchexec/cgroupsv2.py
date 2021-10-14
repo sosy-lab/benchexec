@@ -244,6 +244,17 @@ class CgroupsV2(Cgroups):
     def read_available_mems(self):
         return util.parse_int_list(self.get_value(self.CPUSET, "mems.effective"))
 
+    def read_io_stat(self):
+        bytes_read = 0
+        bytes_written = 0
+        logging.debug(f"{list(self.get_file_lines(self.IO, 'stat'))}")
+        for io_line in self.get_file_lines(self.IO, "stat"):
+            dev_no, *stats = io_line.split(" ")
+            stats_map = {s[0]: s[1] for s in (s.split("=") for s in stats)}
+            bytes_read += int(stats_map["rbytes"])
+            bytes_written += int(stats_map["wbytes"])
+        return bytes_read, bytes_written
+
     def disable_swap(self):
         return self.set_value(self.MEMORY, "swap.max", "0")
 
