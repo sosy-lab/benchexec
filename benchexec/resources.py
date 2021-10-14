@@ -16,7 +16,6 @@ import math
 import os
 import sys
 
-from benchexec import cgroups
 from benchexec import util
 
 __all__ = [
@@ -62,7 +61,7 @@ def get_cpu_cores_per_run(
     """
     try:
         # read list of available CPU cores
-        allCpus = util.parse_int_list(my_cgroups.get_value(cgroups.CPUSET, "cpus"))
+        allCpus = my_cgroups.read_available_cpus()
 
         # Filter CPU cores according to the list of identifiers provided by a user
         if coreSet:
@@ -388,10 +387,11 @@ def check_memory_size(memLimit, num_of_threads, memoryAssignment, my_cgroups):
             )
             return
 
-        if cgroups.MEMORY in my_cgroups:
+        if my_cgroups.MEMORY in my_cgroups:
             # We use the entries hierarchical_*_limit in memory.stat and not memory.*limit_in_bytes
             # because the former may be lower if memory.use_hierarchy is enabled.
-            for key, value in my_cgroups.get_key_value_pairs(cgroups.MEMORY, "stat"):
+            # FIXME v2
+            for key, value in my_cgroups.get_key_value_pairs(my_cgroups.MEMORY, "stat"):
                 if (
                     key == "hierarchical_memory_limit"
                     or key == "hierarchical_memsw_limit"
@@ -400,7 +400,7 @@ def check_memory_size(memLimit, num_of_threads, memoryAssignment, my_cgroups):
 
         # Get list of all memory banks, either from memory assignment or from system.
         if not memoryAssignment:
-            if cgroups.CPUSET in my_cgroups:
+            if my_cgroups.CPUSET in my_cgroups:
                 allMems = my_cgroups.read_available_mems()
             else:
                 allMems = _get_memory_banks_listed_in_dir("/sys/devices/system/node/")
