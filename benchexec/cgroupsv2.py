@@ -141,14 +141,17 @@ class CgroupsV2(Cgroups):
             cgroup_path = fallback_path
 
         with open(cgroup_path / "cgroup.controllers") as subsystems_file:
-            subsystems = subsystems_file.readline().strip().split()
+            subsystems = set(subsystems_file.readline().strip().split())
 
         # introduced in 5.14
         if (cgroup_path / "cgroup.kill").exists():
-            subsystems.append(self.KILL)
+            subsystems.add(self.KILL)
 
         # always supported in v2
-        subsystems.append(self.FREEZE)
+        subsystems.add(self.FREEZE)
+
+        # basic support always available in v2, this supports everything we use
+        subsystems.add(self.CPU)
 
         return {k: cgroup_path for k in subsystems}
 
