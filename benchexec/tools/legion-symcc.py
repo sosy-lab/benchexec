@@ -36,7 +36,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         if data_model_param and data_model_param not in options:
             options += [data_model_param]
 
-        return [executable, *options, *task.input_files_or_identifier]
+        return [executable, *options, task.single_input_file]
 
     def get_value_from_output(self, output, identifier):
         for line in reversed(output):
