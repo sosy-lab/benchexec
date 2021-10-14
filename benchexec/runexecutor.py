@@ -1068,7 +1068,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             else:
                 result["cputime"] = cputime_cgroups
 
-            for core, coretime in enumerate(cgroups.read_usage_per_cpu()):
+            for core, coretime in cgroups.read_usage_per_cpu().items():
                 result[f"cputime-cpu{core}"] = coretime
 
         if cgroups.MEMORY in cgroups:
