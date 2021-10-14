@@ -366,6 +366,9 @@ class CgroupsV1(Cgroups):
                     pass  # There are irrelevant lines in this file with a different structure
             return bytes_read, bytes_written
 
+    def has_tasks(self, path):
+        return os.path.getsize(path / "tasks") > 0
+
     def disable_swap(self):
         # Note that this disables swapping completely according to
         # https://www.kernel.org/doc/Documentation/cgroups/memory.txt

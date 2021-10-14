@@ -255,6 +255,9 @@ class CgroupsV2(Cgroups):
             bytes_written += int(stats_map["wbytes"])
         return bytes_read, bytes_written
 
+    def has_tasks(self, path):
+        return os.path.getsize(path / "cgroup.procs") > 0
+
     def disable_swap(self):
         return self.set_value(self.MEMORY, "swap.max", "0")
 
