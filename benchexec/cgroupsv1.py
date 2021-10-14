@@ -24,8 +24,6 @@ _EFD_CLOEXEC = 0x80000  # from <sys/eventfd.h>: mark eventfd as close-on-exec
 
 _BYTE_FACTOR = 1000  # byte in kilobyte
 
-# FIXME __all__ ?
-
 CGROUP_FALLBACK_PATH = "system.slice/benchexec-cgroup.service"
 """If we do not have write access to the current cgroup,
 attempt to use this cgroup as fallback."""

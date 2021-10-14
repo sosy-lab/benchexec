@@ -171,7 +171,7 @@ class Cgroups(ABC):
         Do not include the subsystem name in the option name.
         Only call this method if the given subsystem is available.
         """
-        # assert subsystem in self
+        assert subsystem in self
         return util.read_key_value_pairs_from_file(
             self.subsystems[subsystem] / f"{subsystem}.{filename}"
         )

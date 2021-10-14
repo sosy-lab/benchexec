@@ -385,7 +385,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             logging.debug("List of available CPU cores is %s.", self.cpus)
 
             try:
-                self.memory_nodes = self.cgroups.read_available_cpus()
+                self.memory_nodes = self.cgroups.read_available_mems()
             except ValueError as e:
                 logging.warning(
                     "Could not read available memory nodes from kernel: %s", str(e)
@@ -1245,7 +1245,6 @@ class _TimelimitThread(threading.Thread):
 
     def run(self):
         while not self.finished.is_set():
-            # FIXME v2
             usedCpuTime = self.read_cputime() if self.cgroups.CPU in self.cgroups else 0
             remainingCpuTime = self.timelimit - usedCpuTime
             remainingSoftCpuTime = self.softtimelimit - usedCpuTime
