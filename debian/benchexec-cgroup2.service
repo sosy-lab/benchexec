@@ -7,8 +7,8 @@
 
 [Unit]
 Description=Cgroup setup for BenchExec
-Documentation=https://github.com/sosy-lab/benchexec/blob/master/doc/INSTALL.md
-Documentation=https://github.com/sosy-lab/benchexec/blob/master/doc/INDEX.md
+Documentation=https://github.com/sosy-lab/benchexec/blob/main/doc/INSTALL.md
+Documentation=https://github.com/sosy-lab/benchexec/blob/main/doc/INDEX.md
 
 [Service]
 # Adjust the following line to configure permissions for cgroup usage.
