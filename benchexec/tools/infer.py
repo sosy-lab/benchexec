@@ -19,7 +19,7 @@ class Tool(benchexec.tools.template.BaseTool2):
     REQUIRED_PATHS = ["."]
 
     def executable(self, tool_locator):
-        return tool_locator.find_executable("infer-sv.py")
+        return tool_locator.find_executable("infer-wrapper.py")
 
     def version(self, executable):
         return self._version_from_tool(executable)
