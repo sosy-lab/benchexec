@@ -16,8 +16,6 @@ class Tool(benchexec.tools.template.BaseTool2):
     URL: https://fbinfer.com/
     """
 
-    REQUIRED_PATHS = ["."]
-
     def executable(self, tool_locator):
         return tool_locator.find_executable("infer-wrapper.py")
 
@@ -25,10 +23,10 @@ class Tool(benchexec.tools.template.BaseTool2):
         return self._version_from_tool(executable)
 
     def name(self):
-        return "infer-sv"
+        return "Infer-SV"
 
     def cmdline(self, executable, options, task, rlimits):
-        cmd = [executable, "--program"] + list(task.input_files)
+        cmd = [executable, "--program", task.single_input_file]
         if task.property_file:
             cmd += ["--property", task.property_file]
         if isinstance(task.options, Mapping) and "data_model" in task.options:
@@ -41,6 +39,6 @@ class Tool(benchexec.tools.template.BaseTool2):
             return result.RESULT_TRUE_PROP
         if run_result == "false":
             return result.RESULT_FALSE_PROP
-        if run_result == "error":
-            return result.RESULT_ERROR
-        return result.RESULT_UNKNOWN
+        if run_result == "unknown":
+            return result.RESULT_UNKNOWN
+        return result.RESULT_ERROR
