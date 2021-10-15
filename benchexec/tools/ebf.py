@@ -14,24 +14,11 @@ import benchexec.result as result
 class Tool(benchexec.tools.template.BaseTool2):
     """
     This class serves as tool adaptor for EBF
+    https://github.com/fatimahkj/EBF
     """
 
     def executable(self, tool_locator):
         return tool_locator.find_executable("RunEBF.py", subdir="scripts")
-
-    def program_files(self, executable):
-        """
-        Determine the file paths to be adopted
-        """
-        paths = [
-            "EBF_Results",
-            "bin",
-            "fuzzEngine",
-            "lib",
-            "scripts",
-            "versionInfoFolder"]
-        return self._program_files_from_executable(executable, paths)
-
 
     def working_directory(self, executable):
         executableDir = os.path.dirname(executable)
@@ -47,6 +34,10 @@ class Tool(benchexec.tools.template.BaseTool2):
         data_model_param = get_data_model_from_task(task, {ILP32: "32", LP64: "64"})
         if data_model_param and "--arch" not in options:
             options += ["-a", data_model_param]
+        if not task.property_file:
+            raise benchexec.tools.template.UnsupportedFeatureException(
+                "Property file required"
+            )
         return (
             [executable]
             + ["-p", task.property_file]
@@ -55,17 +46,12 @@ class Tool(benchexec.tools.template.BaseTool2):
         )
 
     def determine_result(self, run):
-        status = result.RESULT_UNKNOWN
+        status = "ERROR"
 
         if run.output.any_line_contains("FALSE(reach)"):
             status = result.RESULT_FALSE_REACH
         elif run.output.any_line_contains("VERIFICATION TRUE"):
             status = result.RESULT_TRUE_PROP
-
-        if status == result.RESULT_UNKNOWN:
-            if run.was_timeout:
-                status = "TIMEOUT"
-            elif not run.output.any_line_contains("UNKNOWN"):
-                status = "ERROR"
-
+        elif run.output.any_line_contains("UNKNOWN"):
+            status = result.RESULT_UNKNOWN
         return status
