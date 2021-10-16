@@ -18,4 +18,4 @@ class Tool(cseq.CSeqTool):
         return tool_locator.find_executable("lazy-cseq.py")
 
     def name(self):
-        return "CSeq 3"
+        return "CSeq"
