@@ -7,7 +7,7 @@
 
 # SPDX-License-Identifier: Apache-2.0
 
-from . import ultimate
+from benchexec.tools import ultimate
 
 
 class Tool(ultimate.UltimateTool):
