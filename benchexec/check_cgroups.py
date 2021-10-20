@@ -46,7 +46,7 @@ def check_cgroup_availability(wait=1):
             tmp.name,
             memlimit=1024 * 1024,  # set memlimit to force check for swapaccount
             # set cores and memory_nodes to force usage of CPUSET
-            cores=util.parse_int_list(my_cgroups.get_value(my_cgroups.CPUSET, "cpus")),
+            cores=my_cgroups.read_available_cpus(),
             memory_nodes=my_cgroups.read_available_mems(),
         )
         lines = []

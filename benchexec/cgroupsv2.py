@@ -247,7 +247,6 @@ class CgroupsV2(Cgroups):
     def read_io_stat(self):
         bytes_read = 0
         bytes_written = 0
-        logging.debug(f"{list(self.get_file_lines(self.IO, 'stat'))}")
         for io_line in self.get_file_lines(self.IO, "stat"):
             dev_no, *stats = io_line.split(" ")
             stats_map = {s[0]: s[1] for s in (s.split("=") for s in stats)}
@@ -258,11 +257,19 @@ class CgroupsV2(Cgroups):
     def has_tasks(self, path):
         return os.path.getsize(path / "cgroup.procs") > 0
 
+    def write_memory_limit(self, limit):
+        self.set_value(self.MEMORY, "max", limit)
+
+    def read_memory_limit(self):
+        return int(self.get_value(self.MEMORY, "max"))
+
     def disable_swap(self):
-        return self.set_value(self.MEMORY, "swap.max", "0")
+        self.set_value(self.MEMORY, "swap.max", "0")
 
-    def set_oom_handler(self):
-        logging.warn("OOM handling for cgroups 2 not implemented yet")
+    def read_oom_count(self):
+        for line in self.get_file_lines(self.MEMORY, "events"):
+            k, v = line.split(" ")
+            if k == "oom_kill":
+                return int(v)
 
-    def reset_memory_limit(self):
-        logging.warn("OOM handling for cgroups 2 not implemented yet")
+        return 0

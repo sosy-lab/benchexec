@@ -8,7 +8,6 @@
 import argparse
 import collections
 import datetime
-import errno
 import logging
 import multiprocessing
 import os
@@ -463,31 +462,9 @@ class RunExecutor(containerexecutor.ContainerExecutor):
 
         # Setup memory limit
         if memlimit is not None:
-            limit = "limit_in_bytes"
-            cgroups.set_value(cgroups.MEMORY, limit, memlimit)
+            cgroups.write_memory_limit(memlimit)
 
-            swap_limit = "memsw.limit_in_bytes"
-            # We need swap limit because otherwise the kernel just starts swapping
-            # out our process if the limit is reached.
-            # Some kernels might not have this feature,
-            # which is ok if there is actually no swap.
-            if not cgroups.has_value(cgroups.MEMORY, swap_limit):
-                if systeminfo.has_swap():
-                    sys.exit(
-                        'Kernel misses feature for accounting swap memory, but machine has swap. Please set swapaccount=1 on your kernel command line or disable swap with "sudo swapoff -a".'
-                    )
-            else:
-                try:
-                    cgroups.set_value(cgroups.MEMORY, swap_limit, memlimit)
-                except OSError as e:
-                    if e.errno == errno.ENOTSUP:
-                        # kernel responds with operation unsupported if this is disabled
-                        sys.exit(
-                            'Memory limit specified, but kernel does not allow limiting swap memory. Please set swapaccount=1 on your kernel command line or disable swap with "sudo swapoff -a".'
-                        )
-                    raise e
-
-            memlimit = cgroups.get_value(cgroups.MEMORY, limit)
+            memlimit = cgroups.read_memory_limit()
             logging.debug("Effective memory limit is %s bytes.", memlimit)
 
         if cgroups.MEMORY in cgroups:
@@ -574,11 +551,11 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             return timelimitThread
         return None
 
-    def _setup_cgroup_memory_limit(self, memlimit, cgroups, pid_to_kill):
+    def _setup_cgroup_memory_limit_thread(self, memlimit, cgroups, pid_to_kill):
         """Start memory-limit handler.
         @return None or the memory-limit handler for calling cancel()
         """
-        if memlimit is not None:
+        if memlimit is not None and cgroups.version == 1:
             try:
                 oomThread = oomhandler.KillProcessOnOomThread(
                     cgroups=cgroups,
@@ -936,7 +913,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             timelimitThread = self._setup_cgroup_time_limit(
                 hardtimelimit, softtimelimit, walltimelimit, cgroups, cores, pid
             )
-            oomThread = self._setup_cgroup_memory_limit(memlimit, cgroups, pid)
+            oomThread = self._setup_cgroup_memory_limit_thread(memlimit, cgroups, pid)
             file_hierarchy_limit_thread = self._setup_file_hierarchy_limit(
                 files_count_limit, files_size_limit, temp_dir, cgroups, pid
             )
@@ -1015,7 +992,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 }
         if self._termination_reason:
             result["terminationreason"] = self._termination_reason
-        elif memlimit and "memory" in result and result["memory"] >= memlimit:
+        elif result.get("oom") or (memlimit and result.get("memory", 0) >= memlimit):
             # The kernel does not always issue OOM notifications and thus the OOMHandler
             # does not always run even in case of OOM. We detect this there and report OOM.
             result["terminationreason"] = "memory"
@@ -1079,6 +1056,10 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 )
             else:
                 result["memory"] = max_mem_usage
+
+            oom_count = cgroups.read_oom_count()
+            if oom_count:
+                result["oom"] = oom_count
 
         if cgroups.IO in cgroups:
             result["blkio-read"], result["blkio-write"] = cgroups.read_io_stat()

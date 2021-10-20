@@ -328,13 +328,17 @@ class Cgroups(ABC):
         pass
 
     @abstractmethod
+    def write_memory_limit(self, limit):
+        pass
+
+    @abstractmethod
+    def read_memory_limit(self):
+        pass
+
+    @abstractmethod
+    def read_oom_count(self):
+        pass
+
+    @abstractmethod
     def disable_swap(self):
-        pass
-
-    @abstractmethod
-    def set_oom_handler(self):
-        pass
-
-    @abstractmethod
-    def reset_memory_limit(self):
         pass

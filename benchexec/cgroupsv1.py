@@ -11,11 +11,13 @@ import os
 import pathlib
 import shutil
 import signal
+import sys
 import tempfile
 import time
 
 from benchexec import util
 from benchexec.cgroups import Cgroups
+from benchexec import systeminfo
 
 from ctypes import cdll
 
@@ -24,11 +26,11 @@ _EFD_CLOEXEC = 0x80000  # from <sys/eventfd.h>: mark eventfd as close-on-exec
 
 _BYTE_FACTOR = 1000  # byte in kilobyte
 
-CGROUP_FALLBACK_PATH = "system.slice/benchexec-cgroup.service"
+_CGROUP_FALLBACK_PATH = "system.slice/benchexec-cgroup.service"
 """If we do not have write access to the current cgroup,
 attempt to use this cgroup as fallback."""
 
-CGROUP_NAME_PREFIX = "benchmark_"
+_CGROUP_NAME_PREFIX = "benchmark_"
 
 
 def _find_own_cgroups():
@@ -62,7 +64,7 @@ def _parse_proc_pid_cgroup(content):
             yield (subsystem, path)
 
 
-def kill_all_tasks_in_cgroup(cgroup, ensure_empty=True):
+def _kill_all_tasks_in_cgroup(cgroup, ensure_empty=True):
     tasksFile = cgroup / "tasks"
 
     i = 0
@@ -72,23 +74,29 @@ def kill_all_tasks_in_cgroup(cgroup, ensure_empty=True):
         # SIGKILL. We added this loop when killing sub-processes was not reliable
         # and we did not know why, but now it is reliable.
         for sig in [signal.SIGKILL, signal.SIGINT, signal.SIGTERM]:
-            with open(tasksFile, "rt") as tasks:
-                task = None
-                for task in tasks:
-                    task = task.strip()
-                    if i > 1:
-                        logging.warning(
-                            "Run has left-over process with pid %s "
-                            "in cgroup %s, sending signal %s (try %s).",
-                            task,
-                            cgroup,
-                            sig,
-                            i,
-                        )
-                    util.kill_process(int(task), sig)
+            task = None
+            try:
+                with open(tasksFile, "rt") as tasks:
+                    for task in tasks:
+                        task = task.strip()
+                        if i > 1:
+                            logging.warning(
+                                "Run has left-over process with pid %s "
+                                "in cgroup %s, sending signal %s (try %s).",
+                                task,
+                                cgroup,
+                                sig,
+                                i,
+                            )
+                        util.kill_process(int(task), sig)
+            except FileNotFoundError:
+                logging.warning(
+                    "cgroup tasks file %s " "could no longer be found while killing",
+                    tasksFile,
+                )
 
-                if task is None or not ensure_empty:
-                    return  # No process was hanging, exit
+            if task is None or not ensure_empty:
+                return  # No process was hanging, exit
             # wait for the process to exit, this might take some time
             time.sleep(i * 0.5)
 
@@ -177,7 +185,7 @@ class CgroupsV1(Cgroups):
             # (lxcfs mounts cgroups under /run/lxcfs in such a way).
             if os.access(mount, os.F_OK):
                 cgroupPath = mount / my_cgroups[subsystem]
-                fallbackPath = mount / CGROUP_FALLBACK_PATH
+                fallbackPath = mount / _CGROUP_FALLBACK_PATH
                 if (
                     fallback
                     and not os.access(cgroupPath, os.W_OK)
@@ -224,7 +232,7 @@ class CgroupsV1(Cgroups):
                 continue
 
             cgroup = pathlib.Path(
-                tempfile.mkdtemp(prefix=CGROUP_NAME_PREFIX, dir=parentCgroup)
+                tempfile.mkdtemp(prefix=_CGROUP_NAME_PREFIX, dir=parentCgroup)
             )
             createdCgroupsPerSubsystem[subsystem] = cgroup
             createdCgroupsPerParent[parentCgroup] = cgroup
@@ -270,12 +278,12 @@ class CgroupsV1(Cgroups):
             for dirpath, dirs, _files in os.walk(cgroup, topdown=False):
                 for subCgroup in dirs:
                     subCgroup = os.path.join(dirpath, subCgroup)
-                    kill_all_tasks_in_cgroup(subCgroup, ensure_empty=delete)
+                    _kill_all_tasks_in_cgroup(subCgroup, ensure_empty=delete)
 
                     if delete:
                         self._remove_cgroup(subCgroup)
 
-            kill_all_tasks_in_cgroup(cgroup, ensure_empty=delete)
+            _kill_all_tasks_in_cgroup(cgroup, ensure_empty=delete)
 
         # First, we go through all cgroups recursively while they are frozen and kill
         # all processes. This helps against fork bombs and prevents processes from
@@ -352,22 +360,49 @@ class CgroupsV1(Cgroups):
 
     def read_io_stat(self):
         blkio_bytes_file = "throttle.io_service_bytes"
-        if self.has_value(self.IO, blkio_bytes_file):
-            bytes_read = 0
-            bytes_written = 0
-            for blkio_line in self.get_file_lines(self.IO, blkio_bytes_file):
-                try:
-                    dev_no, io_type, bytes_amount = blkio_line.split(" ")
-                    if io_type == "Read":
-                        bytes_read += int(bytes_amount)
-                    elif io_type == "Write":
-                        bytes_written += int(bytes_amount)
-                except ValueError:
-                    pass  # There are irrelevant lines in this file with a different structure
-            return bytes_read, bytes_written
+        bytes_read = 0
+        bytes_written = 0
+        for blkio_line in self.get_file_lines(self.IO, blkio_bytes_file):
+            try:
+                dev_no, io_type, bytes_amount = blkio_line.split(" ")
+                if io_type == "Read":
+                    bytes_read += int(bytes_amount)
+                elif io_type == "Write":
+                    bytes_written += int(bytes_amount)
+            except ValueError:
+                pass  # There are irrelevant lines in this file with a different structure
+        return bytes_read, bytes_written
 
     def has_tasks(self, path):
         return os.path.getsize(path / "tasks") > 0
+
+    def write_memory_limit(self, limit):
+        limit_file = "limit_in_bytes"
+        self.set_value(self.MEMORY, limit_file, limit)
+
+        swap_limit_file = "memsw.limit_in_bytes"
+        # We need swap limit because otherwise the kernel just starts swapping
+        # out our process if the limit is reached.
+        # Some kernels might not have this feature,
+        # which is ok if there is actually no swap.
+        if not self.has_value(self.MEMORY, swap_limit_file):
+            if systeminfo.has_swap():
+                sys.exit(
+                    'Kernel misses feature for accounting swap memory, but machine has swap. Please set swapaccount=1 on your kernel command line or disable swap with "sudo swapoff -a".'
+                )
+        else:
+            try:
+                self.set_value(self.MEMORY, swap_limit_file, limit)
+            except OSError as e:
+                if e.errno == errno.ENOTSUP:
+                    # kernel responds with operation unsupported if this is disabled
+                    sys.exit(
+                        'Memory limit specified, but kernel does not allow limiting swap memory. Please set swapaccount=1 on your kernel command line or disable swap with "sudo swapoff -a".'
+                    )
+                raise e
+
+    def read_memory_limit(self):
+        return int(self.get_value(self.MEMORY, "limit_in_bytes"))
 
     def disable_swap(self):
         # Note that this disables swapping completely according to
@@ -376,57 +411,6 @@ class CgroupsV1(Cgroups):
         # Our process might get killed because of this.
         return self.set_value(self.MEMORY, "swappiness", "0")
 
-    def set_oom_handler(self):
-        mem_cgroup = self[self.MEMORY]
-        ofd = os.open(os.path.join(mem_cgroup, "memory.oom_control"), os.O_WRONLY)
-        try:
-            # Important to use CLOEXEC, otherwise the benchmarked tool inherits
-            # the file descriptor.
-            efd = _libc.eventfd(0, _EFD_CLOEXEC)
-
-            try:
-                util.write_file(f"{efd} {ofd}", mem_cgroup, "cgroup.event_control")
-
-                # If everything worked, disable Kernel-side process killing.
-                # This is not allowed if memory.use_hierarchy is enabled,
-                # but we don't care.
-                try:
-                    os.write(ofd, b"1")
-                except OSError as e:
-                    logging.debug(
-                        "Failed to disable kernel-side OOM killer: error %s (%s)",
-                        e.errno,
-                        e.strerror,
-                    )
-            except OSError as e:
-                os.close(efd)
-                raise e
-        finally:
-            os.close(ofd)
-
-        return efd
-
-    def reset_memory_limit(self):
-        for limitFile in ("memory.memsw.limit_in_bytes", "memory.limit_in_bytes"):
-            if self.has_value(self.MEMORY, limitFile):
-                try:
-                    # Write a high value (1 PB) as the limit
-                    self.set_value(
-                        self.MEMORY,
-                        limitFile,
-                        str(
-                            1
-                            * _BYTE_FACTOR
-                            * _BYTE_FACTOR
-                            * _BYTE_FACTOR
-                            * _BYTE_FACTOR
-                            * _BYTE_FACTOR
-                        ),
-                    )
-                except OSError as e:
-                    logging.warning(
-                        "Failed to increase %s after OOM: error %s (%s).",
-                        limitFile,
-                        e.errno,
-                        e.strerror,
-                    )
+    def read_oom_count(self):
+        # not supported in v1, see oomhandler and memory_used > memlimit impl
+        return None
