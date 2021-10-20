@@ -13,7 +13,6 @@ import threading
 
 from benchexec.cgroups import Cgroups
 from benchexec.runexecutor import RunExecutor
-from benchexec import util
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
 

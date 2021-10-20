@@ -299,6 +299,10 @@ class Cgroups(ABC):
         pass
 
     @abstractmethod
+    def add_task(self, pid):
+        pass
+
+    @abstractmethod
     def create_fresh_child_cgroup(self, subsystem):
         pass
 

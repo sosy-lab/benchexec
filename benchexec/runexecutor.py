@@ -360,6 +360,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         if self.cgroups.MEMORY not in self.cgroups:
             logging.warning("Cannot measure memory consumption without memory cgroup.")
         else:
+            # FIXME
             if systeminfo.has_swap() and (
                 not self.cgroups.has_value(
                     self.cgroups.MEMORY, "memsw.max_usage_in_bytes"
