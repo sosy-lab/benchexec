@@ -16,6 +16,7 @@ import sys
 import tempfile
 import time
 
+from benchexec import BenchExecException
 from benchexec import systeminfo
 from benchexec import util
 
