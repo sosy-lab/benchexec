@@ -348,13 +348,15 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         if self.cgroups.CPU not in self.cgroups and self.cgroups.version == 1:
             logging.warning("Cannot measure CPU time without cpuacct cgroup.")
 
-        self.cgroups.require_subsystem(self.cgroups.FREEZE)
-        if self.cgroups.FREEZE not in self.cgroups and not self._use_namespaces:
-            critical_cgroups.add(self.cgroups.FREEZE)
-            logging.error(
-                "Cannot reliably kill sub-processes without freezer cgroup "
-                "or container mode. Please enable at least one of them."
-            )
+        # only a real subsystem in v1
+        if self.cgroups.version == 1:
+            self.cgroups.require_subsystem(self.cgroups.FREEZE)
+            if self.cgroups.FREEZE not in self.cgroups and not self._use_namespaces:
+                critical_cgroups.add(self.cgroups.FREEZE)
+                logging.error(
+                    "Cannot reliably kill sub-processes without freezer cgroup "
+                    "or container mode. Please enable at least one of them."
+                )
 
         self.cgroups.require_subsystem(self.cgroups.MEMORY)
         if self.cgroups.MEMORY not in self.cgroups:
@@ -425,7 +427,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             subsystems.append(self.cgroups.CPUSET)
         subsystems = [s for s in subsystems if s in self.cgroups]
 
-        cgroups = self.cgroups.create_fresh_child_cgroup(*subsystems)
+        cgroups = self.cgroups.create_fresh_child_cgroup(subsystems)
 
         logging.debug("Created cgroups %s.", cgroups)
 

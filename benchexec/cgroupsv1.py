@@ -214,7 +214,7 @@ class CgroupsV1(Cgroups):
         except OSError:
             logging.exception("Cannot read /proc/mounts")
 
-    def create_fresh_child_cgroup(self, *subsystems):
+    def create_fresh_child_cgroup(self, subsystems):
         """
         Create child cgroups of the current cgroup for at least the given subsystems.
         @return: A Cgroup instance representing the new child cgroup(s).
@@ -250,6 +250,9 @@ class CgroupsV1(Cgroups):
                 pass
 
         return CgroupsV1(createdCgroupsPerSubsystem)
+
+    def _move_to_child(self):
+        logging.debug("moving to child currently not supported for cgroups v1")
 
     def add_task(self, pid):
         """

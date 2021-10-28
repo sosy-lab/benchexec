@@ -12,7 +12,7 @@ import signal
 import tempfile
 import time
 
-from benchexec import util
+from benchexec import util, BenchExecException
 from benchexec.cgroups import Cgroups
 
 
@@ -59,8 +59,8 @@ def _parse_proc_pid_cgroup(cgroup_file):
     @return: a generator of tuples
     """
     mountpoint = _find_cgroup_mount()
-    own_cgroup = cgroup_file.readline().strip().split(":")
-    path = mountpoint / own_cgroup[2]
+    own_cgroup = cgroup_file.readline().strip().split(":")[2][1:]
+    path = mountpoint / own_cgroup
 
     return path
 
@@ -135,7 +135,7 @@ class CgroupsV2(Cgroups):
         else:
             cgroup_path = _parse_proc_pid_cgroup(cgroup_procinfo)
 
-        if fallback:
+        if not os.access(cgroup_path / "cgroup.subtree_control", os.W_OK) and fallback:
             mount = _find_cgroup_mount()
             fallback_path = mount / CGROUP_FALLBACK_PATH
             cgroup_path = fallback_path
@@ -155,18 +155,50 @@ class CgroupsV2(Cgroups):
 
         return {k: cgroup_path for k in subsystems}
 
-    def create_fresh_child_cgroup(self, *subsystems):
+    def create_fresh_child_cgroup(self, subsystems, move_to_child=False):
         """
         Create child cgroups of the current cgroup for at least the given subsystems.
         @return: A Cgroup instance representing the new child cgroup(s).
         """
-        assert set(subsystems).issubset(self.subsystems.keys())
-        cgroup_path = pathlib.Path(
-            tempfile.mkdtemp(prefix=CGROUP_NAME_PREFIX, dir=self.path)
-        )
+        subsystems = set(subsystems)
+        assert subsystems.issubset(self.subsystems.keys())
 
-        # FIXME do something with subsystems, also subtree_control?
-        return CgroupsV2({c: cgroup_path for c in self.subsystems})
+        tasks = set(util.read_file(self.path / "cgroup.procs").split())
+        if tasks and not move_to_child:
+            raise BenchExecException(
+                "Cannot create cgroups v2 child on non-empty parent without moving tasks"
+            )
+
+        prefix = "runexec_main_" if move_to_child else CGROUP_NAME_PREFIX
+        child_path = pathlib.Path(tempfile.mkdtemp(prefix=prefix, dir=self.path))
+
+        if move_to_child and tasks:
+            prev_delegated_controllers = set(
+                util.read_file(self.path / "cgroup.subtree_control").split()
+            )
+            for c in prev_delegated_controllers:
+                util.write_file(f"-{c}", self.path / "cgroup.subtree_control")
+
+            for t in tasks:
+                try:
+                    util.write_file(t, child_path / "cgroup.procs")
+                except OSError as e:
+                    logging.warn(f"Could not move pid {t} to {child_path}: {e}")
+
+            for c in prev_delegated_controllers:
+                util.write_file(f"+{c}", self.path / "cgroup.subtree_control")
+
+        controllers = set(util.read_file(self.path / "cgroup.controllers").split())
+        controllers_to_delegate = controllers & subsystems
+
+        for c in controllers_to_delegate:
+            util.write_file(f"+{c}", self.path / "cgroup.subtree_control")
+
+        return CgroupsV2({c: child_path for c in controllers_to_delegate})
+
+    def _move_to_child(self):
+        logging.debug("Moving runexec main process to child")
+        self.create_fresh_child_cgroup(self.subsystems.keys(), move_to_child=True)
 
     def add_task(self, pid):
         """

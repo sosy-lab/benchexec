@@ -85,13 +85,16 @@ class Cgroups(ABC):
         elif version == CGROUPS_V2:
             from .cgroupsv2 import CgroupsV2
 
-            return CgroupsV2(cgroup_procinfo=cgroup_procinfo, fallback=fallback)
+            cgroups = CgroupsV2(cgroup_procinfo=cgroup_procinfo, fallback=fallback)
+            cgroups._move_to_child()
+
+            return cgroups
 
         raise BenchExecException("Could not detect Cgroup Version")
 
     def __init__(self, subsystems=None, cgroup_procinfo=None, fallback=True):
         if subsystems is None:
-            self.subsystems = self._supported_subsystems()
+            self.subsystems = self._supported_subsystems(cgroup_procinfo, fallback)
         else:
             self.subsystems = subsystems
 
@@ -208,7 +211,7 @@ class Cgroups(ABC):
             return False
 
         try:
-            test_cgroup = self.create_fresh_child_cgroup(subsystem)
+            test_cgroup = self.create_fresh_child_cgroup([subsystem])
             test_cgroup.remove()
         except OSError as e:
             log_method(
@@ -299,11 +302,15 @@ class Cgroups(ABC):
         pass
 
     @abstractmethod
+    def _move_to_child(self):
+        pass
+
+    @abstractmethod
     def add_task(self, pid):
         pass
 
     @abstractmethod
-    def create_fresh_child_cgroup(self, subsystem):
+    def create_fresh_child_cgroup(self, subsystems, move_to_child=False):
         pass
 
     @abstractmethod
