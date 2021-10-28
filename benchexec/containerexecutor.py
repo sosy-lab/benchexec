@@ -112,6 +112,11 @@ def handle_basic_container_args(options, parser=None):
             )
         if path in dir_modes:
             error_fn(f"Cannot specify multiple directory modes for '{path}'.")
+        if path == "/proc":
+            error_fn(
+                "Cannot specify directory mode for /proc, "
+                "this directory is handled specially."
+            )
         dir_modes[path] = mode
 
     for path in options.hidden_dir:

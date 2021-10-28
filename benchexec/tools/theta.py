@@ -37,7 +37,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         status = result.RESULT_UNKNOWN
         for line in run.output:
             if "SafetyResult Unsafe" in line:
-                status = result.RESULT_FALSE_PROP
+                status = result.RESULT_FALSE_REACH
             if "SafetyResult Safe" in line:
                 status = result.RESULT_TRUE_PROP
 

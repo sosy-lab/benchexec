@@ -70,6 +70,7 @@ def execute_benchmark(benchmark, output_handler):
         )
 
     my_cgroups = Cgroups.from_system()
+    required_cgroups = set()
 
     coreAssignment = None  # cores per run
     memoryAssignment = None  # memory banks per run
@@ -79,40 +80,52 @@ def execute_benchmark(benchmark, output_handler):
 
     if benchmark.rlimits.cpu_cores:
         if not my_cgroups.require_subsystem(my_cgroups.CPUSET):
+            required_cgroups.add(my_cgroups.CPUSET)
             logging.error(
                 "Cgroup subsystem cpuset is required "
                 "for limiting the number of CPU cores/memory nodes."
             )
-            my_cgroups.handle_errors({my_cgroups.CPUSET})
-        coreAssignment = resources.get_cpu_cores_per_run(
-            benchmark.rlimits.cpu_cores,
-            benchmark.num_of_threads,
-            benchmark.config.use_hyperthreading,
-            my_cgroups,
-            benchmark.config.coreset,
-        )
-        pqos.allocate_l3ca(coreAssignment)
-        memoryAssignment = resources.get_memory_banks_per_run(
-            coreAssignment, my_cgroups
-        )
-        cpu_packages = {
-            resources.get_cpu_package_for_core(core)
-            for cores_of_run in coreAssignment
-            for core in cores_of_run
-        }
+        else:
+            coreAssignment = resources.get_cpu_cores_per_run(
+                benchmark.rlimits.cpu_cores,
+                benchmark.num_of_threads,
+                benchmark.config.use_hyperthreading,
+                my_cgroups,
+                benchmark.config.coreset,
+            )
+            pqos.allocate_l3ca(coreAssignment)
+            memoryAssignment = resources.get_memory_banks_per_run(
+                coreAssignment, my_cgroups
+            )
+            cpu_packages = {
+                resources.get_cpu_package_for_core(core)
+                for cores_of_run in coreAssignment
+                for core in cores_of_run
+            }
     elif benchmark.config.coreset:
         sys.exit(
             "Please limit the number of cores first if you also want to limit the set of available cores."
         )
 
     if benchmark.rlimits.memory:
-        # check whether we have enough memory in the used memory banks for all runs
-        resources.check_memory_size(
-            benchmark.rlimits.memory,
-            benchmark.num_of_threads,
-            memoryAssignment,
-            my_cgroups,
-        )
+        if not my_cgroups.require_subsystem(my_cgroups.MEMORY):
+            required_cgroups.add(my_cgroups.MEMORY)
+            logging.error("Cgroup subsystem memory is required for memory limit.")
+        else:
+            # check whether we have enough memory in the used memory banks for all runs
+            resources.check_memory_size(
+                benchmark.rlimits.memory,
+                benchmark.num_of_threads,
+                memoryAssignment,
+                my_cgroups,
+            )
+
+    if benchmark.rlimits.cputime:
+        if not my_cgroups.require_subsystem(my_cgroups.CPU):
+            required_cgroups.add(my_cgroups.CPU)
+            logging.error("Cgroup subsystem cpuacct is required for cputime limit.")
+
+    my_cgroups.handle_errors(required_cgroups)
 
     if benchmark.num_of_threads > 1 and systeminfo.is_turbo_boost_enabled():
         logging.warning(

@@ -52,6 +52,8 @@ class Tool(benchexec.tools.template.BaseTool2):
             return result.RESULT_FALSE_MEMTRACK
         elif run.output.any_line_contains("Memcleanup"):
             return result.RESULT_FALSE_MEMCLEANUP
+        elif run.output.any_line_contains("CHECK: TRUE"):
+            return result.RESULT_TRUE_PROP
         elif run.output.any_line_contains("CHECKUNKNOWN"):
             return result.RESULT_UNKNOWN
         return result.RESULT_ERROR
