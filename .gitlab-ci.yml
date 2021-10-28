@@ -12,6 +12,8 @@
 variables:
   PRIMARY_USER: benchexec
   PIP_CACHE_DIR: "${CI_PROJECT_DIR}/.cache/pip"
+  npm_config_cache: "${CI_PROJECT_DIR}/.cache/npm"
+  npm_config_prefer_offline: true
 
 .pip-cache: &pip-cache
   cache:
@@ -23,7 +25,7 @@ variables:
   cache:
     key: "${CI_JOB_NAME}"
     paths:
-      - "benchexec/tablegenerator/react-table/node_modules"
+      - ".cache/npm"
 
 image: ${CI_REGISTRY_IMAGE}/test:python-${PYTHON_VERSION}
 
@@ -129,7 +131,7 @@ javascript-build:
   image: node:lts
   before_script:
     - cd benchexec/tablegenerator/react-table
-    - npm install
+    - npm ci
   script:
     - npm run build
     - git diff --stat --exit-code
@@ -144,7 +146,7 @@ javascript-tests:
   image: node:lts
   before_script:
     - cd benchexec/tablegenerator/react-table
-    - npm install
+    - npm ci
   script:
     - npm run test
   <<: *node-cache
@@ -154,7 +156,7 @@ javascript-eslint:
   image: node:lts
   before_script:
     - cd benchexec/tablegenerator/react-table
-    - npm install
+    - npm ci
   script:
     - npm run lint
   <<: *node-cache
