@@ -49,6 +49,8 @@ class Tool(benchexec.tools.template.BaseTool2):
             status = result.RESULT_FALSE_FREE
         elif run.output.any_line_contains("FALSE_MEMTRACK"):
             status = result.RESULT_FALSE_MEMTRACK
+        elif run.output.any_line_contains("FALSE_MEMCLEANUP"):
+            status = result.RESULT_FALSE_MEMCLEANUP
         elif run.output.any_line_contains("FALSE_OVERFLOW"):
             status = result.RESULT_FALSE_OVERFLOW
         elif run.output.any_line_contains("FALSE_TERMINATION"):
