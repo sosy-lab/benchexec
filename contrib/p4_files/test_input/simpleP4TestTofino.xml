@@ -8,14 +8,39 @@ SPDX-License-Identifier: Apache-2.0 -->
 <!DOCTYPE benchmark PUBLIC "+//IDN sosy-lab.org//DTD BenchExec benchmark 2.3//EN" "https://www.sosy-lab.org/benchexec/benchmark-2.3.dtd">
 
 <benchmark tool="p4-test-tool" displayName="P4 test">
-    <option name="switch_folder">/home/p4/bf_benchexec/benchexec/contrib/p4_files/docker_files/switch_tofino</option>
-    <option name="ptf_test_folder">~/bf_benchexec/benchexec/contrib/p4_files/docker_files/ptf_tester/tests</option>
-    <option name="network_config">/home/p4/bf_benchexec/benchexec/contrib/p4_files/network_config.json</option>
 
-    <rundefinition>
+    <!-- Simple -->
+    <rundefinition name="1">
+        <option name="network_config">/home/p4/bf_benchexec/benchexec/contrib/p4_files/test_input/network_configs/2_nodes_1_switch.json</option>
         <tasks>
-            <!-- <withoutfile>Run 1</withoutfile> -->
+            <option name="ptf_test_folder">/home/p4/bf_benchexec/benchexec/contrib/p4_files/test_input/Ipv4_Testing</option>
+            <withoutfile>Test1.1</withoutfile>
+        </tasks>
+        <tasks>
+            <option name="network_config">/home/p4/bf_benchexec/benchexec/contrib/p4_files/test_input/network_configs/2_nodes_1_switch.json</option>
+            <option name="ptf_test_folder">/home/p4/bf_benchexec/benchexec/contrib/p4_files/test_input/Ipv4_Testing</option>
             <include>expected_results.json</include>
         </tasks>
+        
     </rundefinition>
+
+    <!-- Second Run - P4 tutorial tests -->
+    <rundefinition name="2">
+        <!-- Set correct ptf test folder -->
+        <option name="ptf_test_folder">/home/p4/bf_benchexec/benchexec/contrib/p4_files/test_input/p4_tutorial_tests</option>   
+        <tasks>
+            <withoutfile>Test2.1</withoutfile>
+            <!-- <option name="network_config">/home/p4/bf_benchexec/benchexec/contrib/p4_files/test_input/network_configs/4_nodes_3_switch.json</option> -->
+        </tasks>
+    </rundefinition>
+
+    <rundefinition name="3">
+        <!-- Set correct ptf test folder -->
+        <option name="ptf_test_folder">/home/p4/bf_benchexec/benchexec/contrib/p4_files/test_input/Ipv4_Testing</option>   
+        <tasks>
+            <withoutfile>Test3.1</withoutfile>
+            <option name="network_config">/home/p4/bf_benchexec/benchexec/contrib/p4_files/test_input/network_configs/4_nodes_3_switch.json</option>
+        </tasks>
+    </rundefinition>
+
 </benchmark>

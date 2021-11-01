@@ -4,11 +4,14 @@
 
 # SPDX-License-Identifier: Apache-2.0
 import os
+import sys
 import logging
 import shutil
 import time
 import threading
 import psutil
+import importlib
+import inspect
 
 # Local imports
 from benchexec import systeminfo
@@ -108,14 +111,18 @@ class P4Execution(object):
             rmtree(self.tmp_folder)
         os.mkdir(self.tmp_folder)
 
-        # Read test inputs paths
-        (
-            self.ptf_folder_path,
-            self.network_config_path,
-        ) = self.read_folder_paths(benchmark)
-
         # Read all required ptf tests folders
         self.ptf_folder_paths = self.read_ptf_folder_paths(benchmark)
+
+        # Check test folders exist
+        if len(self.ptf_folder_paths) == 0:
+            raise BenchExecException("Could not find any ptf folder paths")
+        else:
+            for path in self.ptf_folder_paths:
+                if not os.path.exists(path):
+                    raise BenchExecException(
+                        f"Could not find ptf folder path. Given path: {path}"
+                    )
 
         # Container setup
         self.client = docker.from_env()
@@ -157,8 +164,6 @@ class P4Execution(object):
         setup_handler = P4SetupHandler(benchmark)
         setup_handler.update_runsets()
 
-        # Read if any test specific test configs
-        self.test_configs = find_test_network_configs(self.ptf_folder_path)
         for runSet in benchmark.run_sets:
             if STOPPED_BY_INTERRUPT:
                 break
@@ -175,6 +180,7 @@ class P4Execution(object):
 
             for run in runSet.runs:
                 # Check if network setup needs to be updated
+
                 net_work_conf = self.run_network_conf_path(run)
 
                 if not self.network_config_path:
@@ -258,6 +264,8 @@ class P4Execution(object):
 
                 print(run.identifier + ":   ", end="")
                 output_handler.output_after_run(run)
+
+            output_handler.output_after_run_set(runSet)
 
         output_handler.output_after_benchmark(STOPPED_BY_INTERRUPT)
 
@@ -544,18 +552,22 @@ class P4Execution(object):
                 run.ptf_test_path = ""
                 i = 0
                 for option in run.options:
-
                     if option == KEY_PTF_FOLDER_PATH:
                         run.ptf_test_path = self.extract_path(run.options[i + 1])
                     i += 1
 
-                run.test_folder_name = run.ptf_test_path.split("/")[-1]
-                _, test_info = self.ptf_tester.exec_run(
-                    f"ptf --test-dir /app/{run.test_folder_name} --list"
-                )
-                test_info = test_info.decode()
+                if run.ptf_test_path:
+                    run.test_folder_name = run.ptf_test_path.split("/")[-1]
+                    _, test_info = self.ptf_tester.exec_run(
+                        f"ptf --test-dir /app/{run.test_folder_name} --list"
+                    )
+                    test_info = test_info.decode()
 
-                run.test_dict = self.extract_info_from_test_info(test_info)
+                    run.test_dict = self.extract_info_from_test_info(test_info)
+                else:
+                    raise BenchExecException(
+                        "Could not find ptf folder option for one of the defined runs. Check the input file."
+                    )
 
     def extract_info_from_test_info(self, test_info):
         """
@@ -1211,12 +1223,15 @@ class P4Execution(object):
         if run.identifier in test_configs:
             return test_configs[run.identifier]
 
-        net_con_index = 0
-        i = 0
-        for option in run.options:
+        net_con_index = None
+        for i, option in enumerate(run.options):
             if option == KEY_NETWORK_CONFIG:
                 net_con_index = i + 1
-            i += 1
+
+        if not net_con_index:
+            raise FileNotFoundError(
+                f"Could not find configuration file for run {run.identifier}"
+            )
 
         return run.options[net_con_index]
 
@@ -1256,6 +1271,53 @@ class P4Execution(object):
 
         if len(self.switches) * 2 > free_ram_gb:
             logging.info("Low on memory. Might not be able to start all switches")
+
+    def find_test_network_configs(self):
+        # Temp disable logging
+        logger = logging.getLogger()
+        old_lvl = logger.level
+        logger.setLevel(logging.FATAL)
+
+        network_configs_big = {}
+
+        for ptf_path in self.ptf_folder_paths:
+            files = []
+            network_configs = {}
+            for src, _, filenames in os.walk(ptf_path):
+                for filename in filenames:
+                    if filename.endswith(".py"):
+                        files.append((src, filename.replace(".py", "")))
+
+            for src, filename in files:
+                if not src in sys.path:
+                    sys.path.append(src)
+
+                spec = importlib.util.spec_from_file_location(
+                    filename.replace(".py", ""), f"{src}/{filename}.py"
+                )
+                foo = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(foo)
+
+                # foo = importlib.import_module(filename.replace(".py", ""))
+
+                for name, obj in inspect.getmembers(foo):
+                    if inspect.isclass(obj):
+                        try:
+                            cls = getattr(foo, name)
+
+                            net_conf = cls.get_network_config()
+
+                            if net_conf:
+                                network_configs[f"{filename}.{name}"] = net_conf
+                                # network_configs.append((f"{filename}.{name}", net_conf))
+                        except:
+                            continue
+
+            logger.setLevel(old_lvl)
+
+            network_configs_big[ptf_path] = network_configs
+
+        return network_configs_big
 
     # Test file reading and handling
     def read_switch_setup_logs(self, benchmark, output_handler):

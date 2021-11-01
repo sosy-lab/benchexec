@@ -4,11 +4,12 @@
 
 # SPDX-License-Identifier: Apache-2.0
 
-from benchexec.model import Run
+from benchexec.model import Run, SourcefileSet
 from benchexec import result
 import json
 import os
 import logging
+import sys
 
 
 class P4SetupHandler(object):
@@ -22,10 +23,14 @@ class P4SetupHandler(object):
         self.benchmark = benchmark
 
     def update_runsets(self):
-        for runSet in self.benchmark.run_sets:
+        for index, runSet in enumerate(self.benchmark.run_sets):
+            runSet.log_folder += f"Runset_{runSet.index}/"
+            if not os.path.exists(runSet.log_folder):
+                os.mkdir(runSet.log_folder)
             # Divide the defined run into multiple run if necessery. Check len of runs: If 0, the setup went wrong.
-            if len(runSet.runs) > 0:
-                old_run = runSet.runs[0]
+            updated_runs = []
+            for run in runSet.runs:
+                old_run = run
                 expected_result_filename = old_run.identifier
                 if os.path.exists(expected_result_filename):
                     expected_dict = self._read_expected_result_json(
@@ -38,6 +43,7 @@ class P4SetupHandler(object):
                     expected_dict = {}
                 prop = old_run.properties
                 runSet.runs = []
+                runSet.blocks = []
 
                 # Check for most relevant option
                 if len(runSet.options) != len(old_run.options):
@@ -53,6 +59,9 @@ class P4SetupHandler(object):
                             run_specific_options.append(old_run[i + 1])
 
                     run_specific_options.append(old_run.options[final_index:])
+
+                # Blocks contains SourceFileSet for each run. Create one sourcefileset
+                # for each module
 
                 for module_name in old_run.test_dict:
                     for test_name in old_run.test_dict[module_name]:
@@ -78,7 +87,10 @@ class P4SetupHandler(object):
                             run.expected_results[
                                 prop[0].filename
                             ] = result.ExpectedResult(True, None)
-                        runSet.runs.append(run)
+
+                        updated_runs.append(run)
+            runSet.runs = updated_runs
+            runSet.blocks.append(SourcefileSet("", index, updated_runs))
 
     def _read_expected_result_json(self, json_file_path):
         with open(json_file_path) as json_file:
