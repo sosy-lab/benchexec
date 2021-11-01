@@ -63,7 +63,9 @@ class SwitchConnection(object):
         try:
             self.channel = grpc.insecure_channel(self.grpc_addr)
         except:
-            logging.critical("Failed to connect to P4Runtime server")
+            logging.critical(
+                f"Failed to connect to P4Runtime server to switch {self.switch_name}"
+            )
 
         self.stub = p4runtime_pb2_grpc.P4RuntimeStub(self.channel)
 
@@ -103,7 +105,6 @@ class SwitchConnection(object):
         self.handshake()
 
     def wait_for_setup(self, timeout=60):
-        self.setup_stream()
         start = time.time()
         while True:
             if self.do_shutdown:
@@ -120,7 +121,8 @@ class SwitchConnection(object):
             if not self.connected:
                 self.setup_stream()
 
-            time.sleep(5)
+            # Small sleep between connection attempts
+            time.sleep(2)
 
     def handshake(self):
         req = p4runtime_pb2.StreamMessageRequest()
@@ -279,7 +281,29 @@ class SwitchConnection(object):
         )
 
 
+def __start_switch(switch_name, server_port, prog_name):
+    import docker
+
+    # prog_name = switch_config["name"]
+    # switch_command = f"{prog_name} --log-file /app/log/switch_log --log-flush"
+
+    # used_ports = self.network_config[KEY_SWITCHES][switch.name]["used_ports"]
+    # for port in used_ports:
+    #     switch_command += f" -i {port}@{switch.name}_{port}"
+
+    # switch_command += f" /app/P4/{switch_config['p4_file_name']}"
+
+    # container_threads.append(
+    #     threading.Thread(
+    #         target=self.thread_setup_switch, args=(switch, switch_command)
+    #     )
+    # )
+
+
 def main():
+    # Simple test
+
+    # Connect to switch
 
     P4_INFO_FILEPATH = "/home/p4/installations/bf-sde-9.5.0/build/p4-build/tofino/simple_switch2/tofino/p4info2.pb.txt"
     INFO_PATH = (
@@ -313,7 +337,6 @@ def main():
 
     print(table_entry)
 
-    connection = SwitchConnection("S1", "127.0.0.1:50051", 0, (0, 1))
     connection.wait_for_setup()
 
     connection.SetForwadingPipelineConfig2(P4_INFO_FILEPATH, COMBINED_BIN_PATH)
