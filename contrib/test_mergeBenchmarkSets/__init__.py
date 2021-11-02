@@ -306,6 +306,43 @@ class TestMergeBenchmarkSets(unittest.TestCase):
             )
             self.assertNotEqual(None, run.find('column[@title="score"]'))
 
+    def test_getValidationResult_malformed_coverage(self):
+        modified_run = copy.deepcopy(
+            results_xml.find(
+                'run[@name="../sv-benchmarks/c/array-examples/sanfoundry_24-1.yml"]'
+            )
+        )
+        modified_run.set("properties", "coverage-branches")
+        modified_witness_run = copy.deepcopy(
+            witness_xml_1.find(
+                'run[@name="../sv-benchmarks/c/array-examples/sanfoundry_24-1.yml"]'
+            )
+        )
+        coverage_column = ET.Element(
+            "column",
+            title="branches_covered",
+            value="fifty percent",  # this cannot be parsed into a number
+        )
+        modified_witness_run.append(coverage_column)
+        actual = mergeBenchmarkSets.get_validation_result(
+            modified_run,
+            [{modified_witness_run.get("name"): modified_witness_run}],
+            result.RESULT_TRUE_PROP,
+            result.CATEGORY_CORRECT,
+        )
+        # we should still be able to assign the correct results:
+        self.assertTupleEqual(
+            (
+                result.RESULT_TRUE_PROP,
+                result.CATEGORY_CORRECT,
+                result.RESULT_TRUE_PROP,
+                result.CATEGORY_CORRECT,
+            ),
+            actual,
+        )
+        # score should be None since we were not able to parse "fifty percent" above:
+        self.assertTrue(modified_witness_run.find('column[@title="score"]') is None)
+
     def test_merge_no_witness(self):
         results_xml_cp1 = copy.deepcopy(results_xml)
         results_xml_cp2 = copy.deepcopy(results_xml)
@@ -340,6 +377,21 @@ class TestMergeBenchmarkSets(unittest.TestCase):
         results_xml_cp = copy.deepcopy(results_xml)
         mergeBenchmarkSets.merge(results_xml_cp, mock_witness_sets(), False)
         for expected, run in zip(expected_results, results_xml_cp.findall("run")):
+            status = run.find('column[@title="status"]').get("value")
+            category = run.find('column[@title="category"]').get("value")
+            self.assertTupleEqual(expected, (status, category))
+
+    def test_merge_no_status_no_category(self):
+        expected_results = [("not found", result.CATEGORY_CORRECT)] * 5
+        modified_results = copy.deepcopy(results_xml)
+        for run in modified_results.findall("run"):
+            status_column = run.find('column[@title="status"]')
+            category_column = run.find('column[@title="category"]')
+            run.remove(status_column)
+            run.remove(category_column)
+            run.set("properties", "coverage-branches")
+        mergeBenchmarkSets.merge(modified_results, mock_witness_sets(), True)
+        for expected, run in zip(expected_results, modified_results.findall("run")):
             status = run.find('column[@title="status"]').get("value")
             category = run.find('column[@title="category"]').get("value")
             self.assertTupleEqual(expected, (status, category))
