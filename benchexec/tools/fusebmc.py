@@ -10,6 +10,7 @@ from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, 
 import benchexec.tools.template
 import benchexec.result as result
 
+
 class Tool(benchexec.tools.template.BaseTool2):
     """
     This class serves as tool adaptor for FuSeBMC (https://github.com/kaled-alshmrany/FuSeBMC)
@@ -29,12 +30,17 @@ class Tool(benchexec.tools.template.BaseTool2):
         return "FuSeBMC"
 
     def cmdline(self, executable, options, task, rlimits):
+        
+        if task.property_file:
+            options = options + ["-p", task.property_file]
+        else:
+            raise benchexec.tools.template.UnsupportedFeatureException("property file is required")
         data_model_param = get_data_model_from_task(task, {ILP32: "32", LP64: "64"})
+        
         if data_model_param and "--arch" not in options:
             options += ["--arch", data_model_param]
         return (
             [executable]
-            + ["-p", task.property_file]
             + options
             + [task.single_input_file]
         )
@@ -44,11 +50,5 @@ class Tool(benchexec.tools.template.BaseTool2):
         
         if run.output.any_line_contains("DONE"):
             status = result.RESULT_DONE
-
-        if status == result.RESULT_UNKNOWN:
-            if run.was_timeout:
-                status = "TIMEOUT"
-            elif not run.output.any_line_contains("Unknown"):
-                status = "ERROR"
 
         return status
