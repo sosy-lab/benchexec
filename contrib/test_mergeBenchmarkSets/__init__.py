@@ -321,7 +321,7 @@ class TestMergeBenchmarkSets(unittest.TestCase):
         coverage_column = ET.Element(
             "column",
             title="branches_covered",
-            value="fifty percent",
+            value="fifty percent",  # this cannot be parsed into a number
         )
         modified_witness_run.append(coverage_column)
         actual = mergeBenchmarkSets.get_validation_result(
@@ -330,6 +330,7 @@ class TestMergeBenchmarkSets(unittest.TestCase):
             result.RESULT_TRUE_PROP,
             result.CATEGORY_CORRECT,
         )
+        # we should still be able to assign the correct results:
         self.assertTupleEqual(
             (
                 result.RESULT_TRUE_PROP,
@@ -339,6 +340,7 @@ class TestMergeBenchmarkSets(unittest.TestCase):
             ),
             actual,
         )
+        # score should be None since we were not able to parse "fifty percent" above:
         self.assertTrue(modified_witness_run.find('column[@title="score"]') is None)
 
     def test_merge_no_witness(self):
