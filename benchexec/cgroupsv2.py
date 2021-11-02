@@ -59,8 +59,9 @@ def _parse_proc_pid_cgroup(cgroup_file):
     @return: a generator of tuples
     """
     mountpoint = _find_cgroup_mount()
-    own_cgroup = cgroup_file.readline().strip().split(":")[2][1:]
-    path = mountpoint / own_cgroup
+    for line in cgroup_file:
+        own_cgroup = line.strip().split(":")[2][1:]
+        path = mountpoint / own_cgroup
 
     return path
 
@@ -224,7 +225,7 @@ class CgroupsV2(Cgroups):
         def kill_all_tasks_in_cgroup_recursively(cgroup, delete):
             for dirpath, dirs, _files in os.walk(cgroup, topdown=False):
                 for subCgroup in dirs:
-                    subCgroup = os.path.join(dirpath, subCgroup)
+                    subCgroup = pathlib.Path(dirpath) / subCgroup
                     kill_all_tasks_in_cgroup(subCgroup, ensure_empty=delete)
 
                     if delete:
