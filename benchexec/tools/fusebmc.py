@@ -30,24 +30,22 @@ class Tool(benchexec.tools.template.BaseTool2):
         return "FuSeBMC"
 
     def cmdline(self, executable, options, task, rlimits):
-        
+
         if task.property_file:
             options = options + ["-p", task.property_file]
         else:
-            raise benchexec.tools.template.UnsupportedFeatureException("property file is required")
+            raise benchexec.tools.template.UnsupportedFeatureException(
+                "property file is required"
+            )
         data_model_param = get_data_model_from_task(task, {ILP32: "32", LP64: "64"})
-        
+
         if data_model_param and "--arch" not in options:
             options += ["--arch", data_model_param]
-        return (
-            [executable]
-            + options
-            + [task.single_input_file]
-        )
+        return [executable] + options + [task.single_input_file]
 
     def determine_result(self, run):
         status = result.RESULT_UNKNOWN
-        
+
         if run.output.any_line_contains("DONE"):
             status = result.RESULT_DONE
 
