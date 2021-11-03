@@ -29,6 +29,15 @@ class P4BenchExec(BenchExec):
 
         return P4Execution()
 
+    def start(self, argv):
+        """
+        Make sure the test is not executed in container. Otherwise the application
+        wont be able to create new containers for the switches.
+        """
+        if not "--no-container" in argv:
+            argv.append("--no-container")
+        return super().start(argv)
+
 
 def main(benchexec=None, argv=None):
     """
