@@ -37,6 +37,9 @@ from benchexec.container import (
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
+_MAX_RESULT_FILE_LOG_COUNT = 1000
+"""How many result files to log at most."""
+
 
 def add_basic_container_args(argument_parser):
     argument_parser.add_argument(
@@ -1071,6 +1074,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             base_dir = tool_output_dir
         else:
             base_dir = tool_output_dir + working_dir
+        file_count = 0
 
         def transfer_file(abs_file):
             assert abs_file.startswith(base_dir)
@@ -1086,7 +1090,18 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 and not container.is_container_system_config_file(file)
             ):
                 target = output_dir + file
-                logging.debug("Transferring output file %s to %s", abs_file, target)
+
+                nonlocal file_count
+                file_count += 1
+                if file_count <= _MAX_RESULT_FILE_LOG_COUNT:
+                    logging.debug("Transferring output file %s to %s", abs_file, target)
+                    if file_count == _MAX_RESULT_FILE_LOG_COUNT:
+                        logging.debug(
+                            "%s output files transferred, "
+                            "further files will not be logged.",
+                            file_count,
+                        )
+
                 os.makedirs(os.path.dirname(target), exist_ok=True)
                 try:
                     # move is more efficient than copy in case both abs_file and target
@@ -1110,6 +1125,10 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                             transfer_file(os.path.join(root, file))
                 else:
                     transfer_file(abs_file)
+
+        logging.debug(
+            "%s output files matched the patterns and were transferred.", file_count
+        )
 
 
 if __name__ == "__main__":
