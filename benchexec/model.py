@@ -579,7 +579,9 @@ class RunSet(object):
             for run_definition in self.benchmark.config.selected_run_definitions
         )
 
-    def extract_runs_from_xml(self, sourcefilesTagList, global_required_files_pattern, rundef_name):
+    def extract_runs_from_xml(
+        self, sourcefilesTagList, global_required_files_pattern, rundef_name
+    ):
         """
         This function builds a list of SourcefileSets (containing filename with options).
         The files and their options are taken from the list of sourcefilesTags.
@@ -662,7 +664,8 @@ class RunSet(object):
                     logging.warning(
                         'For run definition "%s" the selected tasks "%s"'
                         "do not exist in the benchmark definition, skipping them.",
-                        rundef_name, selected,
+                        rundef_name,
+                        selected,
                     )
         return blocks
 
