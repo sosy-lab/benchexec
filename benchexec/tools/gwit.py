@@ -11,7 +11,7 @@ from benchexec.tools.template import BaseTool2
 
 class Tool(BaseTool2):
     """
-    Tool info module for GWIT.GWIT (as in *guess what I am thinking* or as in *GDart witness validator*) 
+    Tool info module for GWIT. GWIT (as in 'guess what I am thinking' or as in 'GDart witness validator') 
     is a witness validator for SVCOMP witnesses for Java programs, based on the *GDart* tool ensemble.
     https://github.com/tudo-aqua/gwit
     """
