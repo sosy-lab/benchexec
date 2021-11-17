@@ -8,7 +8,6 @@
 import benchexec.tools.template
 from collections.abc import Mapping
 import benchexec.result as result
-import re
 
 
 class Tool(benchexec.tools.template.BaseTool2):
@@ -38,7 +37,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         if not run.output:
             return result.RESULT_ERROR
         last_line = run.output[-1]
-        if re.match("Result:.*", last_line):
+        if last_line.startswith("Result:"):
             run_result = last_line.split(":", maxsplit=2)[-1]
             if run_result == "true":
                 return result.RESULT_TRUE_PROP
