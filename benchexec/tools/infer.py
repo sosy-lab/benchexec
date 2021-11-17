@@ -8,6 +8,7 @@
 import benchexec.tools.template
 from collections.abc import Mapping
 import benchexec.result as result
+import re
 
 
 class Tool(benchexec.tools.template.BaseTool2):
@@ -34,11 +35,15 @@ class Tool(benchexec.tools.template.BaseTool2):
         return cmd
 
     def determine_result(self, run):
-        run_result = run.output[-1].split(":", maxsplit=2)[-1]
-        if run_result == "true":
-            return result.RESULT_TRUE_PROP
-        if run_result == "false":
-            return result.RESULT_FALSE_PROP
-        if run_result == "unknown":
-            return result.RESULT_UNKNOWN
-        return result.RESULT_ERROR
+        if not run.output:
+            return result.RESULT_ERROR
+        last_line = run.output[-1]
+        if re.match("Result:.*", last_line):
+            run_result = last_line.split(":", maxsplit=2)[-1]
+            if run_result == "true":
+                return result.RESULT_TRUE_PROP
+            if run_result.startswith("false"):
+                return run_result
+            if run_result == "error":
+                return result.RESULT_ERROR
+        return result.RESULT_UNKNOWN
