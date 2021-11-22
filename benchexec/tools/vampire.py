@@ -32,7 +32,7 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def cmdline(self, executable, options, task, rlimits):
         if "-t" not in options and "--time_limit" not in options:
-            if rlimits.walltime:
+            if rlimits.walltime is None:
                 # Default timeout of Vampire is 60s,
                 # so we set value of 0 explicitly (means unlimited)
                 options += ["-t", "0"]
@@ -40,7 +40,7 @@ class Tool(benchexec.tools.template.BaseTool2):
                 options += ["-t", f"{rlimits.walltime}s"]
 
         if "-m" not in options and "--memory_limit" not in options:
-            if rlimits.memory:
+            if rlimits.memory is None:
                 # No memory limit has been set
                 # TODO: should we warn in this case? Vampire is going to use the default of 3000MiB
                 pass
