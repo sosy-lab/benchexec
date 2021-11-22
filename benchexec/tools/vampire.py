@@ -32,22 +32,16 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def cmdline(self, executable, options, task, rlimits):
         if "-t" not in options and "--time_limit" not in options:
-            if rlimits.walltime is None:
-                # Default timeout of Vampire is 60s,
-                # so we set value of 0 explicitly (means unlimited)
-                options += ["-t", "0"]
-            else:
-                options += ["-t", f"{rlimits.walltime}s"]
+            # Default timeout of Vampire is 60s, so we set value of 0
+            # explicitly (i.e. unlimited) if rlimits.walltime is None
+            options += ["-t", f"{rlimits.walltime or 0}s"]
 
-        if "-m" not in options and "--memory_limit" not in options:
-            if rlimits.memory is None:
-                # No memory limit has been set
-                # TODO: should we warn in this case? Vampire is going to use the default of 3000MiB
-                pass
-            else:
-                # Vampire's option '--memory_limit/-m' takes the value in MiB
-                memory_mib = rlimits.memory // (1024 * 1024)
-                options += ["-m", str(memory_mib)]
+        # TODO: should we warn if the memory is not set explicitly?
+        # Vampire is going to use the default of 3000MiB in this case
+        if "-m" not in options and "--memory_limit" not in options and rlimits.memory:
+            # Vampire's option '--memory_limit/-m' takes the value in MiB
+            memory_mib = rlimits.memory // (1024 * 1024)
+            options += ["-m", str(memory_mib)]
 
         return [executable, *options, task.single_input_file]
 
