@@ -9,6 +9,20 @@ SPDX-License-Identifier: Apache-2.0
 
 # BenchExec Changelog
 
+## BenchExec 3.10
+
+- Fix bug in HTML tables where content of a cell could be visible
+  through another cell when scrolling horizontally.
+- Slightly improved error handling and error messages
+  regarding cgroup permissions, cgroupsv2, and invalid directory modes.
+- Improved handling of debug log (`--debug`).
+  Previously, every transferred output file of the tool was logged,
+  which would lead to large debug logs in case a tool produced many files.
+  Now we log only the names of at most 1000 such output files.
+- Many new and improved tool-info modules.
+- The default branch of the git repository has been renamed to `main`.
+  Please adjust forks and checkouts if required.
+
 ## BenchExec 3.9
 
 - Improved container mode to make it work more easily inside LXC containers.
