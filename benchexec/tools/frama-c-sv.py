@@ -43,4 +43,4 @@ class Tool(benchexec.tools.template.BaseTool2):
         if lastline.startswith("INFO:RESULT:"):
             return lastline.split(":", maxsplit=2)[-1]
         else:
-            return benchexec.result.RESULT_UNKNOWN
+            return benchexec.result.RESULT_ERROR
