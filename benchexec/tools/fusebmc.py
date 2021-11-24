@@ -5,41 +5,48 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import benchexec.tools.esbmc as esbmc
-from benchexec.tools.template import ToolNotFoundException
+import os
+from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, LP64
+import benchexec.tools.template
+import benchexec.result as result
 
 
-class Tool(esbmc.Tool):
+class Tool(benchexec.tools.template.BaseTool2):
     """
     This class serves as tool adaptor for FuSeBMC (https://github.com/kaled-alshmrany/FuSeBMC)
     """
 
-    REQUIRED_PATHS_TESTCOMP20 = ["esbmc", "esbmc-wrapper.py", "my_instrument"]
-    REQUIRED_PATHS_TESTCOMP21 = [
-        "esbmc",
-        "fusebmc.py",
-        "FuSeBMC_inustrment/FuSeBMC_inustrment",
-        "fusebmc_output",
-        "map2check-fuzzer",
-    ]
+    def executable(self, tool_locator):
+        return tool_locator.find_executable("fusebmc.py")
+
+    def working_directory(self, executable):
+        executableDir = os.path.dirname(executable)
+        return executableDir
+
+    def version(self, executable):
+        return self._version_from_tool(executable, "-v")
 
     def name(self):
         return "FuSeBMC"
 
-    def executable(self, tool_locator):
-        try:
-            self._version = 21
-            return tool_locator.find_executable("fusebmc.py")
-        except ToolNotFoundException:
-            self._version = 20
-            return super().executable(tool_locator)
+    def cmdline(self, executable, options, task, rlimits):
 
-    def program_files(self, executable):
-        """
-        Determine the file paths to be adopted
-        """
-        if self._version == 20:
-            paths = self.REQUIRED_PATHS_TESTCOMP20
-        elif self._version > 20:
-            paths = self.REQUIRED_PATHS_TESTCOMP21
-        return self._program_files_from_executable(executable, paths)
+        if task.property_file:
+            options = options + ["-p", task.property_file]
+        else:
+            raise benchexec.tools.template.UnsupportedFeatureException(
+                "property file is required"
+            )
+        data_model_param = get_data_model_from_task(task, {ILP32: "32", LP64: "64"})
+
+        if data_model_param and "--arch" not in options:
+            options += ["--arch", data_model_param]
+        return [executable] + options + [task.single_input_file]
+
+    def determine_result(self, run):
+        status = result.RESULT_UNKNOWN
+
+        if run.output.any_line_contains("DONE"):
+            status = result.RESULT_DONE
+
+        return status
