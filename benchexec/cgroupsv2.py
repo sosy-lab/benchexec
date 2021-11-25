@@ -8,9 +8,12 @@
 import logging
 import os
 import pathlib
+import random
 import signal
+import string
 import tempfile
 import time
+
 
 from benchexec import util, BenchExecException
 from benchexec.cgroups import Cgroups
@@ -111,7 +114,7 @@ class CgroupsV2(Cgroups):
 
         super(CgroupsV2, self).__init__(subsystems, cgroup_procinfo, fallback)
 
-        self.path = next(iter(self.subsystems.values()))
+        self.path = next(iter(self.subsystems.values())) if len(self.subsystems) else None
 
     @property
     def known_subsystems(self):
@@ -195,10 +198,37 @@ class CgroupsV2(Cgroups):
         for c in controllers_to_delegate:
             util.write_file(f"+{c}", self.path / "cgroup.subtree_control")
 
-        return CgroupsV2({c: child_path for c in controllers_to_delegate})
+        # basic cpu controller support without being enabled
+        child_subsystems = controllers_to_delegate | {"cpu"}
+        return CgroupsV2({c: child_path for c in child_subsystems})
 
-    def _move_to_child(self):
-        logging.debug("Moving runexec main process to child")
+    def _move_to_scope(self):
+        logging.debug("Moving runexec main process to scope")
+
+        try:
+            from pystemd.dbuslib import DBus
+            from pystemd.systemd1 import Manager, Unit
+
+            with DBus(user_mode=True) as bus, Manager(bus=bus) as manager:
+                unit_params = {
+                    # workaround for not declared parameters, remove in the future
+                    b"_custom": (b"PIDs", b"au", [os.getpid()]),
+                    b"Delegate": True,
+                    b"CPUAccounting": True
+                }
+
+                random_suffix = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
+                name = f"benchexec_{random_suffix}.scope".encode()
+                manager.Manager.StartTransientUnit(name, b"fail", unit_params)
+
+                with Unit(name, bus=bus) as unit:
+                    self.subsystems = self._supported_subsystems()
+                    self.paths = set(self.subsystems.values())
+                    self.path = next(iter(self.subsystems.values()))
+                    logging.debug(f"moved to scope {name}, subsystems: {self.subsystems}")
+        except ImportError:
+            logging.warn("pystemd could not be imported")
+
         self.create_fresh_child_cgroup(self.subsystems.keys(), move_to_child=True)
 
     def add_task(self, pid):

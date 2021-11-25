@@ -86,7 +86,7 @@ class Cgroups(ABC):
             from .cgroupsv2 import CgroupsV2
 
             cgroups = CgroupsV2(cgroup_procinfo=cgroup_procinfo, fallback=fallback)
-            cgroups._move_to_child()
+            cgroups._move_to_scope()
 
             return cgroups
 
@@ -302,7 +302,7 @@ class Cgroups(ABC):
         pass
 
     @abstractmethod
-    def _move_to_child(self):
+    def _move_to_scope(self):
         pass
 
     @abstractmethod
