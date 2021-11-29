@@ -662,7 +662,7 @@ class RunSet(object):
                     for sourcefile_set in blocks
                 ):
                     logging.warning(
-                        'For run definition "%s" the selected tasks "%s"'
+                        'For run definition "%s" the selected tasks "%s" '
                         "do not exist in the benchmark definition, skipping them.",
                         rundef_name,
                         selected,
