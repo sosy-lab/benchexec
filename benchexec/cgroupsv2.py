@@ -114,7 +114,9 @@ class CgroupsV2(Cgroups):
 
         super(CgroupsV2, self).__init__(subsystems, cgroup_procinfo, fallback)
 
-        self.path = next(iter(self.subsystems.values())) if len(self.subsystems) else None
+        self.path = (
+            next(iter(self.subsystems.values())) if len(self.subsystems) else None
+        )
 
     @property
     def known_subsystems(self):
@@ -173,6 +175,14 @@ class CgroupsV2(Cgroups):
                 "Cannot create cgroups v2 child on non-empty parent without moving tasks"
             )
 
+        if len(tasks) > 1 and move_to_child:
+            raise BenchExecException(
+                "runexec must be the only running process in its cgroup. Either install pystemd "
+                "for runexec to handle this itself, prefix the command with `systemd-run --user --scope -p Delegate=yes` "
+                "or otherwise prepare the cgroup hierarchy to make sure of this and the subtree being "
+                "writable by the executing user."
+            )
+
         prefix = "runexec_main_" if move_to_child else CGROUP_NAME_PREFIX
         child_path = pathlib.Path(tempfile.mkdtemp(prefix=prefix, dir=self.path))
 
@@ -207,6 +217,7 @@ class CgroupsV2(Cgroups):
 
         try:
             from pystemd.dbuslib import DBus
+            from pystemd.dbusexc import DBusFileNotFoundError
             from pystemd.systemd1 import Manager, Unit
 
             with DBus(user_mode=True) as bus, Manager(bus=bus) as manager:
@@ -214,20 +225,26 @@ class CgroupsV2(Cgroups):
                     # workaround for not declared parameters, remove in the future
                     b"_custom": (b"PIDs", b"au", [os.getpid()]),
                     b"Delegate": True,
-                    b"CPUAccounting": True
+                    b"CPUAccounting": True,
                 }
 
-                random_suffix = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
+                random_suffix = "".join(
+                    random.choices(string.ascii_letters + string.digits, k=8)
+                )
                 name = f"benchexec_{random_suffix}.scope".encode()
                 manager.Manager.StartTransientUnit(name, b"fail", unit_params)
 
-                with Unit(name, bus=bus) as unit:
+                with Unit(name, bus=bus):
                     self.subsystems = self._supported_subsystems()
                     self.paths = set(self.subsystems.values())
                     self.path = next(iter(self.subsystems.values()))
-                    logging.debug(f"moved to scope {name}, subsystems: {self.subsystems}")
+                    logging.debug(
+                        f"moved to scope {name}, subsystems: {self.subsystems}"
+                    )
         except ImportError:
             logging.warn("pystemd could not be imported")
+        except DBusFileNotFoundError:
+            logging.warn("no user DBus found, not using pystemd")
 
         self.create_fresh_child_cgroup(self.subsystems.keys(), move_to_child=True)
 
