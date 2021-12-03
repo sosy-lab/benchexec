@@ -349,9 +349,7 @@ def handleCloudResults(benchmark, output_handler, start_time, end_time):
             rawPath = run.log_file[: -len(".log")]
             dirname, filename = os.path.split(rawPath)
             vcloudFilesDirectory = rawPath + ".files"
-            benchexecFilesDirectory = os.path.join(
-                dirname[: -len(".logfiles")] + ".files", filename
-            )
+            benchexecFilesDirectory = run.result_files_folder
             if os.path.isdir(vcloudFilesDirectory) and not os.path.isdir(
                 benchexecFilesDirectory
             ):
