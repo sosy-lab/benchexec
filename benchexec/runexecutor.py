@@ -295,6 +295,9 @@ def main(argv=None):
     print_optional_result("memory", "B")
     print_optional_result("blkio-read", "B")
     print_optional_result("blkio-write", "B")
+    print_optional_result("total-cpu-pressure-some", "s")
+    print_optional_result("total-io-pressure-some", "s")
+    print_optional_result("total-memory-pressure-some", "s")
     energy = intel_cpu_energy.format_energy_results(result.get("cpuenergy"))
     for energy_key, energy_value in energy.items():
         print(f"{energy_key}={energy_value}J")
@@ -1051,6 +1054,10 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             for core, coretime in cgroups.read_usage_per_cpu().items():
                 result[f"cputime-cpu{core}"] = coretime
 
+            cpu_pressure = cgroups.read_cpu_pressure()
+            if cpu_pressure is not None:
+                result["total-cpu-pressure-some"] = cpu_pressure
+
         if cgroups.MEMORY in cgroups:
             max_mem_usage = cgroups.read_max_mem_usage()
             if max_mem_usage is None:
@@ -1064,8 +1071,16 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             if oom_count:
                 result["oom"] = oom_count
 
+            mem_pressure = cgroups.read_mem_pressure()
+            if mem_pressure is not None:
+                result["total-memory-pressure-some"] = mem_pressure
+
         if cgroups.IO in cgroups:
             result["blkio-read"], result["blkio-write"] = cgroups.read_io_stat()
+
+            io_pressure = cgroups.read_io_pressure()
+            if io_pressure is not None:
+                result["total-io-pressure-some"] = io_pressure
 
         logging.debug(
             "Resource usage of run: walltime=%s, cputime=%s, cgroup-cputime=%s, memory=%s",

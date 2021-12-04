@@ -313,6 +313,27 @@ class CgroupsV2(Cgroups):
 
         return
 
+    def read_mem_pressure(self):
+        mem_stats = dict(self.get_key_value_pairs(self.MEMORY, "pressure"))
+        mem_some_stats = mem_stats["some"].split(' ')
+        stats_map = {s[0]: s[1] for s in (s.split("=") for s in mem_some_stats)}
+
+        return float(stats_map["total"]) / 1_000_000
+
+    def read_cpu_pressure(self):
+        cpu_stats = dict(self.get_key_value_pairs(self.CPU, "pressure"))
+        cpu_some_stats = cpu_stats["some"].split(' ')
+        stats_map = {s[0]: s[1] for s in (s.split("=") for s in cpu_some_stats)}
+
+        return float(stats_map["total"]) / 1_000_000
+
+    def read_io_pressure(self):
+        io_stats = dict(self.get_key_value_pairs(self.IO, "pressure"))
+        io_some_stats = io_stats["some"].split(' ')
+        stats_map = {s[0]: s[1] for s in (s.split("=") for s in io_some_stats)}
+
+        return float(stats_map["total"]) / 1_000_000
+
     def read_usage_per_cpu(self):
         logging.debug("Usage per CPU not supported in cgroups v2")
 

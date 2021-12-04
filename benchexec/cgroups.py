@@ -318,6 +318,18 @@ class Cgroups(ABC):
         pass
 
     @abstractmethod
+    def read_mem_pressure(self):
+        pass
+
+    @abstractmethod
+    def read_cpu_pressure(self):
+        pass
+
+    @abstractmethod
+    def read_io_pressure(self):
+        pass
+
+    @abstractmethod
     def read_usage_per_cpu(self):
         pass
 
