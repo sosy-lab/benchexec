@@ -175,14 +175,14 @@ class CgroupsV2(Cgroups):
                 "Cannot create cgroups v2 child on non-empty parent without moving tasks"
             )
 
-        #FIXME
-        #if len(tasks) > 1 and move_to_child:
-        #    raise BenchExecException(
-        #        "runexec must be the only running process in its cgroup. Either install pystemd "
-        #        "for runexec to handle this itself, prefix the command with `systemd-run --user --scope -p Delegate=yes` "
-        #        "or otherwise prepare the cgroup hierarchy to make sure of this and the subtree being "
-        #        "writable by the executing user."
-        #    )
+        # FIXME
+        # if len(tasks) > 1 and move_to_child:
+        #     raise BenchExecException(
+        #         "runexec must be the only running process in its cgroup. Either install pystemd "
+        #         "for runexec to handle this itself, prefix the command with `systemd-run --user --scope -p Delegate=yes` "
+        #         "or otherwise prepare the cgroup hierarchy to make sure of this and the subtree being "
+        #         "writable by the executing user."
+        #     )
 
         prefix = "runexec_main_" if move_to_child else CGROUP_NAME_PREFIX
         child_path = pathlib.Path(tempfile.mkdtemp(prefix=prefix, dir=self.path))
@@ -316,21 +316,21 @@ class CgroupsV2(Cgroups):
 
     def read_mem_pressure(self):
         mem_stats = dict(self.get_key_value_pairs(self.MEMORY, "pressure"))
-        mem_some_stats = mem_stats["some"].split(' ')
+        mem_some_stats = mem_stats["some"].split(" ")
         stats_map = {s[0]: s[1] for s in (s.split("=") for s in mem_some_stats)}
 
         return float(stats_map["total"]) / 1_000_000
 
     def read_cpu_pressure(self):
         cpu_stats = dict(self.get_key_value_pairs(self.CPU, "pressure"))
-        cpu_some_stats = cpu_stats["some"].split(' ')
+        cpu_some_stats = cpu_stats["some"].split(" ")
         stats_map = {s[0]: s[1] for s in (s.split("=") for s in cpu_some_stats)}
 
         return float(stats_map["total"]) / 1_000_000
 
     def read_io_pressure(self):
         io_stats = dict(self.get_key_value_pairs(self.IO, "pressure"))
-        io_some_stats = io_stats["some"].split(' ')
+        io_some_stats = io_stats["some"].split(" ")
         stats_map = {s[0]: s[1] for s in (s.split("=") for s in io_some_stats)}
 
         return float(stats_map["total"]) / 1_000_000

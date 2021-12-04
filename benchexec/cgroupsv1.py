@@ -341,17 +341,11 @@ class CgroupsV1(Cgroups):
     def read_mem_pressure(self):
         logging.debug("Pressure metrics not supported in cgroups v1")
 
-        return None
-
     def read_cpu_pressure(self):
         logging.debug("Pressure metrics not supported in cgroups v1")
 
-        return None
-
     def read_io_pressure(self):
         logging.debug("Pressure metrics not supported in cgroups v1")
-
-        return None
 
     def read_usage_per_cpu(self):
         usage = {}
