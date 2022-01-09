@@ -254,13 +254,13 @@ def _generate_native_clone_child_callback():
       PyOS_AfterFork_Child();
       return func_p();
     }
-    """
+    """  # noqa: B018
     # We compile this code and disassemble it with
     """
     gcc -Os -fPIC -shared -fomit-frame-pointer -march=native clone_child_callback.c \
         -o clone_child_callback.o
     objdump -d --disassembler-options=suffix clone_child_callback.o
-    """
+    """  # noqa: B018
     # This gives the following code (machine code left, assembler right)
     #
     # <clone_child_callback>:

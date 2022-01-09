@@ -309,7 +309,7 @@ def _prepare_stats(all_column_stats, rows, columns):
     stat_rows = [
         dict(  # noqa: C408
             id=None,
-            title="total",
+            title="total results",
             description=task_counts,
             content=get_stat_row("total"),
         )
