@@ -69,7 +69,8 @@ def execute_benchmark(benchmark, output_handler):
             "only resource limits are used."
         )
 
-    my_cgroups = Cgroups.from_system()
+    my_cgroups = Cgroups.from_system(initial_cgroup=True)
+    my_cgroups.move_to_scope()
     required_cgroups = set()
 
     coreAssignment = None  # cores per run

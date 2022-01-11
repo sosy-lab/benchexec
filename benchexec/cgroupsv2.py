@@ -175,14 +175,14 @@ class CgroupsV2(Cgroups):
                 "Cannot create cgroups v2 child on non-empty parent without moving tasks"
             )
 
-        # FIXME
-        # if len(tasks) > 1 and move_to_child:
-        #     raise BenchExecException(
-        #         "runexec must be the only running process in its cgroup. Either install pystemd "
-        #         "for runexec to handle this itself, prefix the command with `systemd-run --user --scope -p Delegate=yes` "
-        #         "or otherwise prepare the cgroup hierarchy to make sure of this and the subtree being "
-        #         "writable by the executing user."
-        #     )
+        allowed_pids = {str(p) for p in util.get_pgrp_pids(os.getpgid(0))}
+        if len(tasks) > 1 and not tasks <= allowed_pids and move_to_child:
+            raise BenchExecException(
+                "runexec must be the only running process in its cgroup. Either install pystemd "
+                "for runexec to handle this itself, prefix the command with `systemd-run --user --scope -p Delegate=yes` "
+                "or otherwise prepare the cgroup hierarchy to make sure of this and the subtree being "
+                "writable by the executing user."
+            )
 
         prefix = "runexec_main_" if move_to_child else CGROUP_NAME_PREFIX
         child_path = pathlib.Path(tempfile.mkdtemp(prefix=prefix, dir=self.path))
@@ -213,9 +213,10 @@ class CgroupsV2(Cgroups):
         child_subsystems = controllers_to_delegate | {"cpu"}
         return CgroupsV2({c: child_path for c in child_subsystems})
 
-    def _move_to_scope(self):
+    def move_to_scope(self):
         logging.debug("Moving runexec main process to scope")
 
+        pids = util.get_pgrp_pids(os.getpgid(0))
         try:
             from pystemd.dbuslib import DBus
             from pystemd.dbusexc import DBusFileNotFoundError
@@ -224,9 +225,8 @@ class CgroupsV2(Cgroups):
             with DBus(user_mode=True) as bus, Manager(bus=bus) as manager:
                 unit_params = {
                     # workaround for not declared parameters, remove in the future
-                    b"_custom": (b"PIDs", b"au", [os.getpid()]),
+                    b"_custom": (b"PIDs", b"au", [int(p) for p in pids]),
                     b"Delegate": True,
-                    b"CPUAccounting": True,
                 }
 
                 random_suffix = "".join(

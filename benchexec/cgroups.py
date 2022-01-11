@@ -76,7 +76,7 @@ def _get_cgroup_version():
 
 class Cgroups(ABC):
     @staticmethod
-    def from_system(cgroup_procinfo=None, fallback=True):
+    def from_system(cgroup_procinfo=None, fallback=True, initial_cgroup=False):
         version = _get_cgroup_version()
         if version == CGROUPS_V1:
             from .cgroupsv1 import CgroupsV1
@@ -86,7 +86,10 @@ class Cgroups(ABC):
             from .cgroupsv2 import CgroupsV2
 
             cgroups = CgroupsV2(cgroup_procinfo=cgroup_procinfo, fallback=fallback)
-            cgroups._move_to_scope()
+            if not initial_cgroup:
+                cgroups.create_fresh_child_cgroup(
+                    cgroups.subsystems.keys(), move_to_child=True
+                )
 
             return cgroups
 
@@ -302,7 +305,7 @@ class Cgroups(ABC):
         pass
 
     @abstractmethod
-    def _move_to_scope(self):
+    def move_to_scope(self):
         pass
 
     @abstractmethod

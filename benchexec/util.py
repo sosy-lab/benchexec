@@ -17,6 +17,7 @@ import fnmatch
 import glob
 import logging
 import os
+import pathlib
 import shutil
 import signal as _signal
 import stat
@@ -739,3 +740,15 @@ def check_msr():
         if all(os.access(f"/dev/cpu/{cpu}/msr", os.W_OK) for cpu in cpu_dirs):
             res["write"] = True
     return res
+
+
+def get_pgrp_pids(pgid):
+    pids = []
+    for proc_stat_path in pathlib.Path("/proc").glob("[0-9]*/stat"):
+        with open(proc_stat_path) as proc_stat_fh:
+            proc_stat = proc_stat_fh.readline().split(" ")
+            pid, stat_pgid = proc_stat[0], proc_stat[4]
+            if pgid == int(stat_pgid):
+                pids.append(pid)
+
+    return pids

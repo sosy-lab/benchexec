@@ -251,7 +251,7 @@ class CgroupsV1(Cgroups):
 
         return CgroupsV1(createdCgroupsPerSubsystem)
 
-    def _move_to_scope(self):
+    def move_to_scope(self):
         logging.debug("moving to scope currently not supported for cgroups v1")
 
     def add_task(self, pid):
