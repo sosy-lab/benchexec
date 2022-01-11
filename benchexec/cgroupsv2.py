@@ -20,10 +20,6 @@ from benchexec.cgroups import Cgroups
 
 
 uid = os.getuid()
-CGROUP_FALLBACK_PATH = f"user.slice/user-{uid}.slice/user@{uid}.service/app.slice/benchexec-cgroup2.service/benchexec_root"
-"""If we do not have write access to the current cgroup,
-attempt to use this cgroup as fallback."""
-
 CGROUP_NAME_PREFIX = "benchmark_"
 
 
@@ -140,11 +136,6 @@ class CgroupsV2(Cgroups):
             cgroup_path = _find_own_cgroups()
         else:
             cgroup_path = _parse_proc_pid_cgroup(cgroup_procinfo)
-
-        if not os.access(cgroup_path / "cgroup.subtree_control", os.W_OK) and fallback:
-            mount = _find_cgroup_mount()
-            fallback_path = mount / CGROUP_FALLBACK_PATH
-            cgroup_path = fallback_path
 
         with open(cgroup_path / "cgroup.controllers") as subsystems_file:
             subsystems = set(subsystems_file.readline().strip().split())
