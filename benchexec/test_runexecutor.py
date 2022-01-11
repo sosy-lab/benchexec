@@ -150,6 +150,9 @@ class TestRunExecutor(unittest.TestCase):
             "blkio-read",
             "blkio-write",
             "starttime",
+            "total-cpu-pressure-some",
+            "total-io-pressure-some",
+            "total-memory-pressure-some",
         }
         expected_keys.update(additional_keys)
         for key in result.keys():
