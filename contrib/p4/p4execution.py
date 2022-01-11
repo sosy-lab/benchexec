@@ -634,8 +634,8 @@ class P4Execution(object):
             used_ports = self.network_config["nodes"][node_container.name]["used_ports"]
 
             for port_nr in used_ports:
-                node_command += " -i {0}-{1}@{2}_{1}".format(
-                    node_config["id"], port_nr, node_container.name
+                node_command += (
+                    f" -i {node_config['id']}-{port_nr}@{node_container.name}_{port_nr}"
                 )
 
             container_threads.append(
