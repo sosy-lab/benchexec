@@ -42,5 +42,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         lastline = run.output[-1]
         if lastline.startswith("INFO\tRESULT\t"):
             return lastline.split("\t", maxsplit=3)[-1]
+        elif lastline.startswith("INFO:RESULT:"):
+            return lastline.split(":", maxsplit=2)[-1]
         else:
             return benchexec.result.RESULT_ERROR
