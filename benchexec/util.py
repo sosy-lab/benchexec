@@ -745,10 +745,19 @@ def check_msr():
 def get_pgrp_pids(pgid):
     pids = []
     for proc_stat_path in pathlib.Path("/proc").glob("[0-9]*/stat"):
-        with open(proc_stat_path) as proc_stat_fh:
-            proc_stat = proc_stat_fh.readline().split(" ")
-            pid, stat_pgid = proc_stat[0], proc_stat[4]
-            if pgid == int(stat_pgid):
-                pids.append(pid)
+        try:
+            with open(proc_stat_path) as proc_stat_fh:
+                proc_stat = proc_stat_fh.readline().split(" ")
+                pid, stat_pgid = proc_stat[0], proc_stat[4]
+                if pgid == int(stat_pgid):
+                    pids.append(pid)
+        except OSError:
+            # ignore race conditions with processes disappearing
+            # they aren't interesting to us anyway as processes
+            # related to us will continue running. Apart from that, this is
+            # used to move processes to a scope or check if moving to a cgroup
+            # makes sense so processes having terminated aren't useful in these
+            # cases anyway
+            pass
 
     return pids
