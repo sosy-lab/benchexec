@@ -90,8 +90,15 @@ export default class LinkOverlay extends React.Component {
    * 2) HTTP Range request for file in ZIP archive -> fails for ZIPs on the local disk
    * 3) Normal HTTP request for file in ZIP archive -> fails for Google Chrome for ZIPs on the local disk
    * 4) Manually via XMLHttpRequest
+   *
+   * In principle, we would like to use loadFileFetch.
+   * However, in Chrome the parameter --allow-file-access-from-files
+   * does not affect fetch requests, only XMLHttpRequest.
+   * So we need to use the latter for now.
    */
-  async loadFile(url) {
+  loadFile = this.loadFileXMLHttpRequest;
+
+  async loadFileFetch(url) {
     if (url) {
       this.setState({ currentFile: url });
       try {
@@ -102,6 +109,28 @@ export default class LinkOverlay extends React.Component {
         } else {
           throw Error(`Received response status ${response.status}`);
         }
+      } catch (e) {
+        this.loadFileFromZip(url);
+      }
+    }
+  }
+
+  loadFileXMLHttpRequest(url) {
+    if (url) {
+      try {
+        this.setState({ currentFile: url });
+        const xhr = new XMLHttpRequest();
+        xhr.addEventListener("load", () => {
+          if (isOkStatus(xhr.status)) {
+            const content = xhr.responseText;
+            this.setState({ content });
+          } else {
+            this.loadFileFromZip(url);
+          }
+        });
+        xhr.addEventListener("error", () => this.loadFileFromZip(url));
+        xhr.open("GET", url);
+        xhr.send();
       } catch (e) {
         this.loadFileFromZip(url);
       }
@@ -135,11 +164,7 @@ export default class LinkOverlay extends React.Component {
         this.handleZipEntries(entries, zipFile, zipPath);
       },
       (error) => {
-        if (error.message === zip.ERR_HTTP_RANGE) {
-          this.readZipArchiveNoHttpRange(zipPath, zipFile);
-        } else {
-          this.setError(`HTTP request for the file "${zipFile}" failed`, error);
-        }
+        this.readZipArchiveNoHttpRange(zipPath, zipFile);
       },
     );
   };
