@@ -280,20 +280,33 @@ export default class LinkOverlay extends React.Component {
             {window.location.href.indexOf("file://") === 0 ? (
               <>
                 <p>
-                  If you are using Chrome or a Chrome-based browser, try
-                  launching it with the command-line option{" "}
-                  <code>--allow-file-access-from-files</code>.
+                  If you are using <strong>Chrome</strong> or a Chrome-based
+                  browser, try launching it with the command-line option{" "}
+                  <strong>
+                    <code>--allow-file-access-from-files</code>
+                  </strong>
+                  .
                 </p>
                 <p>
-                  If you are using Firefox, please open the extended settings by
-                  entering <code>about:config</code> in the URL bar, search for{" "}
-                  <code>privacy.file_unique_origin</code> and set this option to{" "}
-                  <code>false</code> by double-clicking on it (
-                  <a href="https://developer.mozilla.org/docs/Web/HTTP/CORS/Errors/CORSRequestNotHttp">
+                  If you are using <strong>Firefox</strong>, please open the
+                  extended settings by entering <code>about:config</code> in the
+                  URL bar, search for{" "}
+                  <strong>
+                    <code>security.fileuri.strict_origin_policy</code>
+                  </strong>{" "}
+                  and set this option to <code>false</code> by double-clicking
+                  on it and restart your browser (
+                  <a href="https://kb.mozillazine.org/Security.fileuri.strict_origin_policy">
                     more details
                   </a>
-                  ). Access to files that are not beneath the same directory as
-                  this HTML page is still forbidden.
+                  ).
+                </p>
+                <p>
+                  <strong>
+                    Note that these settings will allow local web pages to
+                    access all of your files, so make sure to not open any
+                    untrusted local HTML documents.
+                  </strong>
                 </p>
               </>
             ) : null}
