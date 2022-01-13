@@ -9,7 +9,7 @@ import React from "react";
 import ReactModal from "react-modal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes, faArrowLeft } from "@fortawesome/free-solid-svg-icons";
-import { isOkStatus } from "../utils/utils";
+import { CopyableNode, isOkStatus } from "../utils/utils";
 import classNames from "classnames";
 import path from "path";
 import TaskDefinitionViewer from "./TaskDefinitionViewer.js";
@@ -244,6 +244,26 @@ export default class LinkOverlay extends React.Component {
     window.addEventListener("click", this.props.close, false);
   };
 
+  /*
+   * Split our own URL path (without protocol, query, and hash parts) into
+   * the prefix that is the same as in this.state.currentFile and the rest.
+   * Returns [prefix, suffix].
+   */
+  splitUrlPathForMatchingPrefix = () => {
+    const absTargetUrl = new URL(
+      this.state.currentFile,
+      document.baseURI,
+    ).pathname.split("/");
+    const absOurUrl = window.location.pathname.split("/");
+    const firstDiffering = absTargetUrl.findIndex(
+      (element, index) => element !== absOurUrl[index],
+    );
+    return [
+      absOurUrl.slice(0, firstDiffering).join("/"),
+      absOurUrl.slice(firstDiffering).join("/"),
+    ];
+  };
+
   render() {
     ReactModal.setAppElement(document.getElementById("root"));
     return (
@@ -302,7 +322,7 @@ export default class LinkOverlay extends React.Component {
               </a>{" "}
               of your browser.
             </p>
-            {window.location.href.indexOf("file://") === 0 ? (
+            {window.location.protocol === "file:" ? (
               <>
                 <p>
                   If you are using <strong>Chrome</strong> or a Chrome-based
@@ -333,10 +353,37 @@ export default class LinkOverlay extends React.Component {
                     untrusted local HTML documents.
                   </strong>
                 </p>
+                <p>
+                  Alternatively, you can start a local web server serving the
+                  directories with the tables and result files.
+                  <br />
+                  To do so, execute the following command and then open{" "}
+                  <a
+                    href={
+                      "http://127.0.0.1:8000/" +
+                      this.splitUrlPathForMatchingPrefix()[1] +
+                      window.location.hash
+                    }
+                  >
+                    this link
+                  </a>{" "}
+                  (adjust the port number 8000 if it is already used on your
+                  system):
+                  {/* The weird path prefix //. makes it work on both Linux and
+                    Windows, where splitUrlPathForMatchingPrefix() returns
+                    something like /C:/ . */}
+                  <br />
+                  <CopyableNode>
+                    <code>
+                      python3 -m http.server -b 127.0.0.1 8000 -d //.
+                      {this.splitUrlPathForMatchingPrefix()[0]}
+                    </code>
+                  </CopyableNode>
+                </p>
               </>
             ) : null}
             <p>
-              You can try to download the file:{" "}
+              You can also try to download the file:{" "}
               <a href={this.state.currentFile}>{this.state.currentFile}</a>
             </p>
           </div>

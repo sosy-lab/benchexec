@@ -6,6 +6,34 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from "react";
+import copy from "copy-to-clipboard";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCopy } from "@fortawesome/free-regular-svg-icons";
+
+/* A DOM node that allows its content to be copied to the clipboard. */
+export class CopyableNode extends React.Component {
+  constructor(props) {
+    super(props);
+    this.childRef = React.createRef();
+  }
+
+  render() {
+    return (
+      <>
+        <span ref={this.childRef}>{this.props.children}</span>
+        <button
+          title="Copy to clipboard"
+          style={{ margin: "1ex" }}
+          onClick={() => {
+            copy(this.childRef.current.innerText, { format: "text/plain" });
+          }}
+        >
+          <FontAwesomeIcon icon={faCopy} />
+        </button>
+      </>
+    );
+  }
+}
 
 const emptyStateValue = "##########";
 

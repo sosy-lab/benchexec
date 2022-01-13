@@ -67,6 +67,10 @@ checker.init(
           const depWithProperData = packages["regenerator-runtime@0.13.5"];
           dependency.licenseText = depWithProperData.licenseText;
           dependency.copyright = depWithProperData.copyright;
+        } else if (key === "toggle-selection@1.0.6") {
+          // package without proper license file, use data from other package from same author with same license
+          const depWithProperData = packages["copy-to-clipboard@3.3.1"];
+          dependency.licenseText = depWithProperData.licenseText;
         }
 
         var license = dependency.licenseText;
