@@ -35,6 +35,27 @@ export class CopyableNode extends React.Component {
   }
 }
 
+/*
+ * Split the path of a URL into a prefix (that is the longest prefix that is
+ * shared with a second given URL) and the rest.
+ * Both given URLs can be URL or Location instances.
+ * Returns [prefix, rest] as an array of strings.
+ * The "rest" always conains a least the file-part of the first URL
+ * (after the last slash).
+ * Protocol, query part and hash of the URL is dropped.
+ */
+export const splitUrlPathForMatchingPrefix = (url1, url2) => {
+  const path1 = url1.pathname.split("/");
+  const path2 = url2.pathname.split("/");
+  const firstDiffering = path1.findIndex(
+    (element, index) => element !== path2[index],
+  );
+  return [
+    path1.slice(0, firstDiffering).join("/"),
+    path1.slice(firstDiffering).join("/"),
+  ];
+};
+
 const emptyStateValue = "##########";
 
 const prepareTableData = ({ head, tools, rows, stats, props, initial }) => {

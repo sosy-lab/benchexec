@@ -9,7 +9,11 @@ import React from "react";
 import ReactModal from "react-modal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes, faArrowLeft } from "@fortawesome/free-solid-svg-icons";
-import { CopyableNode, isOkStatus } from "../utils/utils";
+import {
+  CopyableNode,
+  isOkStatus,
+  splitUrlPathForMatchingPrefix,
+} from "../utils/utils";
 import classNames from "classnames";
 import path from "path";
 import TaskDefinitionViewer from "./TaskDefinitionViewer.js";
@@ -250,18 +254,8 @@ export default class LinkOverlay extends React.Component {
    * Returns [prefix, suffix].
    */
   splitUrlPathForMatchingPrefix = () => {
-    const absTargetUrl = new URL(
-      this.state.currentFile,
-      document.baseURI,
-    ).pathname.split("/");
-    const absOurUrl = window.location.pathname.split("/");
-    const firstDiffering = absTargetUrl.findIndex(
-      (element, index) => element !== absOurUrl[index],
-    );
-    return [
-      absOurUrl.slice(0, firstDiffering).join("/"),
-      absOurUrl.slice(firstDiffering).join("/"),
-    ];
+    const absTargetUrl = new URL(this.state.currentFile, document.baseURI);
+    return splitUrlPathForMatchingPrefix(window.location, absTargetUrl);
   };
 
   render() {
