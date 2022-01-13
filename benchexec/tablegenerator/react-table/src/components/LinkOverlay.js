@@ -297,6 +297,36 @@ export default class LinkOverlay extends React.Component {
       absCurrentFile,
     );
 
+    // There are three known path variants:
+    // Unix: looks like: /home/...
+    // Regular Windows: looks like /C:/Users/...
+    // Network share on Windows (including WSL): looks like //host/dir/...
+    // For regular Windows path, we need to remove the leading slash,
+    // and if the partitions differ there is no possible base directory,
+    // so we give up.
+    if (window.location.pathname[2] === ":") {
+      // Very likely we are on Windows.
+      if (baseDir) {
+        if (baseDir[0] === "/") {
+          baseDir = baseDir.substring(1);
+        }
+      } else {
+        // Table and logs are on different partitions, we have no chance
+        // of providing a working command line.
+        return (
+          <>
+            {browserSettingsMessage}
+            <p>
+              Alternatively, you can start a local web server serving the
+              directories with the tables and result files, but for doing so you
+              first need to make sure that table and result files are on the
+              same partition.
+            </p>
+          </>
+        );
+      }
+    }
+
     const ip = "127.0.0.1";
     const port = 8000;
     const url = `http://${ip}:${port}/${pathSuffix}${window.location.hash}`;
@@ -310,13 +340,10 @@ export default class LinkOverlay extends React.Component {
           To do so, execute the following command and then open{" "}
           <a href={url}>this link</a> (adjust the port number {port} if it is
           already used on your system):
-          {/* The weird path prefix //. makes it work on both Linux and
-              Windows, where splitUrlPathForMatchingPrefix() returns
-              something like /C:/ . */}
           <br />
           <CopyableNode>
             <code>
-              python3 -m http.server -b {ip} {port} -d //.{baseDir}
+              python3 -m http.server -b {ip} {port} -d {baseDir || "/"}
             </code>
           </CopyableNode>
         </p>
