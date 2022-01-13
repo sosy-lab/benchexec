@@ -248,14 +248,80 @@ export default class LinkOverlay extends React.Component {
     window.addEventListener("click", this.props.close, false);
   };
 
-  /*
-   * Split our own URL path (without protocol, query, and hash parts) into
-   * the prefix that is the same as in this.state.currentFile and the rest.
-   * Returns [prefix, suffix].
-   */
-  splitUrlPathForMatchingPrefix = () => {
-    const absTargetUrl = new URL(this.state.currentFile, document.baseURI);
-    return splitUrlPathForMatchingPrefix(window.location, absTargetUrl);
+  renderHelpMessageForLocalLogs = () => {
+    if (window.location.protocol !== "file:") {
+      return null; // not relevant
+    }
+
+    const browserSettingsMessage = (
+      <>
+        <p>
+          If you are using <strong>Chrome</strong> or a Chrome-based browser,
+          try launching it with the command-line option{" "}
+          <strong>
+            <code>--allow-file-access-from-files</code>
+          </strong>
+          .
+        </p>
+        <p>
+          If you are using <strong>Firefox</strong>, please open the extended
+          settings by entering <code>about:config</code> in the URL bar, search
+          for{" "}
+          <strong>
+            <code>security.fileuri.strict_origin_policy</code>
+          </strong>{" "}
+          and set this option to <code>false</code> by double-clicking on it and
+          restart your browser (
+          <a href="https://kb.mozillazine.org/Security.fileuri.strict_origin_policy">
+            more details
+          </a>
+          ).
+        </p>
+        <p>
+          <strong>
+            Note that these settings will allow local web pages to access all of
+            your files, so make sure to not open any untrusted local HTML
+            documents.
+          </strong>
+        </p>
+      </>
+    );
+
+    // Users can also start a local HTTP server, and we want to explain this
+    // and generate the necessary command for them such that this is easy.
+    // We need the base directory of the HTTP server (document root)
+    // that should contain both the table and the result files.
+    const absCurrentFile = new URL(this.state.currentFile, document.baseURI);
+    let [baseDir, pathSuffix] = splitUrlPathForMatchingPrefix(
+      window.location,
+      absCurrentFile,
+    );
+
+    const ip = "127.0.0.1";
+    const port = 8000;
+    const url = `http://${ip}:${port}/${pathSuffix}${window.location.hash}`;
+    return (
+      <>
+        {browserSettingsMessage}
+        <p>
+          Alternatively, you can start a local web server serving the
+          directories with the tables and result files.
+          <br />
+          To do so, execute the following command and then open{" "}
+          <a href={url}>this link</a> (adjust the port number {port} if it is
+          already used on your system):
+          {/* The weird path prefix //. makes it work on both Linux and
+              Windows, where splitUrlPathForMatchingPrefix() returns
+              something like /C:/ . */}
+          <br />
+          <CopyableNode>
+            <code>
+              python3 -m http.server -b {ip} {port} -d //.{baseDir}
+            </code>
+          </CopyableNode>
+        </p>
+      </>
+    );
   };
 
   render() {
@@ -316,66 +382,7 @@ export default class LinkOverlay extends React.Component {
               </a>{" "}
               of your browser.
             </p>
-            {window.location.protocol === "file:" ? (
-              <>
-                <p>
-                  If you are using <strong>Chrome</strong> or a Chrome-based
-                  browser, try launching it with the command-line option{" "}
-                  <strong>
-                    <code>--allow-file-access-from-files</code>
-                  </strong>
-                  .
-                </p>
-                <p>
-                  If you are using <strong>Firefox</strong>, please open the
-                  extended settings by entering <code>about:config</code> in the
-                  URL bar, search for{" "}
-                  <strong>
-                    <code>security.fileuri.strict_origin_policy</code>
-                  </strong>{" "}
-                  and set this option to <code>false</code> by double-clicking
-                  on it and restart your browser (
-                  <a href="https://kb.mozillazine.org/Security.fileuri.strict_origin_policy">
-                    more details
-                  </a>
-                  ).
-                </p>
-                <p>
-                  <strong>
-                    Note that these settings will allow local web pages to
-                    access all of your files, so make sure to not open any
-                    untrusted local HTML documents.
-                  </strong>
-                </p>
-                <p>
-                  Alternatively, you can start a local web server serving the
-                  directories with the tables and result files.
-                  <br />
-                  To do so, execute the following command and then open{" "}
-                  <a
-                    href={
-                      "http://127.0.0.1:8000/" +
-                      this.splitUrlPathForMatchingPrefix()[1] +
-                      window.location.hash
-                    }
-                  >
-                    this link
-                  </a>{" "}
-                  (adjust the port number 8000 if it is already used on your
-                  system):
-                  {/* The weird path prefix //. makes it work on both Linux and
-                    Windows, where splitUrlPathForMatchingPrefix() returns
-                    something like /C:/ . */}
-                  <br />
-                  <CopyableNode>
-                    <code>
-                      python3 -m http.server -b 127.0.0.1 8000 -d //.
-                      {this.splitUrlPathForMatchingPrefix()[0]}
-                    </code>
-                  </CopyableNode>
-                </p>
-              </>
-            ) : null}
+            {this.renderHelpMessageForLocalLogs()}
             <p>
               You can also try to download the file:{" "}
               <a href={this.state.currentFile}>{this.state.currentFile}</a>
