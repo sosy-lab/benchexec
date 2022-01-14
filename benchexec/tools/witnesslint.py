@@ -27,10 +27,10 @@ class Tool(benchexec.tools.template.BaseTool2):
         version_string = self._version_from_tool(executable)
         return version_string.partition("version")[2].strip().split(" ")[0]
 
-    def get_witness_type(self, run):
-        for line in run.output:
-            if line.startswith("Witness Type:"):
-                return line.split(" ", maxsplit=2)[-1]
+    def get_value_from_output(self, output, identifier):
+        for line in output:
+            if line.startswith(identifier):
+                return line.split(":", maxsplit=1)[-1].strip()
         return None
 
     def determine_result(self, run):
