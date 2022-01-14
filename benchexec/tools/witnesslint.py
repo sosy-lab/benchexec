@@ -27,6 +27,12 @@ class Tool(benchexec.tools.template.BaseTool2):
         version_string = self._version_from_tool(executable)
         return version_string.partition("version")[2].strip().split(" ")[0]
 
+    def get_witness_type(self, run):
+        for line in run.output:
+            if line.startswith("Witness Type:"):
+                return line.split(" ", maxsplit=2)[-1]
+        return None
+
     def determine_result(self, run):
         exit_code = run.exit_code.value
         if "witnesslint finished" not in run.output[-1] or exit_code == 7:
