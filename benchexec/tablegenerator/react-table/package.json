@@ -72,8 +72,7 @@
       "@zip.js/zip.js/lib/zip-no-worker-inflate": "<rootDir>/node_modules/@zip.js/zip.js/dist/zip-no-worker-inflate.min.js"
     },
     "setupFilesAfterEnv": [
-      "<rootDir>src/tests/setup/setup.js",
-      "<rootDir>src/tests/utils.js"
+      "<rootDir>src/tests/setup/setup.js"
     ]
   },
   "devDependencies": {
