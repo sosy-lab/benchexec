@@ -16,6 +16,7 @@
     "classnames": "^2.3.1",
     "copy-to-clipboard": "^3.3.1",
     "deep-equal": "^2.0.5",
+    "path-browserify": "^1.0.1",
     "rc-slider": "^9.7.2",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
@@ -67,7 +68,8 @@
   },
   "jest": {
     "moduleNameMapper": {
-      "@data": "<rootDir>/src/data/data.json"
+      "@data": "<rootDir>/src/data/data.json",
+      "@zip.js/zip.js/lib/zip-no-worker-inflate": "<rootDir>/node_modules/@zip.js/zip.js/dist/zip-no-worker-inflate.min.js"
     },
     "setupFilesAfterEnv": [
       "<rootDir>src/tests/setup/setup.js",
@@ -81,8 +83,8 @@
     "eslint-plugin-prettier": "^3.4.0",
     "license-checker": "^25.0.1",
     "prettier": "^2.2.1",
-    "react-app-rewired": "^2.1.8",
-    "react-scripts": "4.0.3",
+    "react-app-rewired": "^2.1.11",
+    "react-scripts": "5.0.0",
     "react-test-renderer": "^17.0.2",
     "sass": "^1.42.1",
     "uniqid": "^5.3.0"

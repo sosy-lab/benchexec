@@ -17,7 +17,7 @@ import benchexec.util
 
 _REACT_FILES = [
     os.path.join(os.path.dirname(__file__), "react-table", "build", path)
-    for path in ["vendors.min.", "bundle.min."]
+    for path in ["vendors.min.", "main.min."]
 ]
 
 

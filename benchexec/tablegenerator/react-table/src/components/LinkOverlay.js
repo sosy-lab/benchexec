@@ -15,9 +15,9 @@ import {
   splitUrlPathForMatchingPrefix,
 } from "../utils/utils";
 import classNames from "classnames";
-import path from "path";
+import path from "path-browserify";
 import TaskDefinitionViewer from "./TaskDefinitionViewer.js";
-import * as zip from "@zip.js/zip.js/dist/zip-no-worker-inflate.min";
+import * as zip from "@zip.js/zip.js/lib/zip-no-worker-inflate";
 
 zip.configure({
   useWebWorkers: false,
