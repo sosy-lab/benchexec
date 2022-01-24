@@ -218,25 +218,20 @@ const Summary = (props) => {
 
   const data = useMemo(() => props.tableData, [props.tableData]);
 
-  const {
-    getTableProps,
-    getTableBodyProps,
-    headerGroups,
-    rows,
-    prepareRow,
-  } = useTable(
-    {
-      columns,
-      data,
-      initialState: {
-        hiddenColumns: getHiddenColIds(columns),
+  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
+    useTable(
+      {
+        columns,
+        data,
+        initialState: {
+          hiddenColumns: getHiddenColIds(columns),
+        },
       },
-    },
-    useFilters,
-    useResizeColumns,
-    useFlexLayout,
-    useSticky,
-  );
+      useFilters,
+      useResizeColumns,
+      useFlexLayout,
+      useSticky,
+    );
 
   return (
     <div id="summary">
