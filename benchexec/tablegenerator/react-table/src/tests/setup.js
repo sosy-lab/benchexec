@@ -12,10 +12,6 @@ import Adapter from "enzyme-adapter-react-16";
 // Used by @zip.js/zip.js, but not implemented in jsdom via jest, so manually mock it here
 window.crypto = jest.fn();
 
-// mock uniqid to have consistent names
-// https://stackoverflow.com/a/44538270/396730
-jest.mock("uniqid", () => (i) => i + "uniqid");
-
 configure({ adapter: new Adapter() });
 
 // We use jest snapshots for integration tests, and they become quite large.
