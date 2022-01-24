@@ -10,11 +10,11 @@ Copyright: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
 License: Apache-2.0
 
 Files: benchexec/tablegenerator/react-table/src/tests/__snapshots__/*.snap
- benchexec/tablegenerator/react-table/build/bundle.min.*
+ benchexec/tablegenerator/react-table/build/main.min.*
 Copyright: 2019-2020 Dirk Beyer <https://www.sosy-lab.org>
 License: Apache-2.0
 
-Files: benchexec/tablegenerator/react-table/main/vendors.min.*
+Files: benchexec/tablegenerator/react-table/build/vendors.min.*
 Copyright: various authors (full list is bundled and shown on Info tab)
 License: BSD-3-Clause AND CC-BY-4.0 AND MIT AND ISC
 
