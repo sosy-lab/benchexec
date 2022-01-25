@@ -208,15 +208,15 @@ const EXTENDED_DISCRETE_COLOR_RANGE = [
  */
 const getHashSearch = (str) => {
   const urlParts = (str || decodeURI(document.location.href)).split("?");
-  const search = urlParts.length > 1 ? urlParts[1] : undefined;
+  const search = urlParts.length > 1 ? urlParts.slice(1).join("?") : undefined;
   if (search === undefined || search.length === 0) {
     return {};
   }
   const keyValuePairs = search.split("&").map((i) => i.split("="));
 
   const out = {};
-  for (const [key, value] of keyValuePairs) {
-    out[key] = value;
+  for (const [key, ...value] of keyValuePairs) {
+    out[key] = value.join("=");
   }
   return out;
 };
