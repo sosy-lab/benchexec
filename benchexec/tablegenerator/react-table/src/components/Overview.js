@@ -37,6 +37,7 @@ import {
   setConstantHashSearch,
 } from "../utils/utils";
 import deepEqual from "deep-equal";
+require("setimmediate"); // provides setImmediate and clearImmediate
 
 const menuItems = [
   { key: "summary", title: "Summary", path: "/" },
