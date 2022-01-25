@@ -10,6 +10,7 @@
 // the file:// protocol https://stackoverflow.com/questions/21408510/chrome-cant-load-web-worker
 
 import { stats as statsWorkerDataUrl } from "./dataUrls";
+require("setimmediate"); // provides setImmediate and clearImmediate
 
 const WORKER_POOLS = [
   {

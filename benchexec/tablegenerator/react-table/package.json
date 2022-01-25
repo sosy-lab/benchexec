@@ -23,6 +23,7 @@
     "react-table-sticky": "^1.1.3",
     "react-vis": "^1.11.7",
     "regression": "^2.0.1",
+    "setimmediate": "^1.0.5",
     "yaml": "^1.10.0"
   },
   "engines": {
