@@ -630,10 +630,10 @@ def get_mount_points():
         # According to man 5 fstab, only tab and space escaped, but Linux escapes more:
         # https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/fs/proc_namespace.c?id=12a54b150fb5b6c2f3da932dc0e665355f8a5a48#n85
         return (
-            path.replace(br"\011", b"\011")
-            .replace(br"\040", b"\040")
-            .replace(br"\012", b"\012")
-            .replace(br"\134", b"\134")
+            path.replace(rb"\011", b"\011")
+            .replace(rb"\040", b"\040")
+            .replace(rb"\012", b"\012")
+            .replace(rb"\134", b"\134")
         )
 
     with open("/proc/self/mounts", "rb") as mounts:
@@ -681,7 +681,7 @@ def make_overlay_mount(mount, lower, upper, work):
         we need to escape ":", which overlayfs uses to separate multiple lower dirs
         (cf. https://www.kernel.org/doc/Documentation/filesystems/overlayfs.txt).
         """
-        return s.replace(b"\\", br"\\").replace(b":", br"\:").replace(b",", br"\,")
+        return s.replace(b"\\", rb"\\").replace(b":", rb"\:").replace(b",", rb"\,")
 
     libc.mount(
         b"none",
