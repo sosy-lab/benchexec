@@ -80,7 +80,6 @@ const transformWorkerStats = async (overviewProps) => {
 
 fs.readdirSync(testDir)
   .filter((file) => file.endsWith(".html"))
-  //.filter((file) => file.endsWith("big-table.diff.html"))
   .forEach((file) => {
     describe("StatisticsTable for " + file, () => {
       let content;
