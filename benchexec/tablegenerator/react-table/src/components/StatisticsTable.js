@@ -48,7 +48,7 @@ const subStatSelector = {
   "incorrect false": "wrong-false",
 };
 
-const transformStatsFromWorkers = ({ newStats, stats, setStats, filtered }) => {
+const transformStatsFromWorkers = ({ newStats, stats, filtered }) => {
   // our stats template to steal from
 
   const templ = [...stats];
@@ -69,7 +69,6 @@ const transformStatsFromWorkers = ({ newStats, stats, setStats, filtered }) => {
     templ[1] = temp;
   }
 
-  setStats(templ);
   return templ;
 };
 
@@ -82,14 +81,7 @@ const transformStatsFromWorkers = ({ newStats, stats, setStats, filtered }) => {
  * necessary transformation to bring the calculation results into the
  * required format.
  */
-const updateStats = async ({
-  tools,
-  tableData,
-  onStatsReady,
-  stats,
-  setStats,
-  filtered,
-}) => {
+const computeStats = async ({ tools, tableData, stats, filtered }) => {
   const formatter = buildFormatter(tools);
   let res = await processData({ tools, tableData, formatter, stats });
 
@@ -133,18 +125,11 @@ const updateStats = async ({
     return out;
   });
 
-  transformStatsFromWorkers({
+  return transformStatsFromWorkers({
     newStats: res,
     stats,
-    setStats,
-    formatter,
     filtered,
   });
-
-  // calling onStatsReady callback if available
-  if (onStatsReady) {
-    onStatsReady();
-  }
 };
 
 const StatisticsTable = ({
@@ -169,15 +154,20 @@ const StatisticsTable = ({
 
   // we want to trigger a re-calculation of our stats whenever data changes.
   useEffect(() => {
-    if (!skipStats) {
-      updateStats({
+    const updateStats = async () => {
+      const newStats = await computeStats({
         tools,
         tableData,
-        onStatsReady,
         stats: statRef.current,
-        setStats,
         filtered,
       });
+      setStats(newStats);
+      if (onStatsReady) {
+        onStatsReady();
+      }
+    };
+    if (!skipStats) {
+      updateStats(); // necessary such that hook is not async
     }
   }, [tools, tableData, onStatsReady, skipStats, statRef, filtered]);
 
