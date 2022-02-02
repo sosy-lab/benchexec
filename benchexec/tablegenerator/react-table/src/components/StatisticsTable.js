@@ -197,10 +197,13 @@ const StatisticsTable = ({
             >
               {header.render("Header")}
 
-              <div
-                {...header.getResizerProps()}
-                className={`resizer ${header.isResizing ? "isResizing" : ""}`}
-              />
+              {(!header.className ||
+                !header.className.includes("separator")) && (
+                <div
+                  {...header.getResizerProps()}
+                  className={`resizer ${header.isResizing ? "isResizing" : ""}`}
+                />
+              )}
             </div>
           ))}
         </div>
@@ -231,13 +234,15 @@ const StatisticsTable = ({
 
   const renderTable = (headerGroups, rows) => {
     return (
-      <div className="main-table">
-        <div id="statistic-table" className="table sticky" {...getTableProps()}>
+      <div id="statistics-table">
+        <div className="table sticky">
           <div className="table-content">
-            {renderTableHeaders(headerGroups)}
-            {renderTableData(rows)}
+            <div className="table-container" {...getTableProps()}>
+              {renderTableHeaders(headerGroups)}
+              {renderTableData(rows)}
+            </div>
+            <div className="-loading"></div>
           </div>
-          <div className="-loading"></div>
         </div>
       </div>
     );
@@ -253,7 +258,7 @@ const StatisticsTable = ({
       Header: (
         <StandardColumnHeader
           column={column}
-          className="header-data"
+          className="header-data clickable"
           title="Show Quantile Plot of this column"
           onClick={(e) => switchToQuantile(column)}
         />
@@ -308,29 +313,26 @@ const StatisticsTable = ({
 
     const createRowTitleColumn = () => ({
       Header: () => (
-        <div className="toolsHeader">
-          <form>
-            <label title="Fix the first column">
-              Fixed row title:
-              <input
-                id="fixed-row-title"
-                name="fixed"
-                type="checkbox"
-                checked={isTitleColSticky}
-                onChange={({ target }) => setTitleColSticky(target.checked)}
-              />
-            </label>
-          </form>
-        </div>
+        <form>
+          <label title="Fix the first column">
+            Fixed row title:
+            <input
+              id="fixed-row-title"
+              name="fixed"
+              type="checkbox"
+              checked={isTitleColSticky}
+              onChange={({ target }) => setTitleColSticky(target.checked)}
+            />
+          </label>
+        </form>
       ),
       id: "row-title",
-      fixed: isTitleColSticky ? "left" : "",
+      sticky: isTitleColSticky ? "left" : "",
       width: titleColWidth,
       minWidth: 100,
       columns: [
         {
           id: "summary",
-          className: "select-column-header",
           width: titleColWidth,
           minWidth: 100,
           Header: <SelectColumnsButton handler={selectColumn} />,
