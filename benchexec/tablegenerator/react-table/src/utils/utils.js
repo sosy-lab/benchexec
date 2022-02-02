@@ -354,100 +354,101 @@ function makeStatusColumnFilter(
   return statusColumnFilter.join(",");
 }
 
-const makeFilterSerializer = ({
-  statusValues: allStatusValues,
-  categoryValues: allCategoryValues,
-}) => (filter) => {
-  const groupedFilters = {};
-  const tableTabIdFilters = [];
-  for (const { id, value, values, isTableTabFilter } of filter) {
-    if (id === "id") {
-      if (values && values.length > 0) {
-        groupedFilters.ids = { values: values.map((val) => (val ? val : "")) };
-      } else if (isTableTabFilter) {
-        tableTabIdFilters.push({ id, value });
+const makeFilterSerializer =
+  ({ statusValues: allStatusValues, categoryValues: allCategoryValues }) =>
+  (filter) => {
+    const groupedFilters = {};
+    const tableTabIdFilters = [];
+    for (const { id, value, values, isTableTabFilter } of filter) {
+      if (id === "id") {
+        if (values && values.length > 0) {
+          groupedFilters.ids = {
+            values: values.map((val) => (val ? val : "")),
+          };
+        } else if (isTableTabFilter) {
+          tableTabIdFilters.push({ id, value });
+        }
+        continue;
       }
-      continue;
-    }
-    const [tool, name, column] = id.split("_");
-    const toolBucket = groupedFilters[tool] || {};
-    const columnBucket = toolBucket[column] || { name: escape(name) };
+      const [tool, name, column] = id.split("_");
+      const toolBucket = groupedFilters[tool] || {};
+      const columnBucket = toolBucket[column] || { name: escape(name) };
 
-    if (allStatusValues[tool][column] || allCategoryValues[tool][column]) {
-      // we are processing a status column with checkboxes
-      if (value.endsWith(" ")) {
-        // category value
-        const selectedCategoryValues = columnBucket.categoryValues || [];
-        selectedCategoryValues.push(value);
-        columnBucket.categoryValues = selectedCategoryValues;
+      if (allStatusValues[tool][column] || allCategoryValues[tool][column]) {
+        // we are processing a status column with checkboxes
+        if (value.endsWith(" ")) {
+          // category value
+          const selectedCategoryValues = columnBucket.categoryValues || [];
+          selectedCategoryValues.push(value);
+          columnBucket.categoryValues = selectedCategoryValues;
+        } else {
+          // status value
+          const selectedStatusValues = columnBucket.statusValues || [];
+          selectedStatusValues.push(value);
+          columnBucket.statusValues = selectedStatusValues;
+        }
       } else {
-        // status value
-        const selectedStatusValues = columnBucket.statusValues || [];
-        selectedStatusValues.push(value);
-        columnBucket.statusValues = selectedStatusValues;
+        columnBucket.value = value;
       }
-    } else {
-      columnBucket.value = value;
+      toolBucket[column] = columnBucket;
+      groupedFilters[tool] = toolBucket;
     }
-    toolBucket[column] = columnBucket;
-    groupedFilters[tool] = toolBucket;
-  }
-  // serialization part
-  // we want to transform our filters into the following format:
-  // [<idFilter>,]<runsetFilter>+
-  // with
-  // <idFilter> := id(values(<value>+))
-  // <runsetFilter> := <runsetId>(<columnFilter>+)[,]
-  // <columnFilter> := <columnId>*<name>*(<filter>)[,]
-  // <filter> := <valueFilter>|<statusColumnFilter>
-  // <valueFilter> := value(<value>)
-  // <statusColumnFilter> := <statusFilter>|<categoryFilter>|<statusFilter>,<categoryFilter>
-  // <statusFilter> := status(in(<value>+)|notIn(<value>+)|empty())
-  // <categoryFilter> := category(in(<value>+)|notIn(<value>+)|empty())
-  // <value> := <urlencodedTerminalValue>
+    // serialization part
+    // we want to transform our filters into the following format:
+    // [<idFilter>,]<runsetFilter>+
+    // with
+    // <idFilter> := id(values(<value>+))
+    // <runsetFilter> := <runsetId>(<columnFilter>+)[,]
+    // <columnFilter> := <columnId>*<name>*(<filter>)[,]
+    // <filter> := <valueFilter>|<statusColumnFilter>
+    // <valueFilter> := value(<value>)
+    // <statusColumnFilter> := <statusFilter>|<categoryFilter>|<statusFilter>,<categoryFilter>
+    // <statusFilter> := status(in(<value>+)|notIn(<value>+)|empty())
+    // <categoryFilter> := category(in(<value>+)|notIn(<value>+)|empty())
+    // <value> := <urlencodedTerminalValue>
 
-  // one transformed example would be
-  // 1(0*status*(statusFilter(notIn(true)),categoryFilter(in(correct,missing))),1*cputime*(value(%3A1120)))
+    // one transformed example would be
+    // 1(0*status*(statusFilter(notIn(true)),categoryFilter(in(correct,missing))),1*cputime*(value(%3A1120)))
 
-  const { ids, ...rest } = groupedFilters;
-  const runsetFilters = [];
-  if (ids) {
-    runsetFilters.push(`id(values(${ids.values.map(escape).join(",")}))`);
-  }
-  if (tableTabIdFilters) {
-    tableTabIdFilters.forEach((filter) => {
-      runsetFilters.push(`id_any(value(${filter.value}))`);
-    });
-  }
-  for (const [tool, column] of Object.entries(rest)) {
-    const columnFilters = [];
-    for (const [columnId, filters] of Object.entries(column)) {
-      const columnFilterHeader = `${columnId}*${filters.name}*`;
-      let filter;
-      if (filters.statusValues || filters.categoryValues) {
-        // <statusColumnFilter>
-        filter = makeStatusColumnFilter(
-          filters,
-          allStatusValues,
-          tool,
-          columnId,
-          allCategoryValues,
-        );
-      } else {
-        // <valueFilter>
-        filter = `value(${escape(filters.value)})`;
+    const { ids, ...rest } = groupedFilters;
+    const runsetFilters = [];
+    if (ids) {
+      runsetFilters.push(`id(values(${ids.values.map(escape).join(",")}))`);
+    }
+    if (tableTabIdFilters) {
+      tableTabIdFilters.forEach((filter) => {
+        runsetFilters.push(`id_any(value(${filter.value}))`);
+      });
+    }
+    for (const [tool, column] of Object.entries(rest)) {
+      const columnFilters = [];
+      for (const [columnId, filters] of Object.entries(column)) {
+        const columnFilterHeader = `${columnId}*${filters.name}*`;
+        let filter;
+        if (filters.statusValues || filters.categoryValues) {
+          // <statusColumnFilter>
+          filter = makeStatusColumnFilter(
+            filters,
+            allStatusValues,
+            tool,
+            columnId,
+            allCategoryValues,
+          );
+        } else {
+          // <valueFilter>
+          filter = `value(${escape(filters.value)})`;
+        }
+        if (filter !== "") {
+          columnFilters.push(`${columnFilterHeader}(${filter})`);
+        }
       }
-      if (filter !== "") {
-        columnFilters.push(`${columnFilterHeader}(${filter})`);
+      if (columnFilters.length > 0) {
+        runsetFilters.push(`${tool}(${columnFilters.join(",")})`);
       }
     }
-    if (columnFilters.length > 0) {
-      runsetFilters.push(`${tool}(${columnFilters.join(",")})`);
-    }
-  }
-  const filterString = runsetFilters.join(",");
-  return filterString;
-};
+    const filterString = runsetFilters.join(",");
+    return filterString;
+  };
 
 const tokenizePart = (string) => {
   const out = {};
@@ -552,83 +553,82 @@ const tokenHandlers = (
   }
 };
 
-const makeFilterDeserializer = ({
-  categoryValues: allCategoryValues,
-  statusValues: allStatusValues,
-}) => (filterString) => {
-  const runsetFilters = tokenizePart(filterString);
-  const out = [];
-  for (const [token, filter] of Object.entries(runsetFilters)) {
-    if (token === "id") {
-      const tokenized = tokenizePart(filter);
-      out.push({
-        id: "id",
-        ...tokenHandlers("values", tokenized["values"])[0],
-      });
-      continue;
-    } else if (token === "id_any") {
-      out.push({
-        id: "id",
-        ...tokenizePart(filter),
-      });
-      continue;
-    }
-    const runsetId = token;
-
-    const columnFilters = tokenizePart(filter);
-    const parsedColumnFilters = {};
-    for (const [key, columnFilter] of Object.entries(columnFilters)) {
-      const [columnId, columnTitle] = key.split("*");
-      const name = `${runsetId}_${unescape(columnTitle)}_${columnId}`;
-      const parsedFilters = parsedColumnFilters[name] || [];
-      const tokenizedFilter = tokenizePart(columnFilter);
-
-      for (const [filterToken, filterParam] of Object.entries(
-        tokenizedFilter,
-      )) {
-        parsedFilters.push(
-          ...tokenHandlers(
-            filterToken,
-            filterParam,
-            allStatusValues[runsetId],
-            allCategoryValues[runsetId],
-            columnId,
-          ),
-        );
+const makeFilterDeserializer =
+  ({ categoryValues: allCategoryValues, statusValues: allStatusValues }) =>
+  (filterString) => {
+    const runsetFilters = tokenizePart(filterString);
+    const out = [];
+    for (const [token, filter] of Object.entries(runsetFilters)) {
+      if (token === "id") {
+        const tokenized = tokenizePart(filter);
+        out.push({
+          id: "id",
+          ...tokenHandlers("values", tokenized["values"])[0],
+        });
+        continue;
+      } else if (token === "id_any") {
+        out.push({
+          id: "id",
+          ...tokenizePart(filter),
+        });
+        continue;
       }
-      let hasStatus = false;
-      let hasCategory = false;
-      for (const token of Object.keys(tokenizedFilter)) {
-        if (token === "status") {
-          hasStatus = true;
-        } else if (token === "category") {
-          hasCategory = true;
-        }
-      }
-      if ((hasStatus && !hasCategory) || (!hasStatus && hasCategory)) {
-        // if we only have category or a status filter, it means that no
-        // filter has been set for the other. We need to fill up the values
-        if (!hasStatus) {
+      const runsetId = token;
+
+      const columnFilters = tokenizePart(filter);
+      const parsedColumnFilters = {};
+      for (const [key, columnFilter] of Object.entries(columnFilters)) {
+        const [columnId, columnTitle] = key.split("*");
+        const name = `${runsetId}_${unescape(columnTitle)}_${columnId}`;
+        const parsedFilters = parsedColumnFilters[name] || [];
+        const tokenizedFilter = tokenizePart(columnFilter);
+
+        for (const [filterToken, filterParam] of Object.entries(
+          tokenizedFilter,
+        )) {
           parsedFilters.push(
-            ...allStatusValues[runsetId][columnId].map((status) => ({
-              value: status,
-            })),
-          );
-        } else {
-          parsedFilters.push(
-            ...allCategoryValues[runsetId][columnId].map((category) => ({
-              value: category,
-            })),
+            ...tokenHandlers(
+              filterToken,
+              filterParam,
+              allStatusValues[runsetId],
+              allCategoryValues[runsetId],
+              columnId,
+            ),
           );
         }
-      }
-      for (const parsedFilter of parsedFilters) {
-        out.push({ id: name, ...parsedFilter });
+        let hasStatus = false;
+        let hasCategory = false;
+        for (const token of Object.keys(tokenizedFilter)) {
+          if (token === "status") {
+            hasStatus = true;
+          } else if (token === "category") {
+            hasCategory = true;
+          }
+        }
+        if ((hasStatus && !hasCategory) || (!hasStatus && hasCategory)) {
+          // if we only have category or a status filter, it means that no
+          // filter has been set for the other. We need to fill up the values
+          if (!hasStatus) {
+            parsedFilters.push(
+              ...allStatusValues[runsetId][columnId].map((status) => ({
+                value: status,
+              })),
+            );
+          } else {
+            parsedFilters.push(
+              ...allCategoryValues[runsetId][columnId].map((category) => ({
+                value: category,
+              })),
+            );
+          }
+        }
+        for (const parsedFilter of parsedFilters) {
+          out.push({ id: name, ...parsedFilter });
+        }
       }
     }
-  }
-  return out;
-};
+    return out;
+  };
 
 const makeUrlFilterSerializer = (statusValues, categoryValues) => {
   const serializer = makeFilterSerializer({ statusValues, categoryValues });

@@ -24,65 +24,64 @@ export const buildFormatter = (tools) =>
     }),
   );
 
-const maybeRound = (key, maxDecimalInputLength, columnIdx) => (
-  number,
-  { significantDigits },
-) => {
-  const asNumber = Number(number);
-  const [integer, decimal] = number.split(".");
+const maybeRound =
+  (key, maxDecimalInputLength, columnIdx) =>
+  (number, { significantDigits }) => {
+    const asNumber = Number(number);
+    const [integer, decimal] = number.split(".");
 
-  if (["sum", "avg", "stdev"].includes(key)) {
-    // for cases when we have no significant digits defined,
-    // we want to pad avg and stdev to two digits
-    if (isNil(significantDigits) && key !== "sum") {
-      return asNumber.toFixed(2);
-    }
-    // integer value without leading 0
-    const cleanedInt = integer.replace(/^0+/, "");
-    // decimal value without leading 0, if cleanedInt is empty (evaluates to zero)
-    let cleanedDec = decimal || "";
-    if (cleanedInt === "") {
-      cleanedDec = cleanedDec.replace(/^0+/, "");
-    }
+    if (["sum", "avg", "stdev"].includes(key)) {
+      // for cases when we have no significant digits defined,
+      // we want to pad avg and stdev to two digits
+      if (isNil(significantDigits) && key !== "sum") {
+        return asNumber.toFixed(2);
+      }
+      // integer value without leading 0
+      const cleanedInt = integer.replace(/^0+/, "");
+      // decimal value without leading 0, if cleanedInt is empty (evaluates to zero)
+      let cleanedDec = decimal || "";
+      if (cleanedInt === "") {
+        cleanedDec = cleanedDec.replace(/^0+/, "");
+      }
 
-    // differences in length between input value with maximal length and current value
-    const deltaInputLength = maxDecimalInputLength - (decimal?.length ?? 0);
+      // differences in length between input value with maximal length and current value
+      const deltaInputLength = maxDecimalInputLength - (decimal?.length ?? 0);
 
-    // differences in length between num of significant digits and current value
-    const deltaSigDigLength =
-      significantDigits - (cleanedInt.length + cleanedDec.length);
+      // differences in length between num of significant digits and current value
+      const deltaSigDigLength =
+        significantDigits - (cleanedInt.length + cleanedDec.length);
 
-    // if we have not yet filled the number of significant digits, we could decide to pad
-    const paddingPossible = deltaSigDigLength > 0;
+      // if we have not yet filled the number of significant digits, we could decide to pad
+      const paddingPossible = deltaSigDigLength > 0;
 
-    const missingDigits = (decimal?.length ?? 0) + deltaSigDigLength;
+      const missingDigits = (decimal?.length ?? 0) + deltaSigDigLength;
 
-    if (deltaInputLength > 0 && paddingPossible && key !== "stdev") {
-      if (deltaInputLength > deltaSigDigLength) {
-        // we want to pad to the smaller value (sigDigits vs maxDecimal)
+      if (deltaInputLength > 0 && paddingPossible && key !== "stdev") {
+        if (deltaInputLength > deltaSigDigLength) {
+          // we want to pad to the smaller value (sigDigits vs maxDecimal)
+          return asNumber.toFixed(missingDigits);
+        }
+        return asNumber.toFixed(maxDecimalInputLength);
+      }
+
+      // if avg was previously padded to fill the number of significant digits,
+      // we want to make sure, that we don't go over the maximumDecimalDigits
+      if (
+        key === "avg" &&
+        !paddingPossible &&
+        deltaInputLength < 0 &&
+        number[number.length - 1] === "0"
+      ) {
+        return asNumber.toFixed(maxDecimalInputLength);
+      }
+
+      if (key === "stdev" && paddingPossible) {
         return asNumber.toFixed(missingDigits);
       }
-      return asNumber.toFixed(maxDecimalInputLength);
     }
 
-    // if avg was previously padded to fill the number of significant digits,
-    // we want to make sure, that we don't go over the maximumDecimalDigits
-    if (
-      key === "avg" &&
-      !paddingPossible &&
-      deltaInputLength < 0 &&
-      number[number.length - 1] === "0"
-    ) {
-      return asNumber.toFixed(maxDecimalInputLength);
-    }
-
-    if (key === "stdev" && paddingPossible) {
-      return asNumber.toFixed(missingDigits);
-    }
-  }
-
-  return number;
-};
+    return number;
+  };
 
 /**
  * Used to apply formatting to calculated stats and to remove
@@ -259,9 +258,8 @@ export const splitColumnsWithMeta = (tools) => (preppedRows, toolIdx) => {
       const curr = out[columnIdx] || [];
       // we attach extra meta information for later use in calculation and mapping
       // of results
-      const { type: columnType, title: columnTitle } = tools[toolIdx].columns[
-        columnIdx
-      ];
+      const { type: columnType, title: columnTitle } =
+        tools[toolIdx].columns[columnIdx];
 
       curr.push({ categoryType, resultType, column, columnType, columnTitle });
       out[columnIdx] = curr;

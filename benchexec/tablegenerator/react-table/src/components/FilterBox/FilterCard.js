@@ -94,10 +94,8 @@ export default class FilterCard extends React.PureComponent {
       !prevProps.filter ||
       prevProps.filter.values !== this.props.filter.values
     ) {
-      const {
-        values,
-        number_of_significant_digits: significantDigits,
-      } = this.props.filter;
+      const { values, number_of_significant_digits: significantDigits } =
+        this.props.filter;
       const [value] = values;
       if (value && value.includes(":")) {
         const { min, max } = this.handleMinMaxValue(value, significantDigits);

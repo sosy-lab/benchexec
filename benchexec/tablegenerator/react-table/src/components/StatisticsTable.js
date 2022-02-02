@@ -249,67 +249,65 @@ const StatisticsTable = ({
   };
 
   const columns = useMemo(() => {
-    const createColumnBuilder = ({ switchToQuantile, hiddenCols }) => (
-      runSetIdx,
-      column,
-      columnIdx,
-    ) => ({
-      id: `${runSetIdx}_${column.display_title}_${columnIdx}`,
-      Header: (
-        <StandardColumnHeader
-          column={column}
-          className="header-data clickable"
-          title="Show Quantile Plot of this column"
-          onClick={(e) => switchToQuantile(column)}
-        />
-      ),
-      hidden:
-        hiddenCols[runSetIdx].includes(column.colIdx) ||
-        !(isNumericColumn(column) || column.type === "status"),
-      width: determineColumnWidth(
-        column,
-        null,
-        column.type === "status" ? 6 : null,
-      ),
-      minWidth: 30,
-      accessor: (row) => row.content[runSetIdx][columnIdx],
-      Cell: (cell) => {
-        let valueToRender = cell.value?.sum;
-        // We handle status differently as the main aggregation (denoted "sum")
-        // is of type "count" for this column type.
-        // This means that the default value if no data is available is 0
-        if (column.type === "status") {
-          if (cell.value === undefined) {
-            // No data is available, default to 0
-            valueToRender = 0;
-          } else if (cell.value === null) {
-            // We receive a null value directly from the stats object of the dataset.
-            // Will be rendered as "-"
-            // This edge case only applies to the local summary as it contains static values
-            // that we can not calculate and therefore directly take them from the stats object.
+    const createColumnBuilder =
+      ({ switchToQuantile, hiddenCols }) =>
+      (runSetIdx, column, columnIdx) => ({
+        id: `${runSetIdx}_${column.display_title}_${columnIdx}`,
+        Header: (
+          <StandardColumnHeader
+            column={column}
+            className="header-data clickable"
+            title="Show Quantile Plot of this column"
+            onClick={(e) => switchToQuantile(column)}
+          />
+        ),
+        hidden:
+          hiddenCols[runSetIdx].includes(column.colIdx) ||
+          !(isNumericColumn(column) || column.type === "status"),
+        width: determineColumnWidth(
+          column,
+          null,
+          column.type === "status" ? 6 : null,
+        ),
+        minWidth: 30,
+        accessor: (row) => row.content[runSetIdx][columnIdx],
+        Cell: (cell) => {
+          let valueToRender = cell.value?.sum;
+          // We handle status differently as the main aggregation (denoted "sum")
+          // is of type "count" for this column type.
+          // This means that the default value if no data is available is 0
+          if (column.type === "status") {
+            if (cell.value === undefined) {
+              // No data is available, default to 0
+              valueToRender = 0;
+            } else if (cell.value === null) {
+              // We receive a null value directly from the stats object of the dataset.
+              // Will be rendered as "-"
+              // This edge case only applies to the local summary as it contains static values
+              // that we can not calculate and therefore directly take them from the stats object.
 
-            valueToRender = null;
-          } else {
-            valueToRender = Number.isInteger(Number(cell.value.sum))
-              ? Number(cell.value.sum)
-              : cell.value.sum;
-          }
-        }
-        return !isNil(valueToRender) ? (
-          <div
-            dangerouslySetInnerHTML={{
-              __html: valueToRender,
-            }}
-            className="cell"
-            title={
-              column.type !== "status" ? renderTooltip(cell.value) : undefined
+              valueToRender = null;
+            } else {
+              valueToRender = Number.isInteger(Number(cell.value.sum))
+                ? Number(cell.value.sum)
+                : cell.value.sum;
             }
-          ></div>
-        ) : (
-          <div className="cell">-</div>
-        );
-      },
-    });
+          }
+          return !isNil(valueToRender) ? (
+            <div
+              dangerouslySetInnerHTML={{
+                __html: valueToRender,
+              }}
+              className="cell"
+              title={
+                column.type !== "status" ? renderTooltip(cell.value) : undefined
+              }
+            ></div>
+          ) : (
+            <div className="cell">-</div>
+          );
+        },
+      });
 
     const createRowTitleColumn = () => ({
       Header: () => (
@@ -362,25 +360,20 @@ const StatisticsTable = ({
 
   const data = useMemo(() => stats, [stats]);
 
-  const {
-    getTableProps,
-    getTableBodyProps,
-    headerGroups,
-    rows,
-    prepareRow,
-  } = useTable(
-    {
-      columns,
-      data,
-      initialState: {
-        hiddenColumns: getHiddenColIds(columns),
+  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
+    useTable(
+      {
+        columns,
+        data,
+        initialState: {
+          hiddenColumns: getHiddenColIds(columns),
+        },
       },
-    },
-    useFilters,
-    useResizeColumns,
-    useFlexLayout,
-    useSticky,
-  );
+      useFilters,
+      useResizeColumns,
+      useFlexLayout,
+      useSticky,
+    );
 
   return (
     <div id="statistics">

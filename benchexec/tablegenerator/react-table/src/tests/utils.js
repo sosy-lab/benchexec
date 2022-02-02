@@ -29,14 +29,8 @@ ReactDOM.createPortal = (dom) => {
  * @param {object} data
  */
 const getOverviewProps = (data) => {
-  const {
-    tableHeader,
-    taskIdNames,
-    tools,
-    columns,
-    tableData,
-    stats,
-  } = prepareTableData(data);
+  const { tableHeader, taskIdNames, tools, columns, tableData, stats } =
+    prepareTableData(data);
 
   const findAllValuesOfColumn = (columnFilter, valueAccessor) =>
     tools.map((tool, j) =>
