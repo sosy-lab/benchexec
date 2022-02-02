@@ -542,6 +542,7 @@ class RunSet(object):
         self.blocks = self.extract_runs_from_xml(
             globalSourcefilesTags + rundefinitionTag.findall("tasks"),
             required_files_pattern,
+            self.real_name,
         )
         self.runs = [run for block in self.blocks for run in block.runs]
 
@@ -578,7 +579,9 @@ class RunSet(object):
             for run_definition in self.benchmark.config.selected_run_definitions
         )
 
-    def extract_runs_from_xml(self, sourcefilesTagList, global_required_files_pattern):
+    def extract_runs_from_xml(
+        self, sourcefilesTagList, global_required_files_pattern, rundef_name
+    ):
         """
         This function builds a list of SourcefileSets (containing filename with options).
         The files and their options are taken from the list of sourcefilesTags.
@@ -659,8 +662,9 @@ class RunSet(object):
                     for sourcefile_set in blocks
                 ):
                     logging.warning(
-                        'The selected tasks "%s" are not present in the input file, '
-                        "skipping them.",
+                        'For run definition "%s" the selected tasks "%s" '
+                        "do not exist in the benchmark definition, skipping them.",
+                        rundef_name,
                         selected,
                     )
         return blocks

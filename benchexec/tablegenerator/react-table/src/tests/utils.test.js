@@ -15,6 +15,7 @@ import {
   hasSameEntries,
   makeFilterSerializer,
   makeFilterDeserializer,
+  splitUrlPathForMatchingPrefix,
 } from "../utils/utils";
 
 describe("isStatusOk", () => {
@@ -994,3 +995,77 @@ describe(
     });
   }),
 );
+
+describe("splitUrlPathForMatchingPrefix", () => {
+  test("should work if both URLs are equal", () => {
+    const a = new URL("file:///home/foo/bar.html");
+    expect(splitUrlPathForMatchingPrefix(a, a)).toStrictEqual([
+      "/home/foo",
+      "bar.html",
+    ]);
+  });
+  test("should work if first URL ends with slash", () => {
+    const a = new URL("file:///home/foo/");
+    const b = new URL("file:///home/foo");
+    expect(splitUrlPathForMatchingPrefix(a, b)).toStrictEqual([
+      "/home/foo",
+      "",
+    ]);
+  });
+  test("should work if first URL starts with second URL (terminating slash)", () => {
+    const a = new URL("file:///home/foo/bar.html");
+    const b = new URL("file:///home/foo");
+    expect(splitUrlPathForMatchingPrefix(a, b)).toStrictEqual([
+      "/home/foo",
+      "bar.html",
+    ]);
+  });
+  test("should work if first URL starts with second URL (terminating slash)", () => {
+    const a = new URL("file:///home/foo/bar.html");
+    const b = new URL("file:///home/foo/");
+    expect(splitUrlPathForMatchingPrefix(a, b)).toStrictEqual([
+      "/home/foo",
+      "bar.html",
+    ]);
+  });
+  test("should work if second URL starts with first URL", () => {
+    const a = new URL("file:///home/foo/bar.html");
+    const b = new URL("file:///home/foo/bar.html/test");
+    expect(splitUrlPathForMatchingPrefix(a, b)).toStrictEqual([
+      "/home/foo",
+      "bar.html",
+    ]);
+  });
+  test("should work for Windows paths", () => {
+    const a = new URL("file:///C:/foo/bar.html");
+    const b = new URL("file:///C:/foo/bar2.html");
+    expect(splitUrlPathForMatchingPrefix(a, b)).toStrictEqual([
+      "/C:/foo",
+      "bar.html",
+    ]);
+  });
+  test("should work for Windows paths in different directories", () => {
+    const a = new URL("file:///C:/foo/bar.html");
+    const b = new URL("file:///C:/bar/bar.html");
+    expect(splitUrlPathForMatchingPrefix(a, b)).toStrictEqual([
+      "/C:",
+      "foo/bar.html",
+    ]);
+  });
+  test("should produce empty prefix for paths on different partitions", () => {
+    const a = new URL("file:///C:/foo/bar.html");
+    const b = new URL("file:///D:/foo/bar.html");
+    expect(splitUrlPathForMatchingPrefix(a, b)).toStrictEqual([
+      "",
+      "C:/foo/bar.html",
+    ]);
+  });
+  test("should produce empty prefix for paths in different subdirectories of /", () => {
+    const a = new URL("file:///home/bar.html");
+    const b = new URL("file:///tmp/bar.html");
+    expect(splitUrlPathForMatchingPrefix(a, b)).toStrictEqual([
+      "",
+      "home/bar.html",
+    ]);
+  });
+});

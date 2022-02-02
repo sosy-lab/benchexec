@@ -9,6 +9,37 @@ SPDX-License-Identifier: Apache-2.0
 
 # BenchExec Changelog
 
+## BenchExec 3.10
+
+- Fix bug in HTML tables where content of a cell could be visible
+  through another cell when scrolling horizontally.
+- Slightly improved error handling and error messages
+  regarding cgroup permissions, cgroupsv2, and invalid directory modes.
+- Improved handling of debug log (`--debug`).
+  Previously, every transferred output file of the tool was logged,
+  which would lead to large debug logs in case a tool produced many files.
+  Now we log only the names of at most 1000 such output files.
+- Many new and improved tool-info modules.
+- The default branch of the git repository has been renamed to `main`.
+  Please adjust forks and checkouts if required.
+
+## BenchExec 3.9
+
+- Improved container mode to make it work more easily inside LXC containers.
+- The scatter plot in HTML tables produced by table-generator
+  can now show a linear-regression graph using ordinary least squares.
+  A tooltip shows more information such as the regression coefficient.
+- The library that is used for rendering the actual tables
+  in the HTML tables got a major upgrade, which required some work.
+  If you notice any regression in table behavior,
+  please file an [issue](https://github.com/sosy-lab/benchexec/issues/new).
+- One new tool-info module.
+
+For people using the git repository of BenchExec:
+Immediately after the release of BenchExec 3.9,
+the default branch of the repository will be renamed to `main`.
+Please adjust forks and checkouts if required.
+
 ## BenchExec 3.8
 
 This release works only on Python 3.6 and newer!

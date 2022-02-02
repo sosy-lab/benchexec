@@ -10,7 +10,7 @@
 import sys
 
 import argparse
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 import os
 import io
 from xml.etree import ElementTree
@@ -44,9 +44,8 @@ def parse_args(argv):
     parser.add_argument(
         "-o",
         "--outputpath",
-        default=".",
         metavar="OUT_PATH",
-        help="Folder wherein the generated output files will be placed.",
+        help="Directory in which the generated output files will be placed.",
     )
     return parser.parse_args(argv)
 
@@ -149,7 +148,7 @@ def get_validation_result(
             category_from_verification = result.CATEGORY_CORRECT
             try:
                 coverage_percentage = Decimal(coverage_value) / 100
-            except ValueError:
+            except InvalidOperation:
                 continue
             score_column = ElementTree.Element(
                 "column",
@@ -181,11 +180,13 @@ def merge(result_xml, witness_sets, overwrite_status):
     for run in result_xml.findall("run"):
         try:
             status_from_verification = run.find('column[@title="status"]').get("value")
+        except AttributeError:
+            status_from_verification = "not found"
+        try:
             category_from_verification = run.find('column[@title="category"]').get(
                 "value"
             )
         except AttributeError:
-            status_from_verification = "not found"
             category_from_verification = "not found"
         (
             statusWit,
@@ -211,9 +212,18 @@ def merge(result_xml, witness_sets, overwrite_status):
         ):
             try:
                 run.find('column[@title="status"]').set("value", statusWit)
+            except AttributeError:
+                status_column = ElementTree.Element(
+                    "column", title="status", value=statusWit
+                )
+                run.append(status_column)
+            try:
                 run.find('column[@title="category"]').set("value", categoryWit)
             except AttributeError:
-                pass
+                category_column = ElementTree.Element(
+                    "column", title="category", value=categoryWit
+                )
+                run.append(category_column)
         # Clean-up an entry that can be inferred by table-generator automatically, avoids path confusion
         del run.attrib["logfile"]
 
@@ -227,7 +237,6 @@ def main(argv=None):
     overwrite_status = not args.no_overwrite_status_true
     out_dir = args.outputpath
     assert witness_files or not overwrite_status
-    assert os.path.exists(out_dir) and os.path.isdir(out_dir)
 
     if not os.path.exists(result_file) or not os.path.isfile(result_file):
         sys.exit(f"File {result_file!r} does not exist.")
@@ -242,7 +251,10 @@ def main(argv=None):
     merge(result_xml, witness_sets, overwrite_status)
 
     filename = result_file + ".merged.xml.bz2"
-    outfile = os.path.join(out_dir, filename)
+    if out_dir is not None:
+        outfile = os.path.join(out_dir, os.path.basename(filename))
+    else:
+        outfile = filename
     os.makedirs(os.path.dirname(outfile), exist_ok=True)
     print("    " + outfile)
     with io.TextIOWrapper(bz2.BZ2File(outfile, "wb"), encoding="utf-8") as xml_file:

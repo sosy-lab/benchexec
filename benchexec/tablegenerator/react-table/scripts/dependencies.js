@@ -62,11 +62,10 @@ checker.init(
       Object.keys(packages).forEach(key => {
         const dependency = packages[key];
 
-        if (key === "regenerator-runtime@0.11.1") {
-          // old package without proper metadata, take data from new package
-          const depWithProperData = packages["regenerator-runtime@0.13.5"];
+        if (key === "toggle-selection@1.0.6") {
+          // package without proper license file, use data from other package from same author with same license
+          const depWithProperData = packages["copy-to-clipboard@3.3.1"];
           dependency.licenseText = depWithProperData.licenseText;
-          dependency.copyright = depWithProperData.copyright;
         }
 
         var license = dependency.licenseText;

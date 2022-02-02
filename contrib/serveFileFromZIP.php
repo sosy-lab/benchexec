@@ -21,7 +21,7 @@
  * and insert the following in the ".htaccess" file in the same directory:
  *
  * This file is maintained at
- * https://github.com/sosy-lab/benchexec/blob/master/contrib/serveFileFromZIP.php
+ * https://github.com/sosy-lab/benchexec/blob/main/contrib/serveFileFromZIP.php
 
 RewriteEngine On
 # Only redirect if target does not exist as file or directory

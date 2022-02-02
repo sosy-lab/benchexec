@@ -16,6 +16,7 @@ import sys
 import tempfile
 import time
 
+from benchexec import BenchExecException
 from benchexec import systeminfo
 from benchexec import util
 
@@ -56,23 +57,26 @@ ALL_KNOWN_SUBSYSTEMS = {
     "pids",
 }
 
+CGROUPS_V1 = 1
+CGROUPS_V2 = 2
+
 _PERMISSION_HINT_GROUPS = """
 You need to add your account to the following groups: {0}
 Remember to logout and login again afterwards to make group changes effective."""
 
 _PERMISSION_HINT_DEBIAN = """
 The recommended way to fix this is to install the Debian package for BenchExec and add your account to the group "benchexec":
-https://github.com/sosy-lab/benchexec/blob/master/doc/INSTALL.md#debianubuntu
+https://github.com/sosy-lab/benchexec/blob/main/doc/INSTALL.md#debianubuntu
 Alternatively, you can install benchexec-cgroup.service manually:
-https://github.com/sosy-lab/benchexec/blob/master/doc/INSTALL.md#setting-up-cgroups-on-machines-with-systemd"""
+https://github.com/sosy-lab/benchexec/blob/main/doc/INSTALL.md#setting-up-cgroups-on-machines-with-systemd"""
 
 _PERMISSION_HINT_SYSTEMD = """
 The recommended way to fix this is to add your account to a group named "benchexec" and install benchexec-cgroup.service:
-https://github.com/sosy-lab/benchexec/blob/master/doc/INSTALL.md#setting-up-cgroups-on-machines-with-systemd"""
+https://github.com/sosy-lab/benchexec/blob/main/doc/INSTALL.md#setting-up-cgroups-on-machines-with-systemd"""
 
 _PERMISSION_HINT_OTHER = """
 Please configure your system in way to allow your user to use cgroups:
-https://github.com/sosy-lab/benchexec/blob/master/doc/INSTALL.md#setting-up-cgroups-on-machines-without-systemd"""
+https://github.com/sosy-lab/benchexec/blob/main/doc/INSTALL.md#setting-up-cgroups-on-machines-without-systemd"""
 
 _ERROR_MSG_PERMISSIONS = """
 Required cgroups are not available because of missing permissions.{0}
@@ -81,9 +85,45 @@ As a temporary workaround, you can also run
 "sudo chmod o+wt {1}"
 Note that this will grant permissions to more users than typically desired and it will only last until the next reboot."""
 
+_ERROR_MSG_CGROUPS_V2 = """
+Required cgroups are not available because this system is using cgroupsv2 exclusively.
+
+This version of BenchExec does not yet support cgroupsv2.
+Please check at https://github.com/sosy-lab/benchexec/issues/133
+whether a new version of BenchExec with support for cgroupsv2 is available
+and update if applicable.
+
+Alternatively, you could try switching back to cgroupsv1
+with the kernel command-line parameter systemd.unified_cgroup_hierarchy=0
+or use BenchExec without the features that need cgroups
+(i.e., disable cpu-time limit, memory limit, and core limit).
+"""
+
 _ERROR_MSG_OTHER = """
 Required cgroups are not available.
 If you are using BenchExec within a container, please make "/sys/fs/cgroup" available."""
+
+
+def _get_cgroup_version():
+    version = None
+    try:
+        with open("/proc/mounts") as mountsFile:
+            for mount in mountsFile:
+                mount = mount.split(" ")
+                if mount[2] == "cgroup":
+                    version = CGROUPS_V1
+
+                # only set v2 if it's the only active mount
+                # we don't support crippled hybrid mode
+                elif mount[2] == "cgroup2" and version != CGROUPS_V1:
+                    version = CGROUPS_V2
+
+            if version is None:
+                raise BenchExecException("Could not detect Cgroup Version")
+    except OSError:
+        logging.exception("Cannot read /proc/mounts")
+
+    return version
 
 
 def find_my_cgroups(cgroup_paths=None, fallback=True):
@@ -356,6 +396,8 @@ class Cgroup(object):
             paths = " ".join(map(util.escape_string_shell, paths))
             sys.exit(_ERROR_MSG_PERMISSIONS.format(permission_hint, paths))
 
+        elif _get_cgroup_version() == CGROUPS_V2:
+            sys.exit(_ERROR_MSG_CGROUPS_V2)
         else:
             sys.exit(_ERROR_MSG_OTHER)  # e.g., subsystem not mounted
 

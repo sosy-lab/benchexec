@@ -34,7 +34,7 @@ if [ ! -z "$(git status -uno -s)" ]; then
 fi
 
 git remote update origin
-if [ ! -z "$(git rev-list HEAD..origin/master)" ]; then
+if [ ! -z "$(git rev-list HEAD..origin/main)" ]; then
   echo "Local branch is not up-to-date, please rebase."
   exit 1
 fi

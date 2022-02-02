@@ -75,7 +75,7 @@ the start time is stored as local time with time zone in ISO 8601 format.
 ### Additional Results of benchexec
 `benchexec` additionally uses the following result values:
 - **category**: One of the values of the `CATEGORY_*` constants of the
-    [`result` module](https://github.com/sosy-lab/benchexec/blob/master/benchexec/result.py)
+    [`result` module](https://github.com/sosy-lab/benchexec/blob/main/benchexec/result.py)
     that determines how the run result should be interpreted
     (cf. the documentation of these constants).
     Note that the distinction between `CATEGORY_UNKNOWN` and `CATEGORY_ERROR`
@@ -87,7 +87,7 @@ the start time is stored as local time with time zone in ISO 8601 format.
 - **status**: The result of the run, as determined by BenchExec
     and interpreted by the tool-info module.
     This can be one of the `RESULT_*` constants of the
-    [`result` module](https://github.com/sosy-lab/benchexec/blob/master/benchexec/result.py),
+    [`result` module](https://github.com/sosy-lab/benchexec/blob/main/benchexec/result.py),
     or an arbitrary string.
     If the `category` is `CATEGORY_CORRECT`, `CATEGORY_WRONG`,
     `CATEGORY_UNKNOWN`, or `CATEGORY_MISSING`,

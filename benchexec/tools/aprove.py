@@ -5,7 +5,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import benchexec.util as util
 import benchexec.tools.template
 import benchexec.result as result
 
@@ -14,8 +13,10 @@ import re
 import subprocess
 import logging
 
+from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, LP64
 
-class Tool(benchexec.tools.template.BaseTool):
+
+class Tool(benchexec.tools.template.BaseTool2):
     """
     Tool info for AProVE.
     URL: http://aprove.informatik.rwth-aachen.de/
@@ -23,9 +24,10 @@ class Tool(benchexec.tools.template.BaseTool):
     """
 
     REQUIRED_PATHS = ["aprove.jar", "AProVE.sh", "bin", "newstrategy.strategy"]
+    BIT_WIDTH_PARAMETER_NAME = "--bit-width"
 
-    def executable(self):
-        return util.find_executable("AProVE.sh")
+    def executable(self, tool_locator):
+        return tool_locator.find_executable("AProVE.sh")
 
     def name(self):
         return "AProVE"
@@ -60,16 +62,25 @@ class Tool(benchexec.tools.template.BaseTool):
                 return ""
             return version_aprove_match.group(1)[:10]
 
-    def determine_result(self, returncode, returnsignal, output, is_timeout):
-        if not output:
+    def cmdline(self, executable, options, task, rlimits):
+        data_model_param = get_data_model_from_task(task, {ILP32: "32", LP64: "64"})
+        if data_model_param and self.BIT_WIDTH_PARAMETER_NAME not in options:
+            options += [self.BIT_WIDTH_PARAMETER_NAME, data_model_param]
+
+        return [executable, *options, task.single_input_file]
+
+    def determine_result(self, run):
+        if not run.output:
             return result.RESULT_ERROR
-        elif "YES" in output[0]:
+
+        first_output_line = run.output[0]
+        if "YES" in first_output_line:
             return result.RESULT_TRUE_PROP
-        elif "TRUE" in output[0]:
+        elif "TRUE" in first_output_line:
             return result.RESULT_TRUE_PROP
-        elif "FALSE" in output[0]:
+        elif "FALSE" in first_output_line:
             return result.RESULT_FALSE_TERMINATION
-        elif "NO" in output[0]:
+        elif "NO" in first_output_line:
             return result.RESULT_FALSE_TERMINATION
         else:
             return result.RESULT_UNKNOWN
