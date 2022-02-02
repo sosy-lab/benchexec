@@ -132,8 +132,8 @@ fs.readdirSync(testDir)
       });
 
       it("StatisticsTable stats computed using python and js should be identical", () => {
-        expect(JSON.stringify(jsStatComponent.toJSON())).toEqual(
-          JSON.stringify(pythonStatComponent.toJSON()),
+        expect(JSON.stringify(jsStatComponent.toJSON(), null, 1)).toEqual(
+          JSON.stringify(pythonStatComponent.toJSON(), null, 1),
         );
       });
     });
