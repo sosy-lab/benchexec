@@ -38,54 +38,50 @@ test("Click on reset button stops button from rendering", () => {
 });
 
 it("Render reset button", () => {
-  const component = renderer
-    .create(<Reset filteredCount="23" totalCount="42" isFiltered={true} />)
-    .toJSON();
+  const reset = <Reset filteredCount="23" totalCount="42" isFiltered={true} />;
 
-  expect(component).toMatchInlineSnapshot(`
+  expect(renderer.create(reset)).toMatchInlineSnapshot(`
     <button
-      className="reset"
-      disabled={false}
+     className="reset"
+     disabled={false}
     >
-      <span>
-        Showing 
-        <span
-          className="highlight"
-        >
-          23
-        </span>
-         of
-         
+     <span>
+      Showing 
+      <span
+       className="highlight"
+      >
+       23
       </span>
-      42
-       tasks
-      <i
-        className="fa filter"
-      />
+      of
+     </span>
+     42
+     tasks
+     <i
+      className="fa filter"
+     />
     </button>
   `);
 });
 
 it("Hide reset button", () => {
-  const component = renderer.create(<Reset isFiltered={false} />).toJSON();
+  const reset = <Reset isFiltered={false} />;
 
-  expect(component).toMatchInlineSnapshot(`
+  expect(renderer.create(reset)).toMatchInlineSnapshot(`
     <button
-      className="reset"
-      disabled={true}
+     className="reset"
+     disabled={true}
     >
-      <span>
-        Showing 
-        <span
-          className="highlight"
-        />
-         of
-         
-      </span>
-       tasks
-      <i
-        className="fa filter"
+     <span>
+      Showing 
+      <span
+       className="highlight"
       />
+      of
+     </span>
+     tasks
+     <i
+      className="fa filter"
+     />
     </button>
   `);
 });
