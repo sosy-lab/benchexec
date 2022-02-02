@@ -52755,7 +52755,7 @@ exports[`Render Summary for rows-with-scores.html 1`] = `
         >
          <div
           className="row-title"
-          dangerouslySetInnerHTML={"total"}
+          dangerouslySetInnerHTML={"total results"}
           title="in total 1 true tasks, 4 false tasks"
          />
         </div>
