@@ -15,7 +15,7 @@ import { isNotNil } from "../utils/utils";
 const testDir = "../test_integration/expected/";
 
 const subStatSelector = {
-  total: "total",
+  "total results": "total",
   "correct results": "correct-total",
   "correct true": "correct-true",
   "correct false": "correct-false",

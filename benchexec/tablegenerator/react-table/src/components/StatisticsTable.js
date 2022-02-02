@@ -39,7 +39,7 @@ const renderTooltip = (cell) =>
     .join(", ") || undefined;
 
 const subStatSelector = {
-  total: "total",
+  "total results": "total",
   "correct results": "correct-total",
   "correct true": "correct-true",
   "correct false": "correct-false",
