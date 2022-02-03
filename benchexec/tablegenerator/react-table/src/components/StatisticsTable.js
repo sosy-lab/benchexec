@@ -5,7 +5,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { useState, useMemo, useEffect, useRef } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 
 import {
   useTable,
@@ -54,19 +54,20 @@ const StatisticsTable = ({
   const [stats, setStats] = useState(defaultStats);
   const [isTitleColSticky, setTitleColSticky] = useState(true);
 
-  // we wrap stats in a ref to mitigate unwanted re-renders
-  const statRef = useRef(stats);
-
   // we want to trigger a re-calculation of our stats whenever data changes.
   useEffect(() => {
     const updateStats = async () => {
-      const newStats = await computeStats({
-        tools,
-        tableData,
-        stats: statRef.current,
-        asFiltered: filtered,
-      });
-      setStats(newStats);
+      if (filtered) {
+        const newStats = await computeStats({
+          tools,
+          tableData,
+          stats: defaultStats,
+          asFiltered: true,
+        });
+        setStats(newStats);
+      } else {
+        setStats(defaultStats);
+      }
       if (onStatsReady) {
         onStatsReady();
       }
@@ -74,7 +75,7 @@ const StatisticsTable = ({
     if (!skipStats) {
       updateStats(); // necessary such that hook is not async
     }
-  }, [tools, tableData, onStatsReady, skipStats, statRef, filtered]);
+  }, [tools, tableData, onStatsReady, skipStats, defaultStats, filtered]);
 
   const renderTableHeaders = (headerGroups) => (
     <div className="table-header">
