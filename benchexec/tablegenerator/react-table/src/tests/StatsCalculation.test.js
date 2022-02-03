@@ -10,73 +10,8 @@ import StatisticsTable from "../components/StatisticsTable.js";
 import fs from "fs";
 import renderer from "react-test-renderer";
 import { getOverviewProps } from "./utils.js";
-import { buildFormatter, processData, cleanupStats } from "../utils/stats.js";
-import { isNotNil } from "../utils/utils";
+import { computeStats } from "../utils/stats.js";
 const testDir = "../test_integration/expected/";
-
-const subStatSelector = {
-  "total results": "total",
-  "correct results": "correct-total",
-  "correct true": "correct-true",
-  "correct false": "correct-false",
-  "incorrect results": "wrong-total",
-  "incorrect true": "wrong-true",
-  "incorrect false": "wrong-false",
-};
-
-const transformWorkerStats = async (overviewProps) => {
-  const formatter = buildFormatter(overviewProps.tools);
-  let jsStats = await processData({
-    tools: overviewProps.tools,
-    tableData: overviewProps.tableData,
-    formatter,
-    stats: overviewProps.stats,
-  });
-
-  const availableStats = overviewProps.stats
-    .map((row) => subStatSelector[row.title.replace(/&nbsp;/g, "")])
-    .filter(isNotNil);
-
-  const cleaned = cleanupStats(jsStats, formatter, availableStats);
-
-  jsStats = cleaned.map((tool, toolIdx) => {
-    const out = [];
-    const toolColumns = overviewProps.tools[toolIdx].columns;
-    let pointer = 0;
-    let curr = toolColumns[pointer];
-    for (const col of tool) {
-      const { title } = col;
-      while (pointer < toolColumns.length && title !== curr.title) {
-        // irrelevant column
-        out.push({});
-        pointer++;
-        curr = toolColumns[pointer];
-      }
-      if (pointer >= toolColumns.length) {
-        break;
-      }
-      // relevant column
-      out.push(col);
-      pointer++;
-      curr = toolColumns[pointer];
-    }
-    return out;
-  });
-
-  const transformed = overviewProps.stats.map((row) => {
-    const title = row.title.replace(/&nbsp;/g, "");
-    row.content = row.content.map((tool, toolIdx) => {
-      const key = subStatSelector[title];
-      if (!key || !jsStats[toolIdx]) {
-        return tool;
-      }
-      return jsStats[toolIdx].map((col) => col[key]);
-    });
-    return row;
-  });
-
-  return transformed;
-};
 
 fs.readdirSync(testDir)
   .filter((file) => file.endsWith(".html"))
@@ -106,7 +41,10 @@ fs.readdirSync(testDir)
           );
         });
 
-        const jsStats = await transformWorkerStats(overviewProps);
+        const jsStats = await computeStats({
+          ...overviewProps,
+          filtered: false,
+        });
         await renderer.act(async () => {
           jsStatComponent = renderer.create(
             <StatisticsTable

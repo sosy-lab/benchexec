@@ -19,12 +19,11 @@ import {
   SelectColumnsButton,
   StandardColumnHeader,
 } from "./TableComponents";
-import { buildFormatter, processData, cleanupStats } from "../utils/stats.js";
+import { computeStats } from "../utils/stats.js";
 import {
   determineColumnWidth,
   isNumericColumn,
   isNil,
-  isNotNil,
   getHiddenColIds,
 } from "../utils/utils";
 
@@ -37,100 +36,6 @@ const renderTooltip = (cell) =>
     .filter((key) => cell[key] && key !== "sum")
     .map((key) => `${key}: ${cell[key]}`)
     .join(", ") || undefined;
-
-const subStatSelector = {
-  "total results": "total",
-  "correct results": "correct-total",
-  "correct true": "correct-true",
-  "correct false": "correct-false",
-  "incorrect results": "wrong-total",
-  "incorrect true": "wrong-true",
-  "incorrect false": "wrong-false",
-};
-
-const transformStatsFromWorkers = ({ newStats, stats, filtered }) => {
-  // our stats template to steal from
-
-  const templ = [...stats];
-
-  const filteredRow = newStats.map((tool) =>
-    tool.map(({ total }) => ({ ...total })),
-  );
-
-  // Add filtered stats row to the set and move it to the second position
-  if (filtered) {
-    templ.unshift({
-      description: "Aggregations applied over filtered set",
-      title: "filtered",
-      content: filteredRow,
-    });
-    const temp = templ[0];
-    templ[0] = templ[1];
-    templ[1] = temp;
-  }
-
-  return templ;
-};
-
-/**
- * This method gets called on the initial render or whenever there is a
- * change to the underlying dataset.
- * This usually happens whenever the user sets a filter.
- *
- * It handles the dispatching of stat calculation jobs as well as
- * necessary transformation to bring the calculation results into the
- * required format.
- */
-const computeStats = async ({ tools, tableData, stats, filtered }) => {
-  const formatter = buildFormatter(tools);
-  let res = await processData({ tools, tableData, formatter, stats });
-
-  const availableStats = stats
-    .map((row) => subStatSelector[row.title.replace(/&nbsp;/g, "")])
-    .filter(isNotNil);
-  const cleaned = cleanupStats(res, formatter, availableStats);
-
-  // fill up stat array to match column mapping
-
-  // The result of our stat calculation only contains relevant columns.
-  // The stat table however requires a strict ordering of columns that also
-  // includes columns that are not even rendered.
-  //
-  // In order to ensure a consistent layout we iterate through all columns
-  // of the runset and append dummy objects until we reach a column that we
-  // have calculated data for
-  res = cleaned.map((tool, toolIdx) => {
-    const out = [];
-    const toolColumns = tools[toolIdx].columns;
-    let pointer = 0;
-    let curr = toolColumns[pointer];
-
-    for (const col of tool) {
-      const { title } = col;
-      while (pointer < toolColumns.length && title !== curr.title) {
-        // irrelevant column
-        out.push({});
-        pointer++;
-        curr = toolColumns[pointer];
-      }
-      if (pointer >= toolColumns.length) {
-        break;
-      }
-      // relevant column
-      out.push(col);
-      pointer++;
-      curr = toolColumns[pointer];
-    }
-
-    return out;
-  });
-
-  return transformStatsFromWorkers({
-    newStats: res,
-    stats,
-    filtered,
-  });
-};
 
 const StatisticsTable = ({
   selectColumn,

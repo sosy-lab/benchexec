@@ -5,10 +5,80 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { isNil, NumberFormatterBuilder } from "./utils";
+import { isNil, isNotNil, NumberFormatterBuilder } from "./utils";
 import { enqueue } from "../workers/workerDirector";
 
 const keysToIgnore = ["meta"];
+
+const subStatSelector = {
+  "total results": "total",
+  "correct results": "correct-total",
+  "correct true": "correct-true",
+  "correct false": "correct-false",
+  "incorrect results": "wrong-total",
+  "incorrect true": "wrong-true",
+  "incorrect false": "wrong-false",
+};
+
+/**
+ * This method gets called on the initial render or whenever there is a
+ * change to the underlying dataset.
+ * This usually happens whenever the user sets a filter.
+ *
+ * It handles the dispatching of stat calculation jobs as well as
+ * necessary transformation to bring the calculation results into the
+ * required format.
+ */
+export const computeStats = async ({ tools, tableData, stats, filtered }) => {
+  const formatter = buildFormatter(tools);
+  let res = await processData({ tools, tableData, formatter, stats });
+
+  const availableStats = stats
+    .map((row) => subStatSelector[row.title.replace(/&nbsp;/g, "")])
+    .filter(isNotNil);
+  const cleaned = cleanupStats(res, formatter, availableStats);
+
+  // fill up stat array to match column mapping
+
+  // The result of our stat calculation only contains relevant columns.
+  // The stat table however requires a strict ordering of columns that also
+  // includes columns that are not even rendered.
+  //
+  // In order to ensure a consistent layout we iterate through all columns
+  // of the runset and append dummy objects until we reach a column that we
+  // have calculated data for
+  res = cleaned.map((tool, toolIdx) => {
+    const out = [];
+    const toolColumns = tools[toolIdx].columns;
+    let pointer = 0;
+    let curr = toolColumns[pointer];
+
+    for (const col of tool) {
+      const { title } = col;
+      while (pointer < toolColumns.length && title !== curr.title) {
+        // irrelevant column
+        out.push({});
+        pointer++;
+        curr = toolColumns[pointer];
+      }
+      if (pointer >= toolColumns.length) {
+        break;
+      }
+      // relevant column
+      out.push(col);
+      pointer++;
+      curr = toolColumns[pointer];
+    }
+
+    return out;
+  });
+
+  return transformStatsFromWorkers({
+    newStats: res,
+    stats,
+    filtered,
+  });
+};
 
 /**
  * Creates a number formatters for each tool and column and
@@ -16,7 +86,7 @@ const keysToIgnore = ["meta"];
  *
  * @param {object[]} tools
  */
-export const buildFormatter = (tools) =>
+const buildFormatter = (tools) =>
   tools.map((tool, tIdx) =>
     tool.columns.map((column, cIdx) => {
       const { number_of_significant_digits: sigDigits } = column;
@@ -90,7 +160,7 @@ const maybeRound =
  * @param {object[][]} stats
  * @param {Function[][]} formatter
  */
-export const cleanupStats = (unfilteredStats, formatter, availableStats) => {
+const cleanupStats = (unfilteredStats, formatter, availableStats) => {
   const stats = unfilteredStats.map((tool, toolIdx) =>
     tool.map((col, colIdx) => {
       const { columnType } = col;
@@ -193,6 +263,30 @@ export const cleanupStats = (unfilteredStats, formatter, availableStats) => {
   return cleaned;
 };
 
+const transformStatsFromWorkers = ({ newStats, stats, filtered }) => {
+  // our stats template to steal from
+
+  const templ = [...stats];
+
+  const filteredRow = newStats.map((tool) =>
+    tool.map(({ total }) => ({ ...total })),
+  );
+
+  // Add filtered stats row to the set and move it to the second position
+  if (filtered) {
+    templ.unshift({
+      description: "Aggregations applied over filtered set",
+      title: "filtered",
+      content: filteredRow,
+    });
+    const temp = templ[0];
+    templ[0] = templ[1];
+    templ[1] = temp;
+  }
+
+  return templ;
+};
+
 const RESULT_TRUE_PROP = "true";
 //property holds
 const RESULT_FALSE_PROP = "false";
@@ -222,7 +316,7 @@ const classifyResult = (result) => {
   return RESULT_CLASS_OTHER;
 };
 
-export const prepareRows = (
+const prepareRows = (
   rows,
   toolIdx,
   categoryAccessor,
@@ -250,7 +344,7 @@ export const prepareRows = (
  *
  * @param {object[]} tools
  */
-export const splitColumnsWithMeta = (tools) => (preppedRows, toolIdx) => {
+const splitColumnsWithMeta = (tools) => (preppedRows, toolIdx) => {
   const out = [];
   for (const { row, categoryType, resultType } of preppedRows) {
     for (const columnIdx in row) {
@@ -274,7 +368,7 @@ export const splitColumnsWithMeta = (tools) => (preppedRows, toolIdx) => {
  *
  * @param {object} options
  */
-export const processData = async ({ tools, tableData, formatter, stats }) => {
+const processData = async ({ tools, tableData, formatter, stats }) => {
   const catAccessor = (toolIdx, row) => row.results[toolIdx].category;
   const statAccessor = (toolIdx, row) => row.results[toolIdx].values[0].raw;
   const promises = [];
