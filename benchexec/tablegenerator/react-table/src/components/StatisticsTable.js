@@ -86,15 +86,12 @@ const updateStats = async ({
   tools,
   tableData,
   onStatsReady,
-  skipStats,
   stats,
   setStats,
   filtered,
 }) => {
   const formatter = buildFormatter(tools);
-  let res = skipStats
-    ? []
-    : await processData({ tools, tableData, formatter, stats });
+  let res = await processData({ tools, tableData, formatter, stats });
 
   const availableStats = stats
     .map((row) => subStatSelector[row.title.replace(/&nbsp;/g, "")])
@@ -172,15 +169,16 @@ const StatisticsTable = ({
 
   // we want to trigger a re-calculation of our stats whenever data changes.
   useEffect(() => {
-    updateStats({
-      tools,
-      tableData,
-      onStatsReady,
-      skipStats,
-      stats: statRef.current,
-      setStats,
-      filtered,
-    });
+    if (!skipStats) {
+      updateStats({
+        tools,
+        tableData,
+        onStatsReady,
+        stats: statRef.current,
+        setStats,
+        filtered,
+      });
+    }
   }, [tools, tableData, onStatsReady, skipStats, statRef, filtered]);
 
   const renderTableHeaders = (headerGroups) => (
