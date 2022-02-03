@@ -81,14 +81,14 @@ export const computeStats = async ({ tools, tableData, stats, asFiltered }) => {
   } else {
     const transformed = stats.map((row) => {
       const title = row.title.replace(/&nbsp;/g, "");
-      row.content = row.content.map((tool, toolIdx) => {
+      const content = row.content.map((tool, toolIdx) => {
         const key = subStatSelector[title];
         if (!key || !res[toolIdx]) {
           return tool;
         }
         return res[toolIdx].map((col) => col[key]);
       });
-      return row;
+      return { ...row, content };
     });
 
     return transformed;
