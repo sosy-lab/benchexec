@@ -272,16 +272,14 @@ const transformStatsFromWorkers = ({ newStats, stats, filtered }) => {
     tool.map(({ total }) => ({ ...total })),
   );
 
-  // Add filtered stats row to the set and move it to the second position
   if (filtered) {
-    templ.unshift({
-      description: "Aggregations applied over filtered set",
-      title: "filtered",
+    // Insert filtered row as first indented row.
+    const i = templ.findIndex((row) => row.title.startsWith("&nbsp;"));
+    templ.splice(i < 0 ? templ.length : i, 0, {
+      description: "using the current set of filters configured in this table",
+      title: "&nbsp;&nbsp;&nbsp;&nbsp;filtered tasks",
       content: filteredRow,
     });
-    const temp = templ[0];
-    templ[0] = templ[1];
-    templ[1] = temp;
   }
 
   return templ;
