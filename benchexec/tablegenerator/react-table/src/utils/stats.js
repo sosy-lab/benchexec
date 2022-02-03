@@ -5,7 +5,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { isNil, isNotNil, NumberFormatterBuilder } from "./utils";
+import { isNil, NumberFormatterBuilder } from "./utils";
 import { enqueue } from "../workers/workerDirector";
 
 const keysToIgnore = ["meta"];
@@ -35,7 +35,7 @@ export const computeStats = async ({ tools, tableData, stats, asFiltered }) => {
 
   const availableStats = stats
     .map((row) => subStatSelector[row.title.replace(/&nbsp;/g, "")])
-    .filter(isNotNil);
+    .filter((element) => !isNil(element));
   const cleaned = cleanupStats(res, formatter, availableStats);
 
   // fill up stat array to match column mapping
