@@ -64,7 +64,7 @@ const StatisticsTable = ({
         tools,
         tableData,
         stats: statRef.current,
-        filtered,
+        asFiltered: filtered,
       });
       setStats(newStats);
       if (onStatsReady) {

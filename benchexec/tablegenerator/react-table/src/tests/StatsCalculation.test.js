@@ -43,7 +43,7 @@ fs.readdirSync(testDir)
 
         const jsStats = await computeStats({
           ...overviewProps,
-          filtered: false,
+          asFiltered: false,
         });
         await renderer.act(async () => {
           jsStatComponent = renderer.create(

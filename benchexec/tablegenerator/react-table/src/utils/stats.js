@@ -29,7 +29,7 @@ const subStatSelector = {
  * necessary transformation to bring the calculation results into the
  * required format.
  */
-export const computeStats = async ({ tools, tableData, stats, filtered }) => {
+export const computeStats = async ({ tools, tableData, stats, asFiltered }) => {
   const formatter = buildFormatter(tools);
   let res = await processData({ tools, tableData, formatter });
 
@@ -73,11 +73,26 @@ export const computeStats = async ({ tools, tableData, stats, filtered }) => {
     return out;
   });
 
-  return transformStatsFromWorkers({
-    newStats: res,
-    stats,
-    filtered,
-  });
+  if (asFiltered) {
+    return addAsFilteredRow({
+      newStats: res,
+      stats,
+    });
+  } else {
+    const transformed = stats.map((row) => {
+      const title = row.title.replace(/&nbsp;/g, "");
+      row.content = row.content.map((tool, toolIdx) => {
+        const key = subStatSelector[title];
+        if (!key || !res[toolIdx]) {
+          return tool;
+        }
+        return res[toolIdx].map((col) => col[key]);
+      });
+      return row;
+    });
+
+    return transformed;
+  }
 };
 
 /**
@@ -263,7 +278,7 @@ const cleanupStats = (unfilteredStats, formatter, availableStats) => {
   return cleaned;
 };
 
-const transformStatsFromWorkers = ({ newStats, stats, filtered }) => {
+const addAsFilteredRow = ({ newStats, stats }) => {
   // our stats template to steal from
 
   const templ = [...stats];
@@ -272,15 +287,13 @@ const transformStatsFromWorkers = ({ newStats, stats, filtered }) => {
     tool.map(({ total }) => ({ ...total })),
   );
 
-  if (filtered) {
-    // Insert filtered row as first indented row.
-    const i = templ.findIndex((row) => row.title.startsWith("&nbsp;"));
-    templ.splice(i < 0 ? templ.length : i, 0, {
-      description: "using the current set of filters configured in this table",
-      title: "&nbsp;&nbsp;&nbsp;&nbsp;filtered tasks",
-      content: filteredRow,
-    });
-  }
+  // Insert filtered row as first indented row.
+  const i = templ.findIndex((row) => row.title.startsWith("&nbsp;"));
+  templ.splice(i < 0 ? templ.length : i, 0, {
+    description: "using the current set of filters configured in this table",
+    title: "&nbsp;&nbsp;&nbsp;&nbsp;filtered tasks",
+    content: filteredRow,
+  });
 
   return templ;
 };
