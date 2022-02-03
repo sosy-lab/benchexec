@@ -31,7 +31,7 @@ const subStatSelector = {
  */
 export const computeStats = async ({ tools, tableData, stats, filtered }) => {
   const formatter = buildFormatter(tools);
-  let res = await processData({ tools, tableData, formatter, stats });
+  let res = await processData({ tools, tableData, formatter });
 
   const availableStats = stats
     .map((row) => subStatSelector[row.title.replace(/&nbsp;/g, "")])
@@ -366,7 +366,7 @@ const splitColumnsWithMeta = (tools) => (preppedRows, toolIdx) => {
  *
  * @param {object} options
  */
-const processData = async ({ tools, tableData, formatter, stats }) => {
+const processData = async ({ tools, tableData, formatter }) => {
   const catAccessor = (toolIdx, row) => row.results[toolIdx].category;
   const statAccessor = (toolIdx, row) => row.results[toolIdx].values[0].raw;
   const promises = [];
