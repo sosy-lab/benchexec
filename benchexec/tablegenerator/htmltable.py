@@ -308,7 +308,7 @@ def _prepare_stats(all_column_stats, rows, columns):
 
     stat_rows = [
         dict(  # noqa: C408
-            id=None,
+            id="total",
             title="total results",
             description=task_counts,
             content=get_stat_row("total"),
@@ -318,7 +318,7 @@ def _prepare_stats(all_column_stats, rows, columns):
     if _statistics_has_value_for(all_column_stats, "local"):
         stat_rows.append(
             dict(  # noqa: C408
-                id=None,
+                id="local",
                 title="local summary",
                 description="(This line contains some statistics from local execution. Only trust those values, if you use your own computer.)",
                 content=get_stat_row("local"),
@@ -330,7 +330,7 @@ def _prepare_stats(all_column_stats, rows, columns):
     if has_correct or has_wrong:
         stat_rows.append(
             dict(  # noqa: C408
-                id=None,
+                id="correct",
                 title=indent(1) + "correct results",
                 description="(property holds + result is true) OR (property does not hold + result is false)",
                 content=get_stat_row("correct"),
@@ -338,7 +338,7 @@ def _prepare_stats(all_column_stats, rows, columns):
         )
         stat_rows.append(
             dict(  # noqa: C408
-                id=None,
+                id="correct_true",
                 title=indent(2) + "correct true",
                 description="property holds + result is true",
                 content=get_stat_row("correct_true"),
@@ -346,7 +346,7 @@ def _prepare_stats(all_column_stats, rows, columns):
         )
         stat_rows.append(
             dict(  # noqa: C408
-                id=None,
+                id="correct_false",
                 title=indent(2) + "correct false",
                 description="property does not hold + result is false",
                 content=get_stat_row("correct_false"),
@@ -356,7 +356,7 @@ def _prepare_stats(all_column_stats, rows, columns):
         if _statistics_has_value_for(all_column_stats, "correct_unconfirmed"):
             stat_rows.append(
                 dict(  # noqa: C408
-                    id=None,
+                    id="correct_unconfirmed",
                     title=indent(1) + "correct-unconfimed results",
                     description="(property holds + result is true) OR (property does not hold + result is false), but unconfirmed",
                     content=get_stat_row("correct_unconfirmed"),
@@ -364,7 +364,7 @@ def _prepare_stats(all_column_stats, rows, columns):
             )
             stat_rows.append(
                 dict(  # noqa: C408
-                    id=None,
+                    id="correct_unconfirmed_true",
                     title=indent(2) + "correct-unconfirmed true",
                     description="property holds + result is true, but unconfirmed",
                     content=get_stat_row("correct_unconfirmed_true"),
@@ -372,7 +372,7 @@ def _prepare_stats(all_column_stats, rows, columns):
             )
             stat_rows.append(
                 dict(  # noqa: C408
-                    id=None,
+                    id="correct_unconfirmed_false",
                     title=indent(2) + "correct-unconfirmed false",
                     description="property does not hold + result is false, but unconfirmed",
                     content=get_stat_row("correct_unconfirmed_false"),
@@ -381,7 +381,7 @@ def _prepare_stats(all_column_stats, rows, columns):
 
         stat_rows.append(
             dict(  # noqa: C408
-                id=None,
+                id="wrong",
                 title=indent(1) + "incorrect results",
                 description="(property holds + result is false) OR (property does not hold + result is true)",
                 content=get_stat_row("wrong"),
@@ -389,7 +389,7 @@ def _prepare_stats(all_column_stats, rows, columns):
         )
         stat_rows.append(
             dict(  # noqa: C408
-                id=None,
+                id="wrong_true",
                 title=indent(2) + "incorrect true",
                 description="property does not hold + result is true",
                 content=get_stat_row("wrong_true"),
@@ -397,7 +397,7 @@ def _prepare_stats(all_column_stats, rows, columns):
         )
         stat_rows.append(
             dict(  # noqa: C408
-                id=None,
+                id="wrong_false",
                 title=indent(2) + "incorrect false",
                 description="property holds + result is false",
                 content=get_stat_row("wrong_false"),
