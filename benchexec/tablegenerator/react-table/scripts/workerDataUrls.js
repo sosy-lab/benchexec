@@ -13,7 +13,7 @@ const dataUrlFile = path.join(__dirname, "../src/workers/dataUrls.js");
 
 const template = "data:text/plain;base64,";
 
-const workerFiles = fs.readdirSync(workerFilePath);
+const workerFiles = fs.readdirSync(workerFilePath).filter((name) => !name.startsWith("."));
 
 let output = `
 // This file is part of BenchExec, a framework for reliable benchmarking:
