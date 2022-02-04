@@ -19,7 +19,7 @@ import {
   SelectColumnsButton,
   StandardColumnHeader,
 } from "./TableComponents";
-import { computeStats } from "../utils/stats.js";
+import { computeStats, statisticsRows } from "../utils/stats.js";
 import {
   determineColumnWidth,
   isNumericColumn,
@@ -240,10 +240,17 @@ const StatisticsTable = ({
             <div
               dangerouslySetInnerHTML={{
                 __html:
-                  cell.row.original.title +
+                  (cell.row.original.title ||
+                    "&nbsp;".repeat(
+                      4 * statisticsRows[cell.row.original.id].indent,
+                    ) + statisticsRows[cell.row.original.id].title) +
                   (filtered ? " of selected rows" : ""),
               }}
-              title={cell.row.original.description}
+              title={
+                cell.row.original.description ||
+                statisticsRows[cell.row.original.id].description ||
+                ""
+              }
               className="row-title"
             />
           ),

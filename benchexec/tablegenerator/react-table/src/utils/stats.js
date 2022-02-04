@@ -10,25 +10,64 @@ import { enqueue } from "../workers/workerDirector";
 
 const keysToIgnore = ["meta"];
 
-const computableStatististics = [
-  "total",
-  "correct",
-  "correct_true",
-  "correct_false",
-  "correct_unconfirmed",
-  "correct_unconfirmed_true",
-  "correct_unconfirmed_false",
-  "wrong",
-  "wrong_true",
-  "wrong_false",
-];
+export const statisticsRows = {
+  total: { title: "total results" },
+  correct: {
+    indent: 1,
+    title: "correct results",
+    description:
+      "(property holds + result is true) OR (property does not hold + result is false)",
+  },
+  correct_true: {
+    indent: 2,
+    title: "correct true",
+    description: "property holds + result is true",
+  },
+  correct_false: {
+    indent: 2,
+    title: "correct false",
+    description: "property does not hold + result is false",
+  },
+  correct_unconfirmed: {
+    indent: 1,
+    title: "correct-unconfirmed results",
+    description:
+      "(property holds + result is true) OR (property does not hold + result is false), but unconfirmed",
+  },
+  correct_unconfirmed_true: {
+    indent: 2,
+    title: "correct-unconfirmed true",
+    description: "property holds + result is true, but unconfirmed",
+  },
+  correct_unconfirmed_false: {
+    indent: 2,
+    title: "correct-unconfirmed false",
+    description: "property does not hold + result is false, but unconfirmed",
+  },
+  wrong: {
+    indent: 1,
+    title: "incorrect results",
+    description:
+      "(property holds + result is false) OR (property does not hold + result is true)",
+  },
+  wrong_true: {
+    indent: 2,
+    title: "incorrect true",
+    description: "property does not hold + result is true",
+  },
+  wrong_false: {
+    indent: 2,
+    title: "incorrect false",
+    description: "property holds + result is false",
+  },
+};
 
 /**
  * Remove all statistics rows for which the statistics worker cannot/will not
  * compute values (e.g., local summary, score).
  */
 export const filterComputableStatistics = (stats) =>
-  stats.filter((row) => computableStatististics.includes(row.id));
+  stats.filter((row) => statisticsRows[row.id]);
 
 /**
  * This method gets called on the initial render or whenever there is a
@@ -45,7 +84,7 @@ export const computeStats = async ({ tools, tableData, stats }) => {
 
   const availableStats = stats
     .map((row) => row.id)
-    .filter((id) => computableStatististics.includes(id));
+    .filter((id) => statisticsRows[id]);
   const cleaned = cleanupStats(res, formatter, availableStats);
 
   // fill up stat array to match column mapping
