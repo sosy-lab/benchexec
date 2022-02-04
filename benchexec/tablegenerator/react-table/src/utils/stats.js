@@ -21,6 +21,13 @@ const subStatSelector = {
 };
 
 /**
+ * Remove all statistics rows for which the statistics worker cannot/will not
+ * compute values (e.g., local summary, score).
+ */
+export const filterComputableStatistics = (stats) =>
+  stats.filter((row) => subStatSelector[row.title.replace(/&nbsp;/g, "")]);
+
+/**
  * This method gets called on the initial render or whenever there is a
  * change to the underlying dataset.
  * This usually happens whenever the user sets a filter.

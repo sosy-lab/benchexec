@@ -10,7 +10,7 @@ import StatisticsTable from "../components/StatisticsTable.js";
 import fs from "fs";
 import renderer from "react-test-renderer";
 import { getOverviewProps } from "./utils.js";
-import { computeStats } from "../utils/stats.js";
+import { computeStats, filterComputableStatistics } from "../utils/stats.js";
 const testDir = "../test_integration/expected/";
 
 fs.readdirSync(testDir)
@@ -35,16 +35,18 @@ fs.readdirSync(testDir)
               switchToQuantile={overviewProps.switchToQuantile}
               hiddenCols={overviewProps.hiddenCols}
               tableData={overviewProps.tableData}
-              stats={overviewProps.stats}
+              stats={filterComputableStatistics(overviewProps.stats)}
               filtered={overviewProps.filteredData.length > 0}
             />,
           );
         });
 
-        const jsStats = await computeStats({
-          ...overviewProps,
-          asFiltered: false,
-        });
+        const jsStats = filterComputableStatistics(
+          await computeStats({
+            ...overviewProps,
+            asFiltered: false,
+          }),
+        );
         await renderer.act(async () => {
           jsStatComponent = renderer.create(
             <StatisticsTable
