@@ -11,7 +11,7 @@ import { enqueue } from "../workers/workerDirector";
 const keysToIgnore = ["meta"];
 
 export const statisticsRows = {
-  total: { title: "total results" },
+  total: { title: "all results" },
   correct: {
     indent: 1,
     title: "correct results",
