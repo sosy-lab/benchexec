@@ -294,102 +294,52 @@ def _prepare_stats(all_column_stats, rows, columns):
         else ""
     )
 
-    def get_stat_row(field):
-        return [
+    stat_rows = []
+
+    def add_stat_row(field, title=None, description=None):
+        content = [
             [
                 _convert_statvalue_to_json(column_stats, field, column)
                 for column_stats, column in zip(run_set_stats, run_set_columns)
             ]
             for run_set_stats, run_set_columns in zip(all_column_stats, columns)
         ]
+        row = {"id": field, "content": content}
+        if title is not None:
+            row["title"] = title
+        if description is not None:
+            row["description"] = description
+        stat_rows.append(row)
 
-    stat_rows = [
-        dict(  # noqa: C408
-            id="total",
-            description=task_counts,
-            content=get_stat_row("total"),
-        )
-    ]
+    add_stat_row("total", description=task_counts)
 
     if _statistics_has_value_for(all_column_stats, "local"):
-        stat_rows.append(
-            dict(  # noqa: C408
-                id="local",
-                title="local summary",
-                description="(This line contains some statistics from local execution. Only trust those values, if you use your own computer.)",
-                content=get_stat_row("local"),
-            )
+        add_stat_row(
+            "local",
+            "local summary",
+            "(This line contains some statistics from local execution. "
+            "Only trust those values, if you use your own computer.)",
         )
 
     has_correct = _statistics_has_value_for(all_column_stats, "correct")
     has_wrong = _statistics_has_value_for(all_column_stats, "wrong")
     if has_correct or has_wrong:
-        stat_rows.append(
-            dict(  # noqa: C408
-                id="correct",
-                content=get_stat_row("correct"),
-            )
-        )
-        stat_rows.append(
-            dict(  # noqa: C408
-                id="correct_true",
-                content=get_stat_row("correct_true"),
-            )
-        )
-        stat_rows.append(
-            dict(  # noqa: C408
-                id="correct_false",
-                content=get_stat_row("correct_false"),
-            )
-        )
+        add_stat_row("correct")
+        add_stat_row("correct_true")
+        add_stat_row("correct_false")
 
         if _statistics_has_value_for(all_column_stats, "correct_unconfirmed"):
-            stat_rows.append(
-                dict(  # noqa: C408
-                    id="correct_unconfirmed",
-                    content=get_stat_row("correct_unconfirmed"),
-                )
-            )
-            stat_rows.append(
-                dict(  # noqa: C408
-                    id="correct_unconfirmed_true",
-                    content=get_stat_row("correct_unconfirmed_true"),
-                )
-            )
-            stat_rows.append(
-                dict(  # noqa: C408
-                    id="correct_unconfirmed_false",
-                    content=get_stat_row("correct_unconfirmed_false"),
-                )
-            )
+            add_stat_row("correct_unconfirmed")
+            add_stat_row("correct_unconfirmed_true")
+            add_stat_row("correct_unconfirmed_false")
 
-        stat_rows.append(
-            dict(  # noqa: C408
-                id="wrong",
-                content=get_stat_row("wrong"),
-            )
-        )
-        stat_rows.append(
-            dict(  # noqa: C408
-                id="wrong_true",
-                content=get_stat_row("wrong_true"),
-            )
-        )
-        stat_rows.append(
-            dict(  # noqa: C408
-                id="wrong_false",
-                content=get_stat_row("wrong_false"),
-            )
-        )
+        add_stat_row("wrong")
+        add_stat_row("wrong_true")
+        add_stat_row("wrong_false")
 
     if max_score is not None:
-        stat_rows.append(
-            dict(  # noqa: C408
-                id="score",
-                title=f"score ({len(rows)} tasks, max score: {max_score})",
-                description=task_counts,
-                content=get_stat_row("score"),
-            )
+        add_stat_row(
+            "score", f"score ({len(rows)} tasks, max score: {max_score})", task_counts
         )
 
     return stat_rows
