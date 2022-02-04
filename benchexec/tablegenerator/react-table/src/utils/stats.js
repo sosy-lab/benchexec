@@ -10,25 +10,25 @@ import { enqueue } from "../workers/workerDirector";
 
 const keysToIgnore = ["meta"];
 
-const subStatSelector = {
-  "total results": "total",
-  "correct results": "correct-total",
-  "correct true": "correct-true",
-  "correct false": "correct-false",
-  "correct-unconfimed results": "correct-unconfirmed-total",
-  "correct-unconfirmed true": "correct-unconfirmed-true",
-  "correct-unconfirmed false": "correct-unconfirmed-false",
-  "incorrect results": "wrong-total",
-  "incorrect true": "wrong-true",
-  "incorrect false": "wrong-false",
-};
+const computableStatististics = [
+  "total",
+  "correct",
+  "correct_true",
+  "correct_false",
+  "correct_unconfirmed",
+  "correct_unconfirmed_true",
+  "correct_unconfirmed_false",
+  "wrong",
+  "wrong_true",
+  "wrong_false",
+];
 
 /**
  * Remove all statistics rows for which the statistics worker cannot/will not
  * compute values (e.g., local summary, score).
  */
 export const filterComputableStatistics = (stats) =>
-  stats.filter((row) => subStatSelector[row.title.replace(/&nbsp;/g, "")]);
+  stats.filter((row) => computableStatististics.includes(row.id));
 
 /**
  * This method gets called on the initial render or whenever there is a
@@ -44,8 +44,8 @@ export const computeStats = async ({ tools, tableData, stats }) => {
   let res = await processData({ tools, tableData, formatter });
 
   const availableStats = stats
-    .map((row) => subStatSelector[row.title.replace(/&nbsp;/g, "")])
-    .filter((element) => !isNil(element));
+    .map((row) => row.id)
+    .filter((id) => computableStatististics.includes(id));
   const cleaned = cleanupStats(res, formatter, availableStats);
 
   // fill up stat array to match column mapping
@@ -85,10 +85,8 @@ export const computeStats = async ({ tools, tableData, stats }) => {
 
   // Put new statistics in same "shape" as old ones.
   return filterComputableStatistics(stats).map((row) => {
-    const title = row.title.replace(/&nbsp;/g, "");
-    const key = subStatSelector[title];
     const content = row.content.map((tool, toolIdx) => {
-      return res[toolIdx].map((col) => col[key]);
+      return res[toolIdx].map((col) => col[row.id]);
     });
     return { ...row, content };
   });
@@ -317,7 +315,7 @@ const prepareRows = (
     const cat = categoryAccessor(toolIdx, row);
     const stat = statusAccessor(toolIdx, row);
 
-    const mappedCat = cat;
+    const mappedCat = cat.replace(/-/g, "_");
     const mappedRes = classifyResult(stat);
 
     return {

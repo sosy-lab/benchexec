@@ -242,8 +242,8 @@ onmessage = function (e) {
 
   // Bucket setup with sum and min/max
   for (const item of copy) {
-    const key = `${item.categoryType}-${item.resultType}`;
-    const totalKey = `${item.categoryType}-total`;
+    const key = `${item.categoryType}_${item.resultType}`;
+    const totalKey = `${item.categoryType}`;
     const { columnType: type, column, columnTitle: title } = item;
     if (!total.title) {
       total.title = title;
@@ -346,8 +346,8 @@ onmessage = function (e) {
       continue;
     }
     const numCol = Number(column);
-    const key = `${item.categoryType}-${item.resultType}`;
-    const totalKey = `${item.categoryType}-total`;
+    const key = `${item.categoryType}_${item.resultType}`;
+    const totalKey = `${item.categoryType}`;
     const bucket = buckets[key];
     const subTotalBucket = buckets[totalKey];
     const diffBucket = numCol - bucket.avg;
