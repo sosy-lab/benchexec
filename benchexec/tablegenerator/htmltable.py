@@ -305,9 +305,9 @@ def _prepare_stats(all_column_stats, rows, columns):
             for run_set_stats, run_set_columns in zip(all_column_stats, columns)
         ]
         row = {"id": field, "content": content}
-        if title is not None:
+        if title:
             row["title"] = title
-        if description is not None:
+        if description:
             row["description"] = description
         stat_rows.append(row)
 

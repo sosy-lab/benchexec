@@ -248,8 +248,7 @@ const StatisticsTable = ({
               }}
               title={
                 cell.row.original.description ||
-                statisticsRows[cell.row.original.id].description ||
-                ""
+                statisticsRows[cell.row.original.id].description
               }
               className="row-title"
             />
