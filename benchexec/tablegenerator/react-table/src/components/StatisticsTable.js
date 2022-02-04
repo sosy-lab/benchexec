@@ -62,7 +62,6 @@ const StatisticsTable = ({
           tools,
           tableData,
           stats: defaultStats,
-          asFiltered: true,
         });
         setStats(newStats);
       } else {
@@ -230,7 +229,11 @@ const StatisticsTable = ({
           Header: <SelectColumnsButton handler={selectColumn} />,
           Cell: (cell) => (
             <div
-              dangerouslySetInnerHTML={{ __html: cell.row.original.title }}
+              dangerouslySetInnerHTML={{
+                __html:
+                  cell.row.original.title +
+                  (filtered ? " of selected rows" : ""),
+              }}
               title={cell.row.original.description}
               className="row-title"
             />
@@ -250,7 +253,14 @@ const StatisticsTable = ({
       .flat();
 
     return [createRowTitleColumn()].concat(statColumns);
-  }, [isTitleColSticky, switchToQuantile, hiddenCols, selectColumn, tools]);
+  }, [
+    filtered,
+    isTitleColSticky,
+    switchToQuantile,
+    hiddenCols,
+    selectColumn,
+    tools,
+  ]);
 
   const data = useMemo(() => stats, [stats]);
 

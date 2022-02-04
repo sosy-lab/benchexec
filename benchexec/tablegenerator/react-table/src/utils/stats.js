@@ -36,7 +36,7 @@ export const filterComputableStatistics = (stats) =>
  * necessary transformation to bring the calculation results into the
  * required format.
  */
-export const computeStats = async ({ tools, tableData, stats, asFiltered }) => {
+export const computeStats = async ({ tools, tableData, stats }) => {
   const formatter = buildFormatter(tools);
   let res = await processData({ tools, tableData, formatter });
 
@@ -80,26 +80,15 @@ export const computeStats = async ({ tools, tableData, stats, asFiltered }) => {
     return out;
   });
 
-  if (asFiltered) {
-    return addAsFilteredRow({
-      newStats: res,
-      stats,
+  // Put new statistics in same "shape" as old ones.
+  return filterComputableStatistics(stats).map((row) => {
+    const title = row.title.replace(/&nbsp;/g, "");
+    const key = subStatSelector[title];
+    const content = row.content.map((tool, toolIdx) => {
+      return res[toolIdx].map((col) => col[key]);
     });
-  } else {
-    const transformed = stats.map((row) => {
-      const title = row.title.replace(/&nbsp;/g, "");
-      const content = row.content.map((tool, toolIdx) => {
-        const key = subStatSelector[title];
-        if (!key || !res[toolIdx]) {
-          return tool;
-        }
-        return res[toolIdx].map((col) => col[key]);
-      });
-      return { ...row, content };
-    });
-
-    return transformed;
-  }
+    return { ...row, content };
+  });
 };
 
 /**
@@ -283,26 +272,6 @@ const cleanupStats = (unfilteredStats, formatter, availableStats) => {
       .filter((i) => !isNil(i)),
   );
   return cleaned;
-};
-
-const addAsFilteredRow = ({ newStats, stats }) => {
-  // our stats template to steal from
-
-  const templ = [...stats];
-
-  const filteredRow = newStats.map((tool) =>
-    tool.map(({ total }) => ({ ...total })),
-  );
-
-  // Insert filtered row as first indented row.
-  const i = templ.findIndex((row) => row.title.startsWith("&nbsp;"));
-  templ.splice(i < 0 ? templ.length : i, 0, {
-    description: "using the current set of filters configured in this table",
-    title: "&nbsp;&nbsp;&nbsp;&nbsp;filtered tasks",
-    content: filteredRow,
-  });
-
-  return templ;
 };
 
 const RESULT_TRUE_PROP = "true";

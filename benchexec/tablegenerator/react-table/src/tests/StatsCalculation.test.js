@@ -36,17 +36,11 @@ fs.readdirSync(testDir)
               hiddenCols={overviewProps.hiddenCols}
               tableData={overviewProps.tableData}
               stats={filterComputableStatistics(overviewProps.stats)}
-              filtered={overviewProps.filteredData.length > 0}
             />,
           );
         });
 
-        const jsStats = filterComputableStatistics(
-          await computeStats({
-            ...overviewProps,
-            asFiltered: false,
-          }),
-        );
+        const jsStats = await computeStats(overviewProps);
         await renderer.act(async () => {
           jsStatComponent = renderer.create(
             <StatisticsTable
@@ -56,7 +50,6 @@ fs.readdirSync(testDir)
               hiddenCols={overviewProps.hiddenCols}
               tableData={overviewProps.tableData}
               stats={jsStats}
-              filtered={overviewProps.filteredData.length > 0}
             />,
           );
         });
