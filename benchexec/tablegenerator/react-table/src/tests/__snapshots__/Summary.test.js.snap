@@ -753,9 +753,6 @@ exports[`Render Summary for benchmark-example-true.2019-11-06_0932.results.no op
        </div>
       </div>
      </div>
-     <div
-      className="-loading"
-     />
     </div>
    </div>
   </div>
@@ -4360,9 +4357,6 @@ exports[`Render Summary for big-table.diff.html 1`] = `
        </div>
       </div>
      </div>
-     <div
-      className="-loading"
-     />
     </div>
    </div>
   </div>
@@ -5768,9 +5762,6 @@ exports[`Render Summary for cbmc.2015-12-11_1211.results.Simple.html 1`] = `
        </div>
       </div>
      </div>
-     <div
-      className="-loading"
-     />
     </div>
    </div>
   </div>
@@ -9487,9 +9478,6 @@ exports[`Render Summary for multi-table.diff.html 1`] = `
        </div>
       </div>
      </div>
-     <div
-      className="-loading"
-     />
     </div>
    </div>
   </div>
@@ -13569,9 +13557,6 @@ exports[`Render Summary for multi-table.table.html 1`] = `
        </div>
       </div>
      </div>
-     <div
-      className="-loading"
-     />
     </div>
    </div>
   </div>
@@ -17284,9 +17269,6 @@ exports[`Render Summary for multi-table-only-columns.diff.html 1`] = `
        </div>
       </div>
      </div>
-     <div
-      className="-loading"
-     />
     </div>
    </div>
   </div>
@@ -21366,9 +21348,6 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
        </div>
       </div>
      </div>
-     <div
-      className="-loading"
-     />
     </div>
    </div>
   </div>
@@ -25081,9 +25060,6 @@ exports[`Render Summary for multi-table-with-columns.diff.html 1`] = `
        </div>
       </div>
      </div>
-     <div
-      className="-loading"
-     />
     </div>
    </div>
   </div>
@@ -29163,9 +29139,6 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
        </div>
       </div>
      </div>
-     <div
-      className="-loading"
-     />
     </div>
    </div>
   </div>
@@ -32878,9 +32851,6 @@ exports[`Render Summary for multi-table-with-diff-over-column.diff.html 1`] = `
        </div>
       </div>
      </div>
-     <div
-      className="-loading"
-     />
     </div>
    </div>
   </div>
@@ -36960,9 +36930,6 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
        </div>
       </div>
      </div>
-     <div
-      className="-loading"
-     />
     </div>
    </div>
   </div>
@@ -40703,9 +40670,6 @@ exports[`Render Summary for multi-table-with-wildcards.diff.html 1`] = `
        </div>
       </div>
      </div>
-     <div
-      className="-loading"
-     />
     </div>
    </div>
   </div>
@@ -44809,9 +44773,6 @@ exports[`Render Summary for multi-table-with-wildcards.table.html 1`] = `
        </div>
       </div>
      </div>
-     <div
-      className="-loading"
-     />
     </div>
    </div>
   </div>
@@ -47297,9 +47258,6 @@ exports[`Render Summary for nan_and_inf.html 1`] = `
        </div>
       </div>
      </div>
-     <div
-      className="-loading"
-     />
     </div>
    </div>
   </div>
@@ -49615,9 +49573,6 @@ exports[`Render Summary for predicateAnalysis.table.html 1`] = `
        </div>
       </div>
      </div>
-     <div
-      className="-loading"
-     />
     </div>
    </div>
   </div>
@@ -51933,9 +51888,6 @@ exports[`Render Summary for predicateAnalysis-reverse.table.html 1`] = `
        </div>
       </div>
      </div>
-     <div
-      className="-loading"
-     />
     </div>
    </div>
   </div>
@@ -54840,9 +54792,6 @@ exports[`Render Summary for rows-with-scores.html 1`] = `
        </div>
       </div>
      </div>
-     <div
-      className="-loading"
-     />
     </div>
    </div>
   </div>
@@ -56088,9 +56037,6 @@ exports[`Render Summary for simple-table-with-columns.table.html 1`] = `
        </div>
       </div>
      </div>
-     <div
-      className="-loading"
-     />
     </div>
    </div>
   </div>
@@ -57159,9 +57105,6 @@ exports[`Render Summary for simple-table-with-links.table.html 1`] = `
        </div>
       </div>
      </div>
-     <div
-      className="-loading"
-     />
     </div>
    </div>
   </div>
@@ -58581,9 +58524,6 @@ exports[`Render Summary for simple-table-with-numberOfDigits.table.html 1`] = `
        </div>
       </div>
      </div>
-     <div
-      className="-loading"
-     />
     </div>
    </div>
   </div>
@@ -60710,9 +60650,6 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
        </div>
       </div>
      </div>
-     <div
-      className="-loading"
-     />
     </div>
    </div>
   </div>
@@ -61581,9 +61518,6 @@ exports[`Render Summary for smt.diff.html 1`] = `
        </div>
       </div>
      </div>
-     <div
-      className="-loading"
-     />
     </div>
    </div>
   </div>
@@ -62651,9 +62585,6 @@ exports[`Render Summary for smt.table.html 1`] = `
        </div>
       </div>
      </div>
-     <div
-      className="-loading"
-     />
     </div>
    </div>
   </div>
@@ -65558,9 +65489,6 @@ exports[`Render Summary for task-def-files.table.html 1`] = `
        </div>
       </div>
      </div>
-     <div
-      className="-loading"
-     />
     </div>
    </div>
   </div>
@@ -67665,9 +67593,6 @@ exports[`Render Summary for test.2015-03-03_1613.diff.html 1`] = `
        </div>
       </div>
      </div>
-     <div
-      className="-loading"
-     />
     </div>
    </div>
   </div>
@@ -69264,9 +69189,6 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.all-c
        </div>
       </div>
      </div>
-     <div
-      className="-loading"
-     />
     </div>
    </div>
   </div>
@@ -70571,9 +70493,6 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.corre
        </div>
       </div>
      </div>
-     <div
-      className="-loading"
-     />
     </div>
    </div>
   </div>
@@ -72048,9 +71967,6 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.custo
        </div>
       </div>
      </div>
-     <div
-      className="-loading"
-     />
     </div>
    </div>
   </div>
@@ -73472,9 +73388,6 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.html 
        </div>
       </div>
      </div>
-     <div
-      className="-loading"
-     />
     </div>
    </div>
   </div>
@@ -74896,9 +74809,6 @@ exports[`Render Summary for test.2015-03-03_1613.results.valueAnalysis.html 1`] 
        </div>
       </div>
      </div>
-     <div
-      className="-loading"
-     />
     </div>
    </div>
   </div>
@@ -76320,9 +76230,6 @@ exports[`Render Summary for test.2015-03-03_1613.results.valueAnalysis.table.htm
        </div>
       </div>
      </div>
-     <div
-      className="-loading"
-     />
     </div>
    </div>
   </div>
@@ -78626,9 +78533,6 @@ exports[`Render Summary for test.2015-03-03_1613.table.html 1`] = `
        </div>
       </div>
      </div>
-     <div
-      className="-loading"
-     />
     </div>
    </div>
   </div>
@@ -80733,9 +80637,6 @@ exports[`Render Summary for test.2015-03-03_1613-common.diff.html 1`] = `
        </div>
       </div>
      </div>
-     <div
-      className="-loading"
-     />
     </div>
    </div>
   </div>
@@ -82840,9 +82741,6 @@ exports[`Render Summary for test.2015-03-03_1613-common.table.html 1`] = `
        </div>
       </div>
      </div>
-     <div
-      className="-loading"
-     />
     </div>
    </div>
   </div>
@@ -84947,9 +84845,6 @@ exports[`Render Summary for test.2015-03-03_1613-correct-only.diff.html 1`] = `
        </div>
       </div>
      </div>
-     <div
-      className="-loading"
-     />
     </div>
    </div>
   </div>
@@ -87054,9 +86949,6 @@ exports[`Render Summary for test.2015-03-03_1613-correct-only.table.html 1`] = `
        </div>
       </div>
      </div>
-     <div
-      className="-loading"
-     />
     </div>
    </div>
   </div>
@@ -89161,9 +89053,6 @@ exports[`Render Summary for test.2015-03-03_1613-reverse.diff.html 1`] = `
        </div>
       </div>
      </div>
-     <div
-      className="-loading"
-     />
     </div>
    </div>
   </div>
@@ -91467,9 +91356,6 @@ exports[`Render Summary for test.2015-03-03_1613-reverse.table.html 1`] = `
        </div>
       </div>
      </div>
-     <div
-      className="-loading"
-     />
     </div>
    </div>
   </div>
@@ -93574,9 +93460,6 @@ exports[`Render Summary for test-error.2015-03-03_1613.diff.html 1`] = `
        </div>
       </div>
      </div>
-     <div
-      className="-loading"
-     />
     </div>
    </div>
   </div>
@@ -95880,9 +95763,6 @@ exports[`Render Summary for test-error.2015-03-03_1613.table.html 1`] = `
        </div>
       </div>
      </div>
-     <div
-      className="-loading"
-     />
     </div>
    </div>
   </div>
@@ -97987,9 +97867,6 @@ exports[`Render Summary for union-table.diff.html 1`] = `
        </div>
       </div>
      </div>
-     <div
-      className="-loading"
-     />
     </div>
    </div>
   </div>
@@ -100094,9 +99971,6 @@ exports[`Render Summary for union-table.table.html 1`] = `
        </div>
       </div>
      </div>
-     <div
-      className="-loading"
-     />
     </div>
    </div>
   </div>
@@ -102201,9 +102075,6 @@ exports[`Render Summary for union-table-duplicate-results.diff.html 1`] = `
        </div>
       </div>
      </div>
-     <div
-      className="-loading"
-     />
     </div>
    </div>
   </div>
@@ -104308,9 +104179,6 @@ exports[`Render Summary for union-table-duplicate-results.table.html 1`] = `
        </div>
       </div>
      </div>
-     <div
-      className="-loading"
-     />
     </div>
    </div>
   </div>
@@ -107227,9 +107095,6 @@ exports[`Render Summary for union-table-mixed.diff.html 1`] = `
        </div>
       </div>
      </div>
-     <div
-      className="-loading"
-     />
     </div>
    </div>
   </div>
@@ -110429,9 +110294,6 @@ exports[`Render Summary for union-table-mixed.table.html 1`] = `
        </div>
       </div>
      </div>
-     <div
-      className="-loading"
-     />
     </div>
    </div>
   </div>
@@ -112536,9 +112398,6 @@ exports[`Render Summary for union-table-multiple-results.diff.html 1`] = `
        </div>
       </div>
      </div>
-     <div
-      className="-loading"
-     />
     </div>
    </div>
   </div>
@@ -114643,9 +114502,6 @@ exports[`Render Summary for union-table-multiple-results.table.html 1`] = `
        </div>
       </div>
      </div>
-     <div
-      className="-loading"
-     />
     </div>
    </div>
   </div>
@@ -115950,9 +115806,6 @@ exports[`Render Summary for union-table-predicateAnalysis.table.html 1`] = `
        </div>
       </div>
      </div>
-     <div
-      className="-loading"
-     />
     </div>
    </div>
   </div>
@@ -117257,9 +117110,6 @@ exports[`Render Summary for union-table-valueAnalysis.table.html 1`] = `
        </div>
       </div>
      </div>
-     <div
-      className="-loading"
-     />
     </div>
    </div>
   </div>

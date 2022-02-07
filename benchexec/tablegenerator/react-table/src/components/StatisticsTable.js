@@ -143,7 +143,6 @@ const StatisticsTable = ({
               {renderTableHeaders(headerGroups)}
               {renderTableData(rows)}
             </div>
-            <div className="-loading"></div>
           </div>
         </div>
       </div>

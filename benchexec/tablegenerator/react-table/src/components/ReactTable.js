@@ -808,7 +808,6 @@ const Table = (props) => {
           </div>
         </div>
         {renderPagination()}
-        <div className="-loading"></div>
       </div>
     </div>
   );
