@@ -51,7 +51,9 @@ const StatisticsTable = ({
   // specifically wanted (signaled by a passed onStatsReady callback function)
   const skipStats = isTestEnv && !onStatsReady;
 
-  const [stats, setStats] = useState(defaultStats);
+  // When filtered, initialize with empty statistics until computed statistics
+  // are available in order to prevent briefly showing the wrong statistics.
+  const [stats, setStats] = useState(filtered ? [] : defaultStats);
   const [isTitleColSticky, setTitleColSticky] = useState(true);
 
   // we want to trigger a re-calculation of our stats whenever data changes.
@@ -126,6 +128,13 @@ const StatisticsTable = ({
   );
 
   const renderTable = (headerGroups, rows) => {
+    if (filtered && stats.length === 0) {
+      return (
+        <p id="statistics-placeholder">
+          Please wait while the statistics are being calculated.
+        </p>
+      );
+    }
     return (
       <div id="statistics-table">
         <div className="table sticky">
