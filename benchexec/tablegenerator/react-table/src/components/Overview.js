@@ -374,9 +374,12 @@ export default class Overview extends React.Component {
                     tableHeader={this.tableHeader}
                     version={this.props.data.version}
                     selectColumn={this.toggleSelectColumns}
+                    stats={this.stats}
+                    onStatsReady={this.props.onStatsReady}
                     switchToQuantile={this.switchToQuantile}
-                    tableData={this.stats}
+                    tableData={this.state.tableData}
                     hiddenCols={this.state.hiddenCols}
+                    filtered={this.state.filtered.length > 0}
                   />
                 </Route>
                 <Route path="/table">

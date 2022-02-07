@@ -25,17 +25,17 @@ test_snapshot_of("Render ReactTable", (overview) => (
     <Table
       tableHeader={overview.tableHeader}
       tableData={overview.originalTable}
-      tools={overview.state.tools}
+      tools={overview.tools}
       selectColumn={overview.toggleSelectColumns}
       prepareTableValues={overview.prepareTableValues}
       setFilter={overview.setFilter}
       filterPlotData={overview.filterPlotData}
-      filters={overview.state.filtered}
+      filters={overview.filteredData}
       toggleLinkOverlay={overview.toggleLinkOverlay}
       changeTab={overview.changeTab}
       statusValues={overview.statusValues}
       categoryValues={overview.categoryValues}
-      hiddenCols={overview.state.hiddenCols}
+      hiddenCols={overview.hiddenCols}
     />
   </Router>
 ));

@@ -702,6 +702,42 @@ const getTaskIdParts = (rows, taskIdNames) =>
     {},
   );
 
+/**
+ * Function to safely add two numbers in a way that should mitigate errors
+ * caused by inaccurate floating point operations in javascript
+ * @param {Number|String} a - The base number
+ * @param {Number|String} b - The number to add
+ *
+ * @returns {Number} The result of the addition
+ */
+// WHEN EDITING THIS FUNCTION, ALSO EDIT THE COPY OF THIS FUNCTION IN src/woerks/scrips/stats.worker.js
+const safeAdd = (a, b) => {
+  let aNum = a;
+  let bNum = b;
+
+  if (typeof a === "string") {
+    aNum = Number(a);
+  }
+  if (typeof b === "string") {
+    bNum = Number(b);
+  }
+
+  if (Number.isInteger(aNum) || Number.isInteger(bNum)) {
+    return aNum + bNum;
+  }
+
+  const aString = a.toString();
+  const aLength = aString.length;
+  const aDecimalPoint = aString.indexOf(".");
+  const bString = b.toString();
+  const bLength = bString.length;
+  const bDecimalPoint = bString.indexOf(".");
+
+  const length = Math.max(aLength - aDecimalPoint, bLength - bDecimalPoint) - 1;
+
+  return Number((aNum + bNum).toFixed(length));
+};
+
 const punctuationSpaceHtml = "&#x2008;";
 const characterSpaceHtml = "&#x2007;";
 
@@ -715,19 +751,26 @@ const characterSpaceHtml = "&#x2007;";
  * @param {Number} significantDigits - Number of significant digits for this column
  */
 class NumberFormatterBuilder {
-  constructor(significantDigits) {
+  constructor(significantDigits, name = "Unknown") {
     this.significantDigits = significantDigits;
     this.maxPositiveDecimalPosition = -1;
     this.maxNegativeDecimalPosition = -1;
+    this.name = name;
   }
 
-  _defaultOptions = { whitespaceFormat: false, html: false };
+  _defaultOptions = {
+    whitespaceFormat: false,
+    html: false,
+    leadingZero: true,
+    additionalFormatting: (x) => x,
+  };
 
   addDataItem(item) {
-    const [positive, negative] = item.split(/\.|,/);
+    const formatted = this.format(item);
+    const [positive, negative] = formatted.split(/\.|,/);
     this.maxPositiveDecimalPosition = Math.max(
       this.maxPositiveDecimalPosition,
-      positive ? positive.length : 0,
+      positive && positive !== "0" ? positive.length : 0,
     );
     this.maxNegativeDecimalPosition = Math.max(
       this.maxNegativeDecimalPosition,
@@ -735,88 +778,148 @@ class NumberFormatterBuilder {
     );
   }
 
+  format(number) {
+    let stringNumber = number.toString();
+    let prefix = "";
+    let postfix = "";
+    let pointer = 0;
+    let addedNums = 0;
+    let firstNonZero = false;
+    let decimal = false;
+
+    if (stringNumber === "NaN") {
+      return "NaN";
+    }
+    if (stringNumber.endsWith("Infinity")) {
+      return stringNumber.replace("Infinity", "Inf");
+    }
+
+    // handling exponential formatting of large (or small) numbers in javascript
+    if (stringNumber.includes("e")) {
+      const [coefficient, exponent] = stringNumber.split("-");
+      let addedFactor = 0;
+      if (coefficient.includes(".")) {
+        addedFactor = 1;
+      }
+      stringNumber = Number(number).toFixed(Number(exponent) + addedFactor);
+    }
+
+    const decimalPos = stringNumber.replace(/,/, ".").indexOf(".");
+    while (
+      addedNums < this.significantDigits - 1 &&
+      stringNumber.length > pointer
+    ) {
+      const current = stringNumber[pointer];
+      if (current === "." || current === ",") {
+        prefix += ".";
+        decimal = true;
+      } else {
+        if (!firstNonZero) {
+          if (current === "0") {
+            pointer += 1;
+            if (decimal) {
+              prefix += current;
+            }
+            continue;
+          }
+          firstNonZero = true;
+        }
+        prefix += current;
+        addedNums += 1;
+      }
+      pointer += 1;
+    }
+    postfix = stringNumber.substring(pointer);
+    if (prefix === "" && postfix === "") {
+      prefix = stringNumber;
+    }
+    if (prefix[0] === ".") {
+      prefix = `0${prefix}`;
+    }
+
+    if (postfix !== "") {
+      // hacky trickery
+      // we force the postfix to turn into a decimal value with one leading integer
+      // e.g. 5432 -> 5.432
+      // this way we can round up to the first digit of the string
+      const attachDecimal = postfix[0] === ".";
+      postfix = postfix.replace(/\./, "");
+      postfix = `${postfix[0]}.${postfix.substr(1)}`;
+      postfix = Math.round(Number(postfix));
+      postfix = isNaN(postfix) ? "" : postfix.toString();
+      //handle carry
+      if (postfix.length > 1 && postfix[0] !== ".") {
+        const overflow = postfix[0];
+        postfix = postfix[1];
+        const oldLength = prefix.length;
+        const [, decPart] = prefix.split(".");
+        let decimalLength = (decPart && decPart.length - 1) || 0;
+        let toAdd = decPart ? "0." : "";
+        let i = decimalLength;
+        while (i > 0) {
+          toAdd += "0";
+          i -= 1;
+        }
+
+        toAdd += overflow;
+        prefix = safeAdd(prefix, toAdd)
+          .toFixed(decimalLength + 1)
+          .substr(0, oldLength);
+        while (prefix.length < oldLength) {
+          prefix += "0";
+        }
+      }
+      // fill up integer number;
+      let end = decimalPos;
+      if (attachDecimal) {
+        postfix = `.${postfix}`;
+      }
+
+      if (decimalPos === -1) {
+        end = stringNumber.length;
+      }
+      while (prefix.length + postfix.length < end) {
+        postfix += "0";
+      }
+    }
+    return `${prefix}${postfix}`;
+  }
+
   build() {
     return (number, options = {}) => {
-      if (isNil(this.significantDigits)) {
-        return number.toString();
-      }
-      const { whitespaceFormat, html } = {
+      const { whitespaceFormat, html, leadingZero, additionalFormatting } = {
         ...this._defaultOptions,
         ...options,
       };
-      const stringNumber = number.toString();
-      let prefix = "";
-      let postfix = "";
-      let pointer = 0;
-      let addedNums = 0;
-      let firstNonZero = false;
-      let decimal = false;
-      const decimalPos = stringNumber.replace(/,/, ".").indexOf(".");
-      while (
-        addedNums < this.significantDigits - 1 &&
-        stringNumber.length > pointer
-      ) {
-        const current = stringNumber[pointer];
-        if (current === "." || current === ",") {
-          prefix += ".";
-          decimal = true;
-        } else {
-          if (!firstNonZero) {
-            if (current === "0") {
-              pointer += 1;
-              if (decimal) {
-                prefix += current;
-              }
-              continue;
-            }
-            firstNonZero = true;
-          }
-          prefix += current;
-          addedNums += 1;
-        }
-        pointer += 1;
-      }
-      if (prefix[0] === ".") {
-        prefix = `0${prefix}`;
-      }
-      postfix = stringNumber.substring(pointer);
 
-      if (postfix) {
-        // hacky trickery
-        // we force the postfix to turn into a decimal value with one leading integer
-        // e.g. 5432 -> 5.432
-        // this way we can round up to the first digit of the string
-        const attachDecimal = postfix[0] === ".";
-        postfix = postfix.replace(/\./, "");
-        postfix = `${postfix[0]}.${postfix.substr(1)}`;
-        postfix = Math.round(Number(postfix));
-        postfix = isNaN(postfix) ? "" : postfix.toString();
-        if (attachDecimal) {
-          postfix = `.${postfix}`;
-        }
-        // fill up integer number;
-        let end = decimalPos;
-        if (decimalPos === -1) {
-          end = stringNumber.length;
-        }
-        while (prefix.length + postfix.length < end) {
-          postfix += "0";
-        }
+      const ctx = {
+        significantDigits: this.significantDigits,
+        maxDecimalInputLength: this.maxNegativeDecimalPosition,
+      };
+      if (isNil(this.significantDigits)) {
+        return additionalFormatting(number.toString(), ctx);
+      }
+      let out = this.format(number);
+
+      out = additionalFormatting(out, ctx);
+
+      if (out === "NaN") {
+        // we don't want to pad NaN
+        return out;
       }
 
-      const out = `${prefix}${postfix}`;
       if (whitespaceFormat) {
         const decSpace = html ? punctuationSpaceHtml : " ";
         let [integer, decimal] = out.split(/\.|,/);
-        if (integer === "0") {
-          integer = "";
+        if (integer === "0" && !leadingZero) {
+          integer = decimal ? "" : "0";
         }
         integer = integer || "";
         decimal = decimal || "";
         const decimalPoint = decimal ? "." : decSpace;
-        while (integer.length < this.maxPositiveDecimalPosition) {
+        /*         while (integer.length < this.maxPositiveDecimalPosition) {
           integer = ` ${integer}`;
-        }
+        } */
         while (decimal.length < this.maxNegativeDecimalPosition) {
           decimal += " ";
         }
@@ -824,7 +927,11 @@ class NumberFormatterBuilder {
           integer = integer.replace(/ /g, characterSpaceHtml);
           decimal = decimal.replace(/ /g, characterSpaceHtml);
         }
-        return `${integer}${decimalPoint}${decimal}`;
+
+        return `${integer}${decimal ? decimalPoint : ""}${decimal}`;
+      }
+      if (!leadingZero && out.startsWith("0.")) {
+        return out.substr(1);
       }
       return out;
     };
@@ -973,6 +1080,7 @@ const getStep = (num) => {
   return out;
 };
 
+const identity = (x) => x;
 /**
  * Computes and returns all ids of the given columns that are hidden. Assumes that
  * the columns object is in the format that is used in the ReactTable and Summary component.
@@ -1019,9 +1127,11 @@ export {
   hasSameEntries,
   isCategory,
   getStep,
+  identity,
   makeUrlFilterDeserializer,
   makeUrlFilterSerializer,
   makeFilterSerializer,
   makeFilterDeserializer,
+  safeAdd,
   getHiddenColIds,
 };
