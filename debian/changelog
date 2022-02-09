@@ -1,3 +1,9 @@
+benchexec (3.11-1) impish; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Wed, 09 Feb 2022 09:55:06 +0100
+
 benchexec (3.10-1) focal; urgency=medium
 
   * New upstream version.
