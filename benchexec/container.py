@@ -441,6 +441,8 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
                 logging.debug("Failed to make %s a bind mount: %s", mount_path, e)
         os.makedirs(temp_path, exist_ok=True)
 
+    overlay_count = 0
+
     for _unused_source, full_mountpoint, fstype, options in list(get_mount_points()):
         if not util.path_is_below(full_mountpoint, mount_base):
             continue
@@ -477,9 +479,10 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
 
         mount_path = mount_base + mountpoint
         temp_path = temp_base + mountpoint
-        work_path = work_base + mountpoint
 
         if mode == DIR_OVERLAY:
+            overlay_count += 1
+            work_path = work_base + b"/" + str(overlay_count).encode()
             os.makedirs(temp_path, exist_ok=True)
             os.makedirs(work_path, exist_ok=True)
             try:
