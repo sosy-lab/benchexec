@@ -114,7 +114,8 @@ pytype:
   stage: test
   image: python:3.7
   before_script:
-    - pip install coloredlogs pytype
+    # version due to https://github.com/google/pytype/issues/1130
+    - pip install coloredlogs pytype==2022.2.8
   script:
     - pytype -k
   cache:
