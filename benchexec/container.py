@@ -424,8 +424,29 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
 
     # Ensure each special dir is a mountpoint such that the next loop covers it.
     for special_dir in dir_modes.keys():
+        if special_dir == b"/":
+            continue  # handled above
+
         mount_path = mount_base + special_dir
         temp_path = temp_base + special_dir
+        # Ensure special_dir exists even if we mount a hidden dir as parent.
+        os.makedirs(temp_path, exist_ok=True)
+
+        mode = determine_directory_mode(dir_modes, special_dir)
+        parent_mode = determine_directory_mode(dir_modes, os.path.dirname(special_dir))
+        if mode == parent_mode:
+            # If special_dir is not a mountpoint, we do not need to do anything for it,
+            # it will automatically inherit the same directory mode as its parent.
+            # If special_dir is a mountpoint, it will be covered by the loop below
+            # anyway. In none of the two cases this loop needs to mark special_dir as
+            # mountpoint. This avoids useless creation of nested overlay instances.
+            logging.debug(
+                "Skipping directory mount for %s "
+                "because parent already has same mode.",
+                special_dir,
+            )
+            continue
+
         try:
             make_bind_mount(mount_path, mount_path)
         except OSError as e:
@@ -439,7 +460,6 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
                     )
             else:
                 logging.debug("Failed to make %s a bind mount: %s", mount_path, e)
-        os.makedirs(temp_path, exist_ok=True)
 
     overlay_count = 0
 
