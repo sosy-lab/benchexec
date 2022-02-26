@@ -424,8 +424,29 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
 
     # Ensure each special dir is a mountpoint such that the next loop covers it.
     for special_dir in dir_modes.keys():
+        if special_dir == b"/":
+            continue  # handled above
+
         mount_path = mount_base + special_dir
         temp_path = temp_base + special_dir
+        # Ensure special_dir exists even if we mount a hidden dir as parent.
+        os.makedirs(temp_path, exist_ok=True)
+
+        mode = determine_directory_mode(dir_modes, special_dir)
+        parent_mode = determine_directory_mode(dir_modes, os.path.dirname(special_dir))
+        if mode == parent_mode:
+            # If special_dir is not a mountpoint, we do not need to do anything for it,
+            # it will automatically inherit the same directory mode as its parent.
+            # If special_dir is a mountpoint, it will be covered by the loop below
+            # anyway. In none of the two cases this loop needs to mark special_dir as
+            # mountpoint. This avoids useless creation of nested overlay instances.
+            logging.debug(
+                "Skipping directory mount for %s "
+                "because parent already has same mode.",
+                special_dir,
+            )
+            continue
+
         try:
             make_bind_mount(mount_path, mount_path)
         except OSError as e:
@@ -439,7 +460,8 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
                     )
             else:
                 logging.debug("Failed to make %s a bind mount: %s", mount_path, e)
-        os.makedirs(temp_path, exist_ok=True)
+
+    overlay_count = 0
 
     for _unused_source, full_mountpoint, fstype, options in list(get_mount_points()):
         if not util.path_is_below(full_mountpoint, mount_base):
@@ -477,9 +499,10 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
 
         mount_path = mount_base + mountpoint
         temp_path = temp_base + mountpoint
-        work_path = work_base + mountpoint
 
         if mode == DIR_OVERLAY:
+            overlay_count += 1
+            work_path = work_base + b"/" + str(overlay_count).encode()
             os.makedirs(temp_path, exist_ok=True)
             os.makedirs(work_path, exist_ok=True)
             try:
@@ -631,10 +654,10 @@ def get_mount_points():
         # According to man 5 fstab, only tab and space escaped, but Linux escapes more:
         # https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/fs/proc_namespace.c?id=12a54b150fb5b6c2f3da932dc0e665355f8a5a48#n85
         return (
-            path.replace(br"\011", b"\011")
-            .replace(br"\040", b"\040")
-            .replace(br"\012", b"\012")
-            .replace(br"\134", b"\134")
+            path.replace(rb"\011", b"\011")
+            .replace(rb"\040", b"\040")
+            .replace(rb"\012", b"\012")
+            .replace(rb"\134", b"\134")
         )
 
     with open("/proc/self/mounts", "rb") as mounts:
@@ -682,7 +705,7 @@ def make_overlay_mount(mount, lower, upper, work):
         we need to escape ":", which overlayfs uses to separate multiple lower dirs
         (cf. https://www.kernel.org/doc/Documentation/filesystems/overlayfs.txt).
         """
-        return s.replace(b"\\", br"\\").replace(b":", br"\:").replace(b",", br"\,")
+        return s.replace(b"\\", rb"\\").replace(b":", rb"\:").replace(b",", rb"\,")
 
     libc.mount(
         b"none",

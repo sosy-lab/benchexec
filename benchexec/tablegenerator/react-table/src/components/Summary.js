@@ -4,24 +4,9 @@
 // SPDX-FileCopyrightText: 2019-2020 Dirk Beyer <https://www.sosy-lab.org>
 //
 // SPDX-License-Identifier: Apache-2.0
-import React, { useState, useMemo } from "react";
-import {
-  createRunSetColumns,
-  StandardColumnHeader,
-  SelectColumnsButton,
-} from "./TableComponents.js";
-import {
-  determineColumnWidth,
-  isNumericColumn,
-  getHiddenColIds,
-} from "../utils/utils";
-import {
-  useTable,
-  useFilters,
-  useResizeColumns,
-  useFlexLayout,
-} from "react-table";
-import { useSticky } from "react-table-sticky";
+
+import React from "react";
+import StatisticsTable from "./StatisticsTable";
 
 const infos = [
   "displayName",
@@ -36,11 +21,8 @@ const infos = [
   "options",
   "property",
 ];
-const titleColWidth = window.innerWidth * 0.15;
 
 const Summary = (props) => {
-  const [isTitleColSticky, setTitleColSticky] = useState(true);
-
   /* ++++++++++++++ Helper functions ++++++++++++++ */
 
   const renderOptions = (text) => {
@@ -50,12 +32,6 @@ const Summary = (props) => {
       </li>
     ));
   };
-
-  const renderTooltip = (cell) =>
-    Object.keys(cell)
-      .filter((key) => cell[key] && key !== "sum")
-      .map((key) => `${key}: ${cell[key]}`)
-      .join(", ") || undefined;
 
   /* ++++++++++++++ Table render functions ++++++++++++++ */
 
@@ -71,172 +47,6 @@ const Summary = (props) => {
       </td>
     );
   };
-
-  const renderTableHeaders = (headerGroups) => (
-    <div className="table-header">
-      {headerGroups.map((headerGroup) => (
-        <div className="tr headergroup" {...headerGroup.getHeaderGroupProps()}>
-          {headerGroup.headers.map((header) => (
-            <div
-              {...header.getHeaderProps({
-                className: `th header ${header.headers ? "outer " : ""}${
-                  header.className || ""
-                }`,
-              })}
-            >
-              {header.render("Header")}
-
-              {(!header.className ||
-                !header.className.includes("separator")) && (
-                <div
-                  {...header.getResizerProps()}
-                  className={`resizer ${header.isResizing ? "isResizing" : ""}`}
-                />
-              )}
-            </div>
-          ))}
-        </div>
-      ))}
-    </div>
-  );
-
-  const renderTableData = (rows) => (
-    <div {...getTableBodyProps()} className="table-body body">
-      {rows.map((row) => {
-        prepareRow(row);
-        return (
-          <div {...row.getRowProps()} className="tr">
-            {row.cells.map((cell) => (
-              <div
-                {...cell.getCellProps({
-                  className: "td " + (cell.column.className || ""),
-                })}
-              >
-                {cell.render("Cell")}
-              </div>
-            ))}
-          </div>
-        );
-      })}
-    </div>
-  );
-
-  const renderTable = (headerGroups, rows) => {
-    return (
-      <div id="statistics-table">
-        <div className="table sticky">
-          <div className="table-content">
-            <div className="table-container" {...getTableProps()}>
-              {renderTableHeaders(headerGroups)}
-              {renderTableData(rows)}
-            </div>
-            <div className="-loading"></div>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  const { switchToQuantile, hiddenCols, selectColumn, tools } = props;
-  const columns = useMemo(() => {
-    const createColumn = (runSetIdx, column, columnIdx) => ({
-      id: `${runSetIdx}_${column.display_title}_${columnIdx}`,
-      Header: (
-        <StandardColumnHeader
-          column={column}
-          className="header-data clickable"
-          title="Show Quantile Plot of this column"
-          onClick={(e) => switchToQuantile(column)}
-        />
-      ),
-      hidden:
-        hiddenCols[runSetIdx].includes(column.colIdx) ||
-        !(isNumericColumn(column) || column.type === "status"),
-      width: determineColumnWidth(
-        column,
-        null,
-        column.type === "status" ? 6 : null,
-      ),
-      minWidth: 30,
-      accessor: (row) => row.content[runSetIdx][columnIdx],
-      Cell: (cell) =>
-        cell.value ? (
-          <div
-            dangerouslySetInnerHTML={{ __html: cell.value.sum }}
-            className="cell"
-            title={renderTooltip(cell.value)}
-          ></div>
-        ) : (
-          <div className="cell">-</div>
-        ),
-    });
-
-    const createRowTitleColumn = () => ({
-      Header: () => (
-        <form>
-          <label title="Fix the first column">
-            Fixed row title:
-            <input
-              id="fixed-row-title"
-              name="fixed"
-              type="checkbox"
-              checked={isTitleColSticky}
-              onChange={({ target }) => setTitleColSticky(target.checked)}
-            />
-          </label>
-        </form>
-      ),
-      id: "row-title",
-      sticky: isTitleColSticky ? "left" : "",
-      width: titleColWidth,
-      minWidth: 100,
-      columns: [
-        {
-          id: "summary",
-          width: titleColWidth,
-          minWidth: 100,
-          Header: <SelectColumnsButton handler={selectColumn} />,
-          Cell: (cell) => (
-            <div
-              dangerouslySetInnerHTML={{ __html: cell.row.original.title }}
-              title={cell.row.original.description}
-              className="row-title"
-            />
-          ),
-        },
-      ],
-    });
-
-    const statColumns = tools
-      .map((runSet, runSetIdx) =>
-        createRunSetColumns(runSet, runSetIdx, createColumn),
-      )
-      .flat();
-
-    return [createRowTitleColumn()].concat(statColumns);
-  }, [isTitleColSticky, switchToQuantile, hiddenCols, selectColumn, tools]);
-
-  const data = useMemo(() => props.tableData, [props.tableData]);
-
-  const {
-    getTableProps,
-    getTableBodyProps,
-    headerGroups,
-    rows,
-    prepareRow,
-  } = useTable(
-    {
-      columns,
-      data,
-      initialState: {
-        hiddenColumns: getHiddenColIds(columns),
-      },
-    },
-    useFilters,
-    useResizeColumns,
-    useFlexLayout,
-    useSticky,
-  );
 
   return (
     <div id="summary">
@@ -258,10 +68,16 @@ const Summary = (props) => {
           </tbody>
         </table>
       </div>
-      <div id="statistics">
-        <h2>Statistics</h2>
-        {renderTable(headerGroups, rows)}
-      </div>
+      <StatisticsTable
+        selectColumn={props.selectColumn}
+        tools={props.tools}
+        switchToQuantile={props.switchToQuantile}
+        hiddenCols={props.hiddenCols}
+        tableData={props.tableData}
+        onStatsReady={props.onStatsReady}
+        stats={props.stats}
+        filtered={props.filtered}
+      />
       <p>
         Generated by{" "}
         <a

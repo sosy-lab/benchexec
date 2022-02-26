@@ -463,6 +463,12 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
     }
   }
   #statistics {
+    #statistics-placeholder {
+      padding: 1em;
+      border-top: 1px solid #adadad;
+      border-bottom: 1px solid #adadad;
+      background-color: #f7f7f7;
+    }
     #statistics-table > .table {
       .table-content {
         .td {

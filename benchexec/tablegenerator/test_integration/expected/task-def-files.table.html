@@ -604,8 +604,7 @@
     ]
    ],
    "description": "in total 1 true tasks, 4 false tasks",
-   "id": null,
-   "title": "total results"
+   "id": "total"
   },
   {
    "content": [
@@ -637,7 +636,7 @@
     ]
    ],
    "description": "(This line contains some statistics from local execution. Only trust those values, if you use your own computer.)",
-   "id": null,
+   "id": "local",
    "title": "local summary"
   },
   {
@@ -710,9 +709,7 @@
      }
     ]
    ],
-   "description": "(property holds + result is true) OR (property does not hold + result is false)",
-   "id": null,
-   "title": "&nbsp;&nbsp;&nbsp;&nbsp;correct results"
+   "id": "correct"
   },
   {
    "content": [
@@ -784,9 +781,7 @@
      }
     ]
    ],
-   "description": "property holds + result is true",
-   "id": null,
-   "title": "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;correct true"
+   "id": "correct_true"
   },
   {
    "content": [
@@ -809,90 +804,7 @@
      null
     ]
    ],
-   "description": "property does not hold + result is false",
-   "id": null,
-   "title": "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;correct false"
-  },
-  {
-   "content": [
-    [
-     {
-      "sum": 4
-     },
-     {
-      "avg": "0.00181",
-      "max": "0.00247",
-      "median": "0.00164",
-      "min": "0.00151",
-      "stdev": "0.000382",
-      "sum": ".00726"
-     },
-     {
-      "avg": "0.00451",
-      "max": "0.00545",
-      "median": "0.00458",
-      "min": "0.00342",
-      "stdev": "0.000729",
-      "sum": ".0180&#x2007;"
-     },
-     {
-      "avg": "0.343",
-      "max": "0.381",
-      "median": "0.344",
-      "min": "0.303",
-      "stdev": "0.0379",
-      "sum": "1.37&#x2007;"
-     },
-     {
-      "avg": "0.00456",
-      "max": "0.0137",
-      "median": "0",
-      "min": "0",
-      "stdev": "0.00645",
-      "sum": ".0137"
-     }
-    ],
-    [
-     {
-      "sum": 4
-     },
-     {
-      "avg": "0.00174",
-      "max": "0.00208",
-      "median": "0.00177",
-      "min": "0.00132",
-      "stdev": "0.000291",
-      "sum": ".00694"
-     },
-     {
-      "avg": "0.00349",
-      "max": "0.00808",
-      "median": "0.00213",
-      "min": "0.00161",
-      "stdev": "0.00267",
-      "sum": ".0140&#x2007;"
-     },
-     {
-      "avg": "0.251",
-      "max": "0.254",
-      "median": "0.250",
-      "min": "0.250",
-      "stdev": "0.00177",
-      "sum": "1.00&#x2007;"
-     },
-     {
-      "avg": "0",
-      "max": "0",
-      "median": "0",
-      "min": "0",
-      "stdev": "0.000",
-      "sum": "0&#x2008;&#x2007;&#x2007;&#x2007;&#x2007;"
-     }
-    ]
-   ],
-   "description": "(property holds + result is false) OR (property does not hold + result is true)",
-   "id": null,
-   "title": "&nbsp;&nbsp;&nbsp;&nbsp;incorrect results"
+   "id": "correct_false"
   },
   {
    "content": [
@@ -971,9 +883,86 @@
      }
     ]
    ],
-   "description": "property does not hold + result is true",
-   "id": null,
-   "title": "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;incorrect true"
+   "id": "wrong"
+  },
+  {
+   "content": [
+    [
+     {
+      "sum": 4
+     },
+     {
+      "avg": "0.00181",
+      "max": "0.00247",
+      "median": "0.00164",
+      "min": "0.00151",
+      "stdev": "0.000382",
+      "sum": ".00726"
+     },
+     {
+      "avg": "0.00451",
+      "max": "0.00545",
+      "median": "0.00458",
+      "min": "0.00342",
+      "stdev": "0.000729",
+      "sum": ".0180&#x2007;"
+     },
+     {
+      "avg": "0.343",
+      "max": "0.381",
+      "median": "0.344",
+      "min": "0.303",
+      "stdev": "0.0379",
+      "sum": "1.37&#x2007;"
+     },
+     {
+      "avg": "0.00456",
+      "max": "0.0137",
+      "median": "0",
+      "min": "0",
+      "stdev": "0.00645",
+      "sum": ".0137"
+     }
+    ],
+    [
+     {
+      "sum": 4
+     },
+     {
+      "avg": "0.00174",
+      "max": "0.00208",
+      "median": "0.00177",
+      "min": "0.00132",
+      "stdev": "0.000291",
+      "sum": ".00694"
+     },
+     {
+      "avg": "0.00349",
+      "max": "0.00808",
+      "median": "0.00213",
+      "min": "0.00161",
+      "stdev": "0.00267",
+      "sum": ".0140&#x2007;"
+     },
+     {
+      "avg": "0.251",
+      "max": "0.254",
+      "median": "0.250",
+      "min": "0.250",
+      "stdev": "0.00177",
+      "sum": "1.00&#x2007;"
+     },
+     {
+      "avg": "0",
+      "max": "0",
+      "median": "0",
+      "min": "0",
+      "stdev": "0.000",
+      "sum": "0&#x2008;&#x2007;&#x2007;&#x2007;&#x2007;"
+     }
+    ]
+   ],
+   "id": "wrong_true"
   },
   {
    "content": [
@@ -996,9 +985,7 @@
      null
     ]
    ],
-   "description": "property holds + result is false",
-   "id": null,
-   "title": "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;incorrect false"
+   "id": "wrong_false"
   },
   {
    "content": [

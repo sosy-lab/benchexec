@@ -7,31 +7,36 @@
   "private": true,
   "license": "Apache-2.0",
   "dependencies": {
-    "@babel/runtime": "^7.15.4",
+    "@babel/runtime": "^7.17.0",
     "@fortawesome/fontawesome-svg-core": "^1.2.36",
+    "@fortawesome/free-regular-svg-icons": "^5.15.4",
     "@fortawesome/free-solid-svg-icons": "^5.15.4",
-    "@fortawesome/react-fontawesome": "^0.1.15",
-    "@zip.js/zip.js": "^2.3.17",
+    "@fortawesome/react-fontawesome": "^0.1.16",
+    "@zip.js/zip.js": "^2.4.3",
     "classnames": "^2.3.1",
+    "copy-to-clipboard": "^3.3.1",
     "deep-equal": "^2.0.5",
-    "rc-slider": "^9.7.2",
+    "path-browserify": "^1.0.1",
+    "rc-slider": "^9.7.5",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
-    "react-modal": "^3.14.3",
-    "react-router-dom": "^5.2.0",
+    "react-modal": "^3.14.4",
+    "react-router-dom": "5.2.0",
     "react-table": "^7.7.0",
     "react-table-sticky": "^1.1.3",
     "react-vis": "^1.11.7",
     "regression": "^2.0.1",
+    "setimmediate": "^1.0.5",
     "yaml": "^1.10.2"
   },
   "engines": {
     "node": ">=12.0.0"
   },
   "scripts": {
-    "start": "(test -f src/data/dependencies.json || node scripts/dependencies.js) && node scripts/start.js",
-    "build": "node scripts/dependencies.js && react-app-rewired build",
-    "test": "(test -f src/data/dependencies.json || node scripts/dependencies.js) && react-app-rewired test",
+    "injectWorkers": " node scripts/workerDataUrls.js && eslint --fix ./src/workers/dataUrls.js",
+    "start": "(test -f src/data/dependencies.json || node scripts/dependencies.js) && npm run injectWorkers && node scripts/start.js",
+    "build": "node scripts/dependencies.js && npm run injectWorkers  && react-app-rewired build",
+    "test": "(test -f src/data/dependencies.json || node scripts/dependencies.js) && npm run injectWorkers && react-app-rewired test",
     "lint:fix": "(test -f src/data/dependencies.json || node scripts/dependencies.js) && eslint --fix --ignore-path .lintignores $(pwd)'/**/*.js' && prettier --ignore-path .lintignores --write $(pwd)'/**/*.+(css|scss|json)'",
     "lint": "(test -f src/data/dependencies.json || node scripts/dependencies.js) &&  eslint --max-warnings 0 --ignore-path .lintignores . && prettier --ignore-path .lintignores --check $(pwd)'/**/*.+(css|scss|json)'"
   },
@@ -65,24 +70,23 @@
   },
   "jest": {
     "moduleNameMapper": {
-      "@data": "<rootDir>/src/data/data.json"
+      "@data": "<rootDir>/src/data/data.json",
+      "@zip.js/zip.js/lib/zip-no-worker-inflate": "<rootDir>/node_modules/@zip.js/zip.js/dist/zip-no-worker-inflate.min.js"
     },
     "setupFilesAfterEnv": [
-      "<rootDir>src/tests/setup/setup.js",
-      "<rootDir>src/tests/utils.js"
+      "<rootDir>src/tests/setup.js"
     ]
   },
   "devDependencies": {
     "enzyme": "^3.11.0",
     "enzyme-adapter-react-16": "^1.15.6",
-    "eslint-config-prettier": "^8.2.0",
-    "eslint-plugin-prettier": "^3.4.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-prettier": "^4.0.0",
     "license-checker": "^25.0.1",
-    "prettier": "^2.2.1",
-    "react-app-rewired": "^2.1.8",
-    "react-scripts": "4.0.3",
+    "prettier": "^2.5.1",
+    "react-app-rewired": "^2.1.11",
+    "react-scripts": "5.0.0",
     "react-test-renderer": "^17.0.2",
-    "sass": "^1.42.1",
-    "uniqid": "^5.3.0"
+    "sass": "^1.49.7"
   }
 }

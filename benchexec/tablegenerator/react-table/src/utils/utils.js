@@ -6,6 +6,55 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from "react";
+import copy from "copy-to-clipboard";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCopy } from "@fortawesome/free-regular-svg-icons";
+
+/* A DOM node that allows its content to be copied to the clipboard. */
+export class CopyableNode extends React.Component {
+  constructor(props) {
+    super(props);
+    this.childRef = React.createRef();
+  }
+
+  render() {
+    return (
+      <>
+        <span ref={this.childRef}>{this.props.children}</span>
+        <button
+          title="Copy to clipboard"
+          style={{ margin: "1ex" }}
+          onClick={() => {
+            copy(this.childRef.current.innerText, { format: "text/plain" });
+          }}
+        >
+          <FontAwesomeIcon icon={faCopy} />
+        </button>
+      </>
+    );
+  }
+}
+
+/*
+ * Split the path of a URL into a prefix (that is the longest prefix that is
+ * shared with a second given URL) and the rest.
+ * Both given URLs can be URL or Location instances.
+ * Returns [prefix, rest] as an array of strings.
+ * The "rest" always conains a least the file-part of the first URL
+ * (after the last slash).
+ * Protocol, query part and hash of the URL is dropped.
+ */
+export const splitUrlPathForMatchingPrefix = (url1, url2) => {
+  const path1 = url1.pathname.split("/");
+  const path2 = url2.pathname.split("/");
+  const firstDiffering = path1.findIndex(
+    (element, index) => element !== path2[index],
+  );
+  return [
+    path1.slice(0, firstDiffering).join("/"),
+    path1.slice(firstDiffering).join("/"),
+  ];
+};
 
 const emptyStateValue = "##########";
 
@@ -159,15 +208,15 @@ const EXTENDED_DISCRETE_COLOR_RANGE = [
  */
 const getHashSearch = (str) => {
   const urlParts = (str || decodeURI(document.location.href)).split("?");
-  const search = urlParts.length > 1 ? urlParts[1] : undefined;
+  const search = urlParts.length > 1 ? urlParts.slice(1).join("?") : undefined;
   if (search === undefined || search.length === 0) {
     return {};
   }
   const keyValuePairs = search.split("&").map((i) => i.split("="));
 
   const out = {};
-  for (const [key, value] of keyValuePairs) {
-    out[key] = value;
+  for (const [key, ...value] of keyValuePairs) {
+    out[key] = value.join("=");
   }
   return out;
 };
@@ -303,100 +352,101 @@ function makeStatusColumnFilter(
   return statusColumnFilter.join(",");
 }
 
-const makeFilterSerializer = ({
-  statusValues: allStatusValues,
-  categoryValues: allCategoryValues,
-}) => (filter) => {
-  const groupedFilters = {};
-  const tableTabIdFilters = [];
-  for (const { id, value, values, isTableTabFilter } of filter) {
-    if (id === "id") {
-      if (values && values.length > 0) {
-        groupedFilters.ids = { values: values.map((val) => (val ? val : "")) };
-      } else if (isTableTabFilter) {
-        tableTabIdFilters.push({ id, value });
+const makeFilterSerializer =
+  ({ statusValues: allStatusValues, categoryValues: allCategoryValues }) =>
+  (filter) => {
+    const groupedFilters = {};
+    const tableTabIdFilters = [];
+    for (const { id, value, values, isTableTabFilter } of filter) {
+      if (id === "id") {
+        if (values && values.length > 0) {
+          groupedFilters.ids = {
+            values: values.map((val) => (val ? val : "")),
+          };
+        } else if (isTableTabFilter) {
+          tableTabIdFilters.push({ id, value });
+        }
+        continue;
       }
-      continue;
-    }
-    const [tool, name, column] = id.split("_");
-    const toolBucket = groupedFilters[tool] || {};
-    const columnBucket = toolBucket[column] || { name: escape(name) };
+      const [tool, name, column] = id.split("_");
+      const toolBucket = groupedFilters[tool] || {};
+      const columnBucket = toolBucket[column] || { name: escape(name) };
 
-    if (allStatusValues[tool][column] || allCategoryValues[tool][column]) {
-      // we are processing a status column with checkboxes
-      if (value.endsWith(" ")) {
-        // category value
-        const selectedCategoryValues = columnBucket.categoryValues || [];
-        selectedCategoryValues.push(value);
-        columnBucket.categoryValues = selectedCategoryValues;
+      if (allStatusValues[tool][column] || allCategoryValues[tool][column]) {
+        // we are processing a status column with checkboxes
+        if (value.endsWith(" ")) {
+          // category value
+          const selectedCategoryValues = columnBucket.categoryValues || [];
+          selectedCategoryValues.push(value);
+          columnBucket.categoryValues = selectedCategoryValues;
+        } else {
+          // status value
+          const selectedStatusValues = columnBucket.statusValues || [];
+          selectedStatusValues.push(value);
+          columnBucket.statusValues = selectedStatusValues;
+        }
       } else {
-        // status value
-        const selectedStatusValues = columnBucket.statusValues || [];
-        selectedStatusValues.push(value);
-        columnBucket.statusValues = selectedStatusValues;
+        columnBucket.value = value;
       }
-    } else {
-      columnBucket.value = value;
+      toolBucket[column] = columnBucket;
+      groupedFilters[tool] = toolBucket;
     }
-    toolBucket[column] = columnBucket;
-    groupedFilters[tool] = toolBucket;
-  }
-  // serialization part
-  // we want to transform our filters into the following format:
-  // [<idFilter>,]<runsetFilter>+
-  // with
-  // <idFilter> := id(values(<value>+))
-  // <runsetFilter> := <runsetId>(<columnFilter>+)[,]
-  // <columnFilter> := <columnId>*<name>*(<filter>)[,]
-  // <filter> := <valueFilter>|<statusColumnFilter>
-  // <valueFilter> := value(<value>)
-  // <statusColumnFilter> := <statusFilter>|<categoryFilter>|<statusFilter>,<categoryFilter>
-  // <statusFilter> := status(in(<value>+)|notIn(<value>+)|empty())
-  // <categoryFilter> := category(in(<value>+)|notIn(<value>+)|empty())
-  // <value> := <urlencodedTerminalValue>
+    // serialization part
+    // we want to transform our filters into the following format:
+    // [<idFilter>,]<runsetFilter>+
+    // with
+    // <idFilter> := id(values(<value>+))
+    // <runsetFilter> := <runsetId>(<columnFilter>+)[,]
+    // <columnFilter> := <columnId>*<name>*(<filter>)[,]
+    // <filter> := <valueFilter>|<statusColumnFilter>
+    // <valueFilter> := value(<value>)
+    // <statusColumnFilter> := <statusFilter>|<categoryFilter>|<statusFilter>,<categoryFilter>
+    // <statusFilter> := status(in(<value>+)|notIn(<value>+)|empty())
+    // <categoryFilter> := category(in(<value>+)|notIn(<value>+)|empty())
+    // <value> := <urlencodedTerminalValue>
 
-  // one transformed example would be
-  // 1(0*status*(statusFilter(notIn(true)),categoryFilter(in(correct,missing))),1*cputime*(value(%3A1120)))
+    // one transformed example would be
+    // 1(0*status*(statusFilter(notIn(true)),categoryFilter(in(correct,missing))),1*cputime*(value(%3A1120)))
 
-  const { ids, ...rest } = groupedFilters;
-  const runsetFilters = [];
-  if (ids) {
-    runsetFilters.push(`id(values(${ids.values.map(escape).join(",")}))`);
-  }
-  if (tableTabIdFilters) {
-    tableTabIdFilters.forEach((filter) => {
-      runsetFilters.push(`id_any(value(${filter.value}))`);
-    });
-  }
-  for (const [tool, column] of Object.entries(rest)) {
-    const columnFilters = [];
-    for (const [columnId, filters] of Object.entries(column)) {
-      const columnFilterHeader = `${columnId}*${filters.name}*`;
-      let filter;
-      if (filters.statusValues || filters.categoryValues) {
-        // <statusColumnFilter>
-        filter = makeStatusColumnFilter(
-          filters,
-          allStatusValues,
-          tool,
-          columnId,
-          allCategoryValues,
-        );
-      } else {
-        // <valueFilter>
-        filter = `value(${escape(filters.value)})`;
+    const { ids, ...rest } = groupedFilters;
+    const runsetFilters = [];
+    if (ids) {
+      runsetFilters.push(`id(values(${ids.values.map(escape).join(",")}))`);
+    }
+    if (tableTabIdFilters) {
+      tableTabIdFilters.forEach((filter) => {
+        runsetFilters.push(`id_any(value(${filter.value}))`);
+      });
+    }
+    for (const [tool, column] of Object.entries(rest)) {
+      const columnFilters = [];
+      for (const [columnId, filters] of Object.entries(column)) {
+        const columnFilterHeader = `${columnId}*${filters.name}*`;
+        let filter;
+        if (filters.statusValues || filters.categoryValues) {
+          // <statusColumnFilter>
+          filter = makeStatusColumnFilter(
+            filters,
+            allStatusValues,
+            tool,
+            columnId,
+            allCategoryValues,
+          );
+        } else {
+          // <valueFilter>
+          filter = `value(${escape(filters.value)})`;
+        }
+        if (filter !== "") {
+          columnFilters.push(`${columnFilterHeader}(${filter})`);
+        }
       }
-      if (filter !== "") {
-        columnFilters.push(`${columnFilterHeader}(${filter})`);
+      if (columnFilters.length > 0) {
+        runsetFilters.push(`${tool}(${columnFilters.join(",")})`);
       }
     }
-    if (columnFilters.length > 0) {
-      runsetFilters.push(`${tool}(${columnFilters.join(",")})`);
-    }
-  }
-  const filterString = runsetFilters.join(",");
-  return filterString;
-};
+    const filterString = runsetFilters.join(",");
+    return filterString;
+  };
 
 const tokenizePart = (string) => {
   const out = {};
@@ -501,83 +551,82 @@ const tokenHandlers = (
   }
 };
 
-const makeFilterDeserializer = ({
-  categoryValues: allCategoryValues,
-  statusValues: allStatusValues,
-}) => (filterString) => {
-  const runsetFilters = tokenizePart(filterString);
-  const out = [];
-  for (const [token, filter] of Object.entries(runsetFilters)) {
-    if (token === "id") {
-      const tokenized = tokenizePart(filter);
-      out.push({
-        id: "id",
-        ...tokenHandlers("values", tokenized["values"])[0],
-      });
-      continue;
-    } else if (token === "id_any") {
-      out.push({
-        id: "id",
-        ...tokenizePart(filter),
-      });
-      continue;
-    }
-    const runsetId = token;
-
-    const columnFilters = tokenizePart(filter);
-    const parsedColumnFilters = {};
-    for (const [key, columnFilter] of Object.entries(columnFilters)) {
-      const [columnId, columnTitle] = key.split("*");
-      const name = `${runsetId}_${unescape(columnTitle)}_${columnId}`;
-      const parsedFilters = parsedColumnFilters[name] || [];
-      const tokenizedFilter = tokenizePart(columnFilter);
-
-      for (const [filterToken, filterParam] of Object.entries(
-        tokenizedFilter,
-      )) {
-        parsedFilters.push(
-          ...tokenHandlers(
-            filterToken,
-            filterParam,
-            allStatusValues[runsetId],
-            allCategoryValues[runsetId],
-            columnId,
-          ),
-        );
+const makeFilterDeserializer =
+  ({ categoryValues: allCategoryValues, statusValues: allStatusValues }) =>
+  (filterString) => {
+    const runsetFilters = tokenizePart(filterString);
+    const out = [];
+    for (const [token, filter] of Object.entries(runsetFilters)) {
+      if (token === "id") {
+        const tokenized = tokenizePart(filter);
+        out.push({
+          id: "id",
+          ...tokenHandlers("values", tokenized["values"])[0],
+        });
+        continue;
+      } else if (token === "id_any") {
+        out.push({
+          id: "id",
+          ...tokenizePart(filter),
+        });
+        continue;
       }
-      let hasStatus = false;
-      let hasCategory = false;
-      for (const token of Object.keys(tokenizedFilter)) {
-        if (token === "status") {
-          hasStatus = true;
-        } else if (token === "category") {
-          hasCategory = true;
-        }
-      }
-      if ((hasStatus && !hasCategory) || (!hasStatus && hasCategory)) {
-        // if we only have category or a status filter, it means that no
-        // filter has been set for the other. We need to fill up the values
-        if (!hasStatus) {
+      const runsetId = token;
+
+      const columnFilters = tokenizePart(filter);
+      const parsedColumnFilters = {};
+      for (const [key, columnFilter] of Object.entries(columnFilters)) {
+        const [columnId, columnTitle] = key.split("*");
+        const name = `${runsetId}_${unescape(columnTitle)}_${columnId}`;
+        const parsedFilters = parsedColumnFilters[name] || [];
+        const tokenizedFilter = tokenizePart(columnFilter);
+
+        for (const [filterToken, filterParam] of Object.entries(
+          tokenizedFilter,
+        )) {
           parsedFilters.push(
-            ...allStatusValues[runsetId][columnId].map((status) => ({
-              value: status,
-            })),
-          );
-        } else {
-          parsedFilters.push(
-            ...allCategoryValues[runsetId][columnId].map((category) => ({
-              value: category,
-            })),
+            ...tokenHandlers(
+              filterToken,
+              filterParam,
+              allStatusValues[runsetId],
+              allCategoryValues[runsetId],
+              columnId,
+            ),
           );
         }
-      }
-      for (const parsedFilter of parsedFilters) {
-        out.push({ id: name, ...parsedFilter });
+        let hasStatus = false;
+        let hasCategory = false;
+        for (const token of Object.keys(tokenizedFilter)) {
+          if (token === "status") {
+            hasStatus = true;
+          } else if (token === "category") {
+            hasCategory = true;
+          }
+        }
+        if ((hasStatus && !hasCategory) || (!hasStatus && hasCategory)) {
+          // if we only have category or a status filter, it means that no
+          // filter has been set for the other. We need to fill up the values
+          if (!hasStatus) {
+            parsedFilters.push(
+              ...allStatusValues[runsetId][columnId].map((status) => ({
+                value: status,
+              })),
+            );
+          } else {
+            parsedFilters.push(
+              ...allCategoryValues[runsetId][columnId].map((category) => ({
+                value: category,
+              })),
+            );
+          }
+        }
+        for (const parsedFilter of parsedFilters) {
+          out.push({ id: name, ...parsedFilter });
+        }
       }
     }
-  }
-  return out;
-};
+    return out;
+  };
 
 const makeUrlFilterSerializer = (statusValues, categoryValues) => {
   const serializer = makeFilterSerializer({ statusValues, categoryValues });
@@ -653,6 +702,42 @@ const getTaskIdParts = (rows, taskIdNames) =>
     {},
   );
 
+/**
+ * Function to safely add two numbers in a way that should mitigate errors
+ * caused by inaccurate floating point operations in javascript
+ * @param {Number|String} a - The base number
+ * @param {Number|String} b - The number to add
+ *
+ * @returns {Number} The result of the addition
+ */
+// WHEN EDITING THIS FUNCTION, ALSO EDIT THE COPY OF THIS FUNCTION IN src/woerks/scrips/stats.worker.js
+const safeAdd = (a, b) => {
+  let aNum = a;
+  let bNum = b;
+
+  if (typeof a === "string") {
+    aNum = Number(a);
+  }
+  if (typeof b === "string") {
+    bNum = Number(b);
+  }
+
+  if (Number.isInteger(aNum) || Number.isInteger(bNum)) {
+    return aNum + bNum;
+  }
+
+  const aString = a.toString();
+  const aLength = aString.length;
+  const aDecimalPoint = aString.indexOf(".");
+  const bString = b.toString();
+  const bLength = bString.length;
+  const bDecimalPoint = bString.indexOf(".");
+
+  const length = Math.max(aLength - aDecimalPoint, bLength - bDecimalPoint) - 1;
+
+  return Number((aNum + bNum).toFixed(length));
+};
+
 const punctuationSpaceHtml = "&#x2008;";
 const characterSpaceHtml = "&#x2007;";
 
@@ -666,19 +751,26 @@ const characterSpaceHtml = "&#x2007;";
  * @param {Number} significantDigits - Number of significant digits for this column
  */
 class NumberFormatterBuilder {
-  constructor(significantDigits) {
+  constructor(significantDigits, name = "Unknown") {
     this.significantDigits = significantDigits;
     this.maxPositiveDecimalPosition = -1;
     this.maxNegativeDecimalPosition = -1;
+    this.name = name;
   }
 
-  _defaultOptions = { whitespaceFormat: false, html: false };
+  _defaultOptions = {
+    whitespaceFormat: false,
+    html: false,
+    leadingZero: true,
+    additionalFormatting: (x) => x,
+  };
 
   addDataItem(item) {
-    const [positive, negative] = item.split(/\.|,/);
+    const formatted = this.format(item);
+    const [positive, negative] = formatted.split(/\.|,/);
     this.maxPositiveDecimalPosition = Math.max(
       this.maxPositiveDecimalPosition,
-      positive ? positive.length : 0,
+      positive && positive !== "0" ? positive.length : 0,
     );
     this.maxNegativeDecimalPosition = Math.max(
       this.maxNegativeDecimalPosition,
@@ -686,88 +778,148 @@ class NumberFormatterBuilder {
     );
   }
 
+  format(number) {
+    let stringNumber = number.toString();
+    let prefix = "";
+    let postfix = "";
+    let pointer = 0;
+    let addedNums = 0;
+    let firstNonZero = false;
+    let decimal = false;
+
+    if (stringNumber === "NaN") {
+      return "NaN";
+    }
+    if (stringNumber.endsWith("Infinity")) {
+      return stringNumber.replace("Infinity", "Inf");
+    }
+
+    // handling exponential formatting of large (or small) numbers in javascript
+    if (stringNumber.includes("e")) {
+      const [coefficient, exponent] = stringNumber.split("-");
+      let addedFactor = 0;
+      if (coefficient.includes(".")) {
+        addedFactor = 1;
+      }
+      stringNumber = Number(number).toFixed(Number(exponent) + addedFactor);
+    }
+
+    const decimalPos = stringNumber.replace(/,/, ".").indexOf(".");
+    while (
+      addedNums < this.significantDigits - 1 &&
+      stringNumber.length > pointer
+    ) {
+      const current = stringNumber[pointer];
+      if (current === "." || current === ",") {
+        prefix += ".";
+        decimal = true;
+      } else {
+        if (!firstNonZero) {
+          if (current === "0") {
+            pointer += 1;
+            if (decimal) {
+              prefix += current;
+            }
+            continue;
+          }
+          firstNonZero = true;
+        }
+        prefix += current;
+        addedNums += 1;
+      }
+      pointer += 1;
+    }
+    postfix = stringNumber.substring(pointer);
+    if (prefix === "" && postfix === "") {
+      prefix = stringNumber;
+    }
+    if (prefix[0] === ".") {
+      prefix = `0${prefix}`;
+    }
+
+    if (postfix !== "") {
+      // hacky trickery
+      // we force the postfix to turn into a decimal value with one leading integer
+      // e.g. 5432 -> 5.432
+      // this way we can round up to the first digit of the string
+      const attachDecimal = postfix[0] === ".";
+      postfix = postfix.replace(/\./, "");
+      postfix = `${postfix[0]}.${postfix.substr(1)}`;
+      postfix = Math.round(Number(postfix));
+      postfix = isNaN(postfix) ? "" : postfix.toString();
+      //handle carry
+      if (postfix.length > 1 && postfix[0] !== ".") {
+        const overflow = postfix[0];
+        postfix = postfix[1];
+        const oldLength = prefix.length;
+        const [, decPart] = prefix.split(".");
+        let decimalLength = (decPart && decPart.length - 1) || 0;
+        let toAdd = decPart ? "0." : "";
+        let i = decimalLength;
+        while (i > 0) {
+          toAdd += "0";
+          i -= 1;
+        }
+
+        toAdd += overflow;
+        prefix = safeAdd(prefix, toAdd)
+          .toFixed(decimalLength + 1)
+          .substr(0, oldLength);
+        while (prefix.length < oldLength) {
+          prefix += "0";
+        }
+      }
+      // fill up integer number;
+      let end = decimalPos;
+      if (attachDecimal) {
+        postfix = `.${postfix}`;
+      }
+
+      if (decimalPos === -1) {
+        end = stringNumber.length;
+      }
+      while (prefix.length + postfix.length < end) {
+        postfix += "0";
+      }
+    }
+    return `${prefix}${postfix}`;
+  }
+
   build() {
     return (number, options = {}) => {
-      if (isNil(this.significantDigits)) {
-        return number.toString();
-      }
-      const { whitespaceFormat, html } = {
+      const { whitespaceFormat, html, leadingZero, additionalFormatting } = {
         ...this._defaultOptions,
         ...options,
       };
-      const stringNumber = number.toString();
-      let prefix = "";
-      let postfix = "";
-      let pointer = 0;
-      let addedNums = 0;
-      let firstNonZero = false;
-      let decimal = false;
-      const decimalPos = stringNumber.replace(/,/, ".").indexOf(".");
-      while (
-        addedNums < this.significantDigits - 1 &&
-        stringNumber.length > pointer
-      ) {
-        const current = stringNumber[pointer];
-        if (current === "." || current === ",") {
-          prefix += ".";
-          decimal = true;
-        } else {
-          if (!firstNonZero) {
-            if (current === "0") {
-              pointer += 1;
-              if (decimal) {
-                prefix += current;
-              }
-              continue;
-            }
-            firstNonZero = true;
-          }
-          prefix += current;
-          addedNums += 1;
-        }
-        pointer += 1;
-      }
-      if (prefix[0] === ".") {
-        prefix = `0${prefix}`;
-      }
-      postfix = stringNumber.substring(pointer);
 
-      if (postfix) {
-        // hacky trickery
-        // we force the postfix to turn into a decimal value with one leading integer
-        // e.g. 5432 -> 5.432
-        // this way we can round up to the first digit of the string
-        const attachDecimal = postfix[0] === ".";
-        postfix = postfix.replace(/\./, "");
-        postfix = `${postfix[0]}.${postfix.substr(1)}`;
-        postfix = Math.round(Number(postfix));
-        postfix = isNaN(postfix) ? "" : postfix.toString();
-        if (attachDecimal) {
-          postfix = `.${postfix}`;
-        }
-        // fill up integer number;
-        let end = decimalPos;
-        if (decimalPos === -1) {
-          end = stringNumber.length;
-        }
-        while (prefix.length + postfix.length < end) {
-          postfix += "0";
-        }
+      const ctx = {
+        significantDigits: this.significantDigits,
+        maxDecimalInputLength: this.maxNegativeDecimalPosition,
+      };
+      if (isNil(this.significantDigits)) {
+        return additionalFormatting(number.toString(), ctx);
+      }
+      let out = this.format(number);
+
+      out = additionalFormatting(out, ctx);
+
+      if (out === "NaN") {
+        // we don't want to pad NaN
+        return out;
       }
 
-      const out = `${prefix}${postfix}`;
       if (whitespaceFormat) {
         const decSpace = html ? punctuationSpaceHtml : " ";
         let [integer, decimal] = out.split(/\.|,/);
-        if (integer === "0") {
-          integer = "";
+        if (integer === "0" && !leadingZero) {
+          integer = decimal ? "" : "0";
         }
         integer = integer || "";
         decimal = decimal || "";
         const decimalPoint = decimal ? "." : decSpace;
-        while (integer.length < this.maxPositiveDecimalPosition) {
+        /*         while (integer.length < this.maxPositiveDecimalPosition) {
           integer = ` ${integer}`;
-        }
+        } */
         while (decimal.length < this.maxNegativeDecimalPosition) {
           decimal += " ";
         }
@@ -775,7 +927,11 @@ class NumberFormatterBuilder {
           integer = integer.replace(/ /g, characterSpaceHtml);
           decimal = decimal.replace(/ /g, characterSpaceHtml);
         }
-        return `${integer}${decimalPoint}${decimal}`;
+
+        return `${integer}${decimal ? decimalPoint : ""}${decimal}`;
+      }
+      if (!leadingZero && out.startsWith("0.")) {
+        return out.substr(1);
       }
       return out;
     };
@@ -924,6 +1080,7 @@ const getStep = (num) => {
   return out;
 };
 
+const identity = (x) => x;
 /**
  * Computes and returns all ids of the given columns that are hidden. Assumes that
  * the columns object is in the format that is used in the ReactTable and Summary component.
@@ -970,9 +1127,11 @@ export {
   hasSameEntries,
   isCategory,
   getStep,
+  identity,
   makeUrlFilterDeserializer,
   makeUrlFilterSerializer,
   makeFilterSerializer,
   makeFilterDeserializer,
+  safeAdd,
   getHiddenColIds,
 };

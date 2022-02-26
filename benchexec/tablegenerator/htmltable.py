@@ -17,7 +17,7 @@ import benchexec.util
 
 _REACT_FILES = [
     os.path.join(os.path.dirname(__file__), "react-table", "build", path)
-    for path in ["vendors.min.", "bundle.min."]
+    for path in ["vendors.min.", "main.min."]
 ]
 
 
@@ -294,124 +294,52 @@ def _prepare_stats(all_column_stats, rows, columns):
         else ""
     )
 
-    def indent(n):
-        return "&nbsp;" * (n * 4)
+    stat_rows = []
 
-    def get_stat_row(field):
-        return [
+    def add_stat_row(field, title=None, description=None):
+        content = [
             [
                 _convert_statvalue_to_json(column_stats, field, column)
                 for column_stats, column in zip(run_set_stats, run_set_columns)
             ]
             for run_set_stats, run_set_columns in zip(all_column_stats, columns)
         ]
+        row = {"id": field, "content": content}
+        if title:
+            row["title"] = title
+        if description:
+            row["description"] = description
+        stat_rows.append(row)
 
-    stat_rows = [
-        dict(  # noqa: C408
-            id=None,
-            title="total results",
-            description=task_counts,
-            content=get_stat_row("total"),
-        )
-    ]
+    add_stat_row("total", description=task_counts)
 
     if _statistics_has_value_for(all_column_stats, "local"):
-        stat_rows.append(
-            dict(  # noqa: C408
-                id=None,
-                title="local summary",
-                description="(This line contains some statistics from local execution. Only trust those values, if you use your own computer.)",
-                content=get_stat_row("local"),
-            )
+        add_stat_row(
+            "local",
+            "local summary",
+            "(This line contains some statistics from local execution. "
+            "Only trust those values, if you use your own computer.)",
         )
 
     has_correct = _statistics_has_value_for(all_column_stats, "correct")
     has_wrong = _statistics_has_value_for(all_column_stats, "wrong")
     if has_correct or has_wrong:
-        stat_rows.append(
-            dict(  # noqa: C408
-                id=None,
-                title=indent(1) + "correct results",
-                description="(property holds + result is true) OR (property does not hold + result is false)",
-                content=get_stat_row("correct"),
-            )
-        )
-        stat_rows.append(
-            dict(  # noqa: C408
-                id=None,
-                title=indent(2) + "correct true",
-                description="property holds + result is true",
-                content=get_stat_row("correct_true"),
-            )
-        )
-        stat_rows.append(
-            dict(  # noqa: C408
-                id=None,
-                title=indent(2) + "correct false",
-                description="property does not hold + result is false",
-                content=get_stat_row("correct_false"),
-            )
-        )
+        add_stat_row("correct")
+        add_stat_row("correct_true")
+        add_stat_row("correct_false")
 
         if _statistics_has_value_for(all_column_stats, "correct_unconfirmed"):
-            stat_rows.append(
-                dict(  # noqa: C408
-                    id=None,
-                    title=indent(1) + "correct-unconfimed results",
-                    description="(property holds + result is true) OR (property does not hold + result is false), but unconfirmed",
-                    content=get_stat_row("correct_unconfirmed"),
-                )
-            )
-            stat_rows.append(
-                dict(  # noqa: C408
-                    id=None,
-                    title=indent(2) + "correct-unconfirmed true",
-                    description="property holds + result is true, but unconfirmed",
-                    content=get_stat_row("correct_unconfirmed_true"),
-                )
-            )
-            stat_rows.append(
-                dict(  # noqa: C408
-                    id=None,
-                    title=indent(2) + "correct-unconfirmed false",
-                    description="property does not hold + result is false, but unconfirmed",
-                    content=get_stat_row("correct_unconfirmed_false"),
-                )
-            )
+            add_stat_row("correct_unconfirmed")
+            add_stat_row("correct_unconfirmed_true")
+            add_stat_row("correct_unconfirmed_false")
 
-        stat_rows.append(
-            dict(  # noqa: C408
-                id=None,
-                title=indent(1) + "incorrect results",
-                description="(property holds + result is false) OR (property does not hold + result is true)",
-                content=get_stat_row("wrong"),
-            )
-        )
-        stat_rows.append(
-            dict(  # noqa: C408
-                id=None,
-                title=indent(2) + "incorrect true",
-                description="property does not hold + result is true",
-                content=get_stat_row("wrong_true"),
-            )
-        )
-        stat_rows.append(
-            dict(  # noqa: C408
-                id=None,
-                title=indent(2) + "incorrect false",
-                description="property holds + result is false",
-                content=get_stat_row("wrong_false"),
-            )
-        )
+        add_stat_row("wrong")
+        add_stat_row("wrong_true")
+        add_stat_row("wrong_false")
 
     if max_score is not None:
-        stat_rows.append(
-            dict(  # noqa: C408
-                id="score",
-                title=f"score ({len(rows)} tasks, max score: {max_score})",
-                description=task_counts,
-                content=get_stat_row("score"),
-            )
+        add_stat_row(
+            "score", f"score ({len(rows)} tasks, max score: {max_score})", task_counts
         )
 
     return stat_rows

@@ -95,19 +95,11 @@ export default class ScatterPlot extends React.Component {
     const defaultName =
       getRunSetName(this.props.tools[0]) + " " + this.props.columns[0][1];
 
-    let {
-      results,
-      scaling,
-      toolX,
-      toolY,
-      columnX,
-      columnY,
-      line,
-      regression,
-    } = {
-      ...this.defaultValues,
-      ...getHashSearch(),
-    };
+    let { results, scaling, toolX, toolY, columnX, columnY, line, regression } =
+      {
+        ...this.defaultValues,
+        ...getHashSearch(),
+      };
 
     let dataX, dataY, areAllColsHidden;
 
@@ -255,12 +247,10 @@ export default class ScatterPlot extends React.Component {
           JSON.parse,
         ).concat(endPoints);
 
-        const unitX = this.props.tools[this.state.toolX].columns[
-          this.state.columnX
-        ].unit;
-        const unitY = this.props.tools[this.state.toolY].columns[
-          this.state.columnY
-        ].unit;
+        const unitX =
+          this.props.tools[this.state.toolX].columns[this.state.columnX].unit;
+        const unitY =
+          this.props.tools[this.state.toolY].columns[this.state.columnY].unit;
         const helpText = `Estimation technique: ordinary least squares (OLS)
                           Predictor variable (X-Axis) in ${unitX}: ${this.state.nameX}
                           Response variable (Y-Axis) in ${unitY}: ${this.state.nameY}

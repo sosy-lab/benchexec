@@ -13,7 +13,7 @@ import { test_snapshot_of } from "./utils.js";
 test_snapshot_of("Render SelectColumn", (overview) => (
   <SelectColumn
     close={overview.toggleSelectColumns}
-    tools={overview.state.tools}
-    hiddenCols={overview.state.hiddenCols}
+    tools={overview.tools}
+    hiddenCols={overview.hiddenCols}
   />
 ));

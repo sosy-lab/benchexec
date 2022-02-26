@@ -9,6 +9,36 @@ SPDX-License-Identifier: Apache-2.0
 
 # BenchExec Changelog
 
+## BenchExec 3.11
+
+This release brings one major feature for the HTML tables:
+The **statistics on the summary tab are now updated on-the-fly**
+if filters are applied and always take those filters into account
+(i.e., only show statistics about the selected rows).
+We update the row name in the statistics table to indicate this,
+but still be aware of it if you are accustomed to the previous behavior!
+This was also the last place in the HTML tables where filters were not respected,
+so now filters are taking into account consistently
+wherever data are shown or used.
+Thanks to @DennisSimon for implementing this!
+
+There are also a few other improvements and fixes:
+
+- Fix loading logs from local HTML tables in Chrome/Chromium.
+- Update hint on which Firefox setting to change
+  for access to logs from local HTML tables.
+- When loading logs from local HTML tables fails,
+  show a hint on how to start a small HTTP server with Python
+  and let it serve the table and logs.
+  Using this server to access the table from the browser
+  instead of `file://` URLs will make the log access work
+  regardless of browser versions and configuration options.
+  The shown hint even includes a command line
+  that just needs to be copy-and-pasted.
+- Fix sliders jumping around in the filter sidebar
+  when defining filters for numeric columns.
+- Some tool-info modules were improved.
+
 ## BenchExec 3.10
 
 - Fix bug in HTML tables where content of a cell could be visible
