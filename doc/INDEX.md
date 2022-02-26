@@ -27,7 +27,7 @@ The documentation for BenchExec is available in the following files:
 - [Tool integration](tool-integration.md) for developing tool-info modules
 
 More on the background of BenchExec can also be found in our journal paper
-[Reliable Benchmarking: Requirements and Solutions](https://doi.org/10.1007/s10009-017-0469-y)
+[![PDF icon](/doc/images/pdf-32.png) Reliable Benchmarking: Requirements and Solutions](https://doi.org/10.1007/s10009-017-0469-y)
 and the respective [slides](https://www.sosy-lab.org/research/prs/Current_ReliableBenchmarking.pdf).
 
 Additional resources such as helper scripts can be found in the directory [contrib](../contrib),

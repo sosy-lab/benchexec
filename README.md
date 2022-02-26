@@ -74,7 +74,7 @@ of the [Ludwig-Maximilians-Universität München (LMU Munich)](https://www.uni-m
 - [BenchExec GitHub Repository](https://github.com/sosy-lab/benchexec),
   use this for [reporting issues and asking questions](https://github.com/sosy-lab/benchexec/issues)
 - [BenchExec at PyPI](https://pypi.python.org/pypi/BenchExec)
-- Journal Paper [Reliable Benchmarking: Requirements and Solutions](https://doi.org/10.1007/s10009-017-0469-y) about BenchExec ([supplementary webpage](https://www.sosy-lab.org/research/benchmarking/), [slides](https://www.sosy-lab.org/research/prs/Current_ReliableBenchmarking.pdf))
+- [![PDF icon](/doc/images/pdf-32.png) Reliable Benchmarking: Requirements and Solutions](https://doi.org/10.1007/s10009-017-0469-y), our journal paper about BenchExec ([supplementary webpage](https://www.sosy-lab.org/research/benchmarking/), [slides](https://www.sosy-lab.org/research/prs/Current_ReliableBenchmarking.pdf))
 
 ### License and Copyright
 
