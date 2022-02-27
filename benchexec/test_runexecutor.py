@@ -21,6 +21,7 @@ from benchexec import container
 from benchexec import containerexecutor
 from benchexec import filehierarchylimit
 from benchexec.runexecutor import RunExecutor
+from benchexec.cgroups import Cgroups
 from benchexec import runexecutor
 from benchexec import util
 
@@ -42,6 +43,9 @@ class TestRunExecutor(unittest.TestCase):
         logging.disable(logging.NOTSET)  # need to make sure to get all messages
         if not hasattr(cls, "assertRegex"):
             cls.assertRegex = cls.assertRegexpMatches
+
+        cls.cgroups = Cgroups.from_system(initial_cgroup=True)
+        cls.cgroups.move_to_scope()
 
     def setUp(self, *args, **kwargs):
         with self.skip_if_logs(
@@ -735,6 +739,8 @@ class TestRunExecutor(unittest.TestCase):
             self.skipTest(e)
         if not os.path.exists(self.cat):
             self.skipTest("missing cat")
+        if self.cgroup.version != 1:
+            self.skipTest("not relevant in unified hierarchy")
         (result, output) = self.execute_run(self.cat, "/proc/self/cgroup")
         self.check_exitcode(result, 0, "exit code of cat is not zero")
         for line in output:
@@ -749,8 +755,12 @@ class TestRunExecutor(unittest.TestCase):
             self.setUp(additional_cgroup_subsystems=["cpu"])
         except SystemExit as e:
             self.skipTest(e)
+        if self.cgroups.version == 1:
+            cgValues = {("cpu", "shares"): 42}
+        else:
+            cgValues = {("cpu", "weight"): 42}
         (result, _) = self.execute_run(
-            self.echo, cgroupValues={("cpu", "shares"): 42}
+            self.echo, cgroupValues=cgValues
         )
         self.check_exitcode(result, 0, "exit code of echo is not zero")
         # Just assert that execution was successful,
@@ -802,6 +812,7 @@ class TestRunExecutor(unittest.TestCase):
 
 class TestRunExecutorWithContainer(TestRunExecutor):
     def setUp(self, *args, **kwargs):
+        super().setUp(*args, **kwargs)
         try:
             container.execute_in_namespace(lambda: 0)
         except OSError as e:
