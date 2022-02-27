@@ -43,6 +43,7 @@ stages:
     # Give $PRIMARY_USER permission to create cgroups
     - test/for_each_of_my_cgroups.sh chgrp $PRIMARY_USER
     - test/for_each_of_my_cgroups.sh chmod g+w $PRIMARY_USER
+    - sudo apt install python3-pystemd
     # Install BenchExec
     - sudo -u $PRIMARY_USER pip install --user .
     # Start lxcfs
