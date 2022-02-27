@@ -759,9 +759,7 @@ class TestRunExecutor(unittest.TestCase):
             cgValues = {("cpu", "shares"): 42}
         else:
             cgValues = {("cpu", "weight"): 42}
-        (result, _) = self.execute_run(
-            self.echo, cgroupValues=cgValues
-        )
+        (result, _) = self.execute_run(self.echo, cgroupValues=cgValues)
         self.check_exitcode(result, 0, "exit code of echo is not zero")
         # Just assert that execution was successful,
         # testing that the value was actually set is much more difficult.
