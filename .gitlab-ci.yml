@@ -105,7 +105,7 @@ flake8:
   stage: test
   image: python:3.8
   before_script:
-    - "pip install 'flake8<4' flake8-awesome"
+    - "pip install 'flake8<4' 'bandit==1.7.2' flake8-awesome"
   script:
     - flake8
   <<: *pip-cache
