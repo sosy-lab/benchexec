@@ -739,7 +739,7 @@ class TestRunExecutor(unittest.TestCase):
             self.skipTest(e)
         if not os.path.exists(self.cat):
             self.skipTest("missing cat")
-        if self.cgroup.version != 1:
+        if self.cgroups.version != 1:
             self.skipTest("not relevant in unified hierarchy")
         (result, output) = self.execute_run(self.cat, "/proc/self/cgroup")
         self.check_exitcode(result, 0, "exit code of cat is not zero")
