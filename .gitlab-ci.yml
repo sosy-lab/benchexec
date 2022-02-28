@@ -115,8 +115,9 @@ pytype:
   stage: test
   image: python:3.7
   before_script:
+    - sudo apt install -y libsystemd-dev python-dev
     # version due to https://github.com/google/pytype/issues/1130
-    - pip install coloredlogs pytype==2022.2.8
+    - pip install pystemd coloredlogs pytype==2022.2.8
   script:
     - pytype -k
   cache:
