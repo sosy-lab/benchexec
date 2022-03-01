@@ -10,9 +10,7 @@
 import logging
 import os
 import sys
-import shutil
 import tempfile
-from unittest import TestProgram
 import urllib.request
 import subprocess
 
@@ -32,8 +30,6 @@ IVY_DOWNLOAD_URL = "https://www.sosy-lab.org/ivy/org.apache.ivy/ivy/" + IVY_JAR_
 
 
 def download_required_jars(config):
-    temp_dir = None
-    
     # download ivy if needed
     if not os.path.isfile(IVY_PATH):
         # let the process exit if an exception occurs.
@@ -52,6 +48,7 @@ def download_required_jars(config):
     cmd += ["-retrieve", "lib/vcloud-jars/[artifact](-[classifier]).[ext]"]
 
     # Provide temporary directory
+    temp_dir = None
     if config.noIvyCache:
         temp_dir = tempfile.TemporaryDirectory(prefix="vcloud-ivy-cache-")
         cmd += ["-cache", temp_dir.name]
