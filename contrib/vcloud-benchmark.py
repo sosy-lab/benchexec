@@ -10,6 +10,8 @@
 import logging
 import os
 import sys
+import shutil
+import tempfile
 import urllib.request
 import subprocess
 
@@ -46,12 +48,22 @@ def download_required_jars(config):
         cmd += ["-warn"]
     cmd += ["-retrieve", "lib/vcloud-jars/[artifact](-[classifier]).[ext]"]
 
-    # install vcloud jar and dependencies
-    subprocess.run(
-        cmd,
-        cwd=_ROOT_DIR,
-        shell=vcloudutil.is_windows(),  # noqa: S602
-    )
+    # Provide temporary directory
+    if config.freshIvyCache:
+        temp_dir = tempfile.mkdtemp()
+        print(temp_dir)
+        cmd += ["-cache", str(temp_dir)]
+
+    try:
+        # install vcloud jar and dependencies
+        subprocess.run(
+            cmd,
+            cwd=_ROOT_DIR,
+            shell=vcloudutil.is_windows(),  # noqa: S602
+        )
+    finally:
+        if "temp_dir" in locals():
+            shutil.rmtree(temp_dir)
 
 
 class VcloudBenchmark(VcloudBenchmarkBase):
