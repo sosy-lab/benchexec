@@ -86,10 +86,10 @@ class VcloudBenchmarkBase(benchexec.benchexec.BenchExec):
             help="Specify files or paths that shall also be transferred and be made available to the run in the cloud.",
         )
         vcloud_args.add_argument(
-            "--fresh-ivy-cache",
-            dest="freshIvyCache",
+            "--no-ivy-cache",
+            dest="noIvyCache",
             action="store_true",
-            help="Uses new ivy cache for each execution, thus every jar file will be downloaded again. This is useful if this tool is used by multiple threads.",
+            help="Prevents ivy from caching the downloaded jar files. This prevents clashes due to concurrent access to the cache.",
         )
 
     def get_param_name(self, pname):
