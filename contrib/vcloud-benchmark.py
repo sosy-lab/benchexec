@@ -51,9 +51,8 @@ def download_required_jars(config):
     # Provide temporary directory
     if config.freshIvyCache:
         temp_dir = tempfile.mkdtemp()
-        print(temp_dir)
         cmd += ["-cache", str(temp_dir)]
-
+        logging.debug(f"Using fresh ivy cache: {temp_dir}")
     try:
         # install vcloud jar and dependencies
         subprocess.run(
