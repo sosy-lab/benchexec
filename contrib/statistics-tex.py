@@ -171,7 +171,7 @@ def main(args=None):
 
     options = parser.parse_args(args[1:])
 
-    options.measurements = options.measurements.replace(" ", "").split(",")
+    options.measurements = options.measurements.strip(",").replace(" ", "").split(",")
 
     pool = multiprocessing.Pool()
     stats = pool.map(
