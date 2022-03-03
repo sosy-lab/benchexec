@@ -60,9 +60,9 @@ class StatAccumulator(object):
         if not all(self.measurement_data.values()):
             return ""
 
-        stat_list = [
-            (k.title(), StatValue.from_list(v))
-            for k, v in self.measurement_data.items()
+        measurement_list = [
+            (m_name.title(), StatValue.from_list(data))
+            for m_name, data in self.measurement_data.items()
         ]
         assert len(name_parts) <= 4
         name_parts += [""] * (4 - len(name_parts))  # ensure length 4
@@ -73,19 +73,19 @@ class StatAccumulator(object):
                 + [
                     [
                         r"\StoreBenchExecResult{%s}{%s}{}{%s}%%"
-                        % (name, time_name, util.print_decimal(time_stats.sum)),
+                        % (name, m_name, util.print_decimal(data.sum)),
                         r"\StoreBenchExecResult{%s}{%s}{Avg}{%s}%%"
-                        % (name, time_name, util.print_decimal(time_stats.avg)),
+                        % (name, m_name, util.print_decimal(data.avg)),
                         r"\StoreBenchExecResult{%s}{%s}{Median}{%s}%%"
-                        % (name, time_name, util.print_decimal(time_stats.median)),
+                        % (name, m_name, util.print_decimal(data.median)),
                         r"\StoreBenchExecResult{%s}{%s}{Min}{%s}%%"
-                        % (name, time_name, util.print_decimal(time_stats.min)),
+                        % (name, m_name, util.print_decimal(data.min)),
                         r"\StoreBenchExecResult{%s}{%s}{Max}{%s}%%"
-                        % (name, time_name, util.print_decimal(time_stats.max)),
+                        % (name, m_name, util.print_decimal(data.max)),
                         r"\StoreBenchExecResult{%s}{%s}{Stdev}{%s}%%"
-                        % (name, time_name, util.print_decimal(time_stats.stdev)),
+                        % (name, m_name, util.print_decimal(data.stdev)),
                     ]
-                    for (time_name, time_stats) in stat_list
+                    for (m_name, data) in measurement_list
                 ]
             )
         )
