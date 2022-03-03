@@ -164,8 +164,8 @@ def main(args=None):
         action="store",
         type=str,
         default="cputime,walltime",
-        help="Specifies all measurements which should be extracted from the XML file(s). "
-        "All measurements must me present in each task in each XML file.",
+        help="Comma separated string with all measurements which should be extracted from the XML file(s). "
+        "All measurements must be present in each task in each XML file.",
     )
 
     options = parser.parse_args(args[1:])
