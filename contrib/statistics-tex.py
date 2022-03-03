@@ -48,19 +48,21 @@ def format_command_part(name):
 class StatAccumulator(object):
     def __init__(self):
         self.count = 0
-        self.cputime_values = []
-        self.walltime_values = []
+        self.measurements = {}
 
-    def add(self, result):
+    def add(self, result, measurements):
         self.count += 1
-        self.cputime_values.append(extract_measurement("cputime", result))
-        self.walltime_values.append(extract_measurement("walltime", result))
+        for measurement in measurements:
+            current_measurement_list = self.measurements.setdefault(measurement, [])
+            current_measurement_list.append(extract_measurement(measurement, result))
+
+        # self.cputime_values.append(extract_measurement("cputime", result))
+        # self.walltime_values.append(extract_measurement("walltime", result))
 
     def to_latex(self, name_parts):
-        if not self.cputime_values or not self.walltime_values:
-            return ""
-        cputime_stats = StatValue.from_list(self.cputime_values)
-        walltime_stats = StatValue.from_list(self.walltime_values)
+
+        cputime_stats = StatValue.from_list(self.measurements["cputime"])
+        walltime_stats = StatValue.from_list(self.measurements["walltime"])
         assert len(name_parts) <= 4
         name_parts += [""] * (4 - len(name_parts))  # ensure length 4
         name = r"}{".join(map(format_command_part, name_parts))
@@ -111,13 +113,17 @@ def load_results(result_file, status_print, measurements):
         lambda: collections.defaultdict(StatAccumulator)
     )
     for run_result in run_set_result.results:
-        total_stats.add(run_result)
-        category_stats[run_result.category].add(run_result)
+        total_stats.add(run_result, measurements)
+        category_stats[run_result.category].add(run_result, measurements)
         if status_print == "full":
-            status_stats[run_result.category][run_result.status].add(run_result)
+            status_stats[run_result.category][run_result.status].add(
+                run_result, measurements
+            )
         elif status_print == "short":
             short_status = re.sub(r" *\(.*", "", run_result.status)
-            status_stats[run_result.category][short_status].add(run_result)
+            status_stats[run_result.category][short_status].add(
+                run_result, measurements
+            )
     assert len(run_set_result.results) == total_stats.count
 
     basenames = [
@@ -155,7 +161,7 @@ def main(args=None):
         help="whether to output statistics aggregated for each different status value, "
         "for each abbreviated status value, or not",
     )
-    
+
     parser.add_argument(
         "--measurements",
         action="store",
@@ -166,11 +172,16 @@ def main(args=None):
     )
 
     options = parser.parse_args(args[1:])
-    
-    options.measurements = options.measurements.replace(" ","").split(",")
+
+    options.measurements = options.measurements.replace(" ", "").split(",")
 
     pool = multiprocessing.Pool()
-    stats = pool.map(partial(load_results, status_print=options.status, measurements=options.measurements), options.result)
+    stats = pool.map(
+        partial(
+            load_results, status_print=options.status, measurements=options.measurements
+        ),
+        options.result,
+    )
 
     print(HEADER)
     for curr_stats in stats:
