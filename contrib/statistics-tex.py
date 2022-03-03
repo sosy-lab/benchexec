@@ -99,7 +99,7 @@ class StatsCollection(object):
         self.status_stats = status_stats
 
 
-def load_results(result_file, status_print):
+def load_results(result_file, status_print, measurements):
     run_set_result = tablegenerator.RunSetResult.create_from_xml(
         result_file, tablegenerator.parse_results_file(result_file)
     )
@@ -124,7 +124,6 @@ def load_results(result_file, status_print):
         util.prettylist(run_set_result.attributes.get("benchmarkname")),
         util.prettylist(run_set_result.attributes.get("name")),
     ]
-
     # status_stats must be transformed to a dictionary to get rid of the lambda-factory used above (can't be pickled)
     return StatsCollection(basenames, total_stats, category_stats, dict(status_stats))
 
@@ -156,11 +155,22 @@ def main(args=None):
         help="whether to output statistics aggregated for each different status value, "
         "for each abbreviated status value, or not",
     )
+    
+    parser.add_argument(
+        "--measurements",
+        action="store",
+        type=str,
+        default="cputime,walltime",
+        help="Specifies all measurements which should be extracted from the XML file(s). "
+        "All measurements must me present in each task in each XML file.",
+    )
 
     options = parser.parse_args(args[1:])
+    
+    options.measurements = options.measurements.replace(" ","").split(",")
 
     pool = multiprocessing.Pool()
-    stats = pool.map(partial(load_results, status_print=options.status), options.result)
+    stats = pool.map(partial(load_results, status_print=options.status, measurements=options.measurements), options.result)
 
     print(HEADER)
     for curr_stats in stats:
