@@ -48,20 +48,21 @@ def format_command_part(name):
 class StatAccumulator(object):
     def __init__(self):
         self.count = 0
-        self.measurements = {}
+        self.measurement_data = {}
 
     def add(self, result, measurements):
         self.count += 1
         for measurement in measurements:
-            current_measurement_list = self.measurements.setdefault(measurement, [])
+            current_measurement_list = self.measurement_data.setdefault(measurement, [])
             current_measurement_list.append(extract_measurement(measurement, result))
 
     def to_latex(self, name_parts):
-        if not all(self.measurements.values()):
+        if not all(self.measurement_data.values()):
             return ""
 
         stat_list = [
-            (k.title(), StatValue.from_list(v)) for k, v in self.measurements.items()
+            (k.title(), StatValue.from_list(v))
+            for k, v in self.measurement_data.items()
         ]
         assert len(name_parts) <= 4
         name_parts += [""] * (4 - len(name_parts))  # ensure length 4
