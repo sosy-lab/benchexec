@@ -30,23 +30,12 @@ HEADER = r"""% The following definition defines a command for each value.
 \providecommand\StoreBenchExecResult[7]{\expandafter\newcommand\csname#1#2#3#4#5#6\endcsname{#7}}%"""
 
 
-def extract_time(column_title, time_name, run_result):
-    pos = None
+def extract_measurement(column_title, run_result):
     for i, column in enumerate(run_result.columns):
         if column.title == column_title:
-            pos = i
-            break
-    if pos is None:
-        sys.exit(f"{time_name} time missing for task {run_result.task_id}.")
-    return util.to_decimal(run_result.values[pos])
+            return util.to_decimal(run_result.values[i])
 
-
-def extract_cputime(run_result):
-    return extract_time("cputime", "CPU", run_result)
-
-
-def extract_walltime(run_result):
-    return extract_time("walltime", "Wall", run_result)
+    sys.exit("Measurement %s missing for task %s." % (column_title, run_result.task_id))
 
 
 def format_command_part(name):
@@ -64,8 +53,8 @@ class StatAccumulator(object):
 
     def add(self, result):
         self.count += 1
-        self.cputime_values.append(extract_cputime(result))
-        self.walltime_values.append(extract_walltime(result))
+        self.cputime_values.append(extract_measurement("cputime", result))
+        self.walltime_values.append(extract_measurement("walltime", result))
 
     def to_latex(self, name_parts):
         if not self.cputime_values or not self.walltime_values:
