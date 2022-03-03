@@ -56,13 +56,13 @@ class StatAccumulator(object):
             current_measurement_list = self.measurements.setdefault(measurement, [])
             current_measurement_list.append(extract_measurement(measurement, result))
 
-        # self.cputime_values.append(extract_measurement("cputime", result))
-        # self.walltime_values.append(extract_measurement("walltime", result))
-
     def to_latex(self, name_parts):
+        if not all(self.measurements.values()):
+            return ""
 
-        cputime_stats = StatValue.from_list(self.measurements["cputime"])
-        walltime_stats = StatValue.from_list(self.measurements["walltime"])
+        stat_list = [
+            (k.title(), StatValue.from_list(v)) for k, v in self.measurements.items()
+        ]
         assert len(name_parts) <= 4
         name_parts += [""] * (4 - len(name_parts))  # ensure length 4
         name = r"}{".join(map(format_command_part, name_parts))
@@ -84,10 +84,7 @@ class StatAccumulator(object):
                         r"\StoreBenchExecResult{%s}{%s}{Stdev}{%s}%%"
                         % (name, time_name, util.print_decimal(time_stats.stdev)),
                     ]
-                    for (time_name, time_stats) in [
-                        ("Cputime", cputime_stats),
-                        ("Walltime", walltime_stats),
-                    ]
+                    for (time_name, time_stats) in stat_list
                 ]
             )
         )
