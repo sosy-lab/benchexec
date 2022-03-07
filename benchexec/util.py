@@ -759,13 +759,17 @@ def check_msr():
 
 def get_pgrp_pids(pgid):
     pids = []
-    for proc_stat_path in pathlib.Path("/proc").glob("[0-9]*/stat"):
+    for proc_stat_path in pathlib.Path("/proc").glob("[0-9]*/status"):
         try:
-            with open(proc_stat_path) as proc_stat_fh:
-                proc_stat = proc_stat_fh.readline().split(" ")
-                pid, stat_pgid = proc_stat[0], proc_stat[4]
-                if pgid == int(stat_pgid):
-                    pids.append(pid)
+            with open(proc_status_path) as proc_status:
+                for line in proc_status:
+                    key, value, *_ = line.split("\t")
+                    if key == 'Pid:':
+                        pid = value
+                    elif key == 'NSpgid:':
+                        status_pgid = value
+                if pgid == int(status_pgid):
+                    pids.append(pid.strip())
         except OSError:
             # ignore race conditions with processes disappearing
             # they aren't interesting to us anyway as processes
