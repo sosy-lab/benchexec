@@ -752,7 +752,7 @@ class TestRunExecutor(unittest.TestCase):
         if not os.path.exists(self.echo):
             self.skipTest("missing echo")
         try:
-            if self.cgroups_version == 1:
+            if self.cgroups.version == 1:
                 self.setUp(additional_cgroup_subsystems=["cpu"])
             else:
                 self.setUp(additional_cgroup_subsystems=["memory"])
