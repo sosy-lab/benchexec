@@ -759,7 +759,7 @@ def check_msr():
 
 def get_pgrp_pids(pgid):
     pids = []
-    for proc_stat_path in pathlib.Path("/proc").glob("[0-9]*/status"):
+    for proc_status_path in pathlib.Path("/proc").glob("[0-9]*/status"):
         try:
             with open(proc_status_path) as proc_status:
                 for line in proc_status:
