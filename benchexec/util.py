@@ -764,9 +764,9 @@ def get_pgrp_pids(pgid):
             with open(proc_status_path) as proc_status:
                 for line in proc_status:
                     key, value, *_ = line.split("\t")
-                    if key == 'Pid:':
+                    if key == "Pid:":
                         pid = value
-                    elif key == 'NSpgid:':
+                    elif key == "NSpgid:":
                         status_pgid = value
                 if pgid == int(status_pgid):
                     pids.append(pid.strip())
