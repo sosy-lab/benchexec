@@ -752,13 +752,16 @@ class TestRunExecutor(unittest.TestCase):
         if not os.path.exists(self.echo):
             self.skipTest("missing echo")
         try:
-            self.setUp(additional_cgroup_subsystems=["cpu"])
+            if self.cgroups_version == 1:
+                self.setUp(additional_cgroup_subsystems=["cpu"])
+            else:
+                self.setUp(additional_cgroup_subsystems=["memory"])
         except SystemExit as e:
             self.skipTest(e)
         if self.cgroups.version == 1:
             cgValues = {("cpu", "shares"): 42}
         else:
-            cgValues = {("cpu", "weight"): 42}
+            cgValues = {("memory", "high"): 420000000}
         (result, _) = self.execute_run(self.echo, cgroupValues=cgValues)
         self.check_exitcode(result, 0, "exit code of echo is not zero")
         # Just assert that execution was successful,
