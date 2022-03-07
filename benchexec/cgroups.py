@@ -278,7 +278,7 @@ class Cgroups(ABC):
             else:
                 permission_hint = _PERMISSION_HINT_OTHER
 
-            paths = " ".join(map(util.escape_string_shell, paths))
+            paths = " ".join([util.escape_string_shell(str(p)) for p in paths])
             sys.exit(_ERROR_MSG_PERMISSIONS.format(permission_hint, paths))
 
         else:
