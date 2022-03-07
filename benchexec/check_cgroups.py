@@ -67,9 +67,7 @@ def check_cgroup_availability(wait=1):
         my_cgroups.FREEZE,
     ):
         if subsystem in my_cgroups:
-            if not str(task_cgroups[subsystem]).startswith(
-                str(my_cgroups[subsystem] / "benchmark_")
-            ):
+            if not str(task_cgroups[subsystem]).startswith(str(my_cgroups[subsystem])):
                 logging.warning(
                     "Task was in cgroup %s for subsystem %s, "
                     "which is not the expected sub-cgroup of %s. "
@@ -140,6 +138,9 @@ def main(argv=None):
     )
 
     options = parser.parse_args(argv[1:])
+
+    cgroups = Cgroups.from_system(initial_cgroup=True)
+    cgroups.move_to_scope()
 
     if options.no_thread:
         check_cgroup_availability(options.wait)

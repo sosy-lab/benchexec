@@ -132,10 +132,7 @@ class CgroupsV2(Cgroups):
         logging.debug(
             "Analyzing /proc/mounts and /proc/self/cgroup to determine cgroups."
         )
-        if cgroup_procinfo is None:
-            cgroup_path = _find_own_cgroups()
-        else:
-            cgroup_path = _parse_proc_pid_cgroup(cgroup_procinfo)
+        cgroup_path = _find_own_cgroups()
 
         with open(cgroup_path / "cgroup.controllers") as subsystems_file:
             subsystems = set(subsystems_file.readline().strip().split())
@@ -170,7 +167,7 @@ class CgroupsV2(Cgroups):
         if len(tasks) > 1 and not tasks <= allowed_pids and move_to_child:
             raise BenchExecException(
                 "runexec must be the only running process in its cgroup. Either install pystemd "
-                "for runexec to handle this itself, prefix the command with `systemd-run --user --scope -p Delegate=yes` "
+                "for benchexec to handle this itself, prefix the command with `systemd-run --user --scope -p Delegate=yes` "
                 "or otherwise prepare the cgroup hierarchy to make sure of this and the subtree being "
                 "writable by the executing user."
             )
