@@ -1454,6 +1454,9 @@ class LatexCommand:
     Data holder for latex command.
     """
 
+    def __init__(self):
+        self.value = None
+
     def add_command_part(self, command_part, command_value) -> "LatexCommand":
         self.__dict__[command_part] = LatexCommand.format_command_part(
             str(command_value)
@@ -1461,11 +1464,14 @@ class LatexCommand:
         return self
 
     def add_command_value(self, value) -> "LatexCommand":
-        self.__dict__["value"] = value
+        self.value = value
         return self
 
-    # Print raw latex command. Maybe add another pretty print value
+    # Print raw latex command. Maybe add another pretty print for rounded values
     def to_latex_raw(self) -> str:
+        if not self.value:
+            logging.warning("Trying to print latex command without value")
+            return ""
         return "\\StoreBenchExecResult{%s}{%s}{%s}{%s}{%s}{%s}{%s}%%" % (
             self.__dict__.setdefault("benchName", ""),
             self.__dict__.setdefault("runSetName", ""),
