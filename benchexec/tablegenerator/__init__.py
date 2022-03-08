@@ -16,7 +16,9 @@ import itertools
 import logging
 import os.path
 import platform
+import re
 import signal
+import string
 import subprocess
 import sys
 import time
@@ -25,6 +27,7 @@ import typing
 import urllib.parse
 import urllib.request
 from xml.etree import ElementTree
+from typing import List
 
 from benchexec import __version__, BenchExecException
 import benchexec.model as model
@@ -33,6 +36,7 @@ import benchexec.tooladapter as tooladapter
 import benchexec.util
 from benchexec.tablegenerator import htmltable, statistics, util
 from benchexec.tablegenerator.columns import Column
+from benchexec.tablegenerator.statistics import ColumnStatistics, StatValue
 from benchexec.tablegenerator.util import TaskId
 import zipfile
 
@@ -60,7 +64,7 @@ NAME_START = "results"  # first part of filename of table
 
 DEFAULT_OUTPUT_PATH = "results"
 
-TEMPLATE_FORMATS = ["html", "csv"]
+TEMPLATE_FORMATS = ["html", "csv", "tex"]
 
 _BYTE_FACTOR = 1000  # bytes in a kilobyte
 
@@ -1382,10 +1386,110 @@ def write_csv_table(
         out.write("\n")
 
 
+def write_tex_command_table(
+    out,
+    title,
+    run_sets: List[RunSetResult],
+    stats: List[List[ColumnStatistics]],
+    **kwargs,
+):
+    # Find a better solution to not write diff
+    if "differences" in title:
+        return
+
+    header = r"""% The following definition defines a command for each value.
+% The command name is the concatenation of the first six arguments.
+% To override this definition, define \StoreBenchExecResult with \newcommand before including this file.
+% Arguments: benchmark name, run-set name, category, status, column name, statistic, value
+\providecommand\StoreBenchExecResult[7]{\expandafter\newcommand\csname#1#2#3#4#5#6\endcsname{#7}}%
+"""
+
+    command_list = []
+
+    def column_statistic_to_latex_command(
+        command: LatexCommand, column_statistic: ColumnStatistics
+    ):
+        """
+        Takes a ColumnStatistic, parses all it's values to LatexCommands, and appends these to the command_list.
+        The required command must have specified benchname and runname.
+        """
+        stat_value: StatValue
+        for stat_name, stat_value in column_statistic.__dict__.items():
+            if not stat_value:
+                continue
+            column_parts = stat_name.split("_")
+            if len(column_parts) < 2:
+                column_parts.append("")
+
+            command.add_command_part(
+                "column_category", "".join(column_parts[0:-1])
+            ).add_command_part("column_subcategory", column_parts[-1])
+
+            for k, v in stat_value.__dict__.items():
+                if not v:
+                    continue
+                command.add_command_part("stat_type", k if k != "sum" else "")
+                command_list.append(copy.deepcopy(command).add_command_value(v))
+
+    for run_set, stat_list in zip(run_sets, stats):
+        current_command = (
+            LatexCommand()
+            .add_command_part("benchName", run_set.attributes.get("benchmarkname"))
+            .add_command_part(
+                "runSetName", run_set.attributes.get("name")[:24]
+            )  # Limiting benchmark names
+        )
+        for column, column_stats in zip(run_set.columns, stat_list):
+            current_command = current_command.add_command_part(
+                "column_title", column.title
+            )
+            column_statistic_to_latex_command(current_command, column_stats)
+
+    out.write(header)
+    out.write("\n".join([command.to_latex_raw() for command in command_list]))
+
+
+class LatexCommand:
+    """
+    Data holder for latex command.
+    """
+
+    def add_command_part(self, command_part, command_value) -> "LatexCommand":
+        self.__dict__[command_part] = LatexCommand.format_command_part(
+            str(command_value)
+        )
+        return self
+
+    def add_command_value(self, value) -> "LatexCommand":
+        self.__dict__["value"] = value
+        return self
+
+    # Print raw latex command. Maybe add another pretty print value
+    def to_latex_raw(self) -> str:
+        return "\\StoreBenchExecResult{%s}{%s}{%s}{%s}{%s}{%s}{%s}%%" % (
+            self.__dict__.setdefault("benchName", ""),
+            self.__dict__.setdefault("runSetName", ""),
+            self.__dict__.setdefault("column_title", ""),
+            self.__dict__.setdefault("column_category", ""),
+            self.__dict__.setdefault("column_subcategory", ""),
+            self.__dict__.setdefault("stat_type", ""),
+            self.__dict__.setdefault("value", ""),
+        )
+
+    @staticmethod
+    def format_command_part(name):
+        name = re.sub("[^a-zA-Z]", "-", name)
+        name = string.capwords(name, "-")
+        name = name.replace("-", "")
+        return name
+
+
 def write_table_in_format(template_format, outfile, options, **kwargs):
-    callback = {"csv": write_csv_table, "html": htmltable.write_html_table}[
-        template_format
-    ]
+    callback = {
+        "csv": write_csv_table,
+        "html": htmltable.write_html_table,
+        "tex": write_tex_command_table,
+    }[template_format]
 
     if outfile:
         # Force HTML file to be UTF-8 regardless of system encoding because it actually
