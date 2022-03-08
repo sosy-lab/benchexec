@@ -1397,10 +1397,10 @@ def write_tex_command_table(
     if "differences" in title:
         return
 
-    bench_name_set = set
+    bench_name_set = set()
     for benchmark in run_sets:
         bench_name_formatted = LatexCommand.format_command_part(
-            benchmark.attributes.get("name")
+            benchmark.attributes.get("benchmarkname")
         )
         if bench_name_formatted in bench_name_set:
             raise BenchExecException(
@@ -1495,7 +1495,7 @@ class LatexCommand:
         )
 
     @staticmethod
-    def format_command_part(name):
+    def format_command_part(name) -> str:
         name = re.sub("[^a-zA-Z]", "-", name)
         name = string.capwords(name, "-")
         name = name.replace("-", "")
