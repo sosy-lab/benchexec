@@ -72,7 +72,7 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
         args,
         table_prefix,
         diff_prefix=None,
-        formats=["html", "csv"],
+        formats=["html", "csv", "tex"],
         output_path=None,
     ):
         output = self.run_cmd(
@@ -88,7 +88,11 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             if "html" in formats
             else None
         )
-        expected_files = {csv_file, html_file}
+        tex_file = (
+            os.path.join(self.tmp, table_prefix + ".tex") if "tex" in formats else None
+        )
+
+        expected_files = {csv_file, html_file, tex_file}
         if diff_prefix:
             csv_diff_file = (
                 os.path.join(self.tmp, diff_prefix + ".csv")
@@ -100,7 +104,12 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
                 if "html" in formats
                 else None
             )
-            expected_files |= {csv_diff_file, html_diff_file}
+            tex_diff_file = (
+                os.path.join(self.tmp, diff_prefix + ".tex")
+                if "tex" in formats
+                else None
+            )
+            expected_files |= {csv_diff_file, html_diff_file, tex_diff_file}
         else:
             csv_diff_file = None
             html_diff_file = None

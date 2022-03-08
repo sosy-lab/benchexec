@@ -1403,7 +1403,7 @@ def write_tex_command_table(
             benchmark.attributes.get("benchmarkname")
         )
         if bench_name_formatted in bench_name_set:
-            raise BenchExecException(
+            logging.error(
                 "Duplicated formatted benchmark name %s detected. Benchmark names must be unique for Latex"
                 % bench_name_formatted
             )
@@ -1425,6 +1425,9 @@ def write_tex_command_table(
         Takes a ColumnStatistic, parses all it's values to LatexCommands, and appends these to the command_list.
         The required command must have specified benchname and runname.
         """
+        if not column_statistic:
+            return
+
         stat_value: StatValue
         for stat_name, stat_value in column_statistic.__dict__.items():
             if not stat_value:
