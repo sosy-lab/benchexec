@@ -1397,6 +1397,18 @@ def write_tex_command_table(
     if "differences" in title:
         return
 
+    bench_name_set = set
+    for benchmark in run_sets:
+        bench_name_formatted = LatexCommand.format_command_part(
+            benchmark.attributes.get("name")
+        )
+        if bench_name_formatted in bench_name_set:
+            raise BenchExecException(
+                "Duplicated formatted benchmark name %s detected. Benchmark names must be unique for Latex"
+                % bench_name_formatted
+            )
+        bench_name_set.add(bench_name_formatted)
+
     header = r"""% The following definition defines a command for each value.
 % The command name is the concatenation of the first six arguments.
 % To override this definition, define \StoreBenchExecResult with \newcommand before including this file.
@@ -1479,7 +1491,7 @@ class LatexCommand:
             self.__dict__.setdefault("column_category", ""),
             self.__dict__.setdefault("column_subcategory", ""),
             self.__dict__.setdefault("stat_type", ""),
-            self.__dict__.setdefault("value", ""),
+            self.value,
         )
 
     @staticmethod
