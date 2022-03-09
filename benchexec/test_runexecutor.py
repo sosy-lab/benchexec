@@ -543,9 +543,49 @@ class TestRunExecutor(unittest.TestCase):
         if not os.path.exists("/bin/sh"):
             self.skipTest("missing /bin/sh")
         (_, output) = self.execute_run(
-            "/bin/sh", "-c", "echo $PATH", environments={"newEnv": {"PATH": "/usr/bin"}}
+            "/bin/sh", "-c", "echo $PATH",
+            environments={"newEnv": {"PATH": "/usr/bin"}},
         )
         self.assertEqual(output[-1], "/usr/bin")
+
+    def test_keepenv(self):
+        if not os.path.exists("/usr/bin/env"):
+            self.skipTest("missing /usr/bin/env")
+        env_var_names = list(os.environ.keys())
+        kept_env_var = env_var_names[0]
+        notkept_env_var = env_var_names[1]
+        import random; random.seed(0)
+        (_, output) = self.execute_run(
+            "/usr/bin/env",
+            environments={"keepEnv": {kept_env_var: True}},
+        )
+        self.assertTrue(any(kept_env_var in line for line in output))
+        self.assertFalse(any(notkept_env_var in line for line in output))
+
+    def test_utf8_env(self):
+        if not os.path.exists("/bin/sh"):
+            self.skipTest("missing /bin/env")
+        (_, output) = self.execute_run(
+            "/bin/sh", "-c", "echo $test"
+            environments={"test": "\x1b"},
+        )
+        # TODO: test that writing output doesn't crash
+
+    def test_new_environment_variable(self):
+        for keepEnv in [True, False]:
+            if not os.path.exists("/usr/bin/env"):
+                self.skipTest("missing /usr/bin/env")
+            environments = {"randomizeEnvSize": True}
+            if keepEnv:
+                environments["keepEnv"] = {}
+            import random; random.seed(0)
+            (_, output) = self.execute_run(
+                "/usr/bin/env",
+                environments=environments,
+            )
+            for line in output:
+                print(line)
+            self.assertTrue(any("randomizeEnvSize" in line for line in output))
 
     def test_stop_run(self):
         if not os.path.exists("/bin/sleep"):

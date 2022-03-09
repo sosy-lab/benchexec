@@ -12,7 +12,9 @@ import errno
 import logging
 import multiprocessing
 import os
+import random
 import signal
+import string
 import subprocess
 import sys
 import threading
@@ -515,7 +517,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         if environments.get("keepEnv", None) is not None:
             run_environment = {}
         else:
-            run_environment = os.environ.copy()
+            run_environment = {key: val for key, val in os.environ.items()}
         for key in environments.get("keepEnv", {}).keys():
             if key in os.environ:
                 run_environment[key] = os.environ[key]
@@ -523,6 +525,24 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             run_environment[key] = value
         for key, value in environments.get("additionalEnv", {}).items():
             run_environment[key] = os.environ.get(key, "") + value
+        if environments.get("randomizeEnvSize", None) is not None:
+            # Caller should consider setting random.seed(...) for improved
+            # (but not complete) determinism in the runtime.
+            pagesize_proc = subprocess.run(
+                ["getconf", "PAGESIZE"],
+                capture_output=True,
+                text=True,
+            )
+            if pagesize_proc.returncode == 0:
+                pagesize = int(pagesize_proc.stdout.strip())
+            else:
+                # Fallback on hardcoded value if getconf doesn't work.
+                pagesize = 4096
+            logging.debug("Randomizing env size up to %d", pagesize)
+            env_length = random.randint(0, pagesize)
+            run_environment["randomizeEnvSize"] = "".join(
+                random.choice(string.ascii_letters) for _ in range(env_length)
+            )
 
         logging.debug("Using additional environment %s.", environments)
         return run_environment
