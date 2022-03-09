@@ -9,6 +9,7 @@ import bz2
 import collections
 import datetime
 import io
+import itertools
 import os
 import threading
 import time
@@ -61,6 +62,12 @@ LEN_OF_STATUS = 25
 TIME_PRECISION = 2
 _BYTE_FACTOR = 1000  # byte in kilobyte
 
+# https://bookshelf.erwin.com/bookshelf/public_html/2020R2/Content/User%20Guides/erwin%20Help/Non_Printable_Characters_in_XML_Files.html
+nonprintable_chars = list(map(chr, itertools.chain(range(0, 9), range(11, 13), range(14, 32))))
+def escape_nonprintables(string):
+    for char in nonprintable_chars:
+        string = string.replace(char, rf"\x{ord(char):02x}")
+    return string
 
 class OutputHandler(object):
     """
@@ -150,7 +157,7 @@ class OutputHandler(object):
         systemInfo.append(ramElem)
         env = ElementTree.SubElement(systemInfo, "environment")
         for var, value in sorted(environment.items()):
-            ElementTree.SubElement(env, "var", name=var).text = value
+            ElementTree.SubElement(env, "var", name=var).text = escape_nonprintables(value)
 
         self.xml_header.append(systemInfo)
         if runSet:
