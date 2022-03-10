@@ -517,7 +517,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         if environments.get("keepEnv", None) is not None:
             run_environment = {}
         else:
-            run_environment = {key: val for key, val in os.environ.items()}
+            run_environment = os.environ.copy()
         for key in environments.get("keepEnv", {}).keys():
             if key in os.environ:
                 run_environment[key] = os.environ[key]
