@@ -130,6 +130,24 @@ column specified in the table-definition file by adding the attribute `relevantF
 `true` to the `column` tag. If the attribute `relevantForDiff` is specified at at least one column,
 only these columns will be taken for comparison.
 
+### CSV Tables
+
+CSV tables are created in the same way as the interactive HTML tables by `table-generator`,
+and the same columns are produced.
+So for more complex tables the customization options described above can be used.
+However, instead of rounded values the CSV tables will contain the raw values.
+The column separator is the tab character.
+The first three rows contain a header that identifies each column,
+in a similar manner to the header used in the HTML tables,
+so these rows should be ignored when processing the data.
+
+The first column(s) contain the task identifiers.
+How many columns are used for the task identifiers depends on the result data,
+i.e., if properties, expected verdicts, etc. are relevant.
+The same data are used as task identifiers in the CSV tables
+as are visible in the first column of the HTML tables,
+just spread over several columns instead of one column with a list of values.
+
 ### Regression Checking
 
 When given multiple result files, `table-generator` can automatically compute regression counts.
