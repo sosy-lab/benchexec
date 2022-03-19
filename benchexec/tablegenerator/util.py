@@ -17,8 +17,7 @@ import logging
 import os
 import urllib.request
 import platform
-from re import Match
-from typing import Union
+from typing import Union, Match
 
 
 class TaskId(collections.namedtuple("TaskId", "name property expected_result runset")):
@@ -288,7 +287,9 @@ def number_to_roman_string(number: Union[int, str, Match]) -> str:
     14 -> XIV
     Useful for Latex command generation
     """
-    if isinstance(number, Match):
+
+    # Can't check for Match, because python 3.6 doesn't have re.Match
+    if hasattr(number, "group"):
         number = number.group()
 
     number = int(number)
