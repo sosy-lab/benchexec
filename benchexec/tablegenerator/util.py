@@ -17,6 +17,8 @@ import logging
 import os
 import urllib.request
 import platform
+from re import Match
+from typing import Union
 
 
 class TaskId(collections.namedtuple("TaskId", "name property expected_result runset")):
@@ -277,6 +279,47 @@ def fix_path_if_on_windows(path):
 
 def normalize_line_endings(text):
     return text.replace("\r\n", "\n")
+
+
+def number_to_roman_string(number: Union[int, str, Match]) -> str:
+    """
+    Converts a positive number into the roman form. For example:
+    3 -> III
+    14 -> XIV
+    Useful for Latex command generation
+    """
+    if isinstance(number, Match):
+        number = number.group()
+
+    number = int(number)
+    if number < 1:
+        raise ValueError("%s not convertable to roman format" % number)
+
+    roman_numbers = {
+        "M": 1000,
+        "D": 500,
+        "C": 100,
+        "L": 50,
+        "X": 10,
+        "V": 5,
+        "I": 1,
+    }
+
+    roman_number_order = [
+        k for k, v in sorted(roman_numbers.items(), key=lambda item: item[1])
+    ]
+
+    current_letter = roman_number_order.pop()
+    output_string = ""
+
+    while number > 0:
+        if number >= roman_numbers[current_letter]:
+            number -= roman_numbers[current_letter]
+            output_string += current_letter
+        else:
+            current_letter = roman_number_order.pop()
+
+    return output_string
 
 
 class _DummyFuture(object):

@@ -18,7 +18,6 @@ import os.path
 import platform
 import re
 import signal
-import string
 import subprocess
 import sys
 import time
@@ -39,7 +38,6 @@ from benchexec.tablegenerator.columns import Column
 from benchexec.tablegenerator.statistics import ColumnStatistics, StatValue
 from benchexec.tablegenerator.util import TaskId
 import zipfile
-
 
 # Process pool for parallel work.
 # Some of our loops are CPU-bound (e.g., statistics calculations), thus we use
@@ -1388,14 +1386,14 @@ def write_csv_table(
 
 def write_tex_command_table(
     out,
-    title,
+    # title,
     run_sets: List[RunSetResult],
     stats: List[List[ColumnStatistics]],
     **kwargs,
 ):
     # Find a better solution to not write diff
-    if "differences" in title:
-        return
+    # if "differences" in title:
+    #     return
 
     bench_name_set = set()
     for benchmark in run_sets:
@@ -1498,10 +1496,18 @@ class LatexCommand:
         )
 
     @staticmethod
-    def format_command_part(name) -> str:
+    def format_command_part(name: str) -> str:
+        name = re.sub("[0-9]+", util.number_to_roman_string, name)
+
+        def cap_first_letter(word: str) -> str:
+            if word:
+                return word[0].capitalize() + word[1:]
+            return ""
+
         name = re.sub("[^a-zA-Z]", "-", name)
-        name = string.capwords(name, "-")
-        name = name.replace("-", "")
+
+        name = "".join([cap_first_letter(word) for word in name.split(sep="-")])
+
         return name
 
 
