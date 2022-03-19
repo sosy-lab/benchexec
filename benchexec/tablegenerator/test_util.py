@@ -98,3 +98,21 @@ class TestUnit(unittest.TestCase):
             expected = str(float(value))
             assert "e" not in expected, expected
             self.assertEqual(expected, util.print_decimal(Decimal(value)))
+
+    def test_roman_number_conversion(self):
+        test_data = {
+            3: "III",
+            4: "IV",
+            9: "IX",
+            14: "XIV",
+            21: "XXI",
+            49: "XLIX",
+            99: "XCIX",
+            849: "DCCCXLIX",
+            3000: "MMM",
+            3333: "MMMCCCXXXIII",
+        }
+
+        for k, v in test_data.items():
+            print(k, v)
+            self.assertEqual(v, util.number_to_roman_string(k))

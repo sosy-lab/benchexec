@@ -293,31 +293,57 @@ def number_to_roman_string(number: Union[int, str, Match]) -> str:
 
     number = int(number)
     if number < 1:
-        raise ValueError("%s not convertable to roman format" % number)
+        logging.warning("%s not convertable to roman format" % number)
+        return ""
 
+    # May be extended with higher numbers
     roman_numbers = {
-        "M": 1000,
-        "D": 500,
-        "C": 100,
-        "L": 50,
-        "X": 10,
-        "V": 5,
-        "I": 1,
+        1000: "M",
+        500: "D",
+        100: "C",
+        50: "L",
+        10: "X",
+        5: "V",
+        1: "I",
     }
 
-    roman_number_order = [
-        k for k, v in sorted(roman_numbers.items(), key=lambda item: item[1])
-    ]
-
-    current_letter = roman_number_order.pop()
     output_string = ""
 
+    # Subtracting the highest number
+    max_number = max(roman_numbers)
+    while number >= max_number:
+        output_string += roman_numbers[max_number]
+        number -= max_number
+
+    highest_power = 1
+
+    while highest_power < number:
+        highest_power *= 10
+    highest_power /= 10
+
     while number > 0:
-        if number >= roman_numbers[current_letter]:
-            number -= roman_numbers[current_letter]
-            output_string += current_letter
+        if number >= highest_power:
+            prefix = int(number / highest_power)
+            number -= prefix * highest_power
+
+            if prefix <= 3:  # Fill with current letter
+                output_string += roman_numbers[highest_power] * prefix
+            elif prefix == 4:  # Take higher letter and use current letter before
+                output_string += (
+                    roman_numbers[highest_power] + roman_numbers[highest_power * 5]
+                )
+            elif prefix <= 8:  # Higher letter and current letter afterwards
+                output_string += roman_numbers[highest_power * 5] + roman_numbers[
+                    highest_power
+                ] * (prefix - 5)
+            elif prefix == 9:  # Two times higher letter and current letter before
+                output_string += (
+                    roman_numbers[highest_power] + roman_numbers[highest_power * 10]
+                )
+            else:
+                raise ValueError("Unexpected prefix %s" % prefix)
         else:
-            current_letter = roman_number_order.pop()
+            highest_power /= 10
 
     return output_string
 
