@@ -684,12 +684,12 @@ class OutputHandler(object):
             return
 
         if isinstance(value, dict):
-            for key, value in value.items():
+            for key, item_value in value.items():
                 if prefix:
                     common_prefix = prefix + "_" + title
                 else:
                     common_prefix = title
-                self.add_column_to_xml(xml, key, value, prefix=common_prefix)
+                self.add_column_to_xml(xml, key, item_value, prefix=common_prefix)
             return
 
         if hasattr(value, "__getitem__") and not isinstance(value, (str, bytes)):
