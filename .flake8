@@ -45,6 +45,8 @@ per-file-ignores =
     # wildcard imports significantly shorten test code,
     # accessing /tmp is ok
     benchexec/test*.py:F405,S108
+    # Tool-info modules are not garbage-collected anyway, caching is ok
+    benchexec/tools/*.py:B019
 exclude =
     # code copied by build system
     build,
