@@ -54,11 +54,17 @@ def download_required_jars(config):
         cmd += ["-cache", temp_dir.name]
     try:
         # install vcloud jar and dependencies
-        subprocess.run(
+        return_code = subprocess.run(
             cmd,
             cwd=_ROOT_DIR,
             shell=vcloudutil.is_windows(),  # noqa: S602
-        )
+        ).returncode
+        if return_code != 0:
+            logging.fatal(
+                "Ivy could not resolve dependencies. Possibly because of no internet access"
+            )
+            logging.fatal("Stopping the execution of %s" % os.path.basename(__file__))
+            sys.exit(return_code)
     finally:
         if temp_dir:
             temp_dir.cleanup()
