@@ -29,7 +29,9 @@ class Tool(coveriteam.Tool):
         data_model_param = get_data_model_from_task(
             task, {ILP32: "ILP32", LP64: "LP64"}
         )
-        if data_model_param and "data_model" not in options:
+        if data_model_param and not any(
+            [option.startswith("data_model=") for option in options]
+        ):
             options += ["--input", "data_model=" + data_model_param]
 
         if task.property_file:
