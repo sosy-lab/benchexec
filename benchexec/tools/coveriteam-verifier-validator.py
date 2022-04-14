@@ -30,7 +30,7 @@ class Tool(coveriteam.Tool):
             task, {ILP32: "ILP32", LP64: "LP64"}
         )
         if data_model_param and not any(
-            [option.startswith("data_model=") for option in options]
+            re.match("data_model *=", option) for option in options
         ):
             options += ["--input", "data_model=" + data_model_param]
 
