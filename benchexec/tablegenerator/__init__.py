@@ -1428,18 +1428,20 @@ def write_tex_command_table(
 
         stat_value: StatValue
         for stat_name, stat_value in column_statistic.__dict__.items():
-            if not stat_value:
+            if stat_value is None:
                 continue
             column_parts = stat_name.split("_")
             if len(column_parts) < 2:
                 column_parts.append("")
 
+            # Some colum_categories use _ in their names, that's why the column_category is the
+            # whole split list except the last word
             command.add_command_part(
                 "column_category", "".join(column_parts[0:-1])
             ).add_command_part("column_subcategory", column_parts[-1])
 
             for k, v in stat_value.__dict__.items():
-                if not v:
+                if v is None:  # is None used to allow number 0
                     continue
                 command.add_command_part("stat_type", k if k != "sum" else "")
                 command_list.append(copy.deepcopy(command).add_command_value(v))
@@ -1459,7 +1461,7 @@ def write_tex_command_table(
             column_statistic_to_latex_command(current_command, column_stats)
 
     out.write(header)
-    out.write("\n".join([command.to_latex_raw() for command in command_list]))
+    out.write("\n".join(command.to_latex_raw() for command in command_list))
 
 
 class LatexCommand:
@@ -1496,9 +1498,6 @@ class LatexCommand:
 
     def to_latex_raw(self) -> str:
         """Prints latex command with raw value."""
-        if not self.value:
-            logging.warning("Trying to print latex command without value")
-            return ""
         return self.__get_command_formatted(str(self.value))
 
     def __get_command_formatted(self, value: str) -> str:
@@ -1508,6 +1507,9 @@ class LatexCommand:
             \\StoreBenchExecResult{some}{stuff}...{last_name_part}{\\textbf{value}}
         format the value of this command
         """
+        if not value:
+            logging.warning("Trying to print latex command without value")
+
         return "\\StoreBenchExecResult{%s}{%s}{%s}{%s}{%s}{%s}{%s}%%" % (
             self.bench_name,
             self.runset_name,
