@@ -1397,7 +1397,7 @@ def write_tex_command_table(
             benchmark.attributes.get("benchmarkname")
         )
         if bench_name_formatted in bench_name_set:
-            logging.error(
+            sys.exit(
                 "Duplicated formatted benchmark name %s detected. Benchmark names must be unique for Latex"
                 % bench_name_formatted
             )
