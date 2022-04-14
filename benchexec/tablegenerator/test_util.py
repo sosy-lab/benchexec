@@ -114,5 +114,15 @@ class TestUnit(unittest.TestCase):
         }
 
         for k, v in test_data.items():
-            print(k, v)
             self.assertEqual(v, util.number_to_roman_string(k))
+
+    def test_cap_first_letter(self):
+        test_data = {
+            "test": "Test",
+            "tHis is gREAT": "THis is gREAT",
+            "BIG WORD": "BIG WORD",
+            " leading space": " leading space",
+            "": "",
+        }
+        for k, v in test_data.items():
+            self.assertEqual(v, util.cap_first_letter(k))
