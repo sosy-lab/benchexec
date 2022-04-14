@@ -1437,7 +1437,11 @@ def write_tex_command_table(
             # Some colum_categories use _ in their names, that's why the column_category is the
             # whole split list except the last word
             command.add_command_part(
-                "column_category", "".join(column_parts[0:-1])
+                "column_category",
+                "".join(
+                    util.cap_first_letter(column_part)
+                    for column_part in column_parts[0:-1]
+                ),
             ).add_command_part("column_subcategory", column_parts[-1])
 
             for k, v in stat_value.__dict__.items():
@@ -1498,7 +1502,19 @@ class LatexCommand:
 
     def to_latex_raw(self) -> str:
         """Prints latex command with raw value."""
+        if not self.value:
+            self.value = ""
         return self.__get_command_formatted(str(self.value))
+
+    def __repr__(self):
+        return "\\StoreBenchExecResult{%s}{%s}{%s}{%s}{%s}{%s}" % (
+            self.bench_name,
+            self.runset_name,
+            self.column_title,
+            self.column_category,
+            self.column_subcategory,
+            self.stat_type,
+        )
 
     def __get_command_formatted(self, value: str) -> str:
         """Formats the command with all parts and appends the value
@@ -1508,30 +1524,20 @@ class LatexCommand:
         format the value of this command
         """
         if not value:
-            logging.warning("Trying to print latex command without value")
-
-        return "\\StoreBenchExecResult{%s}{%s}{%s}{%s}{%s}{%s}{%s}%%" % (
-            self.bench_name,
-            self.runset_name,
-            self.column_title,
-            self.column_category,
-            self.column_subcategory,
-            self.stat_type,
-            value,
-        )
+            logging.warning(
+                "Trying to print latex command without value! Using 0 for command %s"
+                % self
+            )
+            value = "0"
+        return str(self) + "{%s}%%" % value
 
     @staticmethod
     def format_command_part(name: str) -> str:
         name = re.sub("[0-9]+", util.number_to_roman_string, name)
 
-        def cap_first_letter(word: str) -> str:
-            if word:
-                return word[0].capitalize() + word[1:]
-            return ""
-
         name = re.sub("[^a-zA-Z]", "-", name)
 
-        name = "".join([cap_first_letter(word) for word in name.split(sep="-")])
+        name = "".join(util.cap_first_letter(word) for word in name.split(sep="-"))
 
         return name
 

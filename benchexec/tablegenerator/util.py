@@ -281,11 +281,19 @@ def normalize_line_endings(text):
 
 
 def number_to_roman_string(number: Union[int, str, Match]) -> str:
-    """
-    Converts a positive number into the roman form. For example:
+    """Converts a positive number into the roman form.
+
+    For example:
     3 -> III
     14 -> XIV
+
     Useful for Latex command generation
+
+    Args:
+        number: An integer, string, or Match object from the re module
+
+    Returns:
+        A string which represents the given number in roman number format.
     """
 
     # Can't check for Match, because python 3.6 doesn't have re.Match
@@ -347,6 +355,17 @@ def number_to_roman_string(number: Union[int, str, Match]) -> str:
             highest_power /= 10
 
     return output_string
+
+
+def cap_first_letter(word: str) -> str:
+    """Capitalizes the first letter in the given word, ignores the remaining letters
+
+    This differs to pythons str.title() method. str.title() capitalizes the first letter and the remaining letters in lowercase.
+    This method ignores the remaining letters.
+    """
+    if word:
+        return word[0].capitalize() + word[1:]
+    return ""
 
 
 class _DummyFuture(object):
