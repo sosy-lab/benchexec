@@ -1460,7 +1460,7 @@ def write_tex_command_table(
     for run_set, stat_list in zip(run_sets, stats):
         current_command = LatexCommand(
             bench_name=run_set.attributes.get("benchmarkname"),
-            runset_name=run_set.attributes.get("name")[:24],  # Limiting length
+            runset_name=run_set.attributes.get("displayName"),  # Limiting length
         )
         for column, column_stats in zip(run_set.columns, stat_list):
             current_command.set_command_part("column_title", column.title)
