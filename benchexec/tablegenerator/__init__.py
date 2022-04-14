@@ -1476,8 +1476,8 @@ class LatexCommand:
     """Data holder for latex command."""
 
     def __init__(self, bench_name="", runset_name=""):
-        self.bench_name = self.format_command_part(bench_name)
-        self.runset_name = self.format_command_part(runset_name)
+        self.bench_name = LatexCommand.format_command_part(str(bench_name))
+        self.runset_name = LatexCommand.format_command_part(str(runset_name))
         self.column_title = ""
         self.column_category = ""
         self.column_subcategory = ""
