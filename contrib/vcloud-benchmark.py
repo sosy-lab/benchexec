@@ -54,11 +54,17 @@ def download_required_jars(config):
         cmd += ["-cache", temp_dir.name]
     try:
         # install vcloud jar and dependencies
-        subprocess.run(
+        return_code = subprocess.run(
             cmd,
             cwd=_ROOT_DIR,
             shell=vcloudutil.is_windows(),  # noqa: S602
-        )
+        ).returncode
+        if return_code != 0:
+            sys.exit(
+                "Retrieving the VerifierCloud client with Ivy failed. "
+                "Please have a look at the Ivy output above. "
+                "Note that Internet access may be necessary."
+            )
     finally:
         if temp_dir:
             temp_dir.cleanup()
