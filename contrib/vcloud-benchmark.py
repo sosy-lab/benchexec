@@ -60,11 +60,11 @@ def download_required_jars(config):
             shell=vcloudutil.is_windows(),  # noqa: S602
         ).returncode
         if return_code != 0:
-            logging.fatal(
-                "Ivy could not resolve dependencies. Possibly because of no internet access"
+            sys.exit(
+                "Retrieving the VerifierCloud client with Ivy failed. "
+                "Please have a look at the Ivy output above. "
+                "Note that Internet access may be necessary."
             )
-            logging.fatal("Stopping the execution of %s" % os.path.basename(__file__))
-            sys.exit(return_code)
     finally:
         if temp_dir:
             temp_dir.cleanup()
