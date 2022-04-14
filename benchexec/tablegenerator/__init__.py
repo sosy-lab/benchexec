@@ -20,6 +20,7 @@ import re
 import signal
 import subprocess
 import sys
+import textwrap
 import time
 import types
 import typing
@@ -1386,14 +1387,10 @@ def write_csv_table(
 
 def write_tex_command_table(
     out,
-    # title,
     run_sets: List[RunSetResult],
     stats: List[List[ColumnStatistics]],
     **kwargs,
 ):
-    # Find a better solution to not write diff
-    # if "differences" in title:
-    #     return
 
     bench_name_set = set()
     for benchmark in run_sets:
@@ -1407,12 +1404,15 @@ def write_tex_command_table(
             )
         bench_name_set.add(bench_name_formatted)
 
-    header = r"""% The following definition defines a command for each value.
-% The command name is the concatenation of the first six arguments.
-% To override this definition, define \StoreBenchExecResult with \newcommand before including this file.
-% Arguments: benchmark name, run-set name, category, status, column name, statistic, value
-\providecommand\StoreBenchExecResult[7]{\expandafter\newcommand\csname#1#2#3#4#5#6\endcsname{#7}}%
-"""
+    header = textwrap.dedent(
+        """\
+        % The following definition defines a command for each value.
+        % The command name is the concatenation of the first six arguments.
+        % To override this definition, define \\StoreBenchExecResult with \\newcommand before including this file.
+        % Arguments: benchmark name, run-set name, category, status, column name, statistic, value
+        \\providecommand\\StoreBenchExecResult[7]{\\expandafter\\newcommand\\csname#1#2#3#4#5#6\\endcsname{#7}}%
+        """
+    )
 
     command_list = []
 
