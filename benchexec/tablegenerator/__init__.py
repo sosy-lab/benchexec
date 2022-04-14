@@ -1391,7 +1391,6 @@ def write_tex_command_table(
     stats: List[List[ColumnStatistics]],
     **kwargs,
 ):
-
     bench_name_set = set()
     for benchmark in run_sets:
         bench_name_formatted = LatexCommand.format_command_part(
@@ -1414,14 +1413,19 @@ def write_tex_command_table(
         """
     )
 
-    command_list = []
-
     def column_statistic_to_latex_command(
-        command: LatexCommand, column_statistic: ColumnStatistics
+        command: LatexCommand,
+        column_statistic: ColumnStatistics,
+        command_list: List[LatexCommand],
     ):
-        """
-        Takes a ColumnStatistic, parses all it's values to LatexCommands, and appends these to the command_list.
-        The required command must have specified benchname and runname.
+        """Parses a ColumnStatistics to Latex Commands and appends them to the given command_list
+
+        The provided LatexCommand must have specified bench_name and runset_name.
+
+        Args:
+            command: LatexCommand with not empty bench_name and runset_name
+            column_statistic: ColumnStatistics to convert to LatexCommand
+            command_list: List of LatexCommands
         """
         if not column_statistic:
             return
@@ -1436,74 +1440,80 @@ def write_tex_command_table(
 
             # Some colum_categories use _ in their names, that's why the column_category is the
             # whole split list except the last word
-            command.add_command_part(
+            command.set_command_part(
                 "column_category",
                 "".join(
                     util.cap_first_letter(column_part)
                     for column_part in column_parts[0:-1]
                 ),
-            ).add_command_part("column_subcategory", column_parts[-1])
+            ).set_command_part("column_subcategory", column_parts[-1])
 
             for k, v in stat_value.__dict__.items():
-                if v is None:  # is None used to allow number 0
+                # "v is None" instead of "if not v" used to allow number 0
+                if v is None:
                     continue
-                command.add_command_part("stat_type", k if k != "sum" else "")
-                command_list.append(copy.deepcopy(command).add_command_value(v))
+                command.set_command_part("stat_type", k if k != "sum" else "")
+                command_list.append(copy.deepcopy(command).set_command_value(v))
+
+    latex_commands = []
 
     for run_set, stat_list in zip(run_sets, stats):
-        current_command = (
-            LatexCommand()
-            .add_command_part("bench_name", run_set.attributes.get("benchmarkname"))
-            .add_command_part(
-                "runset_name", run_set.attributes.get("name")[:24]
-            )  # Limiting benchmark names
+        current_command = LatexCommand(
+            bench_name=run_set.attributes.get("benchmarkname"),
+            runset_name=run_set.attributes.get("name")[:24],  # Limiting length
         )
         for column, column_stats in zip(run_set.columns, stat_list):
-            current_command = current_command.add_command_part(
-                "column_title", column.title
+            current_command.set_command_part("column_title", column.title)
+            column_statistic_to_latex_command(
+                current_command, column_stats, latex_commands
             )
-            column_statistic_to_latex_command(current_command, column_stats)
 
     out.write(header)
-    out.write("\n".join(command.to_latex_raw() for command in command_list))
+    out.write("\n".join(command.to_latex_raw() for command in latex_commands))
 
 
 class LatexCommand:
     """Data holder for latex command."""
 
-    # Change to dataclass after python 3.6 support is abandoned
-    def __init__(
-        self,
-        bench_name="",
-        runset_name="",
-        column_title="",
-        column_category="",
-        column_subcategory="",
-        stat_type="",
-        value=None,
-    ):
-        self.bench_name = bench_name
-        self.runset_name = runset_name
-        self.column_title = column_title
-        self.column_category = column_category
-        self.column_subcategory = column_subcategory
-        self.stat_type = stat_type
-        self.value = value
+    def __init__(self, bench_name="", runset_name=""):
+        self.bench_name = self.format_command_part(bench_name)
+        self.runset_name = self.format_command_part(runset_name)
+        self.column_title = ""
+        self.column_category = ""
+        self.column_subcategory = ""
+        self.stat_type = ""
+        self.value = ""
 
-    def add_command_part(self, command_part, command_value) -> "LatexCommand":
-        self.__dict__[command_part] = LatexCommand.format_command_part(
-            str(command_value)
-        )
+    def set_command_part(self, part_name: str, part_value) -> "LatexCommand":
+        """Sets the value of the command part
+
+        Available part names:
+            bench_name, runset_name, column_title, column_category, column_subcategory, stat_type
+
+        Args:
+            part_name: One of the names above
+            part_value: The value to be set for this command part
+
+        Returns:
+            This LatexCommand
+        """
+        self.__dict__[part_name] = LatexCommand.format_command_part(str(part_value))
         return self
 
-    def add_command_value(self, value) -> "LatexCommand":
+    def set_command_value(self, value) -> "LatexCommand":
+        """Sets the value for this command
+
+        Args:
+            The new command value
+
+        Returns:
+            This LatexCommand
+        """
         self.value = value
         return self
 
     def to_latex_raw(self) -> str:
-        """Prints latex command with raw value."""
-        if not self.value:
-            self.value = ""
+        """Prints latex command with raw value (e.g. only number, no additional latex command)."""
         return self.__get_command_formatted(str(self.value))
 
     def __repr__(self):
@@ -1521,11 +1531,11 @@ class LatexCommand:
 
         To use a custom format for the value, for example
             \\StoreBenchExecResult{some}{stuff}...{last_name_part}{\\textbf{value}}
-        format the value of this command
+        format the value and give it to this function
         """
         if not value:
             logging.warning(
-                "Trying to print latex command without value! Using 0 for command %s"
+                "Trying to print latex command without value! Using 0 as value for command:\n %s"
                 % self
             )
             value = "0"
