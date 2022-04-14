@@ -1447,9 +1447,9 @@ def write_tex_command_table(
     for run_set, stat_list in zip(run_sets, stats):
         current_command = (
             LatexCommand()
-            .add_command_part("benchName", run_set.attributes.get("benchmarkname"))
+            .add_command_part("bench_name", run_set.attributes.get("benchmarkname"))
             .add_command_part(
-                "runSetName", run_set.attributes.get("name")[:24]
+                "runset_name", run_set.attributes.get("name")[:24]
             )  # Limiting benchmark names
         )
         for column, column_stats in zip(run_set.columns, stat_list):
@@ -1463,12 +1463,26 @@ def write_tex_command_table(
 
 
 class LatexCommand:
-    """
-    Data holder for latex command.
-    """
+    """Data holder for latex command."""
 
-    def __init__(self):
-        self.value = None
+    # Change to dataclass after python 3.6 support is abandoned
+    def __init__(
+        self,
+        bench_name="",
+        runset_name="",
+        column_title="",
+        column_category="",
+        column_subcategory="",
+        stat_type="",
+        value=None,
+    ):
+        self.bench_name = bench_name
+        self.runset_name = runset_name
+        self.column_title = column_title
+        self.column_category = column_category
+        self.column_subcategory = column_subcategory
+        self.stat_type = stat_type
+        self.value = value
 
     def add_command_part(self, command_part, command_value) -> "LatexCommand":
         self.__dict__[command_part] = LatexCommand.format_command_part(
@@ -1480,19 +1494,28 @@ class LatexCommand:
         self.value = value
         return self
 
-    # Print raw latex command. Maybe add another pretty print for rounded values
     def to_latex_raw(self) -> str:
+        """Prints latex command with raw value."""
         if not self.value:
             logging.warning("Trying to print latex command without value")
             return ""
+        return self.__get_command_formatted(str(self.value))
+
+    def __get_command_formatted(self, value: str) -> str:
+        """Formats the command with all parts and appends the value
+
+        To use a custom format for the value, for example
+            \\StoreBenchExecResult{some}{stuff}...{last_name_part}{\\textbf{value}}
+        format the value of this command
+        """
         return "\\StoreBenchExecResult{%s}{%s}{%s}{%s}{%s}{%s}{%s}%%" % (
-            self.__dict__.setdefault("benchName", ""),
-            self.__dict__.setdefault("runSetName", ""),
-            self.__dict__.setdefault("column_title", ""),
-            self.__dict__.setdefault("column_category", ""),
-            self.__dict__.setdefault("column_subcategory", ""),
-            self.__dict__.setdefault("stat_type", ""),
-            self.value,
+            self.bench_name,
+            self.runset_name,
+            self.column_title,
+            self.column_category,
+            self.column_subcategory,
+            self.stat_type,
+            value,
         )
 
     @staticmethod
