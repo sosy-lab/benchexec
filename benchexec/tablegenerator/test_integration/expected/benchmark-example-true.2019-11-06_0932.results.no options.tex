@@ -1,0 +1,43 @@
+% The following definition defines a command for each value.
+% The command name is the concatenation of the first six arguments.
+% To override this definition, define \StoreBenchExecResult with \newcommand before including this file.
+% Arguments: benchmark name, run-set name, category, status, column name, statistic, value
+\providecommand\StoreBenchExecResult[7]{\expandafter\newcommand\csname#1#2#3#4#5#6\endcsname{#7}}%
+\StoreBenchExecResult{BenchmarkExampleTrue}{}{Status}{Score}{}{}{0}%
+\StoreBenchExecResult{BenchmarkExampleTrue}{}{Status}{Total}{}{}{26}%
+\StoreBenchExecResult{BenchmarkExampleTrue}{}{Status}{Correct}{}{}{0}%
+\StoreBenchExecResult{BenchmarkExampleTrue}{}{Status}{Correct}{True}{}{0}%
+\StoreBenchExecResult{BenchmarkExampleTrue}{}{Status}{Correct}{False}{}{0}%
+\StoreBenchExecResult{BenchmarkExampleTrue}{}{Status}{Correct}{Unconfirmed}{}{0}%
+\StoreBenchExecResult{BenchmarkExampleTrue}{}{Status}{CorrectUnconfirmed}{True}{}{0}%
+\StoreBenchExecResult{BenchmarkExampleTrue}{}{Status}{CorrectUnconfirmed}{False}{}{0}%
+\StoreBenchExecResult{BenchmarkExampleTrue}{}{Status}{Wrong}{}{}{0}%
+\StoreBenchExecResult{BenchmarkExampleTrue}{}{Status}{Wrong}{True}{}{0}%
+\StoreBenchExecResult{BenchmarkExampleTrue}{}{Status}{Wrong}{False}{}{0}%
+\StoreBenchExecResult{BenchmarkExampleTrue}{}{Cputime}{Total}{}{}{0.101429363}%
+\StoreBenchExecResult{BenchmarkExampleTrue}{}{Cputime}{Total}{}{Min}{0.001618668}%
+\StoreBenchExecResult{BenchmarkExampleTrue}{}{Cputime}{Total}{}{Max}{0.005168485}%
+\StoreBenchExecResult{BenchmarkExampleTrue}{}{Cputime}{Total}{}{Avg}{0.003901129346153846153846153846}%
+\StoreBenchExecResult{BenchmarkExampleTrue}{}{Cputime}{Total}{}{Median}{0.0043256635}%
+\StoreBenchExecResult{BenchmarkExampleTrue}{}{Cputime}{Total}{}{Stdev}{0.001171464848900625269162272981}%
+\StoreBenchExecResult{BenchmarkExampleTrue}{}{Cputime}{Local}{}{}{1.486978}%
+\StoreBenchExecResult{BenchmarkExampleTrue}{}{Walltime}{Total}{}{}{0.264659507978649344}%
+\StoreBenchExecResult{BenchmarkExampleTrue}{}{Walltime}{Total}{}{Min}{0.004074042000866029}%
+\StoreBenchExecResult{BenchmarkExampleTrue}{}{Walltime}{Total}{}{Max}{0.015613405994372442}%
+\StoreBenchExecResult{BenchmarkExampleTrue}{}{Walltime}{Total}{}{Avg}{0.01017921184533266707692307692}%
+\StoreBenchExecResult{BenchmarkExampleTrue}{}{Walltime}{Total}{}{Median}{0.0109743459979654295}%
+\StoreBenchExecResult{BenchmarkExampleTrue}{}{Walltime}{Total}{}{Stdev}{0.003389653740861522449083779237}%
+\StoreBenchExecResult{BenchmarkExampleTrue}{}{Walltime}{Local}{}{}{5.417730271001346}%
+\StoreBenchExecResult{BenchmarkExampleTrue}{}{Memory}{Total}{}{}{7262208}%
+\StoreBenchExecResult{BenchmarkExampleTrue}{}{Memory}{Total}{}{Min}{249856}%
+\StoreBenchExecResult{BenchmarkExampleTrue}{}{Memory}{Total}{}{Max}{385024}%
+\StoreBenchExecResult{BenchmarkExampleTrue}{}{Memory}{Total}{}{Avg}{279315.6923076923076923076923}%
+\StoreBenchExecResult{BenchmarkExampleTrue}{}{Memory}{Total}{}{Median}{270336}%
+\StoreBenchExecResult{BenchmarkExampleTrue}{}{Memory}{Total}{}{Stdev}{35870.71549410705018691931636}%
+\StoreBenchExecResult{BenchmarkExampleTrue}{}{Cpuenergy}{Total}{}{}{0.107667}%
+\StoreBenchExecResult{BenchmarkExampleTrue}{}{Cpuenergy}{Total}{}{Min}{0}%
+\StoreBenchExecResult{BenchmarkExampleTrue}{}{Cpuenergy}{Total}{}{Max}{0.033386}%
+\StoreBenchExecResult{BenchmarkExampleTrue}{}{Cpuenergy}{Total}{}{Avg}{0.00430668}%
+\StoreBenchExecResult{BenchmarkExampleTrue}{}{Cpuenergy}{Total}{}{Median}{0}%
+\StoreBenchExecResult{BenchmarkExampleTrue}{}{Cpuenergy}{Total}{}{Stdev}{0.008707445208417908844786000530}%
+\StoreBenchExecResult{BenchmarkExampleTrue}{}{Cpuenergy}{Local}{}{}{13.496216}%
