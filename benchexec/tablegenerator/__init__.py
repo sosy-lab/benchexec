@@ -1400,8 +1400,10 @@ def write_tex_command_table(
         if bench_name_formatted in bench_name_set:
             logging.error(
                 "Duplicated formatted benchmark name %s detected. Benchmark names must be unique for Latex"
-                % bench_name_formatted
+                "\nSkipping writing to file %s"
+                % (bench_name_formatted, kwargs["title"] + ".tex")
             )
+            return
         bench_name_set.add(bench_name_formatted)
 
     header = textwrap.dedent(
@@ -1418,6 +1420,7 @@ def write_tex_command_table(
         command: LatexCommand,
         column_statistic: ColumnStatistics,
         command_list: List[LatexCommand],
+        **value_data,
     ):
         """Parses a ColumnStatistics to Latex Commands and appends them to the given command_list
 
@@ -1454,7 +1457,9 @@ def write_tex_command_table(
                 if v is None:
                     continue
                 command.set_command_part("stat_type", k if k != "sum" else "")
-                command_list.append(copy.deepcopy(command).set_command_value(v))
+                command_list.append(
+                    copy.deepcopy(command).set_command_value(v, **value_data)
+                )
 
     latex_commands = []
 
@@ -1463,10 +1468,24 @@ def write_tex_command_table(
             bench_name=run_set.attributes.get("benchmarkname"),
             runset_name=run_set.attributes.get("displayName"),  # Limiting length
         )
+        used_column_titles = set()
         for column, column_stats in zip(run_set.columns, stat_list):
-            current_command.set_command_part("column_title", column.title)
+            column_title = (
+                column.display_title if column.display_title else column.title
+            )
+            if column_title in used_column_titles:
+                logging.warning(
+                    "Detected already used %s! "
+                    "Columns should be unique, please consider changing the name or displayTitle of this column \n"
+                    "Skipping column %s for now" % (column_title, column_title)
+                )
+                continue
+
+            used_column_titles.add(column_title)
+            current_command.set_command_part("column_title", column_title)
+
             column_statistic_to_latex_command(
-                current_command, column_stats, latex_commands
+                current_command, column_stats, latex_commands, **column.__dict__
             )
 
     out.write(header)
@@ -1501,16 +1520,19 @@ class LatexCommand:
         self.__dict__[part_name] = LatexCommand.format_command_part(str(part_value))
         return self
 
-    def set_command_value(self, value) -> "LatexCommand":
+    def set_command_value(self, value, scale_factor, **value_data) -> "LatexCommand":
         """Sets the value for this command
 
         Args:
-            The new command value
+            value: The new command value
+            scale_factor: Scaling factor for the new value
+            value_data: Remaining unused value_data
 
         Returns:
             This LatexCommand
         """
         self.value = decimal.Decimal(value)
+        self.value *= scale_factor
         return self
 
     def to_latex_raw(self) -> str:
