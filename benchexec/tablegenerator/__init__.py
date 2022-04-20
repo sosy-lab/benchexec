@@ -9,6 +9,7 @@ import argparse
 import bz2
 import collections
 import copy
+import decimal
 import functools
 import gzip
 import io
@@ -1482,7 +1483,7 @@ class LatexCommand:
         self.column_category = ""
         self.column_subcategory = ""
         self.stat_type = ""
-        self.value = ""
+        self.value = None
 
     def set_command_part(self, part_name: str, part_value) -> "LatexCommand":
         """Sets the value of the command part
@@ -1509,12 +1510,12 @@ class LatexCommand:
         Returns:
             This LatexCommand
         """
-        self.value = value
+        self.value = decimal.Decimal(value)
         return self
 
     def to_latex_raw(self) -> str:
         """Prints latex command with raw value (e.g. only number, no additional latex command)."""
-        return self.__get_command_formatted(str(self.value))
+        return self.__get_command_formatted(util.print_decimal(self.value))
 
     def __repr__(self):
         return "\\StoreBenchExecResult{%s}{%s}{%s}{%s}{%s}{%s}" % (
