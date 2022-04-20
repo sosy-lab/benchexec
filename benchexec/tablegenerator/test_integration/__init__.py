@@ -184,7 +184,7 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
 
             generated_tex_diff = benchexec.util.read_file(tex_diff_file)
             self.assert_file_content_equals(
-                generated_tex_diff, expected_file_name("tex")
+                generated_tex_diff, expected_diff_file_name("tex")
             )
 
         if expected_counts:
