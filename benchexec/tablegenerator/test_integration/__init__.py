@@ -113,6 +113,7 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
         else:
             csv_diff_file = None
             html_diff_file = None
+            tex_diff_file = None
 
         expected_files.discard(None)
         self.assertSetEqual(
@@ -120,7 +121,15 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             expected_files,
             "Set of generated files differs from set of expected files",
         )
-        return output, html_file, html_diff_file, csv_file, csv_diff_file
+        return (
+            output,
+            html_file,
+            html_diff_file,
+            csv_file,
+            csv_diff_file,
+            tex_file,
+            tex_diff_file,
+        )
 
     def generate_tables_and_compare_content(
         self,
@@ -147,6 +156,8 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             html_diff_file,
             csv_file,
             csv_diff_file,
+            tex_file,
+            tex_diff_file,
         ) = self.generate_tables_and_check_produced_files(
             args, table_prefix, diff_prefix
         )
@@ -157,6 +168,9 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
         generated_html = self.read_table_from_html(html_file)
         self.assert_file_content_equals(generated_html, expected_file_name("html"))
 
+        generated_tex = benchexec.util.read_file(tex_file)
+        self.assert_file_content_equals(generated_tex, expected_file_name("tex"))
+
         if diff_prefix:
             generated_csv_diff = benchexec.util.read_file(csv_diff_file)
             self.assert_file_content_equals(
@@ -166,6 +180,11 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             generated_html_diff = self.read_table_from_html(html_diff_file)
             self.assert_file_content_equals(
                 generated_html_diff, expected_diff_file_name("html")
+            )
+
+            generated_tex_diff = benchexec.util.read_file(tex_diff_file)
+            self.assert_file_content_equals(
+                generated_tex_diff, expected_file_name("tex")
             )
 
         if expected_counts:
@@ -655,7 +674,7 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
         )
 
     def test_output_stdout(self):
-        output, _, _, _, _ = self.generate_tables_and_check_produced_files(
+        output, _, _, _, _, _, _ = self.generate_tables_and_check_produced_files(
             [
                 result_file("test.2015-03-03_1613.results.predicateAnalysis.xml"),
                 "-f",
