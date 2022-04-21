@@ -88,9 +88,9 @@ class LatexCommand:
 
         name = re.sub("[0-9]+", regex_match_to_roman_number, name)
 
-        name = re.sub("[^a-zA-Z]", "-", name)
+        name = re.split("[^a-zA-Z]", name)
 
-        name = "".join(util.cap_first_letter(word) for word in name.split(sep="-"))
+        name = "".join(util.cap_first_letter(word) for word in name)
 
         return name
 
