@@ -2,6 +2,7 @@ import copy
 import decimal
 import logging
 import re
+from collections import defaultdict
 from typing import List, Iterable
 
 from benchexec.tablegenerator import util
@@ -135,18 +136,24 @@ def _provide_latex_commands(
         bench_name=run_set.attributes.get("benchmarkname"),
         runset_name=run_set.attributes.get("displayName"),  # Limiting length
     )
-    used_column_titles = set()
+
+    # Saves used columns and their amount
+    used_column_titles = defaultdict(int)
     for column, column_stats in zip(run_set.columns, stat_list):
         column_title = column.display_title if column.display_title else column.title
         if column_title in used_column_titles:
+            used_column_titles[column_title] += 1
             logging.warning(
                 "Detected already used %s! "
                 "Columns should be unique, please consider changing the name or displayTitle of this column \n"
-                "Skipping column %s for now" % (column_title, column_title)
+                "Adding suffix %s to column %s for now",
+                column_title,
+                used_column_titles[column_title],
+                column_title,
             )
-            continue
+            column_title += str(used_column_titles[column_title])
 
-        used_column_titles.add(column_title)
+        used_column_titles[column_title] += 1
         current_command.set_command_part("column_title", column_title)
 
         for command in _column_statistic_to_latex_command(
