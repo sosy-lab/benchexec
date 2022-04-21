@@ -339,7 +339,7 @@ def number_to_roman_string(number: Union[int, str]) -> str:
                 output_string += ROMAN_NUMBERS[highest_power] * prefix
             elif prefix == 4:  # Take higher letter and use current letter before
                 output_string += (
-                        ROMAN_NUMBERS[highest_power] + ROMAN_NUMBERS[highest_power * 5]
+                    ROMAN_NUMBERS[highest_power] + ROMAN_NUMBERS[highest_power * 5]
                 )
             elif prefix <= 8:  # Higher letter and current letter afterwards
                 output_string += ROMAN_NUMBERS[highest_power * 5] + ROMAN_NUMBERS[
@@ -347,7 +347,7 @@ def number_to_roman_string(number: Union[int, str]) -> str:
                 ] * (prefix - 5)
             elif prefix == 9:  # Two times higher letter and current letter before
                 output_string += (
-                        ROMAN_NUMBERS[highest_power] + ROMAN_NUMBERS[highest_power * 10]
+                    ROMAN_NUMBERS[highest_power] + ROMAN_NUMBERS[highest_power * 10]
                 )
             else:
                 raise ValueError("Unexpected prefix %s", prefix)
