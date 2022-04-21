@@ -325,6 +325,10 @@ def number_to_roman_string(number: Union[int, str]) -> str:
         highest_power *= 10
     highest_power /= 10
 
+    # Displaying each "digit" (with zeros) in roman number format. For example number = 933:
+    # Start with 900 -> CM, then subtract 900 from 933.
+    # Now convert 30 -> XXX, subtract it from 33 and append it to output_string (CM + XXX = CMXXX).
+    # Last convert 3 -> III and subtract it from 3 and append it to output_string (CMXXXIII).
     while number > 0:
         if number >= highest_power:
             prefix = int(number / highest_power)
