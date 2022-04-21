@@ -350,7 +350,7 @@ def number_to_roman_string(number: Union[int, str]) -> str:
                     roman_numbers[highest_power] + roman_numbers[highest_power * 10]
                 )
             else:
-                raise ValueError("Unexpected prefix %s in number %s", prefix, number)
+                raise ValueError("Unexpected prefix %s", prefix)
         else:
             highest_power /= 10
 
