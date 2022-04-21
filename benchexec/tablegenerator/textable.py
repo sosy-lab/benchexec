@@ -19,8 +19,8 @@ TEX_HEADER = r"""% The following definition defines a command for each value.
 class LatexCommand:
     """Data holder for latex command."""
 
-    def __init__(self, bench_name="", runset_name=""):
-        self.bench_name = LatexCommand.format_command_part(str(bench_name))
+    def __init__(self, benchmark_name="", runset_name=""):
+        self.benchmark_name = LatexCommand.format_command_part(str(benchmark_name))
         self.runset_name = LatexCommand.format_command_part(str(runset_name))
         self.column_title = ""
         self.column_category = ""
@@ -32,7 +32,7 @@ class LatexCommand:
         """Sets the value of the command part
 
         Available part names:
-            bench_name, runset_name, column_title, column_category, column_subcategory, stat_type
+            benchmark_name, runset_name, column_title, column_category, column_subcategory, stat_type
 
         Args:
             part_name: One of the names above
@@ -65,7 +65,7 @@ class LatexCommand:
 
     def __repr__(self):
         return "\\StoreBenchExecResult{%s}{%s}{%s}{%s}{%s}{%s}" % (
-            self.bench_name,
+            self.benchmark_name,
             self.runset_name,
             self.column_title,
             self.column_category,
@@ -108,19 +108,19 @@ def write_tex_command_table(
     stats: List[List[ColumnStatistics]],
     **kwargs,
 ):
-    bench_name_set = set()
+    benchmark_name_set = set()
     for benchmark in run_sets:
-        bench_name_formatted = LatexCommand.format_command_part(
+        benchmark_name_formatted = LatexCommand.format_command_part(
             benchmark.attributes.get("benchmarkname")
         )
-        if bench_name_formatted in bench_name_set:
+        if benchmark_name_formatted in benchmark_name_set:
             logging.error(
                 "Duplicated formatted benchmark name %s detected. Benchmark names must be unique for Latex"
                 "\nSkipping writing to file %s"
-                % (bench_name_formatted, kwargs["title"] + ".tex")
+                % (benchmark_name_formatted, kwargs["title"] + ".tex")
             )
             return
-        bench_name_set.add(bench_name_formatted)
+        benchmark_name_set.add(benchmark_name_formatted)
 
     out.write(TEX_HEADER)
     for run_set, stat_list in zip(run_sets, stats):
@@ -133,7 +133,7 @@ def _provide_latex_commands(
     run_set, stat_list: List[ColumnStatistics]
 ) -> Iterable[LatexCommand]:
     current_command = LatexCommand(
-        bench_name=run_set.attributes.get("benchmarkname"),
+        benchmark_name=run_set.attributes.get("benchmarkname"),
         runset_name=run_set.attributes.get("displayName"),  # Limiting length
     )
 
@@ -169,10 +169,10 @@ def _column_statistic_to_latex_command(
 ) -> Iterable[LatexCommand]:
     """Parses a ColumnStatistics to Latex Commands and appends them to the given command_list
 
-    The provided LatexCommand must have specified bench_name and runset_name.
+    The provided LatexCommand must have specified benchmark_name and runset_name.
 
     Args:
-        command: LatexCommand with not empty bench_name and runset_name
+        command: LatexCommand with not empty benchmark_name and runset_name
         column_statistic: ColumnStatistics to convert to LatexCommand
         command_list: List of LatexCommands
     """
