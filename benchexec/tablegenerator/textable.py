@@ -82,10 +82,10 @@ class LatexCommand:
         """
         if not value:
             logging.warning(
-                "Trying to print latex command without value! Using 0 as value for command:\n %s"
+                "Trying to print latex command without value! Using EMPTY value for command:\n %s"
                 % self
             )
-            value = "0"
+            value = ""
         return str(self) + "{%s}" % value
 
     @staticmethod
