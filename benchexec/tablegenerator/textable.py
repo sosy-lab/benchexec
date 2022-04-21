@@ -19,9 +19,9 @@ TEX_HEADER = r"""% The following definition defines a command for each value.
 class LatexCommand:
     """Data holder for latex command."""
 
-    def __init__(self, benchmark_name="", runset_name=""):
+    def __init__(self, benchmark_name="", display_name=""):
         self.benchmark_name = LatexCommand.format_command_part(str(benchmark_name))
-        self.runset_name = LatexCommand.format_command_part(str(runset_name))
+        self.display_name = LatexCommand.format_command_part(str(display_name))
         self.column_title = ""
         self.column_category = ""
         self.column_subcategory = ""
@@ -32,7 +32,7 @@ class LatexCommand:
         """Sets the value of the command part
 
         Available part names:
-            benchmark_name, runset_name, column_title, column_category, column_subcategory, stat_type
+            benchmark_name, display_name, column_title, column_category, column_subcategory, stat_type
 
         Args:
             part_name: One of the names above
@@ -66,7 +66,7 @@ class LatexCommand:
     def __repr__(self):
         return "\\StoreBenchExecResult{%s}{%s}{%s}{%s}{%s}{%s}" % (
             self.benchmark_name,
-            self.runset_name,
+            self.display_name,
             self.column_title,
             self.column_category,
             self.column_subcategory,
@@ -108,19 +108,34 @@ def write_tex_command_table(
     stats: List[List[ColumnStatistics]],
     **kwargs,
 ):
-    benchmark_name_set = set()
+    # Copy run_sets to modify the benchmarknames
+    run_sets = copy.deepcopy(run_sets)
+
+    # Check for duplicated benchmarkname + displayName
+    # Add suffix to benchmarkname if duplication is detected
+    benchmark_name_dict = defaultdict(int)
     for benchmark in run_sets:
         benchmark_name_formatted = LatexCommand.format_command_part(
-            benchmark.attributes.get("benchmarkname")
+            benchmark.attributes["benchmarkname"]
         )
-        if benchmark_name_formatted in benchmark_name_set:
-            logging.error(
-                "Duplicated formatted benchmark name %s detected. Benchmark names must be unique for Latex"
-                "\nSkipping writing to file %s"
-                % (benchmark_name_formatted, kwargs["title"] + ".tex")
+        display_name_formatted = LatexCommand.format_command_part(
+            benchmark.attributes["displayName"]
+        )
+
+        combined_command_name = benchmark_name_formatted + display_name_formatted
+
+        if combined_command_name in benchmark_name_dict:
+            logging.warning(
+                "Duplicated formatted benchmark name + displayName %s detected. "
+                "The combination of names must be unique for Latex"
+                "\nAdding suffix %s to benchmark name",
+                combined_command_name,
+                benchmark_name_dict[combined_command_name],
             )
-            return
-        benchmark_name_set.add(benchmark_name_formatted)
+            benchmark.attributes["benchmarkname"] += str(
+                benchmark_name_dict[combined_command_name]
+            )
+        benchmark_name_dict[combined_command_name] += 1
 
     out.write(TEX_HEADER)
     for run_set, stat_list in zip(run_sets, stats):
@@ -134,7 +149,7 @@ def _provide_latex_commands(
 ) -> Iterable[LatexCommand]:
     current_command = LatexCommand(
         benchmark_name=run_set.attributes.get("benchmarkname"),
-        runset_name=run_set.attributes.get("displayName"),  # Limiting length
+        display_name=run_set.attributes.get("displayName"),
     )
 
     # Saves used columns and their amount
@@ -169,10 +184,10 @@ def _column_statistic_to_latex_command(
 ) -> Iterable[LatexCommand]:
     """Parses a ColumnStatistics to Latex Commands and appends them to the given command_list
 
-    The provided LatexCommand must have specified benchmark_name and runset_name.
+    The provided LatexCommand must have specified benchmark_name and display_name.
 
     Args:
-        command: LatexCommand with not empty benchmark_name and runset_name
+        command: LatexCommand with not empty benchmark_name and display_name
         column_statistic: ColumnStatistics to convert to LatexCommand
         command_list: List of LatexCommands
     """
