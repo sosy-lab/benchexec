@@ -54,7 +54,7 @@ class LatexCommand:
 
     def to_latex_raw(self) -> str:
         """Prints latex command with raw value (e.g. only number, no additional latex command)."""
-        return self.__get_command_formatted(util.print_decimal(self.value))
+        return self._get_command_formatted(util.print_decimal(self.value))
 
     def __repr__(self):
         return "\\StoreBenchExecResult{%s}{%s}{%s}{%s}{%s}{%s}" % (
@@ -66,7 +66,7 @@ class LatexCommand:
             self.stat_type,
         )
 
-    def __get_command_formatted(self, value: str) -> str:
+    def _get_command_formatted(self, value: str) -> str:
         """Formats the command with all parts and appends the value
 
         To use a custom format for the value, for example
