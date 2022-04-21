@@ -1490,7 +1490,7 @@ def create_argument_parser():
         "--format",
         action="append",
         choices=TEMPLATE_FORMATS,
-        help="Which format to generate (HTML or CSV). Can be specified multiple times. If not specified, all are generated.",
+        help="Which format to generate (HTML, CSV or TEX). Can be specified multiple times. If not specified, all are generated.",
     )
     parser.add_argument(
         "-c",
