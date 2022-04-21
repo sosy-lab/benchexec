@@ -21,7 +21,7 @@ from typing import Union
 
 
 # May be extended with higher numbers
-roman_numbers = {
+ROMAN_NUMBERS = {
     1000: "M",
     500: "D",
     100: "C",
@@ -315,11 +315,11 @@ def number_to_roman_string(number: Union[int, str]) -> str:
             number,
         )
 
-    max_number = max(roman_numbers)
+    max_number = max(ROMAN_NUMBERS)
     # Count specifies how often max_number fits into number
     # Number will be the remainder after the divmod (e.g. number < max_number after divmod)
     count, number = divmod(number, max_number)
-    output_string = roman_numbers[max_number] * count
+    output_string = ROMAN_NUMBERS[max_number] * count
 
     highest_power = 1
     while highest_power <= number:
@@ -336,18 +336,18 @@ def number_to_roman_string(number: Union[int, str]) -> str:
             number -= prefix * highest_power
 
             if prefix <= 3:  # Fill with current letter
-                output_string += roman_numbers[highest_power] * prefix
+                output_string += ROMAN_NUMBERS[highest_power] * prefix
             elif prefix == 4:  # Take higher letter and use current letter before
                 output_string += (
-                    roman_numbers[highest_power] + roman_numbers[highest_power * 5]
+                        ROMAN_NUMBERS[highest_power] + ROMAN_NUMBERS[highest_power * 5]
                 )
             elif prefix <= 8:  # Higher letter and current letter afterwards
-                output_string += roman_numbers[highest_power * 5] + roman_numbers[
+                output_string += ROMAN_NUMBERS[highest_power * 5] + ROMAN_NUMBERS[
                     highest_power
                 ] * (prefix - 5)
             elif prefix == 9:  # Two times higher letter and current letter before
                 output_string += (
-                    roman_numbers[highest_power] + roman_numbers[highest_power * 10]
+                        ROMAN_NUMBERS[highest_power] + ROMAN_NUMBERS[highest_power * 10]
                 )
             else:
                 raise ValueError("Unexpected prefix %s", prefix)
