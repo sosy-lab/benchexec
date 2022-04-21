@@ -314,16 +314,13 @@ def number_to_roman_string(number: Union[int, str]) -> str:
         1: "I",
     }
 
-    output_string = ""
-
-    # Subtracting the highest number
     max_number = max(roman_numbers)
-    while number >= max_number:
-        output_string += roman_numbers[max_number]
-        number -= max_number
+    # Count specifies how often max_number fits into number
+    # Number will be the remainder after the divmod (e.g. number < max_number after divmod)
+    count, number = divmod(number, max_number)
+    output_string = roman_numbers[max_number] * count
 
     highest_power = 1
-
     while highest_power < number:
         highest_power *= 10
     highest_power /= 10
