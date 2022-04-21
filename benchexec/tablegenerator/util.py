@@ -17,7 +17,7 @@ import logging
 import os
 import urllib.request
 import platform
-from typing import Union, Match
+from typing import Union
 
 
 class TaskId(collections.namedtuple("TaskId", "name property expected_result runset")):
@@ -280,7 +280,7 @@ def normalize_line_endings(text):
     return text.replace("\r\n", "\n")
 
 
-def number_to_roman_string(number: Union[int, str, Match]) -> str:
+def number_to_roman_string(number: Union[int, str]) -> str:
     """Converts a positive number into the roman form.
 
     For example:
@@ -290,20 +290,18 @@ def number_to_roman_string(number: Union[int, str, Match]) -> str:
     Useful for Latex command generation
 
     Args:
-        number: An integer, string, or Match object from the re module
+        number: An integer or string
 
     Returns:
         A string which represents the given number in roman number format.
     """
 
-    # Can't check for Match, because python 3.6 doesn't have re.Match
-    if hasattr(number, "group"):
-        number = number.group()
-
     number = int(number)
     if number < 1:
-        logging.warning("%s not convertable to roman format" % number)
-        return ""
+        raise ValueError(
+            "%s not positive. Only positive numbers can be converted to roman number format",
+            number,
+        )
 
     # May be extended with higher numbers
     roman_numbers = {

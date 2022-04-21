@@ -83,7 +83,10 @@ class LatexCommand:
 
     @staticmethod
     def format_command_part(name: str) -> str:
-        name = re.sub("[0-9]+", util.number_to_roman_string, name)
+        def regex_match_to_roman_number(match) -> str:
+            return util.number_to_roman_string(match.group())
+
+        name = re.sub("[0-9]+", regex_match_to_roman_number, name)
 
         name = re.sub("[^a-zA-Z]", "-", name)
 
