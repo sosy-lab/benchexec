@@ -9,7 +9,6 @@ import argparse
 import bz2
 import collections
 import copy
-import decimal
 import functools
 import gzip
 import io
@@ -17,27 +16,23 @@ import itertools
 import logging
 import os.path
 import platform
-import re
 import signal
 import subprocess
 import sys
-import textwrap
 import time
 import types
 import typing
 import urllib.parse
 import urllib.request
 from xml.etree import ElementTree
-from typing import List
 
 from benchexec import __version__, BenchExecException
 import benchexec.model as model
 import benchexec.result as result
 import benchexec.tooladapter as tooladapter
 import benchexec.util
-from benchexec.tablegenerator import htmltable, statistics, util
+from benchexec.tablegenerator import htmltable, statistics, util, textable
 from benchexec.tablegenerator.columns import Column
-from benchexec.tablegenerator.statistics import ColumnStatistics, StatValue
 from benchexec.tablegenerator.util import TaskId
 import zipfile
 
@@ -1386,200 +1381,11 @@ def write_csv_table(
         out.write("\n")
 
 
-def write_tex_command_table(
-    out,
-    run_sets: List[RunSetResult],
-    stats: List[List[ColumnStatistics]],
-    **kwargs,
-):
-    bench_name_set = set()
-    for benchmark in run_sets:
-        bench_name_formatted = LatexCommand.format_command_part(
-            benchmark.attributes.get("benchmarkname")
-        )
-        if bench_name_formatted in bench_name_set:
-            logging.error(
-                "Duplicated formatted benchmark name %s detected. Benchmark names must be unique for Latex"
-                "\nSkipping writing to file %s"
-                % (bench_name_formatted, kwargs["title"] + ".tex")
-            )
-            return
-        bench_name_set.add(bench_name_formatted)
-
-    header = textwrap.dedent(
-        """\
-        % The following definition defines a command for each value.
-        % The command name is the concatenation of the first six arguments.
-        % To override this definition, define \\StoreBenchExecResult with \\newcommand before including this file.
-        % Arguments: benchmark name, run-set name, category, status, column name, statistic, value
-        \\providecommand\\StoreBenchExecResult[7]{\\expandafter\\newcommand\\csname#1#2#3#4#5#6\\endcsname{#7}}%
-        """
-    )
-
-    def column_statistic_to_latex_command(
-        command: LatexCommand,
-        column_statistic: ColumnStatistics,
-        command_list: List[LatexCommand],
-        **value_data,
-    ):
-        """Parses a ColumnStatistics to Latex Commands and appends them to the given command_list
-
-        The provided LatexCommand must have specified bench_name and runset_name.
-
-        Args:
-            command: LatexCommand with not empty bench_name and runset_name
-            column_statistic: ColumnStatistics to convert to LatexCommand
-            command_list: List of LatexCommands
-        """
-        if not column_statistic:
-            return
-
-        stat_value: StatValue
-        for stat_name, stat_value in column_statistic.__dict__.items():
-            if stat_value is None:
-                continue
-            column_parts = stat_name.split("_")
-            if len(column_parts) < 2:
-                column_parts.append("")
-
-            # Some colum_categories use _ in their names, that's why the column_category is the
-            # whole split list except the last word
-            command.set_command_part(
-                "column_category",
-                "".join(
-                    util.cap_first_letter(column_part)
-                    for column_part in column_parts[0:-1]
-                ),
-            ).set_command_part("column_subcategory", column_parts[-1])
-
-            for k, v in stat_value.__dict__.items():
-                # "v is None" instead of "if not v" used to allow number 0
-                if v is None:
-                    continue
-                command.set_command_part("stat_type", k if k != "sum" else "")
-                command_list.append(
-                    copy.deepcopy(command).set_command_value(v, **value_data)
-                )
-
-    latex_commands = []
-
-    for run_set, stat_list in zip(run_sets, stats):
-        current_command = LatexCommand(
-            bench_name=run_set.attributes.get("benchmarkname"),
-            runset_name=run_set.attributes.get("displayName"),  # Limiting length
-        )
-        used_column_titles = set()
-        for column, column_stats in zip(run_set.columns, stat_list):
-            column_title = (
-                column.display_title if column.display_title else column.title
-            )
-            if column_title in used_column_titles:
-                logging.warning(
-                    "Detected already used %s! "
-                    "Columns should be unique, please consider changing the name or displayTitle of this column \n"
-                    "Skipping column %s for now" % (column_title, column_title)
-                )
-                continue
-
-            used_column_titles.add(column_title)
-            current_command.set_command_part("column_title", column_title)
-
-            column_statistic_to_latex_command(
-                current_command, column_stats, latex_commands, **column.__dict__
-            )
-
-    out.write(header)
-    out.write("\n".join(command.to_latex_raw() for command in latex_commands))
-
-
-class LatexCommand:
-    """Data holder for latex command."""
-
-    def __init__(self, bench_name="", runset_name=""):
-        self.bench_name = LatexCommand.format_command_part(str(bench_name))
-        self.runset_name = LatexCommand.format_command_part(str(runset_name))
-        self.column_title = ""
-        self.column_category = ""
-        self.column_subcategory = ""
-        self.stat_type = ""
-        self.value = None
-
-    def set_command_part(self, part_name: str, part_value) -> "LatexCommand":
-        """Sets the value of the command part
-
-        Available part names:
-            bench_name, runset_name, column_title, column_category, column_subcategory, stat_type
-
-        Args:
-            part_name: One of the names above
-            part_value: The value to be set for this command part
-
-        Returns:
-            This LatexCommand
-        """
-        self.__dict__[part_name] = LatexCommand.format_command_part(str(part_value))
-        return self
-
-    def set_command_value(self, value, scale_factor, **value_data) -> "LatexCommand":
-        """Sets the value for this command
-
-        Args:
-            value: The new command value
-            scale_factor: Scaling factor for the new value
-            value_data: Remaining unused value_data
-
-        Returns:
-            This LatexCommand
-        """
-        self.value = decimal.Decimal(value)
-        self.value *= scale_factor
-        return self
-
-    def to_latex_raw(self) -> str:
-        """Prints latex command with raw value (e.g. only number, no additional latex command)."""
-        return self.__get_command_formatted(util.print_decimal(self.value))
-
-    def __repr__(self):
-        return "\\StoreBenchExecResult{%s}{%s}{%s}{%s}{%s}{%s}" % (
-            self.bench_name,
-            self.runset_name,
-            self.column_title,
-            self.column_category,
-            self.column_subcategory,
-            self.stat_type,
-        )
-
-    def __get_command_formatted(self, value: str) -> str:
-        """Formats the command with all parts and appends the value
-
-        To use a custom format for the value, for example
-            \\StoreBenchExecResult{some}{stuff}...{last_name_part}{\\textbf{value}}
-        format the value and give it to this function
-        """
-        if not value:
-            logging.warning(
-                "Trying to print latex command without value! Using 0 as value for command:\n %s"
-                % self
-            )
-            value = "0"
-        return str(self) + "{%s}%%" % value
-
-    @staticmethod
-    def format_command_part(name: str) -> str:
-        name = re.sub("[0-9]+", util.number_to_roman_string, name)
-
-        name = re.sub("[^a-zA-Z]", "-", name)
-
-        name = "".join(util.cap_first_letter(word) for word in name.split(sep="-"))
-
-        return name
-
-
 def write_table_in_format(template_format, outfile, options, **kwargs):
     callback = {
         "csv": write_csv_table,
         "html": htmltable.write_html_table,
-        "tex": write_tex_command_table,
+        "tex": textable.write_tex_command_table,
     }[template_format]
 
     if outfile:
