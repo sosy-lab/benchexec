@@ -2,11 +2,17 @@ import copy
 import decimal
 import logging
 import re
-import textwrap
 from typing import List, Iterable
 
 from benchexec.tablegenerator import util
 from benchexec.tablegenerator.statistics import ColumnStatistics, StatValue
+
+TEX_HEADER = r"""% The following definition defines a command for each value.
+% The command name is the concatenation of the first six arguments.
+% To override this definition, define \StoreBenchExecResult with \newcommand before including this file.
+% Arguments: benchmark name, run-set name, category, status, column name, statistic, value
+\providecommand\StoreBenchExecResult[7]{\expandafter\newcommand\csname#1#2#3#4#5#6\endcsname{#7}}%
+"""
 
 
 class LatexCommand:
@@ -115,17 +121,7 @@ def write_tex_command_table(
             return
         bench_name_set.add(bench_name_formatted)
 
-    header = textwrap.dedent(
-        """\
-        % The following definition defines a command for each value.
-        % The command name is the concatenation of the first six arguments.
-        % To override this definition, define \\StoreBenchExecResult with \\newcommand before including this file.
-        % Arguments: benchmark name, run-set name, category, status, column name, statistic, value
-        \\providecommand\\StoreBenchExecResult[7]{\\expandafter\\newcommand\\csname#1#2#3#4#5#6\\endcsname{#7}}%
-        """
-    )
-
-    out.write(header)
+    out.write(TEX_HEADER)
     for run_set, stat_list in zip(run_sets, stats):
         for latex_command in _provide_latex_commands(run_set, stat_list):
             out.write(latex_command.to_latex_raw())
