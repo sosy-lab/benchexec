@@ -20,6 +20,18 @@ import platform
 from typing import Union
 
 
+# May be extended with higher numbers
+roman_numbers = {
+    1000: "M",
+    500: "D",
+    100: "C",
+    50: "L",
+    10: "X",
+    5: "V",
+    1: "I",
+}
+
+
 class TaskId(collections.namedtuple("TaskId", "name property expected_result runset")):
     """Uniquely identifies a task (name of input file, property, etc.)."""
 
@@ -302,17 +314,6 @@ def number_to_roman_string(number: Union[int, str]) -> str:
             "%s not positive. Only positive numbers can be converted to roman number format",
             number,
         )
-
-    # May be extended with higher numbers
-    roman_numbers = {
-        1000: "M",
-        500: "D",
-        100: "C",
-        50: "L",
-        10: "X",
-        5: "V",
-        1: "I",
-    }
 
     max_number = max(roman_numbers)
     # Count specifies how often max_number fits into number
