@@ -75,8 +75,15 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
         formats=["html", "csv", "tex"],
         output_path=None,
     ):
+        args = list(args)
+        # Adding the requested file formats to the arguments to support the generation of tex files
+        if not ("-f" in args or "--format" in args):
+            for file_format in formats:
+                args.append("-f")
+                args.append(file_format)
+
         output = self.run_cmd(
-            *tablegenerator + list(args) + ["--outputpath", output_path or self.tmp]
+            *tablegenerator + args + ["--outputpath", output_path or self.tmp]
         )
         generated_files = {os.path.join(self.tmp, x) for x in os.listdir(self.tmp)}
 

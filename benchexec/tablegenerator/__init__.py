@@ -61,6 +61,8 @@ DEFAULT_OUTPUT_PATH = "results"
 
 TEMPLATE_FORMATS = ["html", "csv", "tex"]
 
+DEFAULT_TEMPLATE_FORMATS = ["html", "csv"]
+
 _BYTE_FACTOR = 1000  # bytes in a kilobyte
 
 UNIT_CONVERSION = {
@@ -1289,7 +1291,7 @@ def create_tables(
                 rows, runSetResults, use_local_summary, options.correct_only
             )
 
-        for template_format in options.format or TEMPLATE_FORMATS:
+        for template_format in options.format or DEFAULT_TEMPLATE_FORMATS:
             if outputFilePattern == "-":
                 outfile = None
                 logging.info(
@@ -1490,7 +1492,7 @@ def create_argument_parser():
         "--format",
         action="append",
         choices=TEMPLATE_FORMATS,
-        help="Which format to generate (HTML, CSV or TEX). Can be specified multiple times. If not specified, all are generated.",
+        help="Which format to generate (HTML, CSV or TEX). Can be specified multiple times. If not specified, HTML and CSV are generated.",
     )
     parser.add_argument(
         "-c",
