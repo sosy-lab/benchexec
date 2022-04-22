@@ -29,10 +29,6 @@ tablegenerator = [sys.executable, os.path.join(bin_dir, "table-generator")]
 # Use this to update expected files if necessary. Do not commit this flag set to True!
 OVERWRITE_MODE = False
 
-# Default formats for the file check
-# Include "tex" to test latex output
-DEFAULT_TEMPLATE_FORMATS = ["html", "csv"]
-
 
 def result_file(name):
     return os.path.join(here, "results", name)
@@ -76,7 +72,7 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
         args,
         table_prefix,
         diff_prefix=None,
-        formats=DEFAULT_TEMPLATE_FORMATS,
+        formats=["html", "csv", "tex"],
         output_path=None,
     ):
         output = self.run_cmd(
