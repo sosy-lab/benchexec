@@ -16,6 +16,7 @@ import itertools
 import logging
 import os.path
 import platform
+import re
 import signal
 import subprocess
 import sys
@@ -59,8 +60,10 @@ NAME_START = "results"  # first part of filename of table
 
 DEFAULT_OUTPUT_PATH = "results"
 
-TEMPLATE_FORMATS = ["html", "csv", "tex"]
+# All available formats
+TEMPLATE_FORMATS = ["html", "csv", "statistics-tex"]
 
+# Default formats, if no format is specified
 DEFAULT_TEMPLATE_FORMATS = ["html", "csv"]
 
 _BYTE_FACTOR = 1000  # bytes in a kilobyte
@@ -1298,10 +1301,11 @@ def create_tables(
                     "Writing %s to stdout...", template_format.upper().ljust(4)
                 )
             else:
+                file_extension = re.sub("[^a-zA-Z]", ".", string=template_format)
                 outfile = os.path.join(
                     outputPath,
                     outputFilePattern.format(
-                        name=name, type=table_type, ext=template_format
+                        name=name, type=table_type, ext=file_extension
                     ),
                 )
                 logging.info(
@@ -1387,7 +1391,7 @@ def write_table_in_format(template_format, outfile, options, **kwargs):
     callback = {
         "csv": write_csv_table,
         "html": htmltable.write_html_table,
-        "tex": textable.write_tex_command_table,
+        "statistics-tex": textable.write_tex_command_table,
     }[template_format]
 
     if outfile:

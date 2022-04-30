@@ -72,7 +72,7 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
         args,
         table_prefix,
         diff_prefix=None,
-        formats=["html", "csv", "tex"],
+        formats=["html", "csv", "statistics-tex"],
         output_path=None,
     ):
         args = list(args)
@@ -96,7 +96,9 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             else None
         )
         tex_file = (
-            os.path.join(self.tmp, table_prefix + ".tex") if "tex" in formats else None
+            os.path.join(self.tmp, table_prefix + ".statistics.tex")
+            if "statistics-tex" in formats
+            else None
         )
 
         expected_files = {csv_file, html_file, tex_file}
@@ -112,8 +114,8 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
                 else None
             )
             tex_diff_file = (
-                os.path.join(self.tmp, diff_prefix + ".tex")
-                if "tex" in formats
+                os.path.join(self.tmp, diff_prefix + ".statistics.tex")
+                if "statistics-tex" in formats
                 else None
             )
             expected_files |= {csv_diff_file, html_diff_file, tex_diff_file}
@@ -176,7 +178,9 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
         self.assert_file_content_equals(generated_html, expected_file_name("html"))
 
         generated_tex = benchexec.util.read_file(tex_file)
-        self.assert_file_content_equals(generated_tex, expected_file_name("tex"))
+        self.assert_file_content_equals(
+            generated_tex, expected_file_name("statistics.tex")
+        )
 
         if diff_prefix:
             generated_csv_diff = benchexec.util.read_file(csv_diff_file)
@@ -191,7 +195,7 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
 
             generated_tex_diff = benchexec.util.read_file(tex_diff_file)
             self.assert_file_content_equals(
-                generated_tex_diff, expected_diff_file_name("tex")
+                generated_tex_diff, expected_diff_file_name("statistics.tex")
             )
 
         if expected_counts:
