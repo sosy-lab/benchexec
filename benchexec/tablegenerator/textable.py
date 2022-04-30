@@ -214,5 +214,5 @@ def _column_statistic_to_latex_command(
             # "v is None" instead of "if not v" used to allow number 0
             if v is None:
                 continue
-            command.set_command_part("stat_type", k if k != "sum" else "")
+            command.set_command_part("stat_type", k)
             yield copy.deepcopy(command).set_command_value(v, **value_data)
