@@ -171,10 +171,9 @@ def _provide_latex_commands(
         used_column_titles[column_title] += 1
         current_command.set_command_part("column_title", column_title)
 
-        for command in _column_statistic_to_latex_command(
+        yield from _column_statistic_to_latex_command(
             current_command, column_stats, **column.__dict__
-        ):
-            yield command
+        )
 
 
 def _column_statistic_to_latex_command(
