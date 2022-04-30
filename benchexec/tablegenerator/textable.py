@@ -90,7 +90,9 @@ class LatexCommand:
 
     @staticmethod
     def format_command_part(name: str) -> str:
-        name = re.sub("[0-9]+", lambda match: util.number_to_roman_string(match.group()), name)
+        name = re.sub(
+            "[0-9]+", lambda match: util.number_to_roman_string(match.group()), name
+        )
 
         name = re.split("[^a-zA-Z]", name)
 
@@ -99,56 +101,90 @@ class LatexCommand:
         return name
 
 
+class BenchNameHolder:
+    """Holds the total and used count of the used benchmark_name + display_name combination"""
+
+    def __init__(self, benchmark_name: str, display_name: str):
+        self.count = 0
+        self.used = 0
+        self.combined_name = benchmark_name + display_name
+
+
 def write_tex_command_table(
     out,
     run_sets: List,
     stats: List[List[ColumnStatistics]],
     **kwargs,
 ):
-    # Copy run_sets to modify the benchmarknames
-    run_sets = copy.deepcopy(run_sets)
-
     # Check for duplicated benchmarkname + displayName
-    # Add suffix to benchmarkname if duplication is detected
-    benchmark_name_dict = defaultdict(int)
-    for benchmark in run_sets:
+    # Increasing count if duplicated usage is detected
+    # Iterating once through the run_sets to detect the total count of duplications in order that every
+    # benchmark_name can get a suffix if duplicated
+    benchmark_name_dict = {}
+    for run_set in run_sets:
+        # Need to use formatted name, because only then duplication detection is useful
         benchmark_name_formatted = LatexCommand.format_command_part(
-            benchmark.attributes["benchmarkname"]
+            run_set.attributes["benchmarkname"]
         )
         display_name_formatted = LatexCommand.format_command_part(
-            benchmark.attributes["displayName"]
+            run_set.attributes["displayName"]
+        )
+        combined_name = benchmark_name_formatted + display_name_formatted
+        if combined_name not in benchmark_name_dict:
+            benchmark_name_dict[combined_name] = BenchNameHolder(
+                benchmark_name_formatted, display_name_formatted
+            )
+
+        benchmark_name_holder = benchmark_name_dict[combined_name]
+        benchmark_name_holder.count += 1
+
+    out.write(TEX_HEADER)
+    for run_set, stat_list in zip(run_sets, stats):
+        benchmark_name_formatted = LatexCommand.format_command_part(
+            run_set.attributes["benchmarkname"]
+        )
+        display_name_formatted = LatexCommand.format_command_part(
+            run_set.attributes["displayName"]
         )
 
-        combined_command_name = benchmark_name_formatted + display_name_formatted
+        benchmark_name_holder = benchmark_name_dict[
+            benchmark_name_formatted + display_name_formatted
+        ]
 
-        if combined_command_name in benchmark_name_dict:
+        benchmark_name_holder.used += 1
+        suffix = ""
+        if benchmark_name_holder.count > 1:
+            suffix = util.number_to_roman_string(benchmark_name_holder.used)
             logging.warning(
                 "Duplicated formatted benchmark name + displayName %s detected. "
                 "The combination of names must be unique for Latex"
                 "\nAdding suffix %s to benchmark name",
-                combined_command_name,
-                benchmark_name_dict[combined_command_name],
+                benchmark_name_holder.combined_name,
+                suffix,
             )
-            benchmark.attributes["benchmarkname"] += str(
-                benchmark_name_dict[combined_command_name]
-            )
-        benchmark_name_dict[combined_command_name] += 1
+        command = LatexCommand(
+            benchmark_name_formatted + suffix, display_name_formatted
+        )
 
-    out.write(TEX_HEADER)
-    for run_set, stat_list in zip(run_sets, stats):
-        for latex_command in _provide_latex_commands(run_set, stat_list):
+        for latex_command in _provide_latex_commands(run_set, stat_list, command):
             out.write(latex_command.to_latex_raw())
             out.write("%\n")
 
 
 def _provide_latex_commands(
-    run_set, stat_list: List[ColumnStatistics]
+    run_set, stat_list: List[ColumnStatistics], current_command: LatexCommand
 ) -> Iterable[LatexCommand]:
-    current_command = LatexCommand(
-        benchmark_name=run_set.attributes.get("benchmarkname"),
-        display_name=run_set.attributes.get("displayName"),
-    )
+    """
+    Provides all LatexCommands for a given run_set + stat_list combination
 
+    Args:
+        run_set: A RunSetResult object
+        stat_list: List of ColumnStatistics for each column in run_set
+        current_command: LatexCommand with benchmark_name and displayName already filled
+
+    Returns:
+        Yields all LatexCommands from the run_set + stat_list combination
+    """
     # Saves used columns and their amount
     used_column_titles = defaultdict(int)
     for column, column_stats in zip(run_set.columns, stat_list):
