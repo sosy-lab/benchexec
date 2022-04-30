@@ -156,9 +156,9 @@ def write_tex_command_table(
         if benchmark_name_holder.count > 1:
             suffix = util.number_to_roman_string(benchmark_name_holder.used)
             logging.warning(
-                "Duplicated formatted benchmark name + displayName %s detected. "
-                "The combination of names must be unique for Latex"
-                "\nAdding suffix %s to benchmark name",
+                "Duplicated formatted benchmark name + displayName \"%s\" detected. "
+                "The combination of names must be unique for Latex. "
+                "Adding suffix %s to benchmark name",
                 benchmark_name_holder.combined_name,
                 suffix,
             )
@@ -192,12 +192,11 @@ def _provide_latex_commands(
         if column_title in used_column_titles:
             used_column_titles[column_title] += 1
             logging.warning(
-                "Detected already used %s! "
-                "Columns should be unique, please consider changing the name or displayTitle of this column \n"
-                "Adding suffix %s to column %s for now",
+                "Duplicated formatted column name \"%s\" detected! "
+                "Column names must be unique for Latex. "
+                "Adding suffix %s to column for now",
                 column_title,
                 used_column_titles[column_title],
-                column_title,
             )
             column_title += str(used_column_titles[column_title])
 
