@@ -36,7 +36,7 @@ ignore =
     # no warnings about all uses of subprocess
     S404,S603,S607,
     # several scripts use print() for their output, so allow it
-    T001,
+    T001,T201,
     # only relevant if pytest is used
     PT,T003
 per-file-ignores =
