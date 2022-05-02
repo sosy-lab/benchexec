@@ -4,6 +4,8 @@ import logging
 import re
 from typing import List, Iterable, Callable, Dict
 
+from benchexec.tablegenerator.columns import Column
+
 from benchexec.tablegenerator import util
 from benchexec.tablegenerator.statistics import ColumnStatistics, StatValue
 
@@ -43,7 +45,7 @@ class LatexCommand:
         self.__dict__[part_name] = LatexCommand.format_command_part(str(part_value))
         return self
 
-    def set_command_value(self, value, scale_factor, **value_data) -> "LatexCommand":
+    def set_command_value(self, value) -> "LatexCommand":
         """Sets the value for this command
 
         Args:
@@ -55,7 +57,6 @@ class LatexCommand:
             This LatexCommand
         """
         self.value = decimal.Decimal(value)
-        self.value *= scale_factor
         return self
 
     def to_latex_raw(self) -> str:
@@ -233,14 +234,14 @@ def _provide_latex_commands(
         current_command.set_command_part("column_title", column_title)
 
         yield from _column_statistic_to_latex_command(
-            current_command, column_stats, **column.__dict__
+            current_command, column_stats, column
         )
 
 
 def _column_statistic_to_latex_command(
     command: LatexCommand,
     column_statistic: ColumnStatistics,
-    **value_data,
+    column: Column,
 ) -> Iterable[LatexCommand]:
     """Parses a ColumnStatistics to Latex Commands and appends them to the given command_list
 
@@ -276,4 +277,4 @@ def _column_statistic_to_latex_command(
             if v is None:
                 continue
             command.set_command_part("stat_type", k)
-            yield copy.deepcopy(command).set_command_value(v, **value_data)
+            yield copy.deepcopy(command).set_command_value(column.format_value(value=v, format_target="raw"))
