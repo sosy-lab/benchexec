@@ -157,9 +157,6 @@ def write_tex_command_table(
     **kwargs,
 ):
     # Check for duplicated benchmarkname + displayName
-    # Increasing count if duplicated usage is detected
-    # Iterating once through the run_sets to detect the total count of duplications in order that every
-    # benchmark_name can get a suffix if duplicated
     benchmark_name_dict = create_duplication_dictionary(
         run_sets, combine_benchmarkname_displayName
     )
@@ -178,7 +175,8 @@ def write_tex_command_table(
         ]
 
         benchmark_name_holder.used += 1
-        suffix = ""
+
+        # Duplication detected, adding suffix to benchmark_name
         if benchmark_name_holder.count > 1:
             suffix = util.number_to_roman_string(benchmark_name_holder.used)
             logging.warning(
@@ -188,9 +186,9 @@ def write_tex_command_table(
                 benchmark_name_holder.duplication,
                 suffix,
             )
-        command = LatexCommand(
-            benchmark_name_formatted + suffix, display_name_formatted
-        )
+            benchmark_name_formatted += suffix
+
+        command = LatexCommand(benchmark_name_formatted, display_name_formatted)
 
         for latex_command in _provide_latex_commands(run_set, stat_list, command):
             out.write(latex_command.to_latex_raw())
