@@ -1,4 +1,4 @@
-import decimal
+import copy
 import logging
 import re
 from typing import List, Iterable, Callable, Dict
@@ -47,20 +47,19 @@ class LatexCommand:
     def set_command_value(self, value) -> "LatexCommand":
         """Sets the value for this command
 
+        The value must be formatted. No checks are made in this method
+
         Args:
             value: The new command value
-            scale_factor: Scaling factor for the new value
-            value_data: Remaining unused value_data
-
         Returns:
             This LatexCommand
         """
-        self.value = decimal.Decimal(value)
+        self.value = value
         return self
 
     def to_latex_raw(self) -> str:
         """Prints latex command with raw value (e.g. only number, no additional latex command)."""
-        return self._get_command_formatted(util.print_decimal(self.value))
+        return self._get_command_formatted(self.value)
 
     def __repr__(self):
         return "\\StoreBenchExecResult{%s}{%s}{%s}{%s}{%s}{%s}" % (
@@ -238,7 +237,7 @@ def _provide_latex_commands(
 
 
 def _column_statistic_to_latex_command(
-    command: LatexCommand,
+    part_command: LatexCommand,
     column_statistic: ColumnStatistics,
     column: Column,
 ) -> Iterable[LatexCommand]:
@@ -247,9 +246,9 @@ def _column_statistic_to_latex_command(
     The provided LatexCommand must have specified benchmark_name and display_name.
 
     Args:
-        command: LatexCommand with not empty benchmark_name and display_name
+        part_command: LatexCommand with not empty benchmark_name and display_name
         column_statistic: ColumnStatistics to convert to LatexCommand
-        command_list: List of LatexCommands
+        column: Current column with meta-data
     """
     if not column_statistic:
         return
@@ -258,6 +257,10 @@ def _column_statistic_to_latex_command(
     for stat_name, stat_value in column_statistic.__dict__.items():
         if stat_value is None:
             continue
+
+        # Copy command to prevent using filled variables from previous iterations
+        command = copy.deepcopy(part_command)
+
         column_parts = stat_name.split("_")
         if len(column_parts) < 2:
             column_parts.append("")
