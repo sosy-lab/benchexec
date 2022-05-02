@@ -32,7 +32,7 @@ import benchexec.model as model
 import benchexec.result as result
 import benchexec.tooladapter as tooladapter
 import benchexec.util
-from benchexec.tablegenerator import htmltable, statistics, util, textable
+from benchexec.tablegenerator import htmltable, statistics, util, statisticstex
 from benchexec.tablegenerator.columns import Column
 from benchexec.tablegenerator.util import TaskId
 import zipfile
@@ -1391,7 +1391,7 @@ def write_table_in_format(template_format, outfile, options, **kwargs):
     callback = {
         "csv": write_csv_table,
         "html": htmltable.write_html_table,
-        "statistics-tex": textable.write_tex_command_table,
+        "statistics-tex": statisticstex.write_tex_command_table,
     }[template_format]
 
     if outfile:
