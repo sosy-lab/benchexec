@@ -1,4 +1,3 @@
-import copy
 import decimal
 import logging
 import re
@@ -277,4 +276,6 @@ def _column_statistic_to_latex_command(
             if v is None:
                 continue
             command.set_command_part("stat_type", k)
-            yield copy.deepcopy(command).set_command_value(column.format_value(value=v, format_target="raw"))
+            yield command.set_command_value(
+                column.format_value(value=v, format_target="raw")
+            )
