@@ -80,10 +80,6 @@ class LatexCommand:
         format the value and give it to this function
         """
         if not value:
-            logging.warning(
-                "Trying to print latex command without value! Using EMPTY value for command:\n %s"
-                % self
-            )
             value = ""
         return str(self) + "{%s}" % value
 
