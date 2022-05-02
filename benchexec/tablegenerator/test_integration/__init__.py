@@ -27,7 +27,7 @@ tablegenerator = [sys.executable, os.path.join(bin_dir, "table-generator")]
 # Set to True to let tests overwrite the expected result with the actual result
 # instead of letting them fail.
 # Use this to update expected files if necessary. Do not commit this flag set to True!
-OVERWRITE_MODE = True
+OVERWRITE_MODE = False
 
 
 def result_file(name):
