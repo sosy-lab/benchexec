@@ -283,6 +283,6 @@ def _column_statistic_to_latex_command(
                 column.format_value(value=v, format_target="csv")
             )
         if column.source_unit:
-            yield command.set_command_part("stat_type", "sourceUnit").set_command_value(
-                column.source_unit
+            yield command.set_command_part("stat_type", "unit").set_command_value(
+                column.unit
             )
