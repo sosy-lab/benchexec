@@ -280,7 +280,7 @@ def _column_statistic_to_latex_command(
                 continue
             command.set_command_part("stat_type", k)
             yield command.set_command_value(
-                column.format_value(value=v, format_target="raw")
+                column.format_value(value=v, format_target="csv")
             )
         if column.source_unit:
             yield command.set_command_part("stat_type", "sourceUnit").set_command_value(
