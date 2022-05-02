@@ -2,8 +2,7 @@ import copy
 import decimal
 import logging
 import re
-from collections import defaultdict
-from typing import List, Iterable
+from typing import List, Iterable, Callable, Dict
 
 from benchexec.tablegenerator import util
 from benchexec.tablegenerator.statistics import ColumnStatistics, StatValue
@@ -101,13 +100,54 @@ class LatexCommand:
         return name
 
 
-class BenchNameHolder:
-    """Holds the total and used count of the used benchmark_name + display_name combination"""
+class DuplicationHolder:
+    """Holds the total and used count of the duplication and the duplication itself"""
 
-    def __init__(self, benchmark_name: str, display_name: str):
+    def __init__(self, duplication: str):
         self.count = 0
         self.used = 0
-        self.combined_name = benchmark_name + display_name
+        self.duplication = duplication
+
+
+def create_duplication_dictionary(
+    iterable: Iterable, pre_process: Callable = lambda x: x
+) -> Dict[str, DuplicationHolder]:
+    """Create a dictionary containing all the duplications of the iterable
+
+    The preprocess function is evaluated before the actual evaluation to select custom duplication rules.
+    For example, if the iterable some objects and you want a specific variable the pre_process function could look like:
+        lambda object: object.variable
+
+    Per default, the pre_process function is the identity
+
+    Args:
+        iterable: The iterable to check for duplications
+        pre_process: A function, which is evaluated on each element before the actual duplication check
+
+    Returns:
+        A dictionary, containing a DuplicationHolder for each element with its respective count
+
+    """
+    return_dict = {}
+    for element in iterable:
+        selected_element = pre_process(element)
+
+        if selected_element not in return_dict:
+            return_dict[selected_element] = DuplicationHolder(selected_element)
+
+        duplication_holder = return_dict[selected_element]
+        duplication_holder.count += 1
+    return return_dict
+
+
+def combine_benchmarkname_displayName(run_set):
+    benchmark_name_formatted = LatexCommand.format_command_part(
+        run_set.attributes["benchmarkname"]
+    )
+    display_name_formatted = LatexCommand.format_command_part(
+        run_set.attributes["displayName"]
+    )
+    return benchmark_name_formatted + display_name_formatted
 
 
 def write_tex_command_table(
@@ -120,23 +160,9 @@ def write_tex_command_table(
     # Increasing count if duplicated usage is detected
     # Iterating once through the run_sets to detect the total count of duplications in order that every
     # benchmark_name can get a suffix if duplicated
-    benchmark_name_dict = {}
-    for run_set in run_sets:
-        # Need to use formatted name, because only then duplication detection is useful
-        benchmark_name_formatted = LatexCommand.format_command_part(
-            run_set.attributes["benchmarkname"]
-        )
-        display_name_formatted = LatexCommand.format_command_part(
-            run_set.attributes["displayName"]
-        )
-        combined_name = benchmark_name_formatted + display_name_formatted
-        if combined_name not in benchmark_name_dict:
-            benchmark_name_dict[combined_name] = BenchNameHolder(
-                benchmark_name_formatted, display_name_formatted
-            )
-
-        benchmark_name_holder = benchmark_name_dict[combined_name]
-        benchmark_name_holder.count += 1
+    benchmark_name_dict = create_duplication_dictionary(
+        run_sets, combine_benchmarkname_displayName
+    )
 
     out.write(TEX_HEADER)
     for run_set, stat_list in zip(run_sets, stats):
@@ -156,10 +182,10 @@ def write_tex_command_table(
         if benchmark_name_holder.count > 1:
             suffix = util.number_to_roman_string(benchmark_name_holder.used)
             logging.warning(
-                "Duplicated formatted benchmark name + displayName \"%s\" detected. "
+                'Duplicated formatted benchmark name + displayName "%s" detected. '
                 "The combination of names must be unique for Latex. "
                 "Adding suffix %s to benchmark name",
-                benchmark_name_holder.combined_name,
+                benchmark_name_holder.duplication,
                 suffix,
             )
         command = LatexCommand(
@@ -185,22 +211,31 @@ def _provide_latex_commands(
     Returns:
         Yields all LatexCommands from the run_set + stat_list combination
     """
+
+    def select_column_name(col):
+        return col.display_title if col.display_title else col.title
+
     # Saves used columns and their amount
-    used_column_titles = defaultdict(int)
+    used_column_titles = create_duplication_dictionary(
+        run_set.columns, select_column_name
+    )
+
     for column, column_stats in zip(run_set.columns, stat_list):
-        column_title = column.display_title if column.display_title else column.title
-        if column_title in used_column_titles:
-            used_column_titles[column_title] += 1
+        column_title = select_column_name(column)
+        duplication_holder = used_column_titles[column_title]
+        duplication_holder.used += 1
+
+        if duplication_holder.count > 1:
+            suffix = util.number_to_roman_string(duplication_holder.used)
             logging.warning(
-                "Duplicated formatted column name \"%s\" detected! "
+                'Duplicated formatted column name "%s" detected! '
                 "Column names must be unique for Latex. "
                 "Adding suffix %s to column for now",
                 column_title,
-                used_column_titles[column_title],
+                suffix,
             )
-            column_title += str(used_column_titles[column_title])
+            column_title += suffix
 
-        used_column_titles[column_title] += 1
         current_command.set_command_part("column_title", column_title)
 
         yield from _column_statistic_to_latex_command(
