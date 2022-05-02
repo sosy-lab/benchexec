@@ -282,3 +282,7 @@ def _column_statistic_to_latex_command(
             yield command.set_command_value(
                 column.format_value(value=v, format_target="raw")
             )
+        if column.source_unit:
+            yield command.set_command_part("stat_type", "sourceUnit").set_command_value(
+                column.source_unit
+            )
