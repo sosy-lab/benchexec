@@ -44,17 +44,20 @@ class LatexCommand:
         self.__dict__[part_name] = LatexCommand.format_command_part(str(part_value))
         return self
 
-    def set_command_value(self, value) -> "LatexCommand":
+    def set_command_value(self, value: str) -> "LatexCommand":
         """Sets the value for this command
 
-        The value must be formatted. No checks are made in this method
+        The value must be formatted. No checks are made in this method.
+        It will be converted to string.
 
         Args:
             value: The new command value
         Returns:
             This LatexCommand
         """
-        self.value = value
+        if value is None:
+            value = ""
+        self.value = str(value)
         return self
 
     def to_latex_raw(self) -> str:

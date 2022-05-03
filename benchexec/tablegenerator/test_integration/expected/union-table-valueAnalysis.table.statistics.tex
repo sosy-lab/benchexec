@@ -3,17 +3,17 @@
 % To override this definition, define \StoreBenchExecResult with \newcommand before including this file.
 % Arguments: benchmark name, run-set name, category, status, column name, statistic, value
 \providecommand\StoreBenchExecResult[7]{\expandafter\newcommand\csname#1#2#3#4#5#6\endcsname{#7}}%
-\StoreBenchExecResult{Test}{}{Status}{Score}{}{Sum}{}%
+\StoreBenchExecResult{Test}{}{Status}{Score}{}{Sum}{0}%
 \StoreBenchExecResult{Test}{}{Status}{Total}{}{Sum}{4}%
 \StoreBenchExecResult{Test}{}{Status}{Correct}{}{Sum}{2}%
-\StoreBenchExecResult{Test}{}{Status}{Correct}{True}{Sum}{}%
+\StoreBenchExecResult{Test}{}{Status}{Correct}{True}{Sum}{0}%
 \StoreBenchExecResult{Test}{}{Status}{Correct}{False}{Sum}{2}%
-\StoreBenchExecResult{Test}{}{Status}{Correct}{Unconfirmed}{Sum}{}%
-\StoreBenchExecResult{Test}{}{Status}{CorrectUnconfirmed}{True}{Sum}{}%
-\StoreBenchExecResult{Test}{}{Status}{CorrectUnconfirmed}{False}{Sum}{}%
-\StoreBenchExecResult{Test}{}{Status}{Wrong}{}{Sum}{}%
-\StoreBenchExecResult{Test}{}{Status}{Wrong}{True}{Sum}{}%
-\StoreBenchExecResult{Test}{}{Status}{Wrong}{False}{Sum}{}%
+\StoreBenchExecResult{Test}{}{Status}{Correct}{Unconfirmed}{Sum}{0}%
+\StoreBenchExecResult{Test}{}{Status}{CorrectUnconfirmed}{True}{Sum}{0}%
+\StoreBenchExecResult{Test}{}{Status}{CorrectUnconfirmed}{False}{Sum}{0}%
+\StoreBenchExecResult{Test}{}{Status}{Wrong}{}{Sum}{0}%
+\StoreBenchExecResult{Test}{}{Status}{Wrong}{True}{Sum}{0}%
+\StoreBenchExecResult{Test}{}{Status}{Wrong}{False}{Sum}{0}%
 \StoreBenchExecResult{Test}{}{Cputime}{Total}{}{Sum}{8.499181053}%
 \StoreBenchExecResult{Test}{}{Cputime}{Total}{}{Min}{2.018490461}%
 \StoreBenchExecResult{Test}{}{Cputime}{Total}{}{Max}{2.203966561}%

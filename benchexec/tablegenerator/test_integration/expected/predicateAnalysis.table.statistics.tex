@@ -3,17 +3,17 @@
 % To override this definition, define \StoreBenchExecResult with \newcommand before including this file.
 % Arguments: benchmark name, run-set name, category, status, column name, statistic, value
 \providecommand\StoreBenchExecResult[7]{\expandafter\newcommand\csname#1#2#3#4#5#6\endcsname{#7}}%
-\StoreBenchExecResult{TestI}{}{Status}{Score}{}{Sum}{}%
+\StoreBenchExecResult{TestI}{}{Status}{Score}{}{Sum}{0}%
 \StoreBenchExecResult{TestI}{}{Status}{Total}{}{Sum}{5}%
 \StoreBenchExecResult{TestI}{}{Status}{Correct}{}{Sum}{3}%
 \StoreBenchExecResult{TestI}{}{Status}{Correct}{True}{Sum}{2}%
 \StoreBenchExecResult{TestI}{}{Status}{Correct}{False}{Sum}{1}%
-\StoreBenchExecResult{TestI}{}{Status}{Correct}{Unconfirmed}{Sum}{}%
-\StoreBenchExecResult{TestI}{}{Status}{CorrectUnconfirmed}{True}{Sum}{}%
-\StoreBenchExecResult{TestI}{}{Status}{CorrectUnconfirmed}{False}{Sum}{}%
+\StoreBenchExecResult{TestI}{}{Status}{Correct}{Unconfirmed}{Sum}{0}%
+\StoreBenchExecResult{TestI}{}{Status}{CorrectUnconfirmed}{True}{Sum}{0}%
+\StoreBenchExecResult{TestI}{}{Status}{CorrectUnconfirmed}{False}{Sum}{0}%
 \StoreBenchExecResult{TestI}{}{Status}{Wrong}{}{Sum}{1}%
 \StoreBenchExecResult{TestI}{}{Status}{Wrong}{True}{Sum}{1}%
-\StoreBenchExecResult{TestI}{}{Status}{Wrong}{False}{Sum}{}%
+\StoreBenchExecResult{TestI}{}{Status}{Wrong}{False}{Sum}{0}%
 \StoreBenchExecResult{TestI}{}{Cputime}{Total}{}{Sum}{10.919505907}%
 \StoreBenchExecResult{TestI}{}{Cputime}{Total}{}{Min}{2.058647067}%
 \StoreBenchExecResult{TestI}{}{Cputime}{Total}{}{Max}{2.272238619}%
@@ -144,17 +144,17 @@
 \StoreBenchExecResult{TestI}{}{Memory}{Wrong}{True}{Median}{128.032768}%
 \StoreBenchExecResult{TestI}{}{Memory}{Wrong}{True}{Stdev}{0.00000000000000000000}%
 \StoreBenchExecResult{TestI}{}{Memory}{Wrong}{True}{Unit}{MB}%
-\StoreBenchExecResult{TestII}{}{Status}{Score}{}{Sum}{}%
+\StoreBenchExecResult{TestII}{}{Status}{Score}{}{Sum}{0}%
 \StoreBenchExecResult{TestII}{}{Status}{Total}{}{Sum}{5}%
 \StoreBenchExecResult{TestII}{}{Status}{Correct}{}{Sum}{3}%
 \StoreBenchExecResult{TestII}{}{Status}{Correct}{True}{Sum}{2}%
 \StoreBenchExecResult{TestII}{}{Status}{Correct}{False}{Sum}{1}%
-\StoreBenchExecResult{TestII}{}{Status}{Correct}{Unconfirmed}{Sum}{}%
-\StoreBenchExecResult{TestII}{}{Status}{CorrectUnconfirmed}{True}{Sum}{}%
-\StoreBenchExecResult{TestII}{}{Status}{CorrectUnconfirmed}{False}{Sum}{}%
+\StoreBenchExecResult{TestII}{}{Status}{Correct}{Unconfirmed}{Sum}{0}%
+\StoreBenchExecResult{TestII}{}{Status}{CorrectUnconfirmed}{True}{Sum}{0}%
+\StoreBenchExecResult{TestII}{}{Status}{CorrectUnconfirmed}{False}{Sum}{0}%
 \StoreBenchExecResult{TestII}{}{Status}{Wrong}{}{Sum}{1}%
 \StoreBenchExecResult{TestII}{}{Status}{Wrong}{True}{Sum}{1}%
-\StoreBenchExecResult{TestII}{}{Status}{Wrong}{False}{Sum}{}%
+\StoreBenchExecResult{TestII}{}{Status}{Wrong}{False}{Sum}{0}%
 \StoreBenchExecResult{TestII}{}{Cputime}{Total}{}{Sum}{9.389318338}%
 \StoreBenchExecResult{TestII}{}{Cputime}{Total}{}{Min}{1.829559535}%
 \StoreBenchExecResult{TestII}{}{Cputime}{Total}{}{Max}{1.949553467}%
