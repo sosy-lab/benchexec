@@ -110,7 +110,8 @@ def create_duplication_dictionary(
     """Create a dictionary containing all the duplications of the iterable
 
     The preprocess function is evaluated before the actual evaluation to select custom duplication rules.
-    For example, if the iterable some objects and you want a specific variable the pre_process function could look like:
+    For example, if the iterable contains some objects and you want a specific variable of this
+    object for the duplication check, the pre_process function could look like:
         lambda object: object.variable
 
     Per default, the pre_process function is the identity
@@ -135,7 +136,8 @@ def create_duplication_dictionary(
     return return_dict
 
 
-def combine_benchmarkname_displayName(run_set):
+def _combine_benchmarkname_displayName(run_set):
+    """Creates the combination of the formatted benchmarkname and the formatted displayName of some run_set"""
     benchmark_name_formatted = LatexCommand.format_command_part(
         run_set.attributes["benchmarkname"]
     )
@@ -153,7 +155,7 @@ def write_tex_command_table(
 ):
     # Check for duplicated benchmarkname + displayName
     benchmark_name_dict = create_duplication_dictionary(
-        run_sets, combine_benchmarkname_displayName
+        run_sets, _combine_benchmarkname_displayName
     )
 
     out.write(TEX_HEADER)
@@ -201,14 +203,14 @@ def _provide_latex_commands(
         stat_list: List of ColumnStatistics for each column in run_set
         current_command: LatexCommand with benchmark_name and displayName already filled
 
-    Returns:
-        Yields all LatexCommands from the run_set + stat_list combination
+    Yields:
+        All LatexCommands from the run_set + stat_list combination
     """
-
+    # Selects the column name
     def select_column_name(col):
         return col.display_title if col.display_title else col.title
 
-    # Saves used columns and their amount
+    # Check for duplicated column name
     used_column_titles = create_duplication_dictionary(
         run_set.columns, select_column_name
     )
@@ -237,18 +239,20 @@ def _provide_latex_commands(
 
 
 def _column_statistic_to_latex_command(
-    part_command: LatexCommand,
+    init_command: LatexCommand,
     column_statistic: ColumnStatistics,
     column: Column,
 ) -> Iterable[LatexCommand]:
-    """Parses a ColumnStatistics to Latex Commands and appends them to the given command_list
+    """Parses a ColumnStatistics to Latex Commands and yields them
 
-    The provided LatexCommand must have specified benchmark_name and display_name.
+    The provided LatexCommand must have specified benchmark_name, display_name and column_name.
 
     Args:
-        part_command: LatexCommand with not empty benchmark_name and display_name
+        init_command: LatexCommand with not empty benchmark_name and display_name
         column_statistic: ColumnStatistics to convert to LatexCommand
         column: Current column with meta-data
+    Yields:
+        A completely filled LatexCommand
     """
     if not column_statistic:
         return
@@ -258,8 +262,8 @@ def _column_statistic_to_latex_command(
         if stat_value is None:
             continue
 
-        # Copy command to prevent using filled variables from previous iterations
-        command = copy.deepcopy(part_command)
+        # Copy command to prevent using filled command parts from previous iterations
+        command = copy.deepcopy(init_command)
 
         column_parts = stat_name.split("_")
         if len(column_parts) < 2:
