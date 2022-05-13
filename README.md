@@ -75,7 +75,12 @@ of the [Ludwig-Maximilians-Universität München (LMU Munich)](https://www.uni-m
   use this for [reporting issues and asking questions](https://github.com/sosy-lab/benchexec/issues)
 - [BenchExec at PyPI](https://pypi.python.org/pypi/BenchExec)
 - [BenchExec at Zenodo](https://doi.org/10.5281/zenodo.1163552): Each release gets a DOI such that you can reference it from your publications and artifacts.
-- Journal paper [Reliable Benchmarking: Requirements and Solutions](https://doi.org/10.1007/s10009-017-0469-y) about BenchExec (open access, also with a [supplementary webpage](https://www.sosy-lab.org/research/benchmarking/) and [overview slides](https://www.sosy-lab.org/research/prs/Current_ReliableBenchmarking.pdf))
+
+### Literature
+
+- [Reliable Benchmarking: Requirements and Solutions](https://doi.org/10.1007/s10009-017-0469-y), by D. Beyer, S. Löwe, and P. Wendler.  International Journal on Software Tools for Technology Transfer (STTT), 21(1):1-29, 2019. [doi:10.1007/s10009-017-0469-y](https://doi.org/10.1007/s10009-017-0469-y). Journal paper about BenchExec (open access, also with a [supplementary webpage](https://www.sosy-lab.org/research/benchmarking/) and [overview slides](https://www.sosy-lab.org/research/prs/Current_ReliableBenchmarking.pdf))
+- [CPU Energy Meter: A Tool for Energy-Aware Algorithms Engineering](https://doi.org/10.1007/978-3-030-45237-7_8), by D. Beyer and P. Wendler. In Proc. TACAS 2020, part 2, LNCS 12079, pages 126-133, 2020. Springer. [doi:10.1007/978-3-030-45237-7_8](https://doi.org/10.1007/978-3-030-45237-7_8)
+- [Benchmarking and Resource Measurement](https://doi.org/10.1007/978-3-319-23404-5_12), by D. Beyer, S. Löwe, and P. Wendler. In Proc. SPIN 2015, LNCS 9232, pages 160-178, 2015. Springer. [doi:10.1007/978-3-319-23404-5_12](https://doi.org/10.1007/978-3-319-23404-5_12)
 
 ### License and Copyright
 
