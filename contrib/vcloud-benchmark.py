@@ -46,6 +46,7 @@ def download_required_jars(config):
         # be too verbose).
         cmd += ["-warn"]
     cmd += ["-retrieve", "lib/vcloud-jars/[artifact](-[classifier]).[ext]"]
+    cmd += ["-overwriteMode", "different"]
 
     # Provide temporary directory
     temp_dir = None
