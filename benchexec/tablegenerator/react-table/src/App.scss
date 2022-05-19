@@ -680,6 +680,11 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
             padding: 5px 7px;
             font-size: inherit;
             border-radius: 3px;
+
+            & * {
+              // avoid right-aligned content of drop-down in Chromium
+              text-align: left;
+            }
           }
         }
       }
