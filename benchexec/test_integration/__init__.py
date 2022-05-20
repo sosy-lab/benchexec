@@ -151,7 +151,7 @@ class BenchExecIntegrationTests(unittest.TestCase):
         else:
             basename = f"{test_name}.{name}.2015-01-01_00-00-00."
 
-        expected_files = set(map(lambda x: basename + x, expected_files))
+        expected_files = {basename + expected_file for expected_file in expected_files}
         self.assertSetEqual(
             generated_files,
             expected_files,
@@ -338,9 +338,7 @@ class BenchExecIntegrationTests(unittest.TestCase):
         xml_files = ["results.xml"] + [
             f"results.{files}.xml" for files in benchmark_test_tasks
         ]
-        xml_files = map(
-            lambda x: os.path.join(self.output_dir, basename + x), xml_files
-        )
+        xml_files = [os.path.join(self.output_dir, basename + x) for x in xml_files]
 
         # setup parser with DTD validation
         from lxml import etree
