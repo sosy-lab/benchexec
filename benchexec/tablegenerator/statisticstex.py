@@ -18,7 +18,7 @@ from benchexec.tablegenerator.statistics import ColumnStatistics, StatValue
 TEX_HEADER = r"""% The following definition defines a command for each value.
 % The command name is the concatenation of the first six arguments.
 % To override this definition, define \StoreBenchExecResult with \newcommand before including this file.
-% Arguments: benchmark name, run-set name, category, status, column name, statistic, value
+% Arguments: benchmark name, runset name, column title, column category, column subcategory, statistic, value
 \providecommand\StoreBenchExecResult[7]{\expandafter\newcommand\csname#1#2#3#4#5#6\endcsname{#7}}%
 """
 
@@ -26,9 +26,9 @@ TEX_HEADER = r"""% The following definition defines a command for each value.
 class LatexCommand:
     """Data holder for latex command."""
 
-    def __init__(self, benchmark_name="", display_name=""):
+    def __init__(self, benchmark_name="", runset_name=""):
         self.benchmark_name = LatexCommand.format_command_part(str(benchmark_name))
-        self.display_name = LatexCommand.format_command_part(str(display_name))
+        self.runset_name = LatexCommand.format_command_part(str(runset_name))
         self.column_title = ""
         self.column_category = ""
         self.column_subcategory = ""
@@ -39,7 +39,7 @@ class LatexCommand:
         """Sets the value of the command part
 
         Available part names:
-            benchmark_name, display_name, column_title, column_category, column_subcategory, stat_type
+            benchmark_name, runset_name, column_title, column_category, column_subcategory, stat_type
 
         Args:
             part_name: One of the names above
@@ -74,7 +74,7 @@ class LatexCommand:
     def __repr__(self):
         return "\\StoreBenchExecResult{%s}{%s}{%s}{%s}{%s}{%s}" % (
             self.benchmark_name,
-            self.display_name,
+            self.runset_name,
             self.column_title,
             self.column_category,
             self.column_subcategory,
@@ -95,7 +95,7 @@ class LatexCommand:
     @staticmethod
     def format_command_part(name: str) -> str:
         name = re.sub(
-            "[0-9]+", lambda match: util.number_to_roman_string(match.group()), name
+            "^[1-9]+$", lambda match: util.number_to_roman_string(match.group()), name
         )
 
         name = re.split("[^a-zA-Z]", name)
@@ -152,7 +152,7 @@ def _combine_benchmarkname_displayName(run_set):
         run_set.attributes["benchmarkname"]
     )
     display_name_formatted = LatexCommand.format_command_part(
-        run_set.attributes["displayName"]
+        run_set.attributes["niceName"]
     )
     return benchmark_name_formatted + display_name_formatted
 
@@ -173,12 +173,12 @@ def write_tex_command_table(
         benchmark_name_formatted = LatexCommand.format_command_part(
             run_set.attributes["benchmarkname"]
         )
-        display_name_formatted = LatexCommand.format_command_part(
-            run_set.attributes["displayName"]
+        runset_name_formatted = LatexCommand.format_command_part(
+            run_set.attributes["niceName"]
         )
 
         benchmark_name_holder = benchmark_name_dict[
-            benchmark_name_formatted + display_name_formatted
+            benchmark_name_formatted + runset_name_formatted
         ]
 
         benchmark_name_holder.used += 1
@@ -187,7 +187,7 @@ def write_tex_command_table(
         if benchmark_name_holder.count > 1:
             suffix = util.number_to_roman_string(benchmark_name_holder.used)
             logging.warning(
-                'Duplicated formatted benchmark name + displayName "%s" detected. '
+                'Duplicated formatted benchmark name + runset name "%s" detected. '
                 "The combination of names must be unique for Latex. "
                 "Adding suffix %s to benchmark name",
                 benchmark_name_holder.duplication,
@@ -195,7 +195,7 @@ def write_tex_command_table(
             )
             benchmark_name_formatted += suffix
 
-        command = LatexCommand(benchmark_name_formatted, display_name_formatted)
+        command = LatexCommand(benchmark_name_formatted, runset_name_formatted)
 
         for latex_command in _provide_latex_commands(run_set, stat_list, command):
             out.write(latex_command.to_latex_raw())
