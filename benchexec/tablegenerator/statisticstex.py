@@ -216,6 +216,7 @@ def _provide_latex_commands(
     Yields:
         All LatexCommands from the run_set + stat_list combination
     """
+
     # Selects the column name
     def select_column_name(col):
         return col.display_title if col.display_title else col.title
@@ -286,17 +287,17 @@ def _column_statistic_to_latex_command(
             "".join(
                 util.cap_first_letter(column_part) for column_part in column_parts[0:-1]
             ),
-        ).set_command_part("column_subcategory", column_parts[-1])
+        )
+        command.set_command_part("column_subcategory", column_parts[-1])
 
         for k, v in stat_value.__dict__.items():
             # "v is None" instead of "if not v" used to allow number 0
             if v is None:
                 continue
             command.set_command_part("stat_type", k)
-            yield command.set_command_value(
-                column.format_value(value=v, format_target="csv")
-            )
-        if column.source_unit:
-            yield command.set_command_part("stat_type", "unit").set_command_value(
-                column.unit
-            )
+            command.set_command_value(column.format_value(value=v, format_target="csv"))
+            yield command
+        if column.unit:
+            command.set_command_part("stat_type", "unit")
+            command.set_command_value(column.unit)
+            yield command
