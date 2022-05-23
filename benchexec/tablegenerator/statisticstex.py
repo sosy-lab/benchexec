@@ -23,6 +23,10 @@ TEX_HEADER = r"""% The following definition defines a command for each value.
 \providecommand\StoreBenchExecResult[7]{\expandafter\newcommand\csname#1#2#3#4#5#6\endcsname{#7}}%
 """
 
+RENAME_FUNCTIONS = {
+    "column_category": lambda value: "all" if value.lower() == "total" else value,
+}
+
 
 class LatexCommand:
     """Data holder for latex command."""
@@ -49,6 +53,8 @@ class LatexCommand:
         Returns:
             This LatexCommand
         """
+        if part_name in RENAME_FUNCTIONS.keys():
+            part_value = RENAME_FUNCTIONS[part_name](part_value)
         self.__dict__[part_name] = LatexCommand.format_command_part(str(part_value))
         return self
 
