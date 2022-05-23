@@ -241,19 +241,25 @@ def _column_statistic_to_latex_command(
         # Copy command to prevent using filled command parts from previous iterations
         command = copy.deepcopy(init_command)
 
-        column_parts = stat_name.split("_")
-        if len(column_parts) < 2:
-            column_parts.append("")
+        column_parts = stat_name.rsplit("_", 1)
+        # If the stat_name is not ending with true or false, use the whole stat_name as column and an empty string
+        # as column_subcategory
+        if column_parts[-1].lower() in ["true", "false"]:
+            column_subcategory = column_parts[-1]
+            column_category = column_parts[0:-1]
+        else:
+            column_subcategory = ""
+            column_category = column_parts
 
         # Some colum_categories use _ in their names, that's why the column_category is the
         # whole split list except the last word
         command.set_command_part(
             "column_category",
             "".join(
-                util.cap_first_letter(column_part) for column_part in column_parts[0:-1]
+                util.cap_first_letter(column_part) for column_part in column_category
             ),
         )
-        command.set_command_part("column_subcategory", column_parts[-1])
+        command.set_command_part("column_subcategory", column_subcategory)
 
         for k, v in stat_value.__dict__.items():
             # "v is None" instead of "if not v" used to allow number 0
