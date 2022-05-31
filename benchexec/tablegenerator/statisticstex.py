@@ -11,7 +11,7 @@ import re
 from collections import Counter, defaultdict
 from typing import List, Iterable, Set
 
-from benchexec.tablegenerator.columns import Column
+from benchexec.tablegenerator.columns import Column, ColumnType
 
 from benchexec.tablegenerator import util
 from benchexec.tablegenerator.statistics import ColumnStatistics, StatValue
@@ -306,6 +306,14 @@ def _column_statistic_to_latex_command(
             # "v is None" instead of "if not v" used to allow number 0
             if v is None:
                 continue
+
+            if k in "sum":
+                # Renaming sum to count for status type columns
+                if parent_column.type == ColumnType.status:
+                    k = "count"
+                else:
+                    assert parent_column.is_numeric()
+
             command.set_command_part("stat_type", k)
             command.set_command_value(
                 parent_column.format_value(value=v, format_target="csv")

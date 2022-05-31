@@ -3,14 +3,14 @@
 % To override this definition, define \StoreBenchExecResult with \newcommand before including this file.
 % Arguments: benchmark name, runset name, column title, column, status, statistic, value
 \providecommand\StoreBenchExecResult[7]{\expandafter\newcommand\csname#1#2#3#4#5#6\endcsname{#7}}%
-\StoreBenchExecResult{Test}{ValueAnalysis}{Status}{Score}{}{Sum}{0}%
-\StoreBenchExecResult{Test}{ValueAnalysis}{Status}{All}{}{Sum}{4}%
-\StoreBenchExecResult{Test}{ValueAnalysis}{Status}{Correct}{}{Sum}{2}%
-\StoreBenchExecResult{Test}{ValueAnalysis}{Status}{Correct}{True}{Sum}{0}%
-\StoreBenchExecResult{Test}{ValueAnalysis}{Status}{Correct}{False}{Sum}{2}%
-\StoreBenchExecResult{Test}{ValueAnalysis}{Status}{Wrong}{}{Sum}{0}%
-\StoreBenchExecResult{Test}{ValueAnalysis}{Status}{Wrong}{True}{Sum}{0}%
-\StoreBenchExecResult{Test}{ValueAnalysis}{Status}{Wrong}{False}{Sum}{0}%
+\StoreBenchExecResult{Test}{ValueAnalysis}{Status}{Score}{}{Count}{0}%
+\StoreBenchExecResult{Test}{ValueAnalysis}{Status}{All}{}{Count}{4}%
+\StoreBenchExecResult{Test}{ValueAnalysis}{Status}{Correct}{}{Count}{2}%
+\StoreBenchExecResult{Test}{ValueAnalysis}{Status}{Correct}{True}{Count}{0}%
+\StoreBenchExecResult{Test}{ValueAnalysis}{Status}{Correct}{False}{Count}{2}%
+\StoreBenchExecResult{Test}{ValueAnalysis}{Status}{Wrong}{}{Count}{0}%
+\StoreBenchExecResult{Test}{ValueAnalysis}{Status}{Wrong}{True}{Count}{0}%
+\StoreBenchExecResult{Test}{ValueAnalysis}{Status}{Wrong}{False}{Count}{0}%
 \StoreBenchExecResult{Test}{ValueAnalysis}{Cputime}{All}{}{Sum}{8.499181053}%
 \StoreBenchExecResult{Test}{ValueAnalysis}{Cputime}{All}{}{Min}{2.018490461}%
 \StoreBenchExecResult{Test}{ValueAnalysis}{Cputime}{All}{}{Max}{2.203966561}%

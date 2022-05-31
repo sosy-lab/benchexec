@@ -3,14 +3,14 @@
 % To override this definition, define \StoreBenchExecResult with \newcommand before including this file.
 % Arguments: benchmark name, runset name, column title, column, status, statistic, value
 \providecommand\StoreBenchExecResult[7]{\expandafter\newcommand\csname#1#2#3#4#5#6\endcsname{#7}}%
-\StoreBenchExecResult{Cbmc}{Cbmc}{Status}{Score}{}{Sum}{0}%
-\StoreBenchExecResult{Cbmc}{Cbmc}{Status}{All}{}{Sum}{46}%
-\StoreBenchExecResult{Cbmc}{Cbmc}{Status}{Correct}{}{Sum}{22}%
-\StoreBenchExecResult{Cbmc}{Cbmc}{Status}{Correct}{True}{Sum}{0}%
-\StoreBenchExecResult{Cbmc}{Cbmc}{Status}{Correct}{False}{Sum}{22}%
-\StoreBenchExecResult{Cbmc}{Cbmc}{Status}{Wrong}{}{Sum}{0}%
-\StoreBenchExecResult{Cbmc}{Cbmc}{Status}{Wrong}{True}{Sum}{0}%
-\StoreBenchExecResult{Cbmc}{Cbmc}{Status}{Wrong}{False}{Sum}{0}%
+\StoreBenchExecResult{Cbmc}{Cbmc}{Status}{Score}{}{Count}{0}%
+\StoreBenchExecResult{Cbmc}{Cbmc}{Status}{All}{}{Count}{46}%
+\StoreBenchExecResult{Cbmc}{Cbmc}{Status}{Correct}{}{Count}{22}%
+\StoreBenchExecResult{Cbmc}{Cbmc}{Status}{Correct}{True}{Count}{0}%
+\StoreBenchExecResult{Cbmc}{Cbmc}{Status}{Correct}{False}{Count}{22}%
+\StoreBenchExecResult{Cbmc}{Cbmc}{Status}{Wrong}{}{Count}{0}%
+\StoreBenchExecResult{Cbmc}{Cbmc}{Status}{Wrong}{True}{Count}{0}%
+\StoreBenchExecResult{Cbmc}{Cbmc}{Status}{Wrong}{False}{Count}{0}%
 \StoreBenchExecResult{Cbmc}{Cbmc}{Cputime}{All}{}{Sum}{1590.061633703}%
 \StoreBenchExecResult{Cbmc}{Cbmc}{Cputime}{All}{}{Min}{1.240757859}%
 \StoreBenchExecResult{Cbmc}{Cbmc}{Cputime}{All}{}{Max}{61.056848841}%

@@ -3,14 +3,14 @@
 % To override this definition, define \StoreBenchExecResult with \newcommand before including this file.
 % Arguments: benchmark name, runset name, column title, column, status, statistic, value
 \providecommand\StoreBenchExecResult[7]{\expandafter\newcommand\csname#1#2#3#4#5#6\endcsname{#7}}%
-\StoreBenchExecResult{Test}{PredicateAnalysis}{Status}{Score}{}{Sum}{0}%
-\StoreBenchExecResult{Test}{PredicateAnalysis}{Status}{All}{}{Sum}{10}%
-\StoreBenchExecResult{Test}{PredicateAnalysis}{Status}{Correct}{}{Sum}{6}%
-\StoreBenchExecResult{Test}{PredicateAnalysis}{Status}{Correct}{True}{Sum}{4}%
-\StoreBenchExecResult{Test}{PredicateAnalysis}{Status}{Correct}{False}{Sum}{2}%
-\StoreBenchExecResult{Test}{PredicateAnalysis}{Status}{Wrong}{}{Sum}{2}%
-\StoreBenchExecResult{Test}{PredicateAnalysis}{Status}{Wrong}{True}{Sum}{2}%
-\StoreBenchExecResult{Test}{PredicateAnalysis}{Status}{Wrong}{False}{Sum}{0}%
+\StoreBenchExecResult{Test}{PredicateAnalysis}{Status}{Score}{}{Count}{0}%
+\StoreBenchExecResult{Test}{PredicateAnalysis}{Status}{All}{}{Count}{10}%
+\StoreBenchExecResult{Test}{PredicateAnalysis}{Status}{Correct}{}{Count}{6}%
+\StoreBenchExecResult{Test}{PredicateAnalysis}{Status}{Correct}{True}{Count}{4}%
+\StoreBenchExecResult{Test}{PredicateAnalysis}{Status}{Correct}{False}{Count}{2}%
+\StoreBenchExecResult{Test}{PredicateAnalysis}{Status}{Wrong}{}{Count}{2}%
+\StoreBenchExecResult{Test}{PredicateAnalysis}{Status}{Wrong}{True}{Count}{2}%
+\StoreBenchExecResult{Test}{PredicateAnalysis}{Status}{Wrong}{False}{Count}{0}%
 \StoreBenchExecResult{Test}{PredicateAnalysis}{Cputime}{All}{}{Sum}{20.308824245}%
 \StoreBenchExecResult{Test}{PredicateAnalysis}{Cputime}{All}{}{Min}{1.829559535}%
 \StoreBenchExecResult{Test}{PredicateAnalysis}{Cputime}{All}{}{Max}{2.272238619}%
@@ -137,14 +137,14 @@
 \StoreBenchExecResult{Test}{PredicateAnalysis}{Memory}{Wrong}{True}{Median}{129.300480}%
 \StoreBenchExecResult{Test}{PredicateAnalysis}{Memory}{Wrong}{True}{Stdev}{1.26771200000000}%
 \StoreBenchExecResult{Test}{PredicateAnalysis}{Memory}{Wrong}{True}{Unit}{MB}%
-\StoreBenchExecResult{Test}{ValueAnalysis}{Status}{Score}{}{Sum}{0}%
-\StoreBenchExecResult{Test}{ValueAnalysis}{Status}{All}{}{Sum}{8}%
-\StoreBenchExecResult{Test}{ValueAnalysis}{Status}{Correct}{}{Sum}{4}%
-\StoreBenchExecResult{Test}{ValueAnalysis}{Status}{Correct}{True}{Sum}{0}%
-\StoreBenchExecResult{Test}{ValueAnalysis}{Status}{Correct}{False}{Sum}{4}%
-\StoreBenchExecResult{Test}{ValueAnalysis}{Status}{Wrong}{}{Sum}{0}%
-\StoreBenchExecResult{Test}{ValueAnalysis}{Status}{Wrong}{True}{Sum}{0}%
-\StoreBenchExecResult{Test}{ValueAnalysis}{Status}{Wrong}{False}{Sum}{0}%
+\StoreBenchExecResult{Test}{ValueAnalysis}{Status}{Score}{}{Count}{0}%
+\StoreBenchExecResult{Test}{ValueAnalysis}{Status}{All}{}{Count}{8}%
+\StoreBenchExecResult{Test}{ValueAnalysis}{Status}{Correct}{}{Count}{4}%
+\StoreBenchExecResult{Test}{ValueAnalysis}{Status}{Correct}{True}{Count}{0}%
+\StoreBenchExecResult{Test}{ValueAnalysis}{Status}{Correct}{False}{Count}{4}%
+\StoreBenchExecResult{Test}{ValueAnalysis}{Status}{Wrong}{}{Count}{0}%
+\StoreBenchExecResult{Test}{ValueAnalysis}{Status}{Wrong}{True}{Count}{0}%
+\StoreBenchExecResult{Test}{ValueAnalysis}{Status}{Wrong}{False}{Count}{0}%
 \StoreBenchExecResult{Test}{ValueAnalysis}{Cputime}{All}{}{Sum}{15.698636248}%
 \StoreBenchExecResult{Test}{ValueAnalysis}{Cputime}{All}{}{Min}{1.748258151}%
 \StoreBenchExecResult{Test}{ValueAnalysis}{Cputime}{All}{}{Max}{2.203966561}%

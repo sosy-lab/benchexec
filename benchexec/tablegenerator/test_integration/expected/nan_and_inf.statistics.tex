@@ -3,14 +3,14 @@
 % To override this definition, define \StoreBenchExecResult with \newcommand before including this file.
 % Arguments: benchmark name, runset name, column title, column, status, statistic, value
 \providecommand\StoreBenchExecResult[7]{\expandafter\newcommand\csname#1#2#3#4#5#6\endcsname{#7}}%
-\StoreBenchExecResult{Configselection}{ModelBasedSelection}{Status}{Score}{}{Sum}{0}%
-\StoreBenchExecResult{Configselection}{ModelBasedSelection}{Status}{All}{}{Sum}{3}%
-\StoreBenchExecResult{Configselection}{ModelBasedSelection}{Status}{Correct}{}{Sum}{3}%
-\StoreBenchExecResult{Configselection}{ModelBasedSelection}{Status}{Correct}{True}{Sum}{3}%
-\StoreBenchExecResult{Configselection}{ModelBasedSelection}{Status}{Correct}{False}{Sum}{0}%
-\StoreBenchExecResult{Configselection}{ModelBasedSelection}{Status}{Wrong}{}{Sum}{0}%
-\StoreBenchExecResult{Configselection}{ModelBasedSelection}{Status}{Wrong}{True}{Sum}{0}%
-\StoreBenchExecResult{Configselection}{ModelBasedSelection}{Status}{Wrong}{False}{Sum}{0}%
+\StoreBenchExecResult{Configselection}{ModelBasedSelection}{Status}{Score}{}{Count}{0}%
+\StoreBenchExecResult{Configselection}{ModelBasedSelection}{Status}{All}{}{Count}{3}%
+\StoreBenchExecResult{Configselection}{ModelBasedSelection}{Status}{Correct}{}{Count}{3}%
+\StoreBenchExecResult{Configselection}{ModelBasedSelection}{Status}{Correct}{True}{Count}{3}%
+\StoreBenchExecResult{Configselection}{ModelBasedSelection}{Status}{Correct}{False}{Count}{0}%
+\StoreBenchExecResult{Configselection}{ModelBasedSelection}{Status}{Wrong}{}{Count}{0}%
+\StoreBenchExecResult{Configselection}{ModelBasedSelection}{Status}{Wrong}{True}{Count}{0}%
+\StoreBenchExecResult{Configselection}{ModelBasedSelection}{Status}{Wrong}{False}{Count}{0}%
 \StoreBenchExecResult{Configselection}{ModelBasedSelection}{Cputime}{All}{}{Sum}{48.22089819}%
 \StoreBenchExecResult{Configselection}{ModelBasedSelection}{Cputime}{All}{}{Min}{16.07363273}%
 \StoreBenchExecResult{Configselection}{ModelBasedSelection}{Cputime}{All}{}{Max}{16.07363273}%
