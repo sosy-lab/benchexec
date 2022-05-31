@@ -9,7 +9,7 @@ import copy
 import logging
 import re
 from collections import Counter, defaultdict
-from typing import List, Iterable
+from typing import List, Iterable, Set
 
 from benchexec.tablegenerator.columns import Column
 
@@ -135,6 +135,14 @@ def write_tex_command_table(
     # Counts the actual used benchmarkname and niceName combinations
     names_already_used = defaultdict(int)
 
+    # Filtering all candidates for skipping
+    skipped_columns = {"correct_unconfirmed"}
+    skipped_columns = {
+        column
+        for column in skipped_columns
+        if not _statistics_has_value_for(stats, column)
+    }
+
     out.write(TEX_HEADER)
     for run_set, stat_list in zip(run_sets, stats):
         name_tuple = formatted_names[id(run_set)]
@@ -158,13 +166,40 @@ def write_tex_command_table(
 
         command = LatexCommand(benchmark_name_formatted, runset_name_formatted)
 
-        for latex_command in _provide_latex_commands(run_set, stat_list, command):
+        for latex_command in _provide_latex_commands(
+            run_set, stat_list, command, skipped_columns
+        ):
             out.write(latex_command.to_latex_raw())
             out.write("%\n")
 
 
+def _statistics_has_value_for(
+    all_column_stats: List[List[ColumnStatistics]], field: str
+):
+    """Checks the appearance of the given field in at least one of the given ColumnStatistics
+
+    Args:
+        all_column_stats: The ColumnsStatistics which may contain the given field
+        field: The field that is searched
+
+    Returns:
+        True if the given field appears in at least one of the given ColumnStatistics
+
+    """
+    for run_set_stats in all_column_stats:
+        for column_stats in run_set_stats:
+            if column_stats:
+                stats = getattr(column_stats, field)
+                if stats and stats.sum > 0:
+                    return True
+    return False
+
+
 def _provide_latex_commands(
-    run_set, stat_list: List[ColumnStatistics], current_command: LatexCommand
+    run_set,
+    stat_list: List[ColumnStatistics],
+    current_command: LatexCommand,
+    skipped_columns: Set[str],
 ) -> Iterable[LatexCommand]:
     """
     Provides all LatexCommands for a given run_set + stat_list combination
@@ -173,10 +208,12 @@ def _provide_latex_commands(
         run_set: A RunSetResult object
         stat_list: List of ColumnStatistics for each column in run_set
         current_command: LatexCommand with benchmark_name and displayName already filled
+        skipped_columns: Set with all columns, which should be skipped
 
     Yields:
         All LatexCommands from the run_set + stat_list combination
     """
+
     # Preferring the display title over the standard title of a column to allow
     # custom titles defined by the user
     def select_column_name(col):
@@ -210,14 +247,15 @@ def _provide_latex_commands(
         current_command.set_command_part("column_title", column_title)
 
         yield from _column_statistic_to_latex_command(
-            current_command, column_stats, column
+            current_command, column_stats, column, skipped_columns
         )
 
 
 def _column_statistic_to_latex_command(
     init_command: LatexCommand,
     column_statistic: ColumnStatistics,
-    column: Column,
+    parent_column: Column,
+    skipped_columns: Set[str],
 ) -> Iterable[LatexCommand]:
     """Parses a ColumnStatistics to Latex Commands and yields them
 
@@ -226,7 +264,8 @@ def _column_statistic_to_latex_command(
     Args:
         init_command: LatexCommand with not empty benchmark_name and display_name
         column_statistic: ColumnStatistics to convert to LatexCommand
-        column: Current column with meta-data
+        parent_column: Current column with meta-data
+        skipped_columns: Set with all columns, which should be skipped
     Yields:
         A completely filled LatexCommand
     """
@@ -238,26 +277,28 @@ def _column_statistic_to_latex_command(
         if stat_value is None:
             continue
 
-        # Copy command to prevent using filled command parts from previous iterations
-        command = copy.deepcopy(init_command)
-
         column_parts = stat_name.rsplit("_", 1)
         # If the stat_name is not ending with true or false, use the whole stat_name as column and an empty string
         # as column_subcategory
         if column_parts[-1].lower() in ["true", "false"]:
             status = column_parts[-1]
-            column_category = column_parts[0:-1]
+            column_list = column_parts[0:-1]
         else:
             status = ""
-            column_category = column_parts
+            column_list = column_parts
+
+        # Joining the column together to get the name original name
+        if "_".join(column_list) in skipped_columns:
+            continue
+
+        # Copy command to prevent using filled command parts from previous iterations
+        command = copy.deepcopy(init_command)
 
         # Some colum_categories use _ in their names, that's why the column_category is the
         # whole split list except the last word
         command.set_command_part(
             "column",
-            "".join(
-                util.cap_first_letter(column_part) for column_part in column_category
-            ),
+            "".join(util.cap_first_letter(column_part) for column_part in column_list),
         )
         command.set_command_part("status", status)
 
@@ -266,9 +307,11 @@ def _column_statistic_to_latex_command(
             if v is None:
                 continue
             command.set_command_part("stat_type", k)
-            command.set_command_value(column.format_value(value=v, format_target="csv"))
+            command.set_command_value(
+                parent_column.format_value(value=v, format_target="csv")
+            )
             yield command
-        if column.unit:
+        if parent_column.unit:
             command.set_command_part("stat_type", "unit")
-            command.set_command_value(column.unit)
+            command.set_command_value(parent_column.unit)
             yield command
