@@ -78,6 +78,26 @@ class LatexCommand:
         """Prints latex command with raw value (e.g. only number, no additional latex command)."""
         return self._get_command_formatted(self.value)
 
+    def to_latex_score_as_stat_type(self) -> str:
+        """Raw output except the score, which is used as stat_type"""
+        if self.column.lower() not in "score":
+            return self.to_latex_raw()
+
+        # save original values
+        score = self.column
+        score_type = self.stat_type
+
+        self.column = LatexCommand.format_command_part("all")
+        self.stat_type = score
+
+        command_as_string = self.to_latex_raw()
+
+        # restore the original state
+        self.column = score
+        self.stat_type = score_type
+
+        return command_as_string
+
     def __repr__(self):
         return "\\StoreBenchExecResult{%s}{%s}{%s}{%s}{%s}{%s}" % (
             self.benchmark_name,
@@ -169,7 +189,7 @@ def write_tex_command_table(
         for latex_command in _provide_latex_commands(
             run_set, stat_list, command, skipped_columns
         ):
-            out.write(latex_command.to_latex_raw())
+            out.write(latex_command.to_latex_score_as_stat_type())
             out.write("%\n")
 
 
