@@ -145,7 +145,8 @@ def write_tex_command_table(
             run_set.attributes["benchmarkname"]
         )
         runset_name_formatted = LatexCommand.format_command_part(
-            run_set.attributes["niceName"]
+            # name can be a list
+            "".join(run_set.attributes["name"])
         )
         formatted_names[id(run_set)] = benchmark_name_formatted, runset_name_formatted
 
