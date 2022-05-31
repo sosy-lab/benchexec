@@ -19,12 +19,12 @@ from benchexec.tablegenerator.statistics import ColumnStatistics, StatValue
 TEX_HEADER = r"""% The following definition defines a command for each value.
 % The command name is the concatenation of the first six arguments.
 % To override this definition, define \StoreBenchExecResult with \newcommand before including this file.
-% Arguments: benchmark name, runset name, column title, column category, column subcategory, statistic, value
+% Arguments: benchmark name, runset name, column title, column, status, statistic, value
 \providecommand\StoreBenchExecResult[7]{\expandafter\newcommand\csname#1#2#3#4#5#6\endcsname{#7}}%
 """
 
 RENAME_FUNCTIONS = {
-    "column_category": lambda value: "all" if value.lower() == "total" else value,
+    "column": lambda value: "all" if value.lower() == "total" else value,
 }
 
 
@@ -35,8 +35,8 @@ class LatexCommand:
         self.benchmark_name = LatexCommand.format_command_part(str(benchmark_name))
         self.runset_name = LatexCommand.format_command_part(str(runset_name))
         self.column_title = ""
-        self.column_category = ""
-        self.column_subcategory = ""
+        self.column = ""
+        self.status = ""
         self.stat_type = ""
         self.value = None
 
@@ -44,7 +44,7 @@ class LatexCommand:
         """Sets the value of the command part
 
         Available part names:
-            benchmark_name, runset_name, column_title, column_category, column_subcategory, stat_type
+            benchmark_name, runset_name, column_title, column, status, stat_type
 
         Args:
             part_name: One of the names above
@@ -83,8 +83,8 @@ class LatexCommand:
             self.benchmark_name,
             self.runset_name,
             self.column_title,
-            self.column_category,
-            self.column_subcategory,
+            self.column,
+            self.status,
             self.stat_type,
         )
 
@@ -245,21 +245,21 @@ def _column_statistic_to_latex_command(
         # If the stat_name is not ending with true or false, use the whole stat_name as column and an empty string
         # as column_subcategory
         if column_parts[-1].lower() in ["true", "false"]:
-            column_subcategory = column_parts[-1]
+            status = column_parts[-1]
             column_category = column_parts[0:-1]
         else:
-            column_subcategory = ""
+            status = ""
             column_category = column_parts
 
         # Some colum_categories use _ in their names, that's why the column_category is the
         # whole split list except the last word
         command.set_command_part(
-            "column_category",
+            "column",
             "".join(
                 util.cap_first_letter(column_part) for column_part in column_category
             ),
         )
-        command.set_command_part("column_subcategory", column_subcategory)
+        command.set_command_part("status", status)
 
         for k, v in stat_value.__dict__.items():
             # "v is None" instead of "if not v" used to allow number 0
