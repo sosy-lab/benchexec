@@ -189,6 +189,7 @@ exports[`FilterCard tests FilterCard should correctly reflect already set status
      type="checkbox"
     />
     <label
+     className="cat1"
      htmlFor="cat-cat1"
     >
      cat1
@@ -201,6 +202,7 @@ exports[`FilterCard tests FilterCard should correctly reflect already set status
      type="checkbox"
     />
     <label
+     className="correct"
      htmlFor="cat-correct"
     >
      correct
@@ -213,6 +215,7 @@ exports[`FilterCard tests FilterCard should correctly reflect already set status
      type="checkbox"
     />
     <label
+     className="wrong"
      htmlFor="cat-wrong"
     >
      wrong
@@ -311,6 +314,7 @@ exports[`FilterCard tests FilterCard should display checkboxes for status filter
      type="checkbox"
     />
     <label
+     className="cat1"
      htmlFor="cat-cat1"
     >
      cat1
@@ -323,6 +327,7 @@ exports[`FilterCard tests FilterCard should display checkboxes for status filter
      type="checkbox"
     />
     <label
+     className="correct"
      htmlFor="cat-correct"
     >
      correct
@@ -335,6 +340,7 @@ exports[`FilterCard tests FilterCard should display checkboxes for status filter
      type="checkbox"
     />
     <label
+     className="wrong"
      htmlFor="cat-wrong"
     >
      wrong

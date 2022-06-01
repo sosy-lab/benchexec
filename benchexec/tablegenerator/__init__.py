@@ -527,7 +527,7 @@ class RunSetResult(object):
         # Add system information if present
         for systemTag in sorted(
             resultTag.findall("systeminfo"),
-            key=lambda systemTag: systemTag.get("hostname", "unknown"),
+            key=lambda system_tag: system_tag.get("hostname", "unknown"),
         ):
             cpuTag = systemTag.find("cpu")
             attributes["os"].append(systemTag.find("os").get("name"))

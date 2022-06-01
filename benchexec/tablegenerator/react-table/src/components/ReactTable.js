@@ -290,7 +290,11 @@ const Table = (props) => {
             .sort()
             .map((category) => (
               // category filters are marked with space at end
-              <option value={category + " "} key={category}>
+              <option
+                value={category + " "}
+                key={category}
+                className={category}
+              >
                 {category}
               </option>
             ))}

@@ -129,6 +129,9 @@ please raise an issue.
 
           dpkg-buildpackage --build=binary --no-sign
 
+     Note that this step must not be executed on an Ubuntu 21.10 or newer,
+     as that would create zst compressed packages that are not installable on Debian.
+
    * Sign the package with GPG and upload it to GitHub as part of the release.
 
  * For our [Ubuntu PPA](https://launchpad.net/~sosy-lab/+archive/ubuntu/benchmarking):
