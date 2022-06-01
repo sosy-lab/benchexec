@@ -238,7 +238,7 @@ def _provide_latex_commands(
     # Preferring the display title over the standard title of a column to allow
     # custom titles defined by the user
     def select_column_name(col):
-        return col.display_title if col.display_title else col.title
+        return col.display_title or col.title
 
     column_titles_total_count = Counter(
         select_column_name(column) for column in run_set.columns
