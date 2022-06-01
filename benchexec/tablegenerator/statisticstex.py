@@ -80,7 +80,7 @@ class LatexCommand:
 
     def to_latex_score_as_stat_type(self) -> str:
         """Raw output except the score, which is used as stat_type"""
-        if self.column.lower() not in "score":
+        if self.column.lower() != "score":
             return self.to_latex_raw()
 
         # save original values
@@ -317,7 +317,7 @@ def _column_statistic_to_latex_command(
             if v is None:
                 continue
 
-            if k in "sum":
+            if k == "sum":
                 # Renaming sum to count for status type columns
                 if parent_column.type == ColumnType.status:
                     k = "count"
