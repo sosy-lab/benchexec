@@ -22,6 +22,11 @@ from benchexec.tablegenerator import util
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
+number_convert = {
+    "3": "three",
+    "4": "four",
+}
+
 
 HEADER = r"""% The following definition defines a command for each value.
 % The command name is the concatenation of the first six arguments.
@@ -50,9 +55,12 @@ def extract_walltime(run_result):
 
 
 def format_command_part(name):
-    name = re.sub("[^a-zA-Z]", "-", name)
+    name = re.sub("[^a-zA-Z3-4]", "-", name)
     name = string.capwords(name, "-")
     name = name.replace("-", "")
+
+    for k, v in number_convert.items():
+        name = name.replace(k, v)
     return name
 
 

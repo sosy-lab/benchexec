@@ -9,7 +9,7 @@ import copy
 import logging
 import re
 from collections import Counter, defaultdict
-from typing import List, Iterable, Set
+from typing import List, Iterable, Set, Any
 
 from benchexec.tablegenerator.columns import Column, ColumnType
 
@@ -58,11 +58,11 @@ class LatexCommand:
         self.__dict__[part_name] = LatexCommand.format_command_part(str(part_value))
         return self
 
-    def set_command_value(self, value: str) -> "LatexCommand":
+    def set_command_value(self, value: Any) -> "LatexCommand":
         """Sets the value for this command
 
-        The value must be formatted. No checks are made in this method.
-        It will be converted to string.
+        The value will be converted to a string. No checks are made in this method.
+        If any special format is necessary, please call this method with the formatted value.
 
         Args:
             value: The new command value
