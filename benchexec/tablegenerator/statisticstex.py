@@ -76,7 +76,7 @@ class LatexCommand:
 
     def to_latex_raw(self) -> str:
         """Prints latex command with raw value (e.g. only number, no additional latex command)."""
-        return self._get_command_formatted(self.value)
+        return f"{self}{{{self.value}}}"
 
     def to_latex_score_as_stat_type(self) -> str:
         """Raw output except the score, which is used as stat_type"""
@@ -107,17 +107,6 @@ class LatexCommand:
             self.status,
             self.stat_type,
         )
-
-    def _get_command_formatted(self, value: str) -> str:
-        """Formats the command with all parts and appends the value
-
-        To use a custom format for the value, for example
-            \\StoreBenchExecResult{some}{stuff}...{last_name_part}{\\textbf{value}}
-        format the value and give it to this function
-        """
-        if not value:
-            value = ""
-        return str(self) + "{%s}" % value
 
     @staticmethod
     def format_command_part(name: str) -> str:
