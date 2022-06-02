@@ -18,7 +18,6 @@ Content:
 - [`p4-benchmark.py`](p4): BenchExec extension for [P4](https://p4.org/) programs for programmable switches
 - [`plots`](plots): Scripts and examples for generating plots from BenchExec results using Gnuplot or PGFPlots for LaTeX
 - `serveFileFromZIP.php`: Script for letting a web server serve files from a ZIP archive as if the archive would have been expanded. This is useful for hosting HTML tables with results and links to log files in ZIP archives.
-- `statistics-tex.py`: Script for generating statistical information about BenchExec results and dumping them in LaTeX format
 - `vcloud-benchmark.py`: BenchExec extension for executing benchmark runs on the VerifierCloud service
 
 Further [contributions](https://github.com/sosy-lab/benchexec/pulls) are welcome!
