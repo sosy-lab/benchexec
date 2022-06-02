@@ -98,3 +98,50 @@ class TestUnit(unittest.TestCase):
             expected = str(float(value))
             assert "e" not in expected, expected
             self.assertEqual(expected, util.print_decimal(Decimal(value)))
+
+    def test_roman_number_conversion(self):
+        test_data = {
+            1: "I",
+            2: "II",
+            3: "III",
+            4: "IV",
+            5: "V",
+            6: "VI",
+            7: "VII",
+            8: "VIII",
+            9: "IX",
+            10: "X",
+            11: "XI",
+            14: "XIV",
+            21: "XXI",
+            49: "XLIX",
+            50: "L",
+            99: "XCIX",
+            100: "C",
+            849: "DCCCXLIX",
+            999: "CMXCIX",
+            1000: "M",
+            3000: "MMM",
+            3333: "MMMCCCXXXIII",
+            10_001: "MMMMMMMMMMI",
+        }
+
+        for k, v in test_data.items():
+            self.assertEqual(v, util.number_to_roman_string(k))
+            self.assertEqual(str(v), util.number_to_roman_string(k))
+
+        self.assertRaises(ValueError, util.number_to_roman_string, -1)
+        self.assertRaises(ValueError, util.number_to_roman_string, 0)
+
+        self.assertRaises(ValueError, util.number_to_roman_string, "forty-two")
+
+    def test_cap_first_letter(self):
+        test_data = {
+            "test": "Test",
+            "tHis is gREAT": "THis is gREAT",
+            "BIG WORD": "BIG WORD",
+            " leading space": " leading space",
+            "": "",
+        }
+        for k, v in test_data.items():
+            self.assertEqual(v, util.cap_first_letter(k))
