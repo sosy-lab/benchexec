@@ -1,7 +1,17 @@
-% The following definition defines a command for each value.
-% The command name is the concatenation of the first six arguments.
-% To override this definition, define \StoreBenchExecResult with \newcommand before including this file.
-% Arguments: benchmark name, runset name, column title, column, status, statistic, value
+% Statistics produced by BenchExec, more information at
+% https://github.com/sosy-lab/benchexec/blob/main/doc/table-generator.md
+% By default, this file defines a LaTeX command for each statistics value
+% where the command name consists of the following concatenated parts:
+% benchmark name, runset name, column title, category, status, statistic.
+% (If necessary, this can be overridden with
+% \newcommand\StoreBenchExecResult[7]{...} before including this file.)
+% Numbers are replaced by roman numerals, all parts of the name are in camel case,
+% and if necessary for uniqueness a counter is appended to the non-unique name part.
+% The last part of the name is either "Count", "Sum", "Min", "Max", "Avg", "Median",
+% "Stdev", "Score", or "Unit", with the latter providing the unit for the others.
+% Rounding of values can be specified in the BenchExec table definition or done with
+% \usepackage[round-mode=figures, round-precision=...]{siunitx} and the \num command.
+% Arguments: benchmark name, runset name, column title, category, status, statistic, value
 \providecommand\StoreBenchExecResult[7]{\expandafter\newcommand\csname#1#2#3#4#5#6\endcsname{#7}}%
 \StoreBenchExecResult{Test}{ValueAnalysis}{Status}{All}{}{Score}{0}%
 \StoreBenchExecResult{Test}{ValueAnalysis}{Status}{All}{}{Count}{4}%
