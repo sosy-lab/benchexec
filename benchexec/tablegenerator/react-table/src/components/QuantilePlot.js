@@ -376,6 +376,7 @@ export default class QuantilePlot extends React.Component {
           x: xPosition,
           y: value,
           info: rowName,
+          tool: this.props.tools[toolIdx].name
         });
       }
 
