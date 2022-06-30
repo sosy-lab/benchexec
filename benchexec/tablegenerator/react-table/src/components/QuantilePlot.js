@@ -375,8 +375,8 @@ export default class QuantilePlot extends React.Component {
         newArray.push({
           x: xPosition,
           y: value,
-          info: rowName,
-          tool: this.props.tools[toolIdx].name
+          task: rowName,
+          series: this.state.isValue ? getRunSetName(this.props.tools[toolIdx]) : colTitle,
         });
       }
 
