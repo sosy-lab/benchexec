@@ -81,6 +81,11 @@ unit-tests:python-3.9:
   variables:
     PYTHON_VERSION: '3.9'
 
+unit-tests:python-3.10:
+  <<: *unit-tests
+  variables:
+    PYTHON_VERSION: '3.10'
+
 # Static checks
 check-format:
   stage: test
@@ -210,3 +215,9 @@ build-docker:test:python-3.9:
   variables:
     DOCKERFILE: test/Dockerfile.python-3.9
     IMAGE: test:python-3.9
+
+build-docker:test:python-3.10:
+  extends: .build-docker
+  variables:
+    DOCKERFILE: test/Dockerfile.python-3.10
+    IMAGE: test:python-3.10
