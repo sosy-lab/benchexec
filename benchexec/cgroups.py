@@ -426,7 +426,8 @@ class Cgroup(object):
             # (otherwise we can't add any tasks)
             def copy_parent_to_child(name):
                 shutil.copyfile(
-                    os.path.join(parentCgroup, name), os.path.join(cgroup, name)
+                    os.path.join(parentCgroup, name),  # noqa: B023
+                    os.path.join(cgroup, name),  # noqa: B023
                 )
 
             try:

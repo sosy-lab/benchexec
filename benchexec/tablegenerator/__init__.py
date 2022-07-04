@@ -1164,11 +1164,8 @@ def select_relevant_id_columns(rows):
     if rows:
         prototype_id = rows[0].id
         for column in range(1, len(prototype_id)):
-
-            def id_equal_to_prototype(row):
-                return row.id[column] == prototype_id[column]
-
-            relevant_id_columns.append(not all(map(id_equal_to_prototype, rows)))
+            all_equal = all(row.id[column] == prototype_id[column] for row in rows)
+            relevant_id_columns.append(not all_equal)
     return relevant_id_columns
 
 

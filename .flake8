@@ -47,6 +47,8 @@ per-file-ignores =
     benchexec/test*.py:F405,S108
     # Tool-info modules are not garbage-collected anyway, caching is ok
     benchexec/tools/*.py:B019
+    # should be refactored completely first (everything in functions)
+    contrib/create_yaml_files.py:B023
 exclude =
     # code copied by build system
     build,
