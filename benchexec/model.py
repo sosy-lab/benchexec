@@ -5,7 +5,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import collections
+import collections.abc
 import logging
 import os
 import re
@@ -126,7 +126,7 @@ def handle_files_from_task_definition(patterns, task_def_file):
     if patterns is None:
         return []
     result = []
-    if isinstance(patterns, str) or not isinstance(patterns, collections.Iterable):
+    if isinstance(patterns, str) or not isinstance(patterns, collections.abc.Iterable):
         # accept single string in addition to list of strings
         patterns = [patterns]
     for pattern in patterns:
