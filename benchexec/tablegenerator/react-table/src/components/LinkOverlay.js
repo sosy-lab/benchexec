@@ -9,11 +9,15 @@ import React from "react";
 import ReactModal from "react-modal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes, faArrowLeft } from "@fortawesome/free-solid-svg-icons";
-import { isOkStatus } from "../utils/utils";
+import {
+  CopyableNode,
+  isOkStatus,
+  splitUrlPathForMatchingPrefix,
+} from "../utils/utils";
 import classNames from "classnames";
-import path from "path";
+import path from "path-browserify";
 import TaskDefinitionViewer from "./TaskDefinitionViewer.js";
-import * as zip from "@zip.js/zip.js/dist/zip-no-worker-inflate.min";
+import * as zip from "@zip.js/zip.js/lib/zip-no-worker-inflate";
 
 zip.configure({
   useWebWorkers: false,
@@ -90,8 +94,15 @@ export default class LinkOverlay extends React.Component {
    * 2) HTTP Range request for file in ZIP archive -> fails for ZIPs on the local disk
    * 3) Normal HTTP request for file in ZIP archive -> fails for Google Chrome for ZIPs on the local disk
    * 4) Manually via XMLHttpRequest
+   *
+   * In principle, we would like to use loadFileFetch.
+   * However, in Chrome the parameter --allow-file-access-from-files
+   * does not affect fetch requests, only XMLHttpRequest.
+   * So we need to use the latter for now.
    */
-  async loadFile(url) {
+  loadFile = this.loadFileXMLHttpRequest;
+
+  async loadFileFetch(url) {
     if (url) {
       this.setState({ currentFile: url });
       try {
@@ -102,6 +113,28 @@ export default class LinkOverlay extends React.Component {
         } else {
           throw Error(`Received response status ${response.status}`);
         }
+      } catch (e) {
+        this.loadFileFromZip(url);
+      }
+    }
+  }
+
+  loadFileXMLHttpRequest(url) {
+    if (url) {
+      try {
+        this.setState({ currentFile: url });
+        const xhr = new XMLHttpRequest();
+        xhr.addEventListener("load", () => {
+          if (isOkStatus(xhr.status)) {
+            const content = xhr.responseText;
+            this.setState({ content });
+          } else {
+            this.loadFileFromZip(url);
+          }
+        });
+        xhr.addEventListener("error", () => this.loadFileFromZip(url));
+        xhr.open("GET", url);
+        xhr.send();
       } catch (e) {
         this.loadFileFromZip(url);
       }
@@ -135,11 +168,7 @@ export default class LinkOverlay extends React.Component {
         this.handleZipEntries(entries, zipFile, zipPath);
       },
       (error) => {
-        if (error.message === zip.ERR_HTTP_RANGE) {
-          this.readZipArchiveNoHttpRange(zipPath, zipFile);
-        } else {
-          this.setError(`HTTP request for the file "${zipFile}" failed`, error);
-        }
+        this.readZipArchiveNoHttpRange(zipPath, zipFile);
       },
     );
   };
@@ -219,6 +248,109 @@ export default class LinkOverlay extends React.Component {
     window.addEventListener("click", this.props.close, false);
   };
 
+  renderHelpMessageForLocalLogs = () => {
+    if (window.location.protocol !== "file:") {
+      return null; // not relevant
+    }
+
+    const browserSettingsMessage = (
+      <>
+        <p>
+          If you are using <strong>Chrome</strong> or a Chrome-based browser,
+          try launching it with the command-line option{" "}
+          <strong>
+            <code>--allow-file-access-from-files</code>
+          </strong>
+          .
+        </p>
+        <p>
+          If you are using <strong>Firefox</strong>, please open the extended
+          settings by entering <code>about:config</code> in the URL bar, search
+          for{" "}
+          <strong>
+            <code>security.fileuri.strict_origin_policy</code>
+          </strong>{" "}
+          and set this option to <code>false</code> by double-clicking on it and
+          restart your browser (
+          <a href="https://kb.mozillazine.org/Security.fileuri.strict_origin_policy">
+            more details
+          </a>
+          ).
+        </p>
+        <p>
+          <strong>
+            Note that these settings will allow local web pages to access all of
+            your files, so make sure to not open any untrusted local HTML
+            documents.
+          </strong>
+        </p>
+      </>
+    );
+
+    // Users can also start a local HTTP server, and we want to explain this
+    // and generate the necessary command for them such that this is easy.
+    // We need the base directory of the HTTP server (document root)
+    // that should contain both the table and the result files.
+    const absCurrentFile = new URL(this.state.currentFile, document.baseURI);
+    let [baseDir, pathSuffix] = splitUrlPathForMatchingPrefix(
+      window.location,
+      absCurrentFile,
+    );
+
+    // There are three known path variants:
+    // Unix: looks like: /home/...
+    // Regular Windows: looks like /C:/Users/...
+    // Network share on Windows (including WSL): looks like //host/dir/...
+    // For regular Windows path, we need to remove the leading slash,
+    // and if the partitions differ there is no possible base directory,
+    // so we give up.
+    if (window.location.pathname[2] === ":") {
+      // Very likely we are on Windows.
+      if (baseDir) {
+        if (baseDir[0] === "/") {
+          baseDir = baseDir.substring(1);
+        }
+      } else {
+        // Table and logs are on different partitions, we have no chance
+        // of providing a working command line.
+        return (
+          <>
+            {browserSettingsMessage}
+            <p>
+              Alternatively, you can start a local web server serving the
+              directories with the tables and result files, but for doing so you
+              first need to make sure that table and result files are on the
+              same partition.
+            </p>
+          </>
+        );
+      }
+    }
+
+    const ip = "127.0.0.1";
+    const port = 8000;
+    const url = `http://${ip}:${port}/${pathSuffix}${window.location.hash}`;
+    return (
+      <>
+        {browserSettingsMessage}
+        <p>
+          Alternatively, you can start a local web server serving the
+          directories with the tables and result files.
+          <br />
+          To do so, execute the following command and then open{" "}
+          <a href={url}>this link</a> (adjust the port number {port} if it is
+          already used on your system):
+          <br />
+          <CopyableNode>
+            <code>
+              python3 -m http.server -b {ip} {port} -d {baseDir || "/"}
+            </code>
+          </CopyableNode>
+        </p>
+      </>
+    );
+  };
+
   render() {
     ReactModal.setAppElement(document.getElementById("root"));
     return (
@@ -277,28 +409,9 @@ export default class LinkOverlay extends React.Component {
               </a>{" "}
               of your browser.
             </p>
-            {window.location.href.indexOf("file://") === 0 ? (
-              <>
-                <p>
-                  If you are using Chrome or a Chrome-based browser, try
-                  launching it with the command-line option{" "}
-                  <code>--allow-file-access-from-files</code>.
-                </p>
-                <p>
-                  If you are using Firefox, please open the extended settings by
-                  entering <code>about:config</code> in the URL bar, search for{" "}
-                  <code>privacy.file_unique_origin</code> and set this option to{" "}
-                  <code>false</code> by double-clicking on it (
-                  <a href="https://developer.mozilla.org/docs/Web/HTTP/CORS/Errors/CORSRequestNotHttp">
-                    more details
-                  </a>
-                  ). Access to files that are not beneath the same directory as
-                  this HTML page is still forbidden.
-                </p>
-              </>
-            ) : null}
+            {this.renderHelpMessageForLocalLogs()}
             <p>
-              You can try to download the file:{" "}
+              You can also try to download the file:{" "}
               <a href={this.state.currentFile}>{this.state.currentFile}</a>
             </p>
           </div>

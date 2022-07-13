@@ -1,3 +1,28 @@
+benchexec (3.11-2) impish; urgency=medium
+
+  * Build binary package on Ubuntu 20.04 to avoid zst compression.
+    This should make the package installable on Debian again.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Fri, 11 Mar 2022 17:30:41 +0100
+
+benchexec (3.11-1) impish; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Wed, 09 Feb 2022 09:55:06 +0100
+
+benchexec (3.10-1) focal; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Tue, 23 Nov 2021 09:37:41 +0100
+
+benchexec (3.9-1) focal; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Tue, 28 Sep 2021 16:05:23 +0200
+
 benchexec (3.8-1) focal; urgency=medium
 
   * New upstream version.

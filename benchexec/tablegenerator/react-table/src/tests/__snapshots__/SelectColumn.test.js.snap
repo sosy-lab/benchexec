@@ -2,7 +2,7 @@
 
 exports[`Render SelectColumn for benchmark-example-true.2019-11-06_0932.results.no options.html 1`] = `
 <div
- className="ReactModal__Overlay ReactModal__Overlay--after-open"
+ className="ReactModal__Overlay"
  style={
   Object {
    "backgroundColor": "rgba(255, 255, 255, 0.75)",
@@ -16,7 +16,7 @@ exports[`Render SelectColumn for benchmark-example-true.2019-11-06_0932.results.
 >
  <div
   aria-modal={true}
-  className="ReactModal__Content ReactModal__Content--after-open overlay"
+  className="ReactModal__Content overlay"
   role="dialog"
   tabIndex="-1"
  >
@@ -215,7 +215,7 @@ exports[`Render SelectColumn for benchmark-example-true.2019-11-06_0932.results.
 
 exports[`Render SelectColumn for big-table.diff.html 1`] = `
 <div
- className="ReactModal__Overlay ReactModal__Overlay--after-open"
+ className="ReactModal__Overlay"
  style={
   Object {
    "backgroundColor": "rgba(255, 255, 255, 0.75)",
@@ -229,7 +229,7 @@ exports[`Render SelectColumn for big-table.diff.html 1`] = `
 >
  <div
   aria-modal={true}
-  className="ReactModal__Content ReactModal__Content--after-open overlay"
+  className="ReactModal__Content overlay"
   role="dialog"
   tabIndex="-1"
  >
@@ -705,7 +705,7 @@ exports[`Render SelectColumn for big-table.diff.html 1`] = `
 
 exports[`Render SelectColumn for cbmc.2015-12-11_1211.results.Simple.html 1`] = `
 <div
- className="ReactModal__Overlay ReactModal__Overlay--after-open"
+ className="ReactModal__Overlay"
  style={
   Object {
    "backgroundColor": "rgba(255, 255, 255, 0.75)",
@@ -719,7 +719,7 @@ exports[`Render SelectColumn for cbmc.2015-12-11_1211.results.Simple.html 1`] = 
 >
  <div
   aria-modal={true}
-  className="ReactModal__Content ReactModal__Content--after-open overlay"
+  className="ReactModal__Content overlay"
   role="dialog"
   tabIndex="-1"
  >
@@ -891,7 +891,7 @@ exports[`Render SelectColumn for cbmc.2015-12-11_1211.results.Simple.html 1`] = 
 
 exports[`Render SelectColumn for multi-table.diff.html 1`] = `
 <div
- className="ReactModal__Overlay ReactModal__Overlay--after-open"
+ className="ReactModal__Overlay"
  style={
   Object {
    "backgroundColor": "rgba(255, 255, 255, 0.75)",
@@ -905,7 +905,7 @@ exports[`Render SelectColumn for multi-table.diff.html 1`] = `
 >
  <div
   aria-modal={true}
-  className="ReactModal__Content ReactModal__Content--after-open overlay"
+  className="ReactModal__Content overlay"
   role="dialog"
   tabIndex="-1"
  >
@@ -1296,7 +1296,7 @@ exports[`Render SelectColumn for multi-table.diff.html 1`] = `
 
 exports[`Render SelectColumn for multi-table.table.html 1`] = `
 <div
- className="ReactModal__Overlay ReactModal__Overlay--after-open"
+ className="ReactModal__Overlay"
  style={
   Object {
    "backgroundColor": "rgba(255, 255, 255, 0.75)",
@@ -1310,7 +1310,7 @@ exports[`Render SelectColumn for multi-table.table.html 1`] = `
 >
  <div
   aria-modal={true}
-  className="ReactModal__Content ReactModal__Content--after-open overlay"
+  className="ReactModal__Content overlay"
   role="dialog"
   tabIndex="-1"
  >
@@ -1701,7 +1701,7 @@ exports[`Render SelectColumn for multi-table.table.html 1`] = `
 
 exports[`Render SelectColumn for multi-table-only-columns.diff.html 1`] = `
 <div
- className="ReactModal__Overlay ReactModal__Overlay--after-open"
+ className="ReactModal__Overlay"
  style={
   Object {
    "backgroundColor": "rgba(255, 255, 255, 0.75)",
@@ -1715,7 +1715,7 @@ exports[`Render SelectColumn for multi-table-only-columns.diff.html 1`] = `
 >
  <div
   aria-modal={true}
-  className="ReactModal__Content ReactModal__Content--after-open overlay"
+  className="ReactModal__Content overlay"
   role="dialog"
   tabIndex="-1"
  >
@@ -2382,7 +2382,7 @@ exports[`Render SelectColumn for multi-table-only-columns.diff.html 1`] = `
 
 exports[`Render SelectColumn for multi-table-only-columns.table.html 1`] = `
 <div
- className="ReactModal__Overlay ReactModal__Overlay--after-open"
+ className="ReactModal__Overlay"
  style={
   Object {
    "backgroundColor": "rgba(255, 255, 255, 0.75)",
@@ -2396,7 +2396,7 @@ exports[`Render SelectColumn for multi-table-only-columns.table.html 1`] = `
 >
  <div
   aria-modal={true}
-  className="ReactModal__Content ReactModal__Content--after-open overlay"
+  className="ReactModal__Content overlay"
   role="dialog"
   tabIndex="-1"
  >
@@ -3063,7 +3063,7 @@ exports[`Render SelectColumn for multi-table-only-columns.table.html 1`] = `
 
 exports[`Render SelectColumn for multi-table-with-columns.diff.html 1`] = `
 <div
- className="ReactModal__Overlay ReactModal__Overlay--after-open"
+ className="ReactModal__Overlay"
  style={
   Object {
    "backgroundColor": "rgba(255, 255, 255, 0.75)",
@@ -3077,7 +3077,7 @@ exports[`Render SelectColumn for multi-table-with-columns.diff.html 1`] = `
 >
  <div
   aria-modal={true}
-  className="ReactModal__Content ReactModal__Content--after-open overlay"
+  className="ReactModal__Content overlay"
   role="dialog"
   tabIndex="-1"
  >
@@ -3735,7 +3735,7 @@ exports[`Render SelectColumn for multi-table-with-columns.diff.html 1`] = `
 
 exports[`Render SelectColumn for multi-table-with-columns.table.html 1`] = `
 <div
- className="ReactModal__Overlay ReactModal__Overlay--after-open"
+ className="ReactModal__Overlay"
  style={
   Object {
    "backgroundColor": "rgba(255, 255, 255, 0.75)",
@@ -3749,7 +3749,7 @@ exports[`Render SelectColumn for multi-table-with-columns.table.html 1`] = `
 >
  <div
   aria-modal={true}
-  className="ReactModal__Content ReactModal__Content--after-open overlay"
+  className="ReactModal__Content overlay"
   role="dialog"
   tabIndex="-1"
  >
@@ -4407,7 +4407,7 @@ exports[`Render SelectColumn for multi-table-with-columns.table.html 1`] = `
 
 exports[`Render SelectColumn for multi-table-with-diff-over-column.diff.html 1`] = `
 <div
- className="ReactModal__Overlay ReactModal__Overlay--after-open"
+ className="ReactModal__Overlay"
  style={
   Object {
    "backgroundColor": "rgba(255, 255, 255, 0.75)",
@@ -4421,7 +4421,7 @@ exports[`Render SelectColumn for multi-table-with-diff-over-column.diff.html 1`]
 >
  <div
   aria-modal={true}
-  className="ReactModal__Content ReactModal__Content--after-open overlay"
+  className="ReactModal__Content overlay"
   role="dialog"
   tabIndex="-1"
  >
@@ -5088,7 +5088,7 @@ exports[`Render SelectColumn for multi-table-with-diff-over-column.diff.html 1`]
 
 exports[`Render SelectColumn for multi-table-with-diff-over-column.table.html 1`] = `
 <div
- className="ReactModal__Overlay ReactModal__Overlay--after-open"
+ className="ReactModal__Overlay"
  style={
   Object {
    "backgroundColor": "rgba(255, 255, 255, 0.75)",
@@ -5102,7 +5102,7 @@ exports[`Render SelectColumn for multi-table-with-diff-over-column.table.html 1`
 >
  <div
   aria-modal={true}
-  className="ReactModal__Content ReactModal__Content--after-open overlay"
+  className="ReactModal__Content overlay"
   role="dialog"
   tabIndex="-1"
  >
@@ -5769,7 +5769,7 @@ exports[`Render SelectColumn for multi-table-with-diff-over-column.table.html 1`
 
 exports[`Render SelectColumn for multi-table-with-wildcards.diff.html 1`] = `
 <div
- className="ReactModal__Overlay ReactModal__Overlay--after-open"
+ className="ReactModal__Overlay"
  style={
   Object {
    "backgroundColor": "rgba(255, 255, 255, 0.75)",
@@ -5783,7 +5783,7 @@ exports[`Render SelectColumn for multi-table-with-wildcards.diff.html 1`] = `
 >
  <div
   aria-modal={true}
-  className="ReactModal__Content ReactModal__Content--after-open overlay"
+  className="ReactModal__Content overlay"
   role="dialog"
   tabIndex="-1"
  >
@@ -6174,7 +6174,7 @@ exports[`Render SelectColumn for multi-table-with-wildcards.diff.html 1`] = `
 
 exports[`Render SelectColumn for multi-table-with-wildcards.table.html 1`] = `
 <div
- className="ReactModal__Overlay ReactModal__Overlay--after-open"
+ className="ReactModal__Overlay"
  style={
   Object {
    "backgroundColor": "rgba(255, 255, 255, 0.75)",
@@ -6188,7 +6188,7 @@ exports[`Render SelectColumn for multi-table-with-wildcards.table.html 1`] = `
 >
  <div
   aria-modal={true}
-  className="ReactModal__Content ReactModal__Content--after-open overlay"
+  className="ReactModal__Content overlay"
   role="dialog"
   tabIndex="-1"
  >
@@ -6579,7 +6579,7 @@ exports[`Render SelectColumn for multi-table-with-wildcards.table.html 1`] = `
 
 exports[`Render SelectColumn for nan_and_inf.html 1`] = `
 <div
- className="ReactModal__Overlay ReactModal__Overlay--after-open"
+ className="ReactModal__Overlay"
  style={
   Object {
    "backgroundColor": "rgba(255, 255, 255, 0.75)",
@@ -6593,7 +6593,7 @@ exports[`Render SelectColumn for nan_and_inf.html 1`] = `
 >
  <div
   aria-modal={true}
-  className="ReactModal__Content ReactModal__Content--after-open overlay"
+  className="ReactModal__Content overlay"
   role="dialog"
   tabIndex="-1"
  >
@@ -6981,7 +6981,7 @@ exports[`Render SelectColumn for nan_and_inf.html 1`] = `
 
 exports[`Render SelectColumn for predicateAnalysis.table.html 1`] = `
 <div
- className="ReactModal__Overlay ReactModal__Overlay--after-open"
+ className="ReactModal__Overlay"
  style={
   Object {
    "backgroundColor": "rgba(255, 255, 255, 0.75)",
@@ -6995,7 +6995,7 @@ exports[`Render SelectColumn for predicateAnalysis.table.html 1`] = `
 >
  <div
   aria-modal={true}
-  className="ReactModal__Content ReactModal__Content--after-open overlay"
+  className="ReactModal__Content overlay"
   role="dialog"
   tabIndex="-1"
  >
@@ -7240,7 +7240,7 @@ exports[`Render SelectColumn for predicateAnalysis.table.html 1`] = `
 
 exports[`Render SelectColumn for predicateAnalysis-reverse.table.html 1`] = `
 <div
- className="ReactModal__Overlay ReactModal__Overlay--after-open"
+ className="ReactModal__Overlay"
  style={
   Object {
    "backgroundColor": "rgba(255, 255, 255, 0.75)",
@@ -7254,7 +7254,7 @@ exports[`Render SelectColumn for predicateAnalysis-reverse.table.html 1`] = `
 >
  <div
   aria-modal={true}
-  className="ReactModal__Content ReactModal__Content--after-open overlay"
+  className="ReactModal__Content overlay"
   role="dialog"
   tabIndex="-1"
  >
@@ -7499,7 +7499,7 @@ exports[`Render SelectColumn for predicateAnalysis-reverse.table.html 1`] = `
 
 exports[`Render SelectColumn for rows-with-scores.html 1`] = `
 <div
- className="ReactModal__Overlay ReactModal__Overlay--after-open"
+ className="ReactModal__Overlay"
  style={
   Object {
    "backgroundColor": "rgba(255, 255, 255, 0.75)",
@@ -7513,7 +7513,7 @@ exports[`Render SelectColumn for rows-with-scores.html 1`] = `
 >
  <div
   aria-modal={true}
-  className="ReactModal__Content ReactModal__Content--after-open overlay"
+  className="ReactModal__Content overlay"
   role="dialog"
   tabIndex="-1"
  >
@@ -7799,7 +7799,7 @@ exports[`Render SelectColumn for rows-with-scores.html 1`] = `
 
 exports[`Render SelectColumn for simple-table-with-columns.table.html 1`] = `
 <div
- className="ReactModal__Overlay ReactModal__Overlay--after-open"
+ className="ReactModal__Overlay"
  style={
   Object {
    "backgroundColor": "rgba(255, 255, 255, 0.75)",
@@ -7813,7 +7813,7 @@ exports[`Render SelectColumn for simple-table-with-columns.table.html 1`] = `
 >
  <div
   aria-modal={true}
-  className="ReactModal__Content ReactModal__Content--after-open overlay"
+  className="ReactModal__Content overlay"
   role="dialog"
   tabIndex="-1"
  >
@@ -8039,7 +8039,7 @@ exports[`Render SelectColumn for simple-table-with-columns.table.html 1`] = `
 
 exports[`Render SelectColumn for simple-table-with-links.table.html 1`] = `
 <div
- className="ReactModal__Overlay ReactModal__Overlay--after-open"
+ className="ReactModal__Overlay"
  style={
   Object {
    "backgroundColor": "rgba(255, 255, 255, 0.75)",
@@ -8053,7 +8053,7 @@ exports[`Render SelectColumn for simple-table-with-links.table.html 1`] = `
 >
  <div
   aria-modal={true}
-  className="ReactModal__Content ReactModal__Content--after-open overlay"
+  className="ReactModal__Content overlay"
   role="dialog"
   tabIndex="-1"
  >
@@ -8225,7 +8225,7 @@ exports[`Render SelectColumn for simple-table-with-links.table.html 1`] = `
 
 exports[`Render SelectColumn for simple-table-with-numberOfDigits.table.html 1`] = `
 <div
- className="ReactModal__Overlay ReactModal__Overlay--after-open"
+ className="ReactModal__Overlay"
  style={
   Object {
    "backgroundColor": "rgba(255, 255, 255, 0.75)",
@@ -8239,7 +8239,7 @@ exports[`Render SelectColumn for simple-table-with-numberOfDigits.table.html 1`]
 >
  <div
   aria-modal={true}
-  className="ReactModal__Content ReactModal__Content--after-open overlay"
+  className="ReactModal__Content overlay"
   role="dialog"
   tabIndex="-1"
  >
@@ -8411,7 +8411,7 @@ exports[`Render SelectColumn for simple-table-with-numberOfDigits.table.html 1`]
 
 exports[`Render SelectColumn for simple-table-with-scaling.table.html 1`] = `
 <div
- className="ReactModal__Overlay ReactModal__Overlay--after-open"
+ className="ReactModal__Overlay"
  style={
   Object {
    "backgroundColor": "rgba(255, 255, 255, 0.75)",
@@ -8425,7 +8425,7 @@ exports[`Render SelectColumn for simple-table-with-scaling.table.html 1`] = `
 >
  <div
   aria-modal={true}
-  className="ReactModal__Content ReactModal__Content--after-open overlay"
+  className="ReactModal__Content overlay"
   role="dialog"
   tabIndex="-1"
  >
@@ -8651,7 +8651,7 @@ exports[`Render SelectColumn for simple-table-with-scaling.table.html 1`] = `
 
 exports[`Render SelectColumn for smt.diff.html 1`] = `
 <div
- className="ReactModal__Overlay ReactModal__Overlay--after-open"
+ className="ReactModal__Overlay"
  style={
   Object {
    "backgroundColor": "rgba(255, 255, 255, 0.75)",
@@ -8665,7 +8665,7 @@ exports[`Render SelectColumn for smt.diff.html 1`] = `
 >
  <div
   aria-modal={true}
-  className="ReactModal__Content ReactModal__Content--after-open overlay"
+  className="ReactModal__Content overlay"
   role="dialog"
   tabIndex="-1"
  >
@@ -8992,7 +8992,7 @@ exports[`Render SelectColumn for smt.diff.html 1`] = `
 
 exports[`Render SelectColumn for smt.table.html 1`] = `
 <div
- className="ReactModal__Overlay ReactModal__Overlay--after-open"
+ className="ReactModal__Overlay"
  style={
   Object {
    "backgroundColor": "rgba(255, 255, 255, 0.75)",
@@ -9006,7 +9006,7 @@ exports[`Render SelectColumn for smt.table.html 1`] = `
 >
  <div
   aria-modal={true}
-  className="ReactModal__Content ReactModal__Content--after-open overlay"
+  className="ReactModal__Content overlay"
   role="dialog"
   tabIndex="-1"
  >
@@ -9333,7 +9333,7 @@ exports[`Render SelectColumn for smt.table.html 1`] = `
 
 exports[`Render SelectColumn for task-def-files.table.html 1`] = `
 <div
- className="ReactModal__Overlay ReactModal__Overlay--after-open"
+ className="ReactModal__Overlay"
  style={
   Object {
    "backgroundColor": "rgba(255, 255, 255, 0.75)",
@@ -9347,7 +9347,7 @@ exports[`Render SelectColumn for task-def-files.table.html 1`] = `
 >
  <div
   aria-modal={true}
-  className="ReactModal__Content ReactModal__Content--after-open overlay"
+  className="ReactModal__Content overlay"
   role="dialog"
   tabIndex="-1"
  >
@@ -9633,7 +9633,7 @@ exports[`Render SelectColumn for task-def-files.table.html 1`] = `
 
 exports[`Render SelectColumn for test.2015-03-03_1613.diff.html 1`] = `
 <div
- className="ReactModal__Overlay ReactModal__Overlay--after-open"
+ className="ReactModal__Overlay"
  style={
   Object {
    "backgroundColor": "rgba(255, 255, 255, 0.75)",
@@ -9647,7 +9647,7 @@ exports[`Render SelectColumn for test.2015-03-03_1613.diff.html 1`] = `
 >
  <div
   aria-modal={true}
-  className="ReactModal__Content ReactModal__Content--after-open overlay"
+  className="ReactModal__Content overlay"
   role="dialog"
   tabIndex="-1"
  >
@@ -9892,7 +9892,7 @@ exports[`Render SelectColumn for test.2015-03-03_1613.diff.html 1`] = `
 
 exports[`Render SelectColumn for test.2015-03-03_1613.results.predicateAnalysis.all-columns.html 1`] = `
 <div
- className="ReactModal__Overlay ReactModal__Overlay--after-open"
+ className="ReactModal__Overlay"
  style={
   Object {
    "backgroundColor": "rgba(255, 255, 255, 0.75)",
@@ -9906,7 +9906,7 @@ exports[`Render SelectColumn for test.2015-03-03_1613.results.predicateAnalysis.
 >
  <div
   aria-modal={true}
-  className="ReactModal__Content ReactModal__Content--after-open overlay"
+  className="ReactModal__Content overlay"
   role="dialog"
   tabIndex="-1"
  >
@@ -10132,7 +10132,7 @@ exports[`Render SelectColumn for test.2015-03-03_1613.results.predicateAnalysis.
 
 exports[`Render SelectColumn for test.2015-03-03_1613.results.predicateAnalysis.correct-only.html 1`] = `
 <div
- className="ReactModal__Overlay ReactModal__Overlay--after-open"
+ className="ReactModal__Overlay"
  style={
   Object {
    "backgroundColor": "rgba(255, 255, 255, 0.75)",
@@ -10146,7 +10146,7 @@ exports[`Render SelectColumn for test.2015-03-03_1613.results.predicateAnalysis.
 >
  <div
   aria-modal={true}
-  className="ReactModal__Content ReactModal__Content--after-open overlay"
+  className="ReactModal__Content overlay"
   role="dialog"
   tabIndex="-1"
  >
@@ -10318,7 +10318,7 @@ exports[`Render SelectColumn for test.2015-03-03_1613.results.predicateAnalysis.
 
 exports[`Render SelectColumn for test.2015-03-03_1613.results.predicateAnalysis.custom-score.html 1`] = `
 <div
- className="ReactModal__Overlay ReactModal__Overlay--after-open"
+ className="ReactModal__Overlay"
  style={
   Object {
    "backgroundColor": "rgba(255, 255, 255, 0.75)",
@@ -10332,7 +10332,7 @@ exports[`Render SelectColumn for test.2015-03-03_1613.results.predicateAnalysis.
 >
  <div
   aria-modal={true}
-  className="ReactModal__Content ReactModal__Content--after-open overlay"
+  className="ReactModal__Content overlay"
   role="dialog"
   tabIndex="-1"
  >
@@ -10531,7 +10531,7 @@ exports[`Render SelectColumn for test.2015-03-03_1613.results.predicateAnalysis.
 
 exports[`Render SelectColumn for test.2015-03-03_1613.results.predicateAnalysis.html 1`] = `
 <div
- className="ReactModal__Overlay ReactModal__Overlay--after-open"
+ className="ReactModal__Overlay"
  style={
   Object {
    "backgroundColor": "rgba(255, 255, 255, 0.75)",
@@ -10545,7 +10545,7 @@ exports[`Render SelectColumn for test.2015-03-03_1613.results.predicateAnalysis.
 >
  <div
   aria-modal={true}
-  className="ReactModal__Content ReactModal__Content--after-open overlay"
+  className="ReactModal__Content overlay"
   role="dialog"
   tabIndex="-1"
  >
@@ -10717,7 +10717,7 @@ exports[`Render SelectColumn for test.2015-03-03_1613.results.predicateAnalysis.
 
 exports[`Render SelectColumn for test.2015-03-03_1613.results.valueAnalysis.html 1`] = `
 <div
- className="ReactModal__Overlay ReactModal__Overlay--after-open"
+ className="ReactModal__Overlay"
  style={
   Object {
    "backgroundColor": "rgba(255, 255, 255, 0.75)",
@@ -10731,7 +10731,7 @@ exports[`Render SelectColumn for test.2015-03-03_1613.results.valueAnalysis.html
 >
  <div
   aria-modal={true}
-  className="ReactModal__Content ReactModal__Content--after-open overlay"
+  className="ReactModal__Content overlay"
   role="dialog"
   tabIndex="-1"
  >
@@ -10903,7 +10903,7 @@ exports[`Render SelectColumn for test.2015-03-03_1613.results.valueAnalysis.html
 
 exports[`Render SelectColumn for test.2015-03-03_1613.results.valueAnalysis.table.html 1`] = `
 <div
- className="ReactModal__Overlay ReactModal__Overlay--after-open"
+ className="ReactModal__Overlay"
  style={
   Object {
    "backgroundColor": "rgba(255, 255, 255, 0.75)",
@@ -10917,7 +10917,7 @@ exports[`Render SelectColumn for test.2015-03-03_1613.results.valueAnalysis.tabl
 >
  <div
   aria-modal={true}
-  className="ReactModal__Content ReactModal__Content--after-open overlay"
+  className="ReactModal__Content overlay"
   role="dialog"
   tabIndex="-1"
  >
@@ -11089,7 +11089,7 @@ exports[`Render SelectColumn for test.2015-03-03_1613.results.valueAnalysis.tabl
 
 exports[`Render SelectColumn for test.2015-03-03_1613.table.html 1`] = `
 <div
- className="ReactModal__Overlay ReactModal__Overlay--after-open"
+ className="ReactModal__Overlay"
  style={
   Object {
    "backgroundColor": "rgba(255, 255, 255, 0.75)",
@@ -11103,7 +11103,7 @@ exports[`Render SelectColumn for test.2015-03-03_1613.table.html 1`] = `
 >
  <div
   aria-modal={true}
-  className="ReactModal__Content ReactModal__Content--after-open overlay"
+  className="ReactModal__Content overlay"
   role="dialog"
   tabIndex="-1"
  >
@@ -11348,7 +11348,7 @@ exports[`Render SelectColumn for test.2015-03-03_1613.table.html 1`] = `
 
 exports[`Render SelectColumn for test.2015-03-03_1613-common.diff.html 1`] = `
 <div
- className="ReactModal__Overlay ReactModal__Overlay--after-open"
+ className="ReactModal__Overlay"
  style={
   Object {
    "backgroundColor": "rgba(255, 255, 255, 0.75)",
@@ -11362,7 +11362,7 @@ exports[`Render SelectColumn for test.2015-03-03_1613-common.diff.html 1`] = `
 >
  <div
   aria-modal={true}
-  className="ReactModal__Content ReactModal__Content--after-open overlay"
+  className="ReactModal__Content overlay"
   role="dialog"
   tabIndex="-1"
  >
@@ -11607,7 +11607,7 @@ exports[`Render SelectColumn for test.2015-03-03_1613-common.diff.html 1`] = `
 
 exports[`Render SelectColumn for test.2015-03-03_1613-common.table.html 1`] = `
 <div
- className="ReactModal__Overlay ReactModal__Overlay--after-open"
+ className="ReactModal__Overlay"
  style={
   Object {
    "backgroundColor": "rgba(255, 255, 255, 0.75)",
@@ -11621,7 +11621,7 @@ exports[`Render SelectColumn for test.2015-03-03_1613-common.table.html 1`] = `
 >
  <div
   aria-modal={true}
-  className="ReactModal__Content ReactModal__Content--after-open overlay"
+  className="ReactModal__Content overlay"
   role="dialog"
   tabIndex="-1"
  >
@@ -11866,7 +11866,7 @@ exports[`Render SelectColumn for test.2015-03-03_1613-common.table.html 1`] = `
 
 exports[`Render SelectColumn for test.2015-03-03_1613-correct-only.diff.html 1`] = `
 <div
- className="ReactModal__Overlay ReactModal__Overlay--after-open"
+ className="ReactModal__Overlay"
  style={
   Object {
    "backgroundColor": "rgba(255, 255, 255, 0.75)",
@@ -11880,7 +11880,7 @@ exports[`Render SelectColumn for test.2015-03-03_1613-correct-only.diff.html 1`]
 >
  <div
   aria-modal={true}
-  className="ReactModal__Content ReactModal__Content--after-open overlay"
+  className="ReactModal__Content overlay"
   role="dialog"
   tabIndex="-1"
  >
@@ -12125,7 +12125,7 @@ exports[`Render SelectColumn for test.2015-03-03_1613-correct-only.diff.html 1`]
 
 exports[`Render SelectColumn for test.2015-03-03_1613-correct-only.table.html 1`] = `
 <div
- className="ReactModal__Overlay ReactModal__Overlay--after-open"
+ className="ReactModal__Overlay"
  style={
   Object {
    "backgroundColor": "rgba(255, 255, 255, 0.75)",
@@ -12139,7 +12139,7 @@ exports[`Render SelectColumn for test.2015-03-03_1613-correct-only.table.html 1`
 >
  <div
   aria-modal={true}
-  className="ReactModal__Content ReactModal__Content--after-open overlay"
+  className="ReactModal__Content overlay"
   role="dialog"
   tabIndex="-1"
  >
@@ -12384,7 +12384,7 @@ exports[`Render SelectColumn for test.2015-03-03_1613-correct-only.table.html 1`
 
 exports[`Render SelectColumn for test.2015-03-03_1613-reverse.diff.html 1`] = `
 <div
- className="ReactModal__Overlay ReactModal__Overlay--after-open"
+ className="ReactModal__Overlay"
  style={
   Object {
    "backgroundColor": "rgba(255, 255, 255, 0.75)",
@@ -12398,7 +12398,7 @@ exports[`Render SelectColumn for test.2015-03-03_1613-reverse.diff.html 1`] = `
 >
  <div
   aria-modal={true}
-  className="ReactModal__Content ReactModal__Content--after-open overlay"
+  className="ReactModal__Content overlay"
   role="dialog"
   tabIndex="-1"
  >
@@ -12643,7 +12643,7 @@ exports[`Render SelectColumn for test.2015-03-03_1613-reverse.diff.html 1`] = `
 
 exports[`Render SelectColumn for test.2015-03-03_1613-reverse.table.html 1`] = `
 <div
- className="ReactModal__Overlay ReactModal__Overlay--after-open"
+ className="ReactModal__Overlay"
  style={
   Object {
    "backgroundColor": "rgba(255, 255, 255, 0.75)",
@@ -12657,7 +12657,7 @@ exports[`Render SelectColumn for test.2015-03-03_1613-reverse.table.html 1`] = `
 >
  <div
   aria-modal={true}
-  className="ReactModal__Content ReactModal__Content--after-open overlay"
+  className="ReactModal__Content overlay"
   role="dialog"
   tabIndex="-1"
  >
@@ -12902,7 +12902,7 @@ exports[`Render SelectColumn for test.2015-03-03_1613-reverse.table.html 1`] = `
 
 exports[`Render SelectColumn for test-error.2015-03-03_1613.diff.html 1`] = `
 <div
- className="ReactModal__Overlay ReactModal__Overlay--after-open"
+ className="ReactModal__Overlay"
  style={
   Object {
    "backgroundColor": "rgba(255, 255, 255, 0.75)",
@@ -12916,7 +12916,7 @@ exports[`Render SelectColumn for test-error.2015-03-03_1613.diff.html 1`] = `
 >
  <div
   aria-modal={true}
-  className="ReactModal__Content ReactModal__Content--after-open overlay"
+  className="ReactModal__Content overlay"
   role="dialog"
   tabIndex="-1"
  >
@@ -13161,7 +13161,7 @@ exports[`Render SelectColumn for test-error.2015-03-03_1613.diff.html 1`] = `
 
 exports[`Render SelectColumn for test-error.2015-03-03_1613.table.html 1`] = `
 <div
- className="ReactModal__Overlay ReactModal__Overlay--after-open"
+ className="ReactModal__Overlay"
  style={
   Object {
    "backgroundColor": "rgba(255, 255, 255, 0.75)",
@@ -13175,7 +13175,7 @@ exports[`Render SelectColumn for test-error.2015-03-03_1613.table.html 1`] = `
 >
  <div
   aria-modal={true}
-  className="ReactModal__Content ReactModal__Content--after-open overlay"
+  className="ReactModal__Content overlay"
   role="dialog"
   tabIndex="-1"
  >
@@ -13420,7 +13420,7 @@ exports[`Render SelectColumn for test-error.2015-03-03_1613.table.html 1`] = `
 
 exports[`Render SelectColumn for union-table.diff.html 1`] = `
 <div
- className="ReactModal__Overlay ReactModal__Overlay--after-open"
+ className="ReactModal__Overlay"
  style={
   Object {
    "backgroundColor": "rgba(255, 255, 255, 0.75)",
@@ -13434,7 +13434,7 @@ exports[`Render SelectColumn for union-table.diff.html 1`] = `
 >
  <div
   aria-modal={true}
-  className="ReactModal__Content ReactModal__Content--after-open overlay"
+  className="ReactModal__Content overlay"
   role="dialog"
   tabIndex="-1"
  >
@@ -13679,7 +13679,7 @@ exports[`Render SelectColumn for union-table.diff.html 1`] = `
 
 exports[`Render SelectColumn for union-table.table.html 1`] = `
 <div
- className="ReactModal__Overlay ReactModal__Overlay--after-open"
+ className="ReactModal__Overlay"
  style={
   Object {
    "backgroundColor": "rgba(255, 255, 255, 0.75)",
@@ -13693,7 +13693,7 @@ exports[`Render SelectColumn for union-table.table.html 1`] = `
 >
  <div
   aria-modal={true}
-  className="ReactModal__Content ReactModal__Content--after-open overlay"
+  className="ReactModal__Content overlay"
   role="dialog"
   tabIndex="-1"
  >
@@ -13938,7 +13938,7 @@ exports[`Render SelectColumn for union-table.table.html 1`] = `
 
 exports[`Render SelectColumn for union-table-duplicate-results.diff.html 1`] = `
 <div
- className="ReactModal__Overlay ReactModal__Overlay--after-open"
+ className="ReactModal__Overlay"
  style={
   Object {
    "backgroundColor": "rgba(255, 255, 255, 0.75)",
@@ -13952,7 +13952,7 @@ exports[`Render SelectColumn for union-table-duplicate-results.diff.html 1`] = `
 >
  <div
   aria-modal={true}
-  className="ReactModal__Content ReactModal__Content--after-open overlay"
+  className="ReactModal__Content overlay"
   role="dialog"
   tabIndex="-1"
  >
@@ -14197,7 +14197,7 @@ exports[`Render SelectColumn for union-table-duplicate-results.diff.html 1`] = `
 
 exports[`Render SelectColumn for union-table-duplicate-results.table.html 1`] = `
 <div
- className="ReactModal__Overlay ReactModal__Overlay--after-open"
+ className="ReactModal__Overlay"
  style={
   Object {
    "backgroundColor": "rgba(255, 255, 255, 0.75)",
@@ -14211,7 +14211,7 @@ exports[`Render SelectColumn for union-table-duplicate-results.table.html 1`] = 
 >
  <div
   aria-modal={true}
-  className="ReactModal__Content ReactModal__Content--after-open overlay"
+  className="ReactModal__Content overlay"
   role="dialog"
   tabIndex="-1"
  >
@@ -14456,7 +14456,7 @@ exports[`Render SelectColumn for union-table-duplicate-results.table.html 1`] = 
 
 exports[`Render SelectColumn for union-table-mixed.diff.html 1`] = `
 <div
- className="ReactModal__Overlay ReactModal__Overlay--after-open"
+ className="ReactModal__Overlay"
  style={
   Object {
    "backgroundColor": "rgba(255, 255, 255, 0.75)",
@@ -14470,7 +14470,7 @@ exports[`Render SelectColumn for union-table-mixed.diff.html 1`] = `
 >
  <div
   aria-modal={true}
-  className="ReactModal__Content ReactModal__Content--after-open overlay"
+  className="ReactModal__Content overlay"
   role="dialog"
   tabIndex="-1"
  >
@@ -14788,7 +14788,7 @@ exports[`Render SelectColumn for union-table-mixed.diff.html 1`] = `
 
 exports[`Render SelectColumn for union-table-mixed.table.html 1`] = `
 <div
- className="ReactModal__Overlay ReactModal__Overlay--after-open"
+ className="ReactModal__Overlay"
  style={
   Object {
    "backgroundColor": "rgba(255, 255, 255, 0.75)",
@@ -14802,7 +14802,7 @@ exports[`Render SelectColumn for union-table-mixed.table.html 1`] = `
 >
  <div
   aria-modal={true}
-  className="ReactModal__Content ReactModal__Content--after-open overlay"
+  className="ReactModal__Content overlay"
   role="dialog"
   tabIndex="-1"
  >
@@ -15120,7 +15120,7 @@ exports[`Render SelectColumn for union-table-mixed.table.html 1`] = `
 
 exports[`Render SelectColumn for union-table-multiple-results.diff.html 1`] = `
 <div
- className="ReactModal__Overlay ReactModal__Overlay--after-open"
+ className="ReactModal__Overlay"
  style={
   Object {
    "backgroundColor": "rgba(255, 255, 255, 0.75)",
@@ -15134,7 +15134,7 @@ exports[`Render SelectColumn for union-table-multiple-results.diff.html 1`] = `
 >
  <div
   aria-modal={true}
-  className="ReactModal__Content ReactModal__Content--after-open overlay"
+  className="ReactModal__Content overlay"
   role="dialog"
   tabIndex="-1"
  >
@@ -15379,7 +15379,7 @@ exports[`Render SelectColumn for union-table-multiple-results.diff.html 1`] = `
 
 exports[`Render SelectColumn for union-table-multiple-results.table.html 1`] = `
 <div
- className="ReactModal__Overlay ReactModal__Overlay--after-open"
+ className="ReactModal__Overlay"
  style={
   Object {
    "backgroundColor": "rgba(255, 255, 255, 0.75)",
@@ -15393,7 +15393,7 @@ exports[`Render SelectColumn for union-table-multiple-results.table.html 1`] = `
 >
  <div
   aria-modal={true}
-  className="ReactModal__Content ReactModal__Content--after-open overlay"
+  className="ReactModal__Content overlay"
   role="dialog"
   tabIndex="-1"
  >
@@ -15638,7 +15638,7 @@ exports[`Render SelectColumn for union-table-multiple-results.table.html 1`] = `
 
 exports[`Render SelectColumn for union-table-predicateAnalysis.table.html 1`] = `
 <div
- className="ReactModal__Overlay ReactModal__Overlay--after-open"
+ className="ReactModal__Overlay"
  style={
   Object {
    "backgroundColor": "rgba(255, 255, 255, 0.75)",
@@ -15652,7 +15652,7 @@ exports[`Render SelectColumn for union-table-predicateAnalysis.table.html 1`] = 
 >
  <div
   aria-modal={true}
-  className="ReactModal__Content ReactModal__Content--after-open overlay"
+  className="ReactModal__Content overlay"
   role="dialog"
   tabIndex="-1"
  >
@@ -15824,7 +15824,7 @@ exports[`Render SelectColumn for union-table-predicateAnalysis.table.html 1`] = 
 
 exports[`Render SelectColumn for union-table-valueAnalysis.table.html 1`] = `
 <div
- className="ReactModal__Overlay ReactModal__Overlay--after-open"
+ className="ReactModal__Overlay"
  style={
   Object {
    "backgroundColor": "rgba(255, 255, 255, 0.75)",
@@ -15838,7 +15838,7 @@ exports[`Render SelectColumn for union-table-valueAnalysis.table.html 1`] = `
 >
  <div
   aria-modal={true}
-  className="ReactModal__Content ReactModal__Content--after-open overlay"
+  className="ReactModal__Content overlay"
   role="dialog"
   tabIndex="-1"
  >

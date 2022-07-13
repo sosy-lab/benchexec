@@ -10,6 +10,7 @@
 # generated files
 /src/data/dependencies.json
 /src/data/custom-data.json
+/src/workers/dataUrls.js
 
 # dependencies
 /node_modules

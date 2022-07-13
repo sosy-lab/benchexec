@@ -9,11 +9,9 @@ import React from "react";
 import { formatColumnTitle, getRunSetName } from "../utils/utils.js";
 
 export const SelectColumnsButton = ({ handler, ...other }) => (
-  <div>
-    <span onClick={handler} title="" className="selectColumns" {...other}>
-      Click here to select columns
-    </span>
-  </div>
+  <span onClick={handler} title="" className="selectColumns" {...other}>
+    Click here to select columns
+  </span>
 );
 
 export const StandardColumnHeader = ({

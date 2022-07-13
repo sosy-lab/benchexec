@@ -36,7 +36,7 @@ ignore =
     # no warnings about all uses of subprocess
     S404,S603,S607,
     # several scripts use print() for their output, so allow it
-    T001,
+    T001,T201,
     # only relevant if pytest is used
     PT,T003
 per-file-ignores =
@@ -45,6 +45,10 @@ per-file-ignores =
     # wildcard imports significantly shorten test code,
     # accessing /tmp is ok
     benchexec/test*.py:F405,S108
+    # Tool-info modules are not garbage-collected anyway, caching is ok
+    benchexec/tools/*.py:B019
+    # should be refactored completely first (everything in functions)
+    contrib/create_yaml_files.py:B023
 exclude =
     # code copied by build system
     build,

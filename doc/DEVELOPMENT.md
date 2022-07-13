@@ -69,7 +69,7 @@ please raise an issue.
    and update the version number in all references to this DTD in BenchExec.
 
  * The remaining steps can also be mostly automated with the script
-   [release.sh](https://github.com/sosy-lab/benchexec/blob/master/release.sh)
+   [release.sh](https://github.com/sosy-lab/benchexec/blob/main/release.sh)
    (make sure to follow the instructions printed at the end).
 
  * Update version number in field `__version__` of `benchexec/__init__.py`,
@@ -128,6 +128,9 @@ please raise an issue.
    * Build the package:
 
           dpkg-buildpackage --build=binary --no-sign
+
+     Note that this step must not be executed on an Ubuntu 21.10 or newer,
+     as that would create zst compressed packages that are not installable on Debian.
 
    * Sign the package with GPG and upload it to GitHub as part of the release.
 

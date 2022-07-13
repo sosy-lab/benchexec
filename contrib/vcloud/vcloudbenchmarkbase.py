@@ -85,6 +85,12 @@ class VcloudBenchmarkBase(benchexec.benchexec.BenchExec):
             type=str,
             help="Specify files or paths that shall also be transferred and be made available to the run in the cloud.",
         )
+        vcloud_args.add_argument(
+            "--no-ivy-cache",
+            dest="noIvyCache",
+            action="store_true",
+            help="Prevents ivy from caching the downloaded jar files. This prevents clashes due to concurrent access to the cache.",
+        )
 
     def get_param_name(self, pname):
         return "--v" + pname

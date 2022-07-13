@@ -17,6 +17,7 @@ import fnmatch
 import glob
 import logging
 import os
+import re
 import shutil
 import signal as _signal
 import stat
@@ -103,6 +104,14 @@ def copy_of_xml_element(elem):
     return copyElem
 
 
+_ILLEGAL_XML_CHARS = re.compile(r"[^\x09\x0A\x0D\x20-\xD7FF\xE000-\xFFFD]")
+
+
+def is_legal_for_xml(string):
+    """Check whether the given string can be written to XML documents."""
+    return not re.match(_ILLEGAL_XML_CHARS, string)
+
+
 def decode_to_string(toDecode):
     """
     Decode a byte string to a string, return input unchanged if it is already a string.
@@ -130,6 +139,17 @@ def format_number(number, number_of_digits):
     return f"{number:.{number_of_digits}f}"
 
 
+class InputValueError(ValueError, argparse.ArgumentTypeError):
+    """
+    Exception for invalid values passed as input.
+    Inherits from both ValueError and ArgumentTypeError in order to be useful
+    for both inputs to called methods (should raise ValueError)
+    and for inputs from user (in type handlers for argparse.add_argument).
+    """
+
+    pass
+
+
 def parse_int_list(s):
     """
     Parse a comma-separated list of strings.
@@ -145,7 +165,7 @@ def parse_int_list(s):
             start, end = item
             result.extend(range(int(start), int(end) + 1))
         else:
-            raise ValueError(f"invalid range: '{s}'")
+            raise InputValueError(f"invalid range: '{s}'")
     return result
 
 
@@ -155,7 +175,7 @@ def split_number_and_unit(s):
     @return a triple of the number (as int) and the unit
     """
     if not s:
-        raise ValueError("empty value")
+        raise InputValueError("empty value")
     s = s.strip()
     pos = len(s)
     while pos and not s[pos - 1].isdigit():
@@ -181,7 +201,9 @@ def parse_memory_value(s):
     elif unit == "TB":
         return number * _BYTE_FACTOR * _BYTE_FACTOR * _BYTE_FACTOR * _BYTE_FACTOR
     else:
-        raise ValueError(f"unknown unit: {unit} (allowed are B, kB, MB, GB, and TB)")
+        raise InputValueError(
+            f"unknown unit: {unit} (allowed are B, kB, MB, GB, and TB)"
+        )
 
 
 def parse_timespan_value(s):
@@ -198,7 +220,7 @@ def parse_timespan_value(s):
     elif unit == "d":
         return number * 24 * 60 * 60
     else:
-        raise ValueError(f"unknown unit: {unit} (allowed are s, min, h, and d)")
+        raise InputValueError(f"unknown unit: {unit} (allowed are s, min, h, and d)")
 
 
 def parse_frequency_value(s):
@@ -215,14 +237,16 @@ def parse_frequency_value(s):
     elif unit == "GHz":
         return number * _FREQUENCY_FACTOR * _FREQUENCY_FACTOR * _FREQUENCY_FACTOR
     else:
-        raise ValueError(f"unknown unit: {unit} (allowed are Hz, kHz, MHz, and GHz)")
+        raise InputValueError(
+            f"unknown unit: {unit} (allowed are Hz, kHz, MHz, and GHz)"
+        )
 
 
 def non_empty_str(s):
     """Utility for requiring a non-empty string value as command-line parameter."""
     s = str(s)
     if not s:
-        raise argparse.ArgumentTypeError("empty string not allowed")
+        raise InputValueError("empty string not allowed")
     return s
 
 
@@ -478,7 +502,7 @@ class ProcessExitCode(collections.namedtuple("ProcessExitCode", "raw value signa
 
     @classmethod
     def from_raw(cls, exitcode):
-        if not (0 <= exitcode < 2 ** 16):
+        if not (0 <= exitcode < 2**16):
             raise ValueError(f"invalid exitcode {exitcode}")
         # calculation is: exitcode == (returnvalue * 256) + exitsignal
         # highest bit of exitsignal shows only whether a core file was produced, we clear it

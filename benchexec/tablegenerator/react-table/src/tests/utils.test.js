@@ -15,6 +15,7 @@ import {
   hasSameEntries,
   makeFilterSerializer,
   makeFilterDeserializer,
+  splitUrlPathForMatchingPrefix,
 } from "../utils/utils";
 
 describe("isStatusOk", () => {
@@ -72,17 +73,37 @@ describe("hashRouting helpers", () => {
   describe("getHashSearch", () => {
     test("should get params as object", () => {
       const res = getHashSearch("localhost#/bla?id=1&name=benchexec");
-      expect(res).toMatchObject({ id: "1", name: "benchexec" });
+      expect(res).toEqual({ id: "1", name: "benchexec" });
     });
 
     test("should return empty object if no params are given", () => {
       const res = getHashSearch("localhost#bla");
-      expect(res).toMatchObject({});
+      expect(res).toEqual({});
     });
 
     test("should return empty object if only ? is given", () => {
       const res = getHashSearch("localhost#bla?");
-      expect(res).toMatchObject({});
+      expect(res).toEqual({});
+    });
+
+    test("should handle missing value", () => {
+      const res = getHashSearch("localhost#bla?id=1&foo");
+      expect(res).toEqual({ id: "1", foo: "" });
+    });
+
+    test("should handle empty value", () => {
+      const res = getHashSearch("localhost#bla?foo=&id=1");
+      expect(res).toEqual({ foo: "", id: "1" });
+    });
+
+    test("should handle values with =", () => {
+      const res = getHashSearch("localhost#bla?a=b=c");
+      expect(res).toEqual({ a: "b=c" });
+    });
+
+    test("should handle values with ?", () => {
+      const res = getHashSearch("localhost#bla?a=b?c");
+      expect(res).toEqual({ a: "b?c" });
     });
   });
 
@@ -659,6 +680,7 @@ describe("NumberFormatterBuilder", () => {
   test("should format whitespaces according to dataset context", () => {
     builder.addDataItem("1234");
     builder.addDataItem("0.12345");
+    builder.addDataItem("0.02345");
 
     const formatter = builder.build();
 
@@ -668,10 +690,10 @@ describe("NumberFormatterBuilder", () => {
     const number3 = "0.123";
     const number4 = "0.01337";
 
-    const expected1 = "  23      ";
-    const expected2 = "  23.1    ";
-    const expected3 = "    .123  ";
-    const expected4 = "    .01337";
+    const expected1 = "23      ";
+    const expected2 = "23.1    ";
+    const expected3 = "0.123  ";
+    const expected4 = "0.01337";
 
     const actual1 = formatter(number1, { whitespaceFormat: true });
     const actual2 = formatter(number2, { whitespaceFormat: true });
@@ -687,6 +709,7 @@ describe("NumberFormatterBuilder", () => {
   test("should format whitespaces with html", () => {
     builder.addDataItem("1234");
     builder.addDataItem("0.12345");
+    builder.addDataItem("0.02345");
 
     const formatter = builder.build();
 
@@ -696,10 +719,10 @@ describe("NumberFormatterBuilder", () => {
     const number3 = "0.123";
     const number4 = "0.01337";
 
-    const expected1 = "  23&#x2008;     ".replace(/ /g, "&#x2007;");
-    const expected2 = "  23.1    ".replace(/ /g, "&#x2007;");
-    const expected3 = "    .123  ".replace(/ /g, "&#x2007;");
-    const expected4 = "    .01337".replace(/ /g, "&#x2007;");
+    const expected1 = "23&#x2008;     ".replace(/ /g, "&#x2007;");
+    const expected2 = "23.1    ".replace(/ /g, "&#x2007;");
+    const expected3 = "0.123  ".replace(/ /g, "&#x2007;");
+    const expected4 = "0.01337".replace(/ /g, "&#x2007;");
 
     const actual1 = formatter(number1, { whitespaceFormat: true, html: true });
     const actual2 = formatter(number2, { whitespaceFormat: true, html: true });
@@ -710,6 +733,189 @@ describe("NumberFormatterBuilder", () => {
     expect(actual2).toBe(expected2);
     expect(actual3).toBe(expected3);
     expect(actual4).toBe(expected4);
+  });
+
+  test("should correctly round very precise numbers", () => {
+    const num = 0.010974345997965429;
+    const nBuilder = new NumberFormatterBuilder(3);
+
+    expect(nBuilder.build()(num)).toBe("0.0110");
+  });
+
+  test("should handle 0 correctly", () => {
+    const num = 0;
+
+    const formatter = builder.build();
+    const actual = formatter(num, { leadingZero: true });
+
+    expect(actual).toBe("0");
+  });
+
+  test("should handle rounding up to the first decimal digit", () => {
+    const num = 2.1968865394592285;
+
+    const b = new NumberFormatterBuilder(3);
+    const formatter = b.build();
+    const actual = formatter(num, { leadingZero: true });
+
+    expect(actual).toBe("2.20");
+  });
+
+  test("should handle rounding up with integer carry", () => {
+    const num = 10.960994243621826;
+
+    const b = new NumberFormatterBuilder(3);
+    const formatter = b.build();
+
+    const actual = formatter(num, { leadingZero: true });
+
+    expect(actual).toBe("11.0");
+  });
+
+  test("handle carry in very precise numbers", () => {
+    const num = 0.013950547000604274;
+
+    const b = new NumberFormatterBuilder(2);
+    const formatter = b.build();
+
+    const actual = formatter(num, { leadingZero: true });
+
+    expect(actual).toBe("0.014");
+  });
+
+  test("should correctly round number with one integer digit", () => {
+    const num = 2.0000001;
+
+    const b = new NumberFormatterBuilder(4);
+    const formatter = b.build();
+
+    const actual = formatter(num, { leadingZero: true });
+
+    expect(actual).toBe("2.000");
+  });
+
+  test("should correctly handle numbers in scientific notation with a decimal coefficient", () => {
+    const num = 2.2e-7;
+
+    const b = new NumberFormatterBuilder(2);
+    const formatter = b.build();
+
+    const actual = formatter(num, { leadingZero: true });
+
+    expect(actual).toBe("0.00000022");
+  });
+  test("should correctly handle numbers in scientific notation with a integer coeffecient", () => {
+    const num = 2e-7;
+
+    const b = new NumberFormatterBuilder(2);
+    const formatter = b.build();
+
+    const actual = formatter(num, { leadingZero: true });
+
+    expect(actual).toBe("0.0000002");
+  });
+
+  test("should not insert unnecessary decimal spacings", () => {
+    const num = 2.0;
+
+    const b = new NumberFormatterBuilder(1);
+    b.addDataItem(num);
+    const formatter = b.build();
+
+    const actual = formatter(num, { whitespaceFormat: true, html: true });
+
+    expect(actual).toBe("2");
+  });
+
+  test("decimal spacings should not count towards number of character spacings", () => {
+    const num = 2.0;
+
+    const b = new NumberFormatterBuilder(3);
+    b.addDataItem(2.01);
+    const formatter = b.build();
+
+    const actual = formatter(num, { whitespaceFormat: true, html: true });
+
+    expect(actual).toBe("2&#x2008;&#x2007;&#x2007;");
+  });
+
+  test("Should be able to deal with JS rounding errors", () => {
+    const num = 7.1994551950000005;
+
+    const b = new NumberFormatterBuilder(3);
+    b.addDataItem(2.01);
+    const formatter = b.build();
+
+    const actual = formatter(num);
+
+    // As the rounding of the last digits results in a carry-over,
+    // we end up with the addition of 7.1 and 0.1
+    // In JS 7.1 + 0.1 evaluates to 7.199999999999999, which caused an issue
+    expect(actual).toBe("7.20");
+  });
+
+  test("Should always render 0 when resulting value resolves to a Number representation of 0", () => {
+    const num = 0;
+
+    const b = new NumberFormatterBuilder(3);
+    b.addDataItem(0.001);
+    const formatter = b.build();
+
+    const actual = formatter(num, {
+      whitespaceFormat: true,
+      html: true,
+      leadingZero: false,
+    });
+
+    expect(actual).toBe(
+      "0.   ".replace(".", "&#x2008;").replace(/ /g, "&#x2007;"),
+    );
+  });
+
+  describe("additionalFormatting function", () => {
+    test("Should correctly pass number of significant digits in context", async () => {
+      let resolve;
+
+      const promise = new Promise((res) => {
+        resolve = res;
+      });
+
+      const additionalFormatting = (_, context) => {
+        expect(context.significantDigits).toBe(9);
+        resolve();
+      };
+
+      const b = new NumberFormatterBuilder(9);
+      const formatter = b.build();
+
+      formatter(0, { additionalFormatting });
+
+      await promise;
+    });
+
+    test("Should correctly pass max length of decimals of input", async () => {
+      let resolve;
+
+      const promise = new Promise((res) => {
+        resolve = res;
+      });
+
+      const additionalFormatting = (_, context) => {
+        expect(context.maxDecimalInputLength).toBe(4);
+        resolve();
+      };
+
+      const b = new NumberFormatterBuilder(9);
+      b.addDataItem(1);
+      b.addDataItem(1.23);
+      b.addDataItem(1.2345);
+      b.addDataItem(1.234);
+      const formatter = b.build();
+
+      formatter(0, { additionalFormatting });
+
+      await promise;
+    });
   });
 });
 
@@ -809,3 +1015,77 @@ describe(
     });
   }),
 );
+
+describe("splitUrlPathForMatchingPrefix", () => {
+  test("should work if both URLs are equal", () => {
+    const a = new URL("file:///home/foo/bar.html");
+    expect(splitUrlPathForMatchingPrefix(a, a)).toStrictEqual([
+      "/home/foo",
+      "bar.html",
+    ]);
+  });
+  test("should work if first URL ends with slash", () => {
+    const a = new URL("file:///home/foo/");
+    const b = new URL("file:///home/foo");
+    expect(splitUrlPathForMatchingPrefix(a, b)).toStrictEqual([
+      "/home/foo",
+      "",
+    ]);
+  });
+  test("should work if first URL starts with second URL (terminating slash)", () => {
+    const a = new URL("file:///home/foo/bar.html");
+    const b = new URL("file:///home/foo");
+    expect(splitUrlPathForMatchingPrefix(a, b)).toStrictEqual([
+      "/home/foo",
+      "bar.html",
+    ]);
+  });
+  test("should work if first URL starts with second URL (terminating slash)", () => {
+    const a = new URL("file:///home/foo/bar.html");
+    const b = new URL("file:///home/foo/");
+    expect(splitUrlPathForMatchingPrefix(a, b)).toStrictEqual([
+      "/home/foo",
+      "bar.html",
+    ]);
+  });
+  test("should work if second URL starts with first URL", () => {
+    const a = new URL("file:///home/foo/bar.html");
+    const b = new URL("file:///home/foo/bar.html/test");
+    expect(splitUrlPathForMatchingPrefix(a, b)).toStrictEqual([
+      "/home/foo",
+      "bar.html",
+    ]);
+  });
+  test("should work for Windows paths", () => {
+    const a = new URL("file:///C:/foo/bar.html");
+    const b = new URL("file:///C:/foo/bar2.html");
+    expect(splitUrlPathForMatchingPrefix(a, b)).toStrictEqual([
+      "/C:/foo",
+      "bar.html",
+    ]);
+  });
+  test("should work for Windows paths in different directories", () => {
+    const a = new URL("file:///C:/foo/bar.html");
+    const b = new URL("file:///C:/bar/bar.html");
+    expect(splitUrlPathForMatchingPrefix(a, b)).toStrictEqual([
+      "/C:",
+      "foo/bar.html",
+    ]);
+  });
+  test("should produce empty prefix for paths on different partitions", () => {
+    const a = new URL("file:///C:/foo/bar.html");
+    const b = new URL("file:///D:/foo/bar.html");
+    expect(splitUrlPathForMatchingPrefix(a, b)).toStrictEqual([
+      "",
+      "C:/foo/bar.html",
+    ]);
+  });
+  test("should produce empty prefix for paths in different subdirectories of /", () => {
+    const a = new URL("file:///home/bar.html");
+    const b = new URL("file:///tmp/bar.html");
+    expect(splitUrlPathForMatchingPrefix(a, b)).toStrictEqual([
+      "",
+      "home/bar.html",
+    ]);
+  });
+});

@@ -54,7 +54,7 @@ UNIT_CONVERSION = {
     "s": {"ms": 1000, "min": _ONE / 60, "h": _ONE / 3600},
     "B": {"kB": Decimal("1e-3"), "MB": Decimal("1e-6"), "GB": Decimal("1e-9")},
     "J": {
-        "kJ": _ONE / 10 ** 3,
+        "kJ": _ONE / 10**3,
         "Ws": _ONE,
         "kWs": _ONE / 1000,
         "Wh": _ONE / 3600,

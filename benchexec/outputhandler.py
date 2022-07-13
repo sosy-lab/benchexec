@@ -5,6 +5,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import base64
 import bz2
 import collections
 import datetime
@@ -150,7 +151,12 @@ class OutputHandler(object):
         systemInfo.append(ramElem)
         env = ElementTree.SubElement(systemInfo, "environment")
         for var, value in sorted(environment.items()):
-            ElementTree.SubElement(env, "var", name=var).text = value
+            elem = ElementTree.SubElement(env, "var", name=var)
+            if util.is_legal_for_xml(value):
+                elem.text = value
+            else:
+                elem.text = base64.standard_b64encode(value.encode()).decode()
+                elem.attrib["encoding"] = "base64"
 
         self.xml_header.append(systemInfo)
         if runSet:
@@ -684,12 +690,12 @@ class OutputHandler(object):
             return
 
         if isinstance(value, dict):
-            for key, value in value.items():
+            for key, item_value in value.items():
                 if prefix:
                     common_prefix = prefix + "_" + title
                 else:
                     common_prefix = title
-                self.add_column_to_xml(xml, key, value, prefix=common_prefix)
+                self.add_column_to_xml(xml, key, item_value, prefix=common_prefix)
             return
 
         if hasattr(value, "__getitem__") and not isinstance(value, (str, bytes)):

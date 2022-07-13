@@ -21,9 +21,7 @@ describe("FilterCard tests", () => {
     ];
     const Card = createFilterCard({ availableFilters, editable: true });
 
-    const component = renderer.create(Card);
-    const tree = component.toJSON();
-    expect(tree).toMatchSnapshot();
+    expect(renderer.create(Card)).toMatchSnapshot();
   });
 
   test("FilterCard should display checkboxes for status filters", () => {
@@ -35,9 +33,7 @@ describe("FilterCard tests", () => {
     };
     const Card = createFilterCard({ title: "Status", filter });
 
-    const component = renderer.create(Card);
-    const tree = component.toJSON();
-    expect(tree).toMatchSnapshot();
+    expect(renderer.create(Card)).toMatchSnapshot();
   });
 
   test("FilterCard should display range slider for number filters", () => {
@@ -49,9 +45,7 @@ describe("FilterCard tests", () => {
     };
     const Card = createFilterCard({ title: "cputime", filter });
 
-    const component = renderer.create(Card);
-    const tree = component.toJSON();
-    expect(tree).toMatchSnapshot();
+    expect(renderer.create(Card)).toMatchSnapshot();
   });
 
   test("FilterCard should display textbox for text filters", () => {
@@ -61,9 +55,7 @@ describe("FilterCard tests", () => {
     };
     const Card = createFilterCard({ title: "host", filter });
 
-    const component = renderer.create(Card);
-    const tree = component.toJSON();
-    expect(tree).toMatchSnapshot();
+    expect(renderer.create(Card)).toMatchSnapshot();
   });
 
   test("FilterCard should correctly reflect already set status filters", () => {
@@ -76,9 +68,7 @@ describe("FilterCard tests", () => {
     };
     const Card = createFilterCard({ title: "Status", filter });
 
-    const component = renderer.create(Card);
-    const tree = component.toJSON();
-    expect(tree).toMatchSnapshot();
+    expect(renderer.create(Card)).toMatchSnapshot();
   });
 
   test("FilterCard should correctly reflect already set number filters", () => {
@@ -91,9 +81,7 @@ describe("FilterCard tests", () => {
     };
     const Card = createFilterCard({ title: "cputime", filter });
 
-    const component = renderer.create(Card);
-    const tree = component.toJSON();
-    expect(tree).toMatchSnapshot();
+    expect(renderer.create(Card)).toMatchSnapshot();
   });
 
   test("FilterCard should correctly reflect already set text filters", () => {
@@ -104,9 +92,7 @@ describe("FilterCard tests", () => {
     };
     const Card = createFilterCard({ title: "host", filter });
 
-    const component = renderer.create(Card);
-    const tree = component.toJSON();
-    expect(tree).toMatchSnapshot();
+    expect(renderer.create(Card)).toMatchSnapshot();
   });
 
   test("FilterCard should send correct updates on selection of filters", () => {

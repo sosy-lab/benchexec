@@ -13,7 +13,7 @@ import benchexec.result as result
 class Tool(benchexec.tools.template.BaseTool2):
     """
     Tool info for BRICK
-    https://github.com/brick-tool-dev/brick-tool
+    https://github.com/brick-tool-dev/BRICK-2.0
     """
 
     def executable(self, tool_locator):

@@ -13,16 +13,15 @@ module.exports = {
 
     // main configuration of output files:
     // two bundles, one for our code, one for dependencies
-    config.output.filename = "bundle.min.js";
-    config.output.chunkFilename = "[name].min.js";
+    config.output.filename = "[name].min.js";
     config.optimization.runtimeChunk = false;
     config.optimization.splitChunks = {
       chunks: "all",
       cacheGroups: {
-        vendors: {
-          chunks: "all",
+        defaultVendors: {
           name: "vendors",
           test: /(node_modules|src\/data\/dependencies\.json)/,
+          enforce: true,
         },
       },
     };
@@ -32,20 +31,13 @@ module.exports = {
       (p) => p.constructor.name === "MiniCssExtractPlugin",
     );
     if (cssConfig) {
-      cssConfig.options.filename = "bundle.min.css";
-      cssConfig.options.chunkFilename = "[name].min.css";
+      cssConfig.options.filename = "[name].min.css";
     }
 
     // Don't extract license comments, we bundle them separately
     config.optimization.minimizer.find(
       (m) => m.constructor.name === "TerserPlugin",
     ).options.extractComments = false;
-
-    // Make vendor bundle change less often even if our own code changes.
-    config.optimization.occurrenceOrder = false;
-
-    // For consistency with previous configs
-    delete config.output.jsonpFunction;
 
     if (isEnvDevelopment) {
       // Make @data resolve to our dummy data

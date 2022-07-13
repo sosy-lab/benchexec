@@ -169,7 +169,7 @@ def execute_in_namespace(func, use_network_ns=True):
     # three C functions that should be called before and after fork/clone:
     # https://docs.python.org/3/c-api/sys.html#c.PyOS_BeforeFork
     # This is the same that os.fork() does (cf. os_fork_impl
-    # in https://github.com/python/cpython/blob/master/Modules/posixmodule.c).
+    # in https://github.com/python/cpython/blob/main/Modules/posixmodule.c).
     # Furthermore, it is very important that we have the GIL during clone(),
     # otherwise the child will often deadlock when trying to execute Python code.
     # Luckily, the ctypes module allows us to hold the GIL while executing the
@@ -254,13 +254,13 @@ def _generate_native_clone_child_callback():
       PyOS_AfterFork_Child();
       return func_p();
     }
-    """
+    """  # noqa: B018
     # We compile this code and disassemble it with
     """
     gcc -Os -fPIC -shared -fomit-frame-pointer -march=native clone_child_callback.c \
         -o clone_child_callback.o
     objdump -d --disassembler-options=suffix clone_child_callback.o
-    """
+    """  # noqa: B018
     # This gives the following code (machine code left, assembler right)
     #
     # <clone_child_callback>:
@@ -424,8 +424,29 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
 
     # Ensure each special dir is a mountpoint such that the next loop covers it.
     for special_dir in dir_modes.keys():
+        if special_dir == b"/":
+            continue  # handled above
+
         mount_path = mount_base + special_dir
         temp_path = temp_base + special_dir
+        # Ensure special_dir exists even if we mount a hidden dir as parent.
+        os.makedirs(temp_path, exist_ok=True)
+
+        mode = determine_directory_mode(dir_modes, special_dir)
+        parent_mode = determine_directory_mode(dir_modes, os.path.dirname(special_dir))
+        if mode == parent_mode:
+            # If special_dir is not a mountpoint, we do not need to do anything for it,
+            # it will automatically inherit the same directory mode as its parent.
+            # If special_dir is a mountpoint, it will be covered by the loop below
+            # anyway. In none of the two cases this loop needs to mark special_dir as
+            # mountpoint. This avoids useless creation of nested overlay instances.
+            logging.debug(
+                "Skipping directory mount for %s "
+                "because parent already has same mode.",
+                special_dir,
+            )
+            continue
+
         try:
             make_bind_mount(mount_path, mount_path)
         except OSError as e:
@@ -439,7 +460,8 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
                     )
             else:
                 logging.debug("Failed to make %s a bind mount: %s", mount_path, e)
-        os.makedirs(temp_path, exist_ok=True)
+
+    overlay_count = 0
 
     for _unused_source, full_mountpoint, fstype, options in list(get_mount_points()):
         if not util.path_is_below(full_mountpoint, mount_base):
@@ -477,9 +499,10 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
 
         mount_path = mount_base + mountpoint
         temp_path = temp_base + mountpoint
-        work_path = work_base + mountpoint
 
         if mode == DIR_OVERLAY:
+            overlay_count += 1
+            work_path = work_base + b"/" + str(overlay_count).encode()
             os.makedirs(temp_path, exist_ok=True)
             os.makedirs(work_path, exist_ok=True)
             try:
@@ -509,7 +532,9 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
 
         elif mode == DIR_READ_ONLY:
             try:
-                remount_with_additional_flags(mount_path, options, libc.MS_RDONLY)
+                remount_with_additional_flags(
+                    mount_path, fstype, options, libc.MS_RDONLY
+                )
             except OSError as e:
                 if e.errno == errno.EACCES:
                     logging.warning(
@@ -525,12 +550,14 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
                     make_bind_mount(
                         mountpoint, mount_path, recursive=True, private=True
                     )
-                    remount_with_additional_flags(mount_path, options, libc.MS_RDONLY)
+                    remount_with_additional_flags(
+                        mount_path, fstype, options, libc.MS_RDONLY
+                    )
 
         elif mode == DIR_FULL_ACCESS:
             try:
                 # Ensure directory is still a mountpoint by attempting to remount.
-                remount_with_additional_flags(mount_path, options, 0)
+                remount_with_additional_flags(mount_path, fstype, options, 0)
             except OSError as e:
                 if e.errno == errno.EACCES:
                     logging.warning(
@@ -626,10 +653,10 @@ def get_mount_points():
         # According to man 5 fstab, only tab and space escaped, but Linux escapes more:
         # https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/fs/proc_namespace.c?id=12a54b150fb5b6c2f3da932dc0e665355f8a5a48#n85
         return (
-            path.replace(br"\011", b"\011")
-            .replace(br"\040", b"\040")
-            .replace(br"\012", b"\012")
-            .replace(br"\134", b"\134")
+            path.replace(rb"\011", b"\011")
+            .replace(rb"\040", b"\040")
+            .replace(rb"\012", b"\012")
+            .replace(rb"\134", b"\134")
         )
 
     with open("/proc/self/mounts", "rb") as mounts:
@@ -640,9 +667,10 @@ def get_mount_points():
             yield (decode_path(source), decode_path(target), fstype, options)
 
 
-def remount_with_additional_flags(mountpoint, existing_options, mountflags):
+def remount_with_additional_flags(mountpoint, fstype, existing_options, mountflags):
     """Remount an existing mount point with additional flags.
     @param mountpoint: the mount point as bytes
+    @param fstype: the file system as bytes
     @param existing_options: dict with current mount existing_options as bytes
     @param mountflags: int with additional mount existing_options
         (cf. libc.MS_* constants)
@@ -651,6 +679,11 @@ def remount_with_additional_flags(mountpoint, existing_options, mountflags):
     for option, flag in libc.MOUNT_FLAGS.items():
         if option in existing_options:
             mountflags |= flag
+
+    if fstype == b"sysfs":
+        # Always mount sysfs with these options.
+        # This won't hurt and seems to be necessary in edge cases like #749.
+        mountflags |= libc.MS_NODEV | libc.MS_NOSUID | libc.MS_NOEXEC
 
     libc.mount(None, mountpoint, None, mountflags, None)
 
@@ -671,7 +704,7 @@ def make_overlay_mount(mount, lower, upper, work):
         we need to escape ":", which overlayfs uses to separate multiple lower dirs
         (cf. https://www.kernel.org/doc/Documentation/filesystems/overlayfs.txt).
         """
-        return s.replace(b"\\", br"\\").replace(b":", br"\:").replace(b",", br"\,")
+        return s.replace(b"\\", rb"\\").replace(b":", rb"\:").replace(b",", rb"\,")
 
     libc.mount(
         b"none",
@@ -767,7 +800,7 @@ def drop_capabilities(keep=[]):
     Drop all capabilities this process has.
     @param keep: list of capabilities to not drop
     """
-    capdata = (libc.CapData * 2)()  # pytype: disable=not-callable
+    capdata = (libc.CapData * 2)()
     for cap in keep:
         capdata[0].effective |= 1 << cap
         capdata[0].permitted |= 1 << cap

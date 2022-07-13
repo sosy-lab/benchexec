@@ -16,6 +16,7 @@ import itertools
 import logging
 import os.path
 import platform
+import re
 import signal
 import subprocess
 import sys
@@ -31,11 +32,10 @@ import benchexec.model as model
 import benchexec.result as result
 import benchexec.tooladapter as tooladapter
 import benchexec.util
-from benchexec.tablegenerator import htmltable, statistics, util
+from benchexec.tablegenerator import htmltable, statistics, util, statisticstex
 from benchexec.tablegenerator.columns import Column
 from benchexec.tablegenerator.util import TaskId
 import zipfile
-
 
 # Process pool for parallel work.
 # Some of our loops are CPU-bound (e.g., statistics calculations), thus we use
@@ -60,15 +60,19 @@ NAME_START = "results"  # first part of filename of table
 
 DEFAULT_OUTPUT_PATH = "results"
 
-TEMPLATE_FORMATS = ["html", "csv"]
+# All available formats
+TEMPLATE_FORMATS = ["html", "csv", "statistics-tex"]
+
+# Default formats, if no format is specified
+DEFAULT_TEMPLATE_FORMATS = ["html", "csv"]
 
 _BYTE_FACTOR = 1000  # bytes in a kilobyte
 
 UNIT_CONVERSION = {
     "s": {"ms": 1000, "min": 1.0 / 60, "h": 1.0 / 3600},
-    "B": {"kB": 1.0 / 10 ** 3, "MB": 1.0 / 10 ** 6, "GB": 1.0 / 10 ** 9},
+    "B": {"kB": 1.0 / 10**3, "MB": 1.0 / 10**6, "GB": 1.0 / 10**9},
     "J": {
-        "kJ": 1.0 / 10 ** 3,
+        "kJ": 1.0 / 10**3,
         "Ws": 1,
         "kWs": 1.0 / 1000,
         "Wh": 1.0 / 3600,
@@ -523,7 +527,7 @@ class RunSetResult(object):
         # Add system information if present
         for systemTag in sorted(
             resultTag.findall("systeminfo"),
-            key=lambda systemTag: systemTag.get("hostname", "unknown"),
+            key=lambda system_tag: system_tag.get("hostname", "unknown"),
         ):
             cpuTag = systemTag.find("cpu")
             attributes["os"].append(systemTag.find("os").get("name"))
@@ -1160,11 +1164,8 @@ def select_relevant_id_columns(rows):
     if rows:
         prototype_id = rows[0].id
         for column in range(1, len(prototype_id)):
-
-            def id_equal_to_prototype(row):
-                return row.id[column] == prototype_id[column]
-
-            relevant_id_columns.append(not all(map(id_equal_to_prototype, rows)))
+            all_equal = all(row.id[column] == prototype_id[column] for row in rows)
+            relevant_id_columns.append(not all_equal)
     return relevant_id_columns
 
 
@@ -1290,17 +1291,18 @@ def create_tables(
                 rows, runSetResults, use_local_summary, options.correct_only
             )
 
-        for template_format in options.format or TEMPLATE_FORMATS:
+        for template_format in options.format or DEFAULT_TEMPLATE_FORMATS:
             if outputFilePattern == "-":
                 outfile = None
                 logging.info(
                     "Writing %s to stdout...", template_format.upper().ljust(4)
                 )
             else:
+                file_extension = re.sub("[^a-zA-Z]", ".", string=template_format)
                 outfile = os.path.join(
                     outputPath,
                     outputFilePattern.format(
-                        name=name, type=table_type, ext=template_format
+                        name=name, type=table_type, ext=file_extension
                     ),
                 )
                 logging.info(
@@ -1383,9 +1385,11 @@ def write_csv_table(
 
 
 def write_table_in_format(template_format, outfile, options, **kwargs):
-    callback = {"csv": write_csv_table, "html": htmltable.write_html_table}[
-        template_format
-    ]
+    callback = {
+        "csv": write_csv_table,
+        "html": htmltable.write_html_table,
+        "statistics-tex": statisticstex.write_tex_command_table,
+    }[template_format]
 
     if outfile:
         # Force HTML file to be UTF-8 regardless of system encoding because it actually
@@ -1489,7 +1493,7 @@ def create_argument_parser():
         "--format",
         action="append",
         choices=TEMPLATE_FORMATS,
-        help="Which format to generate (HTML or CSV). Can be specified multiple times. If not specified, all are generated.",
+        help="Which format to generate (HTML, CSV or TEX). Can be specified multiple times. If not specified, HTML and CSV are generated.",
     )
     parser.add_argument(
         "-c",

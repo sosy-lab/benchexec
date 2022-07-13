@@ -10,17 +10,17 @@ SPDX-License-Identifier: Apache-2.0
 # BenchExec
 ## A Framework for Reliable Benchmarking and Resource Measurement
 
-[![Build Status](https://travis-ci.org/sosy-lab/benchexec.svg?branch=master)](https://travis-ci.org/sosy-lab/benchexec)
+[![Build Status](https://gitlab.com/sosy-lab/software/benchexec/badges/main/pipeline.svg)](https://gitlab.com/sosy-lab/software/benchexec/pipelines)
 [![Apache 2.0 License](https://img.shields.io/badge/license-Apache--2-brightgreen.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 [![PyPI version](https://img.shields.io/pypi/v/BenchExec.svg)](https://pypi.python.org/pypi/BenchExec)
 [![DOI](https://zenodo.org/badge/30758422.svg)](https://zenodo.org/badge/latestdoi/30758422)
 
 
 **News**:
-- Linux kernel 5.11 finally [makes it possible](https://github.com/sosy-lab/benchexec/blob/master/doc/INSTALL.md#kernel-requirements) to use all BenchExec features on other distributions than Ubuntu!
-- We now provide an [Ubuntu PPA](https://launchpad.net/~sosy-lab/+archive/ubuntu/benchmarking) that makes installing and upgrading BenchExec easier ([docs](https://github.com/sosy-lab/benchexec/blob/master/doc/INSTALL.md#debianubuntu)).
-- An extended version of our paper on BenchExec and its background was published in [STTT](https://link.springer.com/article/10.1007/s10009-017-0469-y),
-  you can read the preprint of [Reliable Benchmarking: Requirements and Solutions](https://www.sosy-lab.org/research/pub/2019-STTT.Reliable_Benchmarking_Requirements_and_Solutions.pdf) online.
+- Linux kernel 5.11 finally [makes it possible](https://github.com/sosy-lab/benchexec/blob/main/doc/INSTALL.md#kernel-requirements) to use all BenchExec features on other distributions than Ubuntu!
+- We now provide an [Ubuntu PPA](https://launchpad.net/~sosy-lab/+archive/ubuntu/benchmarking) that makes installing and upgrading BenchExec easier ([docs](https://github.com/sosy-lab/benchexec/blob/main/doc/INSTALL.md#debianubuntu)).
+- An extended version of our paper on BenchExec and its background was published as open access in the journal STTT,
+  you can read [Reliable Benchmarking: Requirements and Solutions](https://doi.org/10.1007/s10009-017-0469-y) online.
   We also provide a set of [overview slides](https://www.sosy-lab.org/research/prs/Current_ReliableBenchmarking.pdf).
 
 BenchExec provides three major features:
@@ -42,7 +42,7 @@ of the Linux kernel to correctly handle groups of processes.
 For proper isolation of the benchmarks, it uses (if available)
 Linux [user namespaces](http://man7.org/linux/man-pages/man7/namespaces.7.html)
 and an [overlay filesystem](https://www.kernel.org/doc/Documentation/filesystems/overlayfs.txt)
-to create a [container](https://github.com/sosy-lab/benchexec/blob/master/doc/container.md)
+to create a [container](https://github.com/sosy-lab/benchexec/blob/main/doc/container.md)
 that restricts interference of the executed tool with the benchmarking host.
 BenchExec is intended for benchmarking non-interactive tools on Linux systems.
 It measures CPU time, wall time, and memory usage of a tool,
@@ -67,14 +67,20 @@ of the [Ludwig-Maximilians-Universität München (LMU Munich)](https://www.uni-m
 
 ### Links
 
-- [Documentation](https://github.com/sosy-lab/benchexec/tree/master/doc/INDEX.md)
+- [Documentation](https://github.com/sosy-lab/benchexec/tree/main/doc/INDEX.md)
 - [Demo](https://sosy-lab.github.io/benchexec/example-table/svcomp-simple-cbmc-cpachecker.table.html) of a result table
 - [Downloads](https://github.com/sosy-lab/benchexec/releases)
-- [Changelog](https://github.com/sosy-lab/benchexec/tree/master/CHANGELOG.md)
+- [Changelog](https://github.com/sosy-lab/benchexec/tree/main/CHANGELOG.md)
 - [BenchExec GitHub Repository](https://github.com/sosy-lab/benchexec),
   use this for [reporting issues and asking questions](https://github.com/sosy-lab/benchexec/issues)
 - [BenchExec at PyPI](https://pypi.python.org/pypi/BenchExec)
-- Paper [Reliable Benchmarking: Requirements and Solutions](https://www.sosy-lab.org/research/pub/2019-STTT.Reliable_Benchmarking_Requirements_and_Solutions.pdf) about BenchExec ([supplementary webpage](https://www.sosy-lab.org/research/benchmarking/), [slides](https://www.sosy-lab.org/research/prs/Current_ReliableBenchmarking.pdf))
+- [BenchExec at Zenodo](https://doi.org/10.5281/zenodo.1163552): Each release gets a DOI such that you can reference it from your publications and artifacts.
+
+### Literature
+
+- [Reliable Benchmarking: Requirements and Solutions](https://doi.org/10.1007/s10009-017-0469-y), by D. Beyer, S. Löwe, and P. Wendler.  International Journal on Software Tools for Technology Transfer (STTT), 21(1):1-29, 2019. [doi:10.1007/s10009-017-0469-y](https://doi.org/10.1007/s10009-017-0469-y). Journal paper about BenchExec (open access, also with a [supplementary webpage](https://www.sosy-lab.org/research/benchmarking/) and [overview slides](https://www.sosy-lab.org/research/prs/Current_ReliableBenchmarking.pdf))
+- [CPU Energy Meter: A Tool for Energy-Aware Algorithms Engineering](https://doi.org/10.1007/978-3-030-45237-7_8), by D. Beyer and P. Wendler. In Proc. TACAS 2020, part 2, LNCS 12079, pages 126-133, 2020. Springer. [doi:10.1007/978-3-030-45237-7_8](https://doi.org/10.1007/978-3-030-45237-7_8)
+- [Benchmarking and Resource Measurement](https://doi.org/10.1007/978-3-319-23404-5_12), by D. Beyer, S. Löwe, and P. Wendler. In Proc. SPIN 2015, LNCS 9232, pages 160-178, 2015. Springer. [doi:10.1007/978-3-319-23404-5_12](https://doi.org/10.1007/978-3-319-23404-5_12)
 
 ### License and Copyright
 
@@ -83,7 +89,7 @@ copyright [Dirk Beyer](https://www.sosy-lab.org/people/beyer/).
 Exceptions are some tool-info modules
 and third-party code that is bundled in the HTML tables,
 which are available under several other free licenses
-(cf. [folder `LICENSES`](https://github.com/sosy-lab/benchexec/tree/master/LICENSES)).
+(cf. [folder `LICENSES`](https://github.com/sosy-lab/benchexec/tree/main/LICENSES)).
 
 ### Authors
 Maintainer: [Philipp Wendler](https://www.philippwendler.de)

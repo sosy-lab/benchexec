@@ -17,6 +17,19 @@ import logging
 import os
 import urllib.request
 import platform
+from typing import Union
+
+
+# May be extended with higher numbers
+ROMAN_NUMBERS = {
+    1000: "M",
+    500: "D",
+    100: "C",
+    50: "L",
+    10: "X",
+    5: "V",
+    1: "I",
+}
 
 
 class TaskId(collections.namedtuple("TaskId", "name property expected_result runset")):
@@ -277,6 +290,82 @@ def fix_path_if_on_windows(path):
 
 def normalize_line_endings(text):
     return text.replace("\r\n", "\n")
+
+
+def number_to_roman_string(number: Union[int, str]) -> str:
+    """Converts a positive number into the roman form.
+
+    For example:
+    3 -> III
+    14 -> XIV
+
+    Useful for Latex command generation
+
+    Args:
+        number: An integer or string
+
+    Returns:
+        A string which represents the given number in roman number format.
+    """
+
+    number = int(number)
+    if number < 1:
+        raise ValueError(
+            "%s not positive. Only positive numbers can be converted to roman number format",
+            number,
+        )
+
+    max_number = max(ROMAN_NUMBERS)
+    # Count specifies how often max_number fits into number
+    # Number will be the remainder after the divmod (e.g. number < max_number after divmod)
+    count, number = divmod(number, max_number)
+    output_string = ROMAN_NUMBERS[max_number] * count
+
+    highest_power = 1
+    while highest_power <= number:
+        highest_power *= 10
+    highest_power /= 10
+
+    # Displaying each "digit" (with zeros) in roman number format. For example number = 933:
+    # Start with 900 -> CM, then subtract 900 from 933.
+    # Now convert 30 -> XXX, subtract it from 33 and append it to output_string (CM + XXX = CMXXX).
+    # Last convert 3 -> III and subtract it from 3 and append it to output_string (CMXXXIII).
+    while number > 0:
+        if number >= highest_power:
+            prefix = int(number / highest_power)
+            number -= prefix * highest_power
+
+            if prefix <= 3:  # Fill with current letter
+                output_string += ROMAN_NUMBERS[highest_power] * prefix
+            elif prefix == 4:  # Take higher letter and use current letter before
+                output_string += (
+                    ROMAN_NUMBERS[highest_power] + ROMAN_NUMBERS[highest_power * 5]
+                )
+            elif prefix <= 8:  # Higher letter and current letter afterwards
+                output_string += ROMAN_NUMBERS[highest_power * 5] + ROMAN_NUMBERS[
+                    highest_power
+                ] * (prefix - 5)
+            elif prefix == 9:  # Two times higher letter and current letter before
+                output_string += (
+                    ROMAN_NUMBERS[highest_power] + ROMAN_NUMBERS[highest_power * 10]
+                )
+            else:
+                raise ValueError("Unexpected prefix %s", prefix)
+        else:
+            highest_power /= 10
+
+    return output_string
+
+
+def cap_first_letter(word: str) -> str:
+    """Capitalizes the first letter in the given word, ignores the remaining letters
+
+    This differs to pythons str.title() method. str.title() capitalizes the first letter and the remaining letters in lowercase.
+    This method ignores the remaining letters.
+    """
+    if word:
+        return word[0].capitalize() + word[1:]
+    return ""
 
 
 class _DummyFuture(object):

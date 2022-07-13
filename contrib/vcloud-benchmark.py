@@ -10,6 +10,7 @@
 import logging
 import os
 import sys
+import tempfile
 import urllib.request
 import subprocess
 
@@ -45,13 +46,29 @@ def download_required_jars(config):
         # be too verbose).
         cmd += ["-warn"]
     cmd += ["-retrieve", "lib/vcloud-jars/[artifact](-[classifier]).[ext]"]
+    cmd += ["-overwriteMode", "different"]
 
-    # install vcloud jar and dependencies
-    subprocess.run(
-        cmd,
-        cwd=_ROOT_DIR,
-        shell=vcloudutil.is_windows(),  # noqa: S602
-    )
+    # Provide temporary directory
+    temp_dir = None
+    if config.noIvyCache:
+        temp_dir = tempfile.TemporaryDirectory(prefix="vcloud-ivy-cache-")
+        cmd += ["-cache", temp_dir.name]
+    try:
+        # install vcloud jar and dependencies
+        return_code = subprocess.run(
+            cmd,
+            cwd=_ROOT_DIR,
+            shell=vcloudutil.is_windows(),  # noqa: S602
+        ).returncode
+        if return_code != 0:
+            sys.exit(
+                "Retrieving the VerifierCloud client with Ivy failed. "
+                "Please have a look at the Ivy output above. "
+                "Note that Internet access may be necessary."
+            )
+    finally:
+        if temp_dir:
+            temp_dir.cleanup()
 
 
 class VcloudBenchmark(VcloudBenchmarkBase):

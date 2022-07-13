@@ -26,9 +26,9 @@ The documentation for BenchExec is available in the following files:
 - [Resource handling](resources.md) for measuring and limiting resources like time and memory
 - [Tool integration](tool-integration.md) for developing tool-info modules
 
-More on the background of BenchExec can also be found in our paper
-[Reliable Benchmarking: Requirements and Solutions](https://www.sosy-lab.org/research/pub/2019-STTT.Reliable_Benchmarking_Requirements_and_Solutions.pdf)
-and the respective [slides](https://www.sosy-lab.org/research/prs/Current_ReliableBenchmarking.pdf).
+More on the background of BenchExec can also be found in our journal paper
+[Reliable Benchmarking: Requirements and Solutions](https://doi.org/10.1007/s10009-017-0469-y) (open access)
+and the respective [overview slides](https://www.sosy-lab.org/research/prs/Current_ReliableBenchmarking.pdf).
 
 Additional resources such as helper scripts can be found in the directory [contrib](../contrib),
 for example [files for generating plots](../contrib/plots/README.md).

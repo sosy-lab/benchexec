@@ -979,6 +979,24 @@ class TestRunExecutorWithContainer(TestRunExecutor):
             ],
         )
 
+    def test_result_file_log_limit(self):
+        file_count = containerexecutor._MAX_RESULT_FILE_LOG_COUNT + 10
+        with self.assertLogs(level=logging.DEBUG) as log:
+            # Check that all output files are transferred ...
+            self.check_result_files(
+                f"for i in $(seq 1 {file_count}); do touch $i; done",
+                ["*"],
+                list(map(str, range(1, file_count + 1))),
+            )
+        # ... but not all output files are logged ...
+        self.assertEqual(
+            len([msg for msg in log.output if "Transferring output file" in msg]),
+            containerexecutor._MAX_RESULT_FILE_LOG_COUNT,
+        )
+        # ... and the final count is correct.
+        count_msg = next(msg for msg in log.output if " output files matched" in msg)
+        self.assertIn(f"{file_count} output files matched", count_msg)
+
     def test_file_count_limit(self):
         if not os.path.exists("/bin/sh"):
             self.skipTest("missing /bin/sh")
