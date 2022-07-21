@@ -684,8 +684,12 @@ input_files:
 &lt;button style="padding-right:3px" onClick="console.log("This should not work")"&gt;&lt;/button&gt;: &lt;button&gt;test&lt;/button&gt;
 properties:
  - property_file: 
- &lt;file#092nt43&gt;&lt;a
-   href="github.com"&gt;test.prp&lt;/a&gt;&lt;file#092nt43&gt;
+ <a
+  className="link-overlay-file-link"
+  href="<a href=\\"github.com\\">test.prp</a>"
+ >
+  &lt;a href="github.com"&gt;test.prp&lt;/a&gt;
+ </a>
   expected_verdict: false
   broken_list: &lt;ul&gt; &lt;li&gt; item &lt;/li&gt; &lt;/li&gt; &lt;li&gt; &lt;/ul&gt; &lt;/ul&gt;
 </pre>

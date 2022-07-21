@@ -107,6 +107,8 @@ export default class TaskDefinitionViewer extends React.Component {
       );
     }
 
+    // ugly: global override of YAML options, but we use it only here
+    yamlParser.scalarOptions.str.fold = { lineWidth: 0 };
     const contentBySplitter = this.state.content
       .toString()
       .split(this.state.splitterTag);
