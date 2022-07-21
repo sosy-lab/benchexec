@@ -37,7 +37,9 @@ export default class TaskDefinitionViewer extends React.Component {
    */
   prepareTextForRendering = () => {
     if (this.props.yamlText !== "") {
-      const yamlObj = yamlParser.parseDocument(this.props.yamlText);
+      const yamlObj = yamlParser.parseDocument(this.props.yamlText, {
+        prettyErrors: true,
+      });
 
       const inputFiles = yamlObj.get("input_files");
       if (inputFiles) {
@@ -67,7 +69,7 @@ export default class TaskDefinitionViewer extends React.Component {
         }
       }
 
-      this.setState({ content: yamlObj.toString() });
+      this.setState({ content: yamlObj });
     }
   };
 
@@ -87,7 +89,27 @@ export default class TaskDefinitionViewer extends React.Component {
   };
 
   render() {
-    const contentBySplitter = this.state.content.split(this.state.splitterTag);
+    if (this.state.content.errors && this.state.content.errors.length > 0) {
+      return (
+        <>
+          <div className="link-overlay-text">
+            Errors parsing YAML file:
+            <ul>
+              {this.state.content.errors.map((err, i) => (
+                <li key={i}>
+                  <pre>{err.message}</pre>
+                </li>
+              ))}
+            </ul>
+            <pre>{this.props.yamlText}</pre>;
+          </div>
+        </>
+      );
+    }
+
+    const contentBySplitter = this.state.content
+      .toString()
+      .split(this.state.splitterTag);
     const jsxContent = contentBySplitter.map((contentPart) => {
       // If contentPart is enclosed with file tags (= if contentPart is a file which should be linked)
       if (
