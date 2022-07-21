@@ -8,7 +8,7 @@
 import React from "react";
 import ReactModal from "react-modal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTimes } from "@fortawesome/free-solid-svg-icons";
+import { faClose } from "@fortawesome/free-solid-svg-icons";
 import { getRunSetName, setHashSearch } from "../utils/utils";
 
 export default class SelectColumn extends React.Component {
@@ -280,7 +280,7 @@ export default class SelectColumn extends React.Component {
       >
         <div className="link-overlay-header-container">
           <FontAwesomeIcon
-            icon={faTimes}
+            icon={faClose}
             onClick={() => this.handlePopState()}
             className="closing"
           />
