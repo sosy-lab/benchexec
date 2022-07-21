@@ -85,7 +85,7 @@
     "license-checker": "^25.0.1",
     "prettier": "^2.7.1",
     "react-app-rewired": "^2.2.1",
-    "react-scripts": "5.0.0",
+    "react-scripts": "5.0.1",
     "react-test-renderer": "^17.0.2",
     "sass": "^1.53.0"
   }
