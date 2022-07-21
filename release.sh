@@ -80,7 +80,9 @@ python3 -m venv "$TEMP3"
 . "$TEMP3/bin/activate"
 git clone "file://$DIR" "$TEMP3/benchexec"
 pushd "$TEMP3/benchexec"
-pip install "pip >= 10.0" "setuptools >= 42.0.0" "wheel >= 0.32.0"
+pip install "pip >= 10.0" "setuptools >= 42.0.0, < 58" "wheel >= 0.32.0"
+# avoid the wheel on PyPi for nose, it does not work on Python 3.10
+pip install nose --no-binary :all:
 pip install -e "."
 python setup.py nosetests
 python setup.py sdist bdist_wheel
