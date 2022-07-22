@@ -240,7 +240,7 @@ class CgroupsV1(Cgroups):
             # add allowed cpus and memory to cgroup if necessary
             # (otherwise we can't add any tasks)
             def copy_parent_to_child(name):
-                shutil.copyfile(parentCgroup / name, cgroup / name)
+                shutil.copyfile(parentCgroup / name, cgroup / name)  # noqa: B023
 
             try:
                 copy_parent_to_child("cpuset.cpus")
