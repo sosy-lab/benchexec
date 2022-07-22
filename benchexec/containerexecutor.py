@@ -437,8 +437,6 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
 
         logging.debug("Starting process.")
 
-        cgroups = Cgroups.from_system()
-
         try:
             pid, result_fn = self._start_execution(
                 args=args,
@@ -449,7 +447,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 root_dir=rootDir,
                 cwd=workingDir,
                 temp_dir=temp_dir,
-                cgroups=cgroups,
+                cgroups=Cgroups.dummy(),
                 output_dir=output_dir,
                 result_files_patterns=result_files_patterns,
                 child_setup_fn=util.dummy_fn,

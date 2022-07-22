@@ -95,6 +95,10 @@ class Cgroups(ABC):
 
         raise BenchExecException("Could not detect Cgroup Version")
 
+    @staticmethod
+    def dummy():
+        return _DummyCgroups({})
+
     def __init__(self, subsystems=None, cgroup_procinfo=None, fallback=True):
         if subsystems is None:
             self.subsystems = self._supported_subsystems(cgroup_procinfo, fallback)
@@ -366,5 +370,69 @@ class Cgroups(ABC):
         pass
 
     @abstractmethod
+    def disable_swap(self):
+        pass
+
+
+class _DummyCgroups(Cgroups):
+    version = 0
+    IO = "io"
+    CPU = "cpu"
+    CPUSET = "cpuset"
+    FREEZE = "freezer"
+    MEMORY = "memory"
+
+    @property
+    def known_subsystems(self):
+        return set()
+
+    def _supported_subsystems(self, cgroup_procinfo=None, fallback=True):
+        return set()
+
+    def move_to_scope(self):
+        pass
+
+    def add_task(self, pid):
+        pass
+
+    def create_fresh_child_cgroup(self, subsystems, move_to_child=False):
+        pass
+
+    def read_max_mem_usage(self):
+        pass
+
+    def read_mem_pressure(self):
+        pass
+
+    def read_cpu_pressure(self):
+        pass
+
+    def read_io_pressure(self):
+        pass
+
+    def read_usage_per_cpu(self):
+        pass
+
+    def read_available_cpus(self):
+        pass
+
+    def read_available_mems(self):
+        pass
+
+    def read_io_stat(self):
+        pass
+
+    def has_tasks(self, path):
+        pass
+
+    def write_memory_limit(self, limit):
+        pass
+
+    def read_memory_limit(self):
+        pass
+
+    def read_oom_count(self):
+        pass
+
     def disable_swap(self):
         pass
