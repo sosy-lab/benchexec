@@ -8,7 +8,7 @@
 import React from "react";
 import ReactModal from "react-modal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTimes, faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import { faClose, faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import {
   CopyableNode,
   isOkStatus,
@@ -365,7 +365,7 @@ export default class LinkOverlay extends React.Component {
       >
         <div className="link-overlay-header-container">
           <FontAwesomeIcon
-            icon={faTimes}
+            icon={faClose}
             onClick={() => this.handlePopState()}
             className="closing"
           />

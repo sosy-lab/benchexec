@@ -80,7 +80,9 @@ python3 -m venv "$TEMP3"
 . "$TEMP3/bin/activate"
 git clone "file://$DIR" "$TEMP3/benchexec"
 pushd "$TEMP3/benchexec"
-pip install "pip >= 10.0" "setuptools >= 42.0.0" "wheel >= 0.32.0"
+pip install "pip >= 10.0" "setuptools >= 42.0.0, < 58" "wheel >= 0.32.0"
+# avoid the wheel on PyPi for nose, it does not work on Python 3.10
+pip install nose --no-binary :all:
 pip install -e "."
 python setup.py nosetests
 python setup.py sdist bdist_wheel
@@ -102,11 +104,16 @@ cd "BenchExec-$VERSION"
 
 dh_make -p "benchexec_$VERSION" --createorig -f "../$TAR" -i -c apache || true
 
-dpkg-buildpackage --build=binary --no-sign
 dpkg-buildpackage --build=source -sa "--sign-key=$DEBKEY"
+sudo docker run --rm -w "$(pwd)" -v "$TEMP_DEB:$TEMP_DEB:rw" ubuntu:20.04 bash -c '
+  apt-get update
+  apt-get install -y --no-install-recommends dpkg-dev
+  TZ=UTC DEBIAN_FRONTEND=noninteractive apt-get install -y $(dpkg-checkbuilddeps 2>&1 | grep -o "Unmet build dependencies:.*" | cut -d: -f2- | sed "s/([^)]*)//g")
+  dpkg-buildpackage --build=binary --no-sign
+'
 popd
 cp "$TEMP_DEB/benchexec_$VERSION"{.orig.tar.gz,-1_all.deb,-1.dsc,-1.debian.tar.xz,-1_source.buildinfo,-1_source.changes} "$DIST_DIR"
-rm -rf "$TEMP_DEB"
+sudo rm -rf "$TEMP_DEB"
 
 for f in "$DIST_DIR/BenchExec-$VERSION"*.{whl,tar.gz} "$DIST_DIR/benchexec_$VERSION"*.deb; do
   gpg --detach-sign -a -u "$DEBKEY" "$f"

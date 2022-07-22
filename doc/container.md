@@ -209,6 +209,17 @@ Alternatively, if you cannot use either,
 you can use a different access mode for directories, e.g., with `--read-only-dir /`.
 If some directories need to be writable, specify other directory modes for these directories as described above.
 
+#### `Failed to configure container: [Errno 22] Creating overlay mount for '...' failed: Invalid argument`
+Your kernel does not allow mounting an overlay filesystem in this place.
+Often an explanation appears in the system log,
+so check for error messages with `journalctl -e -k -g overlayfs`.
+
+One known problem is [this kernel regression](https://github.com/sosy-lab/benchexec/issues/776),
+which prevents overlays from being used if there is another mountpoint somewhere below the target directory.
+Another limitation of the kernel is that one can only nest overlays twice,
+so if you want to run a container inside a container inside a container,
+at least one of these needs to use a non-overlay mode for this path.
+
 #### `Cannot change into working directory inside container: [Errno 2] No such file or directory`
 Either you have specified an invalid directory as working directory with `--dir`,
 or your current directory on the host is hidden inside the container

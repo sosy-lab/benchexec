@@ -22,6 +22,20 @@ $border-color: rgb(173, 173, 173);
 $hover-color: darken(white, 20%);
 
 //------------------common------------------
+.correct {
+  color: green;
+}
+.error {
+  color: magenta;
+}
+.unknown,
+.correct-unconfirmed {
+  color: $key-color;
+}
+.wrong {
+  color: red;
+}
+
 .link {
   text-decoration: underline;
   color: $key-color;
@@ -666,6 +680,11 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
             padding: 5px 7px;
             font-size: inherit;
             border-radius: 3px;
+
+            & * {
+              // avoid right-aligned content of drop-down in Chromium
+              text-align: left;
+            }
           }
         }
       }
@@ -810,19 +829,6 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
     }
   }
 
-  .correct {
-    color: green;
-  }
-  .error {
-    color: magenta;
-  }
-  .unknown,
-  .correct-unconfirmed {
-    color: $key-color;
-  }
-  .wrong {
-    color: red;
-  }
   .aborted {
     text-align: center;
   }

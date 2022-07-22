@@ -267,6 +267,7 @@ export default class FilterCard extends React.PureComponent {
                       <label
                         htmlFor={`cat-${category}`}
                         onClick={() => ref.current.click()}
+                        className={category}
                       >
                         {category}
                       </label>

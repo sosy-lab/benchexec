@@ -35,7 +35,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         regex_scinote = r"(\d\.?\d*[Ee][+\-]?\d+)"
         regex_pattern = (
             re.escape(identifier)
-            + r"\s*[:=]\s*(-?("
+            + r"\s*[:=]?\s*(-?("
             + regex_integer
             + r"|"
             + regex_decimal

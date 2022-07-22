@@ -130,6 +130,74 @@ column specified in the table-definition file by adding the attribute `relevantF
 `true` to the `column` tag. If the attribute `relevantForDiff` is specified at at least one column,
 only these columns will be taken for comparison.
 
+### CSV Tables
+
+CSV tables are created in the same way as the interactive HTML tables by `table-generator`,
+and the same columns are produced.
+So for more complex tables the customization options described above can be used.
+However, instead of rounded values the CSV tables will contain the raw values.
+The CSV tables can be used for example for creating plots in papers,
+and we provide [examples and scripts](https://github.com/sosy-lab/benchexec/tree/main/contrib/plots) for this.
+
+The column separator is the tab character.
+The first three rows contain a header that identifies each column,
+in a similar manner to the header used in the HTML tables,
+so these rows should be ignored when processing the data.
+The first column(s) contain the task identifiers.
+How many columns are used for the task identifiers depends on the result data,
+i.e., if properties, expected verdicts, etc. are relevant.
+The same data are used as task identifiers in the CSV tables
+as are visible in the first column of the HTML tables,
+just spread over several columns instead of one column with a list of values.
+
+### LaTeX Export
+
+The same statistics that are visible on the summary tab of the HTML tables
+can be exported to LaTeX with `table-generator --format=statistics-tex`
+(`--format` can be specified more than once for producing everything in one go).
+The same options, table definitions, and column features as described above
+are supported.
+
+By default, the produced LaTeX file defines a command for each statistics value
+where the command name consists of the following concatenated parts:
+benchmark name, runset name, column title, category, status, statistic.
+Numbers are replaced by roman numerals, all parts of the name are in camel case,
+and if necessary for uniqueness a counter is appended to the non-unique name part.
+The last part of the name (the "statistic") is
+`Count` or `Score` for the status column,
+and `Sum`, `Min`, `Max`, `Avg`, `Median`, `Stdev`, or `Unit` for numeric columns.
+
+Rounding of values can be specified in the BenchExec table definition
+with `numberOfDigits` as described above,
+but can also easily be done in LaTeX with `siunitx`,
+for which we recommend something like the following configuration:
+```latex
+\usepackage[
+    group-digits=integer, group-minimum-digits=4, % group digits by thousands
+    list-final-separator={, and }, add-integer-zero=false,
+    free-standing-units, unit-optional-argument, % easier input of numbers with units
+    binary-units,
+    detect-weight=true, detect-inline-weight=math, % for bold cells
+    round-mode=figures, round-precision=3, % rounding to 3 significant digits
+    ]{siunitx}
+```
+
+An example of using the statistics in LaTeX could look like this:
+```latex
+\input{benchmark....results.statistics.tex}
+In total, there were \BenchmarkStatusAllCount~tasks
+out of which \BenchmarkStatusCorrectCount~were solved correctly
+in \num{\BenchmarkCputimeCorrectSum}{\BenchmarkCputimeCorrectUnit}.
+```
+
+If further customization is necessary,
+this is possible by defining a command named `\StoreBenchExecResult`
+before including the statistics file.
+This command is called for every statistics value with the following arguments:
+benchmark name, runset name, column title, category, status, statistic, value.
+For exporting the actual table data instead of the statistics,
+please refer to the CSV tables described above.
+
 ### Regression Checking
 
 When given multiple result files, `table-generator` can automatically compute regression counts.

@@ -154,69 +154,13 @@ def execute_benchmark(benchmark, output_handler):
 
         else:
             run_sets_executed += 1
-            # get times before runSet
-            energy_measurement = EnergyMeasurement.create_if_supported()
-            ruBefore = resource.getrusage(resource.RUSAGE_CHILDREN)
-            walltime_before = time.monotonic()
-            if energy_measurement:
-                energy_measurement.start()
-
-            output_handler.output_before_run_set(runSet)
-
-            # put all runs into a queue
-            for run in runSet.runs:
-                _Worker.working_queue.put(run)
-
-            # keep a counter of unfinished runs for the below assertion
-            unfinished_runs = len(runSet.runs)
-            unfinished_runs_lock = threading.Lock()
-
-            def run_finished():
-                nonlocal unfinished_runs
-                with unfinished_runs_lock:
-                    unfinished_runs -= 1
-
-            if not containerexecutor.NATIVE_CLONE_CALLBACK_SUPPORTED:
-                logging.debug(
-                    "Using sys.setswitchinterval() workaround for #435 in container "
-                    "mode because native callback is not available."
-                )
-                py_switch_interval = sys.getswitchinterval()
-                sys.setswitchinterval(1000)
-
-            # create some workers
-            for i in range(min(benchmark.num_of_threads, unfinished_runs)):
-                if STOPPED_BY_INTERRUPT:
-                    break
-                cores = coreAssignment[i] if coreAssignment else None
-                memBanks = memoryAssignment[i] if memoryAssignment else None
-                WORKER_THREADS.append(
-                    _Worker(benchmark, cores, memBanks, output_handler, run_finished)
-                )
-
-            # wait until workers are finished (all tasks done or STOPPED_BY_INTERRUPT)
-            for worker in WORKER_THREADS:
-                worker.join()
-            assert unfinished_runs == 0 or STOPPED_BY_INTERRUPT
-
-            # get times after runSet
-            walltime_after = time.monotonic()
-            energy = energy_measurement.stop() if energy_measurement else None
-            usedWallTime = walltime_after - walltime_before
-            ruAfter = resource.getrusage(resource.RUSAGE_CHILDREN)
-            usedCpuTime = (ruAfter.ru_utime + ruAfter.ru_stime) - (
-                ruBefore.ru_utime + ruBefore.ru_stime
-            )
-            if energy and cpu_packages:
-                energy = {pkg: energy[pkg] for pkg in energy if pkg in cpu_packages}
-
-            if not containerexecutor.NATIVE_CLONE_CALLBACK_SUPPORTED:
-                sys.setswitchinterval(py_switch_interval)
-
-            if STOPPED_BY_INTERRUPT:
-                output_handler.set_error("interrupted", runSet)
-            output_handler.output_after_run_set(
-                runSet, cputime=usedCpuTime, walltime=usedWallTime, energy=energy
+            _execute_run_set(
+                runSet,
+                benchmark,
+                output_handler,
+                coreAssignment,
+                memoryAssignment,
+                cpu_packages,
             )
 
     if throttle_check.has_throttled():
@@ -233,6 +177,75 @@ def execute_benchmark(benchmark, output_handler):
     output_handler.output_after_benchmark(STOPPED_BY_INTERRUPT)
 
     return 0
+
+
+def _execute_run_set(
+    runSet, benchmark, output_handler, coreAssignment, memoryAssignment, cpu_packages
+):
+    # get times before runSet
+    energy_measurement = EnergyMeasurement.create_if_supported()
+    ruBefore = resource.getrusage(resource.RUSAGE_CHILDREN)
+    walltime_before = time.monotonic()
+    if energy_measurement:
+        energy_measurement.start()
+
+    output_handler.output_before_run_set(runSet)
+
+    # put all runs into a queue
+    for run in runSet.runs:
+        _Worker.working_queue.put(run)
+
+    # keep a counter of unfinished runs for the below assertion
+    unfinished_runs = len(runSet.runs)
+    unfinished_runs_lock = threading.Lock()
+
+    def run_finished():
+        nonlocal unfinished_runs
+        with unfinished_runs_lock:
+            unfinished_runs -= 1
+
+    if not containerexecutor.NATIVE_CLONE_CALLBACK_SUPPORTED:
+        logging.debug(
+            "Using sys.setswitchinterval() workaround for #435 in container "
+            "mode because native callback is not available."
+        )
+        py_switch_interval = sys.getswitchinterval()
+        sys.setswitchinterval(1000)
+
+    # create some workers
+    for i in range(min(benchmark.num_of_threads, unfinished_runs)):
+        if STOPPED_BY_INTERRUPT:
+            break
+        cores = coreAssignment[i] if coreAssignment else None
+        memBanks = memoryAssignment[i] if memoryAssignment else None
+        WORKER_THREADS.append(
+            _Worker(benchmark, cores, memBanks, output_handler, run_finished)
+        )
+
+    # wait until workers are finished (all tasks done or STOPPED_BY_INTERRUPT)
+    for worker in WORKER_THREADS:
+        worker.join()
+    assert unfinished_runs == 0 or STOPPED_BY_INTERRUPT
+
+    # get times after runSet
+    walltime_after = time.monotonic()
+    energy = energy_measurement.stop() if energy_measurement else None
+    usedWallTime = walltime_after - walltime_before
+    ruAfter = resource.getrusage(resource.RUSAGE_CHILDREN)
+    usedCpuTime = (ruAfter.ru_utime + ruAfter.ru_stime) - (
+        ruBefore.ru_utime + ruBefore.ru_stime
+    )
+    if energy and cpu_packages:
+        energy = {pkg: energy[pkg] for pkg in energy if pkg in cpu_packages}
+
+    if not containerexecutor.NATIVE_CLONE_CALLBACK_SUPPORTED:
+        sys.setswitchinterval(py_switch_interval)
+
+    if STOPPED_BY_INTERRUPT:
+        output_handler.set_error("interrupted", runSet)
+    output_handler.output_after_run_set(
+        runSet, cputime=usedCpuTime, walltime=usedWallTime, energy=energy
+    )
 
 
 def stop():

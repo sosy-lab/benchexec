@@ -81,7 +81,7 @@ class BenchExecIntegrationTests(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.tmp)
 
-    def run_cmd(self, *args):
+    def run_cmd(self, *args, additional_env=None):
         standard_args = [
             benchexec,
             "--container",
@@ -94,9 +94,14 @@ class BenchExecIntegrationTests(unittest.TestCase):
             "--startTime",
             "2015-01-01 00:00:00",
         ]
+        env = None
+        if additional_env:
+            env = os.environ.copy()
+            env.update(additional_env)
         try:
             output = subprocess.check_output(
                 args=standard_args + list(args),
+                env=env,
                 stderr=subprocess.STDOUT,
                 universal_newlines=True,
             )
@@ -151,7 +156,7 @@ class BenchExecIntegrationTests(unittest.TestCase):
         else:
             basename = f"{test_name}.{name}.2015-01-01_00-00-00."
 
-        expected_files = set(map(lambda x: basename + x, expected_files))
+        expected_files = {basename + expected_file for expected_file in expected_files}
         self.assertSetEqual(
             generated_files,
             expected_files,
@@ -338,9 +343,7 @@ class BenchExecIntegrationTests(unittest.TestCase):
         xml_files = ["results.xml"] + [
             f"results.{files}.xml" for files in benchmark_test_tasks
         ]
-        xml_files = map(
-            lambda x: os.path.join(self.output_dir, basename + x), xml_files
-        )
+        xml_files = [os.path.join(self.output_dir, basename + x) for x in xml_files]
 
         # setup parser with DTD validation
         from lxml import etree
@@ -401,3 +404,25 @@ class BenchExecIntegrationTests(unittest.TestCase):
             result_xml = ElementTree.ElementTree().parse(f)
             actual_description = result_xml.find("description").text
             self.assertEqual(actual_description, test_description.strip())
+
+    def test_environment(self):
+        self.run_cmd(
+            self.benchmark_test_file,
+            "--no-compress-results",
+            additional_env={"BENCHEXEC_TEST_VAR": "\x01\x1b"},
+        )
+
+        generated_files = glob.glob(os.path.join(self.output_dir, "*.xml"))
+        assert generated_files, "error in test, no results generated"
+
+        for f in generated_files:
+            result_xml = ElementTree.ElementTree().parse(f)
+            environment = result_xml.find("systeminfo").find("environment")
+            test_var_tags = [
+                tag
+                for tag in environment.findall("var")
+                if tag.attrib["name"] == "BENCHEXEC_TEST_VAR"
+            ]
+            self.assertEqual(len(test_var_tags), 1)
+            self.assertEqual(test_var_tags[0].text, "ARs=")
+            self.assertEqual(test_var_tags[0].attrib["encoding"], "base64")

@@ -267,6 +267,49 @@ properties: []
 </pre>
 `;
 
+exports[`Render TaskDefinitionViewer for nonterminated_string.yml 1`] = `
+<div
+ className="link-overlay-text"
+>
+ Errors parsing YAML file:
+ <ul>
+  <li>
+   <pre>
+    Missing closing "quote at line 10, column 14:
+input_files: "false_other_sub_task.yml
+      ^
+   </pre>
+  </li>
+  <li>
+   <pre>
+    Multi-line double-quoted string needs to be sufficiently indented at line 10, column 14:
+input_files: "false_other_sub_task.yml
+      ^
+   </pre>
+  </li>
+  <li>
+   <pre>
+    Document boundary indicators are not allowed within string values at line 10, column 14:
+input_files: "false_other_sub_task.yml
+      ^
+   </pre>
+  </li>
+ </ul>
+ <pre>
+  # This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
+#
+# SPDX-FileCopyrightText: 2019-2020 Dirk Beyer &lt;https://www.sosy-lab.org&gt;
+#
+# SPDX-License-Identifier: Apache-2.0
+format_version: "1.0"
+input_files: "false_other_sub_task.yml
+properties:
+ </pre>
+ ;
+</div>
+`;
+
 exports[`Render TaskDefinitionViewer for one_input_file.yml 1`] = `
 <pre
  className="link-overlay-text"
@@ -641,8 +684,12 @@ input_files:
 &lt;button style="padding-right:3px" onClick="console.log("This should not work")"&gt;&lt;/button&gt;: &lt;button&gt;test&lt;/button&gt;
 properties:
  - property_file: 
- &lt;file#092nt43&gt;&lt;a
-   href="github.com"&gt;test.prp&lt;/a&gt;&lt;file#092nt43&gt;
+ <a
+  className="link-overlay-file-link"
+  href="<a href=\\"github.com\\">test.prp</a>"
+ >
+  &lt;a href="github.com"&gt;test.prp&lt;/a&gt;
+ </a>
   expected_verdict: false
   broken_list: &lt;ul&gt; &lt;li&gt; item &lt;/li&gt; &lt;/li&gt; &lt;li&gt; &lt;/ul&gt; &lt;/ul&gt;
 </pre>

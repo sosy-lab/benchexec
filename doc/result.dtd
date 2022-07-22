@@ -38,9 +38,16 @@ SPDX-License-Identifier: Apache-2.0
               model CDATA #REQUIRED>
 <!ELEMENT ram EMPTY>
 <!ATTLIST ram size CDATA #REQUIRED>
+
+<!-- Copy of the environment variables defined when BenchExec is started.
+  If a variable contains a character that is invalid in XML,
+  the value is encoded in Base64 (as defined in RfC 4648)
+  and the encoding attribute is set to "base64".
+-->
 <!ELEMENT environment (var*)>
 <!ELEMENT var (#PCDATA)>
-<!ATTLIST var name CDATA #REQUIRED>
+<!ATTLIST var name CDATA #REQUIRED
+              encoding CDATA #IMPLIED>
 
 <!ELEMENT columns (column*)>
 <!ELEMENT column EMPTY>

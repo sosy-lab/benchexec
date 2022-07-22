@@ -9,6 +9,29 @@ SPDX-License-Identifier: Apache-2.0
 
 # BenchExec Changelog
 
+## BenchExec 3.12
+
+- Compatibility with Python 3.10  
+  **Note that it is expected that this is one of the last releases
+  that supports Python 3.6.**
+- Export of statistics as LaTex commands in table-generator:  
+  All those values that exist in the statistics table on the Summary tab of our HTML tables
+  can be exported as a series of LaTeX commands with `--format=statistics-tex`.
+  These can then be included in a paper and the commands can be used
+  to retrieve the statistics values
+  ([documentation](https://github.com/sosy-lab/benchexec/blob/main/doc/table-generator.md#latex-export)).
+  The script `contrib/statistics-tex.py` that provided a subset of this functionality so far
+  is removed.
+  Thanks to @Sowasvonbot for implementing this!
+- Slight improvements for mounting overlayfs:
+  - Avoid redundant mount points that could prevent certain nested mounts.
+  - Avoid a warning in the kernel log.
+- Fix handling of non-printable characters in environment variables.
+- Slight improvements for the HTML tables:
+  - Use of color for categories in filters
+  - More informative tooltip in quantile plots (thanks @leventeBajczi)
+- Added and improved tool-info modules
+
 ## BenchExec 3.11
 
 This release brings one major feature for the HTML tables:
