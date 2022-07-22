@@ -8,9 +8,8 @@
 import logging
 import os
 import pathlib
-import random
+import secrets
 import signal
-import string
 import tempfile
 import time
 
@@ -217,9 +216,7 @@ class CgroupsV2(Cgroups):
                     b"Delegate": True,
                 }
 
-                random_suffix = "".join(
-                    random.choices(string.ascii_letters + string.digits, k=8)
-                )
+                random_suffix = secrets.token_urlsafe(8)
                 name = f"benchexec_{random_suffix}.scope".encode()
                 manager.Manager.StartTransientUnit(name, b"fail", unit_params)
 
