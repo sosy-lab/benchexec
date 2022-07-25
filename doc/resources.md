@@ -48,6 +48,22 @@ BenchExec also tries to disallow swapping of the benchmarked tool,
 if the kernel allows this.
 
 
+## Time Limit
+
+The time limit of BenchExec always refers to the CPU time of the executed tool
+unless explicitly specified otherwise.
+CPU time measure the time that the tool was actually making use of CPU cores,
+i.e., without times where the tool slept.
+If the tool uses more than one CPU core at the same time,
+the CPU time is the sum of the usage times for each of the cores.
+
+Note that for technical reasons,
+enforcement of time limits is not perfectly exact:
+The tool might run for about a second longer than the time limit specifies.
+If the tool terminates by itself within this time span,
+BenchExec will still count this as a timeout in its `status` value.
+
+
 ## Wall Time
 
 BenchExec always limits the wall time, too, if the CPU time is limited.

@@ -30,6 +30,9 @@ The meanings of the current possible result values are as follows:
   If missing, the run terminated itself without intervention from BenchExec.
   Possible values are currently:
   - `cputime`: CPU-time limit was violated and run was killed.
+     Note that if the tool terminates by itself after the time limit but before BenchExec had a chance to kill it,
+     this value will not be set as `terminationreason` indicates only whether the run was forcefully killed,
+     not whether a limit was exceeded.
   - `cputime-soft`: Soft CPU-time limit was violated and run stopped itself afterwards.
   - `walltime`: Wall-time limit was violated and run was killed.
   - `memory`: Memory limit was violated and run was killed.
