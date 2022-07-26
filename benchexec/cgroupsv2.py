@@ -197,7 +197,9 @@ class CgroupsV2(Cgroups):
             util.write_file(f"+{c}", self.path / "cgroup.subtree_control")
 
         # basic cpu controller support without being enabled
-        child_subsystems = controllers_to_delegate | {"cpu"}
+        child_subsystems = controllers_to_delegate | {self.CPU, self.FREEZE}
+        if self.KILL in self.subsystems:
+            child_subsystems.add(self.KILL)
         return CgroupsV2({c: child_path for c in child_subsystems})
 
     def move_to_scope(self):
