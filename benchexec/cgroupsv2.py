@@ -342,7 +342,7 @@ class CgroupsV2(Cgroups):
         return bytes_read, bytes_written
 
     def has_tasks(self, path):
-        return os.path.getsize(path / "cgroup.procs") > 0
+        return bool((path / "cgroup.procs").read_bytes().strip())
 
     def write_memory_limit(self, limit):
         self.set_value(self.MEMORY, "max", limit)
