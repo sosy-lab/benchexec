@@ -75,6 +75,51 @@ def _get_cgroup_version():
 
 
 class Cgroups(ABC):
+    """
+    A representation of a cgroup that attempts to abstract away the differences
+    between cgroups v1 and v2.
+    The typical way to get a usable instance is to call initialize().
+    """
+
+    @staticmethod
+    def initialize():
+        """
+        Try to find or create a usable cgroup and return a Cgroups instance
+        that represents it.
+
+        Calling this method may have an effect on the cgroup of the current process,
+        e.g., it may be moved to a different cgroup.
+        This will likely cause problems if other non-BenchExec components
+        are also using cgroups in the same process.
+        Even though it may change the cgroup state of the process,
+        this method is safe to call more than once and it is expected that later calls
+        do not produce further changes.
+
+        The returned cgroup may or may not have child cgroups
+        and the current process may or may not be contained in the returned cgroup
+        or one of its children.
+
+        This method cannot guarantee that a usable cgroup is found,
+        but it will always return a Cgroups instance.
+        Call require_subsystem() on it in order to find out which subsystems (if any)
+        are usable.
+
+        Typically, callers should use the returned cgroup instance only for creating
+        child cgroups and not call any other modifying method such as add_task().
+        """
+        version = _get_cgroup_version()
+        if version == CGROUPS_V1:
+            from .cgroupsv1 import CgroupsV1
+
+            return CgroupsV1()
+
+        elif version == CGROUPS_V2:
+            from .cgroupsv2 import initialize
+
+            return initialize()
+
+        return Cgroups.dummy()
+
     @staticmethod
     def from_system(cgroup_procinfo=None, fallback=True, initial_cgroup=False):
         version = _get_cgroup_version()
@@ -309,10 +354,6 @@ class Cgroups(ABC):
         pass
 
     @abstractmethod
-    def move_to_scope(self):
-        pass
-
-    @abstractmethod
     def add_task(self, pid):
         pass
 
@@ -392,9 +433,6 @@ class _DummyCgroups(Cgroups):
 
     def _supported_subsystems(self, cgroup_procinfo=None, fallback=True):
         return set()
-
-    def move_to_scope(self):
-        pass
 
     def add_task(self, pid):
         pass

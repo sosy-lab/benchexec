@@ -139,8 +139,7 @@ def main(argv=None):
 
     options = parser.parse_args(argv[1:])
 
-    cgroups = Cgroups.from_system(initial_cgroup=True)
-    cgroups.move_to_scope()
+    Cgroups.initialize()
 
     if options.no_thread:
         check_cgroup_availability(options.wait)

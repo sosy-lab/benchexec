@@ -44,8 +44,7 @@ class TestRunExecutor(unittest.TestCase):
         if not hasattr(cls, "assertRegex"):
             cls.assertRegex = cls.assertRegexpMatches
 
-        cls.cgroups = Cgroups.from_system(initial_cgroup=True)
-        cls.cgroups.move_to_scope()
+        cls.cgroups = Cgroups.initialize()
 
     def setUp(self, *args, **kwargs):
         with self.skip_if_logs(

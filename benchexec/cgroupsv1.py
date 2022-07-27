@@ -251,9 +251,6 @@ class CgroupsV1(Cgroups):
 
         return CgroupsV1(createdCgroupsPerSubsystem)
 
-    def move_to_scope(self):
-        logging.debug("moving to scope currently not supported for cgroups v1")
-
     def add_task(self, pid):
         """
         Add a process to the cgroups represented by this instance.

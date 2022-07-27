@@ -330,7 +330,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         """
         This function initializes the cgroups for the limitations and measurements.
         """
-        self.cgroups = Cgroups.from_system()
+        self.cgroups = Cgroups.initialize()
         critical_cgroups = set()
 
         for subsystem in self._cgroup_subsystems:

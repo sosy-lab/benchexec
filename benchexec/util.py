@@ -778,7 +778,7 @@ def get_pgrp_pids(pgid):
                     elif key == "NSpgid:":
                         status_pgid = value
                 if pgid == int(status_pgid):
-                    pids.append(pid.strip())
+                    pids.append(int(pid))
         except OSError:
             # ignore race conditions with processes disappearing
             # they aren't interesting to us anyway as processes

@@ -11,6 +11,7 @@ import pathlib
 import secrets
 import signal
 import tempfile
+import threading
 import time
 
 
@@ -20,6 +21,104 @@ from benchexec.cgroups import Cgroups
 
 uid = os.getuid()
 CGROUP_NAME_PREFIX = "benchmark_"
+
+# Global state that stores the cgroup we have prepared for use.
+# Global state is not nice, but here we have to use it because during cgroup
+# initialization we have to move the current process into a cgroup,
+# and this is inherently global state (because it affects the whole process).
+# So we need to know whether we have done this already or not.
+_usable_cgroup = None
+_usable_cgroup_lock = threading.Lock()
+
+
+def initialize():
+    """
+    Attempt to get a usable cgroup.
+    This may involve moving the current process into a different cgroup,
+    but this method is idempotent.
+    """
+    global _usable_cgroup
+    if _usable_cgroup:
+        return _usable_cgroup
+
+    with _usable_cgroup_lock:
+        if _usable_cgroup:
+            return _usable_cgroup
+
+        cgroup = CgroupsV2()
+
+        allowed_pids = set(util.get_pgrp_pids(os.getpgid(0)))
+        if set(cgroup.get_all_tasks()) <= allowed_pids:
+            # If we are the only process, somebody prepared a cgroup for us. Use it.
+            logging.debug("BenchExec was started in its own cgroup: %s", cgroup)
+
+        elif _create_systemd_scope_for_us():
+            # If we can create a systemd scope for us and move ourselves in it,
+            # we have a usable cgroup afterwards.
+            cgroup = CgroupsV2()
+
+        else:
+            # No usable cgroup. We might still be able to continue if we actually
+            # do not require cgroups for benchmarking. So we do not fail here
+            # but return an instance that will on produce an error later.
+            return CgroupsV2({})
+
+        # Now we are the only process in this cgroup. In order to make it usable for
+        # benchmarking, we need to move ourselves into a child cgroup.
+        child_cgroup = cgroup.create_fresh_child_cgroup(
+            cgroup.subsystems.keys(), move_to_child=True
+        )
+        assert child_cgroup.has_tasks()
+        assert not cgroup.has_tasks()
+
+        _usable_cgroup = cgroup
+
+    return _usable_cgroup
+
+
+def _create_systemd_scope_for_us():
+    """
+    Attempt to create a systemd scope for us (with pystemd).
+    If it works this process is moved into the fresh scope.
+
+    TODO: We should probably also move our child processes to the scope.
+
+    @return: a boolean indicating whether this succeeded
+    """
+    try:
+        from pystemd.dbuslib import DBus
+        from pystemd.dbusexc import DBusFileNotFoundError
+        from pystemd.systemd1 import Manager, Unit
+
+        with DBus(user_mode=True) as bus, Manager(bus=bus) as manager:
+            unit_params = {
+                # workaround for not declared parameters, remove in the future
+                b"_custom": (b"PIDs", b"au", [os.getpid()]),
+                b"Delegate": True,
+            }
+
+            random_suffix = secrets.token_urlsafe(8)
+            name = f"benchexec_{random_suffix}.scope".encode()
+            manager.Manager.StartTransientUnit(name, b"fail", unit_params)
+            # StartTransientUnit is async, so we need to ensure it has finished
+            # and moved our process before we continue.
+            # We might need a loop here (so far it always seems to work without,
+            # maybe systemd serializes this request with the unit creation).
+            with Unit(name, bus=bus) as unit:
+                assert unit.LoadState == b"loaded"
+                assert unit.ActiveState == b"active"
+                assert unit.SubState == b"running"
+                # Cgroup path would be accessible as unit.ControlGroup if we need it.
+
+            logging.debug("Process moved to a fresh systemd scope: %s", name.decode())
+            return True
+
+    except ImportError:
+        logging.debug("pystemd could not be imported.")
+    except DBusFileNotFoundError as e:
+        logging.debug("No user DBus found, not using pystemd: %s", e)
+
+    return False
 
 
 def _find_cgroup_mount():
@@ -156,6 +255,9 @@ class CgroupsV2(Cgroups):
         subsystems = set(subsystems)
         assert subsystems.issubset(self.subsystems.keys())
 
+        if not subsystems:
+            return Cgroups.dummy()
+
         tasks = set(util.read_file(self.path / "cgroup.procs").split())
         if tasks and not move_to_child:
             raise BenchExecException(
@@ -201,40 +303,6 @@ class CgroupsV2(Cgroups):
         if self.KILL in self.subsystems:
             child_subsystems.add(self.KILL)
         return CgroupsV2({c: child_path for c in child_subsystems})
-
-    def move_to_scope(self):
-        logging.debug("Moving runexec main process to scope")
-
-        pids = util.get_pgrp_pids(os.getpgid(0))
-        try:
-            from pystemd.dbuslib import DBus
-            from pystemd.dbusexc import DBusFileNotFoundError
-            from pystemd.systemd1 import Manager, Unit
-
-            with DBus(user_mode=True) as bus, Manager(bus=bus) as manager:
-                unit_params = {
-                    # workaround for not declared parameters, remove in the future
-                    b"_custom": (b"PIDs", b"au", [int(p) for p in pids]),
-                    b"Delegate": True,
-                }
-
-                random_suffix = secrets.token_urlsafe(8)
-                name = f"benchexec_{random_suffix}.scope".encode()
-                manager.Manager.StartTransientUnit(name, b"fail", unit_params)
-
-                with Unit(name, bus=bus):
-                    self.subsystems = self._supported_subsystems()
-                    self.paths = set(self.subsystems.values())
-                    self.path = next(iter(self.subsystems.values()))
-                    logging.debug(
-                        f"moved to scope {name}, subsystems: {self.subsystems}"
-                    )
-        except ImportError:
-            logging.warn("pystemd could not be imported")
-        except DBusFileNotFoundError:
-            logging.warn("no user DBus found, not using pystemd")
-
-        self.create_fresh_child_cgroup(self.subsystems.keys(), move_to_child=True)
 
     def add_task(self, pid):
         """
