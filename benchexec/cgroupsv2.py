@@ -378,9 +378,11 @@ class CgroupsV2(Cgroups):
         bytes_written = 0
         for io_line in self.get_file_lines(self.IO, "stat"):
             dev_no, *stats = io_line.split(" ")
-            stats_map = {s[0]: s[1] for s in (s.split("=") for s in stats)}
-            bytes_read += int(stats_map["rbytes"])
-            bytes_written += int(stats_map["wbytes"])
+            stats_map = {s[0]: s[1] for s in (s.split("=") for s in stats if s)}
+            if "rbytes" in stats_map:
+                bytes_read += int(stats_map["rbytes"])
+            if "wbytes" in stats_map:
+                bytes_written += int(stats_map["wbytes"])
         return bytes_read, bytes_written
 
     def has_tasks(self, path=None):
