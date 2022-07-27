@@ -128,37 +128,36 @@ def _register_process_with_cgrulesengd(pid):
 
 
 class CgroupsV1(Cgroups):
+    version = 1
+
+    IO = "blkio"
+    CPU = "cpuacct"
+    CPUSET = "cpuset"
+    FREEZE = "freezer"
+    MEMORY = "memory"
+
+    known_subsystems = {
+        # cgroups for BenchExec
+        IO,
+        CPU,
+        CPUSET,
+        FREEZE,
+        MEMORY,
+        # other cgroups users might want
+        "cpu",
+        "devices",
+        "net_cls",
+        "net_prio",
+        "hugetlb",
+        "perf_event",
+        "pids",
+    }
+
     def __init__(self, subsystems=None, cgroup_procinfo=None, fallback=True):
-        self.version = 1
-
-        self.IO = "blkio"
-        self.CPU = "cpuacct"
-        self.CPUSET = "cpuset"
-        self.FREEZE = "freezer"
-        self.MEMORY = "memory"
-
         super(CgroupsV1, self).__init__(subsystems, cgroup_procinfo, fallback)
 
-    @property
-    def known_subsystems(self):
-        return {
-            # cgroups for BenchExec
-            self.IO,
-            self.CPU,
-            self.CPUSET,
-            self.FREEZE,
-            self.MEMORY,
-            # other cgroups users might want
-            "cpu",
-            "devices",
-            "net_cls",
-            "net_prio",
-            "hugetlb",
-            "perf_event",
-            "pids",
-        }
-
-    def _supported_subsystems(self, cgroup_procinfo=None, fallback=True):
+    @classmethod
+    def _supported_subsystems(cls, cgroup_procinfo=None, fallback=True):
         """
         Return a Cgroup object with the cgroups of the current process.
         Note that it is not guaranteed that all subsystems are available
@@ -179,7 +178,7 @@ class CgroupsV1(Cgroups):
             my_cgroups = dict(_parse_proc_pid_cgroup(cgroup_procinfo))
 
         cgroupsParents = {}
-        for subsystem, mount in self._find_cgroup_mounts():
+        for subsystem, mount in cls._find_cgroup_mounts():
             # Ignore mount points where we do not have any access,
             # e.g. because a parent directory has insufficient permissions
             # (lxcfs mounts cgroups under /run/lxcfs in such a way).
@@ -196,7 +195,8 @@ class CgroupsV1(Cgroups):
 
         return cgroupsParents
 
-    def _find_cgroup_mounts(self):
+    @classmethod
+    def _find_cgroup_mounts(cls):
         """
         Return the information which subsystems are mounted where.
         @return a generator of tuples (subsystem, mountpoint)
@@ -209,7 +209,7 @@ class CgroupsV1(Cgroups):
                         mountpoint = pathlib.Path(mount[1])
                         options = mount[3]
                         for option in options.split(","):
-                            if option in self.known_subsystems:
+                            if option in cls.known_subsystems:
                                 yield (option, mountpoint)
         except OSError:
             logging.exception("Cannot read /proc/mounts")

@@ -195,38 +195,37 @@ def kill_all_tasks_in_cgroup(cgroup, ensure_empty=True):
 
 
 class CgroupsV2(Cgroups):
+    version = 2
+
+    IO = "io"
+    CPU = "cpu"
+    CPUSET = "cpuset"
+    MEMORY = "memory"
+    PID = "pids"
+    FREEZE = "freeze"
+    KILL = "kill"
+
+    known_subsystems = {
+        # cgroups for BenchExec
+        IO,
+        CPU,
+        CPUSET,
+        MEMORY,
+        PID,
+        # not really a subsystem anymore, but implicitly supported
+        FREEZE,
+        KILL,
+    }
+
     def __init__(self, subsystems=None, cgroup_procinfo=None, fallback=True):
-        self.version = 2
-
-        self.IO = "io"
-        self.CPU = "cpu"
-        self.CPUSET = "cpuset"
-        self.MEMORY = "memory"
-        self.PID = "pids"
-        self.FREEZE = "freeze"
-        self.KILL = "kill"
-
         super(CgroupsV2, self).__init__(subsystems, cgroup_procinfo, fallback)
 
         self.path = (
             next(iter(self.subsystems.values())) if len(self.subsystems) else None
         )
 
-    @property
-    def known_subsystems(self):
-        return {
-            # cgroups for BenchExec
-            self.IO,
-            self.CPU,
-            self.CPUSET,
-            self.MEMORY,
-            self.PID,
-            # not really a subsystem anymore, but implicitly supported
-            self.FREEZE,
-            self.KILL,
-        }
-
-    def _supported_subsystems(self, cgroup_procinfo=None, fallback=True):
+    @classmethod
+    def _supported_subsystems(cls, cgroup_procinfo=None, fallback=True):
         logging.debug(
             "Analyzing /proc/mounts and /proc/self/cgroup to determine cgroups."
         )
@@ -244,13 +243,13 @@ class CgroupsV2(Cgroups):
 
         # introduced in 5.14
         if (cgroup_path / "cgroup.kill").exists():
-            subsystems.add(self.KILL)
+            subsystems.add(cls.KILL)
 
         # always supported in v2
-        subsystems.add(self.FREEZE)
+        subsystems.add(cls.FREEZE)
 
         # basic support always available in v2, this supports everything we use
-        subsystems.add(self.CPU)
+        subsystems.add(cls.CPU)
 
         return {k: cgroup_path for k in subsystems}
 

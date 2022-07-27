@@ -343,13 +343,9 @@ class Cgroups(ABC):
         del self.paths
         del self.subsystems
 
-    @property
+    @classmethod
     @abstractmethod
-    def known_subsystems(self):
-        pass
-
-    @abstractmethod
-    def _supported_subsystems(self, cgroup_procinfo=None, fallback=True):
+    def _supported_subsystems(cls, cgroup_procinfo=None, fallback=True):
         pass
 
     @abstractmethod
@@ -426,11 +422,10 @@ class _DummyCgroups(Cgroups):
     FREEZE = "freezer"
     MEMORY = "memory"
 
-    @property
-    def known_subsystems(self):
-        return set()
+    known_subsystems = set()
 
-    def _supported_subsystems(self, cgroup_procinfo=None, fallback=True):
+    @classmethod
+    def _supported_subsystems(cls, cgroup_procinfo=None, fallback=True):
         return set()
 
     def add_task(self, pid):
