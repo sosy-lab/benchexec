@@ -57,15 +57,13 @@ def check_cgroup_availability(wait=1):
                 and not all(c == "-" for c in line)
             ):
                 lines.append(line)
-    task_cgroups = Cgroups.from_system(cgroup_procinfo=lines, fallback=False)
+    task_cgroups = Cgroups.from_system(cgroup_procinfo=lines)
 
     fail = False
-    for subsystem in (
-        my_cgroups.CPU,
-        my_cgroups.CPUSET,
-        my_cgroups.MEMORY,
-        my_cgroups.FREEZE,
-    ):
+    expected_subsystems = [my_cgroups.FREEZE]
+    if my_cgroups.version == 1:
+        expected_subsystems += [my_cgroups.CPU, my_cgroups.CPUSET, my_cgroups.MEMORY]
+    for subsystem in expected_subsystems:
         if subsystem in my_cgroups:
             if not str(task_cgroups[subsystem]).startswith(str(my_cgroups[subsystem])):
                 logging.warning(

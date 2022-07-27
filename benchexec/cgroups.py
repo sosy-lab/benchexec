@@ -121,22 +121,21 @@ class Cgroups(ABC):
         return Cgroups.dummy()
 
     @staticmethod
-    def from_system(cgroup_procinfo=None, fallback=True, initial_cgroup=False):
+    def from_system(cgroup_procinfo=None):
+        """
+        Create a cgroups instance representing the current cgroup of the process.
+
+        @param cgroup_procinfo: Optional, if given use this instead of /proc/self/cgroup
+        """
         version = _get_cgroup_version()
         if version == CGROUPS_V1:
             from .cgroupsv1 import CgroupsV1
 
-            return CgroupsV1(cgroup_procinfo=cgroup_procinfo, fallback=fallback)
+            return CgroupsV1(cgroup_procinfo=cgroup_procinfo, fallback=False)
         elif version == CGROUPS_V2:
             from .cgroupsv2 import CgroupsV2
 
-            cgroups = CgroupsV2(cgroup_procinfo=cgroup_procinfo, fallback=fallback)
-            if not initial_cgroup:
-                cgroups.create_fresh_child_cgroup(
-                    cgroups.subsystems.keys(), move_to_child=True
-                )
-
-            return cgroups
+            return CgroupsV2(cgroup_procinfo=cgroup_procinfo, fallback=False)
 
         raise BenchExecException("Could not detect Cgroup Version")
 

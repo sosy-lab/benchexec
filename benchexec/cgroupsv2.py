@@ -230,10 +230,17 @@ class CgroupsV2(Cgroups):
         logging.debug(
             "Analyzing /proc/mounts and /proc/self/cgroup to determine cgroups."
         )
-        cgroup_path = _find_own_cgroups()
+        if cgroup_procinfo is None:
+            cgroup_path = _find_own_cgroups()
+        else:
+            cgroup_path = _parse_proc_pid_cgroup(cgroup_procinfo)
 
-        with open(cgroup_path / "cgroup.controllers") as subsystems_file:
-            subsystems = set(subsystems_file.readline().strip().split())
+        try:
+            with open(cgroup_path / "cgroup.controllers") as subsystems_file:
+                subsystems = set(subsystems_file.readline().strip().split())
+        except OSError:
+            # happens if we parse cgroup_procinfo of a deleted cgroup for check_cgroups
+            subsystems = set()
 
         # introduced in 5.14
         if (cgroup_path / "cgroup.kill").exists():
