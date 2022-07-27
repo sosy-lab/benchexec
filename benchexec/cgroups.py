@@ -111,7 +111,7 @@ class Cgroups(ABC):
         if version == CGROUPS_V1:
             from .cgroupsv1 import CgroupsV1
 
-            return CgroupsV1()
+            return CgroupsV1.from_system()
 
         elif version == CGROUPS_V2:
             from .cgroupsv2 import initialize
@@ -131,11 +131,11 @@ class Cgroups(ABC):
         if version == CGROUPS_V1:
             from .cgroupsv1 import CgroupsV1
 
-            return CgroupsV1(cgroup_procinfo=cgroup_procinfo, fallback=False)
+            return CgroupsV1.from_system(cgroup_procinfo, fallback=False)
         elif version == CGROUPS_V2:
             from .cgroupsv2 import CgroupsV2
 
-            return CgroupsV2(cgroup_procinfo=cgroup_procinfo, fallback=False)
+            return CgroupsV2.from_system(cgroup_procinfo)
 
         raise BenchExecException("Could not detect Cgroup Version")
 
@@ -143,11 +143,8 @@ class Cgroups(ABC):
     def dummy():
         return _DummyCgroups({})
 
-    def __init__(self, subsystems=None, cgroup_procinfo=None, fallback=True):
-        if subsystems is None:
-            self.subsystems = self._supported_subsystems(cgroup_procinfo, fallback)
-        else:
-            self.subsystems = subsystems
+    def __init__(self, subsystems):
+        self.subsystems = subsystems
 
         assert set(self.subsystems.keys()) <= self.known_subsystems
         assert all(self.subsystems.values())
@@ -343,11 +340,6 @@ class Cgroups(ABC):
         del self.paths
         del self.subsystems
 
-    @classmethod
-    @abstractmethod
-    def _supported_subsystems(cls, cgroup_procinfo=None, fallback=True):
-        pass
-
     @abstractmethod
     def add_task(self, pid):
         pass
@@ -423,10 +415,6 @@ class _DummyCgroups(Cgroups):
     MEMORY = "memory"
 
     known_subsystems = set()
-
-    @classmethod
-    def _supported_subsystems(cls, cgroup_procinfo=None, fallback=True):
-        return set()
 
     def add_task(self, pid):
         pass

@@ -153,11 +153,8 @@ class CgroupsV1(Cgroups):
         "pids",
     }
 
-    def __init__(self, subsystems=None, cgroup_procinfo=None, fallback=True):
-        super(CgroupsV1, self).__init__(subsystems, cgroup_procinfo, fallback)
-
     @classmethod
-    def _supported_subsystems(cls, cgroup_procinfo=None, fallback=True):
+    def from_system(cls, cgroup_procinfo=None, fallback=True):
         """
         Return a Cgroup object with the cgroups of the current process.
         Note that it is not guaranteed that all subsystems are available
@@ -193,7 +190,7 @@ class CgroupsV1(Cgroups):
                     cgroupPath = fallbackPath
                 cgroupsParents[subsystem] = cgroupPath
 
-        return cgroupsParents
+        return cls(cgroupsParents)
 
     @classmethod
     def _find_cgroup_mounts(cls):

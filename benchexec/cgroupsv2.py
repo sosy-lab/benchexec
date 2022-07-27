@@ -45,7 +45,7 @@ def initialize():
         if _usable_cgroup:
             return _usable_cgroup
 
-        cgroup = CgroupsV2()
+        cgroup = CgroupsV2.from_system()
 
         allowed_pids = set(util.get_pgrp_pids(os.getpgid(0)))
         if set(cgroup.get_all_tasks()) <= allowed_pids:
@@ -55,7 +55,7 @@ def initialize():
         elif _create_systemd_scope_for_us():
             # If we can create a systemd scope for us and move ourselves in it,
             # we have a usable cgroup afterwards.
-            cgroup = CgroupsV2()
+            cgroup = CgroupsV2.from_system()
 
         else:
             # No usable cgroup. We might still be able to continue if we actually
@@ -217,15 +217,15 @@ class CgroupsV2(Cgroups):
         KILL,
     }
 
-    def __init__(self, subsystems=None, cgroup_procinfo=None, fallback=True):
-        super(CgroupsV2, self).__init__(subsystems, cgroup_procinfo, fallback)
+    def __init__(self, subsystems):
+        super(CgroupsV2, self).__init__(subsystems)
 
         self.path = (
             next(iter(self.subsystems.values())) if len(self.subsystems) else None
         )
 
     @classmethod
-    def _supported_subsystems(cls, cgroup_procinfo=None, fallback=True):
+    def from_system(cls, cgroup_procinfo=None):
         logging.debug(
             "Analyzing /proc/mounts and /proc/self/cgroup to determine cgroups."
         )
@@ -251,7 +251,7 @@ class CgroupsV2(Cgroups):
         # basic support always available in v2, this supports everything we use
         subsystems.add(cls.CPU)
 
-        return {k: cgroup_path for k in subsystems}
+        return cls({k: cgroup_path for k in subsystems})
 
     def create_fresh_child_cgroup(self, subsystems, move_to_child=False):
         """
