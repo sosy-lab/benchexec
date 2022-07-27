@@ -153,6 +153,10 @@ class CgroupsV1(Cgroups):
         "pids",
     }
 
+    def __init__(self, subsystems):
+        assert set(subsystems.keys()) <= self.known_subsystems
+        super(CgroupsV1, self).__init__(subsystems)
+
     @classmethod
     def from_system(cls, cgroup_procinfo=None, fallback=True):
         """

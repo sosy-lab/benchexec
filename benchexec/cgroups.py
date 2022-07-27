@@ -146,7 +146,6 @@ class Cgroups(ABC):
     def __init__(self, subsystems):
         self.subsystems = subsystems
 
-        assert set(self.subsystems.keys()) <= self.known_subsystems
         assert all(self.subsystems.values())
 
         self.paths = set(self.subsystems.values())  # without duplicates
@@ -413,8 +412,6 @@ class _DummyCgroups(Cgroups):
     CPUSET = "cpuset"
     FREEZE = "freezer"
     MEMORY = "memory"
-
-    known_subsystems = set()
 
     def add_task(self, pid):
         pass

@@ -205,18 +205,6 @@ class CgroupsV2(Cgroups):
     FREEZE = "freeze"
     KILL = "kill"
 
-    known_subsystems = {
-        # cgroups for BenchExec
-        IO,
-        CPU,
-        CPUSET,
-        MEMORY,
-        PID,
-        # not really a subsystem anymore, but implicitly supported
-        FREEZE,
-        KILL,
-    }
-
     def __init__(self, subsystems):
         super(CgroupsV2, self).__init__(subsystems)
 
