@@ -15,7 +15,7 @@ import threading
 import time
 
 
-from benchexec import util, BenchExecException
+from benchexec import util
 from benchexec.cgroups import Cgroups
 
 

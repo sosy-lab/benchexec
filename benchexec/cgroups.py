@@ -14,7 +14,6 @@ import pathlib
 import stat
 import sys
 
-from benchexec import BenchExecException
 from benchexec import systeminfo
 from benchexec import util
 
@@ -65,9 +64,6 @@ def _get_cgroup_version():
                 # we don't support crippled hybrid mode
                 elif mount[2] == "cgroup2" and version != CGROUPS_V1:
                     version = CGROUPS_V2
-
-            if version is None:
-                raise BenchExecException("Could not detect Cgroup Version")
     except OSError:
         logging.exception("Cannot read /proc/mounts")
 
@@ -137,7 +133,7 @@ class Cgroups(ABC):
 
             return CgroupsV2.from_system(cgroup_procinfo)
 
-        raise BenchExecException("Could not detect Cgroup Version")
+        return Cgroups.dummy()
 
     @staticmethod
     def dummy():
