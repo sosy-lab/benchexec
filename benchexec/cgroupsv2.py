@@ -243,7 +243,7 @@ class CgroupsV2(Cgroups):
         with open(self.path / "cgroup.procs", "w") as tasksFile:
             tasksFile.write(str(pid))
 
-    def get_all_tasks(self, subsystem):
+    def get_all_tasks(self, subsystem=None):
         """
         Return a generator of all PIDs currently in this cgroup for the given subsystem.
         """
@@ -343,7 +343,8 @@ class CgroupsV2(Cgroups):
             bytes_written += int(stats_map["wbytes"])
         return bytes_read, bytes_written
 
-    def has_tasks(self, path):
+    def has_tasks(self, path=None):
+        path = path or self.path
         return bool((path / "cgroup.procs").read_bytes().strip())
 
     def write_memory_limit(self, limit):
