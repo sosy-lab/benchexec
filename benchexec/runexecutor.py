@@ -348,18 +348,16 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             logging.debug("Cannot measure I/O without blkio cgroup.")
 
         self.cgroups.require_subsystem(self.cgroups.CPU)
-        if self.cgroups.CPU not in self.cgroups and self.cgroups.version == 1:
+        if self.cgroups.CPU not in self.cgroups:
             logging.warning("Cannot measure CPU time without cpuacct cgroup.")
 
-        # only a real subsystem in v1
-        if self.cgroups.version == 1:
-            self.cgroups.require_subsystem(self.cgroups.FREEZE)
-            if self.cgroups.FREEZE not in self.cgroups and not self._use_namespaces:
-                critical_cgroups.add(self.cgroups.FREEZE)
-                logging.error(
-                    "Cannot reliably kill sub-processes without freezer cgroup "
-                    "or container mode. Please enable at least one of them."
-                )
+        self.cgroups.require_subsystem(self.cgroups.FREEZE)
+        if self.cgroups.FREEZE not in self.cgroups and not self._use_namespaces:
+            critical_cgroups.add(self.cgroups.FREEZE)
+            logging.error(
+                "Cannot reliably kill sub-processes without freezer cgroup "
+                "or container mode. Please enable at least one of them."
+            )
 
         self.cgroups.require_subsystem(self.cgroups.MEMORY)
         if self.cgroups.MEMORY not in self.cgroups:
@@ -1015,7 +1013,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         cputime_wait = ru_child.ru_utime + ru_child.ru_stime if ru_child else 0
         cputime_cgroups = None
 
-        if cgroups.CPU in cgroups or cgroups.version == 2:  # always possible in v2
+        if cgroups.CPU in cgroups:
             # We want to read the value from the cgroup.
             # The documentation warns about outdated values.
             # So we read twice with 0.1s time difference,
