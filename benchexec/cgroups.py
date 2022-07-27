@@ -317,6 +317,10 @@ class Cgroups(ABC):
         pass
 
     @abstractmethod
+    def kill_all_tasks(self):
+        pass
+
+    @abstractmethod
     def create_fresh_child_cgroup(self, subsystems, move_to_child=False):
         pass
 
@@ -393,6 +397,9 @@ class _DummyCgroups(Cgroups):
         pass
 
     def add_task(self, pid):
+        pass
+
+    def kill_all_tasks(self):
         pass
 
     def create_fresh_child_cgroup(self, subsystems, move_to_child=False):
