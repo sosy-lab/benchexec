@@ -8,6 +8,7 @@
 import argparse
 import collections
 import datetime
+import decimal
 import logging
 import multiprocessing
 import os
@@ -27,6 +28,7 @@ from benchexec.cgroups import Cgroups
 from benchexec.filehierarchylimit import FileHierarchyLimitThread
 from benchexec import intel_cpu_energy
 from benchexec import oomhandler
+from benchexec.tablegenerator.util import print_decimal
 from benchexec import resources
 from benchexec import systeminfo
 from benchexec import util
@@ -276,12 +278,19 @@ def main(argv=None):
     # exit_code is a util.ProcessExitCode instance
     exit_code = cast(Optional[util.ProcessExitCode], result.pop("exitcode", None))
 
-    def print_optional_result(key, unit="", format_fn=str):
+    def print_optional_result(key, unit=""):
         if key in result:
-            print(f"{key}={format_fn(result[key])}{unit}")
+            value = result[key]
+            if isinstance(value, decimal.Decimal):
+                format_fn = print_decimal
+            elif isinstance(value, datetime.datetime):
+                format_fn = datetime.datetime.isoformat
+            else:
+                format_fn = str
+            print(f"{key}={format_fn(value)}{unit}")
 
     # output results
-    print_optional_result("starttime", unit="", format_fn=datetime.datetime.isoformat)
+    print_optional_result("starttime", unit="")
     print_optional_result("terminationreason")
     if exit_code is not None and exit_code.value is not None:
         print(f"returnvalue={exit_code.value}")
