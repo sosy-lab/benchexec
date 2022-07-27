@@ -245,7 +245,7 @@ class BenchExecIntegrationTests(unittest.TestCase):
         )
 
     def test_simple_parallel(self):
-        self.run_benchexec_and_compare_expected_files("--numOfThreads", "4")
+        self.run_benchexec_and_compare_expected_files("--numOfThreads", "12")
 
     def test_wildcard_tasks_1(self):
         self.run_benchexec_and_compare_expected_files(
