@@ -66,10 +66,21 @@ def initialize():
         # Now we are the only process in this cgroup. In order to make it usable for
         # benchmarking, we need to move ourselves into a child cgroup.
         child_cgroup = cgroup.create_fresh_child_cgroup(
-            cgroup.subsystems.keys(), move_to_child=True
+            cgroup.subsystems.keys(), prefix="benchexec_process_"
         )
+        for pid in cgroup.get_all_tasks():
+            child_cgroup.add_task(pid)
         assert child_cgroup.has_tasks()
         assert not cgroup.has_tasks()
+
+        # Now that the cgroup is empty, we can enable controller delegation.
+        # We enable all controllers, even those that we do not need ourselves,
+        # in order to allow nesting of other cgroup-using software.
+        controllers = util.read_file(cgroup.path / "cgroup.controllers").split()
+        util.write_file(
+            " ".join(f"+{c}" for c in controllers),
+            cgroup.path / "cgroup.subtree_control",
+        )
 
         _usable_cgroup = cgroup
 
@@ -241,7 +252,7 @@ class CgroupsV2(Cgroups):
 
         return cls({k: cgroup_path for k in subsystems})
 
-    def create_fresh_child_cgroup(self, subsystems, move_to_child=False):
+    def create_fresh_child_cgroup(self, subsystems, prefix=CGROUP_NAME_PREFIX):
         """
         Create child cgroups of the current cgroup for at least the given subsystems.
         @return: A Cgroup instance representing the new child cgroup(s).
@@ -252,50 +263,17 @@ class CgroupsV2(Cgroups):
         if not subsystems:
             return Cgroups.dummy()
 
-        tasks = set(util.read_file(self.path / "cgroup.procs").split())
-        if tasks and not move_to_child:
-            raise BenchExecException(
-                "Cannot create cgroups v2 child on non-empty parent without moving tasks"
-            )
-
-        allowed_pids = {str(p) for p in util.get_pgrp_pids(os.getpgid(0))}
-        if len(tasks) > 1 and not tasks <= allowed_pids and move_to_child:
-            raise BenchExecException(
-                "runexec must be the only running process in its cgroup. Either install pystemd "
-                "for benchexec to handle this itself, prefix the command with `systemd-run --user --scope -p Delegate=yes` "
-                "or otherwise prepare the cgroup hierarchy to make sure of this and the subtree being "
-                "writable by the executing user."
-            )
-
-        prefix = "runexec_main_" if move_to_child else CGROUP_NAME_PREFIX
         child_path = pathlib.Path(tempfile.mkdtemp(prefix=prefix, dir=self.path))
 
-        if move_to_child and tasks:
-            prev_delegated_controllers = set(
-                util.read_file(self.path / "cgroup.subtree_control").split()
-            )
-            for c in prev_delegated_controllers:
-                util.write_file(f"-{c}", self.path / "cgroup.subtree_control")
-
-            for t in tasks:
-                try:
-                    util.write_file(t, child_path / "cgroup.procs")
-                except OSError as e:
-                    logging.warn(f"Could not move pid {t} to {child_path}: {e}")
-
-            for c in prev_delegated_controllers:
-                util.write_file(f"+{c}", self.path / "cgroup.subtree_control")
-
-        controllers = set(util.read_file(self.path / "cgroup.controllers").split())
-        controllers_to_delegate = controllers & subsystems
-
-        for c in controllers_to_delegate:
-            util.write_file(f"+{c}", self.path / "cgroup.subtree_control")
+        child_subsystems = set(
+            util.read_file(child_path / "cgroup.controllers").split()
+        )
 
         # basic cpu controller support without being enabled
-        child_subsystems = controllers_to_delegate | {self.CPU, self.FREEZE}
+        child_subsystems |= {self.CPU, self.FREEZE}
         if self.KILL in self.subsystems:
             child_subsystems.add(self.KILL)
+
         return CgroupsV2({c: child_path for c in child_subsystems})
 
     def add_task(self, pid):

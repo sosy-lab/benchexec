@@ -348,7 +348,7 @@ class Cgroups(ABC):
         pass
 
     @abstractmethod
-    def create_fresh_child_cgroup(self, subsystems, move_to_child=False):
+    def create_fresh_child_cgroup(self, subsystems):
         pass
 
     @abstractmethod
@@ -419,7 +419,7 @@ class _DummyCgroups(Cgroups):
     def kill_all_tasks(self):
         pass
 
-    def create_fresh_child_cgroup(self, subsystems, move_to_child=False):
+    def create_fresh_child_cgroup(self, subsystems):
         pass
 
     def read_max_mem_usage(self):
