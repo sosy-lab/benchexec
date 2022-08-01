@@ -8,6 +8,7 @@
 import re
 import logging
 
+import benchexec.result as result
 import benchexec.tools.template
 
 
@@ -25,6 +26,22 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def cmdline(self, executable, options, task, rlimits):
         return [executable] + options + [task.single_input_file]
+
+    def determine_result(self, run):
+        """
+        @return: status of ABC after executing a run
+        """
+        if run.was_timeout:
+            return "TIMEOUT"
+        status = None
+        for line in run.output:
+            if line.startswith("Property proved"):
+                status = result.RESULT_TRUE_PROP
+            elif "was asserted in frame" in line:
+                status = result.RESULT_FALSE_PROP
+        if not status:
+            status = result.RESULT_ERROR
+        return status
 
     def get_value_from_output(self, output, identifier):
         # search for the identifier in the output and return the number after it
