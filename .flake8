@@ -6,6 +6,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 [flake8]
+show-source = true
+statistics = true
 max-line-length = 88
 ignore =
     # temporarily disabled for historic reasons: line length, naming
