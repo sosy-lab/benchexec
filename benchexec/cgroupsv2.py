@@ -10,14 +10,39 @@ import os
 import pathlib
 import secrets
 import signal
+import sys
 import tempfile
 import threading
 import time
 from decimal import Decimal
 
-from benchexec import util
+from benchexec import systeminfo, util
 from benchexec.cgroups import Cgroups
 
+_ERROR_MSG_UNKNOWN_SUBSYSTEMS = """
+The following cgroup subsystems were required but are not supported by this kernel: {}.
+Please avoid their usage or enable them in the kernel."""
+
+_ERROR_MSG_MISSING_SUBSYSTEMS = """
+The following cgroup subsystems were required but are not usable: {}.
+Please enable them, e.g., by setting up delegation.
+The cgroup that we attempted to use was: {}"""
+
+_ERROR_NO_SYSTEMD = """
+System is using cgroups v2 but not systemd.
+If you are using BenchExec within a container, please ensure that cgroups are properly delegated into the container.
+Otherwise please configure your system such that BenchExec can use cgroups."""
+
+_ERROR_NO_PSYSTEMD = """
+BenchExec was not able to use cgroups.
+Please either start it within a fresh systemd scope by prefixing your command line with
+  systemd-run --user --scope -p Delegate=yes
+or install the Python library pystemd such that BenchExec can do this automatically."""
+
+_ERROR_MSG_OTHER = """
+BenchExec was not able to use cgroups and did not manage to create a systemd scope.
+Please ensure that we can connect to systemd via DBus or try starting BenchExec within a fresh systemd scope by prefixing your command line with
+  systemd-run --user --scope -p Delegate=yes"""
 
 uid = os.getuid()
 CGROUP_NAME_PREFIX = "benchmark_"
@@ -275,6 +300,55 @@ class CgroupsV2(Cgroups):
             child_subsystems.add(self.KILL)
 
         return CgroupsV2({c: child_path for c in child_subsystems})
+
+    def require_subsystem(self, subsystem, log_method=logging.warning):
+        """
+        Check whether the given subsystem is enabled and is writable
+        (i.e., new cgroups can be created for it).
+        Produces a log message for the user if one of the conditions is not fulfilled.
+        @return A boolean value.
+        """
+        # TODO
+        # We can assume that creation of child cgroups works,
+        # because we only use cgroups if we were able to move the current process
+        # into a child cgroup in initialize().
+        return subsystem in self
+
+    def handle_errors(self, critical_cgroups):
+        """
+        If there were errors in calls to require_subsystem() and critical_cgroups
+        is not empty, terminate the program with an error message that explains how to
+        fix the problem.
+
+        @param critical_cgroups: set of unusable but required cgroups
+        """
+        if not critical_cgroups:
+            return
+
+        if self.subsystems:
+            # Some subsystems are available, but not the required ones.
+            # Check if it is a delegation problem or if some subsystems do not exist.
+            unknown_subsystems = set(critical_cgroups)
+            with open("/proc/cgroups", mode="r") as cgroups:
+                for line in cgroups:
+                    if not line.startswith("#"):
+                        unknown_subsystems.discard(line.split("\t", maxsplit=1)[0])
+            if unknown_subsystems:
+                sys.exit(_ERROR_MSG_UNKNOWN_SUBSYSTEMS.format(', '.join(unknown_subsystems)))
+            else:
+                sys.exit(_ERROR_MSG_MISSING_SUBSYSTEMS.format(', '.join(critical_cgroups), self.path))
+
+        else:
+            # no cgroup available at all
+            if not systeminfo.has_systemd():
+                sys.exit(_ERROR_NO_SYSTEMD)
+
+            try:
+                import pystemd  # noqa: F401
+            except ImportError:
+                sys.exit(_ERROR_NO_PSYSTEMD)
+            else:
+                sys.exit(_ERROR_MSG_OTHER)
 
     def add_task(self, pid):
         """
