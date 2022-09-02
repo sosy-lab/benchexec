@@ -469,6 +469,20 @@ class Cgroup(object):
                 for subCgroup in dirs:
                     yield os.path.join(dirpath, subCgroup)
 
+        def try_unfreeze(cgroup):
+            freezer_file = os.path.join(cgroup, "freezer.state")
+            try:
+                util.write_file("THAWED", freezer_file)
+            except OSError:
+                # Somebody could have fiddle with permissions, try to set them.
+                # If we are not owner, this also fails, but then there is nothing we
+                # can do. But the processes inside the run cannot change the owner.
+                try:
+                    os.chmod(freezer_file, stat.S_IRUSR | stat.S_IWUSR)
+                    util.write_file("THAWED", freezer_file)
+                except OSError:
+                    pass
+
         # First, we go through all cgroups recursively while they are frozen and kill
         # all processes. This helps against fork bombs and prevents processes from
         # creating new subgroups while we are trying to kill everything.
@@ -484,6 +498,11 @@ class Cgroup(object):
                 with open(os.path.join(child_cgroup, "tasks"), "rt") as tasks:
                     for task in tasks:
                         util.kill_process(int(task))
+
+                # This cgroup could be frozen, which would prevent processes from being
+                # killed and would lead to an endless loop below. cf.
+                # https://github.com/sosy-lab/benchexec/issues/840
+                try_unfreeze(child_cgroup)
 
             util.write_file("THAWED", freezer_file)
 
