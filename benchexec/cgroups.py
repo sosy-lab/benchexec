@@ -215,7 +215,7 @@ def _parse_proc_pid_cgroup(content):
             yield (subsystem, path)
 
 
-def kill_all_tasks_in_cgroup(cgroup, ensure_empty=True):
+def kill_all_tasks_in_cgroup(cgroup):
     tasksFile = os.path.join(cgroup, "tasks")
 
     i = 0
@@ -240,7 +240,7 @@ def kill_all_tasks_in_cgroup(cgroup, ensure_empty=True):
                         )
                     util.kill_process(int(task), sig)
 
-                if task is None or not ensure_empty:
+                if task is None:
                     return  # No process was hanging, exit
             # wait for the process to exit, this might take some time
             time.sleep(i * 0.5)
@@ -464,16 +464,10 @@ class Cgroup(object):
         Additionally, the children cgroups will be deleted.
         """
 
-        def kill_all_tasks_in_cgroup_recursively(cgroup, delete):
+        def recursive_child_cgroups(cgroup):
             for dirpath, dirs, _files in os.walk(cgroup, topdown=False):
                 for subCgroup in dirs:
-                    subCgroup = os.path.join(dirpath, subCgroup)
-                    kill_all_tasks_in_cgroup(subCgroup, ensure_empty=delete)
-
-                    if delete:
-                        remove_cgroup(subCgroup)
-
-            kill_all_tasks_in_cgroup(cgroup, ensure_empty=delete)
+                    yield os.path.join(dirpath, subCgroup)
 
         # First, we go through all cgroups recursively while they are frozen and kill
         # all processes. This helps against fork bombs and prevents processes from
@@ -484,16 +478,24 @@ class Cgroup(object):
         if FREEZER in self.per_subsystem:
             cgroup = self.per_subsystem[FREEZER]
             freezer_file = os.path.join(cgroup, "freezer.state")
-
             util.write_file("FROZEN", freezer_file)
-            kill_all_tasks_in_cgroup_recursively(cgroup, delete=False)
+
+            for child_cgroup in recursive_child_cgroups(cgroup):
+                with open(os.path.join(child_cgroup, "tasks"), "rt") as tasks:
+                    for task in tasks:
+                        util.kill_process(int(task))
+
             util.write_file("THAWED", freezer_file)
 
         # Second, we go through all cgroups again, kill what is left,
         # check for emptiness, and remove subgroups.
         # Furthermore, we do this for all hierarchies, not only the one with freezer.
         for cgroup in self.paths:
-            kill_all_tasks_in_cgroup_recursively(cgroup, delete=True)
+            for child_cgroup in recursive_child_cgroups(cgroup):
+                kill_all_tasks_in_cgroup(child_cgroup)
+                remove_cgroup(child_cgroup)
+
+            kill_all_tasks_in_cgroup(cgroup)
 
     def has_value(self, subsystem, option):
         """
