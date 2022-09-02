@@ -819,7 +819,10 @@ child_pid=$!
 
 echo $child_pid > "$cgroup/tmp/tasks"
 echo FROZEN > "$cgroup/tmp/freezer.state"
+# remove permissions in order to test our handling of this case
 chmod 000 "$cgroup/tmp/freezer.state"
+chmod 000 "$cgroup/tmp/tasks"
+chmod 000 "$cgroup/tmp"
 echo FROZEN
 wait $child_pid
 """,

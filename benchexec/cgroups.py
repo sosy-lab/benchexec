@@ -215,6 +215,18 @@ def _parse_proc_pid_cgroup(content):
             yield (subsystem, path)
 
 
+def _force_open_read(filename):
+    """
+    Open a file for reading even if we have no read permission,
+    as long as we can grant it to us.
+    """
+    try:
+        return open(filename, "rt")
+    except OSError:
+        os.chmod(filename, stat.S_IRUSR)
+        return open(filename, "rt")
+
+
 def kill_all_tasks_in_cgroup(cgroup):
     tasksFile = os.path.join(cgroup, "tasks")
 
@@ -225,7 +237,7 @@ def kill_all_tasks_in_cgroup(cgroup):
         # SIGKILL. We added this loop when killing sub-processes was not reliable
         # and we did not know why, but now it is reliable.
         for sig in [signal.SIGKILL, signal.SIGINT, signal.SIGTERM]:
-            with open(tasksFile, "rt") as tasks:
+            with _force_open_read(tasksFile) as tasks:
                 task = None
                 for task in tasks:
                     task = task.strip()
@@ -463,11 +475,26 @@ class Cgroup(object):
         Kill all tasks in this cgroup and all its children cgroups forcefully.
         Additionally, the children cgroups will be deleted.
         """
+        # In this method we should attempt to guard against child cgroups
+        # that have been created and manipulated by processes in the run.
+        # For example, they could have removed permissions from files and directories.
 
         def recursive_child_cgroups(cgroup):
-            for dirpath, dirs, _files in os.walk(cgroup, topdown=False):
-                for subCgroup in dirs:
-                    yield os.path.join(dirpath, subCgroup)
+            def raise_error(e):
+                raise e
+
+            try:
+                for dirpath, dirs, _files in os.walk(
+                    cgroup, topdown=False, onerror=raise_error
+                ):
+                    for subCgroup in dirs:
+                        yield os.path.join(dirpath, subCgroup)
+            except OSError as e:
+                # some process might have made a child cgroup inaccessible
+                os.chmod(e.filename, stat.S_IRUSR | stat.S_IXUSR)
+                # restart, which might yield already yielded cgroups again,
+                # but this is ok for the callers of recursive_child_cgroups()
+                yield from recursive_child_cgroups(cgroup)
 
         def try_unfreeze(cgroup):
             freezer_file = os.path.join(cgroup, "freezer.state")
@@ -495,7 +522,7 @@ class Cgroup(object):
             util.write_file("FROZEN", freezer_file)
 
             for child_cgroup in recursive_child_cgroups(cgroup):
-                with open(os.path.join(child_cgroup, "tasks"), "rt") as tasks:
+                with _force_open_read(os.path.join(child_cgroup, "tasks")) as tasks:
                     for task in tasks:
                         util.kill_process(int(task))
 
