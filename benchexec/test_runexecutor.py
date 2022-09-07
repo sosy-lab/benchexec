@@ -796,6 +796,8 @@ class TestRunExecutor(unittest.TestCase):
         # https://github.com/sosy-lab/benchexec/issues/840
         if not os.path.exists("/bin/sleep"):
             self.skipTest("missing /bin/sleep")
+        if not os.path.exists("/sys/fs/cgroup/freezer"):
+            self.skipTest("missing freezer cgroup")
         self.setUp(
             dir_modes={
                 "/": containerexecutor.DIR_READ_ONLY,
