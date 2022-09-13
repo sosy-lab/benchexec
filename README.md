@@ -21,7 +21,7 @@ SPDX-License-Identifier: Apache-2.0
 - We now provide an [Ubuntu PPA](https://launchpad.net/~sosy-lab/+archive/ubuntu/benchmarking) that makes installing and upgrading BenchExec easier ([docs](https://github.com/sosy-lab/benchexec/blob/main/doc/INSTALL.md#debianubuntu)).
 - An extended version of our paper on BenchExec and its background was published as open access in the journal STTT,
   you can read [Reliable Benchmarking: Requirements and Solutions](https://doi.org/10.1007/s10009-017-0469-y) online.
-  We also provide a set of [overview slides](https://www.sosy-lab.org/research/prs/Current_ReliableBenchmarking.pdf).
+  We also provide a set of [overview slides](https://www.sosy-lab.org/research/prs/Latest_ReliableBenchmarking.pdf).
 
 BenchExec provides three major features:
 
@@ -78,7 +78,7 @@ of the [Ludwig-Maximilians-Universität München (LMU Munich)](https://www.uni-m
 
 ### Literature
 
-- [Reliable Benchmarking: Requirements and Solutions](https://doi.org/10.1007/s10009-017-0469-y), by D. Beyer, S. Löwe, and P. Wendler.  International Journal on Software Tools for Technology Transfer (STTT), 21(1):1-29, 2019. [doi:10.1007/s10009-017-0469-y](https://doi.org/10.1007/s10009-017-0469-y). Journal paper about BenchExec (open access, also with a [supplementary webpage](https://www.sosy-lab.org/research/benchmarking/) and [overview slides](https://www.sosy-lab.org/research/prs/Current_ReliableBenchmarking.pdf))
+- [Reliable Benchmarking: Requirements and Solutions](https://doi.org/10.1007/s10009-017-0469-y), by D. Beyer, S. Löwe, and P. Wendler.  International Journal on Software Tools for Technology Transfer (STTT), 21(1):1-29, 2019. [doi:10.1007/s10009-017-0469-y](https://doi.org/10.1007/s10009-017-0469-y). Journal paper about BenchExec (open access, also with a [supplementary webpage](https://www.sosy-lab.org/research/benchmarking/) and [overview slides](https://www.sosy-lab.org/research/prs/Latest_ReliableBenchmarking.pdf))
 - [CPU Energy Meter: A Tool for Energy-Aware Algorithms Engineering](https://doi.org/10.1007/978-3-030-45237-7_8), by D. Beyer and P. Wendler. In Proc. TACAS 2020, part 2, LNCS 12079, pages 126-133, 2020. Springer. [doi:10.1007/978-3-030-45237-7_8](https://doi.org/10.1007/978-3-030-45237-7_8)
 - [Benchmarking and Resource Measurement](https://doi.org/10.1007/978-3-319-23404-5_12), by D. Beyer, S. Löwe, and P. Wendler. In Proc. SPIN 2015, LNCS 9232, pages 160-178, 2015. Springer. [doi:10.1007/978-3-319-23404-5_12](https://doi.org/10.1007/978-3-319-23404-5_12)
 
