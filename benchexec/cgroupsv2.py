@@ -334,9 +334,15 @@ class CgroupsV2(Cgroups):
                     if not line.startswith("#"):
                         unknown_subsystems.discard(line.split("\t", maxsplit=1)[0])
             if unknown_subsystems:
-                sys.exit(_ERROR_MSG_UNKNOWN_SUBSYSTEMS.format(', '.join(unknown_subsystems)))
+                sys.exit(
+                    _ERROR_MSG_UNKNOWN_SUBSYSTEMS.format(", ".join(unknown_subsystems))
+                )
             else:
-                sys.exit(_ERROR_MSG_MISSING_SUBSYSTEMS.format(', '.join(critical_cgroups), self.path))
+                sys.exit(
+                    _ERROR_MSG_MISSING_SUBSYSTEMS.format(
+                        ", ".join(critical_cgroups), self.path
+                    )
+                )
 
         else:
             # no cgroup available at all
