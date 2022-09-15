@@ -121,7 +121,10 @@ class LatexCommand:
     @staticmethod
     def format_command_part(name: str) -> str:
         name = re.sub(
-            "^[1-9]+$", lambda match: util.number_to_roman_string(match.group()), name
+            # Matches only positive numbers, because 0 can't be converted to roman number
+            "[1-9]\\d*",
+            lambda match: util.number_to_roman_string(match.group()),
+            name,
         )
 
         name = re.split("[^a-zA-Z]", name)
