@@ -25,7 +25,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         return "ABC"
 
     def cmdline(self, executable, options, task, rlimits):
-        return [executable] + options + [task.single_input_file]
+        return [executable] + ["-c",  "&r {}; &put".format(task.single_input_file)] + options
 
     def determine_result(self, run):
         """
