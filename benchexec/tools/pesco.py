@@ -14,7 +14,12 @@ class Tool(cpachecker.Tool):
     """Tool info for PeSCo."""
 
     REQUIRED_PATHS_v1 = list(cpachecker.Tool.REQUIRED_PATHS) + ["resources"]
-    REQUIRED_PATHS_v2 = []
+    REQUIRED_PATHS_v2 = [
+        "bin/*.py",
+        "pesco",
+        "lib",
+        "properties"
+    ]
 
     def executable(self, tool_locator):
         try:
