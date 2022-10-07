@@ -25,7 +25,11 @@ class Tool(benchexec.tools.template.BaseTool2):
         return "ABC"
 
     def cmdline(self, executable, options, task, rlimits):
-        return [executable] + ["-c",  "&r {}; &put".format(task.single_input_file)] + options
+        return (
+            [executable]
+            + ["-c", "&r {}; &put".format(task.single_input_file)]
+            + options
+        )
 
     def determine_result(self, run):
         """
@@ -35,10 +39,16 @@ class Tool(benchexec.tools.template.BaseTool2):
             return "TIMEOUT"
         status = None
         for line in run.output:
-            if line.startswith("Property proved"):
+            if line.startswith("Property proved") or line.startswith(
+                "Networks are equivalent"
+            ):
                 status = result.RESULT_TRUE_PROP
-            elif "was asserted in frame" in line:
+            elif "was asserted in frame" in line or line.startswith(
+                "Networks are NOT EQUIVALENT"
+            ):
                 status = result.RESULT_FALSE_PROP
+            elif line.startswith("Networks are UNDECIDED"):
+                status = result.RESULT_UNKNOWN
         if not status:
             status = result.RESULT_ERROR
         return status
