@@ -8,7 +8,8 @@
 import benchexec.tools.template
 import benchexec.result as result
 
-import re, json, subprocess
+import json
+import subprocess
 
 
 class Tool(benchexec.tools.template.BaseTool2):
@@ -21,15 +22,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         return tool_locator.find_executable("mopsa-sv-comp", subdir="bin/")
 
     def version(self, executable):
-        # the provided utility will fail due to return code 2 in Mopsa
-        process = subprocess.run(
-            ["mopsa-c", "-format=json"],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            universal_newlines=True,
-        )
-        output = json.loads(process.stdout)
-        return output["mopsa_dev_version"]
+        return self._version_from_tool(executable)
 
     def name(self):
         return "Mopsa"
@@ -40,16 +33,21 @@ class Tool(benchexec.tools.template.BaseTool2):
             cmd += ["--data_model", task.options.get("data_model")]
         if task.property_file:
             cmd += ["--property", task.property_file]
-        return cmd 
+        return cmd
 
     def determine_result(self, run):
         if run.was_timeout:
             return "TIMEOUT"
-        r = run.output.text
-        last = r.split("\n")
-        if last[-1] != '': last = last[-1]
-        else: last = last[-2]
-        if last.startswith("true"): return result.RESULT_TRUE_PROP
-        elif last.startswith("unknown"): return result.RESULT_UNKNOWN
-        elif last.startswith("ERROR"): return result.RESULT_ERROR + last[len("ERROR"):]
-        else: raise ValueError(last)
+        r = run.output
+        if r[-1] != "":
+            r = r[-1]
+        else:
+            r = r[-2]
+        if r.startswith("true"):
+            return result.RESULT_TRUE_PROP
+        elif r.startswith("unknown"):
+            return result.RESULT_UNKNOWN
+        elif r.startswith("ERROR"):
+            return result.RESULT_ERROR + r[len("ERROR") :]
+        else:
+            return result.RESULT_ERROR + f"(unknown: {last})"
