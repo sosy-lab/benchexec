@@ -47,7 +47,7 @@ class TestRunExecutor(unittest.TestCase):
         with self.skip_if_logs(
             "Cannot reliably kill sub-processes without freezer cgroup"
         ):
-            self.runexecutor = RunExecutor(use_namespaces=False, *args, **kwargs)
+            self.runexecutor = RunExecutor(*args, use_namespaces=False, **kwargs)
 
     @contextlib.contextmanager
     def skip_if_logs(self, error_msg):
@@ -862,7 +862,7 @@ class TestRunExecutorWithContainer(TestRunExecutor):
         )
 
         self.runexecutor = RunExecutor(
-            use_namespaces=True, dir_modes=dir_modes, *args, **kwargs
+            *args, use_namespaces=True, dir_modes=dir_modes, **kwargs
         )
 
     def get_runexec_cmdline(self, *args, **kwargs):
