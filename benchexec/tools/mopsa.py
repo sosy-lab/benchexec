@@ -8,10 +8,6 @@
 import benchexec.tools.template
 import benchexec.result as result
 
-import json
-import subprocess
-
-
 class Tool(benchexec.tools.template.BaseTool2):
     """
     Tool info for Mopsa.
@@ -38,11 +34,7 @@ class Tool(benchexec.tools.template.BaseTool2):
     def determine_result(self, run):
         if run.was_timeout:
             return "TIMEOUT"
-        r = run.output
-        if r[-1] != "":
-            r = r[-1]
-        else:
-            r = r[-2]
+        r = run.output[-1] or run.output[-2] # last non-empty line
         if r.startswith("true"):
             return result.RESULT_TRUE_PROP
         elif r.startswith("unknown"):
@@ -50,4 +42,4 @@ class Tool(benchexec.tools.template.BaseTool2):
         elif r.startswith("ERROR"):
             return result.RESULT_ERROR + r[len("ERROR") :]
         else:
-            return result.RESULT_ERROR + f"(unknown: {last})"
+            return result.RESULT_ERROR + f"(unknown: {r})"
