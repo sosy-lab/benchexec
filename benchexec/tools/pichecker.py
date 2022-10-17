@@ -17,7 +17,8 @@ class Tool(cpachecker.Tool):
     REQUIRED_PATHS = list(cpachecker.Tool.REQUIRED_PATHS) + ["resources"]
 
     def version(self, executable):
-        return "1.0"
+        version = self._version_from_tool(executable, "-help", line_prefix="PIChecker")
+        return version.split("(")[0].strip()
 
     def name(self):
         return "PIChecker"
