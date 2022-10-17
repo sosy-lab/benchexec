@@ -1581,8 +1581,11 @@ def main(args=None):
         cpu_count = os.cpu_count() or 1
     except AttributeError:
         pass
-    # Use up to cpu_count*2 workers because some tasks are I/O bound.
-    parallel = concurrent.futures.ProcessPoolExecutor(max_workers=cpu_count * 2)
+    # Use up to cpu_count*2 workers because some tasks are I/O bound,
+    # but limit the number of worker to avoid too many open files.
+    parallel = concurrent.futures.ProcessPoolExecutor(
+        max_workers=min(cpu_count * 2, 32)
+    )
 
     name = options.output_name
     outputPath = options.outputPath
