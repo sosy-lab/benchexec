@@ -5,16 +5,37 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import benchexec.tools.cpachecker as cpachecker
+import benchexec.tools.template
 
 
-class Tool(cpachecker.Tool):
+class Tool(benchexec.tools.template.BaseTool2):
     """
-    Tool info for GraVeS.
-    URL: https://github.com/will-leeson/cpachecker
+    Using the tool info for CoVeriTeam: On-Demand Composition of Cooperative Verification Systems.
+    URL: https://gitlab.com/sosy-lab/software/coveriteam.
+
+    This class has 2 purposes:
+        1. to serve as an abstract class for specific coveriteam programs like verifiers, validators, etc.
+        2. to serve as the tool info module for any generic coveriteam program.
     """
 
-    REQUIRED_PATHS = list(cpachecker.Tool.REQUIRED_PATHS) + ["resources"]
+    REQUIRED_PATHS = [
+        "coveriteam",
+        "bin",
+        "lib",
+        "depends",
+        "predict",
+    ]
 
     def name(self):
-        return "GraVeS"
+        return "Graves"
+
+    def executable(self, tool_locator):
+        return tool_locator.find_executable("graves.sh")
+
+    def version(self, executable):
+        return self._version_from_tool(executable)
+
+    def program_files(self, executable):
+        return self._program_files_from_executable(
+            executable, self.REQUIRED_PATHS, parent_dir=True
+        )
