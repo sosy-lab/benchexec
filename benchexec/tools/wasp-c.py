@@ -5,8 +5,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import os
-from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, LP64
 import benchexec.tools.template
 import benchexec.result as result
 
@@ -18,10 +16,6 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def executable(self, tool_locator):
         return tool_locator.find_executable('wasp-c', subdir='bin')
-
-    def working_directory(self, executable):
-        executableDir = os.path.dirname(executable)
-        return executableDir
 
     def version(self, executable):
         return self._version_from_tool(executable, '-v')
