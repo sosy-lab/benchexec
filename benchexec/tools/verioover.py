@@ -27,9 +27,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         return self._version_from_tool(executable)
 
     def cmdline(self, executable, options, task, rlimits):
-        if task.single_input_file:
-            options = options + ["-file", task.single_input_file]
-
+        options = options + ["-file", task.single_input_file]
         if task.property_file:
             options = options + ["-spec", task.property_file]
 
@@ -47,4 +45,3 @@ class Tool(benchexec.tools.template.BaseTool2):
                 status = result.RESULT_TRUE_PROP
 
         return status
-
