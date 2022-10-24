@@ -34,17 +34,17 @@ class Tool(benchexec.tools.template.BaseTool2):
         return [executable] + options + [task.single_input_file]
 
     def determine_result(self, run):
-        if run.exit_code == 1 or \
-                run.output.any_line_contains('Failed to') or \
-                run.output.any_line_contains("WASP crashed"):
+        if (
+            run.exit_code == 1
+            or run.output.any_line_contains("Failed to")
+            or run.output.any_line_contains("WASP crashed")
+        ):
             return result.RESULT_ERROR
         elif run.was_timeout or run.output.any_line_contains("WASP timed out"):
             return result.TIMEOUT
         elif run.was_terminated:
             return result.RESULT_UNKOWN
-        elif run.exit_code == 0 and \
-                run.output.any_line_contains("Analysis done."):
+        elif run.exit_code == 0 and run.output.any_line_contains("Analysis done."):
             return result.RESULT_DONE
         else:
             return result.RESULT_UNKOWN
-
