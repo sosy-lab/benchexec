@@ -15,32 +15,32 @@ class Tool(benchexec.tools.template.BaseTool2):
     """
 
     def executable(self, tool_locator):
-        return tool_locator.find_executable('wasp-c', subdir='bin')
+        return tool_locator.find_executable("wasp-c", subdir="bin")
 
     def version(self, executable):
-        return self._version_from_tool(executable, '-v')
+        return self._version_from_tool(executable, "-v")
 
     def name(self):
-        return 'WASP-C'
+        return "WASP-C"
 
     def cmdline(self, executable, options, task, rlimits):
 
         if task.property_file:
-            options = options + ['--property', task.property_file]
+            options = options + ["--property", task.property_file]
         else:
             raise benchexec.tools.template.UnsupportedFeatureException(
-                'property file is required'
+                "property file is required"
             )
         return [executable] + options + [task.single_input_file]
 
     def determine_result(self, run):
         status = result.RESULT_UNKNOWN
 
-        if run.output.any_line_contains('WASP crashed'):
+        if run.output.any_line_contains("WASP crashed"):
             status = result.RESULT_ERROR
-        elif run.was_timeout or run.output.any_line_contains('WASP timed out'):
+        elif run.was_timeout or run.output.any_line_contains("WASP timed out"):
             status = result.RESULT_UNKNOWN
-        elif run.output.any_line_contains('Analysis done.'):
+        elif run.output.any_line_contains("Analysis done."):
             status = result.RESULT_DONE
 
         return status
