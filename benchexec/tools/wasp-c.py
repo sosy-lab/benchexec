@@ -34,13 +34,17 @@ class Tool(benchexec.tools.template.BaseTool2):
         return [executable] + options + [task.single_input_file]
 
     def determine_result(self, run):
-        status = result.RESULT_UNKNOWN
-
-        if run.output.any_line_contains("WASP crashed"):
-            status = result.RESULT_ERROR
+        if run.exit_code == 1 or \
+                run.output.any_line_contains('Failed to') or \
+                run.output.any_line_contains("WASP crashed"):
+            return result.RESULT_ERROR
         elif run.was_timeout or run.output.any_line_contains("WASP timed out"):
-            status = result.RESULT_UNKNOWN
-        elif run.output.any_line_contains("Analysis done."):
-            status = result.RESULT_DONE
+            return "timeout"
+        elif run.was_terminated:
+            return result.RESULT_UNKOWN
+        elif run.exit_code == 0 and \
+                run.output.any_line_contains("Analysis done."):
+            return result.RESULT_DONE
+        else:
+            return result.RESULT_UNKOWN
 
-        return status
