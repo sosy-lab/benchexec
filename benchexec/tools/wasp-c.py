@@ -39,7 +39,7 @@ class Tool(benchexec.tools.template.BaseTool2):
                 run.output.any_line_contains("WASP crashed"):
             return result.RESULT_ERROR
         elif run.was_timeout or run.output.any_line_contains("WASP timed out"):
-            return "timeout"
+            return result.TIMEOUT
         elif run.was_terminated:
             return result.RESULT_UNKOWN
         elif run.exit_code == 0 and \
