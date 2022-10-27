@@ -16,7 +16,7 @@ class Tool(benchexec.tools.template.BaseTool2):
     """
 
     def executable(self, tool_locator):
-        return tool_locator.find_executable("run.sh")
+        return tool_locator.find_executable("./run.sh")
 
     def version(self, executable):
         return self._version_from_tool(executable, arg="-version")
