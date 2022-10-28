@@ -33,6 +33,8 @@ ignore =
     G200,
     # using a result variable instead of early return allows later addition of logic
     R504,
+    # elif/else after return/raise/continue/break is not necessary but can be easier to read
+    R505,R506,R507,R508,
     # no warnings about assert
     B011, S101,
     # no warnings about pickle,
