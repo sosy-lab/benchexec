@@ -751,7 +751,15 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 # this is used by the parent for accessing output files
                 libc.prctl(libc.PR_SET_DUMPABLE, libc.SUID_DUMP_USER, 0, 0, 0)
 
-                os.write(to_parent, pickle.dumps(grandchild_result))
+                try:
+                    os.write(to_parent, pickle.dumps(grandchild_result))
+                except BrokenPipeError:
+                    # Happens e.g. in nested BenchExec executions if parent is killed
+                    # before child. If parent is killed, nothing matters anymore.
+                    logging.debug("Broken pipe to parent, already terminated?")
+                    os.close(to_parent)
+                    os.close(from_parent)
+                    return 0
                 os.close(to_parent)
 
                 # Now the parent copies the output files, we need to wait until this is
