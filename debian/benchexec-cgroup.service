@@ -9,6 +9,13 @@
 Description=Cgroup setup for BenchExec
 Documentation=https://github.com/sosy-lab/benchexec/blob/main/doc/INSTALL.md
 Documentation=https://github.com/sosy-lab/benchexec/blob/main/doc/INDEX.md
+# Only necessary on cgroupv1 systems
+ConditionControlGroupController=v1
+# Fail early if expected cgroups not mounted
+AssertPathIsMountPoint=/sys/fs/cgroup/cpuacct/
+AssertPathIsMountPoint=/sys/fs/cgroup/cpuset/
+AssertPathIsMountPoint=/sys/fs/cgroup/freezer/
+AssertPathIsMountPoint=/sys/fs/cgroup/memory/
 
 [Service]
 # Adjust the following line to configure permissions for cgroup usage.
