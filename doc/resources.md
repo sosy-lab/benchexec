@@ -19,9 +19,14 @@ When limiting CPU cores, BenchExec defines as a "core" the smallest hardware uni
 that can execute a thread in parallel to other such units.
 This is often called "virtual core", and the Linux kernel refers to this as "processor"
 (in `/proc/cpuinfo`) and as "CPU" (under `/sys/devices/system/cpu/`).
-This means, for example that assigning 8 cores per run on a system with hyper threading
+When assigning more than one core to a run,
+BenchExec makes sure to select cores that are as close to each other as possible
+in the hardware architecture of the CPU.
+This means for example that assigning 8 cores per run on a system with hyper threading
 will allocate 4 physical cores (each with 2 hyper-threading cores) to each run.
-
+The only exception is if `--no-hyperthreading` is used,
+in which case all but one virtual core per physical core remain unused.
+Furthermore, users of BenchExec can prevent usage of certain cores with `--allowedCores`.
 
 ## Memory
 
