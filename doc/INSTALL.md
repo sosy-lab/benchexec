@@ -15,6 +15,7 @@ SPDX-License-Identifier: Apache-2.0
 
 - Python 3.6 or newer
 - Linux (cf. [Kernel Requirements](#kernel-requirements) below for details)
+- Cgroups v1 (cf. [Setting up Cgroups](#setting-up-cgroups) below for details)
 - x86 or ARM machine (please [contact us](https://github.com/sosy-lab/benchexec/issues/new) for other architectures)
 
 The following packages are optional but recommended dependencies:
@@ -40,7 +41,8 @@ and install manually (note that the leading `./` is important, otherwise `apt` w
 
     apt install --install-recommends ./benchexec_*.deb
 
-Our package automatically configures the necessary cgroup permissions.
+Our package automatically configures the necessary cgroup permissions
+if the system uses cgroups v1.
 Just add the users that should be able to use BenchExec to the group `benchexec`
 (group membership will be effective after the next login of the respective user):
 
@@ -141,10 +143,21 @@ If container mode does not work, please check the [common problems](container.md
 
 If you have installed the Debian package and you are running systemd
 (default since Debian 8 and Ubuntu 15.04),
-the package should have configured everything automatically.
+the package should have configured everything automatically
+as long as the system is using cgroups v1.
 Just add your user to the group `benchexec` and reboot:
 
     adduser <USER> benchexec
+
+Support for cgroups v2 is still under development for BenchExec.
+On recent distributions (e.g., Ubuntu 22.04),
+please switch back to cgroups v1 for now by putting
+`systemd.unified_cgroup_hierarchy=0` on the kernel command line.
+On Debian/Ubuntu, this could be done with the following steps and rebooting afterwards:
+```
+echo 'GRUB_CMDLINE_LINUX_DEFAULT="${GRUB_CMDLINE_LINUX_DEFAULT} systemd.unified_cgroup_hierarchy=0"' | sudo tee /etc/default/grub.d/cgroupsv1-for-benchexec.cfg
+sudo update-grub
+```
 
 ### Setting up Cgroups on Machines with systemd
 
@@ -168,6 +181,9 @@ The following steps are necessary:
 
    By default, this gives permissions to users of the group `benchexec`,
    this can be adjusted in the `Environment` line as necessary.
+
+  * If the system is using cgroups v2, you need to tell systemd to use cgroups v1 instead
+   as [described above](#setting-up-cgroups).
 
 By default, BenchExec will automatically attempt to use the cgroup
 `system.slice/benchexec-cgroup.service` that is created by this service file.
