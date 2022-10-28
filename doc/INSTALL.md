@@ -237,23 +237,18 @@ listed in this file for these controllers.
 In any case, please check whether everything works
 or whether additional settings are necessary as [described below](#testing-cgroups-setup-and-known-problems).
 
-### Setting up Cgroups in a Docker Container
+### Setting up Cgroups in a Docker/Podman Container
 
-If you want to run benchmarks within a Docker container,
+If you want to run benchmarks within a Docker/Podman container,
 and the cgroups file system is not available within the container,
 please use the following command line argument
-to mount the cgroup hierarchy within the container when starting it:
+to mount the cgroup hierarchy within the container when starting it
+(same for Podman):
 
     docker run -v /sys/fs/cgroup:/sys/fs/cgroup:rw ...
 
-Note that you additionally need the `--privileged` flag for container mode.
-However, this gives your Docker container full root access to the host,
-so please also add the `--cap-drop=all` flag,
-make sure to use this only with trusted images,
-and configure your Docker container such that everything in it
-is executed under a different user account, not as root.
-BenchExec is not designed to run as root and does not provide
-any safety guarantees regarding its container under this circumstances.
+Note that you additionally need some flags for container mode,
+which are explained in the [container documentation](container.md#using-benchexec-in-a-dockerpodman-container).
 
 ### Testing Cgroups Setup and Known Problems
 
