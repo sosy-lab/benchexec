@@ -565,7 +565,7 @@ class RunSet(object):
                 base = os.path.basename(run.identifier)
                 if base in sourcefilesSet:
                     logging.warning(
-                        "Input file with name '%s' appears twice in runset. "
+                        "Input file with name '%s' appears twice in run definition. "
                         "This could cause problems with equal logfile-names.",
                         base,
                     )
