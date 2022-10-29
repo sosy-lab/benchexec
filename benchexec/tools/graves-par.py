@@ -5,16 +5,17 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import benchexec.tools.coveriteam as coveriteam
-import benchexec.result as result
+import benchexec.tools.coveriteam_verifier_validator as coveriteam
 from benchexec.tools.template import UnsupportedFeatureException
 from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, LP64
 import re
 
+
 class Tool(coveriteam.Tool):
     """
-    Tool infor for Graves, a verifier selector based on Graph Neural Networks 
-    We inherit Coveriteam's infrastructure. 
+    Tool infor for Graves, a verifier selector based on Graph Neural Networks
+    We inherit Coveriteam's infrastructure.
+    URL: https://github.com/mgerrard/graves-par
     """
 
     REQUIRED_PATHS = [
@@ -32,47 +33,32 @@ class Tool(coveriteam.Tool):
     def executable(self, tool_locator):
         return tool_locator.find_executable("graves.sh")
 
-    def version(self, executable):
-        return self._version_from_tool(executable)
-
-    def program_files(self, executable):
-        return self._program_files_from_executable(
-            executable, self.REQUIRED_PATHS, parent_dir=True
-        )
-
     def cmdline(self, executable, options, task, rlimits):
         """
-        Modified from the CoVeriTeam definition
+        Graves-PAR takes in three arguments: the program looking to be verified,
+        a property file, and the data model. From their it forms its prediction
         """
+
+        data_model_param = get_data_model_from_task(
+            task, {ILP32: "ILP32", LP64: "LP64"}
+        )
+        if data_model_param and not any(
+            re.match("data_model *=", option) for option in options
+        ):
+            options += [data_model_param]
 
         if task.property_file:
             options += [task.property_file]
         else:
             raise UnsupportedFeatureException(
-                "Can't execute Graves: "
-                "Specification is missing."
+                "Can't execute Graves: " "Specification is missing."
             )
 
         options += [task.single_input_file]
 
         return [executable] + options
 
-    def determine_result(self, run):
-        """
-        It assumes that any verifier or validator implemented in CoVeriTeam
-        will print out the produced aftifacts.
-        If more than one dict is printed, the first matching one.
-        """
-        verdict = None
-        verdict_regex = re.compile(r"'verdict': '([a-zA-Z\(\)\ \-]*)'")
-        for line in reversed(run.output):
-            line = line.strip()
-            verdict_match = verdict_regex.search(line)
-            if verdict_match and verdict is None:
-                # CoVeriTeam outputs benchexec result categories as verdicts.
-                verdict = verdict_match.group(1)
-            if "Traceback (most recent call last)" in line:
-                verdict = "EXCEPTION"
-        if verdict is None:
-            return result.RESULT_UNKNOWN
-        return verdict
+    def program_files(self, executable):
+        return self._program_files_from_executable(
+            executable, self.REQUIRED_PATHS, parent_dir=False
+        )
