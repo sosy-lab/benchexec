@@ -10,11 +10,11 @@ import benchexec.tools.cpachecker as cpachecker
 
 class Tool(cpachecker.Tool):
     """
-    Tool info for GraVeS.
+    Tool info for Graves-CPA.
     URL: https://github.com/will-leeson/cpachecker
     """
 
     REQUIRED_PATHS = list(cpachecker.Tool.REQUIRED_PATHS) + ["resources"]
 
     def name(self):
-        return "GraVeS"
+        return "Graves-CPA"
