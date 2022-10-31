@@ -38,24 +38,34 @@ class Tool(benchexec.tools.template.BaseTool2):
         for line in run.output:
             if "SafetyResult Unsafe" in line:
                 status = result.RESULT_FALSE_REACH
-            if "SafetyResult Safe" in line:
+            elif "SafetyResult Safe" in line:
                 status = result.RESULT_TRUE_PROP
+            elif "ParsingResult Success" in line:
+                status = "Parsing OK"
 
         if (
             not run.was_timeout
             and status == result.RESULT_UNKNOWN
             and run.exit_code.value != 0
         ):
-            if run.exit_code.value == 226:
-                status = "ERROR (verification stuck)"
-            elif run.exit_code.value == 137:
-                status = "OUT_OF_MEMORY"
-            elif run.exit_code.value == 206:
-                status = "ERROR (unable to transform XCFA to CFA)"
-            elif run.exit_code.value == 176:
+            if run.exit_code.value == 1:
+                status = "ERROR (generic error)"
+            elif run.exit_code.value == 200:
+                status = "ERROR (out of memory)"
+            elif run.exit_code.value == 201:
+                status = "ERROR (inner timeout)"
+            elif run.exit_code.value == 202:
+                status = "ERROR (server error)"
+            elif run.exit_code.value == 203:
+                status = "ERROR (portfolio error)"
+            elif run.exit_code.value == 210:
                 status = "ERROR (frontend failed)"
-            elif run.exit_code.value == 213:
-                status = "ERROR (portfolio timeout)"
+            elif run.exit_code.value == 211:
+                status = "ERROR (invalid parameter)"
+            elif run.exit_code.value == 220:
+                status = "ERROR (verification stuck)"
+            elif run.exit_code.value == 221:
+                status = "ERROR (solver error)"
             else:
                 status = result.RESULT_ERROR
 

@@ -7,6 +7,7 @@
 
 import benchexec.result as result
 import benchexec.tools.template
+from benchexec.tools.template import ToolNotFoundException
 
 
 class Tool(benchexec.tools.template.BaseTool2):
@@ -20,7 +21,10 @@ class Tool(benchexec.tools.template.BaseTool2):
     REQUIRED_PATHS = [".."]
 
     def executable(self, tool_locator):
-        return tool_locator.find_executable("gazer_starter.py", subdir="scripts")
+        try:
+            return tool_locator.find_executable("gazer-start.sh")
+        except ToolNotFoundException:
+            return tool_locator.find_executable("gazer_starter.py", subdir="scripts")
 
     def name(self):
         return "gazer-theta"
