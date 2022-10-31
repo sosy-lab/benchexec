@@ -7,7 +7,7 @@
 
 import benchexec.result as result
 import benchexec.tools.template
-
+from benchexec.tools.template import ToolNotFoundException
 
 class Tool(benchexec.tools.template.BaseTool2):
     """
