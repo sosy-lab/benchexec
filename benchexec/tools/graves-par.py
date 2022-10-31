@@ -5,11 +5,11 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import benchexec.tools.coveriteam_verifier_validator as coveriteam
 from benchexec.tools.template import UnsupportedFeatureException
 from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, LP64
 import re
 
+coveriteam = __import__("benchexec.tools.coveriteam-verifier-validator", fromlist=["Tool"]) 
 
 class Tool(coveriteam.Tool):
     """
@@ -39,6 +39,15 @@ class Tool(coveriteam.Tool):
         a property file, and the data model. From their it forms its prediction
         """
 
+        options += [task.single_input_file]
+
+        if task.property_file:
+            options += [task.property_file]
+        else:
+            raise UnsupportedFeatureException(
+                "Can't execute Graves: Specification is missing."
+            )
+
         data_model_param = get_data_model_from_task(
             task, {ILP32: "ILP32", LP64: "LP64"}
         )
@@ -46,16 +55,7 @@ class Tool(coveriteam.Tool):
             re.match("data_model *=", option) for option in options
         ):
             options += [data_model_param]
-
-        if task.property_file:
-            options += [task.property_file]
-        else:
-            raise UnsupportedFeatureException(
-                "Can't execute Graves: " "Specification is missing."
-            )
-
-        options += [task.single_input_file]
-
+      
         return [executable] + options
 
     def program_files(self, executable):
