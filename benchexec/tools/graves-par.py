@@ -9,7 +9,10 @@ from benchexec.tools.template import UnsupportedFeatureException
 from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, LP64
 import re
 
-coveriteam = __import__("benchexec.tools.coveriteam-verifier-validator", fromlist=["Tool"]) 
+coveriteam = __import__(
+    "benchexec.tools.coveriteam-verifier-validator", fromlist=["Tool"]
+)
+
 
 class Tool(coveriteam.Tool):
     """
@@ -55,7 +58,7 @@ class Tool(coveriteam.Tool):
             re.match("data_model *=", option) for option in options
         ):
             options += [data_model_param]
-      
+
         return [executable] + options
 
     def program_files(self, executable):
