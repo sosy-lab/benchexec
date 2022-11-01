@@ -30,17 +30,18 @@ class Tool(benchexec.tools.template.BaseTool2):
             cmd += ["--data_model", task.options.get("data_model")]
         if task.property_file:
             cmd += ["--property", task.property_file]
-        return cmd
+        return cmd + list(options)
 
     def determine_result(self, run):
         if run.was_timeout:
             return "TIMEOUT"
         r = run.output[-1] or run.output[-2]  # last non-empty line
+        r = r.lower()
         if r.startswith("true"):
             return result.RESULT_TRUE_PROP
         elif r.startswith("unknown"):
             return result.RESULT_UNKNOWN
-        elif r.startswith("ERROR"):
+        elif r.startswith("error"):
             return result.RESULT_ERROR + r[len("ERROR") :]
         else:
             return result.RESULT_ERROR + f"(unknown: {r})"
