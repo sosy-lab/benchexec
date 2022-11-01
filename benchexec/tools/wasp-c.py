@@ -47,4 +47,4 @@ class Tool(benchexec.tools.template.BaseTool2):
         elif run.exit_code == 0 and run.output.any_line_contains("Analysis done."):
             return result.RESULT_DONE
         else:
-            return result.RESULT_UNKOWN
+            return result.RESULT_UNKNOWN
