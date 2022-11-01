@@ -55,12 +55,10 @@ class Tool(benchexec.tools.template.BaseTool2):
         return [executable] + options + [task.single_input_file]
 
     def determine_result(self, run):
-        for line in run.output:
-            if "VERIABS_VERIFICATION_SUCCESSFUL" in line:
-                return result.RESULT_TRUE_PROP
-            elif "VERIABS_VERIFICATION_FAILED" in line:
-                return result.RESULT_FALSE_REACH
-            elif "NOT SUPPORTED" in line or "VERIABS_UNKNOWN" in line:
-                return result.RESULT_UNKNOWN
-
+        if run.output.any_line_contains("VERIABS_VERIFICATION_SUCCESSFUL"):
+            return result.RESULT_TRUE_PROP
+        elif run.output.any_line_contains("VERIABS_VERIFICATION_FAILED"):
+            return result.RESULT_FALSE_REACH
+        elif run.output.any_line_contains("VERIABS_UNKNOWN" or "NOT SUPPORTED"):
+            return result.RESULT_UNKNOWN
         return result.RESULT_ERROR
