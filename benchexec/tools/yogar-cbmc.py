@@ -30,7 +30,7 @@ class Tool(benchexec.tools.template.BaseTool):
         stroutput = str(output)
 
         if isTimeout:
-            status = "TIMEOUT"
+            status = result.RESULT_TIMEOUT
         elif "SUCCESSFUL" in stroutput:
             status = result.RESULT_TRUE_PROP
         elif "FAILED" in stroutput:

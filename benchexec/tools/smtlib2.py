@@ -32,7 +32,7 @@ class Smtlib2Tool(benchexec.tools.template.BaseTool):
                 status = result.RESULT_UNKNOWN
 
         elif ((returnsignal == 9) or (returnsignal == 15)) and isTimeout:
-            status = "TIMEOUT"
+            status = result.RESULT_TIMEOUT
 
         elif returnsignal == 9:
             status = "KILLED BY SIGNAL 9"

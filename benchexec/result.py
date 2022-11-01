@@ -38,6 +38,8 @@ RESULT_DONE = "done"
 """tool terminated properly and true/false does not make sense"""
 RESULT_UNKNOWN = "unknown"
 """tool could not find out an answer due to incompleteness"""
+RESULT_TIMEOUT = "TIMEOUT"
+"""tool could not finish the task in the given time resources"""
 RESULT_ERROR = "ERROR"  # or any other value not listed here
 """tool could not complete due to an error
 (it is recommended to instead use a string with more details about the error)"""

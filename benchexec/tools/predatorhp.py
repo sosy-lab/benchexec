@@ -54,5 +54,5 @@ class Tool(benchexec.tools.template.BaseTool2):
         elif run.output.any_line_contains("FALSE"):
             status = result.RESULT_FALSE_REACH
         if status == "UNKNOWN" and run.was_timeout:
-            status = "TIMEOUT"
+            status = result.RESULT_TIMEOUT
         return status
