@@ -17,7 +17,10 @@ class Tool(benchexec.tools.template.BaseTool2):
     """
 
     def executable(self, tool_locator):
-        return tool_locator.find_executable("wit4java")
+        try:
+            return tool_locator.find_executable("wit4java-wrapper.py")
+        except ToolNotFoundException:
+            return tool_locator.find_executable("wit4java.py")
 
     def version(self, executable):
         return self._version_from_tool(executable)
@@ -26,21 +29,18 @@ class Tool(benchexec.tools.template.BaseTool2):
         return "wit4java"
 
     def cmdline(self, executable, options, task, rlimits):
-        input_files =  list(task.input_files)
-        benchmark = input_files[-1]
-        packages = input_files[0:-1]
-        return [executable] + [benchmark] + ['--packages'] +  packages + options
+        return [executable] + options + list(task.input_files)
 
     def determine_result(self, run):
         output = run.output
         for line in output:
-            if 'wit4java: Witness Correct' in line:
+            if "wit4java: Witness Correct" in line:
                 return result.RESULT_FALSE_PROP
 
-            if 'wit4java: Witness Spurious' in line:
+            if "wit4java: Witness Spurious" in line:
                 return result.RESULT_TRUE_PROP
 
-            if 'wit4java: Could not validate witness' in line:
+            if "wit4java: Could not validate witness" in line:
                 return result.RESULT_UNKNOWN
 
         return result.RESULT_ERROR
