@@ -14,12 +14,7 @@ class Tool(cpachecker.Tool):
     """Tool info for PeSCo."""
 
     REQUIRED_PATHS_v1 = list(cpachecker.Tool.REQUIRED_PATHS) + ["resources"]
-    REQUIRED_PATHS_v2 = [
-        "bin/*.py",
-        "pesco",
-        "lib",
-        "properties"
-    ]
+    REQUIRED_PATHS_v2 = ["bin/*.py", "lib", "properties"]
 
     def executable(self, tool_locator):
         try:
@@ -34,9 +29,10 @@ class Tool(cpachecker.Tool):
         return executable
 
     def version(self, executable):
-        if self._version == 1: return super().version(executable)
+        if self._version == 1:
+            return super().version(executable)
         version = self._version_from_tool(executable, "--version", line_prefix="PeSCo")
-        
+
         pesco_version, *cpa_version = version.split(" ")
         return "+".join([pesco_version, cpa_version[1]])
 
@@ -63,7 +59,8 @@ class Tool(cpachecker.Tool):
         return options
 
     def cmdline(self, executable, options, task, rlimits):
-        if self._version == 1: return super().cmdline(executable, options, task, rlimits)
+        if self._version == 1:
+            return super().cmdline(executable, options, task, rlimits)
 
         additional_options = self._additional_options(options, task, rlimits)
 
