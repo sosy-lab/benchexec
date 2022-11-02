@@ -59,6 +59,8 @@ class Tool(benchexec.tools.template.BaseTool2):
             return result.RESULT_TRUE_PROP
         elif run.output.any_line_contains("VERIABS_VERIFICATION_FAILED"):
             return result.RESULT_FALSE_REACH
-        elif run.output.any_line_contains("VERIABS_UNKNOWN" or "NOT SUPPORTED"):
+        elif run.output.any_line_contains("VERIABS_UNKNOWN"):
+            return result.RESULT_UNKNOWN
+        elif run.output.any_line_contains("NOT SUPPORTED"):
             return result.RESULT_UNKNOWN
         return result.RESULT_ERROR
