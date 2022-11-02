@@ -48,6 +48,6 @@ class Tool(benchexec.tools.template.BaseTool):
             status = result.RESULT_UNKNOWN
 
         if status == result.RESULT_UNKNOWN and isTimeout:
-            status = "TIMEOUT"
+            status = result.RESULT_TIMEOUT
 
         return status

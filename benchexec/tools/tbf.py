@@ -47,7 +47,7 @@ class Tool(benchexec.tools.template.BaseTool):
         for line in reversed(output):
             if line.startswith("ERROR:"):
                 if "timeout" in line.lower():
-                    return "TIMEOUT"
+                    return result.RESULT_TIMEOUT
                 else:
                     return f"ERROR ({returncode})"
             elif line.startswith("TBF") and "FALSE" in line:

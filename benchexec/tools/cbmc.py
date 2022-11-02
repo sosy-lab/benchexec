@@ -93,7 +93,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         except Exception:
             if isTimeout:
                 # in this case an exception is expected as the XML is invalid
-                status = "TIMEOUT"
+                status = result.RESULT_TIMEOUT
             elif "Minisat::OutOfMemoryException" in output:
                 status = "OUT OF MEMORY"
             else:

@@ -99,7 +99,7 @@ class Tool(benchexec.tools.template.BaseTool2):
             elif output.endswith("UNKNOWN"):
                 status = result.RESULT_UNKNOWN
             elif run.was_timeout:
-                status = "TIMEOUT"
+                status = result.RESULT_TIMEOUT
             else:
                 status = "ERROR"
 
@@ -116,7 +116,7 @@ class Tool(benchexec.tools.template.BaseTool2):
             elif output.endswith("UNKNOWN"):
                 status = result.RESULT_UNKNOWN
             elif run.was_timeout:
-                status = "TIMEOUT"
+                status = result.RESULT_TIMEOUT
             else:
                 status = "ERROR"
 
