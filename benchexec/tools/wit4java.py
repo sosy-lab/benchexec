@@ -13,11 +13,11 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     """
     Tool info for wit4java
-    (https://github.com/Anthonysdu/MSc-project/blob/main/jbmc/wit4java.py).
+    (https://github.com/wit4java/wit4java).
     """
 
     def executable(self, tool_locator):
-        return tool_locator.find_executable("wit4java.py")
+        return tool_locator.find_executable("wit4java")
 
     def version(self, executable):
         return self._version_from_tool(executable)
@@ -26,29 +26,21 @@ class Tool(benchexec.tools.template.BaseTool2):
         return "wit4java"
 
     def cmdline(self, executable, options, task, rlimits):
-        return [executable] + options + list(task.input_files)
+        input_files =  list(task.input_files)
+        benchmark = input_files[-1]
+        packages = input_files[0:-1]
+        return [executable] + [benchmark] + ['--packages'] +  packages + options
 
     def determine_result(self, run):
         output = run.output
-        validation = "unknown"
         for line in output:
-            if "Exception" in line:
-                if "AssertionError" in line:
-                    validation = "false"
-                else:
-                    validation = "unknown"
-                break
-            else:
-                validation = "true"
+            if 'wit4java: Witness Correct' in line:
+                return result.RESULT_FALSE_PROP
 
-        if validation == "false":
-            status = result.RESULT_FALSE_PROP
+            if 'wit4java: Witness Spurious' in line:
+                return result.RESULT_TRUE_PROP
 
-        elif validation == "true":
-            status = result.RESULT_TRUE_PROP
+            if 'wit4java: Could not validate witness' in line:
+                return result.RESULT_UNKNOWN
 
-        elif validation == "unknown":
-            status = result.RESULT_UNKNOWN
-        else:
-            status = result.RESULT_ERROR
-        return status
+        return result.RESULT_ERROR
