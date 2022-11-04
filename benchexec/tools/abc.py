@@ -36,7 +36,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         @return: status of ABC after executing a run
         """
         if run.was_timeout:
-            return "TIMEOUT"
+            return result.RESULT_TIMEOUT
         status = None
         for line in run.output:
             if line.startswith("Property proved") or line.startswith(
