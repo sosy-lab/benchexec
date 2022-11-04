@@ -25,11 +25,13 @@ class Tool(benchexec.tools.template.BaseTool2):
         return "ABC"
 
     def cmdline(self, executable, options, task, rlimits):
-        return (
-            [executable]
-            + ["-c", "&r {}; &put".format(task.single_input_file)]
-            + options
-        )
+        # The default read method in ABC cannot process uninitialized registers properly.
+        # Therefore, a new read method `&r` (`&read`) is invoked here.
+        # Currently, `&r` only supports AIGER files (*.aig).
+        if task.single_input_file.endswith(".aig"):
+            return [executable] + ["-c", f"&r {task.single_input_file}; &put"] + options
+        # Files in other formats (e.g. *.blif, *.bench, *.v, ...) are processed with the default read method.
+        return [executable] + options + [task.single_input_file]
 
     def determine_result(self, run):
         """
