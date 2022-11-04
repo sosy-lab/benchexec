@@ -29,7 +29,7 @@ class Tool(benchexec.tools.template.BaseTool):
             assert returncode == 10
             status = result.RESULT_FALSE_REACH
         elif returnsignal == 9:
-            status = "TIMEOUT"
+            status = result.RESULT_TIMEOUT
         elif returnsignal == 6:
             if "Assertion `!counterexample.steps.empty()' failed" in output:
                 status = "COUNTEREXAMPLE FAILED"  # TODO: other status?

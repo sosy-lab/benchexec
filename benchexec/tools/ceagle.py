@@ -32,7 +32,7 @@ class Tool(benchexec.tools.template.BaseTool):
         stroutput = str(output)
 
         if isTimeout:
-            status = "TIMEOUT"
+            status = result.RESULT_TIMEOUT
         elif "TRUE" in stroutput:
             status = result.RESULT_TRUE_PROP
         elif "FALSE(valid-deref)" in stroutput:

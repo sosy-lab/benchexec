@@ -31,9 +31,9 @@ WALLTIMELIMIT = "walltimelimit"
 _BYTE_FACTOR = 1000  # byte in kilobyte
 
 _ERROR_RESULTS_FOR_TERMINATION_REASON = {
-    "cputime": "TIMEOUT",
-    "cputime-soft": "TIMEOUT",
-    "walltime": "TIMEOUT",
+    "cputime": result.RESULT_TIMEOUT,
+    "cputime-soft": result.RESULT_TIMEOUT,
+    "walltime": result.RESULT_TIMEOUT,
     "memory": "OUT OF MEMORY",
     "killed": "KILLED",
     "failed": "FAILED",
@@ -565,7 +565,7 @@ class RunSet(object):
                 base = os.path.basename(run.identifier)
                 if base in sourcefilesSet:
                     logging.warning(
-                        "Input file with name '%s' appears twice in runset. "
+                        "Input file with name '%s' appears twice in run definition. "
                         "This could cause problems with equal logfile-names.",
                         base,
                     )
@@ -1149,7 +1149,7 @@ class Run(object):
             # Termination reason was not fully precise for timeouts, so we double check
             # the consumed time against the limits. Since removal of ulimit time limit
             # this should not be necessary, but also does not harm.
-            status = "TIMEOUT"
+            status = result.RESULT_TIMEOUT
         elif termination_reason:
             status = _ERROR_RESULTS_FOR_TERMINATION_REASON.get(
                 termination_reason, termination_reason

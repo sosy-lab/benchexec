@@ -6,6 +6,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 [flake8]
+show-source = true
+statistics = true
 max-line-length = 88
 ignore =
     # temporarily disabled for historic reasons: line length, naming
@@ -25,8 +27,14 @@ ignore =
     I,
     # "... if .. else ..." is fine
     IF100,
+    # https://github.com/globality-corp/flake8-logging-format/issues/49
+    G004,
+    # logging messages of exceptions is not problematic
+    G200,
     # using a result variable instead of early return allows later addition of logic
     R504,
+    # elif/else after return/raise/continue/break is not necessary but can be easier to read
+    R505,R506,R507,R508,
     # no warnings about assert
     B011, S101,
     # no warnings about pickle,

@@ -36,7 +36,7 @@ class Tool(benchexec.tools.template.BaseTool):
             status = "NO MAIN"
 
         elif "For Error Location <<ERROR_LOCATION>>: I don't Know " in output:
-            status = "TIMEOUT"
+            status = result.RESULT_TIMEOUT
 
         elif "received signal 6" in output:
             status = "ABORT"

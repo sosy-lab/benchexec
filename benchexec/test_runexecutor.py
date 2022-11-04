@@ -47,7 +47,7 @@ class TestRunExecutor(unittest.TestCase):
         with self.skip_if_logs(
             "Cannot reliably kill sub-processes without freezer cgroup"
         ):
-            self.runexecutor = RunExecutor(use_namespaces=False, *args, **kwargs)
+            self.runexecutor = RunExecutor(*args, use_namespaces=False, **kwargs)
 
     @contextlib.contextmanager
     def skip_if_logs(self, error_msg):
@@ -792,6 +792,58 @@ class TestRunExecutor(unittest.TestCase):
         self.assertLessEqual(before, run_starttime)
         self.assertLessEqual(run_starttime, after)
 
+    def test_frozen_process(self):
+        # https://github.com/sosy-lab/benchexec/issues/840
+        if not os.path.exists("/bin/sleep"):
+            self.skipTest("missing /bin/sleep")
+        if not os.path.exists("/sys/fs/cgroup/freezer"):
+            self.skipTest("missing freezer cgroup")
+        self.setUp(
+            dir_modes={
+                "/": containerexecutor.DIR_READ_ONLY,
+                "/home": containerexecutor.DIR_HIDDEN,
+                "/tmp": containerexecutor.DIR_HIDDEN,
+                "/sys/fs/cgroup": containerexecutor.DIR_FULL_ACCESS,
+            }
+        )
+        (result, output) = self.execute_run(
+            "/bin/sh",
+            "-c",
+            """#!/bin/sh
+# create process, move it to sub-cgroup, and freeze it
+set -eu
+
+cgroup="/sys/fs/cgroup/freezer/$(grep freezer /proc/self/cgroup | cut -f 3 -d :)"
+mkdir "$cgroup/tmp"
+
+sleep 10 &
+child_pid=$!
+
+echo $child_pid > "$cgroup/tmp/tasks"
+echo FROZEN > "$cgroup/tmp/freezer.state"
+# remove permissions in order to test our handling of this case
+chmod 000 "$cgroup/tmp/freezer.state"
+chmod 000 "$cgroup/tmp/tasks"
+chmod 000 "$cgroup/tmp"
+echo FROZEN
+wait $child_pid
+""",
+            walltimelimit=1,
+            expect_terminationreason="walltime",
+        )
+        self.check_exitcode(result, 9, "exit code of killed process is not 9")
+        self.assertAlmostEqual(
+            result["walltime"],
+            2,
+            delta=0.5,
+            msg="walltime is not approximately the time after which the process should have been killed",
+        )
+        self.assertEqual(
+            output[-1],
+            "FROZEN",
+            "run output misses command output and was not executed properly",
+        )
+
 
 class TestRunExecutorWithContainer(TestRunExecutor):
     def setUp(self, *args, **kwargs):
@@ -810,7 +862,7 @@ class TestRunExecutorWithContainer(TestRunExecutor):
         )
 
         self.runexecutor = RunExecutor(
-            use_namespaces=True, dir_modes=dir_modes, *args, **kwargs
+            *args, use_namespaces=True, dir_modes=dir_modes, **kwargs
         )
 
     def get_runexec_cmdline(self, *args, **kwargs):

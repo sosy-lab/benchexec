@@ -38,7 +38,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         if (
             (run.exit_code.signal == 9) or (run.exit_code.signal == 15)
         ) and run.was_timeout:
-            status = "TIMEOUT"
+            status = result.RESULT_TIMEOUT
         elif run.exit_code.signal == 9:
             status = "OUT OF MEMORY"
         elif run.exit_code.signal:

@@ -29,7 +29,7 @@ class Tool(benchexec.tools.template.BaseTool):
             assert returncode == 10
             status = result.RESULT_FALSE_REACH
         elif returnsignal == 9:
-            status = "TIMEOUT"
+            status = result.RESULT_TIMEOUT
         elif returnsignal == 6 or (returncode == 6 and "Out of memory" in output):
             status = "OUT OF MEMORY"
         elif returncode == 6 and "PARSING ERROR" in output:

@@ -9,6 +9,29 @@ SPDX-License-Identifier: Apache-2.0
 
 # BenchExec Changelog
 
+## BenchExec 3.13
+
+- More robust handling of child cgroups created within a run  
+  Note that it is not safe to execute an untrusted tool inside a BenchExec run
+  and give it access to cgroups
+  (e.g., with `--no-container` or `--full-access /sys/fs/cgroups`).
+  However, some users want to execute trusted tools with cgroup access
+  (e.g., nesting `runexec`) and we aim to support this.
+  It was found that BenchExec could hang or crash in certain cases
+  where child cgroups were created by the process within a run
+  and used to freeze processes (done by nested `runexec`, for example),
+  or were made inaccessible using file-system permissions.
+  This lead to incomplete run cleanup and processes left running
+  or hanging in an unkillable state.
+  This release fixes such situations and users who allow cgroup access
+  within runs are strongly recommended to upgrade.
+- Fix incomplete rewriting of numbers into roman numerals
+  in the new LaTeX output for statistics.
+
+This release does not change the minimum supported Python version,
+but we would like to remind you
+that BenchExec will soon stop supporting Python 3.6.
+
 ## BenchExec 3.12
 
 - Compatibility with Python 3.10  

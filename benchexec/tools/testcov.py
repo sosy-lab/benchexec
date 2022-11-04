@@ -56,7 +56,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         for line in reversed(run.output):
             if line.startswith("ERROR:"):
                 if "timeout" in line.lower():
-                    return "TIMEOUT"
+                    return result.RESULT_TIMEOUT
                 else:
                     return f"ERROR ({run.exit_code.value})"
             elif line.startswith("Result: FALSE"):

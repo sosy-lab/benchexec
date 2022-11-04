@@ -54,7 +54,7 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def determine_result(self, run):
         if run.was_timeout:
-            return "timeout"
+            return result.RESULT_TIMEOUT
 
         if not run.output:
             return "error (no output)"

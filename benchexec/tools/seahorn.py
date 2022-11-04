@@ -51,7 +51,7 @@ class Tool(benchexec.tools.template.BaseTool):
                 status = result.RESULT_FALSE_REACH
         elif returnsignal == 9 or returnsignal == (128 + 9):
             if isTimeout:
-                status = "TIMEOUT"
+                status = result.RESULT_TIMEOUT
             else:
                 status = "KILLED BY SIGNAL 9"
         elif returncode != 0:

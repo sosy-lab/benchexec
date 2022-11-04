@@ -181,8 +181,8 @@ def _get_cpu_cores_per_run0(
         for core in unused_cores:
             siblings_of_core.pop(core)
         logging.debug(
-            f"Running in no-hyperthreading mode, "
-            f"avoiding the use of CPU cores {unused_cores}"
+            "Running in no-hyperthreading mode, avoiding the use of CPU cores %s",
+            unused_cores,
         )
 
     unit_size = len(next(iter(cores_of_unit.values())))  # Number of units per core

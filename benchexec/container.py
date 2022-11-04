@@ -471,29 +471,45 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
         if not mode:
             continue
 
-        if not os.access(os.path.dirname(mountpoint), os.X_OK):
-            # If parent is not accessible we cannot mount something on mountpoint.
-            # We mark the inaccessible directory as hidden
-            # because otherwise the mountpoint could become accessible (directly!)
-            # if the permissions on the parent are relaxed during container execution.
-            original_mountpoint = mountpoint
-            parent = os.path.dirname(mountpoint)
-            while not os.access(parent, os.X_OK):
+        if not os.path.exists(mountpoint):
+            # Mountpoint either does not exist or is in an inaccessible directory.
+            # The former is safe to ignore, but the latter needs to be handled
+            # because something could relax the permissions later on, making mountpoint
+            # accessible in the container without the proper directory mode.
+            missing_dir = mountpoint
+            parent = os.path.dirname(missing_dir)
+            while not os.path.exists(parent):
+                missing_dir = parent
+                parent = os.path.dirname(missing_dir)
+            if os.access(parent, os.X_OK):
+                # Not a permission problem, missing_dir really does not exist.
+                logging.debug(
+                    "Ignoring hiden mount '%s' because '%s' does not exist.",
+                    mountpoint.decode(),
+                    missing_dir.decode(),
+                )
+                continue
+            else:
+                # missing_dir could exist or not, permissions on parent hide it.
+                # We cannot mount something over it, but the inaccessible parent is
+                # useless in the container anyway, so we can just hide all of parent,
+                # which safely hides mountpoint even if permissions of parent get
+                # relaxed outside of the container.
+                logging.debug(
+                    "Marking inaccessible directory '%s' as hidden "
+                    "because it contains a mountpoint at '%s'",
+                    parent.decode(),
+                    mountpoint.decode(),
+                )
+                # Creating the following directory will make mountpoint appear as
+                # empty directory in the container. This is useful because otherwise the
+                # kernel will show a mountpoint for a non-existing directory.
+                # This makes nesting containers work better (common example is
+                # /sys/kernel/debug/tracing).
+                os.makedirs(temp_base + mountpoint, exist_ok=True)
+                # Let the rest of this loop iteration actually hide parent.
                 mountpoint = parent
-                parent = os.path.dirname(mountpoint)
-            mode = DIR_HIDDEN
-            logging.debug(
-                "Marking inaccessible directory '%s' as hidden "
-                "because it contains a mountpoint at '%s'",
-                mountpoint.decode(),
-                original_mountpoint.decode(),
-            )
-            # Creating the following directory will make original_mountpoint appear as
-            # empty directory in the container. This is useful because otherwise the
-            # kernel will show a mountpoint for a non-existing directory.
-            # This makes nesting containers work better (common example is
-            # /sys/kernel/debug/tracing).
-            os.makedirs(temp_base + original_mountpoint, exist_ok=True)
+                mode = DIR_HIDDEN
         else:
             logging.debug("Mounting '%s' as %s", mountpoint.decode(), mode)
 

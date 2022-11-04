@@ -178,7 +178,7 @@ class Tool(benchexec.tools.template.BaseTool2):
                 and not status
                 and run.was_timeout
             ):
-                status = "TIMEOUT"
+                status = result.RESULT_TIMEOUT
 
             elif line.startswith("Verification result: "):
                 line = line[21:].strip()
@@ -208,7 +208,7 @@ class Tool(benchexec.tools.template.BaseTool2):
             and run.exit_code.value in [15, 143]
         ):
             # The JVM sets such an returncode if it receives signal 15 (143 is 15+128)
-            status = "TIMEOUT"
+            status = result.RESULT_TIMEOUT
 
         if not status:
             status = result.RESULT_ERROR

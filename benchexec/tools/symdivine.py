@@ -85,7 +85,7 @@ class Tool(benchexec.tools.template.BaseTool):
         join_output = "\n".join(output)
 
         if isTimeout:
-            return "TIMEOUT"
+            return result.RESULT_TIMEOUT
 
         if returncode == 2:
             return "ERROR - Pre-run"
