@@ -32,6 +32,9 @@ class Tool(benchexec.tools.template.BaseTool2):
             return result.RESULT_TIMEOUT
         status = None
         for line in run.output:
+            # skip the lines that do not contain verification result
+            if not line.startswith("Verification result:"):
+                continue
             if "avr-h" in line:
                 status = result.RESULT_TRUE_PROP
             if "avr-v" in line:
