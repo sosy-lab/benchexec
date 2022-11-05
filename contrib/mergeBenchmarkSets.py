@@ -103,6 +103,12 @@ def get_witness_result(witness, verification_result):
             f"witness invalid ({status_from_verification})",
             result.CATEGORY_ERROR,
         )
+    # A mismatch of the witness type counts as error of the verifier.
+    if status_from_validation == "ERROR (unexpected witness type)":
+        return (
+            f"witness mismatch ({status_from_verification})",
+            result.CATEGORY_ERROR,
+        )
     # Other unconfirmed witnesses count as CATEGORY_CORRECT_UNCONFIRMED.
     if category_from_verification == result.CATEGORY_CORRECT:
         return status_from_verification, result.CATEGORY_CORRECT_UNCONFIRMED
