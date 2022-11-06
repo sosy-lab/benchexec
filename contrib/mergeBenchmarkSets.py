@@ -164,7 +164,10 @@ def get_validation_result(
             run.append(score_column)
         else:
             # For verification
-            if status_wit and status_wit.startswith("witness invalid"):
+            if status_wit and (
+                status_wit.startswith("witness invalid")
+                or status_wit.startswith("witness mismatch")
+            ):
                 continue
             status_wit_new, category_wit_new = get_witness_result(witness, run)
             if (
@@ -172,6 +175,7 @@ def get_validation_result(
                 or not category_wit.startswith(result.CATEGORY_CORRECT)
                 or category_wit_new == result.CATEGORY_CORRECT
                 or status_wit_new.startswith("witness invalid")
+                or status_wit_new.startswith("witness mismatch")
             ):
                 status_wit, category_wit = (status_wit_new, category_wit_new)
     return (
