@@ -7,6 +7,7 @@
 
 import benchexec.tools.template
 import benchexec.result as result
+from benchexec.tools.template import ToolNotFoundException
 
 
 class Tool(benchexec.tools.template.BaseTool2):
@@ -33,14 +34,44 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def determine_result(self, run):
         output = run.output
+        version = 1.0
         for line in output:
-            if "wit4java: Witness Correct" in line:
-                return result.RESULT_FALSE_PROP
+            if "wit4java version: " in line:
+                version = float(line[line.index("wit4java version: ")+18:])
+                break
+        if version >= 3.0:
+            for line in output:
+             #   print(line[line.index("wit4java version: "):])
+                if "wit4java: Witness Correct" in line:
+                    return result.RESULT_FALSE_PROP
 
-            if "wit4java: Witness Spurious" in line:
-                return result.RESULT_TRUE_PROP
+                if "wit4java: Witness Spurious" in line:
+                    return result.RESULT_TRUE_PROP
 
-            if "wit4java: Could not validate witness" in line:
-                return result.RESULT_UNKNOWN
+                if "wit4java: Could not validate witness" in line:
+                    return result.RESULT_UNKNOWN
+        else:
+            validation = "unknown"
+            for line in output:
+                if "Exception" in line:
+                    if "AssertionError" in line:
+                        validation = "false"
+                    else:
+                        validation = "unknown"
+                    break
+                else:
+                    validation = "true"
 
+            if validation == "false":
+                status = result.RESULT_FALSE_PROP
+
+            elif validation == "true":
+                status = result.RESULT_TRUE_PROP
+
+            elif validation == "unknown":
+                status = result.RESULT_UNKNOWN
+            else:
+                status = result.RESULT_ERROR
+            return status
+        
         return result.RESULT_ERROR
