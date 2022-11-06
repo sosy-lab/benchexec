@@ -84,6 +84,12 @@ class ContainerizedTool(object):
         def proxy_function(self, *args, **kwargs):
             return self._forward_call(method_name, args, kwargs)
 
+        if method_name == "working_directory":
+            # Add a cache. This method is called per run but would always return the
+            # same result. On some systems the calls are slow and this is worth it:
+            # https://github.com/python/cpython/issues/98493
+            proxy_function = functools.lru_cache()(proxy_function)
+
         setattr(cls, member_name, proxy_function)
 
 
