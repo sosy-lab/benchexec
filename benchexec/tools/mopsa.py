@@ -44,4 +44,4 @@ class Tool(benchexec.tools.template.BaseTool2):
         elif r.startswith("error"):
             return result.RESULT_ERROR + r[len("ERROR") :]
         else:
-            return result.RESULT_ERROR + f"(unknown: {r})"
+            return result.RESULT_ERROR + "(unknown)"
