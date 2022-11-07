@@ -37,11 +37,10 @@ class Tool(benchexec.tools.template.BaseTool2):
         version = 1.0
         for line in output:
             if "wit4java version: " in line:
-                version = float(line[line.index("wit4java version: ")+18:])
+                version = float(line[line.index("wit4java version: ") + 18 :])
                 break
         if version >= 3.0:
             for line in output:
-             #   print(line[line.index("wit4java version: "):])
                 if "wit4java: Witness Correct" in line:
                     return result.RESULT_FALSE_PROP
 
@@ -73,5 +72,5 @@ class Tool(benchexec.tools.template.BaseTool2):
             else:
                 status = result.RESULT_ERROR
             return status
-        
+
         return result.RESULT_ERROR
