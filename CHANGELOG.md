@@ -9,6 +9,27 @@ SPDX-License-Identifier: Apache-2.0
 
 # BenchExec Changelog
 
+## BenchExec 3.14
+
+- Added a workaround for the known glibc deadlock described in [#656](https://github.com/sosy-lab/benchexec/issues/656).  
+  In most cases BenchExec should detect the deadlock
+  and continue benchmarking after a timeout of 60s.
+- We noticed a [performance problem in Python](https://github.com/python/cpython/issues/98493)
+  that affects `benchexec` in container mode on machines with many cores
+  and added an optimization that reduces its impact.
+- Improved handling of non-existent mount points.  
+  This makes BenchExec easier to use within Podman containers,
+  and we now recommend Podman over Docker in our
+  [documentation](https://github.com/sosy-lab/benchexec/blob/main/doc/container.md#using-benchexec-in-a-dockerpodman-container).
+- `table-generator` no longer attempts to spawn a large number of threads
+  (failing due to the limit on open files)
+  on machines with many cores.
+- Many new and improved tool-info modules.
+
+This release does not change the minimum supported Python version,
+but we would like to remind you
+that BenchExec will soon stop supporting Python 3.6.
+
 ## BenchExec 3.13
 
 - More robust handling of child cgroups created within a run  
