@@ -37,8 +37,10 @@ class Tool(benchexec.tools.template.BaseTool2):
                 continue
             if "avr-h" in line:
                 status = result.RESULT_TRUE_PROP
-            if "avr-v" in line:
+            elif "avr-v" in line:
                 status = result.RESULT_FALSE_PROP
-        if not status:
+            if status is not None:
+                break
+        if status is None:
             status = result.RESULT_ERROR
         return status

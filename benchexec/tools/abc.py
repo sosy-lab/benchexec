@@ -51,7 +51,9 @@ class Tool(benchexec.tools.template.BaseTool2):
                 status = result.RESULT_FALSE_PROP
             elif line.startswith("Networks are UNDECIDED"):
                 status = result.RESULT_UNKNOWN
-        if not status:
+            if status is not None:
+                break
+        if status is None:
             status = result.RESULT_ERROR
         return status
 
