@@ -39,23 +39,18 @@ class Tool(benchexec.tools.template.BaseTool2):
         """
         if run.was_timeout:
             return result.RESULT_TIMEOUT
-        status = None
         for line in run.output:
             if line.startswith("Property proved") or line.startswith(
                 "Networks are equivalent"
             ):
-                status = result.RESULT_TRUE_PROP
+                return result.RESULT_TRUE_PROP
             elif "was asserted in frame" in line or line.startswith(
                 "Networks are NOT EQUIVALENT"
             ):
-                status = result.RESULT_FALSE_PROP
+                return result.RESULT_FALSE_PROP
             elif line.startswith("Networks are UNDECIDED"):
-                status = result.RESULT_UNKNOWN
-            if status is not None:
-                break
-        if status is None:
-            status = result.RESULT_ERROR
-        return status
+                return result.RESULT_UNKNOWN
+        return result.RESULT_ERROR
 
     def get_value_from_output(self, output, identifier):
         # search for the identifier in the output and return the number after it
