@@ -238,7 +238,7 @@ def get_result_category(expected_results, result, properties):
     """
     This function determines the relation between actual result and expected result
     for the given file and properties.
-    @param filename: The file name of the input file.
+    @param expected_results: The list of possible expected results for the given task.
     @param result: The result given by the tool (needs to be one of the RESULT_* strings to be recognized).
     @param properties: The list of property names to check.
     @return One of the CATEGORY_* strings.
