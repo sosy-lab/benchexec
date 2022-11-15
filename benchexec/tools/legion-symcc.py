@@ -23,6 +23,9 @@ class Tool(benchexec.tools.template.BaseTool2):
         "lib",
         "lib32",
         "dist",
+        # for older versions:
+        "ubuntu2004",
+        "__VERIFIER.c",
     ]
 
     def executable(self, tool_locator):
