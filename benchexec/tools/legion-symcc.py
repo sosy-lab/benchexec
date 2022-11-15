@@ -5,6 +5,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import benchexec.result as result
 import benchexec.tools.template
 from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, LP64
 
@@ -17,8 +18,10 @@ class Tool(benchexec.tools.template.BaseTool2):
     REQUIRED_PATHS = [
         "legion.sh",
         "Legion.py",
-        "__VERIFIER.c",
-        "ubuntu2004",
+        "Verifier.cpp",
+        "legion",
+        "lib",
+        "lib32",
         "dist",
     ]
 
@@ -41,5 +44,12 @@ class Tool(benchexec.tools.template.BaseTool2):
     def get_value_from_output(self, output, identifier):
         for line in reversed(output):
             if line.startswith(identifier):
-                return line[len(identifier) :]
+                value = line[len(identifier) :]
+                return value.strip()
         return None
+
+    def determine_result(self, run):
+        for line in run.output:
+            if "reach_error() detected." in line:
+                return result.RESULT_FALSE_REACH
+        return result.RESULT_UNKNOWN
