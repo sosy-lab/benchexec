@@ -18,12 +18,13 @@ class Tool(benchexec.tools.template.BaseTool2):
     https://github.com/ftsrg/theta
     """
 
-    REQUIRED_PATHS = [".."]
+    REQUIRED_PATHS = ["."]
 
     def executable(self, tool_locator):
         try:
             return tool_locator.find_executable("gazer-start.sh")
         except ToolNotFoundException:
+            self.REQUIRED_PATHS = [".."]
             return tool_locator.find_executable("gazer_starter.py", subdir="scripts")
 
     def name(self):
