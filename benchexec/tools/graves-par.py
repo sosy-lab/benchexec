@@ -34,18 +34,18 @@ class Tool(coveriteam.Tool):
         return "Graves-Par"
 
     def executable(self, tool_locator):
-        return tool_locator.find_executable("graves.sh")
+        return tool_locator.find_executable("graves.py")
 
     def cmdline(self, executable, options, task, rlimits):
         """
         Graves-PAR takes in three arguments: the program looking to be verified,
-        a property file, and the data model. From their it forms its prediction
+        a property file, and the data model. From there, it forms its prediction
         """
 
-        options += [task.single_input_file]
+        options += ["--program ", task.single_input_file]
 
         if task.property_file:
-            options += [task.property_file]
+            options += ["--spec ", task.property_file]
         else:
             raise UnsupportedFeatureException(
                 "Can't execute Graves: Specification is missing."
@@ -57,7 +57,7 @@ class Tool(coveriteam.Tool):
         if data_model_param and not any(
             re.match("data_model *=", option) for option in options
         ):
-            options += [data_model_param]
+            options += ["--data-model ", data_model_param]
 
         return [executable] + options
 
