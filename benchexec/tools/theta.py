@@ -30,7 +30,9 @@ class Tool(benchexec.tools.template.BaseTool2):
         return self._version_from_tool(executable)
 
     def cmdline(self, executable, options, task, rlimits):
-        # we only support unreach-call and ignore property file
+        # Theta supports data race and unreach call
+        if task.property_file:
+            options += ["--property", task.property_file]
         return [executable, task.single_input_file] + options
 
     def determine_result(self, run):
