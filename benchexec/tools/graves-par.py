@@ -39,7 +39,7 @@ class Tool(coveriteam.Tool):
     def cmdline(self, executable, options, task, rlimits):
         """
         Graves-PAR takes in three arguments: the program looking to be verified,
-        a property file, and the data model. From their it forms its prediction
+        a property file, and the data model. From there, it forms its prediction
         """
 
         options += ["--program", task.single_input_file]
