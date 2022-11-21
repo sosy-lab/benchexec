@@ -42,10 +42,10 @@ class Tool(coveriteam.Tool):
         a property file, and the data model. From there, it forms its prediction
         """
 
-        options += ["--program ", task.single_input_file]
+        options += ["--program", task.single_input_file]
 
         if task.property_file:
-            options += ["--spec ", task.property_file]
+            options += ["--spec", task.property_file]
         else:
             raise UnsupportedFeatureException(
                 "Can't execute Graves: Specification is missing."
@@ -57,7 +57,7 @@ class Tool(coveriteam.Tool):
         if data_model_param and not any(
             re.match("data_model *=", option) for option in options
         ):
-            options += ["--data-model ", data_model_param]
+            options += ["--data-model", data_model_param]
 
         return [executable] + options
 
