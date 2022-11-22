@@ -8,6 +8,7 @@
 import benchexec.tools.template
 import benchexec.result as result
 
+from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, LP64
 
 class Tool(benchexec.tools.template.BaseTool2):
     """
@@ -31,6 +32,12 @@ class Tool(benchexec.tools.template.BaseTool2):
             raise benchexec.tools.template.UnsupportedFeatureException(
                 "property file is required"
             )
+
+        data_model_param = get_data_model_from_task(task, {ILP32: "32", LP64: "64"})
+#
+        if data_model_param and "--arch" not in options:
+            options += ["--arch", data_model_param]
+
         return [executable] + options + [task.single_input_file]
 
     def determine_result(self, run):
@@ -42,8 +49,6 @@ class Tool(benchexec.tools.template.BaseTool2):
             return result.RESULT_ERROR
         elif run.was_timeout or run.output.any_line_contains("WASP timed out"):
             return result.RESULT_TIMEOUT
-        elif run.was_terminated:
-            return result.RESULT_UNKNOWN
         elif run.exit_code == 0 and run.output.any_line_contains("Analysis done."):
             return result.RESULT_DONE
         else:
