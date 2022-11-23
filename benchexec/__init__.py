@@ -34,7 +34,7 @@ Variables ending with "file" contain filenames.
 Variables ending with "tag" contain references to XML tag objects created by the XML parser.
 """
 
-__version__ = "3.15-dev"
+__version__ = "3.15"
 
 
 class BenchExecException(Exception):  # noqa: N818 backwards compatibility
