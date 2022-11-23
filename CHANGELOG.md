@@ -9,6 +9,17 @@ SPDX-License-Identifier: Apache-2.0
 
 # BenchExec Changelog
 
+## BenchExec 3.15
+
+- Updated installation instructions for Debian.  
+  Manual installation of the package is needed
+  because `dpkg` on Debian is incompatible with our PPA on Launchpad.
+- Some improvements to tool-info modules.
+
+This release does not change the minimum supported Python version,
+but we would like to remind you
+that BenchExec will soon stop supporting Python 3.6.
+
 ## BenchExec 3.14
 
 - Added a workaround for the known glibc deadlock described in [#656](https://github.com/sosy-lab/benchexec/issues/656).  
