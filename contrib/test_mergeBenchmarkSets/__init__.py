@@ -441,3 +441,8 @@ class TestMergeBenchmarkSets(unittest.TestCase):
         real_data_test_case_3 = parse_real_data(3, 1, "test_3")
         for elem in self.prepare_files(real_data_test_case_3).findall("run"):
             self.assertEqual(result.CATEGORY_CORRECT, elem.find('column[@title="category"]').get("value"))
+
+    def test_merge_one_fails_one_confirms_one_rejects(self):
+        real_data_test_case_3 = parse_real_data(3, 1, "test_4")
+        for elem in self.prepare_files(real_data_test_case_3).findall("run"):
+            self.assertEqual(result.CATEGORY_CORRECT, elem.find('column[@title="category"]').get("value"))
