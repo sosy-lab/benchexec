@@ -1,0 +1,55 @@
+<?xml version="1.0" ?>
+<!DOCTYPE result
+  PUBLIC '+//IDN sosy-lab.org//DTD BenchExec result 3.0//EN'
+  'https://www.sosy-lab.org/benchexec/result-3.0.dtd'>
+<result benchmarkname="metaval-validate-correctness-witnesses-coveriteam-verifier-parallel-portfolio" date="2021-12-10 20:59:35 CET" starttime="2021-12-10T21:02:46.689648+01:00" tool="MetaVal" version="1.2.0" toolmodule="benchexec.tools.metaval" generator="BenchExec 3.11-dev" memlimit="7000000000B" timelimit="900s" cpuCores="2" options="--metavalWitness ../../results-verified/coveriteam-verifier-parallel-portfolio.2021-12-10_00-39-17.files/${rundefinition_name}/${taskdef_name}/witness.graphml --metavalVerifierBackend cpachecker -svcomp22 -heap 5000M -benchmark -timelimit 900s" name="SV-COMP22_unreach-call" endtime="2021-12-10T21:58:19.263974+01:00">
+  <description>Provenance information:
+Benchmark executed
+for SV-COMP 2022, https://sv-comp.sosy-lab.org/2022/
+by dbeyer@wbeyer1.sosy.ifi.lmu.de
+on 2021-12-10T20:59+01:00
+based on the components
+git@gitlab.com:sosy-lab/sv-comp/archives-2022  git-describe: svcomp22-rc.1-0-g456ae18
+git@gitlab.com:sosy-lab/benchmarking/sv-benchmarks  git-describe: svcomp22-rc.2-0-g3ca99b0f41
+https://gitlab.com/sosy-lab/software/benchexec  git-describe: 3.10-7-g38a2f4c6
+git@gitlab.com:sosy-lab/benchmarking/competition-scripts  git-describe: svcomp22-rc.1-5-ga9e074e
+git@gitlab.com:sosy-lab/sv-comp/bench-defs.git  git-describe: svcomp22-rc.1-1-ga39fca2
+Archive: val_metaval.zip  DATE: 2021-11-25T18:13+01:00  SHA1: 13667cc21d...</description>
+  <columns>
+    <column title="status"/>
+    <column title="cputime"/>
+    <column title="walltime"/>
+  </columns>
+  <run name="../sv-benchmarks/c/array-lopstr16/partial_lesser_bound-1.yml" files="[../sv-benchmarks/c/array-lopstr16/partial_lesser_bound-1.i]" properties="unreach-call" propertyFile="../sv-benchmarks/c/properties/unreach-call.prp" expectedVerdict="true" logfile="/home/matthias/SosyLab/Software/test-data/results-final/results-validated/metaval-validate-correctness-witnesses-coveriteam-verifier-parallel-portfolio.2021-12-10_20-59-35.logfiles/SV-COMP22_unreach-call.partial_lesser_bound-1.yml.log">
+    <column title="cputime" value="36.778937684s"/>
+    <column title="host" value="apollon084"/>
+    <column title="memory" value="6999998464B"/>
+    <column title="status" value="true"/>
+    <column title="walltime" value="26.3213363429968s"/>
+    <column title="blkio-read" value="0B" hidden="true"/>
+    <column title="blkio-write" value="0B" hidden="true"/>
+    <column title="category" value="correct" hidden="true"/>
+    <column title="cpuCores" value="0,4" hidden="true"/>
+    <column title="cputime-cpu0" value="13.304907911s" hidden="true"/>
+    <column title="cputime-cpu1" value="0.000031008s" hidden="true"/>
+    <column title="cputime-cpu2" value="0.000033148s" hidden="true"/>
+    <column title="cputime-cpu4" value="23.473860367s" hidden="true"/>
+    <column title="cputime-cpu6" value="0.000105250s" hidden="true"/>
+    <column title="exitsignal" value="9" hidden="true"/>
+    <column title="memoryNodes" value="0" hidden="true"/>
+    <column title="starttime" value="2021-12-10T21:38:09.498435+01:00" hidden="true"/>
+    <column title="terminationreason" value="memory" hidden="true"/>
+    <column title="vcloud-additionalEnvironment" value="" hidden="true"/>
+    <column title="vcloud-cpuCoresDetails" value="[Processor{0, core=0, socket=0}, Processor{4, core=0, socket=0}]" hidden="true"/>
+    <column title="vcloud-debug" value="false" hidden="true"/>
+    <column title="vcloud-generatedFilesCount" value="1" hidden="true"/>
+    <column title="vcloud-matchedResultFilesCount" value="1" hidden="true"/>
+    <column title="vcloud-maxLogFileSize" value="2.0 MB" hidden="true"/>
+    <column title="vcloud-memoryNodesAllocation" value="{0=7.0 GB}" hidden="true"/>
+    <column title="vcloud-newEnvironment" value="" hidden="true"/>
+    <column title="vcloud-outerwalltime" value="27.091s" hidden="true"/>
+    <column title="vcloud-runId" value="7289cc57-7aa6-42f3-a25c-1d45c47d5798" hidden="true"/>
+  </run>
+  <column title="walltime" value="3332.574326s"/>
+
+</result>
