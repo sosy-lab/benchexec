@@ -12,9 +12,25 @@ import unittest
 import xml.etree.ElementTree as ET  # noqa: What's wrong with ET?
 
 from contrib import mergeBenchmarkSets
-from benchexec import result
+from benchexec import result        
+from benchexec import tablegenerator
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
+
+def parse_real_data(num_validators, num_linter, root_directory):
+
+    def add_with_prefix(prefix, num):
+        component = []
+        for i in range(num):
+            name = f"{root_directory}/{prefix}_{i + 1}.xml"
+            component.append(os.path.join(os.path.dirname(__file__), name))
+        return component
+
+    validators = add_with_prefix("validator", num_validators)
+    linter = add_with_prefix("linter", num_linter)
+    verifier = os.path.join(os.path.dirname(__file__), f"{root_directory}/verifier.xml")
+
+    return {"verifier": verifier, "validators": validators, "linter": linter}   
 
 results_xml = ET.parse(  # noqa S314, the XML is trusted
     os.path.join(os.path.dirname(__file__), "mock_results.xml")
@@ -26,14 +42,16 @@ witness_xml_2 = ET.parse(  # noqa S314, the XML is trusted
     os.path.join(os.path.dirname(__file__), "mock_witness_2.xml")
 ).getroot()
 
+real_data_test_case_1 = parse_real_data(3, 1, "test_1")
+real_data_test_case_2 = parse_real_data(3, 1, "test_2")
+
 files = [
     "../sv-benchmarks/c/array-examples/sanfoundry_24-1.yml",
     "../sv-benchmarks/c/array-examples/data_structures_set_multi_proc_trivial_ground.yml",
     "../sv-benchmarks/c/array-patterns/array28_pattern.yml",
     "../sv-benchmarks/c/reducercommutativity/rangesum05.yml",
     "../sv-benchmarks/c/array-fpi/indp4f.yml",
-]
-
+] 
 
 def mock_witness_sets():
     witness_sets = {}
@@ -395,3 +413,35 @@ class TestMergeBenchmarkSets(unittest.TestCase):
             status = run.find('column[@title="status"]').get("value")
             category = run.find('column[@title="category"]').get("value")
             self.assertTupleEqual(expected, (status, category))
+
+    def test_merge_timeout_out_of_memory_reject(self):
+        result_file = real_data_test_case_1["verifier"]
+        witness_files = real_data_test_case_1["validators"] + real_data_test_case_1["linter"]
+        result_xml = tablegenerator.parse_results_file(result_file)
+        witness_sets = []
+        for witnessFile in witness_files:
+            if not os.path.exists(witnessFile) or not os.path.isfile(witnessFile):
+                sys.exit(f"File {witnessFile!r} does not exist.")
+            witness_xml = tablegenerator.parse_results_file(witnessFile)
+            witness_sets.append(mergeBenchmarkSets.get_witnesses(witness_xml))
+
+        mergeBenchmarkSets.merge(result_xml, witness_sets, True)
+        for elem in result_xml.findall("run"):
+            self.assertNotEqual(elem.find('column[@title="category"]').get("value"), result.CATEGORY_CORRECT)
+            self.assertNotEqual(elem.find('column[@title="category"]').get("value"), result.CATEGORY_WRONG)
+
+    def test_merge_no_confirmation_reject(self):
+        result_file = real_data_test_case_2["verifier"]
+        witness_files = real_data_test_case_2["validators"] + real_data_test_case_2["linter"]
+        result_xml = tablegenerator.parse_results_file(result_file)
+        witness_sets = []
+        for witnessFile in witness_files:
+            if not os.path.exists(witnessFile) or not os.path.isfile(witnessFile):
+                sys.exit(f"File {witnessFile!r} does not exist.")
+            witness_xml = tablegenerator.parse_results_file(witnessFile)
+            witness_sets.append(mergeBenchmarkSets.get_witnesses(witness_xml))
+
+        mergeBenchmarkSets.merge(result_xml, witness_sets, True)
+        for elem in result_xml.findall("run"):
+            self.assertNotEqual(elem.find('column[@title="category"]').get("value"), result.CATEGORY_CORRECT)
+            self.assertNotEqual(elem.find('column[@title="category"]').get("value"), result.CATEGORY_WRONG)
