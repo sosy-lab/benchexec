@@ -1,0 +1,53 @@
+<?xml version="1.0" ?>
+<!DOCTYPE result
+  PUBLIC '+//IDN sosy-lab.org//DTD BenchExec result 3.0//EN'
+  'https://www.sosy-lab.org/benchexec/result-3.0.dtd'>
+<result benchmarkname="cpachecker-validate-correctness-witnesses-coveriteam-verifier-parallel-portfolio" date="2021-12-10 20:45:39 CET" starttime="2021-12-10T20:47:27.461042+01:00" tool="CPAchecker" version="2.1" toolmodule="benchexec.tools.cpachecker" generator="BenchExec 3.11-dev" memlimit="7000000000B" timelimit="900s" cpuCores="2" options="-setprop witness.checkProgramHash=false -heap 5000m -benchmark -setprop cpa.predicate.memoryAllocationsAlwaysSucceed=true -witness ../../results-verified/coveriteam-verifier-parallel-portfolio.2021-12-10_00-39-17.files/${rundefinition_name}/${taskdef_name}/witness.graphml -witnessValidation" name="SV-COMP22_unreach-call" endtime="2021-12-10T21:39:47.361417+01:00">
+  <description>Provenance information:
+Benchmark executed
+for SV-COMP 2022, https://sv-comp.sosy-lab.org/2022/
+by dbeyer@wbeyer1.sosy.ifi.lmu.de
+on 2021-12-10T20:45+01:00
+based on the components
+git@gitlab.com:sosy-lab/sv-comp/archives-2022  git-describe: svcomp22-rc.1-0-g456ae18
+git@gitlab.com:sosy-lab/benchmarking/sv-benchmarks  git-describe: svcomp22-rc.2-0-g3ca99b0f41
+https://gitlab.com/sosy-lab/software/benchexec  git-describe: 3.10-7-g38a2f4c6
+git@gitlab.com:sosy-lab/benchmarking/competition-scripts  git-describe: svcomp22-rc.1-5-ga9e074e
+git@gitlab.com:sosy-lab/sv-comp/bench-defs.git  git-describe: svcomp22-rc.1-1-ga39fca2
+Archive: val_cpachecker.zip  DATE: 2021-10-09T19:53+02:00  SHA1: 8d137ec641...</description>
+  <columns>
+    <column title="status"/>
+    <column title="cputime"/>
+    <column title="walltime"/>
+  </columns>
+  <run name="../sv-benchmarks/c/array-lopstr16/partial_lesser_bound-1.yml" files="[../sv-benchmarks/c/array-lopstr16/partial_lesser_bound-1.i]" properties="unreach-call" propertyFile="../sv-benchmarks/c/properties/unreach-call.prp" expectedVerdict="true" logfile="/home/matthias/SosyLab/Software/test-data/results-final/results-validated/cpachecker-validate-correctness-witnesses-coveriteam-verifier-parallel-portfolio.2021-12-10_20-45-39.logfiles/SV-COMP22_unreach-call.partial_lesser_bound-1.yml.log">
+    <column title="cputime" value="96.022435018s"/>
+    <column title="host" value="apollon137"/>
+    <column title="memory" value="6999998464B"/>
+    <column title="status" value="OUT OF MEMORY"/>
+    <column title="walltime" value="58.02723104899633s"/>
+    <column title="blkio-read" value="0B" hidden="true"/>
+    <column title="blkio-write" value="0B" hidden="true"/>
+    <column title="category" value="error" hidden="true"/>
+    <column title="cpuCores" value="1,5" hidden="true"/>
+    <column title="cputime-cpu0" value="0.000060333s" hidden="true"/>
+    <column title="cputime-cpu1" value="42.897426353s" hidden="true"/>
+    <column title="cputime-cpu5" value="53.124948332s" hidden="true"/>
+    <column title="exitsignal" value="9" hidden="true"/>
+    <column title="memoryNodes" value="0" hidden="true"/>
+    <column title="starttime" value="2021-12-10T21:10:22.926835+01:00" hidden="true"/>
+    <column title="terminationreason" value="memory" hidden="true"/>
+    <column title="vcloud-additionalEnvironment" value="" hidden="true"/>
+    <column title="vcloud-cpuCoresDetails" value="[Processor{1, core=1, socket=0}, Processor{5, core=1, socket=0}]" hidden="true"/>
+    <column title="vcloud-debug" value="false" hidden="true"/>
+    <column title="vcloud-generatedFilesCount" value="1" hidden="true"/>
+    <column title="vcloud-matchedResultFilesCount" value="1" hidden="true"/>
+    <column title="vcloud-maxLogFileSize" value="2.0 MB" hidden="true"/>
+    <column title="vcloud-memoryNodesAllocation" value="{0=7.0 GB}" hidden="true"/>
+    <column title="vcloud-newEnvironment" value="" hidden="true"/>
+    <column title="vcloud-outerwalltime" value="58.329s" hidden="true"/>
+    <column title="vcloud-runId" value="31b2ba98-d414-49fb-8364-c6c19b1beba2" hidden="true"/>
+  </run>
+  <column title="walltime" value="3139.900375s"/>
+
+</result>

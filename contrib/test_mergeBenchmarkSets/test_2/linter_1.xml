@@ -1,0 +1,125 @@
+<?xml version="1.0" ?>
+<!DOCTYPE result
+  PUBLIC '+//IDN sosy-lab.org//DTD BenchExec result 3.0//EN'
+  'https://www.sosy-lab.org/benchexec/result-3.0.dtd'>
+<result benchmarkname="witnesslint-validate-witnesses-cpachecker" date="2021-12-05 21:13:54 CET" starttime="2021-12-05T21:16:32.002556+01:00" tool="witnesslint" version="1.1" toolmodule="benchexec.tools.witnesslint" generator="BenchExec 3.11-dev" memlimit="3000000000B" timelimit="900s" cpuCores="1" options="--ignoreSelfLoops --witness ../../results-verified/cpachecker.2021-12-05_14-12-53.files/${rundefinition_name}/${taskdef_name}/witness.graphml" name="SV-COMP22_unreach-call" endtime="2021-12-05T21:31:39.982634+01:00">
+  <description>Provenance information:
+Benchmark executed
+for SV-COMP 2022, https://sv-comp.sosy-lab.org/2022/
+by dbeyer@wbeyer1.sosy.ifi.lmu.de
+on 2021-12-05T21:13+01:00
+based on the components
+git@gitlab.com:sosy-lab/sv-comp/archives-2022  git-describe: svcomp22-rc.1-0-g456ae18
+git@gitlab.com:sosy-lab/benchmarking/sv-benchmarks  git-describe: svcomp22-rc.2-0-g3ca99b0f41
+https://gitlab.com/sosy-lab/software/benchexec  git-describe: 3.10-7-g38a2f4c6
+git@gitlab.com:sosy-lab/benchmarking/competition-scripts  git-describe: svcomp22-rc.1-0-gebb6840
+git@gitlab.com:sosy-lab/sv-comp/bench-defs.git  git-describe: svcomp22-rc.1-1-ga39fca2
+Archive: val_witnesslint.zip  DATE: 2021-11-14T13:58+01:00  SHA1: 5618535fa1...</description>
+  <columns>
+    <column title="status"/>
+    <column title="cputime"/>
+    <column title="walltime"/>
+  </columns>
+  <run name="../sv-benchmarks/c/float-newlib/double_req_bl_1121b.yml" files="[../sv-benchmarks/c/float-newlib/double_req_bl_1121b.c]" properties="unreach-call" propertyFile="../sv-benchmarks/c/properties/unreach-call.prp" expectedVerdict="true" logfile="/home/matthias/SosyLab/Software/test-data/results-final/results-validated/witnesslint-validate-witnesses-cpachecker.2021-12-05_21-13-54.logfiles/SV-COMP22_unreach-call.double_req_bl_1121b.yml.log">
+    <column title="cputime" value="0.082339122s"/>
+    <column title="host" value="apollon087"/>
+    <column title="memory" value="8105984B"/>
+    <column title="status" value="ERROR (witness does not exist)"/>
+    <column title="walltime" value="0.08328973402967677s"/>
+    <column title="blkio-read" value="0B" hidden="true"/>
+    <column title="blkio-write" value="0B" hidden="true"/>
+    <column title="category" value="error" hidden="true"/>
+    <column title="cpuCores" value="3" hidden="true"/>
+    <column title="cputime-cpu3" value="0.082339122s" hidden="true"/>
+    <column title="memoryNodes" value="0" hidden="true"/>
+    <column title="returnvalue" value="5" hidden="true"/>
+    <column title="starttime" value="2021-12-05T21:22:59.379536+01:00" hidden="true"/>
+    <column title="vcloud-additionalEnvironment" value="" hidden="true"/>
+    <column title="vcloud-cpuCoresDetails" value="[Processor{3, core=3, socket=0}]" hidden="true"/>
+    <column title="vcloud-debug" value="false" hidden="true"/>
+    <column title="vcloud-generatedFilesCount" value="1" hidden="true"/>
+    <column title="vcloud-matchedResultFilesCount" value="1" hidden="true"/>
+    <column title="vcloud-maxLogFileSize" value="2.0 MB" hidden="true"/>
+    <column title="vcloud-memoryNodesAllocation" value="{0=3.0 GB}" hidden="true"/>
+    <column title="vcloud-newEnvironment" value="" hidden="true"/>
+    <column title="vcloud-outerwalltime" value="0.467s" hidden="true"/>
+    <column title="vcloud-runId" value="536f03ff-b049-4eb8-a092-7069ee6618a5" hidden="true"/>
+  </run>
+  <run name="../sv-benchmarks/c/float-newlib/float_req_bl_0710.yml" files="[../sv-benchmarks/c/float-newlib/float_req_bl_0710.c]" properties="unreach-call" propertyFile="../sv-benchmarks/c/properties/unreach-call.prp" expectedVerdict="true" logfile="/home/matthias/SosyLab/Software/test-data/results-final/results-validated/witnesslint-validate-witnesses-cpachecker.2021-12-05_21-13-54.logfiles/SV-COMP22_unreach-call.float_req_bl_0710.yml.log">
+    <column title="cputime" value="0.059650503s"/>
+    <column title="host" value="apollon114"/>
+    <column title="memory" value="8105984B"/>
+    <column title="status" value="ERROR (witness does not exist)"/>
+    <column title="walltime" value="0.061156069044955075s"/>
+    <column title="blkio-read" value="0B" hidden="true"/>
+    <column title="blkio-write" value="0B" hidden="true"/>
+    <column title="category" value="error" hidden="true"/>
+    <column title="cpuCores" value="3" hidden="true"/>
+    <column title="cputime-cpu3" value="0.059650503s" hidden="true"/>
+    <column title="memoryNodes" value="0" hidden="true"/>
+    <column title="returnvalue" value="5" hidden="true"/>
+    <column title="starttime" value="2021-12-05T21:23:46.114009+01:00" hidden="true"/>
+    <column title="vcloud-additionalEnvironment" value="" hidden="true"/>
+    <column title="vcloud-cpuCoresDetails" value="[Processor{3, core=3, socket=0}]" hidden="true"/>
+    <column title="vcloud-debug" value="false" hidden="true"/>
+    <column title="vcloud-generatedFilesCount" value="1" hidden="true"/>
+    <column title="vcloud-matchedResultFilesCount" value="1" hidden="true"/>
+    <column title="vcloud-maxLogFileSize" value="2.0 MB" hidden="true"/>
+    <column title="vcloud-memoryNodesAllocation" value="{0=3.0 GB}" hidden="true"/>
+    <column title="vcloud-newEnvironment" value="" hidden="true"/>
+    <column title="vcloud-outerwalltime" value="0.386s" hidden="true"/>
+    <column title="vcloud-runId" value="f272bdbf-c734-4194-b1f1-bc53e833a2f2" hidden="true"/>
+  </run>
+  <run name="../sv-benchmarks/c/float-newlib/float_req_bl_1271b.yml" files="[../sv-benchmarks/c/float-newlib/float_req_bl_1271b.c]" properties="unreach-call" propertyFile="../sv-benchmarks/c/properties/unreach-call.prp" expectedVerdict="true" logfile="/home/matthias/SosyLab/Software/test-data/results-final/results-validated/witnesslint-validate-witnesses-cpachecker.2021-12-05_21-13-54.logfiles/SV-COMP22_unreach-call.float_req_bl_1271b.yml.log">
+    <column title="cputime" value="0.056215999s"/>
+    <column title="host" value="apollon127"/>
+    <column title="memory" value="8101888B"/>
+    <column title="status" value="ERROR (witness does not exist)"/>
+    <column title="walltime" value="0.05752426601247862s"/>
+    <column title="blkio-read" value="0B" hidden="true"/>
+    <column title="blkio-write" value="0B" hidden="true"/>
+    <column title="category" value="error" hidden="true"/>
+    <column title="cpuCores" value="1" hidden="true"/>
+    <column title="cputime-cpu1" value="0.056215999s" hidden="true"/>
+    <column title="memoryNodes" value="0" hidden="true"/>
+    <column title="returnvalue" value="5" hidden="true"/>
+    <column title="starttime" value="2021-12-05T21:29:30.887718+01:00" hidden="true"/>
+    <column title="vcloud-additionalEnvironment" value="" hidden="true"/>
+    <column title="vcloud-cpuCoresDetails" value="[Processor{1, core=1, socket=0}]" hidden="true"/>
+    <column title="vcloud-debug" value="false" hidden="true"/>
+    <column title="vcloud-generatedFilesCount" value="1" hidden="true"/>
+    <column title="vcloud-matchedResultFilesCount" value="1" hidden="true"/>
+    <column title="vcloud-maxLogFileSize" value="2.0 MB" hidden="true"/>
+    <column title="vcloud-memoryNodesAllocation" value="{0=3.0 GB}" hidden="true"/>
+    <column title="vcloud-newEnvironment" value="" hidden="true"/>
+    <column title="vcloud-outerwalltime" value="0.341s" hidden="true"/>
+    <column title="vcloud-runId" value="93fc5c68-87d6-4195-81fd-282f1c1558e3" hidden="true"/>
+  </run>
+  <run name="../sv-benchmarks/c/list-simple/dll2n_remove_all.yml" files="[../sv-benchmarks/c/list-simple/dll2n_remove_all.i]" properties="unreach-call" propertyFile="../sv-benchmarks/c/properties/unreach-call.prp" expectedVerdict="true" logfile="/home/matthias/SosyLab/Software/test-data/results-final/results-validated/witnesslint-validate-witnesses-cpachecker.2021-12-05_21-13-54.logfiles/SV-COMP22_unreach-call.dll2n_remove_all.yml.log">
+    <column title="cputime" value="0.065354956s"/>
+    <column title="host" value="apollon026"/>
+    <column title="memory" value="8110080B"/>
+    <column title="status" value="ERROR (witness does not exist)"/>
+    <column title="walltime" value="0.06606355699477717s"/>
+    <column title="blkio-read" value="0B" hidden="true"/>
+    <column title="blkio-write" value="0B" hidden="true"/>
+    <column title="category" value="error" hidden="true"/>
+    <column title="cpuCores" value="1" hidden="true"/>
+    <column title="cputime-cpu1" value="0.065354956s" hidden="true"/>
+    <column title="memoryNodes" value="0" hidden="true"/>
+    <column title="returnvalue" value="5" hidden="true"/>
+    <column title="starttime" value="2021-12-05T21:30:39.177135+01:00" hidden="true"/>
+    <column title="vcloud-additionalEnvironment" value="" hidden="true"/>
+    <column title="vcloud-cpuCoresDetails" value="[Processor{1, core=1, socket=0}]" hidden="true"/>
+    <column title="vcloud-debug" value="false" hidden="true"/>
+    <column title="vcloud-generatedFilesCount" value="1" hidden="true"/>
+    <column title="vcloud-matchedResultFilesCount" value="1" hidden="true"/>
+    <column title="vcloud-maxLogFileSize" value="2.0 MB" hidden="true"/>
+    <column title="vcloud-memoryNodesAllocation" value="{0=3.0 GB}" hidden="true"/>
+    <column title="vcloud-newEnvironment" value="" hidden="true"/>
+    <column title="vcloud-outerwalltime" value="0.434s" hidden="true"/>
+    <column title="vcloud-runId" value="e426c6bf-7750-4902-ae10-5ab14822545a" hidden="true"/>
+  </run>
+  <column title="walltime" value="907.980078s"/>
+
+</result>
