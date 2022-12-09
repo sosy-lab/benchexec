@@ -443,6 +443,11 @@ class TestMergeBenchmarkSets(unittest.TestCase):
             self.assertEqual(result.CATEGORY_CORRECT, elem.find('column[@title="category"]').get("value"))
 
     def test_merge_one_fails_one_confirms_one_rejects(self):
-        real_data_test_case_3 = parse_real_data(3, 1, "test_4")
-        for elem in self.prepare_files(real_data_test_case_3).findall("run"):
+        real_data_test_case_4 = parse_real_data(3, 1, "test_4")
+        for elem in self.prepare_files(real_data_test_case_4).findall("run"):
             self.assertEqual(result.CATEGORY_CORRECT, elem.find('column[@title="category"]').get("value"))
+
+    def test_merge_confirms_validator_rejects(self):
+        real_data_test_case_5 = parse_real_data(3, 1, "test_5")
+        for elem in self.prepare_files(real_data_test_case_5).findall("run"):
+            self.assertEqual(result.CATEGORY_ERROR, elem.find('column[@title="category"]').get("value"))
