@@ -17,21 +17,44 @@ from benchexec import tablegenerator
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
-
-def parse_real_data(num_validators, num_linter, root_directory):
-    def add_with_prefix(prefix, num):
-        component = []
-        for i in range(num):
-            name = f"{root_directory}/{prefix}_{i + 1}.xml"
-            component.append(os.path.join(os.path.dirname(__file__), name))
-        return component
-
-    validators = add_with_prefix("validator", num_validators)
-    linter = add_with_prefix("linter", num_linter)
-    verifier = os.path.join(os.path.dirname(__file__), f"{root_directory}/verifier.xml")
-
-    return {"verifier": verifier, "validators": validators, "linter": linter}
-
+test_data = {
+    "verifier_correct": os.path.join(
+        os.path.dirname(__file__), "test_data", "verifier_correct.xml"
+    ),
+    "verifier_wrong": os.path.join(
+        os.path.dirname(__file__), "test_data", "verifier_wrong.xml"
+    ),
+    "verifier_no_data": os.path.join(
+        os.path.dirname(__file__), "test_data", "verifier_no_data.xml"
+    ),
+    "verifier_error": os.path.join(
+        os.path.dirname(__file__), "test_data", "verifier_error.xml"
+    ),
+    "validator_confirm": os.path.join(
+        os.path.dirname(__file__), "test_data", "validator_confirm.xml"
+    ),
+    "validator_reject": os.path.join(
+        os.path.dirname(__file__), "test_data", "validator_reject.xml"
+    ),
+    "validator_timeout": os.path.join(
+        os.path.dirname(__file__), "test_data", "validator_timeout.xml"
+    ),
+    "validator_out_of_memory": os.path.join(
+        os.path.dirname(__file__), "test_data", "validator_out_of_memory.xml"
+    ),
+    "validator_no_data": os.path.join(
+        os.path.dirname(__file__), "test_data", "validator_no_data.xml"
+    ),
+    "linter_done": os.path.join(
+        os.path.dirname(__file__), "test_data", "linter_done.xml"
+    ),
+    "linter_error": os.path.join(
+        os.path.dirname(__file__), "test_data", "linter_error.xml"
+    ),
+    "linter_no_data": os.path.join(
+        os.path.dirname(__file__), "test_data", "linter_no_data.xml"
+    ),
+}
 
 results_xml = ET.parse(  # noqa S314, the XML is trusted
     os.path.join(os.path.dirname(__file__), "mock_results.xml")
@@ -80,7 +103,7 @@ def element_trees_equal(et1, et2):
 
 def prepare_files(test_case):
     result_file = test_case["verifier"]
-    witness_files = test_case["validators"] + test_case["linter"]
+    witness_files = test_case["validators"] + [test_case["linter"]]
     result_xml = tablegenerator.parse_results_file(result_file)
     witness_sets = []
     for witnessFile in witness_files:
@@ -189,9 +212,13 @@ class TestMergeBenchmarkSets(unittest.TestCase):
 
     def test_getWitnessResult_no_verification_result(self):
         for file in files[:-1]:
-            self.assertEqual(
-                ("result invalid (not found)", result.CATEGORY_ERROR),
-                mergeBenchmarkSets.get_witness_result(mock_get_witness(file), None),
+            tuple_result = mergeBenchmarkSets.get_witness_result(
+                mock_get_witness(file), None
+            )
+            self.assertTrue(
+                ("result invalid (not found)", result.CATEGORY_ERROR) == tuple_result
+                or ("witness invalid (not found)", result.CATEGORY_ERROR)
+                == tuple_result
             )
         self.assertEqual(
             ("witness invalid (not found)", result.CATEGORY_ERROR),
@@ -201,7 +228,7 @@ class TestMergeBenchmarkSets(unittest.TestCase):
     def test_getWitnessResult(self):
         expected_results = [
             ("true", result.CATEGORY_CORRECT_UNCONFIRMED),
-            ("result invalid (TIMEOUT)", result.CATEGORY_ERROR),
+            ("witness invalid (TIMEOUT)", result.CATEGORY_ERROR),
             ("result invalid (false(unreach-call))", result.CATEGORY_ERROR),
             ("false(unreach-call)", result.CATEGORY_CORRECT),
             ("witness invalid (false(unreach-call))", result.CATEGORY_ERROR),
@@ -217,7 +244,7 @@ class TestMergeBenchmarkSets(unittest.TestCase):
     def test_getValidationResult_single_witness(self):
         expected_results = [
             ("true", result.CATEGORY_CORRECT_UNCONFIRMED),
-            ("result invalid (TIMEOUT)", result.CATEGORY_ERROR),
+            ("witness invalid (TIMEOUT)", result.CATEGORY_ERROR),
             ("result invalid (false(unreach-call))", result.CATEGORY_ERROR),
             ("false(unreach-call)", result.CATEGORY_CORRECT),
             ("witness invalid (false(unreach-call))", result.CATEGORY_ERROR),
@@ -249,7 +276,7 @@ class TestMergeBenchmarkSets(unittest.TestCase):
         ]
         expected_results = [
             ("witness invalid (true)", result.CATEGORY_ERROR),
-            ("result invalid (TIMEOUT)", result.CATEGORY_ERROR),
+            ("witness invalid (TIMEOUT)", result.CATEGORY_ERROR),
             ("result invalid (false(unreach-call))", result.CATEGORY_ERROR),
             ("false(unreach-call)", result.CATEGORY_CORRECT),
             ("witness invalid (false(unreach-call))", result.CATEGORY_ERROR),
@@ -428,9 +455,17 @@ class TestMergeBenchmarkSets(unittest.TestCase):
             category = run.find('column[@title="category"]').get("value")
             self.assertTupleEqual(expected, (status, category))
 
-    def test_merge_timeout_out_of_memory_reject(self):
-        real_data_test_case_1 = parse_real_data(3, 1, "test_1")
-        for elem in prepare_files(real_data_test_case_1).findall("run"):
+    def test_merge_verifier_correct_linter_done_validator_timeout_memory_none(self):
+        test_input = {
+            "validators": [
+                test_data["validator_timeout"],
+                test_data["validator_no_data"],
+                test_data["validator_out_of_memory"],
+            ],
+            "verifier": test_data["verifier_correct"],
+            "linter": test_data["linter_done"],
+        }
+        for elem in prepare_files(test_input).findall("run"):
             self.assertNotEqual(
                 result.CATEGORY_CORRECT,
                 elem.find('column[@title="category"]').get("value"),
@@ -440,9 +475,18 @@ class TestMergeBenchmarkSets(unittest.TestCase):
                 elem.find('column[@title="category"]').get("value"),
             )
 
-    def test_merge_no_confirmation_reject(self):
-        real_data_test_case_2 = parse_real_data(3, 1, "test_2")
-        for elem in prepare_files(real_data_test_case_2).findall("run"):
+    def test_merge_verifier_correct_linter_done_validator_timeout_reject_none(self):
+        # if no validator confirms a linter-approved "correct" witness, the category changes to "error/unknown"
+        test_input = {
+            "validators": [
+                test_data["validator_timeout"],
+                test_data["validator_reject"],
+                test_data["validator_no_data"],
+            ],
+            "verifier": test_data["verifier_correct"],
+            "linter": test_data["linter_done"],
+        }
+        for elem in prepare_files(test_input).findall("run"):
             self.assertNotEqual(
                 result.CATEGORY_CORRECT,
                 elem.find('column[@title="category"]').get("value"),
@@ -452,26 +496,137 @@ class TestMergeBenchmarkSets(unittest.TestCase):
                 elem.find('column[@title="category"]').get("value"),
             )
 
-    def test_merge_some_fail_one_confirms(self):
-        real_data_test_case_3 = parse_real_data(3, 1, "test_3")
-        for elem in prepare_files(real_data_test_case_3).findall("run"):
+    def test_merge_verifier_correct_linter_done_validator_timeout_confirm_no_data(self):
+        # if at least one validator confirms a linter-approved witness, the category stays correct
+        test_input = {
+            "validators": [
+                test_data["validator_timeout"],
+                test_data["validator_confirm"],
+                test_data["validator_no_data"],
+            ],
+            "verifier": test_data["verifier_correct"],
+            "linter": test_data["linter_done"],
+        }
+        for elem in prepare_files(test_input).findall("run"):
             self.assertEqual(
                 result.CATEGORY_CORRECT,
                 elem.find('column[@title="category"]').get("value"),
             )
 
-    def test_merge_one_fails_one_confirms_one_rejects(self):
-        real_data_test_case_4 = parse_real_data(3, 1, "test_4")
-        for elem in prepare_files(real_data_test_case_4).findall("run"):
+    def test_merge_verifier_correct_linter_done_validator_timeout_confirm_reject(self):
+        # if at least one validator confirms a linter-approved witness, the category stays correct
+        test_input = {
+            "validators": [
+                test_data["validator_timeout"],
+                test_data["validator_confirm"],
+                test_data["validator_reject"],
+            ],
+            "verifier": test_data["verifier_correct"],
+            "linter": test_data["linter_done"],
+        }
+        for elem in prepare_files(test_input).findall("run"):
             self.assertEqual(
                 result.CATEGORY_CORRECT,
                 elem.find('column[@title="category"]').get("value"),
             )
 
-    def test_merge_linter_confirms_validator_rejects(self):
-        real_data_test_case_5 = parse_real_data(3, 1, "test_5")
-        for elem in prepare_files(real_data_test_case_5).findall("run"):
+    def test_merge_verifier_wrong_linter_done_validator_timeout_reject_none(self):
+        # if the verifier is wrong, the category must not change
+        test_input = {
+            "validators": [
+                test_data["validator_timeout"],
+                test_data["validator_reject"],
+                test_data["validator_no_data"],
+            ],
+            "verifier": test_data["verifier_wrong"],
+            "linter": test_data["linter_done"],
+        }
+        for elem in prepare_files(test_input).findall("run"):
             self.assertEqual(
-                result.CATEGORY_ERROR,
+                result.CATEGORY_WRONG,
                 elem.find('column[@title="category"]').get("value"),
             )
+
+    def test_merge_verifier_wrong_linter_done_validator_timeout_confirm_no_data(self):
+        # if the verifier is wrong, the category must not change
+        test_input = {
+            "validators": [
+                test_data["validator_timeout"],
+                test_data["validator_confirm"],
+                test_data["validator_no_data"],
+            ],
+            "verifier": test_data["verifier_wrong"],
+            "linter": test_data["linter_done"],
+        }
+        for elem in prepare_files(test_input).findall("run"):
+            self.assertEqual(
+                result.CATEGORY_WRONG,
+                elem.find('column[@title="category"]').get("value"),
+            )
+
+    def test_merge_verifier_wrong_linter_done_validator_timeout_confirm_reject(self):
+        # if the verifier is wrong, the category must not change
+        test_input = {
+            "validators": [
+                test_data["validator_timeout"],
+                test_data["validator_confirm"],
+                test_data["validator_reject"],
+            ],
+            "verifier": test_data["verifier_wrong"],
+            "linter": test_data["linter_done"],
+        }
+        for elem in prepare_files(test_input).findall("run"):
+            self.assertEqual(
+                result.CATEGORY_WRONG,
+                elem.find('column[@title="category"]').get("value"),
+            )
+
+    def test_merge_verifier_wrong_linter_done_validator_timeout_memory_none(self):
+        # if the verifier is wrong, the category must not change
+        test_input = {
+            "validators": [
+                test_data["validator_timeout"],
+                test_data["validator_no_data"],
+                test_data["validator_out_of_memory"],
+            ],
+            "verifier": test_data["verifier_wrong"],
+            "linter": test_data["linter_done"],
+        }
+        for elem in prepare_files(test_input).findall("run"):
+            self.assertEqual(
+                result.CATEGORY_WRONG,
+                elem.find('column[@title="category"]').get("value"),
+            )
+
+    def test_merge_linter_error_or_no_data(self):
+        # In any combination, the status has to be error if the linter has no file or detects errors.
+        # However, if the verifier is wrong, the category stays wrong.
+        for verifier in [
+            "verifier_correct",
+            "verifier_wrong",
+            "verifier_error",
+            "verifier_no_data",
+        ]:
+            for validator in [
+                "validator_confirm",
+                "validator_reject",
+                "validator_timeout",
+                "validator_no_data",
+            ]:
+                for linter in ["linter_error", "linter_no_data"]:
+                    test_input = {
+                        "validators": [test_data[validator]],
+                        "verifier": test_data[verifier],
+                        "linter": test_data[linter],
+                    }
+                    for elem in prepare_files(test_input).findall("run"):
+                        if verifier == "verifier_wrong":
+                            self.assertEqual(
+                                result.CATEGORY_WRONG,
+                                elem.find('column[@title="category"]').get("value"),
+                            )
+                        else:
+                            self.assertEqual(
+                                result.CATEGORY_ERROR,
+                                elem.find('column[@title="category"]').get("value"),
+                            )

@@ -1,0 +1,36 @@
+<?xml version="1.0" ?>
+
+<!--
+This file is part of BenchExec, a framework for reliable benchmarking:
+https://github.com/sosy-lab/benchexec
+
+SPDX-FileCopyrightText: 2007-2022 Dirk Beyer <https://www.sosy-lab.org>
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
+<!DOCTYPE result
+  PUBLIC '+//IDN sosy-lab.org//DTD BenchExec result 3.0//EN'
+  'https://www.sosy-lab.org/benchexec/result-3.0.dtd'>
+<result benchmarkname="witnesslint-validate-witnesses-coveriteam-verifier-parallel-portfolio" date="2021-12-10 21:57:12 CET" starttime="2021-12-10T21:58:55.306692+01:00" tool="witnesslint" version="1.1" toolmodule="benchexec.tools.witnesslint" generator="BenchExec 3.11-dev" memlimit="3000000000B" timelimit="900s" cpuCores="1" options="--ignoreSelfLoops --excludeRecentChecks --witness witness.graphml" name="SV-COMP22_unreach-call" endtime="2021-12-10T22:21:36.543634+01:00">
+  <columns>
+    <column title="status"/>
+    <column title="cputime"/>
+    <column title="walltime"/>
+  </columns>
+  <run name="partial_lesser_bound-1.yml" files="[partial_lesser_bound-1.yml]" properties="unreach-call" propertyFile="unreach-call.prp" expectedVerdict="true" logfile="partial_lesser_bound-1.log">
+    <column title="cputime" value="0.062782932s"/>
+    <column title="host" value="apollon130"/>
+    <column title="memory" value="8097792B"/>
+    <column title="status" value="done"/>
+    <column title="walltime" value="0.06356691700057127s"/>
+    <column title="category" value="missing" hidden="true"/>
+    <column title="cpuCores" value="2" hidden="true"/>
+    <column title="cputime-cpu2" value="0.062782932s" hidden="true"/>
+    <column title="memoryNodes" value="0" hidden="true"/>
+    <column title="returnvalue" value="0" hidden="true"/>
+    <column title="starttime" value="2021-12-10T22:13:50.691600+01:00" hidden="true"/>
+  </run>
+  <column title="walltime" value="1361.236942s"/>
+
+</result>

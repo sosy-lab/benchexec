@@ -1,0 +1,18 @@
+<?xml version="1.0" ?>
+
+<!--
+This file is part of BenchExec, a framework for reliable benchmarking:
+https://github.com/sosy-lab/benchexec
+
+SPDX-FileCopyrightText: 2007-2022 Dirk Beyer <https://www.sosy-lab.org>
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
+<!DOCTYPE result
+  PUBLIC '+//IDN sosy-lab.org//DTD BenchExec result 3.0//EN'
+  'https://www.sosy-lab.org/benchexec/result-3.0.dtd'>
+<result benchmarkname="validator_3" date="2021-12-10 20:45:39 CET" starttime="2021-12-10T20:47:27.461042+01:00" tool="CPAchecker" version="2.1" toolmodule="benchexec.tools.cpachecker" generator="BenchExec 3.11-dev" memlimit="7000000000B" timelimit="900s" cpuCores="2" options="-setprop witness.checkProgramHash=false -heap 5000m -benchmark -setprop cpa.predicate.memoryAllocationsAlwaysSucceed=true -witness witness.graphml -witnessValidation" name="SV-COMP22_unreach-call" endtime="2021-12-10T21:39:47.361417+01:00">
+  <column title="walltime" value="3139.900375s"/>
+
+</result>

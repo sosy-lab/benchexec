@@ -13,33 +13,19 @@ SPDX-License-Identifier: Apache-2.0
   PUBLIC '+//IDN sosy-lab.org//DTD BenchExec result 3.0//EN'
   'https://www.sosy-lab.org/benchexec/result-3.0.dtd'>
 <result benchmarkname="coveriteam-verifier-parallel-portfolio" date="2021-12-10 00:39:17 CET" starttime="2021-12-10T00:40:55.272139+01:00" tool="CoVeriTeam" version="0.7-dev" toolmodule="benchexec.tools.coveriteam-verifier-validator" generator="BenchExec 3.11-dev" displayName="CoVeriTeam-Verifier-ParPortfolio" memlimit="15000000000B" timelimit="900s" cpuCores="8" options="verifier-parallel-portfolio.cvt --cache-dir cache --no-cache-update --use-python-processes" name="SV-COMP22_unreach-call" endtime="2021-12-10T20:34:54.954359+01:00">
-  <description>Provenance information:
-Benchmark executed
-for SV-COMP 2022, https://sv-comp.sosy-lab.org/2022/
-by dbeyer@wbeyer1.sosy.ifi.lmu.de
-on 2021-12-10T00:39+01:00
-based on the components
-git@gitlab.com:sosy-lab/sv-comp/archives-2022  git-describe: svcomp22-rc.1-0-g456ae18
-git@gitlab.com:sosy-lab/benchmarking/sv-benchmarks  git-describe: svcomp22-rc.2-0-g3ca99b0f41
-https://gitlab.com/sosy-lab/software/benchexec  git-describe: 3.10-7-g38a2f4c6
-git@gitlab.com:sosy-lab/benchmarking/competition-scripts  git-describe: svcomp22-rc.1-5-ga9e074e
-git@gitlab.com:sosy-lab/sv-comp/bench-defs.git  git-describe: svcomp22-rc.1-1-ga39fca2
-Archive: coveriteam-verifier-parallel-portfolio.zip  DATE: 2021-11-04T22:27+01:00  SHA1: 12e3e12df6...</description>
   <columns>
     <column title="status"/>
     <column title="cputime"/>
     <column title="walltime"/>
     <column title="UsedConfig"/>
   </columns>
-  <run name="../sv-benchmarks/c/array-lopstr16/partial_lesser_bound-1.yml" files="[../sv-benchmarks/c/array-lopstr16/partial_lesser_bound-1.i]" properties="unreach-call" propertyFile="../sv-benchmarks/c/properties/unreach-call.prp" expectedVerdict="true" logfile="/home/matthias/SosyLab/Software/test-data/results-final/results-verified/coveriteam-verifier-parallel-portfolio.2021-12-10_00-39-17.logfiles/SV-COMP22_unreach-call.partial_lesser_bound-1.yml.log">
+  <run name="partial_lesser_bound-1.yml" files="[partial_lesser_bound-1.i]" properties="unreach-call" propertyFile="unreach-call.prp" expectedVerdict="true" logfile="partial_lesser_bound-1.log">
     <column title="cpuenergy" value="5888.370422J"/>
     <column title="cputime" value="650.40192353s"/>
     <column title="host" value="apollon116"/>
     <column title="memory" value="2699907072B"/>
     <column title="status" value="true"/>
     <column title="walltime" value="211.7747370829893s"/>
-    <column title="blkio-read" value="0B" hidden="true"/>
-    <column title="blkio-write" value="0B" hidden="true"/>
     <column title="category" value="correct" hidden="true"/>
     <column title="cpuCores" value="0,4,1,5,2,6,3,7" hidden="true"/>
     <column title="cpuenergy-pkg0-core" value="5674.723633J" hidden="true"/>
@@ -56,16 +42,6 @@ Archive: coveriteam-verifier-parallel-portfolio.zip  DATE: 2021-11-04T22:27+01:0
     <column title="memoryNodes" value="0" hidden="true"/>
     <column title="returnvalue" value="0" hidden="true"/>
     <column title="starttime" value="2021-12-10T18:50:44.950054+01:00" hidden="true"/>
-    <column title="vcloud-additionalEnvironment" value="" hidden="true"/>
-    <column title="vcloud-cpuCoresDetails" value="[Processor{0, core=0, socket=0}, Processor{4, core=0, socket=0}, Processor{1, core=1, socket=0}, Processor{5, core=1, socket=0}, Processor{2, core=2, socket=0}, Processor{6, core=2, socket=0}, Processor{3, core=3, socket=0}, Processor{7, core=3, socket=0}]" hidden="true"/>
-    <column title="vcloud-debug" value="false" hidden="true"/>
-    <column title="vcloud-generatedFilesCount" value="6" hidden="true"/>
-    <column title="vcloud-matchedResultFilesCount" value="2" hidden="true"/>
-    <column title="vcloud-maxLogFileSize" value="2.0 MB" hidden="true"/>
-    <column title="vcloud-memoryNodesAllocation" value="{0=15 GB}" hidden="true"/>
-    <column title="vcloud-newEnvironment" value="" hidden="true"/>
-    <column title="vcloud-outerwalltime" value="212.078s" hidden="true"/>
-    <column title="vcloud-runId" value="e602fa4c-8b67-493c-ae5e-24f5dac5b478" hidden="true"/>
   </run>
   <column title="walltime" value="71639.68222s"/>
 
