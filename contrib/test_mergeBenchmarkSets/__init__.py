@@ -12,13 +12,13 @@ import unittest
 import xml.etree.ElementTree as ET  # noqa: What's wrong with ET?
 
 from contrib import mergeBenchmarkSets
-from benchexec import result        
+from benchexec import result
 from benchexec import tablegenerator
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
-def parse_real_data(num_validators, num_linter, root_directory):
 
+def parse_real_data(num_validators, num_linter, root_directory):
     def add_with_prefix(prefix, num):
         component = []
         for i in range(num):
@@ -30,7 +30,8 @@ def parse_real_data(num_validators, num_linter, root_directory):
     linter = add_with_prefix("linter", num_linter)
     verifier = os.path.join(os.path.dirname(__file__), f"{root_directory}/verifier.xml")
 
-    return {"verifier": verifier, "validators": validators, "linter": linter}   
+    return {"verifier": verifier, "validators": validators, "linter": linter}
+
 
 results_xml = ET.parse(  # noqa S314, the XML is trusted
     os.path.join(os.path.dirname(__file__), "mock_results.xml")
@@ -48,7 +49,8 @@ files = [
     "../sv-benchmarks/c/array-patterns/array28_pattern.yml",
     "../sv-benchmarks/c/reducercommutativity/rangesum05.yml",
     "../sv-benchmarks/c/array-fpi/indp4f.yml",
-] 
+]
+
 
 def mock_witness_sets():
     witness_sets = {}
@@ -74,6 +76,21 @@ def element_trees_equal(et1, et2):
     if len(et1) != len(et2) or et1.tag != et2.tag or et1.attrib != et2.attrib:
         return False
     return all(element_trees_equal(child1, child2) for child1, child2 in zip(et1, et2))
+
+
+def prepare_files(test_case):
+    result_file = test_case["verifier"]
+    witness_files = test_case["validators"] + test_case["linter"]
+    result_xml = tablegenerator.parse_results_file(result_file)
+    witness_sets = []
+    for witnessFile in witness_files:
+        if not os.path.exists(witnessFile) or not os.path.isfile(witnessFile):
+            sys.exit(f"File {witnessFile!r} does not exist.")
+        witness_xml = tablegenerator.parse_results_file(witnessFile)
+        witness_sets.append(mergeBenchmarkSets.get_witnesses(witness_xml))
+
+    mergeBenchmarkSets.merge(result_xml, witness_sets, True)
+    return result_xml
 
 
 class TestMergeBenchmarkSets(unittest.TestCase):
@@ -411,43 +428,50 @@ class TestMergeBenchmarkSets(unittest.TestCase):
             category = run.find('column[@title="category"]').get("value")
             self.assertTupleEqual(expected, (status, category))
 
-    def prepare_files(self, test_case):
-        result_file = test_case["verifier"]
-        witness_files = test_case["validators"] + test_case["linter"]
-        result_xml = tablegenerator.parse_results_file(result_file)
-        witness_sets = []
-        for witnessFile in witness_files:
-            if not os.path.exists(witnessFile) or not os.path.isfile(witnessFile):
-                sys.exit(f"File {witnessFile!r} does not exist.")
-            witness_xml = tablegenerator.parse_results_file(witnessFile)
-            witness_sets.append(mergeBenchmarkSets.get_witnesses(witness_xml))
-
-        mergeBenchmarkSets.merge(result_xml, witness_sets, True)
-        return result_xml
-
     def test_merge_timeout_out_of_memory_reject(self):
         real_data_test_case_1 = parse_real_data(3, 1, "test_1")
-        for elem in self.prepare_files(real_data_test_case_1).findall("run"):
-            self.assertNotEqual(result.CATEGORY_CORRECT, elem.find('column[@title="category"]').get("value"))
-            self.assertNotEqual(result.CATEGORY_WRONG, elem.find('column[@title="category"]').get("value"))
+        for elem in prepare_files(real_data_test_case_1).findall("run"):
+            self.assertNotEqual(
+                result.CATEGORY_CORRECT,
+                elem.find('column[@title="category"]').get("value"),
+            )
+            self.assertNotEqual(
+                result.CATEGORY_WRONG,
+                elem.find('column[@title="category"]').get("value"),
+            )
 
     def test_merge_no_confirmation_reject(self):
         real_data_test_case_2 = parse_real_data(3, 1, "test_2")
-        for elem in self.prepare_files(real_data_test_case_2).findall("run"):
-            self.assertNotEqual(result.CATEGORY_CORRECT, elem.find('column[@title="category"]').get("value"))
-            self.assertNotEqual(result.CATEGORY_WRONG, elem.find('column[@title="category"]').get("value"))
+        for elem in prepare_files(real_data_test_case_2).findall("run"):
+            self.assertNotEqual(
+                result.CATEGORY_CORRECT,
+                elem.find('column[@title="category"]').get("value"),
+            )
+            self.assertNotEqual(
+                result.CATEGORY_WRONG,
+                elem.find('column[@title="category"]').get("value"),
+            )
 
     def test_merge_some_fail_one_confirms(self):
         real_data_test_case_3 = parse_real_data(3, 1, "test_3")
-        for elem in self.prepare_files(real_data_test_case_3).findall("run"):
-            self.assertEqual(result.CATEGORY_CORRECT, elem.find('column[@title="category"]').get("value"))
+        for elem in prepare_files(real_data_test_case_3).findall("run"):
+            self.assertEqual(
+                result.CATEGORY_CORRECT,
+                elem.find('column[@title="category"]').get("value"),
+            )
 
     def test_merge_one_fails_one_confirms_one_rejects(self):
         real_data_test_case_4 = parse_real_data(3, 1, "test_4")
-        for elem in self.prepare_files(real_data_test_case_4).findall("run"):
-            self.assertEqual(result.CATEGORY_CORRECT, elem.find('column[@title="category"]').get("value"))
+        for elem in prepare_files(real_data_test_case_4).findall("run"):
+            self.assertEqual(
+                result.CATEGORY_CORRECT,
+                elem.find('column[@title="category"]').get("value"),
+            )
 
-    def test_merge_confirms_validator_rejects(self):
+    def test_merge_linter_confirms_validator_rejects(self):
         real_data_test_case_5 = parse_real_data(3, 1, "test_5")
-        for elem in self.prepare_files(real_data_test_case_5).findall("run"):
-            self.assertEqual(result.CATEGORY_ERROR, elem.find('column[@title="category"]').get("value"))
+        for elem in prepare_files(real_data_test_case_5).findall("run"):
+            self.assertEqual(
+                result.CATEGORY_ERROR,
+                elem.find('column[@title="category"]').get("value"),
+            )
