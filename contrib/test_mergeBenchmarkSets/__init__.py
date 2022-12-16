@@ -202,11 +202,11 @@ class TestMergeBenchmarkSets(unittest.TestCase):
 
     def test_getWitnessResult_no_witness(self):
         self.assertEqual(
-            ("witness missing", result.CATEGORY_ERROR),
+            ("validation run missing", result.CATEGORY_ERROR),
             mergeBenchmarkSets.get_witness_result(None, None),
         )
         self.assertEqual(
-            ("witness missing", result.CATEGORY_ERROR),
+            ("validation run missing", result.CATEGORY_ERROR),
             mergeBenchmarkSets.get_witness_result(None, results_xml.find("run")),
         )
 
@@ -228,7 +228,7 @@ class TestMergeBenchmarkSets(unittest.TestCase):
     def test_getWitnessResult(self):
         expected_results = [
             ("true", result.CATEGORY_CORRECT_UNCONFIRMED),
-            ("witness invalid (TIMEOUT)", result.CATEGORY_ERROR),
+            ("result invalid (TIMEOUT)", result.CATEGORY_ERROR),
             ("result invalid (false(unreach-call))", result.CATEGORY_ERROR),
             ("false(unreach-call)", result.CATEGORY_CORRECT),
             ("witness invalid (false(unreach-call))", result.CATEGORY_ERROR),
@@ -244,7 +244,7 @@ class TestMergeBenchmarkSets(unittest.TestCase):
     def test_getValidationResult_single_witness(self):
         expected_results = [
             ("true", result.CATEGORY_CORRECT_UNCONFIRMED),
-            ("witness invalid (TIMEOUT)", result.CATEGORY_ERROR),
+            ("result invalid (TIMEOUT)", result.CATEGORY_ERROR),
             ("result invalid (false(unreach-call))", result.CATEGORY_ERROR),
             ("false(unreach-call)", result.CATEGORY_CORRECT),
             ("witness invalid (false(unreach-call))", result.CATEGORY_ERROR),
@@ -276,7 +276,7 @@ class TestMergeBenchmarkSets(unittest.TestCase):
         ]
         expected_results = [
             ("witness invalid (true)", result.CATEGORY_ERROR),
-            ("witness invalid (TIMEOUT)", result.CATEGORY_ERROR),
+            ("result invalid (TIMEOUT)", result.CATEGORY_ERROR),
             ("result invalid (false(unreach-call))", result.CATEGORY_ERROR),
             ("false(unreach-call)", result.CATEGORY_CORRECT),
             ("witness invalid (false(unreach-call))", result.CATEGORY_ERROR),
@@ -595,6 +595,22 @@ class TestMergeBenchmarkSets(unittest.TestCase):
         for elem in prepare_files(test_input).findall("run"):
             self.assertEqual(
                 result.CATEGORY_WRONG,
+                elem.find('column[@title="category"]').get("value"),
+            )
+
+    def test_merge_validators_timeout(self):
+        test_input = {
+            "validators": [
+                test_data["validator_timeout"],
+                test_data["validator_timeout"],
+                test_data["validator_timeout"],
+            ],
+            "verifier": test_data["verifier_correct"],
+            "linter": test_data["linter_done"],
+        }
+        for elem in prepare_files(test_input).findall("run"):
+            self.assertEqual(
+                result.CATEGORY_CORRECT_UNCONFIRMED,
                 elem.find('column[@title="category"]').get("value"),
             )
 

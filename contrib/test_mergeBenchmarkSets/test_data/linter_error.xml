@@ -22,9 +22,9 @@ SPDX-License-Identifier: Apache-2.0
     <column title="cputime" value="0.062782932s"/>
     <column title="host" value="apollon130"/>
     <column title="memory" value="8097792B"/>
-    <column title="status" value="ERROR (witness invalid syntax)"/>
+    <column title="status" value="ERROR (invalid witness syntax)"/>
     <column title="walltime" value="0.06356691700057127s"/>
-    <column title="category" value="missing" hidden="true"/>
+    <column title="category" value="error" hidden="true"/>
     <column title="cpuCores" value="2" hidden="true"/>
     <column title="cputime-cpu2" value="0.062782932s" hidden="true"/>
     <column title="memoryNodes" value="0" hidden="true"/>
