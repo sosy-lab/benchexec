@@ -1,0 +1,33 @@
+<?xml version="1.0" ?>
+
+<!--
+This file is part of BenchExec, a framework for reliable benchmarking:
+https://github.com/sosy-lab/benchexec
+
+SPDX-FileCopyrightText: 2007-2022 Dirk Beyer <https://www.sosy-lab.org>
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
+<!DOCTYPE result
+  PUBLIC '+//IDN sosy-lab.org//DTD BenchExec result 3.0//EN'
+  'https://www.sosy-lab.org/benchexec/result-3.0.dtd'>
+<result benchmarkname="validator_3" date="2021-12-10 20:45:39 CET" starttime="2021-12-10T20:47:27.461042+01:00" tool="CPAchecker" version="2.1" toolmodule="benchexec.tools.cpachecker" generator="BenchExec 3.11-dev" memlimit="7000000000B" timelimit="900s" cpuCores="2" options="-setprop witness.checkProgramHash=false -heap 5000m -benchmark -setprop cpa.predicate.memoryAllocationsAlwaysSucceed=true -witness witness.graphml -witnessValidation" name="SV-COMP22_unreach-call" endtime="2021-12-10T21:39:47.361417+01:00">
+  <run name="partial_lesser_bound-1.yml" files="[partial_lesser_bound-1.i]" properties="unreach-call" propertyFile="unreach-call.prp" expectedVerdict="true" logfile="partial_lesser_bound-1.log">
+    <column title="cputime" value="96.022435018s"/>
+    <column title="host" value="apollon137"/>
+    <column title="memory" value="6999998464B"/>
+    <column title="status" value="OUT OF MEMORY"/>
+    <column title="walltime" value="58.02723104899633s"/>
+    <column title="category" value="error" hidden="true"/>
+    <column title="cpuCores" value="1,5" hidden="true"/>
+    <column title="cputime-cpu0" value="0.000060333s" hidden="true"/>
+    <column title="cputime-cpu1" value="42.897426353s" hidden="true"/>
+    <column title="cputime-cpu5" value="53.124948332s" hidden="true"/>
+    <column title="exitsignal" value="9" hidden="true"/>
+    <column title="memoryNodes" value="0" hidden="true"/>
+    <column title="starttime" value="2021-12-10T21:10:22.926835+01:00" hidden="true"/>
+  </run>
+  <column title="walltime" value="3139.900375s"/>
+
+</result>

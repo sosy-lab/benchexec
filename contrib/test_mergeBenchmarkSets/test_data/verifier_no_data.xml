@@ -1,0 +1,24 @@
+<?xml version="1.0" ?>
+
+<!--
+This file is part of BenchExec, a framework for reliable benchmarking:
+https://github.com/sosy-lab/benchexec
+
+SPDX-FileCopyrightText: 2007-2022 Dirk Beyer <https://www.sosy-lab.org>
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
+<!DOCTYPE result
+  PUBLIC '+//IDN sosy-lab.org//DTD BenchExec result 3.0//EN'
+  'https://www.sosy-lab.org/benchexec/result-3.0.dtd'>
+<result benchmarkname="coveriteam-verifier-parallel-portfolio" date="2021-12-10 00:39:17 CET" starttime="2021-12-10T00:40:55.272139+01:00" tool="CoVeriTeam" version="0.7-dev" toolmodule="benchexec.tools.coveriteam-verifier-validator" generator="BenchExec 3.11-dev" displayName="CoVeriTeam-Verifier-ParPortfolio" memlimit="15000000000B" timelimit="900s" cpuCores="8" options="verifier-parallel-portfolio.cvt --cache-dir cache --no-cache-update --use-python-processes" name="SV-COMP22_unreach-call" endtime="2021-12-10T20:34:54.954359+01:00">
+  <columns>
+    <column title="status"/>
+    <column title="cputime"/>
+    <column title="walltime"/>
+    <column title="UsedConfig"/>
+  </columns>
+  <column title="walltime" value="71639.68222s"/>
+
+</result>

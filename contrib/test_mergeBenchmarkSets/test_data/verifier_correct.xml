@@ -1,0 +1,48 @@
+<?xml version="1.0" ?>
+
+<!--
+This file is part of BenchExec, a framework for reliable benchmarking:
+https://github.com/sosy-lab/benchexec
+
+SPDX-FileCopyrightText: 2007-2022 Dirk Beyer <https://www.sosy-lab.org>
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
+<!DOCTYPE result
+  PUBLIC '+//IDN sosy-lab.org//DTD BenchExec result 3.0//EN'
+  'https://www.sosy-lab.org/benchexec/result-3.0.dtd'>
+<result benchmarkname="coveriteam-verifier-parallel-portfolio" date="2021-12-10 00:39:17 CET" starttime="2021-12-10T00:40:55.272139+01:00" tool="CoVeriTeam" version="0.7-dev" toolmodule="benchexec.tools.coveriteam-verifier-validator" generator="BenchExec 3.11-dev" displayName="CoVeriTeam-Verifier-ParPortfolio" memlimit="15000000000B" timelimit="900s" cpuCores="8" options="verifier-parallel-portfolio.cvt --cache-dir cache --no-cache-update --use-python-processes" name="SV-COMP22_unreach-call" endtime="2021-12-10T20:34:54.954359+01:00">
+  <columns>
+    <column title="status"/>
+    <column title="cputime"/>
+    <column title="walltime"/>
+    <column title="UsedConfig"/>
+  </columns>
+  <run name="partial_lesser_bound-1.yml" files="[partial_lesser_bound-1.i]" properties="unreach-call" propertyFile="unreach-call.prp" expectedVerdict="true" logfile="partial_lesser_bound-1.log">
+    <column title="cpuenergy" value="5888.370422J"/>
+    <column title="cputime" value="650.40192353s"/>
+    <column title="host" value="apollon116"/>
+    <column title="memory" value="2699907072B"/>
+    <column title="status" value="true"/>
+    <column title="walltime" value="211.7747370829893s"/>
+    <column title="category" value="correct" hidden="true"/>
+    <column title="cpuCores" value="0,4,1,5,2,6,3,7" hidden="true"/>
+    <column title="cpuenergy-pkg0-core" value="5674.723633J" hidden="true"/>
+    <column title="cpuenergy-pkg0-dram" value="614.413696J" hidden="true"/>
+    <column title="cpuenergy-pkg0-package" value="5888.370422J" hidden="true"/>
+    <column title="cputime-cpu0" value="42.353819803s" hidden="true"/>
+    <column title="cputime-cpu1" value="96.561315868s" hidden="true"/>
+    <column title="cputime-cpu2" value="101.136872121s" hidden="true"/>
+    <column title="cputime-cpu3" value="84.344424859s" hidden="true"/>
+    <column title="cputime-cpu4" value="152.076660688s" hidden="true"/>
+    <column title="cputime-cpu5" value="89.444998583s" hidden="true"/>
+    <column title="cputime-cpu6" value="55.790854800s" hidden="true"/>
+    <column title="cputime-cpu7" value="28.692976808s" hidden="true"/>
+    <column title="memoryNodes" value="0" hidden="true"/>
+    <column title="returnvalue" value="0" hidden="true"/>
+    <column title="starttime" value="2021-12-10T18:50:44.950054+01:00" hidden="true"/>
+  </run>
+  <column title="walltime" value="71639.68222s"/>
+
+</result>

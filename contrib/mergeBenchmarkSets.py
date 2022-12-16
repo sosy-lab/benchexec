@@ -79,7 +79,7 @@ def get_witness_result(witness, verification_result):
 
     if witness is None:
         # If there is no witness, then this is an error of the verifier.
-        return "witness missing", result.CATEGORY_ERROR
+        return "validation run missing", result.CATEGORY_ERROR
 
     status_from_validation = witness.find('column[@title="status"]').get("value")
     try:
@@ -97,13 +97,20 @@ def get_witness_result(witness, verification_result):
     # then leave status and category as is.
     if status_from_validation == status_from_verification:
         return status_from_verification, category_from_verification
-    # An invalid witness counts as error of the verifier.
+    # The following three errors are reported by witness linter.
+    # 1) An invalid witness counts as error of the verifier.
     if status_from_validation == "ERROR (invalid witness syntax)":
         return (
             f"witness invalid ({status_from_verification})",
             result.CATEGORY_ERROR,
         )
-    # A mismatch of the witness type counts as error of the verifier.
+    # 2) A missing witness counts as error of the verifier.
+    if status_from_validation == "ERROR (witness does not exist)":
+        return (
+            f"witness missing ({status_from_verification})",
+            result.CATEGORY_ERROR,
+        )
+    # 3) A mismatch of the witness type counts as error of the verifier.
     if status_from_validation == "ERROR (unexpected witness type)":
         return (
             f"witness mismatch ({status_from_verification})",
@@ -167,6 +174,7 @@ def get_validation_result(
             if status_wit and (
                 status_wit.startswith("witness invalid")
                 or status_wit.startswith("witness mismatch")
+                or status_wit.startswith("witness missing")
             ):
                 continue
             status_wit_new, category_wit_new = get_witness_result(witness, run)
@@ -176,6 +184,7 @@ def get_validation_result(
                 or category_wit_new == result.CATEGORY_CORRECT
                 or status_wit_new.startswith("witness invalid")
                 or status_wit_new.startswith("witness mismatch")
+                or status_wit_new.startswith("witness missing")
             ):
                 status_wit, category_wit = (status_wit_new, category_wit_new)
     return (
