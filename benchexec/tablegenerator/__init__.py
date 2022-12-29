@@ -881,6 +881,7 @@ class RunResult(object):
 
         status = util.get_column_value(sourcefileTag, "status", "")
         category = util.get_column_value(sourcefileTag, "category")
+        witness_type = util.get_column_value(sourcefileTag, "witnesslint-witness-type")
         if not category:
             if status:  # only category missing
                 category = result.CATEGORY_MISSING
@@ -913,6 +914,11 @@ class RunResult(object):
             if column.title.lower() == "score" and value is None and score is not None:
                 # If no score column exists in the xml, take the internally computed score,
                 # if available
+                if (witness_type == "violation_witness" and expected_result[0]) or (
+                    witness_type == "correctness_witness" and not expected_result[0]
+                ):
+                    # If a validator refutes a wrong witness, it gets double the score.
+                    score *= 2
                 value = str(score)
             values.append(value)
 
