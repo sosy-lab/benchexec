@@ -888,14 +888,16 @@ class RunResult(object):
             else:  # probably everything is missing, special category for tables
                 category = "aborted"
 
+        is_invalid_witness = False
+        if (witness_type == "violation_witness" and expected_result[0]) or (
+            witness_type == "correctness_witness" and not expected_result[0]
+        ):
+            # Validator has refuted or confirmed an invalid witness
+            is_invalid_witness = True
+
         score = None
         if prop:
-            score = prop.compute_score(category, status)
-            if (witness_type == "violation_witness" and expected_result[0]) or (
-                witness_type == "correctness_witness" and not expected_result[0]
-            ):
-                # If a validator refutes (confirms) a wrong witness, it gets double the score (reduction).
-                score *= 2
+            score = prop.compute_score(category, status, is_invalid_witness)
         logfileLines = None
 
         values = []

@@ -111,10 +111,14 @@ class Property(collections.namedtuple("Property", "filename is_svcomp name")):
 
     __slots__ = ()  # reduce per-instance memory consumption
 
-    def compute_score(self, category, result):
+    def compute_score(self, category, result, is_invalid_witness=False):
         if not self.is_svcomp:
             return None
-        return _svcomp_score(category, result)
+        score = _svcomp_score(category, result)
+        if is_invalid_witness:
+            # If a validator refutes (confirms) a wrong witness, it gets double the score (reduction).
+            score *= 2
+        return score
 
     def max_score(self, expected_result):
         """
