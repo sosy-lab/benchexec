@@ -891,6 +891,11 @@ class RunResult(object):
         score = None
         if prop:
             score = prop.compute_score(category, status)
+            if (witness_type == "violation_witness" and expected_result[0]) or (
+                witness_type == "correctness_witness" and not expected_result[0]
+            ):
+                # If a validator refutes (confirms) a wrong witness, it gets double the score (reduction).
+                score *= 2
         logfileLines = None
 
         values = []
@@ -914,11 +919,6 @@ class RunResult(object):
             if column.title.lower() == "score" and value is None and score is not None:
                 # If no score column exists in the xml, take the internally computed score,
                 # if available
-                if (witness_type == "violation_witness" and expected_result[0]) or (
-                    witness_type == "correctness_witness" and not expected_result[0]
-                ):
-                    # If a validator refutes a wrong witness, it gets double the score.
-                    score *= 2
                 value = str(score)
             values.append(value)
 
