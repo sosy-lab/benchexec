@@ -83,7 +83,9 @@ _SCORE_CORRECT_UNCONFIRMED_FALSE = 0
 _SCORE_UNKNOWN = 0
 _SCORE_WRONG_FALSE = -16
 _SCORE_WRONG_TRUE = -32
-
+# Score factor for validation results on invalid witnesses
+# as described in https://doi.org/10.1007/978-3-031-22308-2_8 (page 171, last paragraph, factor q)
+_SCORE_FACTOR_INVALID_WITNESS = 2
 
 class ExpectedResult(collections.namedtuple("ExpectedResult", "result subproperty")):
     """Stores the expected result and respective information for a task"""
@@ -116,8 +118,8 @@ class Property(collections.namedtuple("Property", "filename is_svcomp name")):
             return None
         score = _svcomp_score(category, result)
         if is_invalid_witness:
-            # If a validator refutes (confirms) a wrong witness, it gets double the score (reduction).
-            score *= 2
+            # If a validator refutes (confirms) a wrong witness, then the score (reduction) is multiplied by a factor.
+            score *= _SCORE_FACTOR_INVALID_WITNESS
         return score
 
     def max_score(self, expected_result):
