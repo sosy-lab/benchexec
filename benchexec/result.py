@@ -87,6 +87,7 @@ _SCORE_WRONG_TRUE = -32
 # as described in https://doi.org/10.1007/978-3-031-22308-2_8 (page 171, last paragraph, factor q)
 _SCORE_FACTOR_INVALID_WITNESS = 2
 
+
 class ExpectedResult(collections.namedtuple("ExpectedResult", "result subproperty")):
     """Stores the expected result and respective information for a task"""
 
