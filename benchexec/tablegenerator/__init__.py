@@ -881,23 +881,16 @@ class RunResult(object):
 
         status = util.get_column_value(sourcefileTag, "status", "")
         category = util.get_column_value(sourcefileTag, "category")
-        witness_type = util.get_column_value(sourcefileTag, "witnesslint-witness-type")
+        witness_category = util.get_column_value(sourcefileTag, "witness-category")
         if not category:
             if status:  # only category missing
                 category = result.CATEGORY_MISSING
             else:  # probably everything is missing, special category for tables
                 category = "aborted"
 
-        is_invalid_witness = False
-        if (witness_type == "violation_witness" and expected_result[0]) or (
-            witness_type == "correctness_witness" and not expected_result[0]
-        ):
-            # Validator has refuted or confirmed an invalid witness
-            is_invalid_witness = True
-
         score = None
         if prop:
-            score = prop.compute_score(category, status, is_invalid_witness)
+            score = prop.compute_score(category, status, witness_category)
         logfileLines = None
 
         values = []
