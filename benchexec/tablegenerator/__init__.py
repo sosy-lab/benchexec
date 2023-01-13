@@ -881,6 +881,7 @@ class RunResult(object):
 
         status = util.get_column_value(sourcefileTag, "status", "")
         category = util.get_column_value(sourcefileTag, "category")
+        witness_category = util.get_column_value(sourcefileTag, "witness-category")
         if not category:
             if status:  # only category missing
                 category = result.CATEGORY_MISSING
@@ -889,7 +890,7 @@ class RunResult(object):
 
         score = None
         if prop:
-            score = prop.compute_score(category, status)
+            score = prop.compute_score(category, status, witness_category)
         logfileLines = None
 
         values = []
