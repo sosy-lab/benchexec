@@ -14,6 +14,8 @@ on how to get reliable benchmark results when using BenchExec.
 For more general guidelines about benchmarking,
 e.g., what to do when implementing a benchmarking tool,
 please read our paper [Reliable Benchmarking: Requirements and Solutions](https://www.sosy-lab.org/research/pub/2019-STTT.Reliable_Benchmarking_Requirements_and_Solutions.pdf).
+There are also many other valuable resources about benchmarking,
+for example this list of [Benchmarking Crimes](https://gernot-heiser.org/benchmarking-crimes.html).
 
 ### Document as much as possible
 For correct interpretation of results, it is important that everything important
