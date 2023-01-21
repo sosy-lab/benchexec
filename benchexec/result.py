@@ -133,18 +133,27 @@ class Property(collections.namedtuple("Property", "filename is_svcomp name")):
 
     __slots__ = ()  # reduce per-instance memory consumption
 
-    def compute_score(
-        self, category, result, witness_category=WITNESS_CATEGORY_UNKNOWN
-    ):
+    def _adjust_score_for_witness_validation(self, score, witness_category):
+        if witness_category == WITNESS_CATEGORY_CORRECT:
+            # Score is already correctly set.
+            return score
+        elif witness_category == WITNESS_CATEGORY_WRONG:
+            # If a validator refutes (confirms) a wrong witness, then the score (reduction) is multiplied by a factor.
+            return score * _SCORE_FACTOR_WRONG_WITNESS
+        else:
+            # Discard result for a witness that is neither correct nor wrong.
+            return 0
+
+    def compute_score(self, category, result, witness_category=None):
         if not self.is_svcomp:
             return None
         score = _svcomp_score(category, result)
-        if witness_category == WITNESS_CATEGORY_WRONG:
-            # If a validator refutes (confirms) a wrong witness, then the score (reduction) is multiplied by a factor.
-            score *= _SCORE_FACTOR_WRONG_WITNESS
-        return score
+        if witness_category is None:
+            return score
+        else:
+            return self._adjust_score_for_witness_validation(score, witness_category)
 
-    def max_score(self, expected_result):
+    def max_score(self, expected_result, witness_category=None):
         """
         Return the maximum possible score for a task that uses this property.
         @param expected_result:
@@ -152,7 +161,11 @@ class Property(collections.namedtuple("Property", "filename is_svcomp name")):
         """
         if not self.is_svcomp or not expected_result:
             return None
-        return _svcomp_max_score(expected_result.result)
+        score = _svcomp_max_score(expected_result.result)
+        if witness_category is None:
+            return score
+        else:
+            return self._adjust_score_for_witness_validation(score, witness_category)
 
     @property
     def nice_name(self):
