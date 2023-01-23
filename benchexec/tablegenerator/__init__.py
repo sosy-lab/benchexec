@@ -877,11 +877,17 @@ class RunResult(object):
             sourcefileTag.get("propertyFile"),
             sourcefileTag.get("expectedVerdict"),
         )
-        task_id = TaskId(task_name, prop, expected_result, sourcefileTag.get("runset"))
+        witness_category = util.get_column_value(sourcefileTag, "witness-category")
+        task_id = TaskId(
+            task_name,
+            prop,
+            expected_result,
+            sourcefileTag.get("runset"),
+            witness_category,
+        )
 
         status = util.get_column_value(sourcefileTag, "status", "")
         category = util.get_column_value(sourcefileTag, "category")
-        witness_category = util.get_column_value(sourcefileTag, "witness-category")
         if not category:
             if status:  # only category missing
                 category = result.CATEGORY_MISSING
