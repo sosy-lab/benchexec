@@ -1567,9 +1567,23 @@ def get_max_worker_count():
         cpu_count = os.cpu_count() or 1
     except AttributeError:
         cpu_count = 1
+
+    try:
+        import resource
+
+        fd_limit = resource.getrlimit(resource.RLIMIT_NOFILE)[1]
+        # increase soft limit to hard limit
+        resource.setrlimit(resource.RLIMIT_NOFILE, (fd_limit, fd_limit))
+        # for each worker some open fds are needed, so use heuristic limit
+        max_workers = fd_limit // 4
+    except ImportError:  # Windows
+        # it seems there is some rather low hard limit
+        # https://stackoverflow.com/q/870173/396730
+        max_workers = 128
+
     # Use up to cpu_count*2 workers because some tasks are I/O bound,
     # but limit the number of worker to avoid too many open files.
-    return min(cpu_count * 2, 32)
+    return min(cpu_count * 2, max_workers)
 
 
 def main(args=None):
