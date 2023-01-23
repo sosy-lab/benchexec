@@ -1561,6 +1561,17 @@ def sigint_handler(*args, **kwargs):
     sys.exit(1)
 
 
+def get_max_worker_count():
+    """Calculate maximum number of worker processes to use."""
+    try:
+        cpu_count = os.cpu_count() or 1
+    except AttributeError:
+        cpu_count = 1
+    # Use up to cpu_count*2 workers because some tasks are I/O bound,
+    # but limit the number of worker to avoid too many open files.
+    return min(cpu_count * 2, 32)
+
+
 def main(args=None):
     if sys.version_info < (3,):
         sys.exit("table-generator needs Python 3 to run.")
@@ -1577,15 +1588,8 @@ def main(args=None):
     global parallel
     import concurrent.futures
 
-    cpu_count = 1
-    try:
-        cpu_count = os.cpu_count() or 1
-    except AttributeError:
-        pass
-    # Use up to cpu_count*2 workers because some tasks are I/O bound,
-    # but limit the number of worker to avoid too many open files.
     parallel = concurrent.futures.ProcessPoolExecutor(
-        max_workers=min(cpu_count * 2, 32)
+        max_workers=get_max_worker_count()
     )
 
     name = options.output_name
