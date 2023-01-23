@@ -211,10 +211,27 @@ def _prepare_benchmark_setup_data(
     }
 
 
+def _get_column_index(column_name, rows):
+    if len(rows) == 0:
+        return None
+    columns = rows[0].results[0].columns
+    column_index = next(
+        (columns.index(c) for c in columns if c.title == column_name), None
+    )
+    return column_index
+
+
+def _get_column_value(column_index, row):
+    if column_index is None:
+        return None
+    return row.results[0].values[column_index]
+
+
 def _get_task_counts(rows):
     """Calculcate number of true/false tasks and maximum achievable score."""
     count_true = count_false = 0
     max_score = None
+    witness_category_column_index = _get_column_index("witness-category", rows)
     for row in rows:
         if not row.id.property:
             logging.info("Missing property for task %s.", row.id)
@@ -226,7 +243,9 @@ def _get_task_counts(rows):
             count_true += 1
         elif expected_result.result is False:
             count_false += 1
-        row_max_score = row.id.property.max_score(expected_result)
+        row_max_score = row.id.property.max_score(
+            expected_result, _get_column_value(witness_category_column_index, row)
+        )
         if row_max_score is not None:
             max_score = row_max_score + (max_score or 0)
 
