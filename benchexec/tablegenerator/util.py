@@ -34,7 +34,7 @@ ROMAN_NUMBERS = {
 
 class TaskId(
     collections.namedtuple(
-        "TaskId", "name property expected_result runset witness_category"
+        "TaskId", "name property expected_result witness_category runset"
     )
 ):
     """Uniquely identifies a task (name of input file, property, etc.)."""
@@ -43,8 +43,8 @@ class TaskId(
         "Task name",
         "Property",
         "Expected verdict",
-        "Run set",
         "Witness category",
+        "Run set",
     ]
 
     __slots__ = ()  # reduce per-instance memory consumption

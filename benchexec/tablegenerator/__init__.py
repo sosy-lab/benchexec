@@ -882,8 +882,8 @@ class RunResult(object):
             task_name,
             prop,
             expected_result,
-            sourcefileTag.get("runset"),
             witness_category,
+            sourcefileTag.get("runset"),
         )
 
         status = util.get_column_value(sourcefileTag, "status", "")
