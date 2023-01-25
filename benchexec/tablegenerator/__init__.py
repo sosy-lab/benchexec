@@ -373,7 +373,7 @@ class RunSetResult(object):
 
     def get_tasks(self):
         """
-        Return the list of task ids for these results.
+        Return the list of task ids for these results. This list is free of duplicates.
         May be called only after collect_data()
         """
         return [r.task_id for r in self.results]
@@ -415,19 +415,27 @@ class RunSetResult(object):
 
         # Opening the ZIP archive with the logs for every run is too slow, we cache it.
         log_zip_cache = {}
+        task_set = set()
         try:
             for xml_result, result_file in self._xml_results:
-                self.results.append(
-                    RunResult.create_from_xml(
-                        xml_result,
-                        get_value_from_logfile,
-                        self.columns,
-                        correct_only,
-                        log_zip_cache,
-                        self.columns_relevant_for_diff,
-                        result_file,
-                    )
+                run_result = RunResult.create_from_xml(
+                    xml_result,
+                    get_value_from_logfile,
+                    self.columns,
+                    correct_only,
+                    log_zip_cache,
+                    self.columns_relevant_for_diff,
+                    result_file,
                 )
+                task = run_result.task_id
+                # Make sure to keep results free of duplicates
+                if task in task_set:
+                    logging.warning(
+                        "Task %s is present twice in '%s', skipping it.", task, self
+                    )
+                else:
+                    self.results.append(run_result)
+                    task_set.add(task)
         finally:
             for file in log_zip_cache.values():
                 file.close()
@@ -695,20 +703,13 @@ def merge_tasks(runset_results):
     task_set = set()
     for runset in runset_results:
         index = -1
-        currentresult_taskset = set()
         for task in runset.get_tasks():
-            if task in currentresult_taskset:
-                logging.warning(
-                    "Task %s is present twice in '%s', skipping it.", task, runset
-                )
+            if task not in task_set:
+                task_list.insert(index + 1, task)
+                task_set.add(task)
+                index += 1
             else:
-                currentresult_taskset.add(task)
-                if task not in task_set:
-                    task_list.insert(index + 1, task)
-                    task_set.add(task)
-                    index += 1
-                else:
-                    index = task_list.index(task)
+                index = task_list.index(task)
 
     merge_task_lists(runset_results, task_list)
 
@@ -720,10 +721,8 @@ def merge_task_lists(runset_results, tasks):
     """
     for runset in runset_results:
         # create mapping from id to RunResult object
-        # Use reversed list such that the first instance of equal tasks end up in dic
-        dic = {
-            run_result.task_id: run_result for run_result in reversed(runset.results)
-        }
+        dic = {run_result.task_id: run_result for run_result in runset.results}
+        assert len(dic) == len(runset.results)
         runset.results = []  # clear and repopulate results
         for task in tasks:
             run_result = dic.get(task)
