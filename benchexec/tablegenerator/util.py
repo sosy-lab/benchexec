@@ -285,6 +285,40 @@ def prettylist(list_):
     return uniqueList[0] if len(uniqueList) == 1 else "[" + "; ".join(uniqueList) + "]"
 
 
+def merge_lists(list_of_lists):
+    """
+    This function merges several lists, e.g. [A,C] + [A,B] --> [A,B,C].
+    It keeps the order of elements.
+    """
+    result_list = []
+    elem_set = set()
+    for current_list in list_of_lists:
+        index = -1
+        for elem in current_list:
+            if elem not in elem_set:
+                result_list.insert(index + 1, elem)
+                elem_set.add(elem)
+                index += 1
+            else:
+                index = result_list.index(elem)
+
+    return result_list
+
+
+def find_common_elements(list_of_lists):
+    """Return the common elements in some lists (keeping order)."""
+    elems_in_first_list = list_of_lists[0]
+
+    elem_set = set(elems_in_first_list)
+    for current_list in list_of_lists:
+        elem_set = elem_set & set(current_list)
+
+    if not elem_set:
+        return []
+    else:
+        return [elem for elem in elems_in_first_list if elem in elem_set]
+
+
 def read_bundled_file(name):
     """Read a file that is packaged together with this application."""
     try:
