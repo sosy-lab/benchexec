@@ -293,14 +293,29 @@ def merge_lists(list_of_lists):
     result_list = []
     elem_set = set()
     for current_list in list_of_lists:
-        index = -1
+        # prev_index is for optimizing inserting consecutive sequences of new elems,
+        # e.g., in the first outer loop iteration.
+        prev_index = None
+        # In later iterations of the outer loop, it can happen that we see [a,b] where
+        # a already exists at some place in result_list and b does not.
+        # Then we want to insert b right after a, so we need to remember a and find it.
+        prev_elem = None
         for elem in current_list:
             if elem not in elem_set:
-                result_list.insert(index + 1, elem)
                 elem_set.add(elem)
-                index += 1
+                # calculate where to insert in result_list
+                if prev_index is not None:
+                    index = prev_index + 1
+                elif prev_elem is not None:
+                    index = result_list.index(prev_elem) + 1
+                else:
+                    index = 0
+                result_list.insert(index, elem)
+                prev_index = index
+                prev_elem = elem
             else:
-                index = result_list.index(elem)
+                prev_index = None
+                prev_elem = elem
 
     return result_list
 
