@@ -692,11 +692,10 @@ def insert_logfile_names(resultFile, resultElem):
         sourcefile.set("logfile", log_file)
 
 
-def merge_tasks(runset_results):
+def merge_task_lists(runset_results):
     """
-    This function merges the results of all RunSetResult objects.
-    If necessary, it can merge lists of names: [A,C] + [A,B] --> [A,B,C]
-    and add dummy elements to the results.
+    This function merges the tasks of all RunSetResult objects.
+    If necessary, it can merge lists of names: [A,C] + [A,B] --> [A,B,C].
     It also ensures the same order of tasks.
     """
     task_list = []
@@ -711,13 +710,13 @@ def merge_tasks(runset_results):
             else:
                 index = task_list.index(task)
 
-    merge_task_lists(runset_results, task_list)
+    return task_list
 
 
-def merge_task_lists(runset_results, tasks):
+def apply_task_list(runset_results, tasks):
     """
-    Set the filelists of all RunSetResult elements so that they contain the same files
-    in the same order. For missing files a dummy element is inserted.
+    Set the results of all RunSetResult elements so that they contain the same tasks
+    in the same order. For missing tasks a dummy element is inserted.
     """
     for runset in runset_results:
         # create mapping from id to RunResult object
@@ -742,18 +741,18 @@ def merge_task_lists(runset_results, tasks):
 
 
 def find_common_tasks(runset_results):
+    """Return the common subset of tasks (keeping order)."""
     tasks_in_first_runset = runset_results[0].get_tasks()
 
     task_set = set(tasks_in_first_runset)
     for runset_result in runset_results:
         task_set = task_set & set(runset_result.get_tasks())
 
-    task_list = []
     if not task_set:
         logging.warning("No tasks are present in all benchmark results.")
+        return []
     else:
-        task_list = [task for task in tasks_in_first_runset if task in task_set]
-        merge_task_lists(runset_results, task_list)
+        return [task for task in tasks_in_first_runset if task in task_set]
 
 
 class RunResult(object):
@@ -1696,10 +1695,12 @@ def main(args=None):
 
     logging.info("Merging results...")
     if options.common:
-        find_common_tasks(runSetResults)
+        task_list = find_common_tasks(runSetResults)
     else:
-        # merge list of run sets, so that all run sets contain the same tasks
-        merge_tasks(runSetResults)
+        # merge list of tasks, so that all run sets contain the same tasks
+        task_list = merge_task_lists(runSetResults)
+    # make sure that all run sets contain exactly the same tasks in the same order
+    apply_task_list(runSetResults, task_list)
 
     rows = get_rows(runSetResults)
     if not rows:
