@@ -1554,24 +1554,39 @@ def get_max_worker_count():
     return min(cpu_count * 2, max_workers)
 
 
-def main(args=None):
-    if sys.version_info < (3,):
-        sys.exit("table-generator needs Python 3 to run.")
+def get_preferred_mp_context():
+    import multiprocessing
+
+    method = "spawn" if "spawn" in multiprocessing.get_all_start_methods() else None
+    return multiprocessing.get_context(method=method)
+
+
+def setup_process(options):
+    """Perform basic process setup, e.g., logging."""
     signal.signal(signal.SIGINT, sigint_handler)
-
-    arg_parser = create_argument_parser()
-    options = arg_parser.parse_args((args or sys.argv)[1:])
-
     benchexec.util.setup_logging(
         fmt="%(levelname)s: %(message)s",
         level=logging.WARNING if options.quiet else logging.INFO,
     )
 
+
+def main(args=None):
+    if sys.version_info < (3,):
+        sys.exit("table-generator needs Python 3 to run.")
+
+    arg_parser = create_argument_parser()
+    options = arg_parser.parse_args((args or sys.argv)[1:])
+
+    setup_process(options)
+
     global parallel
     import concurrent.futures
 
     parallel = concurrent.futures.ProcessPoolExecutor(
-        max_workers=get_max_worker_count()
+        max_workers=get_max_worker_count(),
+        mp_context=get_preferred_mp_context(),
+        initializer=setup_process,
+        initargs=(options,),
     )
 
     name = options.output_name
