@@ -1561,7 +1561,7 @@ def get_preferred_mp_context():
     return multiprocessing.get_context(method=method)
 
 
-def setup(options):
+def setup_process(options):
     """Perform basic process setup, e.g., logging."""
     signal.signal(signal.SIGINT, sigint_handler)
     benchexec.util.setup_logging(
@@ -1577,7 +1577,7 @@ def main(args=None):
     arg_parser = create_argument_parser()
     options = arg_parser.parse_args((args or sys.argv)[1:])
 
-    setup(options)
+    setup_process(options)
 
     global parallel
     import concurrent.futures
@@ -1585,7 +1585,7 @@ def main(args=None):
     parallel = concurrent.futures.ProcessPoolExecutor(
         max_workers=get_max_worker_count(),
         mp_context=get_preferred_mp_context(),
-        initializer=setup,
+        initializer=setup_process,
         initargs=[options],
     )
 
