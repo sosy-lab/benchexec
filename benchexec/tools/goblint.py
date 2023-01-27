@@ -9,6 +9,7 @@ import benchexec.tools.template
 import benchexec.result as result
 
 import re
+import logging
 
 
 class Tool(benchexec.tools.template.BaseTool2):
@@ -84,3 +85,12 @@ class Tool(benchexec.tools.template.BaseTool2):
             return result.RESULT_ERROR
         else:
             return result.RESULT_UNKNOWN
+
+    def get_value_from_output(self, output, identifier):
+        regex = re.compile(identifier)
+        for line in output:
+            match = regex.search(line)
+            if match and len(match.groups()) > 0:
+                return match.group(1)
+        logging.debug("Did not find a match with regex %s", identifier)
+        return None
