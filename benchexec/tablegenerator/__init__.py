@@ -1586,7 +1586,7 @@ def main(args=None):
         max_workers=get_max_worker_count(),
         mp_context=get_preferred_mp_context(),
         initializer=setup_process,
-        initargs=[options],
+        initargs=(options,),
     )
 
     name = options.output_name
