@@ -14,7 +14,9 @@ import os
 import threading
 import time
 import sys
-from xml.dom import minidom
+
+# Need to disable pytype for minidom due to https://github.com/google/pytype/issues/1130
+from xml.dom import minidom  # pytype: disable=pyi-error
 from xml.etree import ElementTree
 import zipfile
 
@@ -699,7 +701,7 @@ class OutputHandler(object):
             return
 
         if hasattr(value, "__getitem__") and not isinstance(value, (str, bytes)):
-            value = ",".join(map(str, value))
+            value = ",".join(map(str, value))  # pytype: disable=wrong-arg-types
         elif isinstance(value, datetime.datetime):
             value = value.isoformat()
 

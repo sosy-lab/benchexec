@@ -45,3 +45,13 @@ exclude_lines = [
 
 [tool.coverage.html]
 directory = 'coverage'
+
+[tool.pytype]
+inputs = ['benchexec']
+exclude = [
+    'benchexec/tablegenerator/react-table',
+    # TODO
+    'benchexec/tools',
+    '**/test_*.py',
+    '**/test_*/**.py',
+]
