@@ -161,7 +161,7 @@ def load_results_from_table_definition(
                 )
             )
 
-    return [future.result() for future in results]
+    return (future.result() for future in results)
 
 
 def handle_union_tag(
@@ -981,7 +981,7 @@ def get_rows(runSetResults):
     Create list of rows with all data. Each row consists of several RunResults.
     """
     rows = []
-    for task_results in zip(*[runset.results for runset in runSetResults]):
+    for task_results in zip(*(runset.results for runset in runSetResults)):
         rows.append(Row(task_results))
 
     return rows
