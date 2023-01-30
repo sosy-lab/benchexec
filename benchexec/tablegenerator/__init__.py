@@ -23,7 +23,7 @@ import sys
 import time
 import types
 import typing
-from typing import Iterator
+from typing import Iterator, List, Optional, Set
 import urllib.parse
 import urllib.request
 from xml.etree import ElementTree
@@ -117,7 +117,7 @@ def table_definition_lists_result_files(table_definition):
 
 def load_results_from_table_definition(
     table_definition, table_definition_file, options
-):
+) -> "Iterator[Optional[RunSetResult]]":
     """
     Load all results in files that are listed in the given table-definition file.
     @return: a list of RunSetResult objects
@@ -166,7 +166,7 @@ def load_results_from_table_definition(
 
 def handle_union_tag(
     tag, table_definition_file, options, default_columns, columns_relevant_for_diff
-):
+) -> "Optional[RunSetResult]":
     columns = (
         extract_columns_from_table_definition_file(tag, table_definition_file)
         or default_columns
@@ -220,7 +220,7 @@ def get_file_list_from_result_tag(result_tag, table_definition_file):
 
 def load_results_with_table_definition(
     result_files, table_definition, table_definition_file, options
-):
+) -> "Iterator[Optional[RunSetResult]]":
     """
     Load results from given files with column definitions taken from a table-definition file.
     @return: a list of RunSetResult objects
@@ -368,9 +368,10 @@ class RunSetResult(object):
         self._xml_results = xml_results
         self.attributes = attributes
         # Copy the columns since they may be modified
-        self.columns = copy.deepcopy(columns)
+        self.columns: List[Column] = copy.deepcopy(columns)
         self.summary = summary
-        self.columns_relevant_for_diff = columns_relevant_for_diff
+        self.columns_relevant_for_diff: Set[str] = columns_relevant_for_diff
+        self.results: List[RunResult]
 
     def get_tasks(self) -> Iterator[TaskId]:
         """
@@ -574,7 +575,7 @@ def load_results(
     run_set_id=None,
     columns=None,
     columns_relevant_for_diff=set(),
-):
+) -> "Iterator[Optional[RunSetResult]]":
     """Version of load_result for multiple input files that will be loaded concurrently."""
     return parallel.map(
         load_result,
@@ -588,7 +589,7 @@ def load_results(
 
 def load_result(
     result_file, options, run_set_id=None, columns=None, columns_relevant_for_diff=set()
-):
+) -> "Optional[RunSetResult]":
     """
     Completely handle loading a single result file.
     @param result_file the file to parse
