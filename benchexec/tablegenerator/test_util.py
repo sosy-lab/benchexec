@@ -159,3 +159,17 @@ class TestUnit(unittest.TestCase):
         self.assertListEqual(
             [1, 2, 3, 4, 5, 6], util.merge_lists([[1, 2, 4, 6], [1, 2, 3, 4, 5]])
         )
+
+    def test_find_common_elements(self):
+        self.assertListEqual([], util.find_common_elements([[]]))
+        self.assertListEqual([], util.find_common_elements([[], [1, 2, 3]]))
+        self.assertListEqual([], util.find_common_elements([[], [1, 2, 3], [1, 2, 3]]))
+        self.assertListEqual([], util.find_common_elements([[1, 2, 3], [1, 2, 3], []]))
+        self.assertListEqual([], util.find_common_elements([[1], [2], [3]]))
+        self.assertListEqual([1, 2, 3], util.find_common_elements([[1, 2, 3]]))
+        self.assertListEqual(
+            [1, 2, 3], util.find_common_elements([[1, 2, 3], [1, 2, 3]])
+        )
+        self.assertListEqual(
+            [1, 2, 3], util.find_common_elements([[1, 2, 3, 4], [1, 2, 3, 5]])
+        )

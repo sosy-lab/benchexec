@@ -17,7 +17,7 @@ import logging
 import os
 import urllib.request
 import platform
-from typing import Union
+from typing import Iterable, List, TypeVar, Union
 
 
 # May be extended with higher numbers
@@ -30,6 +30,8 @@ ROMAN_NUMBERS = {
     5: "V",
     1: "I",
 }
+
+_T = TypeVar("_T")
 
 
 class TaskId(
@@ -285,9 +287,9 @@ def prettylist(list_):
     return uniqueList[0] if len(uniqueList) == 1 else "[" + "; ".join(uniqueList) + "]"
 
 
-def merge_lists(list_of_lists):
+def merge_lists(list_of_lists: Iterable[Iterable[_T]]) -> List[_T]:
     """
-    This function merges several lists, e.g. [A,C] + [A,B] --> [A,B,C].
+    This function merges several sequences, e.g. [A,C] + [A,B] --> [A,B,C].
     It keeps the order of elements.
     """
     result_list = []
@@ -320,16 +322,20 @@ def merge_lists(list_of_lists):
     return result_list
 
 
-def find_common_elements(list_of_lists):
-    """Return the common elements in some lists (keeping order)."""
-    elems_in_first_list = list_of_lists[0]
+def find_common_elements(sequences: Iterable[Iterable[_T]]) -> List[_T]:
+    """Return the common elements in some sequences (keeping order)."""
+    # We take care to iterate sequences and all its elements only once
+    # such that it works with generators as well and is efficient.
+    sequences = iter(sequences)
+    elems_in_first_list = list(next(sequences))
 
     elem_set = set(elems_in_first_list)
-    for current_list in list_of_lists:
-        elem_set = elem_set & set(current_list)
+    elem_set.intersection_update(*sequences)
 
     if not elem_set:
         return []
+    elif len(elems_in_first_list) == len(elem_set):
+        return elems_in_first_list
     else:
         return [elem for elem in elems_in_first_list if elem in elem_set]
 

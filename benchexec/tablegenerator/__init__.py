@@ -23,6 +23,7 @@ import sys
 import time
 import types
 import typing
+from typing import Iterator
 import urllib.parse
 import urllib.request
 from xml.etree import ElementTree
@@ -371,12 +372,12 @@ class RunSetResult(object):
         self.summary = summary
         self.columns_relevant_for_diff = columns_relevant_for_diff
 
-    def get_tasks(self):
+    def get_tasks(self) -> Iterator[TaskId]:
         """
-        Return the list of task ids for these results. This list is free of duplicates.
+        Return the sequence of task ids for these results. This is free of duplicates.
         May be called only after collect_data()
         """
-        return [r.task_id for r in self.results]
+        return (r.task_id for r in self.results)
 
     def append(self, resultFile, resultElem, all_columns=False):
         """
@@ -1674,12 +1675,12 @@ def main(args=None):
 
     logging.info("Merging results...")
     if options.common:
-        task_list = util.find_common_elements([r.get_tasks() for r in runSetResults])
+        task_list = util.find_common_elements(r.get_tasks() for r in runSetResults)
         if not task_list:
             logging.warning("No tasks are present in all benchmark results.")
     else:
         # merge list of tasks, so that all run sets contain the same tasks
-        task_list = util.merge_lists([r.get_tasks() for r in runSetResults])
+        task_list = util.merge_lists(r.get_tasks() for r in runSetResults)
     # make sure that all run sets contain exactly the same tasks in the same order
     apply_task_list(runSetResults, task_list)
 
