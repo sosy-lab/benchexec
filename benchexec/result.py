@@ -33,6 +33,25 @@ CATEGORY_MISSING = "missing"
 """BenchExec could not determine whether run result was correct or wrong
 because no property was defined, and no other categories apply."""
 
+# categorization of a witness of a run result
+# 'valid' and 'invalid' refer to whether the witness type matches the expected result.
+# For an explanation of 'valid*' and 'invalid',
+# see https://doi.org/10.1007/978-3-031-22308-2_8 (page 166, bottom).
+WITNESS_CATEGORY_CORRECT = "correct"
+"""witness given by tool is valid*"""
+
+WITNESS_CATEGORY_WRONG = "wrong"
+"""witness given by tool is invalid"""
+
+WITNESS_CATEGORY_UNKNOWN = "unknown"
+"""witness category cannot be determined"""
+
+WITNESS_CATEGORY_ERROR = "error"
+"""witness given by tool did not pass the syntax check, or syntax checker failed"""
+
+WITNESS_CATEGORY_MISSING = "missing"
+"""no witness given by tool"""
+
 # possible run results (output of a tool)
 RESULT_DONE = "done"
 """tool terminated properly and true/false does not make sense"""
@@ -83,6 +102,9 @@ _SCORE_CORRECT_UNCONFIRMED_FALSE = 0
 _SCORE_UNKNOWN = 0
 _SCORE_WRONG_FALSE = -16
 _SCORE_WRONG_TRUE = -32
+# Score factor for validation results on invalid witnesses
+# as described in https://doi.org/10.1007/978-3-031-22308-2_8 (page 171, last paragraph, factor q)
+_SCORE_FACTOR_WRONG_WITNESS = 2
 
 
 class ExpectedResult(collections.namedtuple("ExpectedResult", "result subproperty")):
@@ -111,12 +133,27 @@ class Property(collections.namedtuple("Property", "filename is_svcomp name")):
 
     __slots__ = ()  # reduce per-instance memory consumption
 
-    def compute_score(self, category, result):
+    def _adjust_score_for_witness_validation(self, score, witness_category):
+        if witness_category == WITNESS_CATEGORY_CORRECT:
+            # Score is already correctly set.
+            return score
+        elif witness_category == WITNESS_CATEGORY_WRONG:
+            # If a validator refutes (confirms) a wrong witness, then the score (reduction) is multiplied by a factor.
+            return score * _SCORE_FACTOR_WRONG_WITNESS
+        else:
+            # Discard result for a witness that is neither correct nor wrong.
+            return 0
+
+    def compute_score(self, category, result, witness_category=None):
         if not self.is_svcomp:
             return None
-        return _svcomp_score(category, result)
+        score = _svcomp_score(category, result)
+        if witness_category is None:
+            return score
+        else:
+            return self._adjust_score_for_witness_validation(score, witness_category)
 
-    def max_score(self, expected_result):
+    def max_score(self, expected_result, witness_category=None):
         """
         Return the maximum possible score for a task that uses this property.
         @param expected_result:
@@ -124,7 +161,11 @@ class Property(collections.namedtuple("Property", "filename is_svcomp name")):
         """
         if not self.is_svcomp or not expected_result:
             return None
-        return _svcomp_max_score(expected_result.result)
+        score = _svcomp_max_score(expected_result.result)
+        if witness_category is None:
+            return score
+        else:
+            return self._adjust_score_for_witness_validation(score, witness_category)
 
     @property
     def nice_name(self):

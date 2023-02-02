@@ -1015,11 +1015,12 @@ class Run(object):
             ):
                 self.propertyfile = substitutedPropertyfiles[0]
             else:
-                log_property_file_once(
-                    f"Pattern {self.propertyfile} for input file {self.identifier} "
-                    f"in propertyfile tag did not match any file. It will be ignored."
+                # It seems there is no way to get the line number of a tag?
+                tag = ElementTree.tostring(self.propertytag, encoding="unicode").strip()
+                raise BenchExecException(
+                    f"The pattern for the propertyfile in tag {tag} "
+                    f"of the benchmark definition does not match any file."
                 )
-                self.propertyfile = None
 
         if self.propertyfile:
             self.required_files.add(self.propertyfile)

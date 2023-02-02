@@ -10,6 +10,8 @@ show-source = true
 statistics = true
 max-line-length = 88
 ignore =
+    # not clear whether f"{s!r}" is better than "'{s}'" and suggestion is invalid for non-string objects
+    B028,
     # temporarily disabled for historic reasons: line length, naming
     E501,N801,N802,N803,N806,N815,
     # the risk of class attributes shadowing builtins is quite small

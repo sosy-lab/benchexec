@@ -23,6 +23,7 @@ import sys
 import time
 import types
 import typing
+from typing import Iterator, List, Optional, Set
 import urllib.parse
 import urllib.request
 from xml.etree import ElementTree
@@ -116,7 +117,7 @@ def table_definition_lists_result_files(table_definition):
 
 def load_results_from_table_definition(
     table_definition, table_definition_file, options
-):
+) -> "Iterator[Optional[RunSetResult]]":
     """
     Load all results in files that are listed in the given table-definition file.
     @return: a list of RunSetResult objects
@@ -160,12 +161,12 @@ def load_results_from_table_definition(
                 )
             )
 
-    return [future.result() for future in results]
+    return (future.result() for future in results)
 
 
 def handle_union_tag(
     tag, table_definition_file, options, default_columns, columns_relevant_for_diff
-):
+) -> "Optional[RunSetResult]":
     columns = (
         extract_columns_from_table_definition_file(tag, table_definition_file)
         or default_columns
@@ -219,7 +220,7 @@ def get_file_list_from_result_tag(result_tag, table_definition_file):
 
 def load_results_with_table_definition(
     result_files, table_definition, table_definition_file, options
-):
+) -> "Iterator[Optional[RunSetResult]]":
     """
     Load results from given files with column definitions taken from a table-definition file.
     @return: a list of RunSetResult objects
@@ -367,16 +368,17 @@ class RunSetResult(object):
         self._xml_results = xml_results
         self.attributes = attributes
         # Copy the columns since they may be modified
-        self.columns = copy.deepcopy(columns)
+        self.columns: List[Column] = copy.deepcopy(columns)
         self.summary = summary
-        self.columns_relevant_for_diff = columns_relevant_for_diff
+        self.columns_relevant_for_diff: Set[str] = columns_relevant_for_diff
+        self.results: List[RunResult]
 
-    def get_tasks(self):
+    def get_tasks(self) -> Iterator[TaskId]:
         """
-        Return the list of task ids for these results.
+        Return the sequence of task ids for these results. This is free of duplicates.
         May be called only after collect_data()
         """
-        return [r.task_id for r in self.results]
+        return (r.task_id for r in self.results)
 
     def append(self, resultFile, resultElem, all_columns=False):
         """
@@ -415,19 +417,27 @@ class RunSetResult(object):
 
         # Opening the ZIP archive with the logs for every run is too slow, we cache it.
         log_zip_cache = {}
+        task_set = set()
         try:
             for xml_result, result_file in self._xml_results:
-                self.results.append(
-                    RunResult.create_from_xml(
-                        xml_result,
-                        get_value_from_logfile,
-                        self.columns,
-                        correct_only,
-                        log_zip_cache,
-                        self.columns_relevant_for_diff,
-                        result_file,
-                    )
+                run_result = RunResult.create_from_xml(
+                    xml_result,
+                    get_value_from_logfile,
+                    self.columns,
+                    correct_only,
+                    log_zip_cache,
+                    self.columns_relevant_for_diff,
+                    result_file,
                 )
+                task = run_result.task_id
+                # Make sure to keep results free of duplicates
+                if task in task_set:
+                    logging.warning(
+                        "Task %s is present twice in '%s', skipping it.", task, self
+                    )
+                else:
+                    self.results.append(run_result)
+                    task_set.add(task)
         finally:
             for file in log_zip_cache.values():
                 file.close()
@@ -565,7 +575,7 @@ def load_results(
     run_set_id=None,
     columns=None,
     columns_relevant_for_diff=set(),
-):
+) -> "Iterator[Optional[RunSetResult]]":
     """Version of load_result for multiple input files that will be loaded concurrently."""
     return parallel.map(
         load_result,
@@ -579,7 +589,7 @@ def load_results(
 
 def load_result(
     result_file, options, run_set_id=None, columns=None, columns_relevant_for_diff=set()
-):
+) -> "Optional[RunSetResult]":
     """
     Completely handle loading a single result file.
     @param result_file the file to parse
@@ -684,46 +694,15 @@ def insert_logfile_names(resultFile, resultElem):
         sourcefile.set("logfile", log_file)
 
 
-def merge_tasks(runset_results):
+def apply_task_list(runset_results, tasks):
     """
-    This function merges the results of all RunSetResult objects.
-    If necessary, it can merge lists of names: [A,C] + [A,B] --> [A,B,C]
-    and add dummy elements to the results.
-    It also ensures the same order of tasks.
-    """
-    task_list = []
-    task_set = set()
-    for runset in runset_results:
-        index = -1
-        currentresult_taskset = set()
-        for task in runset.get_tasks():
-            if task in currentresult_taskset:
-                logging.warning(
-                    "Task %s is present twice in '%s', skipping it.", task, runset
-                )
-            else:
-                currentresult_taskset.add(task)
-                if task not in task_set:
-                    task_list.insert(index + 1, task)
-                    task_set.add(task)
-                    index += 1
-                else:
-                    index = task_list.index(task)
-
-    merge_task_lists(runset_results, task_list)
-
-
-def merge_task_lists(runset_results, tasks):
-    """
-    Set the filelists of all RunSetResult elements so that they contain the same files
-    in the same order. For missing files a dummy element is inserted.
+    Set the results of all RunSetResult elements so that they contain the same tasks
+    in the same order. For missing tasks a dummy element is inserted.
     """
     for runset in runset_results:
         # create mapping from id to RunResult object
-        # Use reversed list such that the first instance of equal tasks end up in dic
-        dic = {
-            run_result.task_id: run_result for run_result in reversed(runset.results)
-        }
+        dic = {run_result.task_id: run_result for run_result in runset.results}
+        assert len(dic) == len(runset.results)
         runset.results = []  # clear and repopulate results
         for task in tasks:
             run_result = dic.get(task)
@@ -740,21 +719,6 @@ def merge_task_lists(runset_results, tasks):
                     [None] * len(runset.columns),
                 )
             runset.results.append(run_result)
-
-
-def find_common_tasks(runset_results):
-    tasks_in_first_runset = runset_results[0].get_tasks()
-
-    task_set = set(tasks_in_first_runset)
-    for runset_result in runset_results:
-        task_set = task_set & set(runset_result.get_tasks())
-
-    task_list = []
-    if not task_set:
-        logging.warning("No tasks are present in all benchmark results.")
-    else:
-        task_list = [task for task in tasks_in_first_runset if task in task_set]
-        merge_task_lists(runset_results, task_list)
 
 
 class RunResult(object):
@@ -877,7 +841,14 @@ class RunResult(object):
             sourcefileTag.get("propertyFile"),
             sourcefileTag.get("expectedVerdict"),
         )
-        task_id = TaskId(task_name, prop, expected_result, sourcefileTag.get("runset"))
+        witness_category = util.get_column_value(sourcefileTag, "witness-category")
+        task_id = TaskId(
+            task_name,
+            prop,
+            expected_result,
+            witness_category,
+            sourcefileTag.get("runset"),
+        )
 
         status = util.get_column_value(sourcefileTag, "status", "")
         category = util.get_column_value(sourcefileTag, "category")
@@ -889,7 +860,7 @@ class RunResult(object):
 
         score = None
         if prop:
-            score = prop.compute_score(category, status)
+            score = prop.compute_score(category, status, witness_category)
         logfileLines = None
 
         values = []
@@ -1010,7 +981,7 @@ def get_rows(runSetResults):
     Create list of rows with all data. Each row consists of several RunResults.
     """
     rows = []
-    for task_results in zip(*[runset.results for runset in runSetResults]):
+    for task_results in zip(*(runset.results for runset in runSetResults)):
         rows.append(Row(task_results))
 
     return rows
@@ -1560,31 +1531,64 @@ def sigint_handler(*args, **kwargs):
     sys.exit(1)
 
 
-def main(args=None):
-    if sys.version_info < (3,):
-        sys.exit("table-generator needs Python 3 to run.")
+def get_max_worker_count():
+    """Calculate maximum number of worker processes to use."""
+    try:
+        cpu_count = os.cpu_count() or 1
+    except AttributeError:
+        cpu_count = 1
+
+    try:
+        import resource
+
+        fd_limit = resource.getrlimit(resource.RLIMIT_NOFILE)[1]
+        # increase soft limit to hard limit
+        resource.setrlimit(resource.RLIMIT_NOFILE, (fd_limit, fd_limit))
+        # for each worker some open fds are needed, so use heuristic limit
+        max_workers = fd_limit // 4
+    except ImportError:  # Windows
+        # it seems there is some rather low hard limit
+        # https://stackoverflow.com/q/870173/396730
+        max_workers = 128
+
+    # Use up to cpu_count*2 workers because some tasks are I/O bound,
+    # but limit the number of worker to avoid too many open files.
+    return min(cpu_count * 2, max_workers)
+
+
+def get_preferred_mp_context():
+    import multiprocessing
+
+    method = "spawn" if "spawn" in multiprocessing.get_all_start_methods() else None
+    return multiprocessing.get_context(method=method)
+
+
+def setup_process(options):
+    """Perform basic process setup, e.g., logging."""
     signal.signal(signal.SIGINT, sigint_handler)
-
-    arg_parser = create_argument_parser()
-    options = arg_parser.parse_args((args or sys.argv)[1:])
-
     benchexec.util.setup_logging(
         fmt="%(levelname)s: %(message)s",
         level=logging.WARNING if options.quiet else logging.INFO,
     )
 
+
+def main(args=None):
+    if sys.version_info < (3,):
+        sys.exit("table-generator needs Python 3 to run.")
+
+    arg_parser = create_argument_parser()
+    options = arg_parser.parse_args((args or sys.argv)[1:])
+
+    setup_process(options)
+
     global parallel
     import concurrent.futures
 
-    cpu_count = 1
-    try:
-        cpu_count = os.cpu_count() or 1
-    except AttributeError:
-        pass
-    # Use up to cpu_count*2 workers because some tasks are I/O bound,
-    # but limit the number of worker to avoid too many open files.
     parallel = concurrent.futures.ProcessPoolExecutor(
-        max_workers=min(cpu_count * 2, 32)
+        max_workers=get_max_worker_count(),
+        mp_context=get_preferred_mp_context(),
+        initializer=setup_process,
+        initargs=(options,),
     )
 
     name = options.output_name
@@ -1672,10 +1676,14 @@ def main(args=None):
 
     logging.info("Merging results...")
     if options.common:
-        find_common_tasks(runSetResults)
+        task_list = util.find_common_elements(r.get_tasks() for r in runSetResults)
+        if not task_list:
+            logging.warning("No tasks are present in all benchmark results.")
     else:
-        # merge list of run sets, so that all run sets contain the same tasks
-        merge_tasks(runSetResults)
+        # merge list of tasks, so that all run sets contain the same tasks
+        task_list = util.merge_lists(r.get_tasks() for r in runSetResults)
+    # make sure that all run sets contain exactly the same tasks in the same order
+    apply_task_list(runSetResults, task_list)
 
     rows = get_rows(runSetResults)
     if not rows:

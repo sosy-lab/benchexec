@@ -61,11 +61,6 @@ stages:
     paths:
       - coverage.xml
 
-unit-tests:python-3.6:
-  <<: *unit-tests
-  variables:
-    PYTHON_VERSION: '3.6'
-
 unit-tests:python-3.7:
   <<: *unit-tests
   variables:
@@ -122,10 +117,9 @@ flake8:
 
 pytype:
   stage: test
-  image: python:3.7
+  image: python:3.8
   before_script:
-    # version due to https://github.com/google/pytype/issues/1130
-    - pip install coloredlogs pytype==2022.2.8
+    - pip install coloredlogs pytype
   script:
     - pytype -k
   cache:
@@ -196,12 +190,6 @@ reuse:
   only:
     - schedules
     - web
-
-build-docker:test:python-3.6:
-  extends: .build-docker
-  variables:
-    DOCKERFILE: test/Dockerfile.python-3.6
-    IMAGE: test:python-3.6
 
 build-docker:test:python-3.7:
   extends: .build-docker

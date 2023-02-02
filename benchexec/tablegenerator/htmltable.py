@@ -226,7 +226,9 @@ def _get_task_counts(rows):
             count_true += 1
         elif expected_result.result is False:
             count_false += 1
-        row_max_score = row.id.property.max_score(expected_result)
+        row_max_score = row.id.property.max_score(
+            expected_result, row.id.witness_category
+        )
         if row_max_score is not None:
             max_score = row_max_score + (max_score or 0)
 
