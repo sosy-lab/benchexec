@@ -1036,6 +1036,8 @@ def filter_rows_with_differences(rows):
             "---> DIFFERENCES FOUND IN ALL ROWS, NO NEED TO CREATE DIFFERENCE TABLE"
         )
         return []
+    else:
+        logging.info("The difference table will have %s rows.", len(rowsDiff))
 
     return rowsDiff
 
@@ -1686,6 +1688,12 @@ def main(args=None):
     apply_task_list(runSetResults, task_list)
 
     rows = get_rows(runSetResults)
+    logging.info(
+        "The resulting table will have %s rows and %s columns (in %s run sets).",
+        len(rows),
+        sum(len(runset.columns) for runset in runSetResults),
+        len(runSetResults),
+    )
     if not rows:
         handle_error("No results found, no tables produced.")
     rowsDiff = filter_rows_with_differences(rows) if options.write_diff_table else []
