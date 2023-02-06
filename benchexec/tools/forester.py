@@ -11,7 +11,6 @@ import benchexec.result as result
 
 
 class Tool(benchexec.tools.template.BaseTool):
-
     REQUIRED_PATHS = ["include", "libfa.so", "sv_comp_run.py"]
 
     def executable(self):

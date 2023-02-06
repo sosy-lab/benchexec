@@ -17,7 +17,6 @@ import os
 
 
 class Tool(benchexec.tools.template.BaseTool):
-
     REQUIRED_PATHS = ["bin", "include", "lib", "share"]
 
     def executable(self):

@@ -423,7 +423,7 @@ class Benchmark(object):
 
         # get benchmarks
         self.run_sets = []
-        for (i, rundefinitionTag) in enumerate(rootTag.findall("rundefinition")):
+        for i, rundefinitionTag in enumerate(rootTag.findall("rundefinition")):
             self.run_sets.append(
                 RunSet(rundefinitionTag, self, i + 1, globalSourcefilesTags)
             )
@@ -690,7 +690,6 @@ class RunSet(object):
 
         # get sourcefiles from list in file
         for includesFilesFile in sourcefilesTag.findall("includesfile"):
-
             for file in self.expand_filename_pattern(includesFilesFile.text, base_dir):
                 input_files_in_set = list(_read_set_file(file))
                 if not input_files_in_set:
@@ -1200,13 +1199,11 @@ class Requirements(object):
     """
 
     def __init__(self, tags, rlimits, config):
-
         self.cpu_model = None
         self.memory = None
         self.cpu_cores = None
 
         for requireTag in tags:
-
             cpu_model = requireTag.get("cpuModel", None)
             if cpu_model:
                 if self.cpu_model is None:

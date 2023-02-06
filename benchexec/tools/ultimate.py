@@ -70,7 +70,7 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
         exe = tool_locator.find_executable("Ultimate.py")
         dir_name = os.path.dirname(exe)
         logging.debug("Looking in %s for Ultimate and plugins/", dir_name)
-        for (_, dir_names, file_names) in os.walk(dir_name):
+        for _, dir_names, file_names in os.walk(dir_name):
             if "Ultimate" in file_names and "plugins" in dir_names:
                 return exe
             break

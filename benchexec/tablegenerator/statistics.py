@@ -263,7 +263,6 @@ def add_local_summary_statistics(run_set_result, run_set_stats):
             and column.title in run_set_result.summary
             and run_set_result.summary[column.title] != ""
         ):
-
             try:
                 column_stats.local = StatValue(
                     util.to_decimal(run_set_result.summary[column.title])

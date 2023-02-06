@@ -25,7 +25,6 @@ class Tool(benchexec.tools.template.BaseTool):
         return [executable] + options + tasks
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
-
         status = result.RESULT_UNKNOWN
         stroutput = str(output)
 
