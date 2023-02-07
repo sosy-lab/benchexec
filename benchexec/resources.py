@@ -180,6 +180,15 @@ def assignmentAlgorithm(
                     i = i + 1
                 allCpus.pop(virtual_core)
 
+    # addition of meta hierarchy level if necessary
+    if len(hierarchy_levels[-1]) > 1:
+        top_level_cores = []
+        for node in hierarchy_levels[-1]:
+            top_level_cores.extend(hierarchy_levels[-1][node])
+        hierarchy_levels.append({0: top_level_cores})
+        for cpu_nr in allCpus:
+            allCpus[cpu_nr].memory_regions.append(0)
+
     # compare number of available cores to required cores per run
     coreCount = len(allCpus)
     if coreLimit > coreCount:
