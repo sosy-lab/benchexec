@@ -25,6 +25,35 @@ import util
 def get_cpu_cores_per_run(
     coreLimit, num_of_threads, use_hyperthreading, my_cgroups, coreSet=None
 ):
+    """
+    Calculate an assignment of the available CPU cores to a number
+    of parallel benchmark executions such that each run gets its own cores
+    without overlapping of cores between runs.
+    In case the machine has hyper-threading, this method avoids
+    putting two different runs on the same physical core.
+    When assigning cores that belong to the same run, the method
+    uses core that access the same memory reagions, while distributing
+    the parallel execution runs with as little shared memory as possible
+    across all available CPUs.
+
+    A few theoretically-possible cases are not implemented,
+    for example assigning three 10-core runs on a machine
+    with two 16-core CPUs (this would have unfair core assignment
+    and thus undesirable performance characteristics anyway).
+
+    The list of available cores is read from the cgroup file system,
+    such that the assigned cores are a subset of the cores
+    that the current process is allowed to use.
+    This script does currently not support situations
+    where the available cores are asymmetrically split over CPUs,
+    e.g. 3 cores on one CPU and 5 on another.
+
+    @param coreLimit: the number of cores for each run
+    @param num_of_threads: the number of parallel benchmark executions
+    @param use_hyperthreading: boolean to check if no-hyperthreading method is being used
+    @param coreSet: the list of CPU cores identifiers provided by a user, None makes benchexec using all cores
+    @return a list of lists, where each inner list contains the cores for one run
+    """
     hierarchy_levels = []
     try:
         # read list of available CPU cores (int)
@@ -123,23 +152,19 @@ def assignmentAlgorithm(
     siblings_of_core,
     hierarchy_levels,
 ):
-    """This method does the actual work of _get_cpu_cores_per_run
-    without reading the machine architecture from the file system
-    in order to be testable.
-    @param coreLimit: the number of cores for each run
-    @param num_of_threads: the number of parallel benchmark executions
-    @param use_hyperthreading: boolean to check if no-hyperthreading method is being used
-    @param allCpus: the list of all available cores
-    @param siblings_of_core: mapping from each core to list of sibling cores including the core itself
-    cores_of_L3cache,
-    cores_of_NUMA_Region,
-    core_of_group,
-    cores_of_package
+    """Actual core distribution method:
+    uses the architecture read from the file system by get_cpu_cores_per_run
+
+    @param coreLimit:           the number of cores for each run
+    @param num_of_threads:      the number of parallel benchmark executions
+    @param use_hyperthreading:  boolean to check if no-hyperthreading method is being used
+    @param allCpus:             list of all available core objects
+    @param siblings_of_core:    mapping from one of the sibling cores to the list of siblings including the core itself
+    @param hierarchy_levels:    list of dicts mapping from a memory region identifier to its belonging cores
     """
     # First: checks whether the algorithm can & should work
 
-    # no HT filter: delete all but one the key core from siblings_of_core
-    # delete those cores from all dicts in hierarchy_levels
+    # no HT filter: delete all but the key core from siblings_of_core & hierarchy_levels
     if not use_hyperthreading:
         for core in siblings_of_core:
             no_HT_filter = []
@@ -309,7 +334,6 @@ def assignmentAlgorithm(
             if len(cores) == coreLimit:
                 result.append(cores)
                 print(result)
-            # i=i+1
 
     # cleanup: while-loop stops before running through all units: while some active_cores-lists
     # & sub_unit_cores-lists are empty, other stay half-full or full
