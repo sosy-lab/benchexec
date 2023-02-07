@@ -1,4 +1,4 @@
-#resources_new.py
+# resources_new.py
 
 """
 This module contains functions for computing assignments of resources to runs.
@@ -15,16 +15,18 @@ from functools import cmp_to_key
 import cgroups
 import util
 
+
 # prepping function, consider change of name
-def get_cpu_cores_per_run(  
-    coreLimit, num_of_threads, use_hyperthreading, my_cgroups, coreSet=None):
+def get_cpu_cores_per_run(
+    coreLimit, num_of_threads, use_hyperthreading, my_cgroups, coreSet=None
+):
     hierarchy_levels = []
     try:
         # read list of available CPU cores (int)
         allCpus_list = get_cpu_list(my_cgroups, coreSet)
 
         # read & prepare hyper-threading information, filter superfluous entries
-        siblings_of_core = get_siblings_mapping (allCpus_list)
+        siblings_of_core = get_siblings_mapping(allCpus_list)
         cleanList = []
         for core in siblings_of_core:
             if core not in cleanList:
@@ -36,24 +38,24 @@ def get_cpu_cores_per_run(
         # siblings_of_core will be added to hierarchy_levels list after sorting
 
         # read & prepare mapping of cores to L3 cache
-        # cores_of_L3cache = 
+        # cores_of_L3cache =
         # hierarchy_levels.append(core_of_L3cache)
-        
+
         # read & prepare mapping of cores to NUMA region
-        cores_of_NUMA_Region = get_NUMA_mapping (allCpus_list)
+        cores_of_NUMA_Region = get_NUMA_mapping(allCpus_list)
         hierarchy_levels.append(cores_of_NUMA_Region)
 
         # read & prepare mapping of cores to group
         # core_of_group =
-        #hierarchy_levels.append(core_of_group)
+        # hierarchy_levels.append(core_of_group)
 
         # read & prepare mapping of cores to CPU/physical package/socket?
-        cores_of_package = get_package_mapping (allCpus_list)
+        cores_of_package = get_package_mapping(allCpus_list)
         hierarchy_levels.append(cores_of_package)
-    
+
     except ValueError as e:
         sys.exit(f"Could not read CPU information from kernel: {e}")
-    
+
     # generate sorted list of dicts in accordance with their hierarchy
     def compare_hierarchy(dict1, dict2):
         value1 = len(next(iter(dict1.values())))
@@ -66,49 +68,55 @@ def get_cpu_cores_per_run(
             return 0
 
     # sort hierarchy_levels according to the dicts' corresponding unit sizes
-    hierarchy_levels.sort(key = cmp_to_key(compare_hierarchy))  #hierarchy_level = [dict1, dict2, dict3]
+    hierarchy_levels.sort(
+        key=cmp_to_key(compare_hierarchy)
+    )  # hierarchy_level = [dict1, dict2, dict3]
     # add siblings_of_core at the beginning of the list
     hierarchy_levels.insert(0, siblings_of_core)
 
     # create v_cores
     allCpus = {}
     for cpu_nr in allCpus_list:
-        allCpus.update({cpu_nr: v_core(cpu_nr,[])})
+        allCpus.update({cpu_nr: v_core(cpu_nr, [])})
 
-    for level in hierarchy_levels:                          # hierarchy_levels = [dict1, dict2, dict3]
+    for level in hierarchy_levels:  # hierarchy_levels = [dict1, dict2, dict3]
         for key in level:
             for core in level[key]:
-                allCpus[core].memory_regions.append(key)    # memory_regions = [key1, key2, key3]
-
+                allCpus[core].memory_regions.append(
+                    key
+                )  # memory_regions = [key1, key2, key3]
 
     # call the actual assignment function
-    return assignmentAlgorithm (
-        coreLimit, 
-        num_of_threads, 
-        use_hyperthreading, 
+    return assignmentAlgorithm(
+        coreLimit,
+        num_of_threads,
+        use_hyperthreading,
         allCpus,
         siblings_of_core,
-        hierarchy_levels
+        hierarchy_levels,
     )
 
+
 # define class v_core to generate core objects
-class v_core: 
-    #def __init__(self, id, siblings=None, memory_regions=None):
+class v_core:
+    # def __init__(self, id, siblings=None, memory_regions=None):
     def __init__(self, id, memory_regions=None):
         self.id = id
-        #self.siblings = siblings
+        # self.siblings = siblings
         self.memory_regions = memory_regions
+
     def __str__(self):
         return str(self.id) + " " + str(self.memory_regions)
 
+
 # assigns the v_cores into specific runs
-def assignmentAlgorithm (
-    coreLimit,              
-    num_of_threads, 
-    use_hyperthreading, 
+def assignmentAlgorithm(
+    coreLimit,
+    num_of_threads,
+    use_hyperthreading,
     allCpus,
     siblings_of_core,
-    hierarchy_levels
+    hierarchy_levels,
 ):
     """This method does the actual work of _get_cpu_cores_per_run
     without reading the machine architecture from the file system
@@ -125,8 +133,8 @@ def assignmentAlgorithm (
     """
     # First: checks whether the algorithm can & should work
 
-    # no HT filter: delete all but one the key core from siblings_of_core 
-    # delete those cores from all dicts in hierarchy_levels    
+    # no HT filter: delete all but one the key core from siblings_of_core
+    # delete those cores from all dicts in hierarchy_levels
     if not use_hyperthreading:
         for core in siblings_of_core:
             no_HT_filter = []
@@ -136,20 +144,20 @@ def assignmentAlgorithm (
             for virtual_core in no_HT_filter:
                 siblings_of_core[core].remove(virtual_core)
                 region_keys = allCpus[virtual_core].memory_regions
-                i=1
+                i = 1
                 while i < len(region_keys):
                     hierarchy_levels[i][region_keys[i]].remove(virtual_core)
-                    i = i+1
+                    i = i + 1
                 allCpus.pop(virtual_core)
 
     # compare number of available cores to required cores per run
     coreCount = len(allCpus)
     if coreLimit > coreCount:
         sys.exit(
-                f"Cannot run benchmarks with {coreLimit} CPU cores, "
-                f"only {coreCount} CPU cores available."
-            )
-    
+            f"Cannot run benchmarks with {coreLimit} CPU cores, "
+            f"only {coreCount} CPU cores available."
+        )
+
     # compare number of available run to overall required cores
     if coreLimit * num_of_threads > coreCount:
         sys.exit(
@@ -157,7 +165,6 @@ def assignmentAlgorithm (
             f"with {coreLimit} CPU cores each, only {coreCount} CPU cores available. "
             f"Please reduce the number of threads to {coreCount // coreLimit}."
         )
-
 
     # check if all HT siblings are available for benchexec
     all_cpus_set = set(allCpus.keys())
@@ -171,10 +178,12 @@ def assignmentAlgorithm (
                 f"Please always make all virtual cores of a physical core available."
             )
     # check if all units of the same hierarchy level have the same number of cores
-    for index in range(len(hierarchy_levels)): # [dict, dict, dict, ...]
+    for index in range(len(hierarchy_levels)):  # [dict, dict, dict, ...]
         cores_per_unit = len(next(iter(hierarchy_levels[index].values())))
-        print("cores_per_unit of hierarchy_level ", index," = ", cores_per_unit)
-        if any(len(cores) != cores_per_unit for cores in hierarchy_levels[index].values()):
+        print("cores_per_unit of hierarchy_level ", index, " = ", cores_per_unit)
+        if any(
+            len(cores) != cores_per_unit for cores in hierarchy_levels[index].values()
+        ):
             sys.exit(
                 "Asymmetric machine architecture not supported: "
                 "CPUs/memory regions with different number of cores."
@@ -183,119 +192,135 @@ def assignmentAlgorithm (
     # ( compute some values we will need.)
 
     # coreLimit_rounded_up (int): recalculate # cores for each run accounting for HT
-    core_size =  len(next(iter(siblings_of_core.values()))) # Wert aus hierarchy_level statt siblings_of_core?
+    core_size = len(
+        next(iter(siblings_of_core.values()))
+    )  # Wert aus hierarchy_level statt siblings_of_core?
     coreLimit_rounded_up = int(math.ceil(coreLimit / core_size) * core_size)
     assert coreLimit <= coreLimit_rounded_up < (coreLimit + core_size)
-
 
     # Choose hierarchy level for core assignment
     chosen_level = 1
     # move up in hierarchy as long as the number of cores at the current level is smaller than the coreLimit
-    # if the number of cores at the current level is as big as the coreLimit: exit loop 
-    while len (next(iter(hierarchy_levels[chosen_level].values()))) < coreLimit_rounded_up  and chosen_level < len (hierarchy_levels):
-        chosen_level = chosen_level+1
-    print("chosen_level = ",chosen_level)
-    unit_size = len (next(iter(hierarchy_levels[chosen_level].values())))
+    # if the number of cores at the current level is as big as the coreLimit: exit loop
+    while len(
+        next(iter(hierarchy_levels[chosen_level].values()))
+    ) < coreLimit_rounded_up and chosen_level < len(hierarchy_levels):
+        chosen_level = chosen_level + 1
+    print("chosen_level = ", chosen_level)
+    unit_size = len(next(iter(hierarchy_levels[chosen_level].values())))
     print("unit_size = ", unit_size)
     assert unit_size >= coreLimit_rounded_up
 
-    
     # calculate runs per unit of hierarchy level i
-    runs_per_unit = int(math.floor(unit_size/coreLimit_rounded_up))
-    
+    runs_per_unit = int(math.floor(unit_size / coreLimit_rounded_up))
+
     # compare num of units & runs per unit vs num_of_threads
     if len(hierarchy_levels[chosen_level]) * runs_per_unit < num_of_threads:
         sys.exit(
             f" .........................."
             f"Please reduce the number of threads to {len(hierarchy_levels[chosen_level]) * runs_per_unit}."
         )
-    
+
     # calculate if sub_units have to be split to accommodate the runs_per_unit
-    #sub_units_per_run = math.ceil(len(hierarchy_levels[chosen_level-1])/runs_per_unit)
-    #sub_units_per_run = coreLimit/num of cores per subunit 
-    
-    sub_units_per_run = math.ceil(coreLimit_rounded_up/len(hierarchy_levels[chosen_level-1][0]))
+    # sub_units_per_run = math.ceil(len(hierarchy_levels[chosen_level-1])/runs_per_unit)
+    # sub_units_per_run = coreLimit/num of cores per subunit
+
+    sub_units_per_run = math.ceil(
+        coreLimit_rounded_up / len(hierarchy_levels[chosen_level - 1][0])
+    )
     print("sub_units_per_run = ", sub_units_per_run)
-    if len(hierarchy_levels[chosen_level-1]) / sub_units_per_run < num_of_threads:
+    if len(hierarchy_levels[chosen_level - 1]) / sub_units_per_run < num_of_threads:
         sys.exit(
             f"Cannot split memory regions between runs."
             f"Please reduce the number of threads to {sub_units_per_run * runs_per_unit}."
         )
 
-
     # Start core assignment algorithm
-    result = []  
+    result = []
     used_cores = []
     blocked_cores = []
     active_hierarchy_level = hierarchy_levels[chosen_level]
-    #i=0
-    while len(result) < num_of_threads: #and i < len(active_hierarchy_level):
-        
-        #choose cores for assignment:
-        i = len(hierarchy_levels)-1
-        #start with highest dict: if length = 1 or length of values equal
-        while len(hierarchy_levels[i]) == 1 \
-            or not (any(len(cores) != len(next(iter(hierarchy_levels[i].values()))) for cores in hierarchy_levels[i].values())) \
-                and i != 0:
-            i = i-1
+    # i=0
+    while len(result) < num_of_threads:  # and i < len(active_hierarchy_level):
+        # choose cores for assignment:
+        i = len(hierarchy_levels) - 1
+        # start with highest dict: if length = 1 or length of values equal
+        while (
+            len(hierarchy_levels[i]) == 1
+            or not (
+                any(
+                    len(cores) != len(next(iter(hierarchy_levels[i].values())))
+                    for cores in hierarchy_levels[i].values()
+                )
+            )
+            and i != 0
+        ):
+            i = i - 1
         spread_level = hierarchy_levels[i]
         # make a list of the core lists in spread_level(values())
         spread_level_values = list(spread_level.values())
-        #choose values from key-value pair with the highest number of cores
+        # choose values from key-value pair with the highest number of cores
         spread_level_values.sort(key=len, reverse=True)
         # return the memory region key of values first core at chosen_level
-        print ("spread_level_values[0][0] = ",spread_level_values[0][0])
-        spreading_memory_region_key = allCpus[spread_level_values[0][0]].memory_regions[chosen_level]
+        print("spread_level_values[0][0] = ", spread_level_values[0][0])
+        spreading_memory_region_key = allCpus[spread_level_values[0][0]].memory_regions[
+            chosen_level
+        ]
         # return the list of cores belonging to the spreading_memory_region_key
         active_cores = active_hierarchy_level[spreading_memory_region_key]
-        
-        '''for run in range(runs_per_unit):'''
-        
+
+        """for run in range(runs_per_unit):"""
+
         # Core assignment per thread:
         cores = []
         for sub_unit in range(sub_units_per_run):
-            
             # read key of sub_region for first list element
-            key = allCpus[active_cores[0]].memory_regions[chosen_level-1]
-            
+            key = allCpus[active_cores[0]].memory_regions[chosen_level - 1]
+
             # read list of cores of corresponding sub_region
-            sub_unit_hierarchy_level = hierarchy_levels[chosen_level-1]
-            sub_unit_cores = sub_unit_hierarchy_level[key]                                                     
+            sub_unit_hierarchy_level = hierarchy_levels[chosen_level - 1]
+            sub_unit_cores = sub_unit_hierarchy_level[key]
             while len(cores) < coreLimit and sub_unit_cores:
                 # read list of first core with siblings
-                core_with_siblings = hierarchy_levels[0][allCpus[sub_unit_cores[0]].memory_regions[0]]  
+                core_with_siblings = hierarchy_levels[0][
+                    allCpus[sub_unit_cores[0]].memory_regions[0]
+                ]
                 for core in core_with_siblings:
                     if len(cores) < coreLimit:
-                        cores.append(core)             # add core&siblings to results
-                    else: 
-                        blocked_cores.append(core)     # add superfluous cores to blocked_cores
-            
-                    core_clean_up (core, allCpus, hierarchy_levels)
+                        cores.append(core)  # add core&siblings to results
+                    else:
+                        blocked_cores.append(
+                            core
+                        )  # add superfluous cores to blocked_cores
+
+                    core_clean_up(core, allCpus, hierarchy_levels)
 
             while sub_unit_cores:
-                core_clean_up (sub_unit_cores[0], allCpus, hierarchy_levels)
-                #active_cores.remove(sub_unit_cores[0])
-                #sub_unit_cores.remove(sub_unit_cores[0])
-            
+                core_clean_up(sub_unit_cores[0], allCpus, hierarchy_levels)
+                # active_cores.remove(sub_unit_cores[0])
+                # sub_unit_cores.remove(sub_unit_cores[0])
+
             # if coreLimit reached: append core to result, delete remaining cores from active_cores
             if len(cores) == coreLimit:
                 result.append(cores)
-                print (result)
-            #i=i+1
+                print(result)
+            # i=i+1
 
-    # cleanup: while-loop stops before running through all units: while some active_cores-lists 
+    # cleanup: while-loop stops before running through all units: while some active_cores-lists
     # & sub_unit_cores-lists are empty, other stay half-full or full
-        
+
     return result
 
-def core_clean_up (core, allCpus, hierarchy_levels):
+
+def core_clean_up(core, allCpus, hierarchy_levels):
     current_core_regions = allCpus[core].memory_regions
     for mem_index in range(len(current_core_regions)):
         region = current_core_regions[mem_index]
         hierarchy_levels[mem_index][region].remove(core)
 
+
 # return list of available CPU cores
-def get_cpu_list (my_cgroups, coreSet=None):
+def get_cpu_list(my_cgroups, coreSet=None):
     # read list of available CPU cores
     allCpus = util.parse_int_list(my_cgroups.get_value(cgroups.CPUSET, "cpus"))
 
@@ -311,10 +336,11 @@ def get_cpu_list (my_cgroups, coreSet=None):
 
     logging.debug("List of available CPU cores is %s.", allCpus)
     return allCpus
-    raise ValueError (f"Could not read CPU information from kernel: {e}")
+    raise ValueError(f"Could not read CPU information from kernel: {e}")
 
-# returns dict of mapping cores to list of its siblings  
-def get_siblings_mapping (allCpus):
+
+# returns dict of mapping cores to list of its siblings
+def get_siblings_mapping(allCpus):
     siblings_of_core = {}
     for core in allCpus:
         siblings = util.parse_int_list(
@@ -325,8 +351,9 @@ def get_siblings_mapping (allCpus):
         siblings_of_core[core] = siblings
         logging.debug("Siblings of cores are %s.", siblings_of_core)
 
+
 # returns dict of mapping NUMA region to list of cores
-def get_NUMA_mapping (allCpus):
+def get_NUMA_mapping(allCpus):
     cores_of_NUMA_region = collections.defaultdict(list)
     for core in allCpus:
         coreDir = f"/sys/devices/system/cpu/cpu{core}/"
@@ -343,24 +370,25 @@ def get_NUMA_mapping (allCpus):
             break
     logging.debug("Memory regions of cores are %s.", cores_of_NUMA_region)
     return cores_of_NUMA_region
-    raise ValueError (f"Could not read CPU information from kernel: {e}")
-       
+    raise ValueError(f"Could not read CPU information from kernel: {e}")
+
+
 # returns dict of mapping CPU/physical package to list of cores
-def get_package_mapping (allCpus):
-    cores_of_package = collections.defaultdict(list) # Zuordnung CPU ID zu core ID 
+def get_package_mapping(allCpus):
+    cores_of_package = collections.defaultdict(list)  # Zuordnung CPU ID zu core ID
     for core in allCpus:
         package = get_cpu_package_for_core(core)
         cores_of_package[package].append(core)
     logging.debug("Physical packages of cores are %s.", cores_of_package)
     return cores_of_package
-    raise ValueError (f"Could not read CPU information from kernel: {e}")
-
+    raise ValueError(f"Could not read CPU information from kernel: {e}")
 
 
 def _get_memory_banks_listed_in_dir(path):
     """Get all memory banks the kernel lists in a given directory.
     Such a directory can be /sys/devices/system/node/ (contains all memory banks)
-    or /sys/devices/system/cpu/cpu*/ (contains all memory banks on the same NUMA node as that core)."""
+    or /sys/devices/system/cpu/cpu*/ (contains all memory banks on the same NUMA node as that core).
+    """
     # Such directories contain entries named "node<id>" for each memory bank
     return [int(entry[4:]) for entry in os.listdir(path) if entry.startswith("node")]
 
