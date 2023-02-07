@@ -17,8 +17,8 @@ import math
 import os
 import sys
 
-import cgroups
-import util
+from benchexec import cgroups
+from benchexec import util
 
 __all__ = [
     "check_memory_size",
