@@ -283,18 +283,29 @@ def assignmentAlgorithm(
     while len(result) < num_of_threads:  # and i < len(active_hierarchy_level):
         # choose cores for assignment:
         i = len(hierarchy_levels) - 1
-        # start with highest dict: if length = 1 or length of values equal
-        while (
-            len(hierarchy_levels[i]) == 1
-            or not (
-                any(
-                    len(cores) != len(next(iter(hierarchy_levels[i].values())))
-                    for cores in hierarchy_levels[i].values()
-                )
-            )
-            and i != 0
-        ):
-            i = i - 1
+        distribution_dict = hierarchy_levels[i]
+        # start with highest dict: continue while length = 1 or length of values equal
+        while i > 0:
+            # if length of core lists equal:
+            if not (check_asymmetric_num_of_values([distribution_dict], 0)):
+                i = i - 1
+                distribution_dict = hierarchy_levels[i]
+            else:
+                # get element with highest length
+                distribution_list = list(distribution_dict.values())
+                distribution_list.sort(reverse=True)
+                parent_list = distribution_list[0]
+                child_dict = {}
+                for key in hierarchy_levels[i - 1]:
+                    for element in hierarchy_levels[i - 1][key]:
+                        if element in parent_list:
+                            child_dict.setdefault(key, hierarchy_levels[i - 1][key])
+                if not (check_asymmetric_num_of_values([child_dict], 0)):
+                    break
+                else:
+                    i = i - 1
+                    distribution_dict = child_dict.copy()
+
         spread_level = hierarchy_levels[i]
         # make a list of the core lists in spread_level(values())
         spread_level_values = list(spread_level.values())
