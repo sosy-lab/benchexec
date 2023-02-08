@@ -26,7 +26,6 @@ class Tool(benchexec.tools.template.BaseTool2):
         return "WASP-C"
 
     def cmdline(self, executable, options, task, rlimits):
-
         if task.property_file:
             options = options + ["--property", task.property_file]
         else:

@@ -35,7 +35,6 @@ def result_file(name):
 
 
 class TableGeneratorIntegrationTests(unittest.TestCase):
-
     # Tests compare the generated CSV files and ignore the HTML files
     # because we assume the HTML files change more often on purpose.
 

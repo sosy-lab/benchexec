@@ -13,7 +13,6 @@ import benchexec.result as result
 
 
 class Tool(benchexec.tools.template.BaseTool):
-
     REQUIRED_PATHS = ["etv", "bin"]
 
     def blast_exe(self):

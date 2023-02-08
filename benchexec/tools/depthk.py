@@ -31,7 +31,6 @@ class Tool(benchexec.tools.template.BaseTool):
     ]
 
     def executable(self):
-
         return util.find_executable("depthk-wrapper.sh")
 
     def working_directory(self, executable):
@@ -51,14 +50,12 @@ class Tool(benchexec.tools.template.BaseTool):
         return "DepthK"
 
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
-
         assert len(tasks) == 1, "only one sourcefile supported"
         assert propertyfile, "property file required"
         sourcefile = tasks[0]
         return [executable] + options + ["-c", propertyfile, sourcefile]
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
-
         if len(output) <= 0:
             return result.RESULT_ERROR
 
@@ -85,7 +82,6 @@ class Tool(benchexec.tools.template.BaseTool):
         return status
 
     def get_value_from_output(self, lines, identifier):
-
         for line in lines:
             if identifier == "k" and line.startswith("Bound k:"):
                 matchbound = re.search(r"Bound k:(.*)", line)

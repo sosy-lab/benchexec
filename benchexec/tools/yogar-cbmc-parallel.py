@@ -11,7 +11,6 @@ yogar_cbmc = __import__("benchexec.tools.yogar-cbmc", fromlist=["Tool"])
 
 
 class Tool(yogar_cbmc.Tool):
-
     REQUIRED_PATHS = ["yogar-cbmc"]
 
     def executable(self):

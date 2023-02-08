@@ -182,7 +182,6 @@ class OutputHandler(object):
             runSet.xml.set("error", msg or "unknown error")
 
     def store_header_in_xml(self, version, memlimit, timelimit, corelimit):
-
         # store benchmarkInfo in XML
         self.xml_header = ElementTree.Element(
             "result",
@@ -506,7 +505,6 @@ class OutputHandler(object):
         # format numbers, number_of_digits is optional, so it can be None
         for column in run.columns:
             if column.number_of_digits is not None:
-
                 # if the number ends with "s" or another letter, remove it
                 if (not column.value.isdigit()) and column.value[-2:-1].isdigit():
                     column.value = column.value[:-1]

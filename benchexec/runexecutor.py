@@ -302,7 +302,6 @@ def main(argv=None):
 
 
 class RunExecutor(containerexecutor.ContainerExecutor):
-
     # --- object initialization ---
 
     def __init__(
@@ -425,7 +424,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         logging.debug("Created cgroups %s.", cgroups)
 
         # First, set user-specified values such that they get overridden by our settings if necessary.
-        for ((subsystem, option), value) in cgroup_values.items():
+        for (subsystem, option), value in cgroup_values.items():
             try:
                 cgroups.set_value(subsystem, option, value)
             except OSError as e:
@@ -734,7 +733,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
 
         self.cgroups.handle_errors(critical_cgroups)
 
-        for ((subsystem, option), _) in cgroupValues.items():
+        for (subsystem, option), _ in cgroupValues.items():
             if subsystem not in self._cgroup_subsystems:
                 sys.exit(
                     f'Cannot set option "{option}" for subsystem "{subsystem}" '
@@ -1064,7 +1063,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             else:
                 result["cputime"] = cputime_cgroups
 
-            for (core, coretime) in enumerate(
+            for core, coretime in enumerate(
                 cgroups.get_value(CPUACCT, "usage_percpu").split(" ")
             ):
                 try:

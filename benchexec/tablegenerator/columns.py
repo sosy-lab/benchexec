@@ -149,7 +149,6 @@ class Column(object):
         relevant_for_diff=None,
         display_title=None,
     ):
-
         # If scaling on the variables is performed, a display unit must be defined, explicitly
         if scale_factor is not None and scale_factor != 1 and unit is None:
             raise util.TableDefinitionError(
@@ -458,7 +457,6 @@ def _get_column_type_heur(column, column_values):
         explicit_scale_defined = True
 
     for value in column_values:
-
         if value is None or value == "":
             continue
 
@@ -608,7 +606,6 @@ def _get_decimal_digits(decimal_number_match, number_of_significant_digits):
         int(decimal_number_match.group(GROUP_INT_PART)) == 0
         and int(decimal_number_match.group(GROUP_DEC_PART)[1:]) != 0
     ):
-
         max_num_of_digits = len(decimal_number_match.group(GROUP_SIG_DEC_PART))
         num_of_digits = min(num_of_digits, max_num_of_digits)
         # number of needed decimal digits = number of zeroes after decimal point + significant digits

@@ -30,7 +30,6 @@ class Tool(benchexec.tools.template.BaseTool2):
         return "FuSeBMC"
 
     def cmdline(self, executable, options, task, rlimits):
-
         if task.property_file:
             options = options + ["-p", task.property_file]
         else:

@@ -11,7 +11,6 @@ import benchexec.tools.template
 
 
 class Tool(benchexec.tools.template.BaseTool):
-
     REQUIRED_PATHS = ["sv-ceagle", "z3"]
 
     def executable(self):
@@ -28,7 +27,6 @@ class Tool(benchexec.tools.template.BaseTool):
         return [executable] + options + spec + tasks
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
-
         stroutput = str(output)
 
         if isTimeout:

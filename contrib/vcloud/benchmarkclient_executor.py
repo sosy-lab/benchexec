@@ -157,7 +157,6 @@ def toTabList(items):
 
 
 def getCloudInput(benchmark):
-
     (
         requirements,
         numberOfRuns,
@@ -202,7 +201,6 @@ def getCloudInput(benchmark):
 
 
 def getBenchmarkDataForCloud(benchmark):
-
     # get requirements
     r = benchmark.requirements
     requirements = [
@@ -261,7 +259,6 @@ def getBenchmarkDataForCloud(benchmark):
 
 
 def getToolDataForCloud(benchmark):
-
     workingDir = benchmark.working_directory()
     if not os.path.isdir(workingDir):
         sys.exit(f"Missing working directory '{workingDir}', cannot run tool.")
@@ -290,7 +287,6 @@ def getToolDataForCloud(benchmark):
 
 
 def handleCloudResults(benchmark, output_handler, start_time, end_time):
-
     outputDir = benchmark.log_folder
     if not os.path.isdir(outputDir) or not os.listdir(outputDir):
         # outputDir does not exist or is empty
