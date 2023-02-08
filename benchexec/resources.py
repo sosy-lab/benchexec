@@ -374,9 +374,11 @@ def get_cpu_distribution(
 def check_asymmetric_num_of_values(hierarchy_levels, index):
     """returns True if the number of values in the lists of the key-value pairs
     is not equal throughout the dict"""
+    is_asymmetric = False
     cores_per_unit = len(next(iter(hierarchy_levels[index].values())))
     if any(len(cores) != cores_per_unit for cores in hierarchy_levels[index].values()):
-        return True
+        is_asymmetric = True
+    return is_asymmetric
 
 
 def core_clean_up(core, allCpus, hierarchy_levels):
