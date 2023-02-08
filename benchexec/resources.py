@@ -84,7 +84,8 @@ def get_cpu_cores_per_run(
 
         # read & prepare mapping of cores to NUMA region
         cores_of_NUMA_Region = get_NUMA_mapping(allCpus_list)
-        hierarchy_levels.append(cores_of_NUMA_Region)
+        if cores_of_NUMA_Region:
+            hierarchy_levels.append(cores_of_NUMA_Region)
 
         # read & prepare mapping of cores to group
         # core_of_group =
@@ -402,7 +403,6 @@ def get_cpu_list(my_cgroups, coreSet=None):
 
     logging.debug("List of available CPU cores is %s.", allCpus)
     return allCpus
-    raise ValueError(f"Could not read CPU information from kernel: {e}")
 
 
 # returns dict of mapping cores to list of its siblings
@@ -416,6 +416,7 @@ def get_siblings_mapping(allCpus):
         )
         siblings_of_core[core] = siblings
         logging.debug("Siblings of cores are %s.", siblings_of_core)
+    return siblings_of_core
 
 
 # returns dict of mapping NUMA region to list of cores
@@ -436,7 +437,6 @@ def get_NUMA_mapping(allCpus):
             break
     logging.debug("Memory regions of cores are %s.", cores_of_NUMA_region)
     return cores_of_NUMA_region
-    raise ValueError(f"Could not read CPU information from kernel: {e}")
 
 
 # returns dict of mapping CPU/physical package to list of cores
@@ -447,7 +447,42 @@ def get_package_mapping(allCpus):
         cores_of_package[package].append(core)
     logging.debug("Physical packages of cores are %s.", cores_of_package)
     return cores_of_package
-    raise ValueError(f"Could not read CPU information from kernel: {e}")
+
+
+def get_memory_banks_per_run(coreAssignment, cgroups):
+    """Get an assignment of memory banks to runs that fits to the given coreAssignment,
+    i.e., no run is allowed to use memory that is not local (on the same NUMA node)
+    to one of its CPU cores."""
+    try:
+        # read list of available memory banks
+        allMems = set(cgroups.read_allowed_memory_banks())
+
+        result = []
+        for cores in coreAssignment:
+            mems = set()
+            for core in cores:
+                coreDir = f"/sys/devices/system/cpu/cpu{core}/"
+                mems.update(_get_memory_banks_listed_in_dir(coreDir))
+            allowedMems = sorted(mems.intersection(allMems))
+            logging.debug(
+                "Memory banks for cores %s are %s, of which we can use %s.",
+                cores,
+                list(mems),
+                allowedMems,
+            )
+
+            result.append(allowedMems)
+
+        assert len(result) == len(coreAssignment)
+
+        if any(result) and os.path.isdir("/sys/devices/system/node/"):
+            return result
+        else:
+            # All runs get the empty list of memory regions
+            # because this system has no NUMA support
+            return None
+    except ValueError as e:
+        sys.exit(f"Could not read memory information from kernel: {e}")
 
 
 def _get_memory_banks_listed_in_dir(path):
