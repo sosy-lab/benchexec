@@ -136,6 +136,7 @@ The developers of the following tools use BenchExec:
 - [Dartagnan](https://github.com/hernanponcedeleon/Dat3M)
 - [SMACK](https://github.com/smackers/smack)
 - [SMTInterpol](https://github.com/ultimate-pa/smtinterpol)
+- [TriCera](https://github.com/uuverifiers/tricera)
 - [Ultimate](https://github.com/ultimate-pa/ultimate)
 
 If you would like to be listed here, [contact us](https://github.com/sosy-lab/benchexec/issues/new).
