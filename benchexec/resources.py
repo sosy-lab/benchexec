@@ -150,7 +150,6 @@ class virtualCore:
 
     def __init__(self, coreId, memory_regions=None):
         self.coreId = coreId
-        # self.siblings = siblings
         self.memory_regions = memory_regions
 
     def __str__(self):
@@ -292,7 +291,6 @@ def get_cpu_distribution(
     result = []
     blocked_cores = []
     active_hierarchy_level = hierarchy_levels[chosen_level]
-    # i=0
     while len(result) < num_of_threads:  # and i < len(active_hierarchy_level):
         # choose cores for assignment:
         i = len(hierarchy_levels) - 1

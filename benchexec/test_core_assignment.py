@@ -231,17 +231,12 @@ class Test_Topology_P1_NUMA2_L8_C16_F(TestCpuCoresPerRun):
 
     x-  x-      x-  x-      x-  x-     x-  x-
     """
-    # coreLimit: 1
+    # expected results for different coreLimits
     oneCore_assignment = [[x] for x in [0, 8, 2, 10, 4, 12, 6, 14]]
-    # coreLimit: 2
     twoCore_assignment = [[0, 2], [8, 10], [4, 6], [12, 14]]
-    # coreLimit: 3
     threeCore_assignment = [[0, 2, 4], [8, 10, 12]]
-    # coreLimit: 4
     fourCore_assignment = [[0, 2, 4, 6], [8, 10, 12, 14]]
-    # coreLimit: 5
     fiveCore_assignment = [[0, 2, 4, 6, 8]]
-    # coreLimit: 8
     eightCore_assignment = [[0, 2, 4, 6, 8, 10, 12, 14]]
 
     def test_fiveCoresPerRun(self):
@@ -262,9 +257,8 @@ class Test_Topology_P1_NUMA2_L8_C16_T(TestCpuCoresPerRun):
     num_of_hyperthreading_siblings = 2
     use_hyperthreading = True
 
-    # coreLimit: 1
+    # expected results for different coreLimits
     oneCore_assignment = [[x] for x in [0, 8, 2, 10, 4, 12, 6, 14]]
-    # coreLimit: 2
     twoCore_assignment = [
         [0, 1],
         [8, 9],
@@ -275,15 +269,12 @@ class Test_Topology_P1_NUMA2_L8_C16_T(TestCpuCoresPerRun):
         [6, 7],
         [14, 15],
     ]
-    # coreLimit: 3
     threeCore_assignment = [[0, 1, 2], [8, 9, 10], [4, 5, 6], [12, 13, 14]]
-    # coreLimit: 4
     fourCore_assignment = [[0, 1, 2, 3], [8, 9, 10, 11], [4, 5, 6, 7], [12, 13, 14, 15]]
-    # coreLimit: 8
     eightCore_assignment = [[0, 1, 2, 3, 4, 5, 6, 7], [8, 9, 10, 11, 12, 13, 14, 15]]
 
     def test_singleCPU_invalid(self):
-        # (coreLimit, num_of_threads)
+        # coreLimit, num_of_threads
         self.assertInvalid(2, 9)
         self.assertInvalid(4, 5)
         self.assertInvalid(3, 5)
@@ -304,20 +295,17 @@ class Test_Topology_P1_NUMA3_L6_C12_F(TestCpuCoresPerRun):
 
     0   (1)     2   (3)     4   (5)     6   (7)     8   (9)     10     (11)     cores
     """
-    # coreLimit: 1
+    # expected results for different coreLimits
     oneCore_assignment = [[x] for x in [0, 4, 8, 2, 6, 10]]
-    # coreLimit: 2
     twoCore_assignment = [[0, 2], [4, 6], [8, 10]]
-    # coreLimit: 3
     threeCore_assignment = [[0, 2, 4]]  # ,[8,10,6]
-    # coreLimit: 4
     fourCore_assignment = [[0, 2, 4, 6]]
 
     def test_threeCoresPerRun(self):
         self.t_unit_assertValid(3, self.threeCore_assignment, 1)
 
     def test_singleCPU_invalid(self):
-        # (coreLimit, num_of_threads)
+        # coreLimit, num_of_threads
         self.assertInvalid(2, 4)
         self.assertInvalid(3, 2)
         self.assertInvalid(4, 2)
@@ -339,17 +327,12 @@ class Test_Topology_P1_NUMA3_L6_C12_T(TestCpuCoresPerRun):
     0   1     2    3        4     5     6   7       8   9     10    11          cores
     """
 
-    # coreLimit: 1
+    # expected results for different coreLimits
     oneCore_assignment = [[x] for x in [0, 4, 8, 2, 6, 10]]
-    # coreLimit: 2
     twoCore_assignment = [[0, 1], [4, 5], [8, 9], [2, 3], [6, 7], [10, 11]]
-    # coreLimit: 3
     threeCore_assignment = [[0, 1, 2], [4, 5, 6], [8, 9, 10]]
-    # coreLimit: 4
     fourCore_assignment = [[0, 1, 2, 3], [4, 5, 6, 7], [8, 9, 10, 11]]
-    # coreLimit: 5
     fiveCore_assignment = [[0, 1, 2, 3, 4]]  # ,[8,9,10,11,6]]
-    # coreLimit: 8
     eightCore_assignment = [[0, 1, 2, 3, 4, 5, 6, 7]]
 
     def test_threeCoresPerRun(self):
@@ -371,19 +354,15 @@ class Test_Topology_P2_NUMA4_L8_C16_F(TestCpuCoresPerRun):
     num_of_hyperthreading_siblings = 2
     use_hyperthreading = False
 
-    # coreLimit: 1
+    # expected results for different coreLimits
     oneCore_assignment = [[x] for x in [0, 8, 4, 12, 2, 10, 6, 14]]
-    # coreLimit: 2
     twoCore_assignment = [[0, 2], [8, 10], [4, 6], [12, 14]]
-    # coreLimit: 3
     threeCore_assignment = [[0, 2, 4], [8, 10, 12]]
-    # coreLimit: 4
     fourCore_assignment = [[0, 2, 4, 6], [8, 10, 12, 14]]
-    # coreLimit: 8
     eightCore_assignment = [[0, 2, 4, 6, 8, 10, 12, 14]]
 
     def test_singleCPU_invalid(self):
-        # (coreLimit, num_of_threads)
+        # coreLimit, num_of_threads
         self.assertInvalid(2, 5)
         self.assertInvalid(3, 3)
         self.assertInvalid(4, 3)
@@ -398,9 +377,8 @@ class Test_Topology_P2_NUMA4_L8_C16_T(TestCpuCoresPerRun):
     num_of_hyperthreading_siblings = 2
     use_hyperthreading = True
 
-    # coreLimit: 1
+    # expected results for different coreLimits
     oneCore_assignment = [[x] for x in [0, 8, 4, 12, 2, 10, 6, 14]]
-    # coreLimit: 2
     twoCore_assignment = [
         [0, 1],
         [8, 9],
@@ -411,15 +389,12 @@ class Test_Topology_P2_NUMA4_L8_C16_T(TestCpuCoresPerRun):
         [6, 7],
         [14, 15],
     ]
-    # coreLimit: 3
     threeCore_assignment = [[0, 1, 2], [8, 9, 10], [4, 5, 6], [12, 13, 14]]
-    # coreLimit: 4
     fourCore_assignment = [[0, 1, 2, 3], [8, 9, 10, 11], [4, 5, 6, 7], [12, 13, 14, 15]]
-    # coreLimit: 8
     eightCore_assignment = [[0, 1, 2, 3, 4, 5, 6, 7], [8, 9, 10, 11, 12, 13, 14, 15]]
 
     def test_singleCPU_invalid(self):
-        # (coreLimit, num_of_threads)
+        # coreLimit, num_of_threads
         self.assertInvalid(2, 9)
         self.assertInvalid(3, 5)
         self.assertInvalid(4, 5)
@@ -435,19 +410,15 @@ class Test_Topology_P1_G2_NUMA4_L8_C16_F(TestCpuCoresPerRun):
     num_of_hyperthreading_siblings = 2
     use_hyperthreading = False
 
-    # coreLimit: 1
+    # expected results for different coreLimits
     oneCore_assignment = [[x] for x in [0, 8, 4, 12, 2, 10, 6, 14]]
-    # coreLimit: 2
     twoCore_assignment = [[0, 2], [8, 10], [4, 6], [12, 14]]
-    # coreLimit: 3
     threeCore_assignment = [[0, 2, 4], [8, 10, 12]]
-    # coreLimit: 4
     fourCore_assignment = [[0, 2, 4, 6], [8, 10, 12, 14]]
-    # coreLimit: 8
     eightCore_assignment = [[0, 2, 4, 6, 8, 10, 12, 14]]
 
     def test_singleCPU_invalid(self):
-        # (coreLimit, num_of_threads)
+        # coreLimit, num_of_threads
         self.assertInvalid(2, 5)
         self.assertInvalid(3, 3)
         self.assertInvalid(4, 3)
@@ -463,9 +434,8 @@ class Test_Topology_P1_G2_NUMA4_L8_C16_T(TestCpuCoresPerRun):
     num_of_hyperthreading_siblings = 2
     use_hyperthreading = True
 
-    # coreLimit: 1
+    # expected results for different coreLimits
     oneCore_assignment = [[x] for x in [0, 8, 4, 12, 2, 10, 6, 14]]
-    # coreLimit: 2
     twoCore_assignment = [
         [0, 1],
         [8, 9],
@@ -476,15 +446,12 @@ class Test_Topology_P1_G2_NUMA4_L8_C16_T(TestCpuCoresPerRun):
         [6, 7],
         [14, 15],
     ]
-    # coreLimit: 3
     threeCore_assignment = [[0, 1, 2], [8, 9, 10], [4, 5, 6], [12, 13, 14]]
-    # coreLimit: 4
     fourCore_assignment = [[0, 1, 2, 3], [8, 9, 10, 11], [4, 5, 6, 7], [12, 13, 14, 15]]
-    # coreLimit: 8
     eightCore_assignment = [[0, 1, 2, 3, 4, 5, 6, 7], [8, 9, 10, 11, 12, 13, 14, 15]]
 
     def test_singleCPU_invalid(self):
-        # (coreLimit, num_of_threads)
+        # coreLimit, num_of_threads
         self.assertInvalid(2, 9)
         self.assertInvalid(3, 5)
         self.assertInvalid(4, 5)
@@ -499,17 +466,14 @@ class Test_Topology_P1_NUMA2_L4_C12_F3(TestCpuCoresPerRun):
     num_of_hyperthreading_siblings = 3
     use_hyperthreading = False
 
-    # coreLimit: 1
+    # expected results for different coreLimits
     oneCore_assignment = [[x] for x in [0, 6, 3, 9]]
-    # coreLimit: 2
     twoCore_assignment = [[0, 3], [6, 9]]
-    # coreLimit: 3
     threeCore_assignment = [[0, 3, 6]]
-    # coreLimit: 4
     fourCore_assignment = [[0, 3, 6, 9]]
 
     def test_singleCPU_invalid(self):
-        # (coreLimit, num_of_threads)
+        # coreLimit, num_of_threads
         self.assertInvalid(2, 3)
         self.assertInvalid(3, 2)
         self.assertInvalid(4, 2)
@@ -524,19 +488,15 @@ class Test_Topology_P1_NUMA2_L4_C12_T3(TestCpuCoresPerRun):
     num_of_hyperthreading_siblings = 3
     use_hyperthreading = True
 
-    # coreLimit: 1
+    # expected results for different coreLimits
     oneCore_assignment = [[x] for x in [0, 6, 3, 9]]
-    # coreLimit: 2
     twoCore_assignment = [[0, 1], [6, 7], [3, 4], [9, 10]]
-    # coreLimit: 3
     threeCore_assignment = [[0, 1, 2], [6, 7, 8], [3, 4, 5], [9, 10, 11]]
-    # coreLimit: 4
     fourCore_assignment = [[0, 1, 2, 3], [6, 7, 8, 9]]
-    # coreLimit: 8
     eightCore_assignment = [[0, 1, 2, 3, 4, 5, 6, 7]]
 
     def test_singleCPU_invalid(self):
-        # (coreLimit, num_of_threads)
+        # coreLimit, num_of_threads
         self.assertInvalid(2, 5)
         self.assertInvalid(3, 5)
         self.assertInvalid(4, 3)
