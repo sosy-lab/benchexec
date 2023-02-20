@@ -20,6 +20,8 @@ import sys
 from benchexec import cgroups
 from benchexec import util
 
+sys.dont_write_bytecode = True  # prevent creation of .pyc files
+
 __all__ = [
     "check_memory_size",
     "get_cpu_cores_per_run",
@@ -79,8 +81,8 @@ def get_cpu_cores_per_run(
         # siblings_of_core will be added to hierarchy_levels list after sorting
 
         # read & prepare mapping of cores to L3 cache
-        # cores_of_L3cache =
-        # hierarchy_levels.append(core_of_L3cache)
+        cores_of_L3cache = get_L3cache_mapping(allCpus)
+        hierarchy_levels.append(cores_of_L3cache)
 
         # read & prepare mapping of cores to NUMA region
         cores_of_NUMA_Region = get_NUMA_mapping(allCpus_list)
@@ -88,12 +90,34 @@ def get_cpu_cores_per_run(
             hierarchy_levels.append(cores_of_NUMA_Region)
 
         # read & prepare mapping of cores to group
-        # core_of_group =
-        # hierarchy_levels.append(core_of_group)
+        if cores_of_NUMA_Region:
+            cores_of_group = get_group_mapping(cores_of_NUMA_Region)
+            if cores_of_group:
+                hierarchy_levels.append(cores_of_group)
 
         # read & prepare mapping of cores to CPU/physical package/socket?
         cores_of_package = get_package_mapping(allCpus_list)
         hierarchy_levels.append(cores_of_package)
+
+        # read & prepare mapping of cores to die
+        cores_of_die = get_die_mapping(allCpus)
+        if cores_of_die:
+            hierarchy_levels.append(cores_of_die)
+
+        # read & prepare mapping of cores to cluster
+        cores_of_cluster = get_cluster_mapping(allCpus)
+        if cores_of_cluster:
+            hierarchy_levels.append(cores_of_cluster)
+
+        # read & prepare mapping of cores to drawer
+        cores_of_drawer = get_drawer_mapping(allCpus)
+        if cores_of_drawer:
+            hierarchy_levels.append(cores_of_drawer)
+
+        # read & prepare mapping of cores to book
+        cores_of_book = get_book_mapping(allCpus)
+        if cores_of_book:
+            hierarchy_levels.append(cores_of_book)
 
     except ValueError as e:
         sys.exit(f"Could not read CPU information from kernel: {e}")
@@ -112,7 +136,7 @@ def get_cpu_cores_per_run(
     # sort hierarchy_levels according to the dicts' corresponding unit sizes
     hierarchy_levels.sort(
         key=functools.cmp_to_key(compare_hierarchy)
-    )  # hierarchy_level = [dict1, dict2, dict3]
+    )
     # add siblings_of_core at the beginning of the list
     hierarchy_levels.insert(0, siblings_of_core)
 
@@ -405,27 +429,184 @@ def get_cpu_list(my_cgroups, coreSet=None):
     return allCpus
 
 
-# returns dict of mapping cores to list of its siblings
 def get_siblings_mapping(allCpus):
+    """Get hyperthreading siblings from core_cpus_list or thread_siblings_list (deprecated)."""
     siblings_of_core = {}
     # if no hyperthreading available, the siblings list contains only the core itself
     if util.read_file(f"/sys/devices/system/cpu/cpu{core}/topology/core_cpus_list"):
         for core in allCpus:
             siblings = util.parse_int_list(
-                    util.read_file(
-                        f"/sys/devices/system/cpu/cpu{core}/topology/core_cpus_list"
-                    )
+                util.read_file(
+                    f"/sys/devices/system/cpu/cpu{core}/topology/core_cpus_list"
                 )
+            )
     else:
         for core in allCpus:
             siblings = util.parse_int_list(
-                    util.read_file(
-                        f"/sys/devices/system/cpu/cpu{core}/topology/thread_siblings_list"
-                    )
+                util.read_file(
+                    f"/sys/devices/system/cpu/cpu{core}/topology/thread_siblings_list"
                 )
+            )
         siblings_of_core[core] = siblings
         logging.debug("Siblings of cores are %s.", siblings_of_core)
     return siblings_of_core
+
+
+def get_die_id_for_core(core):
+    """Get the id of the die a core belongs to."""
+    return int(util.read_file(f"/sys/devices/system/cpu/cpu{core}/topology/die_id"))
+
+
+def get_die_mapping(allCpus):
+    """Generates a mapping from a die to its corresponding cores."""
+    cores_of_die = collections.defaultdict(list)
+    for core in allCpus:
+        die = get_die_id_for_core(core)
+        cores_of_die[die].append(core)
+    logging.debug("Dies of cores are %s.", cores_of_die)
+    return cores_of_die
+
+
+def get_group_mapping(cores_of_NUMA_region):
+    cores_of_groups = collections.defaultdict(list)
+    nodes_of_groups = collections.defaultdict(list)
+    # generates dict of all available nodes with their group nodes
+    for node_id in cores_of_NUMA_region.keys():
+        group = get_nodes_of_group(node_id)
+        print(group)
+        nodes_of_groups[node_id].extend(group)
+    print(nodes_of_groups)
+    # deletes superfluous entries after symmetry check
+    clean_list = []
+    for node_key in nodes_of_groups:
+        if node_key not in clean_list:
+            for node in nodes_of_groups[node_key]:
+                if node != node_key:
+                    if nodes_of_groups[node_key] == nodes_of_groups[node]:
+                        clean_list.append(node)
+                    else:
+                        raise Exception("Non-conclusive system information")
+    for element in clean_list:
+        nodes_of_groups.pop(element)
+    print(nodes_of_groups)
+    # sets new group id, replaces list of nodes with list of cores belonging to the nodes
+    id_index = 0
+    for node_list in nodes_of_groups.values():
+        for entry in node_list:
+            cores_of_groups[id_index].extend(cores_of_NUMA_region[entry])
+        id_index += 1
+    print(cores_of_groups)
+    return cores_of_groups
+
+
+def get_nodes_of_group(node_id):
+    temp_list = (
+        util.read_file(f"/sys/devices/system/node/node{node_id}/distance")
+    ).split(" ")
+    distance_list = []
+    for split_string in temp_list:
+        distance_list.append(int(split_string))
+    group_list = get_closest_nodes(distance_list)
+    return sorted(group_list)
+
+
+# Hilfsfunktion, um die nodes mit der geringsten Distance auszulesen
+def get_closest_nodes(distance_list):
+    smallest_distance = sys.maxsize
+    second_to_smallest = sys.maxsize
+    for distance in distance_list:
+        if distance < smallest_distance:
+            second_to_smallest = smallest_distance
+            smallest_distance = distance
+        if distance < second_to_smallest and distance != smallest_distance:
+            second_to_smallest = distance
+    group_list = []
+    if distance_list.count(smallest_distance) == 1:
+        group_list.append(distance_list.index(smallest_distance))
+    else:
+        raise Exception("More then one smallest distance")
+    if distance_list.count(second_to_smallest) == 1:
+        group_list.append(distance_list.index(second_to_smallest))
+    elif distance_list.count(second_to_smallest) > 1:
+        index = 0
+        for dist in distance_list:
+            if dist == second_to_smallest:
+                group_list.append(index)
+            index += 1
+    return group_list
+
+
+def get_cluster_id_for_core(core):
+    """Get the id of the cluster a core belongs to."""
+    return int(util.read_file(f"/sys/devices/system/cpu/cpu{core}/topology/cluster_id"))
+
+
+def get_cluster_mapping(allCpus):
+    cores_of_cluster = collections.defaultdict(list)  # Zuordnung DIE ID zu core ID
+    for core in allCpus:
+        cluster = get_cluster_id_for_core(core)
+        cores_of_cluster[cluster].append(core)
+    logging.debug("Clusters of cores are %s.", cores_of_cluster)
+    return cores_of_cluster
+
+
+def get_book_id_for_core(core):
+    """Get the id of the book a core belongs to."""
+    return int(util.read_file(f"/sys/devices/system/cpu/cpu{core}/topology/book_id"))
+
+
+def get_book_mapping(allCpus):
+    cores_of_book = collections.defaultdict(list)  # Zuordnung DIE ID zu core ID
+    for core in allCpus:
+        book = get_book_id_for_core(core)
+        cores_of_book[book].append(core)
+    logging.debug("Books of cores are %s.", cores_of_book)
+    return cores_of_book
+
+
+def get_drawer_id_for_core(core):
+    """Get the id of the drawer a core belongs to."""
+    return int(util.read_file(f"/sys/devices/system/cpu/cpu{core}/topology/drawer_id"))
+
+
+def get_drawer_mapping(allCpus):
+    cores_of_drawer = collections.defaultdict(list)  # Zuordnung DIE ID zu core ID
+    for core in allCpus:
+        drawer = get_drawer_id_for_core(core)
+        cores_of_drawer[drawer].append(core)
+    logging.debug("drawers of cores are %s.", cores_of_drawer)
+    return cores_of_drawer
+
+
+def get_L3cache_id_for_core(core):
+    """Check whether index level 3 is level 3 cache"""
+    dir_path = f"/sys/devices/system/cpu/cpu{core}/cache/"
+    index_L3_cache = ""
+    for entry in os.listdir(dir_path):
+        if entry.startswith("index"):
+            if (
+                int(
+                    util.read_file(
+                        f"/sys/devices/system/cpu/cpu{core}/cache/{entry}/level"
+                    )
+                )
+                == 3
+            ):
+                index_L3_cache = entry
+                break
+    """Get the id of the Level 3 cache a core belongs to."""
+    return int(
+        util.read_file(f"/sys/devices/system/cpu/cpu{core}/cache/{index_L3_cache}/id")
+    )
+
+
+def get_L3cache_mapping(allCpus):
+    cores_of_L3cache = collections.defaultdict(list)  # Zuordnung DIE ID zu core ID
+    for core in allCpus:
+        L3cache = get_L3cache_id_for_core(core)
+        cores_of_L3cache[L3cache].append(core)
+    logging.debug("Level 3 caches of cores are %s.", cores_of_L3cache)
+    return cores_of_L3cache
 
 
 # returns dict of mapping NUMA region to list of cores
