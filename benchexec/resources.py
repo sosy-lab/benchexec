@@ -17,8 +17,8 @@ import math
 import os
 import sys
 
-from benchexec import cgroups
-from benchexec import util
+# from benchexec import cgroups
+# from benchexec import util
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
@@ -81,7 +81,7 @@ def get_cpu_cores_per_run(
         # siblings_of_core will be added to hierarchy_levels list after sorting
 
         # read & prepare mapping of cores to L3 cache
-        cores_of_L3cache = get_L3cache_mapping(allCpus)
+        cores_of_L3cache = get_L3cache_mapping(allCpus_list)
         hierarchy_levels.append(cores_of_L3cache)
 
         # read & prepare mapping of cores to NUMA region
@@ -100,22 +100,22 @@ def get_cpu_cores_per_run(
         hierarchy_levels.append(cores_of_package)
 
         # read & prepare mapping of cores to die
-        cores_of_die = get_die_mapping(allCpus)
+        cores_of_die = get_die_mapping(allCpus_list)
         if cores_of_die:
             hierarchy_levels.append(cores_of_die)
 
         # read & prepare mapping of cores to cluster
-        cores_of_cluster = get_cluster_mapping(allCpus)
+        cores_of_cluster = get_cluster_mapping(allCpus_list)
         if cores_of_cluster:
             hierarchy_levels.append(cores_of_cluster)
 
         # read & prepare mapping of cores to drawer
-        cores_of_drawer = get_drawer_mapping(allCpus)
+        cores_of_drawer = get_drawer_mapping(allCpus_list)
         if cores_of_drawer:
             hierarchy_levels.append(cores_of_drawer)
 
         # read & prepare mapping of cores to book
-        cores_of_book = get_book_mapping(allCpus)
+        cores_of_book = get_book_mapping(allCpus_list)
         if cores_of_book:
             hierarchy_levels.append(cores_of_book)
 
@@ -136,7 +136,7 @@ def get_cpu_cores_per_run(
     # sort hierarchy_levels according to the dicts' corresponding unit sizes
     hierarchy_levels.sort(
         key=functools.cmp_to_key(compare_hierarchy)
-    )
+    )  # hierarchy_level = [dict1, dict2, dict3]
     # add siblings_of_core at the beginning of the list
     hierarchy_levels.insert(0, siblings_of_core)
 
@@ -347,7 +347,6 @@ def get_cpu_distribution(
         # choose values from key-value pair with the highest number of cores
         spread_level_values.sort(key=lambda l: len(l), reverse=True)
         # return the memory region key of values first core at chosen_level
-        print("spread_level_values[0][0] = ", spread_level_values[0][0])
         spreading_memory_region_key = allCpus[spread_level_values[0][0]].memory_regions[
             chosen_level
         ]
@@ -433,7 +432,9 @@ def get_siblings_mapping(allCpus):
     """Get hyperthreading siblings from core_cpus_list or thread_siblings_list (deprecated)."""
     siblings_of_core = {}
     # if no hyperthreading available, the siblings list contains only the core itself
-    if util.read_file(f"/sys/devices/system/cpu/cpu{core}/topology/core_cpus_list"):
+    if util.read_file(
+        f"/sys/devices/system/cpu/cpu{allCpus[0]}/topology/core_cpus_list"
+    ):
         for core in allCpus:
             siblings = util.parse_int_list(
                 util.read_file(
