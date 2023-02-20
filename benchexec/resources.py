@@ -17,8 +17,8 @@ import math
 import os
 import sys
 
-# from benchexec import cgroups
-# from benchexec import util
+from benchexec import cgroups
+from benchexec import util
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
