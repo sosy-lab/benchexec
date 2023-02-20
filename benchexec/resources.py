@@ -408,12 +408,21 @@ def get_cpu_list(my_cgroups, coreSet=None):
 # returns dict of mapping cores to list of its siblings
 def get_siblings_mapping(allCpus):
     siblings_of_core = {}
-    for core in allCpus:
-        siblings = util.parse_int_list(
-            util.read_file(
-                f"/sys/devices/system/cpu/cpu{core}/topology/thread_siblings_list"
-            )
-        )
+    # if no hyperthreading available, the siblings list contains only the core itself
+    if util.read_file(f"/sys/devices/system/cpu/cpu{core}/topology/core_cpus_list"):
+        for core in allCpus:
+            siblings = util.parse_int_list(
+                    util.read_file(
+                        f"/sys/devices/system/cpu/cpu{core}/topology/core_cpus_list"
+                    )
+                )
+    else:
+        for core in allCpus:
+            siblings = util.parse_int_list(
+                    util.read_file(
+                        f"/sys/devices/system/cpu/cpu{core}/topology/thread_siblings_list"
+                    )
+                )
         siblings_of_core[core] = siblings
         logging.debug("Siblings of cores are %s.", siblings_of_core)
     return siblings_of_core
