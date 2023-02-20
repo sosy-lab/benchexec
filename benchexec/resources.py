@@ -422,10 +422,26 @@ def get_cpu_list(my_cgroups, coreSet=None):
                 "The following provided CPU cores are not available: "
                 + ", ".join(map(str, invalid_cores))
             )
-        allCpus = [core for core in allCpus if core in coreSet]
-
+        allCpus_list = [core for core in allCpus if core in coreSet]
+    allCpus_list = frequency_filter(allCpus, 0.05)
     logging.debug("List of available CPU cores is %s.", allCpus)
-    return allCpus
+    return allCpus_list
+
+
+def frequency_filter(allCpus_list, threshold):
+    cpu_max_frequencies = collections.defaultdict(list)
+    for core in allCpus_list:
+        max_freq = int(
+            util.read_file(f"/sys/devices/system/cpu/cpu{core}/cpuinfo_max_freq")
+        )
+        cpu_max_frequencies[max_freq].append(core)
+    available_max_freq = cpu_max_frequencies.keys().sort()
+    freq_threshold = available_max_freq[-1] * (1 - threshold)
+    for key in cpu_max_frequencies:
+        if key < freq_threshold:
+            for core in cpu_max_frequencies[key]:
+                allCpus_list.remove(core)
+    return allCpus_list
 
 
 def get_siblings_mapping(allCpus):
