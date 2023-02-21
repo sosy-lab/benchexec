@@ -432,10 +432,12 @@ def frequency_filter(allCpus_list, threshold):
     cpu_max_frequencies = collections.defaultdict(list)
     for core in allCpus_list:
         max_freq = int(
-            util.read_file(f"/sys/devices/system/cpu/cpu{core}/cpuinfo_max_freq")
+            util.read_file(
+                f"/sys/devices/system/cpu/cpu{core}/cpufreq/cpuinfo_max_freq"
+            )
         )
         cpu_max_frequencies[max_freq].append(core)
-    available_max_freq = cpu_max_frequencies.keys().sort()
+    available_max_freq = sorted(list(cpu_max_frequencies.keys()))
     freq_threshold = available_max_freq[-1] * (1 - threshold)
     for key in cpu_max_frequencies:
         if key < freq_threshold:
@@ -471,15 +473,22 @@ def get_siblings_mapping(allCpus):
 
 def get_die_id_for_core(core):
     """Get the id of the die a core belongs to."""
-    return int(util.read_file(f"/sys/devices/system/cpu/cpu{core}/topology/die_id"))
+    if os.path.isfile(f"/sys/devices/system/cpu/cpu{core}/topology/die_id"):
+        return int(util.read_file(f"/sys/devices/system/cpu/cpu{core}/topology/die_id"))
 
 
 def get_die_mapping(allCpus):
     """Generates a mapping from a die to its corresponding cores."""
     cores_of_die = collections.defaultdict(list)
-    for core in allCpus:
-        die = get_die_id_for_core(core)
-        cores_of_die[die].append(core)
+    try:
+        for core in allCpus:
+            die = get_die_id_for_core(core)
+            cores_of_die[die].append(core)
+    except FileNotFoundError:
+        cores_of_die = {}
+        logging.warning(
+            "Die information not available in /sys/devices/system/cpu/cpu{core}/topology/die_id"
+        )
     logging.debug("Dies of cores are %s.", cores_of_die)
     return cores_of_die
 
@@ -488,11 +497,16 @@ def get_group_mapping(cores_of_NUMA_region):
     cores_of_groups = collections.defaultdict(list)
     nodes_of_groups = collections.defaultdict(list)
     # generates dict of all available nodes with their group nodes
-    for node_id in cores_of_NUMA_region.keys():
-        group = get_nodes_of_group(node_id)
-        print(group)
-        nodes_of_groups[node_id].extend(group)
-    print(nodes_of_groups)
+    try:
+        for node_id in cores_of_NUMA_region.keys():
+            group = get_nodes_of_group(node_id)
+            print(group)
+            nodes_of_groups[node_id].extend(group)
+    except FileNotFoundError:
+        nodes_of_groups = {}
+        logging.warning(
+            "Information on node distances not available at /sys/devices/system/node/nodeX/distance"
+        )
     # deletes superfluous entries after symmetry check
     clean_list = []
     for node_key in nodes_of_groups:
@@ -505,14 +519,12 @@ def get_group_mapping(cores_of_NUMA_region):
                         raise Exception("Non-conclusive system information")
     for element in clean_list:
         nodes_of_groups.pop(element)
-    print(nodes_of_groups)
     # sets new group id, replaces list of nodes with list of cores belonging to the nodes
     id_index = 0
     for node_list in nodes_of_groups.values():
         for entry in node_list:
             cores_of_groups[id_index].extend(cores_of_NUMA_region[entry])
         id_index += 1
-    print(cores_of_groups)
     return cores_of_groups
 
 
@@ -560,9 +572,15 @@ def get_cluster_id_for_core(core):
 
 def get_cluster_mapping(allCpus):
     cores_of_cluster = collections.defaultdict(list)  # Zuordnung DIE ID zu core ID
-    for core in allCpus:
-        cluster = get_cluster_id_for_core(core)
-        cores_of_cluster[cluster].append(core)
+    try:
+        for core in allCpus:
+            cluster = get_cluster_id_for_core(core)
+            cores_of_cluster[cluster].append(core)
+    except FileNotFoundError:
+        cores_of_cluster = {}
+        logging.debug(
+            "No cluster information available at /sys/devices/system/cpu/cpuX/topology/"
+        )
     logging.debug("Clusters of cores are %s.", cores_of_cluster)
     return cores_of_cluster
 
@@ -573,10 +591,16 @@ def get_book_id_for_core(core):
 
 
 def get_book_mapping(allCpus):
-    cores_of_book = collections.defaultdict(list)  # Zuordnung DIE ID zu core ID
-    for core in allCpus:
-        book = get_book_id_for_core(core)
-        cores_of_book[book].append(core)
+    cores_of_book = collections.defaultdict(list)
+    try:
+        for core in allCpus:
+            book = get_book_id_for_core(core)
+            cores_of_book[book].append(core)
+    except FileNotFoundError:
+        cores_of_book = {}
+        logging.debug(
+            "No book information available at /sys/devices/system/cpu/cpuX/topology/"
+        )
     logging.debug("Books of cores are %s.", cores_of_book)
     return cores_of_book
 
@@ -587,10 +611,16 @@ def get_drawer_id_for_core(core):
 
 
 def get_drawer_mapping(allCpus):
-    cores_of_drawer = collections.defaultdict(list)  # Zuordnung DIE ID zu core ID
-    for core in allCpus:
-        drawer = get_drawer_id_for_core(core)
-        cores_of_drawer[drawer].append(core)
+    cores_of_drawer = collections.defaultdict(list)
+    try:
+        for core in allCpus:
+            drawer = get_drawer_id_for_core(core)
+            cores_of_drawer[drawer].append(core)
+    except FileNotFoundError:
+        cores_of_drawer = {}
+        logging.debug(
+            "No drawer information available at /sys/devices/system/cpu/cpuX/topology/"
+        )
     logging.debug("drawers of cores are %s.", cores_of_drawer)
     return cores_of_drawer
 
@@ -618,10 +648,16 @@ def get_L3cache_id_for_core(core):
 
 
 def get_L3cache_mapping(allCpus):
-    cores_of_L3cache = collections.defaultdict(list)  # Zuordnung DIE ID zu core ID
-    for core in allCpus:
-        L3cache = get_L3cache_id_for_core(core)
-        cores_of_L3cache[L3cache].append(core)
+    cores_of_L3cache = collections.defaultdict(list)
+    try:
+        for core in allCpus:
+            L3cache = get_L3cache_id_for_core(core)
+            cores_of_L3cache[L3cache].append(core)
+    except FileNotFoundError:
+        cores_of_L3cache = {}
+        logging.error(
+            "Level 3 cache information not available at /sys/devices/system/cpu/cpuX/cache/cacheX"
+        )
     logging.debug("Level 3 caches of cores are %s.", cores_of_L3cache)
     return cores_of_L3cache
 
@@ -648,7 +684,7 @@ def get_NUMA_mapping(allCpus):
 
 # returns dict of mapping CPU/physical package to list of cores
 def get_package_mapping(allCpus):
-    cores_of_package = collections.defaultdict(list)  # Zuordnung CPU ID zu core ID
+    cores_of_package = collections.defaultdict(list)
     for core in allCpus:
         package = get_cpu_package_for_core(core)
         cores_of_package[package].append(core)
@@ -663,7 +699,6 @@ def get_memory_banks_per_run(coreAssignment, cgroups):
     try:
         # read list of available memory banks
         allMems = set(cgroups.read_allowed_memory_banks())
-
         result = []
         for cores in coreAssignment:
             mems = set()
@@ -677,11 +712,8 @@ def get_memory_banks_per_run(coreAssignment, cgroups):
                 list(mems),
                 allowedMems,
             )
-
             result.append(allowedMems)
-
         assert len(result) == len(coreAssignment)
-
         if any(result) and os.path.isdir("/sys/devices/system/node/"):
             return result
         else:
