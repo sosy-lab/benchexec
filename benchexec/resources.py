@@ -363,9 +363,40 @@ def get_cpu_distribution(
             sub_unit_hierarchy_level = hierarchy_levels[chosen_level - 1]
             sub_unit_cores = sub_unit_hierarchy_level[key]
             while len(cores) < coreLimit and sub_unit_cores:
-                # read list of first core with siblings
+                parent_list = sub_unit_cores.copy()
+                child_dict = {}
+                for lalala in hierarchy_levels[chosen_level - 1]:  # subunit level
+                    for element in hierarchy_levels[chosen_level - 1][
+                        lalala
+                    ]:  # elements in value-lists
+                        if element in parent_list:
+                            child_dict.setdefault(
+                                lalala, hierarchy_levels[chosen_level - 1][lalala]
+                            )
+                j = chosen_level - 1
+                while j > 0:
+                    if not (check_asymmetric_num_of_values([child_dict], 0)):
+                        break
+                    else:
+                        j -= 1
+                        distribution_list = list(child_dict.values())
+                        for blub in distribution_list.copy():
+                            if len(blub) == 0:
+                                distribution_list.remove(blub)
+                        distribution_list.sort(reverse=False)
+                        parent_list = distribution_list[0]
+                        child_dict = {}
+                        for lalala in hierarchy_levels[j]:
+                            for element in hierarchy_levels[j][lalala]:
+                                if element in parent_list:
+                                    child_dict.setdefault(
+                                        lalala, hierarchy_levels[j][lalala]
+                                    )
+                next_core = list(child_dict.values())[0][0]
+
+                # read list of next core with siblings
                 core_with_siblings = hierarchy_levels[0][
-                    allCpus[sub_unit_cores[0]].memory_regions[0]
+                    allCpus[next_core].memory_regions[0]
                 ].copy()
                 for core in core_with_siblings:
                     if len(cores) < coreLimit:
@@ -378,8 +409,8 @@ def get_cpu_distribution(
 
             while sub_unit_cores:
                 core_clean_up(sub_unit_cores[0], allCpus, hierarchy_levels)
-                # active_cores.remove(sub_unit_cores[0])
-                # sub_unit_cores.remove(sub_unit_cores[0])
+                # active_cores remove(sub_unit_cores[0])
+                # sub_unit_cores remove(sub_unit_cores[0])
 
             # if coreLimit reached: append core to result, delete remaining cores from active_cores
             if len(cores) == coreLimit:
@@ -437,7 +468,7 @@ def frequency_filter(allCpus_list, threshold):
             )
         )
         cpu_max_frequencies[max_freq].append(core)
-    available_max_freq = sorted(list(cpu_max_frequencies.keys()))
+    available_max_freq = sorted(cpu_max_frequencies.keys())
     freq_threshold = available_max_freq[-1] * (1 - threshold)
     for key in cpu_max_frequencies:
         if key < freq_threshold:
@@ -473,8 +504,7 @@ def get_siblings_mapping(allCpus):
 
 def get_die_id_for_core(core):
     """Get the id of the die a core belongs to."""
-    if os.path.isfile(f"/sys/devices/system/cpu/cpu{core}/topology/die_id"):
-        return int(util.read_file(f"/sys/devices/system/cpu/cpu{core}/topology/die_id"))
+    return int(util.read_file(f"/sys/devices/system/cpu/cpu{core}/topology/die_id"))
 
 
 def get_die_mapping(allCpus):
