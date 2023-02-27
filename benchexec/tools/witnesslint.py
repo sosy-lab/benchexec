@@ -35,15 +35,21 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def determine_result(self, run):
         exit_code = run.exit_code.value
+        witness_type_match = self.get_value_from_output(
+            run.output, "Witness Type-Match"
+        )
         if "witnesslint finished" not in run.output[-1] or exit_code == 7:
             return "EXCEPTION"
-        elif exit_code == 0:
-            return result.RESULT_DONE
         elif exit_code == 1:
             return result.RESULT_ERROR + " (invalid witness syntax)"
         elif exit_code == 5:
             return result.RESULT_ERROR + " (witness does not exist)"
         elif exit_code == 6:
             return result.RESULT_ERROR + " (program does not exist)"
+        elif witness_type_match == "False":
+            return result.RESULT_ERROR + " (unexpected witness type)"
+        elif exit_code == 0:
+            return result.RESULT_DONE
+
         else:
             return result.UNKNOWN

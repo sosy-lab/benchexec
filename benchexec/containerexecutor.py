@@ -13,6 +13,7 @@ import os
 import collections
 import shutil
 import pickle
+import select
 import signal
 import socket
 import subprocess
@@ -506,15 +507,19 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                             f"Invalid relative result-files pattern '{pattern}'."
                         )
 
-            return self._start_execution_in_container(
-                root_dir=root_dir,
-                output_dir=output_dir,
-                memlimit=memlimit,
-                memory_nodes=memory_nodes,
-                result_files_patterns=result_files_patterns,
-                *args,
-                **kwargs,
-            )
+            while True:
+                result = self._start_execution_in_container(
+                    root_dir=root_dir,
+                    output_dir=output_dir,
+                    memlimit=memlimit,
+                    memory_nodes=memory_nodes,
+                    result_files_patterns=result_files_patterns,
+                    *args,
+                    **kwargs,
+                )
+                if result is not None:
+                    return result
+                # else retry as workaround for #656
 
     # --- container implementation with namespaces ---
 
@@ -751,7 +756,15 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 # this is used by the parent for accessing output files
                 libc.prctl(libc.PR_SET_DUMPABLE, libc.SUID_DUMP_USER, 0, 0, 0)
 
-                os.write(to_parent, pickle.dumps(grandchild_result))
+                try:
+                    os.write(to_parent, pickle.dumps(grandchild_result))
+                except BrokenPipeError:
+                    # Happens e.g. in nested BenchExec executions if parent is killed
+                    # before child. If parent is killed, nothing matters anymore.
+                    logging.debug("Broken pipe to parent, already terminated?")
+                    os.close(to_parent)
+                    os.close(from_parent)
+                    return 0
                 os.close(to_parent)
 
                 # Now the parent copies the output files, we need to wait until this is
@@ -847,6 +860,25 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             os.write(to_grandchild, MARKER_USER_MAPPING_COMPLETED)
 
             try:
+                # Wait with timeout until from_grandchild becomes ready to be read.
+                rlist, _, _ = select.select([from_grandchild], [], [], 60)
+                if from_grandchild not in rlist:
+                    # Timeout has occurred, likely deadlock in child (cf. #656).
+                    logging.warning(
+                        "Child %s not ready after 60s, likely "
+                        "https://github.com/sosy-lab/benchexec/issues/656 occurred. "
+                        "Killing it and trying again.",
+                        child_pid,
+                    )
+                    # As long as we have not sent MARKER_PARENT_COMPLETED, the tool is
+                    # not yet started and it is safe to kill the child and restart.
+                    # Killing child (PID 1 in container) will also kill grandchild if it
+                    # already exists.
+                    util.kill_process(child_pid)
+                    # Open pipes will be close in finally.
+                    # Signal retry to caller.
+                    return None
+
                 # read at most 10 bytes because this is enough for 32bit int
                 grandchild_pid = int(os.read(from_grandchild, 10))
             except ValueError:

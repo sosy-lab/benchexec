@@ -31,9 +31,9 @@ WALLTIMELIMIT = "walltimelimit"
 _BYTE_FACTOR = 1000  # byte in kilobyte
 
 _ERROR_RESULTS_FOR_TERMINATION_REASON = {
-    "cputime": "TIMEOUT",
-    "cputime-soft": "TIMEOUT",
-    "walltime": "TIMEOUT",
+    "cputime": result.RESULT_TIMEOUT,
+    "cputime-soft": result.RESULT_TIMEOUT,
+    "walltime": result.RESULT_TIMEOUT,
     "memory": "OUT OF MEMORY",
     "killed": "KILLED",
     "failed": "FAILED",
@@ -565,7 +565,7 @@ class RunSet(object):
                 base = os.path.basename(run.identifier)
                 if base in sourcefilesSet:
                     logging.warning(
-                        "Input file with name '%s' appears twice in runset. "
+                        "Input file with name '%s' appears twice in run definition. "
                         "This could cause problems with equal logfile-names.",
                         base,
                     )
@@ -1015,11 +1015,12 @@ class Run(object):
             ):
                 self.propertyfile = substitutedPropertyfiles[0]
             else:
-                log_property_file_once(
-                    f"Pattern {self.propertyfile} for input file {self.identifier} "
-                    f"in propertyfile tag did not match any file. It will be ignored."
+                # It seems there is no way to get the line number of a tag?
+                tag = ElementTree.tostring(self.propertytag, encoding="unicode").strip()
+                raise BenchExecException(
+                    f"The pattern for the propertyfile in tag {tag} "
+                    f"of the benchmark definition does not match any file."
                 )
-                self.propertyfile = None
 
         if self.propertyfile:
             self.required_files.add(self.propertyfile)
@@ -1149,7 +1150,7 @@ class Run(object):
             # Termination reason was not fully precise for timeouts, so we double check
             # the consumed time against the limits. Since removal of ulimit time limit
             # this should not be necessary, but also does not harm.
-            status = "TIMEOUT"
+            status = result.RESULT_TIMEOUT
         elif termination_reason:
             status = _ERROR_RESULTS_FOR_TERMINATION_REASON.get(
                 termination_reason, termination_reason

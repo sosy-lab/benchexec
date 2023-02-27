@@ -145,3 +145,31 @@ class TestUnit(unittest.TestCase):
         }
         for k, v in test_data.items():
             self.assertEqual(v, util.cap_first_letter(k))
+
+    def test_merge_lists(self):
+        l = (1, 2, 3)  # make sure merge_lists does not modify it # noqa: E741
+        self.assertListEqual(list(l), util.merge_lists([l]))
+        self.assertListEqual(list(l), util.merge_lists([l, l]))
+        self.assertListEqual(list(l), util.merge_lists([l, l, l, l, l, l, l]))
+        self.assertListEqual(list(l), util.merge_lists([[], l, l, []]))
+        self.assertListEqual(list(l), util.merge_lists([[1, 2, 3], [1, 2], [1]]))
+        self.assertListEqual(list(l), util.merge_lists([[1, 2, 3], [2, 3], [3]]))
+        self.assertListEqual(list(l), util.merge_lists([[1], [1, 2], [1, 2, 3]]))
+        self.assertListEqual(list(l), util.merge_lists([[3], [2, 3], [1, 2, 3]]))
+        self.assertListEqual(
+            [1, 2, 3, 4, 5, 6], util.merge_lists([[1, 2, 4, 6], [1, 2, 3, 4, 5]])
+        )
+
+    def test_find_common_elements(self):
+        self.assertListEqual([], util.find_common_elements([[]]))
+        self.assertListEqual([], util.find_common_elements([[], [1, 2, 3]]))
+        self.assertListEqual([], util.find_common_elements([[], [1, 2, 3], [1, 2, 3]]))
+        self.assertListEqual([], util.find_common_elements([[1, 2, 3], [1, 2, 3], []]))
+        self.assertListEqual([], util.find_common_elements([[1], [2], [3]]))
+        self.assertListEqual([1, 2, 3], util.find_common_elements([[1, 2, 3]]))
+        self.assertListEqual(
+            [1, 2, 3], util.find_common_elements([[1, 2, 3], [1, 2, 3]])
+        )
+        self.assertListEqual(
+            [1, 2, 3], util.find_common_elements([[1, 2, 3, 4], [1, 2, 3, 5]])
+        )

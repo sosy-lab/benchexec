@@ -51,7 +51,7 @@ class Tool(benchexec.tools.template.BaseTool):
             elif line.startswith("Error: label 'ERROR' appears multiple times"):
                 status = "ERROR"
             elif returnsignal == 9:
-                status = "TIMEOUT"
+                status = result.RESULT_TIMEOUT
             elif "Ack! The gremlins again!" in line:
                 status = "EXCEPTION (Gremlins)"
         return status

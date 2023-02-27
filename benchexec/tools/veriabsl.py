@@ -5,16 +5,14 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import benchexec.tools.cpachecker as cpachecker
+from . import veriabs
 
 
-class Tool(cpachecker.Tool):
+class Tool(veriabs.Tool):
     """
-    Tool info for Graves-CPA.
-    URL: https://github.com/will-leeson/cpachecker
+    VeriAbsL
+    Homepage: https://www.tcs.com/designing-complex-intelligent-systems
     """
-
-    REQUIRED_PATHS = list(cpachecker.Tool.REQUIRED_PATHS) + ["resources"]
 
     def name(self):
-        return "Graves-CPA"
+        return "VeriAbsL"

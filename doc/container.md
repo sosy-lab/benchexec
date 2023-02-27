@@ -175,6 +175,34 @@ For `benchexec`, the patterns are given within `<resultfiles>` tags
 in the benchmark-definition XML file,
 and the result files are placed in a directory besides the result XML file.
 
+## Using BenchExec in a Docker/Podman Container
+
+It is possible to use BenchExec inside other container environments,
+but we strongly recommend to use [Podman](https://podman.io/)
+(which is compatible with Docker)
+because it provides "rootless" containers
+(containers started as a regular user without sudo just like BenchExec containers).
+To use BenchExec within Podman,
+start it as a regular user (not root) and use the following arguments:
+```
+podman run --security-opt unmask=/proc/* --security-opt seccomp=unconfined ...
+```
+You may additionally need the arguments documented for
+[cgroup usage](INSTALL.md#setting-up-cgroups-in-a-dockerpodman-container).
+
+Using Docker is also possible, but only using the `--privileged` argument.
+However, this gives your Docker container *full root access* to the host,
+so please also add the `--cap-drop=all` flag,
+make sure to use this only with trusted images,
+and configure your Docker container such that everything in it
+is executed under a different user account, not as root.
+BenchExec is not designed to run as root and does not provide
+any safety guarantees regarding its container under this circumstances.
+<!--
+In principle, `--security-opt systempaths=unconfined --security-opt seccomp=unconfined`
+should also be sufficient as Docker arguments,
+but then mounting within the container still fails.
+-->
 
 ## Common Problems
 
@@ -240,8 +268,9 @@ such as `--hidden-dir` or `--read-only-dir`.
 
 ### BenchExec sometimes hangs if many parallel runs are executed
 This happens if we clone the Python process while it is in an inconsistent state.
-Make sure to use BenchExec 1.22 or newer,
-where [#435](https://github.com/sosy-lab/benchexec/issues/435) is fixed.
+Make sure to use BenchExec 3.14 or newer,
+where [#435](https://github.com/sosy-lab/benchexec/issues/435) is fixed
+and a workaround for [#656](https://github.com/sosy-lab/benchexec/issues/656) is present.
 If it still occurs, please attach to all child process of BenchExec
 with `sudo gdb -p <PID>`, get a stack trace with `bt`,
 and [report an issue](https://github.com/sosy-lab/benchexec/issues/new) with as much information as possible.

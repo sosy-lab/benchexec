@@ -9,6 +9,61 @@ SPDX-License-Identifier: Apache-2.0
 
 # BenchExec Changelog
 
+## BenchExec 3.15
+
+- Updated installation instructions for Debian.  
+  Manual installation of the package is needed
+  because `dpkg` on Debian is incompatible with our PPA on Launchpad.
+- Some improvements to tool-info modules.
+
+This release does not change the minimum supported Python version,
+but we would like to remind you
+that BenchExec will soon stop supporting Python 3.6.
+
+## BenchExec 3.14
+
+- Added a workaround for the known glibc deadlock described in [#656](https://github.com/sosy-lab/benchexec/issues/656).  
+  In most cases BenchExec should detect the deadlock
+  and continue benchmarking after a timeout of 60s.
+- We noticed a [performance problem in Python](https://github.com/python/cpython/issues/98493)
+  that affects `benchexec` in container mode on machines with many cores
+  and added an optimization that reduces its impact.
+- Improved handling of non-existent mount points.  
+  This makes BenchExec easier to use within Podman containers,
+  and we now recommend Podman over Docker in our
+  [documentation](https://github.com/sosy-lab/benchexec/blob/main/doc/container.md#using-benchexec-in-a-dockerpodman-container).
+- `table-generator` no longer attempts to spawn a large number of threads
+  (failing due to the limit on open files)
+  on machines with many cores.
+- Many new and improved tool-info modules.
+
+This release does not change the minimum supported Python version,
+but we would like to remind you
+that BenchExec will soon stop supporting Python 3.6.
+
+## BenchExec 3.13
+
+- More robust handling of child cgroups created within a run  
+  Note that it is not safe to execute an untrusted tool inside a BenchExec run
+  and give it access to cgroups
+  (e.g., with `--no-container` or `--full-access /sys/fs/cgroups`).
+  However, some users want to execute trusted tools with cgroup access
+  (e.g., nesting `runexec`) and we aim to support this.
+  It was found that BenchExec could hang or crash in certain cases
+  where child cgroups were created by the process within a run
+  and used to freeze processes (done by nested `runexec`, for example),
+  or were made inaccessible using file-system permissions.
+  This lead to incomplete run cleanup and processes left running
+  or hanging in an unkillable state.
+  This release fixes such situations and users who allow cgroup access
+  within runs are strongly recommended to upgrade.
+- Fix incomplete rewriting of numbers into roman numerals
+  in the new LaTeX output for statistics.
+
+This release does not change the minimum supported Python version,
+but we would like to remind you
+that BenchExec will soon stop supporting Python 3.6.
+
 ## BenchExec 3.12
 
 - Compatibility with Python 3.10  

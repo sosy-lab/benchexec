@@ -17,7 +17,7 @@ import logging
 import os
 import urllib.request
 import platform
-from typing import Union
+from typing import Iterable, List, TypeVar, Union
 
 
 # May be extended with higher numbers
@@ -31,11 +31,23 @@ ROMAN_NUMBERS = {
     1: "I",
 }
 
+_T = TypeVar("_T")
 
-class TaskId(collections.namedtuple("TaskId", "name property expected_result runset")):
+
+class TaskId(
+    collections.namedtuple(
+        "TaskId", "name property expected_result witness_category runset"
+    )
+):
     """Uniquely identifies a task (name of input file, property, etc.)."""
 
-    field_names = ["Task name", "Property", "Expected verdict", "Run set"]
+    field_names = [
+        "Task name",
+        "Property",
+        "Expected verdict",
+        "Witness category",
+        "Run set",
+    ]
 
     __slots__ = ()  # reduce per-instance memory consumption
 
@@ -273,6 +285,59 @@ def prettylist(list_):
             uniqueList.append(entry)
 
     return uniqueList[0] if len(uniqueList) == 1 else "[" + "; ".join(uniqueList) + "]"
+
+
+def merge_lists(list_of_lists: Iterable[Iterable[_T]]) -> List[_T]:
+    """
+    This function merges several sequences, e.g. [A,C] + [A,B] --> [A,B,C].
+    It keeps the order of elements.
+    """
+    result_list = []
+    elem_set = set()
+    for current_list in list_of_lists:
+        # prev_index is for optimizing inserting consecutive sequences of new elems,
+        # e.g., in the first outer loop iteration.
+        prev_index = None
+        # In later iterations of the outer loop, it can happen that we see [a,b] where
+        # a already exists at some place in result_list and b does not.
+        # Then we want to insert b right after a, so we need to remember a and find it.
+        prev_elem = None
+        for elem in current_list:
+            if elem not in elem_set:
+                elem_set.add(elem)
+                # calculate where to insert in result_list
+                if prev_index is not None:
+                    index = prev_index + 1
+                elif prev_elem is not None:
+                    index = result_list.index(prev_elem) + 1
+                else:
+                    index = 0
+                result_list.insert(index, elem)
+                prev_index = index
+                prev_elem = elem
+            else:
+                prev_index = None
+                prev_elem = elem
+
+    return result_list
+
+
+def find_common_elements(sequences: Iterable[Iterable[_T]]) -> List[_T]:
+    """Return the common elements in some sequences (keeping order)."""
+    # We take care to iterate sequences and all its elements only once
+    # such that it works with generators as well and is efficient.
+    sequences = iter(sequences)
+    elems_in_first_list = list(next(sequences))
+
+    elem_set = set(elems_in_first_list)
+    elem_set.intersection_update(*sequences)
+
+    if not elem_set:
+        return []
+    elif len(elems_in_first_list) == len(elem_set):
+        return elems_in_first_list
+    else:
+        return [elem for elem in elems_in_first_list if elem in elem_set]
 
 
 def read_bundled_file(name):

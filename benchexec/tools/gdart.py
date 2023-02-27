@@ -35,7 +35,9 @@ class Tool(BaseTool2):
 
     def determine_result(self, run):
         status = result.RESULT_ERROR
-        if run.output.any_line_contains("== ERROR"):
+        if run.output.any_line_contains("== ERROR-UNREACH-CALL"):
+            status = result.RESULT_FALSE_REACH
+        elif run.output.any_line_contains("== ERROR"):
             status = result.RESULT_FALSE_PROP
         elif run.output.any_line_contains("== OK"):
             status = result.RESULT_TRUE_PROP

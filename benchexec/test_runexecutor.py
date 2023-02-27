@@ -50,7 +50,7 @@ class TestRunExecutor(unittest.TestCase):
         with self.skip_if_logs(
             "Cannot reliably kill sub-processes without freezer cgroup"
         ):
-            self.runexecutor = RunExecutor(use_namespaces=False, *args, **kwargs)
+            self.runexecutor = RunExecutor(*args, use_namespaces=False, **kwargs)
 
         self.echo = shutil.which("echo") or "/bin/echo"
         self.sleep = shutil.which("sleep") or "/bin/sleep"
@@ -880,7 +880,7 @@ class TestRunExecutorWithContainer(TestRunExecutor):
         )
 
         self.runexecutor = RunExecutor(
-            use_namespaces=True, dir_modes=dir_modes, *args, **kwargs
+            *args, use_namespaces=True, dir_modes=dir_modes, **kwargs
         )
 
     def get_runexec_cmdline(self, *args, **kwargs):

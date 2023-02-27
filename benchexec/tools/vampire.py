@@ -49,7 +49,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         status = self.get_szs_status(run.output)
         if run.exit_code:
             if status == "Timeout":
-                return "TIMEOUT"
+                return result.RESULT_TIMEOUT
             if run.exit_code.value == 4:
                 # Some kind of system error happened
                 if run.output.text.startswith("Parsing Error"):
@@ -62,7 +62,7 @@ class Tool(benchexec.tools.template.BaseTool2):
                 # Not really an error but unable to finish
                 reasons = self.get_other_termination_reasons(run.output)
                 if reasons == ["Time limit"]:
-                    return "TIMEOUT"
+                    return result.RESULT_TIMEOUT
                 if reasons == ["Memory limit"]:
                     return "OUT OF MEMORY"
                 if reasons == ["Refutation not found, incomplete strategy"]:

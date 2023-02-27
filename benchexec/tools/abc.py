@@ -8,6 +8,7 @@
 import re
 import logging
 
+import benchexec.result as result
 import benchexec.tools.template
 
 
@@ -24,7 +25,32 @@ class Tool(benchexec.tools.template.BaseTool2):
         return "ABC"
 
     def cmdline(self, executable, options, task, rlimits):
+        # The default read method in ABC cannot process uninitialized registers properly.
+        # Therefore, a new read method `&r` (`&read`) is invoked here.
+        # Currently, `&r` only supports AIGER files (*.aig).
+        if task.single_input_file.endswith(".aig"):
+            return [executable] + ["-c", f"&r {task.single_input_file}; &put"] + options
+        # Files in other formats (e.g. *.blif, *.bench, *.v, ...) are processed with the default read method.
         return [executable] + options + [task.single_input_file]
+
+    def determine_result(self, run):
+        """
+        @return: status of ABC after executing a run
+        """
+        if run.was_timeout:
+            return result.RESULT_TIMEOUT
+        for line in run.output:
+            if line.startswith("Property proved") or line.startswith(
+                "Networks are equivalent"
+            ):
+                return result.RESULT_TRUE_PROP
+            elif "was asserted in frame" in line or line.startswith(
+                "Networks are NOT EQUIVALENT"
+            ):
+                return result.RESULT_FALSE_PROP
+            elif line.startswith("Networks are UNDECIDED"):
+                return result.RESULT_UNKNOWN
+        return result.RESULT_ERROR
 
     def get_value_from_output(self, output, identifier):
         # search for the identifier in the output and return the number after it

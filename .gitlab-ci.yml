@@ -62,11 +62,6 @@ stages:
     paths:
       - coverage.xml
 
-unit-tests:python-3.6:
-  <<: *unit-tests
-  variables:
-    PYTHON_VERSION: '3.6'
-
 unit-tests:python-3.7:
   <<: *unit-tests
   variables:
@@ -86,6 +81,11 @@ unit-tests:python-3.10:
   <<: *unit-tests
   variables:
     PYTHON_VERSION: '3.10'
+
+unit-tests:python-3.11:
+  <<: *unit-tests
+  variables:
+    PYTHON_VERSION: '3.11'
 
 # Static checks
 check-format:
@@ -111,14 +111,14 @@ flake8:
   stage: test
   image: python:3.8
   before_script:
-    - "pip install flake8 flake8-awesome"
+    - "pip install 'flake8<6' flake8-awesome"
   script:
     - flake8
   <<: *pip-cache
 
 pytype:
   stage: test
-  image: python:3.7
+  image: python:3.8
   before_script:
     - apt update
     - apt install -y libsystemd-dev python-dev
@@ -195,12 +195,6 @@ reuse:
     - schedules
     - web
 
-build-docker:test:python-3.6:
-  extends: .build-docker
-  variables:
-    DOCKERFILE: test/Dockerfile.python-3.6
-    IMAGE: test:python-3.6
-
 build-docker:test:python-3.7:
   extends: .build-docker
   variables:
@@ -224,3 +218,9 @@ build-docker:test:python-3.10:
   variables:
     DOCKERFILE: test/Dockerfile.python-3.10
     IMAGE: test:python-3.10
+
+build-docker:test:python-3.11:
+  extends: .build-docker
+  variables:
+    DOCKERFILE: test/Dockerfile.python-3.11
+    IMAGE: test:python-3.11

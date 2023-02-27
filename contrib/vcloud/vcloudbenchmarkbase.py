@@ -78,6 +78,12 @@ class VcloudBenchmarkBase(benchexec.benchexec.BenchExec):
             help="Allows the usage of cgroups inside the execution environment. This is useful e.g. if a tool wants to make use of resource limits for subprocesses it spawns.",
         )
         vcloud_args.add_argument(
+            "--tryLessMemory",
+            dest="tryLessMemory",
+            action="store_true",
+            help="Execute runs first with less memory than specified. In case a run fails because of OOM, it is automatically rescheduled but this time with full memory limit.",
+        )
+        vcloud_args.add_argument(
             self.get_param_name("cloudAdditionalFiles"),
             dest="additional_files",
             metavar="FILE_OR_PATH",
