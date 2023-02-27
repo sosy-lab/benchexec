@@ -215,7 +215,6 @@ class P4Execution(object):
 
             # Check for table output file
             if os.path.exists(switch_command_output):
-
                 copyfile(switch_command_output, switch_command_output_new)
             else:
                 logging.info("No tables was loaded for switch: %s, {switch.name}")
@@ -304,7 +303,6 @@ class P4Execution(object):
         self.close()
 
     def _execute_benchmark(self, run, command):
-
         return self.ptf_tester.exec_run(command, tty=True)
 
     def setup_network(self):
@@ -506,7 +504,6 @@ class P4Execution(object):
         return systeminfo.SystemInfo()
 
     def read_folder_paths(self, benchmark):
-
         switch_folder = ""
         ptf_folder = ""
         network_config = ""

@@ -95,7 +95,6 @@ def check_cgroup_availability_in_thread(options):
 
 
 class _CheckCgroupsThread(threading.Thread):
-
     error = None
 
     def __init__(self, options):

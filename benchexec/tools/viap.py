@@ -11,7 +11,6 @@ import benchexec.result as result
 
 
 class Tool(benchexec.tools.template.BaseTool):
-
     REQUIRED_PATHS = [
         "viap_tool.py",
         "viap_svcomp.py",

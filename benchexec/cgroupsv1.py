@@ -521,7 +521,7 @@ class CgroupsV1(Cgroups):
 
     def read_usage_per_cpu(self):
         usage = {}
-        for (core, coretime) in enumerate(
+        for core, coretime in enumerate(
             self.get_value(self.CPU, "usage_percpu").split(" ")
         ):
             try:

@@ -295,7 +295,7 @@ def substitute_vars(template, replacements):
     @param replacements: a dict or a list of pairs of keys and values
     """
     result = template
-    for (key, value) in replacements:
+    for key, value in replacements:
         result = result.replace("${" + key + "}", value)
     if "${" in result:
         logging.warning("A variable was not replaced in '%s'.", result)

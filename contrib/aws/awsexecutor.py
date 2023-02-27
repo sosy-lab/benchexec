@@ -416,7 +416,6 @@ def getBenchmarkData(benchmark):
 
 
 def getToolData(benchmark):
-
     working_dir = benchmark.working_directory()
     if not os.path.isdir(working_dir):
         raise BenchExecException(
@@ -445,7 +444,6 @@ def bytes_to_mb(mb):
 
 
 def handleCloudResults(benchmark, output_handler, start_time, end_time):
-
     output_dir = benchmark.log_folder
     if not os.path.isdir(output_dir) or not os.listdir(output_dir):
         # output_dir does not exist or is empty

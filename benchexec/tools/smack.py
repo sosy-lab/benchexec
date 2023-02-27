@@ -12,7 +12,6 @@ from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, 
 
 
 class Tool(benchexec.tools.template.BaseTool2):
-
     REQUIRED_PATHS = [
         "bin",
         "lib",

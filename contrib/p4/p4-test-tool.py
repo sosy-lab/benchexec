@@ -9,7 +9,6 @@ import benchexec.tools.template
 
 
 class Tool(benchexec.tools.template.BaseTool2):
-
     # Needed for benchexec to run, but irrelevant for p4 extension
     def executable(self, tool):
         return "/"
