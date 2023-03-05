@@ -7,9 +7,8 @@
 
 [build-system]
 requires = [
-    # Require versions that support our license files
-    'setuptools >= 42.0.0',
-    'wheel >= 0.32.0',
+    # Require versions that support our license files and the latest PEPs
+    'setuptools >= 64.0.0',
 ]
 build-backend = 'setuptools.build_meta'
 

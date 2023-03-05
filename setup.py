@@ -13,6 +13,5 @@ import warnings
 warnings.filterwarnings("default", module=r"^benchexec\..*")
 
 # This file is still required for compatibility with pip<19.0
-# and for "pip install -e .".
 
 setuptools.setup()
