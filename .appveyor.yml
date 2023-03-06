@@ -21,4 +21,4 @@ install:
   - python -m pip install --user .
 
 test_script:
-  - nosetests --tests benchexec.tablegenerator
+  - python -m nose --tests benchexec.tablegenerator
