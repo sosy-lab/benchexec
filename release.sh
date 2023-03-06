@@ -86,7 +86,7 @@ pip install nose --no-binary :all:
 # install build if it is not installed by default (it usually is)
 pip install build
 pip install -e "."
-python -m nose
+nosetests
 python -m build
 popd
 deactivate
