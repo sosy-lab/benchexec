@@ -85,7 +85,7 @@ pip install "pip >= 10.0" "setuptools >= 42.0.0, < 58" "wheel >= 0.32.0"
 pip install nose --no-binary :all:
 # install build if it is not installed by default (it usually is)
 pip install build
-pip install -e ".[setup_requires]"
+pip install -e ".[dev]"
 nosetests
 python -m build
 popd

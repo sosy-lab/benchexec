@@ -17,7 +17,7 @@ install:
   - set PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%
   # The package installation via our setup.py file uses easy_install, which fails to correctly install lxml.
   # As some Python environments don't have lxml preinstalled, install it here to avoid errors during the execution in those cases.
-  - python -m pip install --user ".[setup_requires]"
+  - python -m pip install --user ".[dev]"
 
 test_script:
   - nosetests --tests benchexec.tablegenerator
