@@ -43,14 +43,14 @@ stages:
     # Give $PRIMARY_USER permission to create cgroups
     - test/for_each_of_my_cgroups.sh chgrp $PRIMARY_USER
     - test/for_each_of_my_cgroups.sh chmod g+w $PRIMARY_USER
-    # Install BenchExec
-    - sudo -u $PRIMARY_USER pip install --user .
+    # Install BenchExec with `dev` dependencies
+    - sudo -u $PRIMARY_USER pip install --user ".[dev]"
     # Start lxcfs
     - lxcfs /var/lib/lxcfs &
   script:
     - sudo -u $PRIMARY_USER
         COVERAGE_PROCESS_START=.coveragerc
-        coverage run setup.py test
+        coverage run -m nose
   after_script:
     - sudo -u $PRIMARY_USER coverage combine
     - sudo -u $PRIMARY_USER coverage report
