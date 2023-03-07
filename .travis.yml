@@ -16,7 +16,7 @@ python:
   - "3.8"
   - "3.9"
 install:
-  - pip install .
+  - pip install ".[setup_requires]"
   # Install code formatter black, but only on versions where it is available
   - pip install black || true
 before_script:
