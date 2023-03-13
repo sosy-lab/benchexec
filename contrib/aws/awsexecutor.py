@@ -233,7 +233,7 @@ def execute_benchmark(benchmark, output_handler):
             logging.debug("Handling url: %s", aws_s3_link)
             aws_s3_link_encoded = urllib.parse.quote(aws_s3_link, safe=":/")
             logging.debug("Downloading file from url: %s", aws_s3_link_encoded)
-            result_file = requests.get(aws_s3_link_encoded)
+            result_file = requests.get(aws_s3_link_encoded)  # noqa: S113
             with zipfile.ZipFile(io.BytesIO(result_file.content)) as zipf:
                 zipf.extractall(benchmark.log_folder)
     except KeyboardInterrupt:
