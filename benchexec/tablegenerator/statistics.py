@@ -128,19 +128,18 @@ def get_stats_of_run_set(runResults, correct_only):
     stats = []
     for index, column in enumerate(columns):
         col_type = column.type.type
-        if col_type != ColumnType.text:
-            if col_type == ColumnType.status:
-                column_stats = _get_stats_of_status_column(runResults, index)
+        if col_type == ColumnType.status:
+            column_stats = _get_stats_of_status_column(runResults, index)
 
-            else:
-                assert column.is_numeric()
-                values = (run_result.values[index] for run_result in runResults)
-                column_stats = _get_stats_of_number_column(
-                    values, status_list, correct_only
-                )
+        elif col_type == ColumnType.text:
+            column_stats = None
 
         else:
-            column_stats = None
+            assert column.is_numeric()
+            values = (run_result.values[index] for run_result in runResults)
+            column_stats = _get_stats_of_number_column(
+                values, status_list, correct_only
+            )
 
         stats.append(column_stats)
 
