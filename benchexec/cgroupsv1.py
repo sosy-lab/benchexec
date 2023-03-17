@@ -476,7 +476,7 @@ class CgroupsV1(Cgroups):
         for cgroup in self.paths:
             for child_cgroup in recursive_child_cgroups(cgroup):
                 kill_all_tasks_in_cgroup(child_cgroup)
-                remove_cgroup(child_cgroup)
+                self._remove_cgroup(child_cgroup)
 
             kill_all_tasks_in_cgroup(cgroup)
 
