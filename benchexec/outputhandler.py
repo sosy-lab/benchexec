@@ -879,7 +879,7 @@ class OutputHandler(object):
             ElementTree.ElementTree(xml).write(
                 file, encoding="utf-8", xml_declaration=True
             )
-        os.rename(temp_filename, filename)
+        os.replace(temp_filename, filename)
         if error is not None:
             xml.set("error", error)
         else:
@@ -918,7 +918,7 @@ class OutputHandler(object):
             self.all_created_files.discard(filename)
             self.all_created_files.add(actual_filename)
         else:
-            os.rename(actual_filename, filename)
+            os.replace(actual_filename, filename)
             self.all_created_files.add(filename)
 
         return filename

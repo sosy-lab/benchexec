@@ -217,7 +217,7 @@ def _get_task_counts(rows):
     max_score = None
     for row in rows:
         if not row.id.property:
-            logging.info("Missing property for task %s.", row.id)
+            logging.debug("Missing property for task %s.", row.id)
             continue
         expected_result = row.id.expected_result
         if not expected_result:

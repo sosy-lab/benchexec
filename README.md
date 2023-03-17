@@ -17,6 +17,7 @@ SPDX-License-Identifier: Apache-2.0
 
 
 **News**:
+- BenchExec is part of [Google Summer of Code](https://summerofcode.withgoogle.com/) again! If you are interested in being paid by Google for contributing to BenchExec, check our [project ideas and instructions](https://www.sosy-lab.org/gsoc/).
 - Linux kernel 5.11 finally [makes it possible](https://github.com/sosy-lab/benchexec/blob/main/doc/INSTALL.md#kernel-requirements) to use all BenchExec features on other distributions than Ubuntu!
 - We now provide an [Ubuntu PPA](https://launchpad.net/~sosy-lab/+archive/ubuntu/benchmarking) that makes installing and upgrading BenchExec easier ([docs](https://github.com/sosy-lab/benchexec/blob/main/doc/INSTALL.md#debianubuntu)).
 - An extended version of our paper on BenchExec and its background was published as open access in the journal STTT,
@@ -136,6 +137,7 @@ The developers of the following tools use BenchExec:
 - [Dartagnan](https://github.com/hernanponcedeleon/Dat3M)
 - [SMACK](https://github.com/smackers/smack)
 - [SMTInterpol](https://github.com/ultimate-pa/smtinterpol)
+- [TriCera](https://github.com/uuverifiers/tricera)
 - [Ultimate](https://github.com/ultimate-pa/ultimate)
 
 If you would like to be listed here, [contact us](https://github.com/sosy-lab/benchexec/issues/new).

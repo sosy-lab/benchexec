@@ -698,7 +698,9 @@ def apply_task_list(runset_results, tasks):
     """
     Set the results of all RunSetResult elements so that they contain the same tasks
     in the same order. For missing tasks a dummy element is inserted.
+    Returns the number of missing run results.
     """
+    missing = 0
     for runset in runset_results:
         # create mapping from id to RunResult object
         dic = {run_result.task_id: run_result for run_result in runset.results}
@@ -707,7 +709,8 @@ def apply_task_list(runset_results, tasks):
         for task in tasks:
             run_result = dic.get(task)
             if run_result is None:
-                logging.info("    No result for task %s in '%s'.", task, runset)
+                logging.debug("    No result for task %s in '%s'.", task, runset)
+                missing += 1
                 # create an empty dummy element
                 run_result = RunResult(
                     task,
@@ -719,6 +722,7 @@ def apply_task_list(runset_results, tasks):
                     [None] * len(runset.columns),
                 )
             runset.results.append(run_result)
+    return missing
 
 
 class RunResult(object):
@@ -1036,6 +1040,8 @@ def filter_rows_with_differences(rows):
             "---> DIFFERENCES FOUND IN ALL ROWS, NO NEED TO CREATE DIFFERENCE TABLE"
         )
         return []
+    else:
+        logging.info("The difference table will have %s rows.", len(rowsDiff))
 
     return rowsDiff
 
@@ -1683,9 +1689,22 @@ def main(args=None):
         # merge list of tasks, so that all run sets contain the same tasks
         task_list = util.merge_lists(r.get_tasks() for r in runSetResults)
     # make sure that all run sets contain exactly the same tasks in the same order
-    apply_task_list(runSetResults, task_list)
+    missing_run_results = apply_task_list(runSetResults, task_list)
 
     rows = get_rows(runSetResults)
+    logging.info(
+        "The resulting table will have %s rows and %s columns (in %s run sets).",
+        len(rows),
+        sum(len(runset.columns) for runset in runSetResults),
+        len(runSetResults),
+    )
+    if missing_run_results:
+        logging.info(
+            "%s run results were not found in the input files "
+            "and will be empty in the table (%s run results are present).",
+            missing_run_results,
+            len(rows) * len(runSetResults) - missing_run_results,
+        )
     if not rows:
         handle_error("No results found, no tables produced.")
     rowsDiff = filter_rows_with_differences(rows) if options.write_diff_table else []

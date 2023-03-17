@@ -46,15 +46,15 @@ class TestRunExecutor(unittest.TestCase):
 
         cls.cgroups = Cgroups.initialize()
 
+        cls.echo = shutil.which("echo") or "/bin/echo"
+        cls.sleep = shutil.which("sleep") or "/bin/sleep"
+        cls.cat = shutil.which("cat") or "/bin/cat"
+
     def setUp(self, *args, **kwargs):
         with self.skip_if_logs(
             "Cannot reliably kill sub-processes without freezer cgroup"
         ):
             self.runexecutor = RunExecutor(*args, use_namespaces=False, **kwargs)
-
-        self.echo = shutil.which("echo") or "/bin/echo"
-        self.sleep = shutil.which("sleep") or "/bin/sleep"
-        self.cat = shutil.which("cat") or "/bin/cat"
 
     @contextlib.contextmanager
     def skip_if_logs(self, error_msg):

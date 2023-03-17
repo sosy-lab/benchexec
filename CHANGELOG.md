@@ -9,6 +9,30 @@ SPDX-License-Identifier: Apache-2.0
 
 # BenchExec Changelog
 
+## BenchExec 3.16
+
+This release works only on Python 3.7 and newer!
+
+- Improve performance of the "Merging results" step of `table-generator`.  
+  In the common case of all run sets having the same set of tasks,
+  this step is now much faster.
+- Avoid deadlock in `table-generator` for cases with many child processes
+  and heavy system load.
+- On systems with many cores and if there are many input files or columns,
+  `table-generator` will now use more than 32 child processes.
+- Support the scoring schema used in SV-COMP'23 for witness validators,
+  and show the witness category as part of the task identifier in tables.
+  Note that just like for the category `correct-unconfirmed`
+  external postprocessing of the results is necessary for this.
+- If the pattern inside a `<propertyfile>` tag in the benchmark definition
+  does not match a file,
+  BenchExec now terminates with an error instead of just logging a warning.
+- Improved logging in `table-generator`.  
+  The log messages about missing run results and missing properties,
+  which could occur many times in certain use cases, are now omitted.
+  Instead, some numbers about the size of the resulting tables
+  and the number of missing results will be logged.
+
 ## BenchExec 3.15
 
 - Updated installation instructions for Debian.  

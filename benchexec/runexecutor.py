@@ -529,7 +529,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 os.makedirs(parent_dir, exist_ok=True)
             output_file = open(output_filename, "w")  # override existing file
         except OSError as e:
-            sys.exit(e)
+            sys.exit("Could not write to output file: " + str(e))
 
         if write_header:
             output_file.write(

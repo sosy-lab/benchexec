@@ -16,7 +16,7 @@ python:
   - "3.8"
   - "3.9"
 install:
-  - pip install .
+  - pip install ".[dev]"
   # Install code formatter black, but only on versions where it is available
   - pip install black || true
 before_script:
@@ -26,7 +26,7 @@ before_script:
   # and this is difficult to fix, but occurs only in high-load environments.
   - sed -i benchexec/test_integration/__init__.py -e '/test_simple_parallel/ i \    @unittest.skip("Fails nondeterministically on Travis, probably issue 656")'
 script:
-  - python setup.py test
+  - python -m nose
   # Revert local modification before checking source format
   - git checkout .
   - if which black; then black . --check --diff; fi
