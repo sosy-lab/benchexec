@@ -151,7 +151,7 @@ def _create_systemd_scope_for_us():
 
     except ImportError:
         logging.debug("pystemd could not be imported.")
-    except DBusFileNotFoundError as e:
+    except DBusFileNotFoundError as e:  # pytype: disable=name-error
         logging.debug("No user DBus found, not using pystemd: %s", e)
 
     return False
