@@ -417,7 +417,7 @@ def _is_to_cut(value, format_target):
 
 def _get_column_type_heur(
     column, column_values
-) -> Union[
+) -> Union[  # noqa: TAE002 TODO should really be improved
     ColumnType,
     Tuple[Union[ColumnType, ColumnMeasureType], str, str, Union[int, Decimal], int],
 ]:
