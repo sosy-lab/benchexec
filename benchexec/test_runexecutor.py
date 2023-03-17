@@ -864,7 +864,6 @@ wait $child_pid
 
 class TestRunExecutorWithContainer(TestRunExecutor):
     def setUp(self, *args, **kwargs):
-        super().setUp(*args, **kwargs)
         try:
             container.execute_in_namespace(lambda: 0)
         except OSError as e:
