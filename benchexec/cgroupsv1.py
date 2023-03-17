@@ -328,8 +328,8 @@ class CgroupsV1(Cgroups):
             # to some groups to get access. But group 0 (root) of course does not count.
             groups = {}
             try:
-                if all(stat.S_IWGRP & path.stat().st_mode for path in paths):
-                    groups = {path.stat().st_gid for path in paths}
+                if all(stat.S_IWGRP & os.stat(path).st_mode for path in paths):
+                    groups = {os.stat(path).st_gid for path in paths}
             except OSError:
                 pass
             if groups and 0 not in groups:
