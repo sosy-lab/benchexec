@@ -10,6 +10,7 @@ import decimal
 from decimal import Decimal
 from math import floor, ceil, log10
 import logging
+from typing import Tuple, Union
 
 from benchexec.tablegenerator import util
 
@@ -253,7 +254,9 @@ class Column(object):
             format_target
         )
         max_dec_digits = (
-            self.type.max_decimal_digits if self.type.type == ColumnType.measure else 0
+            self.type.max_decimal_digits
+            if isinstance(self.type, ColumnMeasureType)
+            else 0
         )
 
         if number_of_significant_digits is not None:
@@ -345,6 +348,7 @@ def _get_significant_digits(value):
     # Use these groups to compute the number of zeros that have to be added to the current number's
     # decimal positions.
     match = REGEX_MEASURE.match(value)
+    assert match, "unexpected output format for number formatting"
 
     if int(match.group(GROUP_INT_PART)) == 0 and Decimal(value) != 0:
         sig_digits = len(match.group(GROUP_SIG_DEC_PART))
@@ -430,7 +434,12 @@ def _is_to_cut(value, format_target):
     return correct_target and "." in value and 1 > Decimal(value) >= 0
 
 
-def _get_column_type_heur(column, column_values):
+def _get_column_type_heur(
+    column, column_values
+) -> Union[
+    ColumnEnumType,
+    Tuple[Union[ColumnEnumType, ColumnMeasureType], str, str, Union[int, Decimal], int],
+]:
     if column.title == "status":
         return ColumnType.status
 
@@ -516,6 +525,7 @@ def _get_column_type_heur(column, column_values):
 
             scaled_value = f"{scaled_value:.{max_number_of_dec_digits_after_scale}f}"
             scaled_value_match = REGEX_MEASURE.match(scaled_value)
+            assert scaled_value_match, "unexpected output format for number formatting"
 
             curr_dec_digits = _get_decimal_digits(
                 scaled_value_match, column.number_of_significant_digits
