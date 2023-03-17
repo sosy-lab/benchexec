@@ -43,7 +43,6 @@ stages:
     # Give $PRIMARY_USER permission to create cgroups
     - test/for_each_of_my_cgroups.sh chgrp $PRIMARY_USER
     - test/for_each_of_my_cgroups.sh chmod g+w $PRIMARY_USER
-    - apt install -y libsystemd-dev python-dev
     # Install BenchExec with `dev` dependencies
     - sudo -u $PRIMARY_USER pip install --user ".[dev]"
     # Start lxcfs
@@ -118,13 +117,12 @@ flake8:
 
 pytype:
   stage: test
-  image: python:3.8
   before_script:
-    - apt update
-    - apt install -y libsystemd-dev python-dev
-    - pip install pystemd coloredlogs pytype
+    - pip install pytype
   script:
     - pytype -k
+  variables:
+    PYTHON_VERSION: '3.8'
   cache:
     key: "${CI_JOB_NAME}"
     paths:
