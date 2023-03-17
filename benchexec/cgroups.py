@@ -8,7 +8,6 @@
 from abc import ABC, abstractmethod
 import logging
 import os
-import pathlib
 
 from benchexec import util
 
@@ -123,7 +122,7 @@ class Cgroups(ABC):
     def __str__(self):
         return str(self.paths)
 
-    def _remove_cgroup(self, path: pathlib.Path):
+    def _remove_cgroup(self, path):
         if not os.path.exists(path):
             logging.warning("Cannot remove CGroup %s, because it does not exist.", path)
             return
@@ -150,7 +149,9 @@ class Cgroups(ABC):
         Only call this method if the given subsystem is available.
         """
         assert subsystem in self
-        return os.path.isfile(self.subsystems[subsystem] / f"{subsystem}.{option}")
+        return os.path.isfile(
+            os.path.join(self.subsystems[subsystem], f"{subsystem}.{option}")
+        )
 
     def get_value(self, subsystem, option):
         """
@@ -159,7 +160,7 @@ class Cgroups(ABC):
         Only call this method if the given subsystem is available.
         """
         assert subsystem in self, f"Subsystem {subsystem} is missing"
-        return util.read_file(self.subsystems[subsystem] / f"{subsystem}.{option}")
+        return util.read_file(self.subsystems[subsystem], f"{subsystem}.{option}")
 
     def get_file_lines(self, subsystem, option):
         """
@@ -168,7 +169,9 @@ class Cgroups(ABC):
         Only call this method if the given subsystem is available.
         """
         assert subsystem in self
-        with open(self.subsystems[subsystem] / f"{subsystem}.{option}") as f:
+        with open(
+            os.path.join(self.subsystems[subsystem], f"{subsystem}.{option}")
+        ) as f:
             for line in f:
                 yield line
 
@@ -181,7 +184,7 @@ class Cgroups(ABC):
         """
         assert subsystem in self
         return util.read_key_value_pairs_from_file(
-            self.subsystems[subsystem] / f"{subsystem}.{filename}"
+            self.subsystems[subsystem], f"{subsystem}.{filename}"
         )
 
     def set_value(self, subsystem, option, value):
@@ -191,9 +194,7 @@ class Cgroups(ABC):
         Only call this method if the given subsystem is available.
         """
         assert subsystem in self
-        util.write_file(
-            str(value), self.subsystems[subsystem] / f"{subsystem}.{option}"
-        )
+        util.write_file(str(value), self.subsystems[subsystem], f"{subsystem}.{option}")
 
     @abstractmethod
     def require_subsystem(self, subsystem, log_method=logging.warning):
