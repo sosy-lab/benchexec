@@ -20,13 +20,6 @@ from benchexec import util
 from benchexec.cgroups import Cgroups
 from benchexec import systeminfo
 
-from ctypes import cdll
-
-_libc = cdll.LoadLibrary("libc.so.6")
-_EFD_CLOEXEC = 0x80000  # from <sys/eventfd.h>: mark eventfd as close-on-exec
-
-_BYTE_FACTOR = 1000  # byte in kilobyte
-
 _CGROUP_FALLBACK_PATH = "system.slice/benchexec-cgroup.service"
 """If we do not have write access to the current cgroup,
 attempt to use this cgroup as fallback."""
