@@ -8,6 +8,7 @@
 import re
 import decimal
 from decimal import Decimal
+import enum
 from math import floor, ceil, log10
 import logging
 from typing import Tuple, Union
@@ -67,35 +68,15 @@ UNIT_CONVERSION = {
 inf = Decimal("inf")
 
 
-def enum(**enums):
-    return type("Enum", (), enums)
-
-
-class ColumnEnumType(object):
-    def __init__(self, _type, name):
-        self._type = _type
-        self.name = name
+class ColumnType(enum.Enum):
+    text = enum.auto()
+    count = enum.auto()
+    measure = enum.auto()
+    status = enum.auto()
 
     @property
     def type(self):
         return self
-
-    def __str__(self):
-        return self.name
-
-    def __eq__(self, other):
-        try:
-            return self._type == other._type
-        except Exception:
-            return False
-
-
-class ColumnType(object):
-    column_types = enum(text=1, count=2, measure=3, status=4)
-    text = ColumnEnumType(column_types.text, "text")
-    count = ColumnEnumType(column_types.count, "count")
-    measure = ColumnEnumType(column_types.measure, "measure")
-    status = ColumnEnumType(column_types.status, "status")
 
 
 class ColumnMeasureType(object):
@@ -437,8 +418,8 @@ def _is_to_cut(value, format_target):
 def _get_column_type_heur(
     column, column_values
 ) -> Union[
-    ColumnEnumType,
-    Tuple[Union[ColumnEnumType, ColumnMeasureType], str, str, Union[int, Decimal], int],
+    ColumnType,
+    Tuple[Union[ColumnType, ColumnMeasureType], str, str, Union[int, Decimal], int],
 ]:
     if column.title == "status":
         return ColumnType.status
