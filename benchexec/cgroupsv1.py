@@ -16,15 +16,15 @@ import sys
 import tempfile
 import time
 
+from benchexec import systeminfo
 from benchexec import util
 from benchexec.cgroups import Cgroups
-from benchexec import systeminfo
 
-_CGROUP_FALLBACK_PATH = "system.slice/benchexec-cgroup.service"
+CGROUP_FALLBACK_PATH = "system.slice/benchexec-cgroup.service"
 """If we do not have write access to the current cgroup,
 attempt to use this cgroup as fallback."""
 
-_CGROUP_NAME_PREFIX = "benchmark_"
+CGROUP_NAME_PREFIX = "benchmark_"
 
 _PERMISSION_HINT_GROUPS = """
 You need to add your account to the following groups: {0}
@@ -54,6 +54,64 @@ Note that this will grant permissions to more users than typically desired and i
 _ERROR_MSG_OTHER = """
 Required cgroups are not available.
 If you are using BenchExec within a container, please make "/sys/fs/cgroup" available."""
+
+
+def find_my_cgroups(cgroup_paths=None, fallback=True):
+    """
+    Return a dict with the cgroups of the current process.
+    Note that it is not guaranteed that all subsystems are available
+    in the returned object, as a subsystem may not be mounted.
+    Check with "subsystem in <instance>" before using.
+    A subsystem may also be present but we do not have the rights to create
+    child cgroups, this can be checked with require_subsystem().
+    @param cgroup_paths: If given, use this instead of reading /proc/self/cgroup.
+    @param fallback: Whether to look for a default cgroup as fallback is our cgroup
+        is not accessible.
+    """
+    logging.debug(
+        "Analyzing /proc/mounts and /proc/self/cgroup for determining cgroups."
+    )
+    if cgroup_paths is None:
+        my_cgroups = dict(_find_own_cgroups())
+    else:
+        my_cgroups = dict(_parse_proc_pid_cgroup(cgroup_paths))
+
+    cgroupsParents = {}
+    for subsystem, mount in _find_cgroup_mounts():
+        # Ignore mount points where we do not have any access,
+        # e.g. because a parent directory has insufficient permissions
+        # (lxcfs mounts cgroups under /run/lxcfs in such a way).
+        if os.access(mount, os.F_OK):
+            cgroupPath = os.path.join(mount, my_cgroups[subsystem])
+            fallbackPath = os.path.join(mount, CGROUP_FALLBACK_PATH)
+            if (
+                fallback
+                and not os.access(cgroupPath, os.W_OK)
+                and os.path.isdir(fallbackPath)
+            ):
+                cgroupPath = fallbackPath
+            cgroupsParents[subsystem] = cgroupPath
+
+    return cgroupsParents
+
+
+def _find_cgroup_mounts():
+    """
+    Return the information which subsystems are mounted where.
+    @return a generator of tuples (subsystem, mountpoint)
+    """
+    try:
+        with open("/proc/mounts", "rt") as mountsFile:
+            for mount in mountsFile:
+                mount = mount.split(" ")
+                if mount[2] == "cgroup":
+                    mountpoint = mount[1]
+                    options = mount[3]
+                    for option in options.split(","):
+                        if option in CgroupsV1.known_subsystems:
+                            yield (option, mountpoint)
+    except OSError:
+        logging.exception("Cannot read /proc/mounts")
 
 
 def _find_own_cgroups():
@@ -209,88 +267,7 @@ class CgroupsV1(Cgroups):
         @param fallback: Whether to look for a default cgroup as fallback if our cgroup
             is not accessible.
         """
-        logging.debug(
-            "Analyzing /proc/mounts and /proc/self/cgroup for determining cgroups."
-        )
-        if cgroup_procinfo is None:
-            my_cgroups = dict(_find_own_cgroups())
-        else:
-            my_cgroups = dict(_parse_proc_pid_cgroup(cgroup_procinfo))
-
-        cgroupsParents = {}
-        for subsystem, mount in cls._find_cgroup_mounts():
-            # Ignore mount points where we do not have any access,
-            # e.g. because a parent directory has insufficient permissions
-            # (lxcfs mounts cgroups under /run/lxcfs in such a way).
-            if os.access(mount, os.F_OK):
-                cgroupPath = os.path.join(mount, my_cgroups[subsystem])
-                fallbackPath = os.path.join(mount, _CGROUP_FALLBACK_PATH)
-                if (
-                    fallback
-                    and not os.access(cgroupPath, os.W_OK)
-                    and os.path.isdir(fallbackPath)
-                ):
-                    cgroupPath = fallbackPath
-                cgroupsParents[subsystem] = cgroupPath
-
-        return cls(cgroupsParents)
-
-    @classmethod
-    def _find_cgroup_mounts(cls):
-        """
-        Return the information which subsystems are mounted where.
-        @return a generator of tuples (subsystem, mountpoint)
-        """
-        try:
-            with open("/proc/mounts", "rt") as mountsFile:
-                for mount in mountsFile:
-                    mount = mount.split(" ")
-                    if mount[2] == "cgroup":
-                        mountpoint = mount[1]
-                        options = mount[3]
-                        for option in options.split(","):
-                            if option in cls.known_subsystems:
-                                yield (option, mountpoint)
-        except OSError:
-            logging.exception("Cannot read /proc/mounts")
-
-    def create_fresh_child_cgroup(self, subsystems):
-        """
-        Create child cgroups of the current cgroup for at least the given subsystems.
-        @return: A Cgroup instance representing the new child cgroup(s).
-        """
-        assert set(subsystems).issubset(self.subsystems.keys())
-        createdCgroupsPerSubsystem = {}
-        createdCgroupsPerParent = {}
-        for subsystem in subsystems:
-            parentCgroup = self.subsystems[subsystem]
-            if parentCgroup in createdCgroupsPerParent:
-                # reuse already created cgroup
-                createdCgroupsPerSubsystem[subsystem] = createdCgroupsPerParent[
-                    parentCgroup
-                ]
-                continue
-
-            cgroup = tempfile.mkdtemp(prefix=_CGROUP_NAME_PREFIX, dir=parentCgroup)
-            createdCgroupsPerSubsystem[subsystem] = cgroup
-            createdCgroupsPerParent[parentCgroup] = cgroup
-
-            # add allowed cpus and memory to cgroup if necessary
-            # (otherwise we can't add any tasks)
-            def copy_parent_to_child(name):
-                shutil.copyfile(
-                    os.path.join(parentCgroup, name),  # noqa: B023
-                    os.path.join(cgroup, name),  # noqa: B023
-                )
-
-            try:
-                copy_parent_to_child("cpuset.cpus")
-                copy_parent_to_child("cpuset.mems")
-            except OSError:
-                # expected to fail if cpuset subsystem is not enabled in this hierarchy
-                pass
-
-        return CgroupsV1(createdCgroupsPerSubsystem)
+        return cls(find_my_cgroups(cgroup_procinfo, fallback))
 
     def require_subsystem(self, subsystem, log_method=logging.warning):
         """
@@ -382,6 +359,44 @@ class CgroupsV1(Cgroups):
         else:
             sys.exit(_ERROR_MSG_OTHER)  # e.g., subsystem not mounted
 
+    def create_fresh_child_cgroup(self, subsystems):
+        """
+        Create child cgroups of the current cgroup for at least the given subsystems.
+        @return: A Cgroup instance representing the new child cgroup(s).
+        """
+        assert set(subsystems).issubset(self.subsystems.keys())
+        createdCgroupsPerSubsystem = {}
+        createdCgroupsPerParent = {}
+        for subsystem in subsystems:
+            parentCgroup = self.subsystems[subsystem]
+            if parentCgroup in createdCgroupsPerParent:
+                # reuse already created cgroup
+                createdCgroupsPerSubsystem[subsystem] = createdCgroupsPerParent[
+                    parentCgroup
+                ]
+                continue
+
+            cgroup = tempfile.mkdtemp(prefix=CGROUP_NAME_PREFIX, dir=parentCgroup)
+            createdCgroupsPerSubsystem[subsystem] = cgroup
+            createdCgroupsPerParent[parentCgroup] = cgroup
+
+            # add allowed cpus and memory to cgroup if necessary
+            # (otherwise we can't add any tasks)
+            def copy_parent_to_child(name):
+                shutil.copyfile(
+                    os.path.join(parentCgroup, name),  # noqa: B023
+                    os.path.join(cgroup, name),  # noqa: B023
+                )
+
+            try:
+                copy_parent_to_child("cpuset.cpus")
+                copy_parent_to_child("cpuset.mems")
+            except OSError:
+                # expected to fail if cpuset subsystem is not enabled in this hierarchy
+                pass
+
+        return CgroupsV1(createdCgroupsPerSubsystem)
+
     def add_task(self, pid):
         """
         Add a process to the cgroups represented by this instance.
@@ -448,7 +463,6 @@ class CgroupsV1(Cgroups):
         if self.FREEZE in self.subsystems:
             cgroup = self.subsystems[self.FREEZE]
             freezer_file = os.path.join(cgroup, "freezer.state")
-
             util.write_file("FROZEN", freezer_file)
 
             for child_cgroup in recursive_child_cgroups(cgroup):
