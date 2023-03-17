@@ -262,7 +262,7 @@ def remove_cgroup(cgroup):
     if not os.path.exists(cgroup):
         logging.warning("Cannot remove CGroup %s, because it does not exist.", cgroup)
         return
-    assert os.path.getsize(os.path.join(cgroup, "tasks")) == 0
+    assert util.read_file(cgroup, "tasks") == "", "Cgroup not yet empty"
     try:
         os.rmdir(cgroup)
     except OSError:
