@@ -34,7 +34,10 @@ BenchExec provides three major features:
   and automatically executing them on large sets of input files
 - generation of interactive tables and plots for the results
 
-Unlike other benchmarking frameworks, BenchExec can accurately measure and control the resource usage of benchmarked tools, even if they spawn subprocesses.
+
+Unlike other benchmarking frameworks,
+BenchExec is able to reliably measure and limit resource usage
+of the benchmarked tool even if the latter spawns subprocesses.
 In order to achieve this,
 it uses the [cgroups feature](https://www.kernel.org/doc/Documentation/cgroup-v1/cgroups.txt)
 of the Linux kernel to correctly handle groups of processes.
