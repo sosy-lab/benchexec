@@ -409,7 +409,7 @@ class BenchExecIntegrationTests(unittest.TestCase):
         self.run_cmd(
             self.benchmark_test_file,
             "--no-compress-results",
-            additional_env={"BENCHEXEC_TEST_VAR": "\x01\x1b"},
+            additional_env={"BENCHEXEC_TEST_VAR": "a\x01\x1bb"},
         )
 
         generated_files = glob.glob(os.path.join(self.output_dir, "*.xml"))
@@ -424,5 +424,5 @@ class BenchExecIntegrationTests(unittest.TestCase):
                 if tag.attrib["name"] == "BENCHEXEC_TEST_VAR"
             ]
             self.assertEqual(len(test_var_tags), 1)
-            self.assertEqual(test_var_tags[0].text, "ARs=")
+            self.assertEqual(test_var_tags[0].text, "YQEbYg==")
             self.assertEqual(test_var_tags[0].attrib["encoding"], "base64")
