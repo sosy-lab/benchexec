@@ -125,24 +125,49 @@ class Cgroups(ABC):
     def __str__(self):
         return str(self.paths)
 
-    def _remove_cgroup(self, path):
-        if not os.path.exists(path):
-            logging.warning("Cannot remove CGroup %s, because it does not exist.", path)
-            return
-        assert not self.has_tasks(path)
-        try:
-            os.rmdir(path)
-        except OSError:
-            # sometimes this fails because the cgroup is still busy, we try again once
-            try:
-                os.rmdir(path)
-            except OSError as e:
-                logging.warning(
-                    "Failed to remove cgroup %s: error %s (%s)",
-                    path,
-                    e.errno,
-                    e.strerror,
+    def require_subsystem(self, subsystem, log_method=logging.warning):
+        """
+        Check whether the given subsystem is enabled and is writable
+        (i.e., new cgroups can be created for it).
+        Produces a log message for the user if one of the conditions is not fulfilled.
+        If the subsystem is enabled but not writable, it will be removed from
+        this instance such that further checks with "in" will return "False".
+        @return A boolean value.
+        """
+        if subsystem not in self:
+            if subsystem not in self.unusable_subsystems:
+                self.unusable_subsystems.add(subsystem)
+                log_method(
+                    "Cgroup subsystem %s is not available. "
+                    "Please make sure it is supported by your kernel and available.",
+                    subsystem,
                 )
+            return False
+
+        return True
+
+    @abstractmethod
+    def handle_errors(self, critical_cgroups):
+        """
+        If there were errors in calls to require_subsystem() and critical_cgroups
+        is not empty, terminate the program with an error message that explains how to
+        fix the problem.
+
+        @param critical_cgroups: set of unusable but required cgroups
+        """
+        pass
+
+    @abstractmethod
+    def create_fresh_child_cgroup(self, subsystems):
+        pass
+
+    @abstractmethod
+    def add_task(self, pid):
+        pass
+
+    @abstractmethod
+    def kill_all_tasks(self):
+        pass
 
     def has_value(self, subsystem, option):
         """
@@ -199,38 +224,6 @@ class Cgroups(ABC):
         assert subsystem in self
         util.write_file(str(value), self.subsystems[subsystem], f"{subsystem}.{option}")
 
-    def require_subsystem(self, subsystem, log_method=logging.warning):
-        """
-        Check whether the given subsystem is enabled and is writable
-        (i.e., new cgroups can be created for it).
-        Produces a log message for the user if one of the conditions is not fulfilled.
-        If the subsystem is enabled but not writable, it will be removed from
-        this instance such that further checks with "in" will return "False".
-        @return A boolean value.
-        """
-        if subsystem not in self:
-            if subsystem not in self.unusable_subsystems:
-                self.unusable_subsystems.add(subsystem)
-                log_method(
-                    "Cgroup subsystem %s is not available. "
-                    "Please make sure it is supported by your kernel and available.",
-                    subsystem,
-                )
-            return False
-
-        return True
-
-    @abstractmethod
-    def handle_errors(self, critical_cgroups):
-        """
-        If there were errors in calls to require_subsystem() and critical_cgroups
-        is not empty, terminate the program with an error message that explains how to
-        fix the problem.
-
-        @param critical_cgroups: set of unusable but required cgroups
-        """
-        pass
-
     def remove(self):
         """
         Remove all cgroups this instance represents from the system.
@@ -242,17 +235,24 @@ class Cgroups(ABC):
         del self.paths
         del self.subsystems
 
-    @abstractmethod
-    def add_task(self, pid):
-        pass
-
-    @abstractmethod
-    def kill_all_tasks(self):
-        pass
-
-    @abstractmethod
-    def create_fresh_child_cgroup(self, subsystems):
-        pass
+    def _remove_cgroup(self, path):
+        if not os.path.exists(path):
+            logging.warning("Cannot remove CGroup %s, because it does not exist.", path)
+            return
+        assert not self.has_tasks(path)
+        try:
+            os.rmdir(path)
+        except OSError:
+            # sometimes this fails because the cgroup is still busy, we try again once
+            try:
+                os.rmdir(path)
+            except OSError as e:
+                logging.warning(
+                    "Failed to remove cgroup %s: error %s (%s)",
+                    path,
+                    e.errno,
+                    e.strerror,
+                )
 
     @abstractmethod
     def read_cputime(self):
