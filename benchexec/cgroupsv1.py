@@ -167,29 +167,23 @@ def kill_all_tasks_in_cgroup(cgroup):
         # SIGKILL. We added this loop when killing sub-processes was not reliable
         # and we did not know why, but now it is reliable.
         for sig in [signal.SIGKILL, signal.SIGINT, signal.SIGTERM]:
-            task = None
-            try:
-                with _force_open_read(tasksFile) as tasks:
-                    for task in tasks:
-                        task = task.strip()
-                        if i > 1:
-                            logging.warning(
-                                "Run has left-over process with pid %s "
-                                "in cgroup %s, sending signal %s (try %s).",
-                                task,
-                                cgroup,
-                                sig,
-                                i,
-                            )
-                        util.kill_process(int(task), sig)
-            except FileNotFoundError:
-                logging.warning(
-                    "cgroup tasks file %s " "could no longer be found while killing",
-                    tasksFile,
-                )
+            with _force_open_read(tasksFile) as tasks:
+                task = None
+                for task in tasks:
+                    task = task.strip()
+                    if i > 1:
+                        logging.warning(
+                            "Run has left-over process with pid %s "
+                            "in cgroup %s, sending signal %s (try %s).",
+                            task,
+                            cgroup,
+                            sig,
+                            i,
+                        )
+                    util.kill_process(int(task), sig)
 
-            if task is None:
-                return  # No process was hanging, exit
+                if task is None:
+                    return  # No process was hanging, exit
             # wait for the process to exit, this might take some time
             time.sleep(i * 0.5)
 
