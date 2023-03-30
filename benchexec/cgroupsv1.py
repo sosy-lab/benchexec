@@ -488,10 +488,6 @@ class CgroupsV1(Cgroups):
             kill_all_tasks_in_cgroup(cgroup)
 
     def read_cputime(self):
-        """
-        Read the cputime usage of this cgroup. CPUACCT cgroup needs to be available.
-        @return cputime usage in seconds
-        """
         # convert nano-seconds to seconds
         return float(self.get_value(self.CPU, "usage")) / 1_000_000_000
 

@@ -243,6 +243,14 @@ class Cgroups(ABC):
         pass
 
     @abstractmethod
+    def read_cputime(self):
+        """
+        Read the cputime usage of this cgroup. CPU cgroup needs to be available.
+        @return cputime usage in seconds
+        """
+        pass
+
+    @abstractmethod
     def read_max_mem_usage(self):
         pass
 
@@ -264,10 +272,12 @@ class Cgroups(ABC):
 
     @abstractmethod
     def read_allowed_cpus(self):
+        """Get the list of all CPU cores allowed by this cgroup."""
         pass
 
     @abstractmethod
     def read_allowed_memory_banks(self):
+        """Get the list of all memory banks allowed by this cgroup."""
         pass
 
     @abstractmethod
@@ -317,6 +327,9 @@ class _DummyCgroups(Cgroups):
         pass
 
     def handle_errors(self, critical_cgroups):
+        pass
+
+    def read_cputime(self):
         pass
 
     def read_max_mem_usage(self):

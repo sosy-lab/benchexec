@@ -408,10 +408,6 @@ class CgroupsV2(Cgroups):
         kill_all_tasks_in_cgroup_recursively(self.path, delete=True)
 
     def read_cputime(self):
-        """
-        Read the cputime usage of this cgroup. CPU cgroup needs to be available.
-        @return cputime usage in seconds
-        """
         cpu_stats = dict(self.get_key_value_pairs(self.CPU, "stat"))
 
         # TODO switch to Decimal together with all other float values
