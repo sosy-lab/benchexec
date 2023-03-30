@@ -448,10 +448,10 @@ class CgroupsV2(Cgroups):
 
         return {}
 
-    def read_available_cpus(self):
+    def read_allowed_cpus(self):
         return util.parse_int_list(self.get_value(self.CPUSET, "cpus.effective"))
 
-    def read_available_mems(self):
+    def read_allowed_memory_banks(self):
         return util.parse_int_list(self.get_value(self.CPUSET, "mems.effective"))
 
     def read_io_stat(self):

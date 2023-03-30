@@ -263,11 +263,11 @@ class Cgroups(ABC):
         pass
 
     @abstractmethod
-    def read_available_cpus(self):
+    def read_allowed_cpus(self):
         pass
 
     @abstractmethod
-    def read_available_mems(self):
+    def read_allowed_memory_banks(self):
         pass
 
     @abstractmethod
@@ -334,10 +334,10 @@ class _DummyCgroups(Cgroups):
     def read_usage_per_cpu(self):
         pass
 
-    def read_available_cpus(self):
+    def read_allowed_cpus(self):
         pass
 
-    def read_available_mems(self):
+    def read_allowed_memory_banks(self):
         pass
 
     def read_io_stat(self):

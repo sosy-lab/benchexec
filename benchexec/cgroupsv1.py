@@ -543,10 +543,10 @@ class CgroupsV1(Cgroups):
 
         return usage
 
-    def read_available_cpus(self):
+    def read_allowed_cpus(self):
         return util.parse_int_list(self.get_value(self.CPUSET, "cpus"))
 
-    def read_available_mems(self):
+    def read_allowed_memory_banks(self):
         return util.parse_int_list(self.get_value(self.CPUSET, "mems"))
 
     def read_io_stat(self):

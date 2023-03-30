@@ -390,13 +390,13 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         if self.cgroups.CPUSET in self.cgroups:
             # Read available cpus/memory nodes:
             try:
-                self.cpus = self.cgroups.read_available_cpus()
+                self.cpus = self.cgroups.read_allowed_cpus()
             except ValueError as e:
                 logging.warning("Could not read available CPU cores from kernel: %s", e)
             logging.debug("List of available CPU cores is %s.", self.cpus)
 
             try:
-                self.memory_nodes = self.cgroups.read_available_mems()
+                self.memory_nodes = self.cgroups.read_allowed_memory_banks()
             except ValueError as e:
                 logging.warning(
                     "Could not read available memory nodes from kernel: %s", str(e)
