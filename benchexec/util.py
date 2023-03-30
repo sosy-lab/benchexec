@@ -110,7 +110,7 @@ _ILLEGAL_XML_CHARS = re.compile(r"[^\x09\x0A\x0D\x20-\xD7FF\xE000-\xFFFD]")
 
 def is_legal_for_xml(string):
     """Check whether the given string can be written to XML documents."""
-    return not re.match(_ILLEGAL_XML_CHARS, string)
+    return not re.search(_ILLEGAL_XML_CHARS, string)
 
 
 def decode_to_string(toDecode):

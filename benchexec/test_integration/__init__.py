@@ -409,7 +409,10 @@ class BenchExecIntegrationTests(unittest.TestCase):
         self.run_cmd(
             self.benchmark_test_file,
             "--no-compress-results",
-            additional_env={"BENCHEXEC_TEST_VAR": "\x01\x1b"},
+            additional_env={
+                "BENCHEXEC_TEST_VAR": "a\x01\x1bb",
+                "BENCHEXEC_TEST_VAR2": "ab",
+            },
         )
 
         generated_files = glob.glob(os.path.join(self.output_dir, "*.xml"))
@@ -418,11 +421,11 @@ class BenchExecIntegrationTests(unittest.TestCase):
         for f in generated_files:
             result_xml = ElementTree.ElementTree().parse(f)
             environment = result_xml.find("systeminfo").find("environment")
-            test_var_tags = [
-                tag
-                for tag in environment.findall("var")
-                if tag.attrib["name"] == "BENCHEXEC_TEST_VAR"
-            ]
-            self.assertEqual(len(test_var_tags), 1)
-            self.assertEqual(test_var_tags[0].text, "ARs=")
-            self.assertEqual(test_var_tags[0].attrib["encoding"], "base64")
+            var_tags = {tag.attrib["name"]: tag for tag in environment.findall("var")}
+            self.assertEqual(var_tags["BENCHEXEC_TEST_VAR"].text, "YQEbYg==")
+            self.assertEqual(
+                var_tags["BENCHEXEC_TEST_VAR"].attrib["encoding"], "base64"
+            )
+            # Check that other variables are not unnecessarily encoded.
+            self.assertEqual(var_tags["BENCHEXEC_TEST_VAR2"].text, "ab")
+            self.assertNotIn("encoding", var_tags["BENCHEXEC_TEST_VAR2"].attrib)
