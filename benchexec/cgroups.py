@@ -615,6 +615,10 @@ class Cgroup(object):
         # convert nano-seconds to seconds
         return float(self.get_value(CPUACCT, "usage")) / 1_000_000_000
 
+    def read_allowed_cpus(self):
+        """Get the list of all CPU cores allowed by this cgroup."""
+        return util.parse_int_list(self.get_value(CPUSET, "cpus"))
+
     def read_allowed_memory_banks(self):
         """Get the list of all memory banks allowed by this cgroup."""
         return util.parse_int_list(self.get_value(CPUSET, "mems"))
