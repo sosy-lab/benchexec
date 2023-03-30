@@ -28,7 +28,7 @@ from benchexec.cgroups import Cgroups
 from benchexec.filehierarchylimit import FileHierarchyLimitThread
 from benchexec import intel_cpu_energy
 from benchexec import oomhandler
-from benchexec.tablegenerator.util import print_decimal
+from benchexec.util import print_decimal
 from benchexec import resources
 from benchexec import systeminfo
 from benchexec import util
