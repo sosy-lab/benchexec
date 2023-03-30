@@ -312,7 +312,7 @@ class CgroupsV2(Cgroups):
         # We can assume that creation of child cgroups works,
         # because we only use cgroups if we were able to move the current process
         # into a child cgroup in initialize().
-        return subsystem in self
+        return super().require_subsystem(subsystem, log_method)
 
     def handle_errors(self, critical_cgroups):
         """

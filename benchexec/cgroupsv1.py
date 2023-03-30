@@ -251,7 +251,6 @@ class CgroupsV1(Cgroups):
         super(CgroupsV1, self).__init__(subsystems)
 
         # for error messages:
-        self.unusable_subsystems = set()
         self.denied_subsystems = {}
 
     @classmethod
@@ -279,14 +278,7 @@ class CgroupsV1(Cgroups):
         @return A boolean value.
         """
         if subsystem not in self:
-            if subsystem not in self.unusable_subsystems:
-                self.unusable_subsystems.add(subsystem)
-                log_method(
-                    "Cgroup subsystem %s is not available. "
-                    "Please make sure it is supported by your kernel and mounted.",
-                    subsystem,
-                )
-            return False
+            return super().require_subsystem(subsystem, log_method)
 
         try:
             test_cgroup = self.create_fresh_child_cgroup([subsystem])

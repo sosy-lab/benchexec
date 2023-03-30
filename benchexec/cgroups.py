@@ -113,6 +113,9 @@ class Cgroups(ABC):
 
         logging.debug("Available Cgroups: %s", self.subsystems)
 
+        # for error messages:
+        self.unusable_subsystems = set()
+
     def __contains__(self, key):
         return key in self.subsystems
 
@@ -196,7 +199,6 @@ class Cgroups(ABC):
         assert subsystem in self
         util.write_file(str(value), self.subsystems[subsystem], f"{subsystem}.{option}")
 
-    @abstractmethod
     def require_subsystem(self, subsystem, log_method=logging.warning):
         """
         Check whether the given subsystem is enabled and is writable
@@ -206,7 +208,17 @@ class Cgroups(ABC):
         this instance such that further checks with "in" will return "False".
         @return A boolean value.
         """
-        pass
+        if subsystem not in self:
+            if subsystem not in self.unusable_subsystems:
+                self.unusable_subsystems.add(subsystem)
+                log_method(
+                    "Cgroup subsystem %s is not available. "
+                    "Please make sure it is supported by your kernel and available.",
+                    subsystem,
+                )
+            return False
+
+        return True
 
     @abstractmethod
     def handle_errors(self, critical_cgroups):
@@ -321,9 +333,6 @@ class _DummyCgroups(Cgroups):
         pass
 
     def create_fresh_child_cgroup(self, subsystems):
-        pass
-
-    def require_subsystem(self, subsystem, log_method=logging.warning):
         pass
 
     def handle_errors(self, critical_cgroups):
