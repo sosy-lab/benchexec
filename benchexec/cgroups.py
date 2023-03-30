@@ -306,17 +306,17 @@ class Cgroup(object):
         assert set(cgroupsPerSubsystem.keys()) <= ALL_KNOWN_SUBSYSTEMS
         assert all(cgroupsPerSubsystem.values())
         # Also update self.paths on every update to this!
-        self.per_subsystem = cgroupsPerSubsystem
+        self.subsystems = cgroupsPerSubsystem
         self.paths = set(cgroupsPerSubsystem.values())  # without duplicates
         # for error messages:
         self.unusable_subsystems = set()
         self.denied_subsystems = {}
 
     def __contains__(self, key):
-        return key in self.per_subsystem
+        return key in self.subsystems
 
     def __getitem__(self, key):
-        return self.per_subsystem[key]
+        return self.subsystems[key]
 
     def __str__(self):
         return str(self.paths)
@@ -346,16 +346,16 @@ class Cgroup(object):
         except OSError as e:
             log_method(
                 "Cannot use cgroup %s for subsystem %s, reason: %s (%s).",
-                self.per_subsystem[subsystem],
+                self.subsystems[subsystem],
                 subsystem,
                 e.strerror,
                 e.errno,
             )
             self.unusable_subsystems.add(subsystem)
             if e.errno == errno.EACCES:
-                self.denied_subsystems[subsystem] = self.per_subsystem[subsystem]
-            del self.per_subsystem[subsystem]
-            self.paths = set(self.per_subsystem.values())
+                self.denied_subsystems[subsystem] = self.subsystems[subsystem]
+            del self.subsystems[subsystem]
+            self.paths = set(self.subsystems.values())
             return False
 
         return True
@@ -418,11 +418,11 @@ class Cgroup(object):
         Create child cgroups of the current cgroup for at least the given subsystems.
         @return: A Cgroup instance representing the new child cgroup(s).
         """
-        assert set(subsystems).issubset(self.per_subsystem.keys())
+        assert set(subsystems).issubset(self.subsystems.keys())
         createdCgroupsPerSubsystem = {}
         createdCgroupsPerParent = {}
         for subsystem in subsystems:
-            parentCgroup = self.per_subsystem[subsystem]
+            parentCgroup = self.subsystems[subsystem]
             if parentCgroup in createdCgroupsPerParent:
                 # reuse already created cgroup
                 createdCgroupsPerSubsystem[subsystem] = createdCgroupsPerParent[
@@ -464,9 +464,7 @@ class Cgroup(object):
         """
         Return a generator of all PIDs currently in this cgroup for the given subsystem.
         """
-        with open(
-            os.path.join(self.per_subsystem[subsystem], "tasks"), "r"
-        ) as tasksFile:
+        with open(os.path.join(self.subsystems[subsystem], "tasks"), "r") as tasksFile:
             for line in tasksFile:
                 yield int(line)
 
@@ -516,8 +514,8 @@ class Cgroup(object):
         # But this is only possible if we have freezer, and all processes will stay
         # until they are thawed (so we cannot check for cgroup emptiness and we cannot
         # delete subgroups).
-        if FREEZER in self.per_subsystem:
-            cgroup = self.per_subsystem[FREEZER]
+        if FREEZER in self.subsystems:
+            cgroup = self.subsystems[FREEZER]
             freezer_file = os.path.join(cgroup, "freezer.state")
             util.write_file("FROZEN", freezer_file)
 
@@ -552,7 +550,7 @@ class Cgroup(object):
         """
         assert subsystem in self
         return os.path.isfile(
-            os.path.join(self.per_subsystem[subsystem], f"{subsystem}.{option}")
+            os.path.join(self.subsystems[subsystem], f"{subsystem}.{option}")
         )
 
     def get_value(self, subsystem, option):
@@ -562,7 +560,7 @@ class Cgroup(object):
         Only call this method if the given subsystem is available.
         """
         assert subsystem in self, f"Subsystem {subsystem} is missing"
-        return util.read_file(self.per_subsystem[subsystem], f"{subsystem}.{option}")
+        return util.read_file(self.subsystems[subsystem], f"{subsystem}.{option}")
 
     def get_file_lines(self, subsystem, option):
         """
@@ -572,7 +570,7 @@ class Cgroup(object):
         """
         assert subsystem in self
         with open(
-            os.path.join(self.per_subsystem[subsystem], f"{subsystem}.{option}")
+            os.path.join(self.subsystems[subsystem], f"{subsystem}.{option}")
         ) as f:
             for line in f:
                 yield line
@@ -586,7 +584,7 @@ class Cgroup(object):
         """
         assert subsystem in self
         return util.read_key_value_pairs_from_file(
-            self.per_subsystem[subsystem], f"{subsystem}.{filename}"
+            self.subsystems[subsystem], f"{subsystem}.{filename}"
         )
 
     def set_value(self, subsystem, option, value):
@@ -596,9 +594,7 @@ class Cgroup(object):
         Only call this method if the given subsystem is available.
         """
         assert subsystem in self
-        util.write_file(
-            str(value), self.per_subsystem[subsystem], f"{subsystem}.{option}"
-        )
+        util.write_file(str(value), self.subsystems[subsystem], f"{subsystem}.{option}")
 
     def remove(self):
         """
@@ -609,7 +605,7 @@ class Cgroup(object):
             remove_cgroup(cgroup)
 
         del self.paths
-        del self.per_subsystem
+        del self.subsystems
 
     def read_cputime(self):
         """
