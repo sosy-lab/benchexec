@@ -438,28 +438,23 @@ class CgroupsV2(Cgroups):
 
         return
 
-    def read_mem_pressure(self):
-        mem_stats = dict(
-            util.read_key_value_pairs_from_file(self.path, "memory.pressure")
-        )
-        mem_some_stats = mem_stats["some"].split(" ")
-        stats_map = {s[0]: s[1] for s in (s.split("=") for s in mem_some_stats)}
+    def _read_pressure_stall_information(self, subsystem):
+        for line in open(self.path / (subsystem + ".pressure")):
+            if line.startswith("some "):
+                for item in line.split(" ")[1:]:
+                    k, v = item.split("=")
+                    if k == "total":
+                        return Decimal(v) / 1_000_000
+        return None
 
-        return Decimal(stats_map["total"]) / 1_000_000
+    def read_mem_pressure(self):
+        return self._read_pressure_stall_information("memory")
 
     def read_cpu_pressure(self):
-        cpu_stats = dict(util.read_key_value_pairs_from_file(self.path, "cpu.pressure"))
-        cpu_some_stats = cpu_stats["some"].split(" ")
-        stats_map = {s[0]: s[1] for s in (s.split("=") for s in cpu_some_stats)}
-
-        return Decimal(stats_map["total"]) / 1_000_000
+        return self._read_pressure_stall_information("cpu")
 
     def read_io_pressure(self):
-        io_stats = dict(util.read_key_value_pairs_from_file(self.path, "io.pressure"))
-        io_some_stats = io_stats["some"].split(" ")
-        stats_map = {s[0]: s[1] for s in (s.split("=") for s in io_some_stats)}
-
-        return Decimal(stats_map["total"]) / 1_000_000
+        return self._read_pressure_stall_information("io")
 
     def read_usage_per_cpu(self):
         return {}
