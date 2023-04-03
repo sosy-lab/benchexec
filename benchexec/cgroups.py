@@ -313,6 +313,11 @@ class Cgroups(ABC):
         pass
 
     @abstractmethod
+    def read_hierarchical_memory_limit(self):
+        """Read the memory limit that applies to the current cgroup or any parent."""
+        pass
+
+    @abstractmethod
     def read_oom_count(self):
         pass
 
@@ -375,6 +380,9 @@ class _DummyCgroups(Cgroups):
         pass
 
     def read_memory_limit(self):
+        pass
+
+    def read_hierarchical_memory_limit(self):
         pass
 
     def read_oom_count(self):

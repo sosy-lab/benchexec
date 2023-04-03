@@ -493,6 +493,21 @@ class CgroupsV2(Cgroups):
         limit = self.get_value(self.MEMORY, "max")
         return None if limit == "max" else int(limit)
 
+    def read_hierarchical_memory_limit(self):
+        # We do not know a way how to read the effective memory limit without looking at
+        # all parents.
+        limit = self.read_memory_limit()
+        for parent_cgroup in self.path.parents:
+            try:
+                parent_limit = util.read_file(parent_cgroup, "memory.max")
+                if parent_limit != "max":
+                    limit = min(limit, int(parent_limit))
+            except OSError:
+                # reached parent directory of cgroupfs
+                return limit
+
+        assert False  # will never be reached
+
     def disable_swap(self):
         self.set_value(self.MEMORY, "swap.max", "0")
 

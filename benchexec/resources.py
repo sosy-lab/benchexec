@@ -389,15 +389,9 @@ def check_memory_size(memLimit, num_of_threads, memoryAssignment, my_cgroups):
             return
 
         if my_cgroups.MEMORY in my_cgroups:
-            # We use the entries hierarchical_*_limit in memory.stat and not memory.*limit_in_bytes
-            # because the former may be lower if memory.use_hierarchy is enabled.
-            # FIXME v2
-            for key, value in my_cgroups.get_key_value_pairs(my_cgroups.MEMORY, "stat"):
-                if (
-                    key == "hierarchical_memory_limit"
-                    or key == "hierarchical_memsw_limit"
-                ):
-                    check_limit(int(value))
+            actual_limit = my_cgroups.read_hierarchical_memory_limit()
+            if actual_limit is not None:
+                check_limit(actual_limit)
 
         # Get list of all memory banks, either from memory assignment or from system.
         if not memoryAssignment:

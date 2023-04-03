@@ -571,6 +571,15 @@ class CgroupsV1(Cgroups):
     def read_memory_limit(self):
         return int(self.get_value(self.MEMORY, "limit_in_bytes"))
 
+    def read_hierarchical_memory_limit(self):
+        limit = self.read_memory_limit()
+        # We also use the entries hierarchical_*_limit in memory.stat
+        # because it may be lower if memory.use_hierarchy is enabled.
+        for key, value in self.get_key_value_pairs(self.MEMORY, "stat"):
+            if key == "hierarchical_memory_limit" or key == "hierarchical_memsw_limit":
+                limit = min(limit, int(value))
+        return limit
+
     def disable_swap(self):
         # Note that this disables swapping completely according to
         # https://www.kernel.org/doc/Documentation/cgroups/memory.txt
