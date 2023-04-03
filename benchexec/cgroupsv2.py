@@ -10,6 +10,7 @@ import os
 import pathlib
 import secrets
 import signal
+import stat
 import sys
 import tempfile
 import threading
@@ -199,6 +200,18 @@ def _parse_proc_pid_cgroup(cgroup_file):
     return path
 
 
+def _force_open_read(filename):
+    """
+    Open a file for reading even if we have no read permission,
+    as long as we can grant it to us.
+    """
+    try:
+        return open(filename, "rt")
+    except OSError:
+        os.chmod(filename, stat.S_IRUSR)
+        return open(filename, "rt")
+
+
 def kill_all_tasks_in_cgroup(cgroup):
     tasksFile = cgroup / "cgroup.procs"
 
@@ -209,7 +222,7 @@ def kill_all_tasks_in_cgroup(cgroup):
         # SIGKILL. We added this loop when killing sub-processes was not reliable
         # and we did not know why, but now it is reliable.
         for sig in [signal.SIGKILL, signal.SIGINT, signal.SIGTERM]:
-            with open(tasksFile, "rt") as tasks:
+            with _force_open_read(tasksFile) as tasks:
                 task = None
                 for task in tasks:
                     task = task.strip()
@@ -376,19 +389,30 @@ class CgroupsV2(Cgroups):
         Kill all tasks in this cgroup and all its children cgroups forcefully.
         Additionally, the children cgroups will be deleted.
         """
+        # In this method we should attempt to guard against child cgroups
+        # that have been created and manipulated by processes in the run.
+        # For example, they could have removed permissions from files and directories.
 
-        def kill_all_tasks_in_cgroup_recursively(cgroup):
-            for dirpath, dirs, _files in os.walk(cgroup, topdown=False):
-                for subCgroup in dirs:
-                    subCgroup = pathlib.Path(dirpath) / subCgroup
-                    kill_all_tasks_in_cgroup(subCgroup)
-                    self._remove_cgroup(subCgroup)
+        def recursive_child_cgroups(cgroup):
+            def raise_error(e):
+                raise e
 
-            kill_all_tasks_in_cgroup(cgroup)
+            try:
+                for dirpath, dirs, _files in os.walk(
+                    cgroup, topdown=False, onerror=raise_error
+                ):
+                    for subCgroup in dirs:
+                        yield pathlib.Path(os.path.join(dirpath, subCgroup))
+            except OSError as e:
+                # some process might have made a child cgroup inaccessible
+                os.chmod(e.filename, stat.S_IRUSR | stat.S_IXUSR)
+                # restart, which might yield already yielded cgroups again,
+                # but this is ok for the callers of recursive_child_cgroups()
+                yield from recursive_child_cgroups(cgroup)
 
         if self.KILL in self.subsystems:
             # This will immediately terminate all processes recursively, even if frozen
-            util.write_file("1", self.path / "cgroup.kill")
+            util.write_file("1", self.path, "cgroup.kill", force=True)
             # We still need to clean up any child cgroups.
 
         # First, we go through all cgroups recursively while they are frozen and kill
@@ -396,9 +420,12 @@ class CgroupsV2(Cgroups):
         # creating new subgroups while we are trying to kill everything.
         # On cgroupsv2, frozen processes can still be killed, so this is all we need to
         # do.
-        freezer_file = self.path / "cgroup.freeze"
-        util.write_file("1", freezer_file)
-        kill_all_tasks_in_cgroup_recursively(self.path)
+        util.write_file("1", self.path, "cgroup.freeze", force=True)
+        for child_cgroup in recursive_child_cgroups(self.path):
+            kill_all_tasks_in_cgroup(child_cgroup)
+            self._remove_cgroup(child_cgroup)
+
+        kill_all_tasks_in_cgroup(self.path)
 
     def read_cputime(self):
         cpu_stats = dict(self.get_key_value_pairs(self.CPU, "stat"))
