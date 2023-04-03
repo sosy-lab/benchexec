@@ -199,7 +199,7 @@ def _parse_proc_pid_cgroup(cgroup_file):
     return path
 
 
-def kill_all_tasks_in_cgroup(cgroup, ensure_empty=True):
+def kill_all_tasks_in_cgroup(cgroup):
     tasksFile = cgroup / "cgroup.procs"
 
     i = 0
@@ -224,7 +224,7 @@ def kill_all_tasks_in_cgroup(cgroup, ensure_empty=True):
                         )
                     util.kill_process(int(task), sig)
 
-                if task is None or not ensure_empty:
+                if task is None:
                     return  # No process was hanging, exit
             # wait for the process to exit, this might take some time
             time.sleep(i * 0.5)
@@ -377,35 +377,28 @@ class CgroupsV2(Cgroups):
         Additionally, the children cgroups will be deleted.
         """
 
-        def kill_all_tasks_in_cgroup_recursively(cgroup, delete):
+        def kill_all_tasks_in_cgroup_recursively(cgroup):
             for dirpath, dirs, _files in os.walk(cgroup, topdown=False):
                 for subCgroup in dirs:
                     subCgroup = pathlib.Path(dirpath) / subCgroup
-                    kill_all_tasks_in_cgroup(subCgroup, ensure_empty=delete)
+                    kill_all_tasks_in_cgroup(subCgroup)
+                    self._remove_cgroup(subCgroup)
 
-                    if delete:
-                        self._remove_cgroup(subCgroup)
-
-            kill_all_tasks_in_cgroup(cgroup, ensure_empty=delete)
+            kill_all_tasks_in_cgroup(cgroup)
 
         if self.KILL in self.subsystems:
+            # This will immediately terminate all processes recursively, even if frozen
             util.write_file("1", self.path / "cgroup.kill")
             return
 
         # First, we go through all cgroups recursively while they are frozen and kill
         # all processes. This helps against fork bombs and prevents processes from
         # creating new subgroups while we are trying to kill everything.
-        # All processes will stay until they are thawed (so we cannot check for cgroup
-        # emptiness and we cannot delete subgroups).
+        # On cgroupsv2, frozen processes can still be killed, so this is all we need to
+        # do.
         freezer_file = self.path / "cgroup.freeze"
-
         util.write_file("1", freezer_file)
-        kill_all_tasks_in_cgroup_recursively(self.path, delete=False)
-        util.write_file("0", freezer_file)
-
-        # Second, we go through all cgroups again, kill what is left,
-        # check for emptiness, and remove subgroups.
-        kill_all_tasks_in_cgroup_recursively(self.path, delete=True)
+        kill_all_tasks_in_cgroup_recursively(self.path)
 
     def read_cputime(self):
         cpu_stats = dict(self.get_key_value_pairs(self.CPU, "stat"))
