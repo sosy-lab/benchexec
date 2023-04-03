@@ -1066,11 +1066,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
 
         if cgroups.MEMORY in cgroups:
             max_mem_usage = cgroups.read_max_mem_usage()
-            if max_mem_usage is None:
-                logging.warning(
-                    "Memory-usage is not available for cgroups v2 or due to missing files."
-                )
-            else:
+            if max_mem_usage is not None:
                 result["memory"] = max_mem_usage
 
             oom_count = cgroups.read_oom_count()

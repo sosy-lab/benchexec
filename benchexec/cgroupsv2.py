@@ -460,8 +460,6 @@ class CgroupsV2(Cgroups):
         return Decimal(stats_map["total"]) / 1_000_000
 
     def read_usage_per_cpu(self):
-        logging.debug("Usage per CPU not supported in cgroups v2")
-
         return {}
 
     def read_allowed_cpus(self):
