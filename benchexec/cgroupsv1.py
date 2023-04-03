@@ -427,18 +427,13 @@ class CgroupsV1(Cgroups):
                 yield from recursive_child_cgroups(cgroup)
 
         def try_unfreeze(cgroup):
-            freezer_file = os.path.join(cgroup, "freezer.state")
             try:
-                util.write_file("THAWED", freezer_file)
+                util.write_file("THAWED", cgroup, "freezer.state", force=True)
             except OSError:
-                # Somebody could have fiddle with permissions, try to set them.
-                # If we are not owner, this also fails, but then there is nothing we
-                # can do. But the processes inside the run cannot change the owner.
-                try:
-                    os.chmod(freezer_file, stat.S_IRUSR | stat.S_IWUSR)
-                    util.write_file("THAWED", freezer_file)
-                except OSError:
-                    pass
+                # With force=True this fails only if we are not owner, but then there is
+                # nothing we can do. But the processes inside the run cannot change the
+                # owner, so this should not happen.
+                pass
 
         # First, we go through all cgroups recursively while they are frozen and kill
         # all processes. This helps against fork bombs and prevents processes from
@@ -448,8 +443,7 @@ class CgroupsV1(Cgroups):
         # delete subgroups).
         if self.FREEZE in self.subsystems:
             cgroup = self.subsystems[self.FREEZE]
-            freezer_file = os.path.join(cgroup, "freezer.state")
-            util.write_file("FROZEN", freezer_file)
+            util.write_file("FROZEN", cgroup, "freezer.state", force=True)
 
             for child_cgroup in recursive_child_cgroups(cgroup):
                 with _force_open_read(os.path.join(child_cgroup, "tasks")) as tasks:
@@ -461,7 +455,7 @@ class CgroupsV1(Cgroups):
                 # https://github.com/sosy-lab/benchexec/issues/840
                 try_unfreeze(child_cgroup)
 
-            util.write_file("THAWED", freezer_file)
+            util.write_file("THAWED", cgroup, "freezer.state", force=True)
 
         # Second, we go through all cgroups again, kill what is left,
         # check for emptiness, and remove subgroups.

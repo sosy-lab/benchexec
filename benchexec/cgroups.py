@@ -6,8 +6,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from abc import ABC, abstractmethod
+import errno
 import logging
 import os
+import stat
 
 from benchexec import util
 
@@ -245,14 +247,16 @@ class Cgroups(ABC):
         except OSError:
             # sometimes this fails because the cgroup is still busy, we try again once
             try:
+                os.chmod(os.path.basename(path), stat.S_IWUSR)
                 os.rmdir(path)
             except OSError as e:
-                logging.warning(
-                    "Failed to remove cgroup %s: error %s (%s)",
-                    path,
-                    e.errno,
-                    e.strerror,
-                )
+                if e.errno != errno.ENOENT:
+                    logging.warning(
+                        "Failed to remove cgroup %s: error %s (%s)",
+                        path,
+                        e.errno,
+                        e.strerror,
+                    )
 
     @abstractmethod
     def read_cputime(self):
