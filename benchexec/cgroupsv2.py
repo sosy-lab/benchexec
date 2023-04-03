@@ -490,7 +490,8 @@ class CgroupsV2(Cgroups):
         self.set_value(self.MEMORY, "max", limit)
 
     def read_memory_limit(self):
-        return int(self.get_value(self.MEMORY, "max"))
+        limit = self.get_value(self.MEMORY, "max")
+        return None if limit == "max" else int(limit)
 
     def disable_swap(self):
         self.set_value(self.MEMORY, "swap.max", "0")
