@@ -389,7 +389,7 @@ class CgroupsV2(Cgroups):
         if self.KILL in self.subsystems:
             # This will immediately terminate all processes recursively, even if frozen
             util.write_file("1", self.path / "cgroup.kill")
-            return
+            # We still need to clean up any child cgroups.
 
         # First, we go through all cgroups recursively while they are frozen and kill
         # all processes. This helps against fork bombs and prevents processes from
