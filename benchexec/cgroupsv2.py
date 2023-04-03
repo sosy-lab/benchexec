@@ -434,9 +434,10 @@ class CgroupsV2(Cgroups):
         return float(cpu_stats["usage_usec"]) / 1_000_000
 
     def read_max_mem_usage(self):
-        logging.debug("Memory-usage not supported in cgroups v2")
-
-        return
+        # Was only added in Linux 5.19
+        if self.has_value(self.MEMORY, "peak"):
+            return int(self.get_value(self.MEMORY, "peak"))
+        return None
 
     def _read_pressure_stall_information(self, subsystem):
         for line in open(self.path / (subsystem + ".pressure")):
