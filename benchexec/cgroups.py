@@ -376,6 +376,9 @@ class _DummyCgroups(Cgroups):
     def _has_tasks(self, path):
         pass
 
+    def has_tasks(self):
+        pass
+
     def write_memory_limit(self, limit):
         pass
 
