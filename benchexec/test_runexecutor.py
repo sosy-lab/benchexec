@@ -817,6 +817,7 @@ set -eu
 
 cgroup="/sys/fs/cgroup/freezer/$(grep freezer /proc/self/cgroup | cut -f 3 -d :)"
 mkdir "$cgroup/tmp"
+mkdir "$cgroup/tmp/tmp"
 
 sleep 10 &
 child_pid=$!
@@ -827,6 +828,8 @@ echo FROZEN > "$cgroup/tmp/freezer.state"
 chmod 000 "$cgroup/tmp/freezer.state"
 chmod 000 "$cgroup/tmp/tasks"
 chmod 000 "$cgroup/tmp"
+chmod 000 "$cgroup/freezer.state"
+chmod 000 "$cgroup/tasks"
 echo FROZEN
 wait $child_pid
 """,

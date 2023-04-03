@@ -268,11 +268,16 @@ def remove_cgroup(cgroup):
     except OSError:
         # sometimes this fails because the cgroup is still busy, we try again once
         try:
+            os.chmod(os.path.basename(cgroup), stat.S_IWUSR)
             os.rmdir(cgroup)
         except OSError as e:
-            logging.warning(
-                "Failed to remove cgroup %s: error %s (%s)", cgroup, e.errno, e.strerror
-            )
+            if e.errno != errno.ENOENT:
+                logging.warning(
+                    "Failed to remove cgroup %s: error %s (%s)",
+                    cgroup,
+                    e.errno,
+                    e.strerror,
+                )
 
 
 def _register_process_with_cgrulesengd(pid):
@@ -511,8 +516,7 @@ class Cgroup(object):
         # delete subgroups).
         if FREEZER in self.subsystems:
             cgroup = self.subsystems[FREEZER]
-            freezer_file = os.path.join(cgroup, "freezer.state")
-            util.write_file("FROZEN", freezer_file)
+            util.write_file("FROZEN", cgroup, "freezer.state", force=True)
 
             for child_cgroup in recursive_child_cgroups(cgroup):
                 with _force_open_read(os.path.join(child_cgroup, "tasks")) as tasks:
@@ -524,7 +528,7 @@ class Cgroup(object):
                 # https://github.com/sosy-lab/benchexec/issues/840
                 try_unfreeze(child_cgroup)
 
-            util.write_file("THAWED", freezer_file)
+            util.write_file("THAWED", cgroup, "freezer.state", force=True)
 
         # Second, we go through all cgroups again, kill what is left,
         # check for emptiness, and remove subgroups.
