@@ -241,7 +241,7 @@ class Cgroups(ABC):
         if not os.path.exists(path):
             logging.warning("Cannot remove CGroup %s, because it does not exist.", path)
             return
-        assert not self.has_tasks(path)
+        assert not self._has_tasks(path)
         try:
             os.rmdir(path)
         except OSError:
@@ -300,9 +300,8 @@ class Cgroups(ABC):
     def read_io_stat(self):
         pass
 
-    # TODO improve interface
     @abstractmethod
-    def has_tasks(self, path):
+    def _has_tasks(self, path):
         pass
 
     @abstractmethod
@@ -369,7 +368,7 @@ class _DummyCgroups(Cgroups):
     def read_io_stat(self):
         pass
 
-    def has_tasks(self, path):
+    def _has_tasks(self, path):
         pass
 
     def write_memory_limit(self, limit):

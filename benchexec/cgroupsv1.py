@@ -540,7 +540,7 @@ class CgroupsV1(Cgroups):
                 pass  # There are irrelevant lines in this file with a different structure
         return bytes_read, bytes_written
 
-    def has_tasks(self, path):
+    def _has_tasks(self, path):
         return util.read_file(path, "tasks") != ""
 
     def write_memory_limit(self, limit):

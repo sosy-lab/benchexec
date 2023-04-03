@@ -480,8 +480,10 @@ class CgroupsV2(Cgroups):
                 bytes_written += int(stats_map["wbytes"])
         return bytes_read, bytes_written
 
-    def has_tasks(self, path=None):
-        path = path or self.path
+    def has_tasks(self):
+        return self._has_tasks(self.path)
+
+    def _has_tasks(self, path):
         return bool((path / "cgroup.procs").read_bytes().strip())
 
     def write_memory_limit(self, limit):
