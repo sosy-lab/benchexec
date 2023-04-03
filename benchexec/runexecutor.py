@@ -1064,8 +1064,6 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             for core, coretime in cgroups.read_usage_per_cpu().items():
                 result[f"cputime-cpu{core}"] = coretime
 
-            store_result("total-cpu-pressure-some", cgroups.read_cpu_pressure())
-
         if cgroups.MEMORY in cgroups:
             store_result("memory", cgroups.read_max_mem_usage())
 
@@ -1073,12 +1071,14 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             if oom_count:
                 result["oom"] = oom_count
 
-            store_result("total-memory-pressure-some", cgroups.read_mem_pressure())
-
         if cgroups.IO in cgroups:
             result["blkio-read"], result["blkio-write"] = cgroups.read_io_stat()
 
-            store_result("total-io-pressure-some", cgroups.read_io_pressure())
+        # Pressure information does not depend on enabled controllers:
+        # https://docs.kernel.org/accounting/psi.html
+        store_result("total-cpu-pressure-some", cgroups.read_cpu_pressure())
+        store_result("total-memory-pressure-some", cgroups.read_mem_pressure())
+        store_result("total-io-pressure-some", cgroups.read_io_pressure())
 
         logging.debug(
             "Resource usage of run: walltime=%s, cputime=%s, cgroup-cputime=%s, memory=%s",
