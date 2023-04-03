@@ -428,10 +428,11 @@ class CgroupsV2(Cgroups):
         kill_all_tasks_in_cgroup(self.path)
 
     def read_cputime(self):
-        cpu_stats = dict(self.get_key_value_pairs(self.CPU, "stat"))
-
-        # TODO switch to Decimal together with all other float values
-        return float(cpu_stats["usage_usec"]) / 1_000_000
+        for k, v in self.get_key_value_pairs(self.CPU, "stat"):
+            if k == "usage_usec":
+                # TODO switch to Decimal together with all other float values
+                return int(v) / 1_000_000
+        return None
 
     def read_max_mem_usage(self):
         # Was only added in Linux 5.19
@@ -510,9 +511,8 @@ class CgroupsV2(Cgroups):
         self.set_value(self.MEMORY, "swap.max", "0")
 
     def read_oom_count(self):
-        for line in self.get_file_lines(self.MEMORY, "events"):
-            k, v = line.split(" ")
+        for k, v in self.get_key_value_pairs(self.MEMORY, "events"):
             if k == "oom_kill":
                 return int(v)
 
-        return 0
+        return None

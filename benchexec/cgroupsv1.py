@@ -585,7 +585,7 @@ class CgroupsV1(Cgroups):
         # https://www.kernel.org/doc/Documentation/cgroups/memory.txt
         # (unlike setting the global swappiness to 0).
         # Our process might get killed because of this.
-        return self.set_value(self.MEMORY, "swappiness", "0")
+        self.set_value(self.MEMORY, "swappiness", "0")
 
     def read_oom_count(self):
         # not supported in v1, see oomhandler and memory_used > memlimit impl
