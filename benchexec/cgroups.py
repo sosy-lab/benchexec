@@ -322,6 +322,11 @@ class Cgroups(ABC):
         pass
 
     @abstractmethod
+    def can_limit_swap(self):
+        """Check wether cgroups can be used to limit swap usage."""
+        pass
+
+    @abstractmethod
     def disable_swap(self):
         pass
 
@@ -389,6 +394,9 @@ class _DummyCgroups(Cgroups):
         pass
 
     def read_oom_count(self):
+        pass
+
+    def can_limit_swap(self):
         pass
 
     def disable_swap(self):

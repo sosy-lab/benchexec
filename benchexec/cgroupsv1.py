@@ -580,6 +580,9 @@ class CgroupsV1(Cgroups):
                 limit = min(limit, int(value))
         return limit
 
+    def can_limit_swap(self):
+        return self.has_value(self.MEMORY, "memsw.max_usage_in_bytes")
+
     def disable_swap(self):
         # Note that this disables swapping completely according to
         # https://www.kernel.org/doc/Documentation/cgroups/memory.txt

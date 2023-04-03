@@ -371,12 +371,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         if self.cgroups.MEMORY not in self.cgroups:
             logging.warning("Cannot measure memory consumption without memory cgroup.")
         else:
-            # FIXME
-            if systeminfo.has_swap() and (
-                not self.cgroups.has_value(
-                    self.cgroups.MEMORY, "memsw.max_usage_in_bytes"
-                )
-            ):
+            if systeminfo.has_swap() and not self.cgroups.can_limit_swap():
                 logging.warning(
                     "Kernel misses feature for accounting swap memory, but machine has swap. "
                     "Memory usage may be measured inaccurately. "

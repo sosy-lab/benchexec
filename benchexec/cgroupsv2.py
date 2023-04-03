@@ -507,6 +507,9 @@ class CgroupsV2(Cgroups):
 
         assert False  # will never be reached
 
+    def can_limit_swap(self):
+        return self.has_value(self.MEMORY, "swap.max")
+
     def disable_swap(self):
         self.set_value(self.MEMORY, "swap.max", "0")
 
