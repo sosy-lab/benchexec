@@ -304,9 +304,9 @@ def main(argv=None):
     print_optional_result("memory", "B")
     print_optional_result("blkio-read", "B")
     print_optional_result("blkio-write", "B")
-    print_optional_result("total-cpu-pressure-some", "s")
-    print_optional_result("total-io-pressure-some", "s")
-    print_optional_result("total-memory-pressure-some", "s")
+    print_optional_result("pressure-cpu-some", "s")
+    print_optional_result("pressure-io-some", "s")
+    print_optional_result("pressure-memory-some", "s")
     energy = intel_cpu_energy.format_energy_results(result.get("cpuenergy"))
     for energy_key, energy_value in energy.items():
         print(f"{energy_key}={energy_value}J")
@@ -1076,9 +1076,9 @@ class RunExecutor(containerexecutor.ContainerExecutor):
 
         # Pressure information does not depend on enabled controllers:
         # https://docs.kernel.org/accounting/psi.html
-        store_result("total-cpu-pressure-some", cgroups.read_cpu_pressure())
-        store_result("total-memory-pressure-some", cgroups.read_mem_pressure())
-        store_result("total-io-pressure-some", cgroups.read_io_pressure())
+        store_result("pressure-cpu-some", cgroups.read_cpu_pressure())
+        store_result("pressure-memory-some", cgroups.read_mem_pressure())
+        store_result("pressure-io-some", cgroups.read_io_pressure())
 
         logging.debug(
             "Resource usage of run: walltime=%s, cputime=%s, cgroup-cputime=%s, memory=%s",
