@@ -1021,6 +1021,10 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         cputime_wait = ru_child.ru_utime + ru_child.ru_stime if ru_child else 0
         cputime_cgroups = None
 
+        def store_result(key, value):
+            if value is not None:
+                result[key] = value
+
         if cgroups.CPU in cgroups:
             # We want to read the value from the cgroup.
             # The documentation warns about outdated values.
@@ -1060,29 +1064,21 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             for core, coretime in cgroups.read_usage_per_cpu().items():
                 result[f"cputime-cpu{core}"] = coretime
 
-            cpu_pressure = cgroups.read_cpu_pressure()
-            if cpu_pressure is not None:
-                result["total-cpu-pressure-some"] = cpu_pressure
+            store_result("total-cpu-pressure-some", cgroups.read_cpu_pressure())
 
         if cgroups.MEMORY in cgroups:
-            max_mem_usage = cgroups.read_max_mem_usage()
-            if max_mem_usage is not None:
-                result["memory"] = max_mem_usage
+            store_result("memory", cgroups.read_max_mem_usage())
 
             oom_count = cgroups.read_oom_count()
             if oom_count:
                 result["oom"] = oom_count
 
-            mem_pressure = cgroups.read_mem_pressure()
-            if mem_pressure is not None:
-                result["total-memory-pressure-some"] = mem_pressure
+            store_result("total-memory-pressure-some", cgroups.read_mem_pressure())
 
         if cgroups.IO in cgroups:
             result["blkio-read"], result["blkio-write"] = cgroups.read_io_stat()
 
-            io_pressure = cgroups.read_io_pressure()
-            if io_pressure is not None:
-                result["total-io-pressure-some"] = io_pressure
+            store_result("total-io-pressure-some", cgroups.read_io_pressure())
 
         logging.debug(
             "Resource usage of run: walltime=%s, cputime=%s, cgroup-cputime=%s, memory=%s",
