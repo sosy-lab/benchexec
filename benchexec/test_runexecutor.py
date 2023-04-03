@@ -813,7 +813,7 @@ class TestRunExecutor(unittest.TestCase):
         # https://github.com/sosy-lab/benchexec/issues/840
         if not os.path.exists(self.sleep):
             self.skipTest("missing sleep")
-        if not os.path.exists("/sys/fs/cgroup/freezer"):
+        if self.cgroups.version == 1 and not os.path.exists("/sys/fs/cgroup/freezer"):
             self.skipTest("missing freezer cgroup")
         self.setUp(
             dir_modes={
@@ -823,10 +823,7 @@ class TestRunExecutor(unittest.TestCase):
                 "/sys/fs/cgroup": containerexecutor.DIR_FULL_ACCESS,
             }
         )
-        (result, output) = self.execute_run(
-            "/bin/sh",
-            "-c",
-            """#!/bin/sh
+        script_v1 = """#!/bin/sh
 # create process, move it to sub-cgroup, and freeze it
 set -eu
 
@@ -847,7 +844,33 @@ chmod 000 "$cgroup/freezer.state"
 chmod 000 "$cgroup/tasks"
 echo FROZEN
 wait $child_pid
-""",
+"""
+        script_v2 = """#!/bin/sh
+# create process, move it to sub-cgroup, and freeze it
+set -eu
+
+cgroup="/sys/fs/cgroup/$(cut -f 3 -d : /proc/self/cgroup)"
+mkdir "$cgroup/tmp"
+mkdir "$cgroup/tmp/tmp"
+
+sleep 10 &
+child_pid=$!
+
+echo $child_pid > "$cgroup/tmp/cgroup.procs"
+echo 1 > "$cgroup/tmp/cgroup.freeze"
+# remove permissions in order to test our handling of this case
+chmod 000 "$cgroup/tmp/cgroup.freeze"
+chmod 000 "$cgroup/tmp/cgroup.procs"
+chmod 000 "$cgroup/tmp"
+chmod 000 "$cgroup/cgroup.freeze"
+chmod 000 "$cgroup/cgroup.kill"
+echo FROZEN
+wait $child_pid
+"""
+        (result, output) = self.execute_run(
+            "/bin/sh",
+            "-c",
+            script_v1 if self.cgroups.version == 1 else script_v2,
             walltimelimit=1,
             expect_terminationreason="walltime",
         )
