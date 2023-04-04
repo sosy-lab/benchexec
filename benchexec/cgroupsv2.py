@@ -514,7 +514,7 @@ class CgroupsV2(Cgroups):
         self.set_value(self.MEMORY, "swap.max", "0")
 
     def read_oom_count(self):
-        for k, v in self.get_key_value_pairs(self.MEMORY, "events"):
+        for k, v in self.get_key_value_pairs(self.MEMORY, "events.local"):
             if k == "oom_kill":
                 return int(v)
 
