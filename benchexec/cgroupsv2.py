@@ -487,6 +487,10 @@ class CgroupsV2(Cgroups):
 
     def write_memory_limit(self, limit):
         self.set_value(self.MEMORY, "max", limit)
+        # On OOM we want to terminate the whole run, but we would not notice if the
+        # kernel kills only some random subprocess. So we tell it to kill all processes
+        # in the cgroup. This is available since Linux 4.19.
+        self.set_value(self.MEMORY, "oom.group", 1)
 
     def read_memory_limit(self):
         limit = self.get_value(self.MEMORY, "max")

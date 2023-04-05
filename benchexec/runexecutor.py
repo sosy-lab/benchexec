@@ -562,6 +562,8 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         """Start memory-limit handler.
         @return None or the memory-limit handler for calling cancel()
         """
+        # On CgroupsV2, the kernel kills the whole cgroup for us on OOM
+        # and we can detect OOMs reliably after the fact. So no need to do anything.
         if memlimit is not None and cgroups.version == 1:
             try:
                 oomThread = oomhandler.KillProcessOnOomThread(
