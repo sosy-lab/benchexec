@@ -1012,7 +1012,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             result["terminationreason"] = "memory"
 
         # Cleanup
-        del result["oom_kill_count"]
+        result.pop("oom_kill_count", None)
 
         return result
 
