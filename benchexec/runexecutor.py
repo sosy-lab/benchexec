@@ -1004,7 +1004,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         elif self.cgroups.version == 2 and result.get("oom_kill_count"):
             # At least one process was killed by the kernel due to OOM.
             result["terminationreason"] = "memory"
-        elif self.cgroups.version == 1 or (
+        elif self.cgroups.version == 1 and (
             memlimit and result.get("memory", 0) >= memlimit
         ):
             # The kernel does not always issue OOM notifications and thus the OOMHandler
