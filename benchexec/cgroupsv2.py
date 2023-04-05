@@ -517,7 +517,7 @@ class CgroupsV2(Cgroups):
     def disable_swap(self):
         self.set_value(self.MEMORY, "swap.max", "0")
 
-    def read_oom_count(self):
+    def read_oom_kill_count(self):
         for k, v in self.get_key_value_pairs(self.MEMORY, "events.local"):
             if k == "oom_kill":
                 return int(v)

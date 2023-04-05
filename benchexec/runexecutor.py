@@ -1001,10 +1001,18 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 }
         if self._termination_reason:
             result["terminationreason"] = self._termination_reason
-        elif result.get("oom") or (memlimit and result.get("memory", 0) >= memlimit):
+        elif self.cgroups.version == 2 and result.get("oom_kill_count"):
+            # At least one process was killed by the kernel due to OOM.
+            result["terminationreason"] = "memory"
+        elif self.cgroups.version == 1 or (
+            memlimit and result.get("memory", 0) >= memlimit
+        ):
             # The kernel does not always issue OOM notifications and thus the OOMHandler
             # does not always run even in case of OOM. We detect this there and report OOM.
             result["terminationreason"] = "memory"
+
+        # Cleanup
+        del result["oom_kill_count"]
 
         return result
 
@@ -1063,10 +1071,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
 
         if cgroups.MEMORY in cgroups:
             store_result("memory", cgroups.read_max_mem_usage())
-
-            oom_count = cgroups.read_oom_count()
-            if oom_count:
-                result["oom"] = oom_count
+            store_result("oom_kill_count", cgroups.read_oom_kill_count())
 
         if cgroups.IO in cgroups:
             result["blkio-read"], result["blkio-write"] = cgroups.read_io_stat()

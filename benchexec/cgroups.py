@@ -318,7 +318,7 @@ class Cgroups(ABC):
         pass
 
     @abstractmethod
-    def read_oom_count(self):
+    def read_oom_kill_count(self):
         pass
 
     @abstractmethod
@@ -393,7 +393,7 @@ class _DummyCgroups(Cgroups):
     def read_hierarchical_memory_limit(self):
         pass
 
-    def read_oom_count(self):
+    def read_oom_kill_count(self):
         pass
 
     def can_limit_swap(self):

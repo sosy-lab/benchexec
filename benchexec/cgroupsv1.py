@@ -590,6 +590,6 @@ class CgroupsV1(Cgroups):
         # Our process might get killed because of this.
         self.set_value(self.MEMORY, "swappiness", "0")
 
-    def read_oom_count(self):
+    def read_oom_kill_count(self):
         # not supported in v1, see oomhandler and memory_used > memlimit impl
         return None
