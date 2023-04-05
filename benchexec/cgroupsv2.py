@@ -37,13 +37,13 @@ Otherwise please configure your system such that BenchExec can use cgroups."""
 _ERROR_NO_PSYSTEMD = """
 BenchExec was not able to use cgroups.
 Please either start it within a fresh systemd scope by prefixing your command line with
-  systemd-run --user --scope -p Delegate=yes
+  systemd-run --user --scope --slice=benchexec -p Delegate=yes
 or install the Python library pystemd such that BenchExec can do this automatically."""
 
 _ERROR_MSG_OTHER = """
 BenchExec was not able to use cgroups and did not manage to create a systemd scope.
 Please ensure that we can connect to systemd via DBus or try starting BenchExec within a fresh systemd scope by prefixing your command line with
-  systemd-run --user --scope -p Delegate=yes"""
+  systemd-run --user --scope --slice=benchexec -p Delegate=yes"""
 
 uid = os.getuid()
 CGROUP_NAME_PREFIX = "benchmark_"
@@ -131,6 +131,8 @@ def _create_systemd_scope_for_us():
             unit_params = {
                 # workaround for not declared parameters, remove in the future
                 b"_custom": (b"PIDs", b"au", [os.getpid()]),
+                # Put us in our own slice to be separate from other applications
+                b"Slice": b"benchexec.slice",
                 b"Delegate": True,
             }
 
