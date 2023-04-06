@@ -17,7 +17,6 @@ import fnmatch
 import glob
 import logging
 import os
-import pathlib
 import re
 import shutil
 import signal as _signal
@@ -816,28 +815,3 @@ def check_msr():
         if all(os.access(f"/dev/cpu/{cpu}/msr", os.W_OK) for cpu in cpu_dirs):
             res["write"] = True
     return res
-
-
-def get_pgrp_pids(pgid):
-    pids = []
-    for proc_status_path in pathlib.Path("/proc").glob("[0-9]*/status"):
-        try:
-            with open(proc_status_path) as proc_status:
-                for line in proc_status:
-                    key, value, *_ = line.split("\t")
-                    if key == "Pid:":
-                        pid = value
-                    elif key == "NSpgid:":
-                        status_pgid = value
-                if pgid == int(status_pgid):
-                    pids.append(int(pid))
-        except OSError:
-            # ignore race conditions with processes disappearing
-            # they aren't interesting to us anyway as processes
-            # related to us will continue running. Apart from that, this is
-            # used to move processes to a scope or check if moving to a cgroup
-            # makes sense so processes having terminated aren't useful in these
-            # cases anyway
-            pass
-
-    return pids

@@ -73,9 +73,11 @@ def initialize():
 
         cgroup = CgroupsV2.from_system()
 
-        allowed_pids = set(util.get_pgrp_pids(os.getpgid(0)))
-        if set(cgroup.get_all_tasks()) <= allowed_pids:
+        if list(cgroup.get_all_tasks()) == [os.getpid()]:
             # If we are the only process, somebody prepared a cgroup for us. Use it.
+            # We might be able to relax this check and for example allow child processes,
+            # but then we would also have to move them to another cgroup,
+            # which might not be a good idea.
             logging.debug("BenchExec was started in its own cgroup: %s", cgroup)
 
         elif _create_systemd_scope_for_us():
