@@ -11,7 +11,15 @@ import pytest
 
 from benchexec import check_cgroups
 
-logging.disable(logging.CRITICAL)
+@pytest.fixture(scope='function')
+def enable_logging(request):
+    """Fixture to enable logging for a specific test function."""
+    logging.basicConfig(level=logging.DEBUG)
+
+    def disable_logging():
+        logging.disable(logging.CRITICAL)
+
+    request.addfinalizer(disable_logging)
 
 class TestCheckCgroups:
     def execute_run_extern(self, *args, **kwargs):
@@ -27,24 +35,27 @@ class TestCheckCgroups:
                 print(e.output)
                 raise e
 
-    def test_extern_command(self):
+    def test_extern_command(self, enable_logging):
+        """Test external command."""
         self.execute_run_extern()
 
-    def test_simple(self):
+    def test_simple(self, enable_logging):
+        """Test check_cgroups.main() with --no-thread."""
         try:
             check_cgroups.main(["--no-thread"])
         except SystemExit as e:
             # expected if cgroups are not available
             pytest.skip(str(e))
 
-    def test_threaded(self):
+    def test_threaded(self, enable_logging):
+        """Test check_cgroups.main() with threading."""
         try:
             check_cgroups.main([])
         except SystemExit as e:
             # expected if cgroups are not available
             pytest.skip(str(e))
 
-    def test_thread_result_is_returned(self):
+    def test_thread_result_is_returned(self, enable_logging):
         """
         Test that an error raised by check_cgroup_availability is correctly
         re-raised in the main thread by replacing this function temporarily.
