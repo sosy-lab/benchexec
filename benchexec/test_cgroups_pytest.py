@@ -5,21 +5,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import logging
 import subprocess
 import pytest
-
 from benchexec import check_cgroups
-
-@pytest.fixture(scope='function')
-def enable_logging(request):
-    """Fixture to enable logging for a specific test function."""
-    logging.basicConfig(level=logging.DEBUG)
-
-    def disable_logging():
-        logging.disable(logging.CRITICAL)
-
-    request.addfinalizer(disable_logging)
 
 class TestCheckCgroups:
     def execute_run_extern(self, *args, **kwargs):
@@ -35,27 +23,30 @@ class TestCheckCgroups:
                 print(e.output)
                 raise e
 
-    def test_extern_command(self, enable_logging):
+    def test_extern_command(self, caplog):
         """Test external command."""
-        self.execute_run_extern()
+        with caplog.at_level("DEBUG"):
+            self.execute_run_extern()
 
-    def test_simple(self, enable_logging):
+    def test_simple(self, caplog):
         """Test check_cgroups.main() with --no-thread."""
-        try:
-            check_cgroups.main(["--no-thread"])
-        except SystemExit as e:
-            # expected if cgroups are not available
-            pytest.skip(str(e))
+        with caplog.at_level("DEBUG"):
+            try:
+                check_cgroups.main(["--no-thread"])
+            except SystemExit as e:
+                # expected if cgroups are not available
+                pytest.skip(str(e))
 
-    def test_threaded(self, enable_logging):
+    def test_threaded(self, caplog):
         """Test check_cgroups.main() with threading."""
-        try:
-            check_cgroups.main([])
-        except SystemExit as e:
-            # expected if cgroups are not available
-            pytest.skip(str(e))
+        with caplog.at_level("DEBUG"):
+            try:
+                check_cgroups.main([])
+            except SystemExit as e:
+                # expected if cgroups are not available
+                pytest.skip(str(e))
 
-    def test_thread_result_is_returned(self, enable_logging):
+    def test_thread_result_is_returned(self, caplog):
         """
         Test that an error raised by check_cgroup_availability is correctly
         re-raised in the main thread by replacing this function temporarily.
@@ -64,7 +55,7 @@ class TestCheckCgroups:
         try:
             check_cgroups.check_cgroup_availability = lambda wait: exit(1)
 
-            with pytest.raises(SystemExit):
+            with caplog.at_level("DEBUG"), pytest.raises(SystemExit):
                 check_cgroups.main([])
 
         finally:
