@@ -62,7 +62,7 @@ def get_cpu_cores_per_run(
     """
     try:
         # read list of available CPU cores
-        allCpus = util.parse_int_list(my_cgroups.get_value(cgroups.CPUSET, "cpus"))
+        allCpus = my_cgroups.read_allowed_cpus()
 
         # Filter CPU cores according to the list of identifiers provided by a user
         if coreSet:
