@@ -32,7 +32,12 @@ __all__ = [
 
 # prepping function, consider change of name
 def get_cpu_cores_per_run(
-    coreLimit, num_of_threads, use_hyperthreading, my_cgroups, coreSet=None
+    coreLimit,
+    num_of_threads,
+    use_hyperthreading,
+    my_cgroups,
+    coreSet=None,
+    coreRequirement=None,
 ):
     """
     Calculate an assignment of the available CPU cores to a number
@@ -152,15 +157,57 @@ def get_cpu_cores_per_run(
                     key
                 )  # memory_regions = [key1, key2, key3]
 
+    # addition of meta hierarchy level if necessary
+    check_and_add_meta_level(hierarchy_levels, allCpus)
+
     # call the actual assignment function
-    return get_cpu_distribution(
-        coreLimit,
-        num_of_threads,
-        use_hyperthreading,
-        allCpus,
-        siblings_of_core,
-        hierarchy_levels,
-    )
+    result = []
+    if not coreRequirement:
+        result = get_cpu_distribution(
+            coreLimit,
+            num_of_threads,
+            use_hyperthreading,
+            allCpus,
+            siblings_of_core,
+            hierarchy_levels,
+        )
+    else:
+        if coreRequirement >= coreLimit:
+            prelim_result = get_cpu_distribution(
+                coreRequirement,
+                num_of_threads,
+                use_hyperthreading,
+                allCpus,
+                siblings_of_core,
+                hierarchy_levels,
+            )
+            for resultlist in prelim_result:
+                result.append(resultlist[:coreLimit])
+        else:
+            i = coreLimit
+            while i >= coreRequirement:
+                if check_distribution_feasibility(
+                    i,
+                    num_of_threads,
+                    use_hyperthreading,
+                    allCpus,
+                    siblings_of_core,
+                    hierarchy_levels,
+                    isTest=True,
+                ):
+                    result = get_cpu_distribution(
+                        i,
+                        num_of_threads,
+                        use_hyperthreading,
+                        allCpus,
+                        siblings_of_core,
+                        hierarchy_levels,
+                    )
+                    break
+                else:
+                    i -= 1
+
+    return result
 
 
 # define class virtualCore to generate core objects
@@ -201,6 +248,120 @@ def filter_hyperthreading_siblings(allCpus, siblings_of_core, hierarchy_levels):
             allCpus.pop(virtual_core)
 
 
+def check_distribution_feasibility(
+    coreLimit,
+    num_of_threads,
+    use_hyperthreading,
+    allCpus,
+    siblings_of_core,
+    hierarchy_levels,
+    isTest=True,
+):
+    """Checks, whether the core distribution can work with the given parameters"""
+    is_feasible = True
+
+    if not use_hyperthreading:
+        filter_hyperthreading_siblings(allCpus, siblings_of_core, hierarchy_levels)
+
+    # compare number of available cores to required cores per run
+    coreCount = len(allCpus)
+    if coreLimit > coreCount:
+        if not isTest:
+            sys.exit(
+                f"Cannot run benchmarks with {coreLimit} CPU cores, "
+                f"only {coreCount} CPU cores available."
+            )
+        else:
+            is_feasible = False
+
+    # compare number of available run to overall required cores
+    if coreLimit * num_of_threads > coreCount:
+        if not isTest:
+            sys.exit(
+                f"Cannot run {num_of_threads} benchmarks in parallel "
+                f"with {coreLimit} CPU cores each, only {coreCount} CPU cores available. "
+                f"Please reduce the number of threads to {coreCount // coreLimit}."
+            )
+        else:
+            is_feasible = False
+
+    coreLimit_rounded_up = calculate_coreLimit_rounded_up(siblings_of_core, coreLimit)
+    chosen_level = calculate_chosen_level(hierarchy_levels, coreLimit_rounded_up)
+
+    # calculate runs per unit of hierarchy level i
+    unit_size = len(next(iter(hierarchy_levels[chosen_level].values())))
+    assert unit_size >= coreLimit_rounded_up
+    runs_per_unit = int(math.floor(unit_size / coreLimit_rounded_up))
+
+    # compare num of units & runs per unit vs num_of_threads
+    if len(hierarchy_levels[chosen_level]) * runs_per_unit < num_of_threads:
+        if not isTest:
+            sys.exit(
+                f"Cannot assign required number of threads."
+                f"Please reduce the number of threads to {len(hierarchy_levels[chosen_level]) * runs_per_unit}."
+            )
+        else:
+            is_feasible = False
+
+    # calculate if sub_units have to be split to accommodate the runs_per_unit
+    sub_units_per_run = calculate_sub_units_per_run(
+        coreLimit_rounded_up, hierarchy_levels, chosen_level
+    )
+    print("sub_units_per_run = ", sub_units_per_run)
+    # number of nodes at subunit-Level / sub_units_per_run
+    if len(hierarchy_levels[chosen_level - 1]) / sub_units_per_run < num_of_threads:
+        if not isTest:
+            sys.exit(
+                f"Cannot split memory regions between runs. "
+                f"Please reduce the number of threads to {math.floor(len(hierarchy_levels[chosen_level-1]) / sub_units_per_run)}."
+            )
+        else:
+            is_feasible = False
+
+    return is_feasible
+
+
+def calculate_chosen_level(hierarchy_levels, coreLimit_rounded_up):
+    """Choose hierarchy level for core assignment"""
+    chosen_level = 1
+    # move up in hierarchy as long as the number of cores at the current level is smaller than the coreLimit
+    # if the number of cores at the current level is as big as the coreLimit: exit loop
+    while (
+        chosen_level < len(hierarchy_levels) - 1
+        and len(next(iter(hierarchy_levels[chosen_level].values())))
+        < coreLimit_rounded_up
+    ):
+        chosen_level = chosen_level + 1
+    return chosen_level
+
+
+def calculate_coreLimit_rounded_up(siblings_of_core, coreLimit):
+    """coreLimit_rounded_up (int): recalculate # cores for each run accounting for HT"""
+    core_size = len(next(iter(siblings_of_core.values())))
+    # Take value from hierarchy_levels instead from siblings_of_core
+    coreLimit_rounded_up = int(math.ceil(coreLimit / core_size) * core_size)
+    assert coreLimit <= coreLimit_rounded_up < (coreLimit + core_size)
+    return coreLimit_rounded_up
+
+
+def calculate_sub_units_per_run(coreLimit_rounded_up, hierarchy_levels, chosen_level):
+    """calculate how many sub_units have to be used to accommodate the runs_per_unit"""
+    sub_units_per_run = math.ceil(
+        coreLimit_rounded_up / len(hierarchy_levels[chosen_level - 1][0])
+    )
+    return sub_units_per_run
+
+
+def check_and_add_meta_level(hierarchy_levels, allCpus):
+    if len(hierarchy_levels[-1]) > 1:
+        top_level_cores = []
+        for node in hierarchy_levels[-1]:
+            top_level_cores.extend(hierarchy_levels[-1][node])
+        hierarchy_levels.append({0: top_level_cores})
+        for cpu_nr in allCpus:
+            allCpus[cpu_nr].memory_regions.append(0)
+
+
 # assigns the v_cores into specific runs
 def get_cpu_distribution(
     coreLimit,
@@ -220,36 +381,21 @@ def get_cpu_distribution(
     @param siblings_of_core:    mapping from one of the sibling cores to the list of siblings including the core itself
     @param hierarchy_levels:    list of dicts mapping from a memory region identifier to its belonging cores
     """
-    # First: checks whether the algorithm can & should work
+
+    # check whether the distribution can work with the given parameters
+    check_distribution_feasibility(
+        coreLimit,
+        num_of_threads,
+        use_hyperthreading,
+        allCpus,
+        siblings_of_core,
+        hierarchy_levels,
+        isTest=False,
+    )
 
     # no HT filter: delete all but the key core from siblings_of_core & hierarchy_levels
     if not use_hyperthreading:
         filter_hyperthreading_siblings(allCpus, siblings_of_core, hierarchy_levels)
-
-    # addition of meta hierarchy level if necessary
-    if len(hierarchy_levels[-1]) > 1:
-        top_level_cores = []
-        for node in hierarchy_levels[-1]:
-            top_level_cores.extend(hierarchy_levels[-1][node])
-        hierarchy_levels.append({0: top_level_cores})
-        for cpu_nr in allCpus:
-            allCpus[cpu_nr].memory_regions.append(0)
-
-    # compare number of available cores to required cores per run
-    coreCount = len(allCpus)
-    if coreLimit > coreCount:
-        sys.exit(
-            f"Cannot run benchmarks with {coreLimit} CPU cores, "
-            f"only {coreCount} CPU cores available."
-        )
-
-    # compare number of available run to overall required cores
-    if coreLimit * num_of_threads > coreCount:
-        sys.exit(
-            f"Cannot run {num_of_threads} benchmarks in parallel "
-            f"with {coreLimit} CPU cores each, only {coreCount} CPU cores available. "
-            f"Please reduce the number of threads to {coreCount // coreLimit}."
-        )
 
     # check if all HT siblings are available for benchexec
     all_cpus_set = set(allCpus.keys())
@@ -271,45 +417,13 @@ def get_cpu_distribution(
             )
 
     # coreLimit_rounded_up (int): recalculate # cores for each run accounting for HT
-    core_size = len(next(iter(siblings_of_core.values())))
-    # Take value from hierarchy_levels instead from siblings_of_core
-    coreLimit_rounded_up = int(math.ceil(coreLimit / core_size) * core_size)
-    assert coreLimit <= coreLimit_rounded_up < (coreLimit + core_size)
-
+    coreLimit_rounded_up = calculate_coreLimit_rounded_up(siblings_of_core, coreLimit)
     # Choose hierarchy level for core assignment
-    chosen_level = 1
-    # move up in hierarchy as long as the number of cores at the current level is smaller than the coreLimit
-    # if the number of cores at the current level is as big as the coreLimit: exit loop
-    while (
-        chosen_level < len(hierarchy_levels) - 1
-        and len(next(iter(hierarchy_levels[chosen_level].values())))
-        < coreLimit_rounded_up
-    ):
-        chosen_level = chosen_level + 1
-    unit_size = len(next(iter(hierarchy_levels[chosen_level].values())))
-    assert unit_size >= coreLimit_rounded_up
-
-    # calculate runs per unit of hierarchy level i
-    runs_per_unit = int(math.floor(unit_size / coreLimit_rounded_up))
-
-    # compare num of units & runs per unit vs num_of_threads
-    if len(hierarchy_levels[chosen_level]) * runs_per_unit < num_of_threads:
-        sys.exit(
-            f"Cannot assign required number of threads."
-            f"Please reduce the number of threads to {len(hierarchy_levels[chosen_level]) * runs_per_unit}."
-        )
-
-    # calculate if sub_units have to be split to accommodate the runs_per_unit
-    sub_units_per_run = math.ceil(
-        coreLimit_rounded_up / len(hierarchy_levels[chosen_level - 1][0])
+    chosen_level = calculate_chosen_level(hierarchy_levels, coreLimit_rounded_up)
+    # calculate how many sub_units have to be used to accommodate the runs_per_unit
+    sub_units_per_run = calculate_sub_units_per_run(
+        coreLimit_rounded_up, hierarchy_levels, chosen_level
     )
-    print("sub_units_per_run = ", sub_units_per_run)
-    # Anzahl an Knoten im subunit-Level / sub_units_per_run
-    if len(hierarchy_levels[chosen_level - 1]) / sub_units_per_run < num_of_threads:
-        sys.exit(
-            f"Cannot split memory regions between runs. "
-            f"Please reduce the number of threads to {math.floor(len(hierarchy_levels[chosen_level-1]) / sub_units_per_run)}."
-        )
 
     # Start core assignment algorithm
     result = []
@@ -365,13 +479,13 @@ def get_cpu_distribution(
             while len(cores) < coreLimit and sub_unit_cores:
                 parent_list = sub_unit_cores.copy()
                 child_dict = {}
-                for lalala in hierarchy_levels[chosen_level - 1]:  # subunit level
+                for iter1 in hierarchy_levels[chosen_level - 1]:  # subunit level
                     for element in hierarchy_levels[chosen_level - 1][
-                        lalala
+                        iter1
                     ]:  # elements in value-lists
                         if element in parent_list:
                             child_dict.setdefault(
-                                lalala, hierarchy_levels[chosen_level - 1][lalala]
+                                iter1, hierarchy_levels[chosen_level - 1][iter1]
                             )
                 j = chosen_level - 1
                 while j > 0:
@@ -380,17 +494,17 @@ def get_cpu_distribution(
                     else:
                         j -= 1
                         distribution_list = list(child_dict.values())
-                        for blub in distribution_list.copy():
-                            if len(blub) == 0:
-                                distribution_list.remove(blub)
+                        for iter2 in distribution_list.copy():
+                            if len(iter2) == 0:
+                                distribution_list.remove(iter2)
                         distribution_list.sort(reverse=False)
                         parent_list = distribution_list[0]
                         child_dict = {}
-                        for lalala in hierarchy_levels[j]:
-                            for element in hierarchy_levels[j][lalala]:
+                        for iter3 in hierarchy_levels[j]:
+                            for element in hierarchy_levels[j][iter3]:
                                 if element in parent_list:
                                     child_dict.setdefault(
-                                        lalala, hierarchy_levels[j][lalala]
+                                        iter3, hierarchy_levels[j][iter3]
                                     )
                 next_core = list(child_dict.values())[0][0]
 

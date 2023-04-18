@@ -11,7 +11,7 @@ import unittest
 import math
 from collections import defaultdict
 from functools import cmp_to_key
-from benchexec.resources import get_cpu_distribution, virtualCore
+from resources import get_cpu_distribution, virtualCore, check_and_add_meta_level
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
@@ -152,6 +152,8 @@ class TestCpuCoresPerRun(unittest.TestCase):
             for key in level:
                 for core in level[key]:
                     allCpus[core].memory_regions.append(key)
+
+        check_and_add_meta_level(hierarchy_levels, allCpus)
 
         return allCpus, siblings_of_core, hierarchy_levels
 
@@ -339,7 +341,7 @@ class Test_Topology_P1_NUMA3_L6_C12_T(TestCpuCoresPerRun):
         self.t_unit_assertValid(5, self.fiveCore_assignment, 1)
 
     def test_singleCPU_invalid(self):
-        # coreLimit, num_of_threads
+        # (coreLimit, num_of_threads)
         self.assertInvalid(2, 7)
         self.assertInvalid(3, 4)
         self.assertInvalid(4, 4)
