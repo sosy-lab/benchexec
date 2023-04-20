@@ -14,7 +14,6 @@ import threading
 
 from benchexec.cgroups import CPUACCT, CPUSET, FREEZER, MEMORY, find_my_cgroups
 from benchexec.runexecutor import RunExecutor
-from benchexec import util
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
@@ -47,7 +46,7 @@ def check_cgroup_availability(wait=1):
             tmp.name,
             memlimit=1024 * 1024,  # set memlimit to force check for swapaccount
             # set cores and memory_nodes to force usage of CPUSET
-            cores=util.parse_int_list(my_cgroups.get_value(CPUSET, "cpus")),
+            cores=my_cgroups.read_allowed_cpus(),
             memory_nodes=my_cgroups.read_allowed_memory_banks(),
         )
         lines = []

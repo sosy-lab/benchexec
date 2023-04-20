@@ -99,6 +99,7 @@ def get_cpu_cores_per_run(
             cores_of_group = get_group_mapping(cores_of_NUMA_Region)
             if cores_of_group:
                 hierarchy_levels.append(cores_of_group)
+        
 
         # read & prepare mapping of cores to CPU/physical package/socket?
         cores_of_package = get_package_mapping(allCpus_list)
@@ -557,7 +558,7 @@ def core_clean_up(core, allCpus, hierarchy_levels):
 # return list of available CPU cores
 def get_cpu_list(my_cgroups, coreSet=None):
     # read list of available CPU cores
-    allCpus = util.parse_int_list(my_cgroups.get_value(cgroups.CPUSET, "cpus"))
+    allCpus = my_cgroups.read_allowed_cpus()
 
     # Filter CPU cores according to the list of identifiers provided by a user
     if coreSet:

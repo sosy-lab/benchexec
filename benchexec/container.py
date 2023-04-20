@@ -106,14 +106,6 @@ DIR_MODES = [DIR_HIDDEN, DIR_READ_ONLY, DIR_OVERLAY, DIR_FULL_ACCESS]
 
 LXCFS_PROC_DIR = b"/var/lib/lxcfs/proc"
 
-# Python before 3.7 does not have BeforeFork and AfterFork_(Child|Parent)
-if not hasattr(ctypes.pythonapi, "PyOS_BeforeFork"):
-    ctypes.pythonapi.PyOS_BeforeFork = lambda: None
-if not hasattr(ctypes.pythonapi, "PyOS_AfterFork_Parent"):
-    ctypes.pythonapi.PyOS_AfterFork_Parent = lambda: None
-if not hasattr(ctypes.pythonapi, "PyOS_AfterFork_Child"):
-    ctypes.pythonapi.PyOS_AfterFork_Child = ctypes.pythonapi.PyOS_AfterFork
-
 _CLONE_NESTED_CALLBACK = ctypes.CFUNCTYPE(ctypes.c_int)
 """Type for callback of execute_in_namespace, nested in our primary callback."""
 
@@ -165,7 +157,7 @@ def execute_in_namespace(func, use_network_ns=True):
 
     # We need to use the syscall clone(), which is similar to fork(), but not available
     # in the Python API. We can call it directly using ctypes, but then the state of the
-    # Python interpreter is inconsistent, so we need to fix that. Python >= 3.7 has
+    # Python interpreter is inconsistent, so we need to fix that. Python has
     # three C functions that should be called before and after fork/clone:
     # https://docs.python.org/3/c-api/sys.html#c.PyOS_BeforeFork
     # This is the same that os.fork() does (cf. os_fork_impl
@@ -175,14 +167,7 @@ def execute_in_namespace(func, use_network_ns=True):
     # Luckily, the ctypes module allows us to hold the GIL while executing the
     # function by using ctypes.PyDLL as library access instead of ctypes.CLL.
 
-    # Two difficulties remain:
-    # 1. On Python < 3.7, only PyOS_AfterFork() (to be called in the child) exists.
-    # Other cleanup done by os_fork_impl is not accessible to us, so we ignore it.
-    # For example, we do not take the import lock because it is only
-    # available via an internal API, and because the child should never import anything
-    # anyway (inside the container, modules might not be visible).
-
-    # 2. On all Python versions, the interpreter state in the child is inconsistent
+    # One difficulty remains: The interpreter state in the child is inconsistent
     # until PyOS_AfterFork_Child() is called. However, if we pass the Python function
     # _python_clone_child_callback() as callback to clone and do the cleanup in
     # its first line, it is too late because the Python interpreter is already used.

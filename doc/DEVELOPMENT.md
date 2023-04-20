@@ -30,9 +30,9 @@ and to install BenchExec in development mode within this environment:
 
     virtualenv -p /usr/bin/python3 path/to/venv
     source path/to/venv/bin/activate
-    pip install -e path/to/benchexec/working/directory
+    pip install -e "path/to/benchexec/working/directory[dev]"
 
-This will automatically install all dependencies
+This will automatically install all required and `dev` dependencies
 and place appropriate start scripts on the PATH.
 
 Some tests of BenchExec require the `lxml` Python module.
@@ -80,9 +80,11 @@ please raise an issue.
         git tag -s <VERSION>
 
  * In a clean checkout and in a virtual environment with Python 3 (as described above),
-   create the release archives:
+   exececute the following commands to build the source distribution (`sdist`) and
+   `wheel` file:
 
-        python3 setup.py sdist bdist_wheel
+        python3 -m pip install build
+        python3 -m build
 
  * Sign the files and upload them to PyPi inside the build directory:
 

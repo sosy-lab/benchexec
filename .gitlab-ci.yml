@@ -43,14 +43,14 @@ stages:
     # Give $PRIMARY_USER permission to create cgroups
     - test/for_each_of_my_cgroups.sh chgrp $PRIMARY_USER
     - test/for_each_of_my_cgroups.sh chmod g+w $PRIMARY_USER
-    # Install BenchExec
-    - sudo -u $PRIMARY_USER pip install --user .
+    # Install BenchExec with `dev` dependencies
+    - sudo -u $PRIMARY_USER pip install --user ".[dev]"
     # Start lxcfs
     - lxcfs /var/lib/lxcfs &
   script:
     - sudo -u $PRIMARY_USER
         COVERAGE_PROCESS_START=.coveragerc
-        coverage run setup.py test
+        coverage run -m nose
   after_script:
     - sudo -u $PRIMARY_USER coverage combine
     - sudo -u $PRIMARY_USER coverage report
@@ -91,7 +91,7 @@ check-format:
   stage: test
   image: python:3.9
   before_script:
-    - pip install black
+    - pip install 'black<2024'
   script:
     - black . --check --diff
   <<: *pip-cache
@@ -117,11 +117,12 @@ flake8:
 
 pytype:
   stage: test
-  image: python:3.8
   before_script:
-    - pip install coloredlogs pytype
+    - pip install pytype
   script:
     - pytype -k
+  variables:
+    PYTHON_VERSION: '3.8'
   cache:
     key: "${CI_JOB_NAME}"
     paths:

@@ -16,8 +16,9 @@ SPDX-License-Identifier: Apache-2.0
 [![DOI](https://zenodo.org/badge/30758422.svg)](https://zenodo.org/badge/latestdoi/30758422)
 
 
-**News**:
-- Linux kernel 5.11 finally [makes it possible](https://github.com/sosy-lab/benchexec/blob/main/doc/INSTALL.md#kernel-requirements) to use all BenchExec features on other distributions than Ubuntu!
+**News and Updates**:
+- BenchExec is part of [Google Summer of Code](https://summerofcode.withgoogle.com/) again! If you are interested in being paid by Google for contributing to BenchExec, check our [project ideas and instructions](https://www.sosy-lab.org/gsoc/).
+- Linux kernel 5.11 finally [makes it possible](https://github.com/sosy-lab/benchexec/blob/main/doc/INSTALL.md#kernel-requirements) to use all BenchExec features on distributions other than Ubuntu!
 - We now provide an [Ubuntu PPA](https://launchpad.net/~sosy-lab/+archive/ubuntu/benchmarking) that makes installing and upgrading BenchExec easier ([docs](https://github.com/sosy-lab/benchexec/blob/main/doc/INSTALL.md#debianubuntu)).
 - An extended version of our paper on BenchExec and its background was published as open access in the journal STTT,
   you can read [Reliable Benchmarking: Requirements and Solutions](https://doi.org/10.1007/s10009-017-0469-y) online.
@@ -33,9 +34,10 @@ BenchExec provides three major features:
   and automatically executing them on large sets of input files
 - generation of interactive tables and plots for the results
 
-Contrary to other benchmarking frameworks,
-it is able to reliably measure and limit resource usage
-of the benchmarked tool even if it spawns subprocesses.
+
+Unlike other benchmarking frameworks,
+BenchExec is able to reliably measure and limit resource usage
+of the benchmarked tool even if the latter spawns subprocesses.
 In order to achieve this,
 it uses the [cgroups feature](https://www.kernel.org/doc/Documentation/cgroup-v1/cgroups.txt)
 of the Linux kernel to correctly handle groups of processes.
@@ -136,6 +138,7 @@ The developers of the following tools use BenchExec:
 - [Dartagnan](https://github.com/hernanponcedeleon/Dat3M)
 - [SMACK](https://github.com/smackers/smack)
 - [SMTInterpol](https://github.com/ultimate-pa/smtinterpol)
+- [TriCera](https://github.com/uuverifiers/tricera)
 - [Ultimate](https://github.com/ultimate-pa/ultimate)
 
 If you would like to be listed here, [contact us](https://github.com/sosy-lab/benchexec/issues/new).

@@ -8,8 +8,10 @@
 import re
 import decimal
 from decimal import Decimal
+import enum
 from math import floor, ceil, log10
 import logging
+from typing import Tuple, Union
 
 from benchexec.tablegenerator import util
 
@@ -66,35 +68,15 @@ UNIT_CONVERSION = {
 inf = Decimal("inf")
 
 
-def enum(**enums):
-    return type("Enum", (), enums)
-
-
-class ColumnEnumType(object):
-    def __init__(self, _type, name):
-        self._type = _type
-        self.name = name
+class ColumnType(enum.Enum):
+    text = enum.auto()
+    count = enum.auto()
+    measure = enum.auto()
+    status = enum.auto()
 
     @property
     def type(self):
         return self
-
-    def __str__(self):
-        return self.name
-
-    def __eq__(self, other):
-        try:
-            return self._type == other._type
-        except Exception:
-            return False
-
-
-class ColumnType(object):
-    column_types = enum(text=1, count=2, measure=3, status=4)
-    text = ColumnEnumType(column_types.text, "text")
-    count = ColumnEnumType(column_types.count, "count")
-    measure = ColumnEnumType(column_types.measure, "measure")
-    status = ColumnEnumType(column_types.status, "status")
 
 
 class ColumnMeasureType(object):
@@ -253,7 +235,9 @@ class Column(object):
             format_target
         )
         max_dec_digits = (
-            self.type.max_decimal_digits if self.type.type == ColumnType.measure else 0
+            self.type.max_decimal_digits
+            if isinstance(self.type, ColumnMeasureType)
+            else 0
         )
 
         if number_of_significant_digits is not None:
@@ -345,6 +329,7 @@ def _get_significant_digits(value):
     # Use these groups to compute the number of zeros that have to be added to the current number's
     # decimal positions.
     match = REGEX_MEASURE.match(value)
+    assert match, "unexpected output format for number formatting"
 
     if int(match.group(GROUP_INT_PART)) == 0 and Decimal(value) != 0:
         sig_digits = len(match.group(GROUP_SIG_DEC_PART))
@@ -430,7 +415,12 @@ def _is_to_cut(value, format_target):
     return correct_target and "." in value and 1 > Decimal(value) >= 0
 
 
-def _get_column_type_heur(column, column_values):
+def _get_column_type_heur(
+    column, column_values
+) -> Union[  # noqa: TAE002 TODO should really be improved
+    ColumnType,
+    Tuple[Union[ColumnType, ColumnMeasureType], str, str, Union[int, Decimal], int],
+]:
     if column.title == "status":
         return ColumnType.status
 
@@ -516,6 +506,7 @@ def _get_column_type_heur(column, column_values):
 
             scaled_value = f"{scaled_value:.{max_number_of_dec_digits_after_scale}f}"
             scaled_value_match = REGEX_MEASURE.match(scaled_value)
+            assert scaled_value_match, "unexpected output format for number formatting"
 
             curr_dec_digits = _get_decimal_digits(
                 scaled_value_match, column.number_of_significant_digits

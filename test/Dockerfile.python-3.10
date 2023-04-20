@@ -15,13 +15,19 @@
 
 FROM python:3.10
 
+# Cannot use apt package python3-pystemd here
+# because these images do not use the Python installed via apt.
+
 RUN apt-get update && apt-get install -y \
+  libsystemd-dev \
   lxcfs \
   sudo
 
 RUN pip install \
+  coloredlogs \
   "coverage[toml] >= 5.0" \
   lxml \
+  pystemd \
   pyyaml \
   'setuptools < 58'
 

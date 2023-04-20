@@ -109,7 +109,7 @@ _ILLEGAL_XML_CHARS = re.compile(r"[^\x09\x0A\x0D\x20-\xD7FF\xE000-\xFFFD]")
 
 def is_legal_for_xml(string):
     """Check whether the given string can be written to XML documents."""
-    return not re.match(_ILLEGAL_XML_CHARS, string)
+    return not re.search(_ILLEGAL_XML_CHARS, string)
 
 
 def decode_to_string(toDecode):
@@ -416,12 +416,21 @@ def copy_all_lines_from_to(inputFile, outputFile):
         currentLine = inputFile.readline()
 
 
-def write_file(content, *path):
+def write_file(content, *path, force=False):
     """
     Simply write some content to a file, overriding the file if necessary.
+    If force is set this will attempt to ignore missing write permissions.
     """
-    with open(os.path.join(*path), "w") as file:
-        return file.write(content)
+    filename = os.path.join(*path)
+    try:
+        with open(filename, "w") as file:
+            return file.write(content)
+    except OSError:
+        if force:
+            os.chmod(filename, stat.S_IRUSR | stat.S_IWUSR)
+            write_file(content, filename)
+        else:
+            raise
 
 
 def shrink_text_file(filename, max_size, removal_marker=None):
