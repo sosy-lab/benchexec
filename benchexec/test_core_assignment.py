@@ -245,7 +245,7 @@ class Test_Topology_P1_NUMA2_L8_C16_F(TestCpuCoresPerRun):
         self.t_unit_assertValid(5, self.fiveCore_assignment)
 
     def test_invalid(self):
-        # (coreLimit, num_of_threads)
+        # coreLimit, num_of_threads
         self.assertInvalid(2, 5)
         self.assertInvalid(5, 2)
         self.assertInvalid(3, 3)
@@ -341,7 +341,7 @@ class Test_Topology_P1_NUMA3_L6_C12_T(TestCpuCoresPerRun):
         self.t_unit_assertValid(5, self.fiveCore_assignment, 1)
 
     def test_singleCPU_invalid(self):
-        # (coreLimit, num_of_threads)
+        # coreLimit, num_of_threads
         self.assertInvalid(2, 7)
         self.assertInvalid(3, 4)
         self.assertInvalid(4, 4)

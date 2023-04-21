@@ -99,7 +99,6 @@ def get_cpu_cores_per_run(
             cores_of_group = get_group_mapping(cores_of_NUMA_Region)
             if cores_of_group:
                 hierarchy_levels.append(cores_of_group)
-        
 
         # read & prepare mapping of cores to CPU/physical package/socket?
         cores_of_package = get_package_mapping(allCpus_list)
@@ -139,24 +138,22 @@ def get_cpu_cores_per_run(
         else:
             return 0
 
-    # sort hierarchy_levels according to the dicts' corresponding unit sizes
-    hierarchy_levels.sort(
-        key=functools.cmp_to_key(compare_hierarchy)
-    )  # hierarchy_level = [dict1, dict2, dict3]
+    # sort hierarchy_levels (list of dicts) according to the dicts' corresponding unit sizes
+    hierarchy_levels.sort(key=functools.cmp_to_key(compare_hierarchy))
     # add siblings_of_core at the beginning of the list
     hierarchy_levels.insert(0, siblings_of_core)
 
     # create v_cores
     allCpus = {}
     for cpu_nr in allCpus_list:
-        allCpus.update({cpu_nr: virtualCore(cpu_nr, [])})
+        allCpus.update({cpu_nr: VirtualCore(cpu_nr, [])})
 
-    for level in hierarchy_levels:  # hierarchy_levels = [dict1, dict2, dict3]
+    for level in hierarchy_levels:  # hierarchy_levels (list of dicts)
         for key in level:
             for core in level[key]:
                 allCpus[core].memory_regions.append(
                     key
-                )  # memory_regions = [key1, key2, key3]
+                )  # memory_regions is a list of keys
 
     # addition of meta hierarchy level if necessary
     check_and_add_meta_level(hierarchy_levels, allCpus)
@@ -211,8 +208,8 @@ def get_cpu_cores_per_run(
     return result
 
 
-# define class virtualCore to generate core objects
-class virtualCore:
+# define class VirtualCore to generate core objects
+class VirtualCore:
     """
     Generates an object for each available CPU core,
     providing its ID and a list of the memory regions it belongs to.
@@ -231,7 +228,7 @@ class virtualCore:
 def filter_hyperthreading_siblings(allCpus, siblings_of_core, hierarchy_levels):
     """
     Deletes all but one hyperthreading sibling per physical core out of allCpus, siblings_of_core & hierarchy_levels
-    @param allCpus:         list of virtualCore objects
+    @param allCpus:         list of VirtualCore objects
     @param siblings_of_core:mapping from one of the sibling cores to the list of siblings including the core itself
     """
     for core in siblings_of_core:
@@ -410,7 +407,7 @@ def get_cpu_distribution(
                 f"Please always make all virtual cores of a physical core available."
             )
     # check if all units of the same hierarchy level have the same number of cores
-    for index in range(len(hierarchy_levels)):  # [dict, dict, dict, ...]
+    for index in range(len(hierarchy_levels)):  # list of dicts
         if check_asymmetric_num_of_values(hierarchy_levels, index):
             sys.exit(
                 "Asymmetric machine architecture not supported: "
