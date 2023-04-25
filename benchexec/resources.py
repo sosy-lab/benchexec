@@ -407,8 +407,8 @@ def get_cpu_distribution(
                 f"Please always make all virtual cores of a physical core available."
             )
     # check if all units of the same hierarchy level have the same number of cores
-    for index in range(len(hierarchy_levels)):  # list of dicts
-        if check_asymmetric_num_of_values(hierarchy_levels, index):
+    for hierarchy_level in hierarchy_levels:
+        if check_asymmetric_num_of_values(hierarchy_level):
             sys.exit(
                 "Asymmetric machine architecture not supported: "
                 "CPUs/memory regions with different number of cores."
@@ -434,7 +434,7 @@ def get_cpu_distribution(
         # start with highest dict: continue while length = 1 or length of values equal
         while i > 0:
             # if length of core lists equal:
-            if not (check_asymmetric_num_of_values([distribution_dict], 0)):
+            if not (check_asymmetric_num_of_values(distribution_dict)):
                 i = i - 1
                 distribution_dict = hierarchy_levels[i]
             else:
@@ -447,7 +447,7 @@ def get_cpu_distribution(
                     for element in hierarchy_levels[i - 1][key]:
                         if element in parent_list:
                             child_dict.setdefault(key, hierarchy_levels[i - 1][key])
-                if not (check_asymmetric_num_of_values([child_dict], 0)):
+                if not (check_asymmetric_num_of_values(child_dict)):
                     break
                 else:
                     i = i - 1
@@ -487,7 +487,7 @@ def get_cpu_distribution(
                             )
                 j = chosen_level - 1
                 while j > 0:
-                    if not (check_asymmetric_num_of_values([child_dict], 0)):
+                    if not (check_asymmetric_num_of_values(child_dict)):
                         break
                     else:
                         j -= 1
@@ -535,12 +535,12 @@ def get_cpu_distribution(
     return result
 
 
-def check_asymmetric_num_of_values(hierarchy_levels, index):
+def check_asymmetric_num_of_values(hierarchy_level):
     """returns True if the number of values in the lists of the key-value pairs
     is not equal throughout the dict"""
     is_asymmetric = False
-    cores_per_unit = len(next(iter(hierarchy_levels[index].values())))
-    if any(len(cores) != cores_per_unit for cores in hierarchy_levels[index].values()):
+    cores_per_unit = len(next(iter(hierarchy_level.values())))
+    if any(len(cores) != cores_per_unit for cores in hierarchy_level.values()):
         is_asymmetric = True
     return is_asymmetric
 

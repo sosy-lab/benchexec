@@ -6,7 +6,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import errno
-import grp
+#import grp
 import logging
 import os
 import shutil
@@ -393,6 +393,7 @@ class Cgroup(object):
 
                 def get_group_name(gid):
                     try:
+                        import grp
                         name = grp.getgrgid(gid).gr_name
                     except KeyError:
                         name = None

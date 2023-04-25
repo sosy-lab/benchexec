@@ -11,7 +11,7 @@ import unittest
 import math
 from collections import defaultdict
 from functools import cmp_to_key
-from resources import get_cpu_distribution, virtualCore, check_and_add_meta_level
+from benchexec.resources import get_cpu_distribution, VirtualCore, check_and_add_meta_level
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
@@ -147,7 +147,7 @@ class TestCpuCoresPerRun(unittest.TestCase):
         allCpus_list = list(range(self.num_of_cores))
 
         for cpu_nr in allCpus_list:
-            allCpus.update({cpu_nr: virtualCore(cpu_nr, [])})
+            allCpus.update({cpu_nr: VirtualCore(cpu_nr, [])})
         for level in hierarchy_levels:  # hierarchy_levels = [dict1, dict2, dict3]
             for key in level:
                 for core in level[key]:
