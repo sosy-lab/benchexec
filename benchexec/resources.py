@@ -10,7 +10,6 @@ This module contains functions for computing assignments of resources to runs.
 """
 
 import collections
-import functools
 import itertools
 import logging
 import math
@@ -127,19 +126,12 @@ def get_cpu_cores_per_run(
     except ValueError as e:
         sys.exit(f"Could not read CPU information from kernel: {e}")
 
-    # generate sorted list of dicts in accordance with their hierarchy
-    def compare_hierarchy(dict1, dict2):
-        value1 = len(next(iter(dict1.values())))
-        value2 = len(next(iter(dict2.values())))
-        if value1 > value2:
-            return 1
-        elif value1 < value2:
-            return -1
-        else:
-            return 0
+    # comparator function for number of elements in dictionary
+    def compare_hierarchy_by_dict_length(dict):
+        return len(next(iter(dict.values())))
 
     # sort hierarchy_levels (list of dicts) according to the dicts' corresponding unit sizes
-    hierarchy_levels.sort(key=functools.cmp_to_key(compare_hierarchy))
+    hierarchy_levels.sort(key=compare_hierarchy_by_dict_length, reverse=True)
     # add siblings_of_core at the beginning of the list
     hierarchy_levels.insert(0, siblings_of_core)
 
