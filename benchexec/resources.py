@@ -585,7 +585,7 @@ def get_siblings_mapping(allCpus):
     """Get hyperthreading siblings from core_cpus_list or thread_siblings_list (deprecated)."""
     siblings_of_core = {}
     # if no hyperthreading available, the siblings list contains only the core itself
-    if util.read_file(
+    if util.try_read_file(
         f"/sys/devices/system/cpu/cpu{allCpus[0]}/topology/core_cpus_list"
     ):
         for core in allCpus:
@@ -594,7 +594,9 @@ def get_siblings_mapping(allCpus):
                     f"/sys/devices/system/cpu/cpu{core}/topology/core_cpus_list"
                 )
             )
-    else:
+    elif util.try_read_file(
+        f"/sys/devices/system/cpu/cpu{allCpus[0]}/topology/thread_siblings_list"
+    ):
         for core in allCpus:
             siblings = util.parse_int_list(
                 util.read_file(
@@ -603,6 +605,8 @@ def get_siblings_mapping(allCpus):
             )
         siblings_of_core[core] = siblings
         logging.debug("Siblings of cores are %s.", siblings_of_core)
+    else:
+        raise ValueError("No siblings information accessible")
     return siblings_of_core
 
 
