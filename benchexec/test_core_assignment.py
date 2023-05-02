@@ -11,7 +11,11 @@ import unittest
 import math
 from collections import defaultdict
 from functools import cmp_to_key
-from benchexec.resources import get_cpu_distribution, VirtualCore, check_and_add_meta_level
+from benchexec.resources import (
+    get_cpu_distribution,
+    VirtualCore,
+    check_and_add_meta_level,
+)
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
@@ -129,20 +133,13 @@ class TestCpuCoresPerRun(unittest.TestCase):
             if len(item) > 0:
                 hierarchy_levels.append(item)
 
-        # sort hierarchy_levels:
-        def compare_hierarchy(dict1, dict2):
-            value1 = len(next(iter(dict1.values())))
-            value2 = len(next(iter(dict2.values())))
-            if value1 > value2:
-                return 1
-            elif value1 < value2:
-                return -1
-            else:
-                return 0
+        # comparator function for number of elements in dictionary
+        def compare_hierarchy_by_dict_length(dict):
+            return len(next(iter(dict.values())))
 
-        hierarchy_levels.sort(
-            key=cmp_to_key(compare_hierarchy)
-        )  # hierarchy_level = [dict1, dict2, dict3]
+        # sort hierarchy_levels (list of dicts) according to the dicts' corresponding unit sizes
+        hierarchy_levels.sort(key=compare_hierarchy_by_dict_length, reverse=False)
+        # add siblings_of_core at the beginning of the list
 
         allCpus_list = list(range(self.num_of_cores))
 

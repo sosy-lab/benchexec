@@ -131,7 +131,7 @@ def get_cpu_cores_per_run(
         return len(next(iter(dict.values())))
 
     # sort hierarchy_levels (list of dicts) according to the dicts' corresponding unit sizes
-    hierarchy_levels.sort(key=compare_hierarchy_by_dict_length, reverse=True)
+    hierarchy_levels.sort(key=compare_hierarchy_by_dict_length, reverse=False)
     # add siblings_of_core at the beginning of the list
     hierarchy_levels.insert(0, siblings_of_core)
 
