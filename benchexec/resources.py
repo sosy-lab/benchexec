@@ -127,8 +127,8 @@ def get_cpu_cores_per_run(
         sys.exit(f"Could not read CPU information from kernel: {e}")
 
     # comparator function for number of elements in dictionary
-    def compare_hierarchy_by_dict_length(dict):
-        return len(next(iter(dict.values())))
+    def compare_hierarchy_by_dict_length(level):
+        return len(next(iter(level.values())))
 
     # sort hierarchy_levels (list of dicts) according to the dicts' corresponding unit sizes
     hierarchy_levels.sort(key=compare_hierarchy_by_dict_length, reverse=False)

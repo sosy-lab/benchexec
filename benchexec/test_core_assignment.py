@@ -10,7 +10,6 @@ import sys
 import unittest
 import math
 from collections import defaultdict
-from functools import cmp_to_key
 from benchexec.resources import (
     get_cpu_distribution,
     VirtualCore,
@@ -134,8 +133,8 @@ class TestCpuCoresPerRun(unittest.TestCase):
                 hierarchy_levels.append(item)
 
         # comparator function for number of elements in dictionary
-        def compare_hierarchy_by_dict_length(dict):
-            return len(next(iter(dict.values())))
+        def compare_hierarchy_by_dict_length(level):
+            return len(next(iter(level.values())))
 
         # sort hierarchy_levels (list of dicts) according to the dicts' corresponding unit sizes
         hierarchy_levels.sort(key=compare_hierarchy_by_dict_length, reverse=False)
