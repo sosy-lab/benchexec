@@ -564,6 +564,17 @@ def get_cpu_list(my_cgroups, coreSet=None):
 
 
 def frequency_filter(allCpus_list, threshold):
+    """
+    Filters the list of all available CPU cores so that only the fastest cores
+    are used for the benchmark run.
+    Cores with a maximal frequency smaller than the distance of the defined threshold
+    from the fastest core are removed from allCpus_list
+
+    @param allCpus_list: list of all cores available for the benchmark run
+    @param threshold: accepted difference in the maximal frequency of a core from
+    the fastest core to still be used in the benchmark run
+    @return: filtered allCpus_list with only the fastest cores
+    """
     cpu_max_frequencies = collections.defaultdict(list)
     for core in allCpus_list:
         max_freq = int(
@@ -572,8 +583,7 @@ def frequency_filter(allCpus_list, threshold):
             )
         )
         cpu_max_frequencies[max_freq].append(core)
-    available_max_freq = sorted(cpu_max_frequencies.keys())
-    freq_threshold = available_max_freq[-1] * (1 - threshold)
+    freq_threshold = max(cpu_max_frequencies.keys()) * (1 - threshold)
     for key in cpu_max_frequencies:
         if key < freq_threshold:
             for core in cpu_max_frequencies[key]:
