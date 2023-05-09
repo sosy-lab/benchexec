@@ -687,16 +687,14 @@ def get_nodes_of_group(node_id):
     return sorted(group_list)
 
 
-# Hilfsfunktion, um die nodes mit der geringsten Distance auszulesen
+# helper function to identify groups of nodes via distance
 def get_closest_nodes(distance_list):
-    smallest_distance = sys.maxsize
-    second_to_smallest = sys.maxsize
-    for distance in distance_list:
-        if distance < smallest_distance:
-            second_to_smallest = smallest_distance
-            smallest_distance = distance
-        if distance < second_to_smallest and distance != smallest_distance:
-            second_to_smallest = distance
+    sorted_distance_list = sorted(distance_list.copy())
+    smallest_distance = sorted_distance_list[0]
+    for value in sorted_distance_list:
+        if value != smallest_distance:
+            second_to_smallest = value
+            break
     group_list = []
     if distance_list.count(smallest_distance) == 1:
         group_list.append(distance_list.index(smallest_distance))
