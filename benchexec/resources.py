@@ -29,7 +29,6 @@ __all__ = [
 ]
 
 
-# prepping function, consider change of name
 def get_cpu_cores_per_run(
     coreLimit,
     num_of_threads,
@@ -39,33 +38,33 @@ def get_cpu_cores_per_run(
     coreRequirement=None,
 ):
     """
-    Calculate an assignment of the available CPU cores to a number
-    of parallel benchmark executions such that each run gets its own cores
-    without overlapping of cores between runs.
-    In case the machine has hyper-threading, this method avoids
-    putting two different runs on the same physical core.
-    When assigning cores that belong to the same run, the method
-    uses core that access the same memory reagions, while distributing
-    the parallel execution runs with as little shared memory as possible
-    across all available CPUs.
-
-    A few theoretically-possible cases are not implemented,
-    for example assigning three 10-core runs on a machine
-    with two 16-core CPUs (this would have unfair core assignment
-    and thus undesirable performance characteristics anyway).
+    Sets variables and reads data from the machine to prepare for the distribution algorithm
+    Preparation and the distribution algorithm itself are separated to facilitate
+    testing the algorithm via Unittests
 
     The list of available cores is read from the cgroup file system,
-    such that the assigned cores are a subset of the cores
-    that the current process is allowed to use.
-    This script does currently not support situations
-    where the available cores are asymmetrically split over CPUs,
-    e.g. 3 cores on one CPU and 5 on another.
+    such that the assigned cores are a subset of the cores that the current process is allowed to use.
+    Furthermore all currently supported topology data is read for each core and
+    the cores are then organised accordingly into hierarchy_levels.
+    hierarchy_levels is sorted so that the first dict maps hyper-threading siblings
+    while the next dict in the list subsumes same or more cores per key (topology identifier)
+    as the siblings dict but less than the following dict.
+    Therefore when iterating through the list of dicts, each dict has less keys
+    but the corresponding value is a list of greater length than the previous dict had.
+    Thus hierarchy_levels reflects a hierarchy of the available topology layers from smallest to largest.
+    Additionally, the list of available cores is converted into a list of VirtualCore objects
+    that provide its ID and a list of the memory regions it belongs to.
 
-    @param coreLimit: the number of cores for each run
-    @param num_of_threads: the number of parallel benchmark executions
-    @param use_hyperthreading: boolean to check if no-hyperthreading method is being used
-    @param coreSet: the list of CPU cores identifiers provided by a user, None makes benchexec using all cores
-    @return a list of lists, where each inner list contains the cores for one run
+    This script does currently not support situations where the available cores are
+    asymmetrically split over CPUs, e.g. 3 cores on one CPU and 5 on another.
+
+    @param coreLimit:           the number of cores for each thread
+    @param num_of_threads:      the number of parallel benchmark executions
+    @param use_hyperthreading:  boolean to check if no-hyperthreading method is being used
+    @param coreSet:             the list of CPU core identifiers provided by a user,
+                                None makes benchexec using all cores
+    @return hierarchy_levels:   list of dicts of lists: each dict in the list corresponds to one topology layer
+                                and maps from the identifier read from the topology to a list of the cores belonging to it
     """
     hierarchy_levels = []
     try:
@@ -99,7 +98,7 @@ def get_cpu_cores_per_run(
             if cores_of_group:
                 hierarchy_levels.append(cores_of_group)
 
-        # read & prepare mapping of cores to CPU/physical package/socket?
+        # read & prepare mapping of cores to physical package
         cores_of_package = get_package_mapping(allCpus_list)
         hierarchy_levels.append(cores_of_package)
 
@@ -126,17 +125,19 @@ def get_cpu_cores_per_run(
     except ValueError as e:
         sys.exit(f"Could not read CPU information from kernel: {e}")
 
-    # comparator function for number of elements in dictionary
     def compare_hierarchy_by_dict_length(level):
+        """comparator function for number of elements in a dict's value list"""
         return len(next(iter(level.values())))
 
-    # sort hierarchy_levels (list of dicts) according to the dicts' corresponding unit sizes
     hierarchy_levels.sort(key=compare_hierarchy_by_dict_length, reverse=False)
-    # add siblings_of_core at the beginning of the list
+    """sort hierarchy_levels (list of dicts) according to the dicts' value sizes"""
+
+    # add siblings_of_core at the beginning of the list to ensure the correct index
     hierarchy_levels.insert(0, siblings_of_core)
 
-    # create v_cores
+    # create VirtualCores
     allCpus = {}
+    """creates a dict of VirtualCore objects from core ID list"""
     for cpu_nr in allCpus_list:
         allCpus.update({cpu_nr: VirtualCore(cpu_nr, [])})
 
@@ -147,11 +148,10 @@ def get_cpu_cores_per_run(
                     key
                 )  # memory_regions is a list of keys
 
-    # addition of meta hierarchy level if necessary
     check_and_add_meta_level(hierarchy_levels, allCpus)
 
-    # call the actual assignment function
     result = []
+    """implements optional restrictions and calls the actual assignment function"""
     if not coreRequirement:
         result = get_cpu_distribution(
             coreLimit,
@@ -200,13 +200,13 @@ def get_cpu_cores_per_run(
     return result
 
 
-# define class VirtualCore to generate core objects
 class VirtualCore:
     """
     Generates an object for each available CPU core,
     providing its ID and a list of the memory regions it belongs to.
     @attr coreId: int returned from the system to identify a specific core
-    @attr memory_regions: list with the ID of the corresponding regions the core belongs too sorted according to its size
+    @attr memory_regions: list with the ID of the corresponding regions the core belongs to sorted
+                            according to its size
     """
 
     def __init__(self, coreId, memory_regions=None):
@@ -219,9 +219,11 @@ class VirtualCore:
 
 def filter_hyperthreading_siblings(allCpus, siblings_of_core, hierarchy_levels):
     """
-    Deletes all but one hyperthreading sibling per physical core out of allCpus, siblings_of_core & hierarchy_levels
-    @param allCpus:         list of VirtualCore objects
-    @param siblings_of_core:mapping from one of the sibling cores to the list of siblings including the core itself
+    Deletes all but one hyperthreading sibling per physical core out of allCpus,
+    siblings_of_core & hierarchy_levels
+    @param allCpus: list of VirtualCore objects
+    @param siblings_of_core:    mapping from one of the sibling cores to the list of siblings
+                                including the core itself
     """
     for core in siblings_of_core:
         no_HT_filter = []
@@ -312,7 +314,8 @@ def check_distribution_feasibility(
 
 
 def calculate_chosen_level(hierarchy_levels, coreLimit_rounded_up):
-    """Choose hierarchy level for core assignment"""
+    """Calculates the hierarchy level necessary so that number of cores at the chosen_level is at least
+    as big as the cores necessary for one thread"""
     chosen_level = 1
     # move up in hierarchy as long as the number of cores at the current level is smaller than the coreLimit
     # if the number of cores at the current level is as big as the coreLimit: exit loop
@@ -343,6 +346,9 @@ def calculate_sub_units_per_run(coreLimit_rounded_up, hierarchy_levels, chosen_l
 
 
 def check_and_add_meta_level(hierarchy_levels, allCpus):
+    """
+    Adds a meta_level to hierarchy_levels to iterate through all cores (if necessary)
+    """
     if len(hierarchy_levels[-1]) > 1:
         top_level_cores = []
         for node in hierarchy_levels[-1]:
@@ -352,7 +358,6 @@ def check_and_add_meta_level(hierarchy_levels, allCpus):
             allCpus[cpu_nr].memory_regions.append(0)
 
 
-# assigns the v_cores into specific runs
 def get_cpu_distribution(
     coreLimit,
     num_of_threads,
@@ -364,12 +369,28 @@ def get_cpu_distribution(
     """Actual core distribution method:
     uses the architecture read from the file system by get_cpu_cores_per_run
 
+    Calculates an assignment of the available CPU cores to a number
+    of parallel benchmark executions such that each run gets its own cores
+    without overlapping of cores between runs.
+    In case the machine has hyper-threading, this method avoids
+    putting two different runs on the same physical core.
+    When assigning cores that belong to the same run, the method
+    uses core that access the same memory regions, while distributing
+    the parallel execution runs with as little shared memory as possible
+    across all available CPUs.
+
+    A few theoretically-possible cases are not supported,
+    for example assigning three 10-core runs on a machine
+    with two 16-core CPUs (this would have unfair core assignment
+    and thus undesirable performance characteristics anyway).
+
     @param coreLimit:           the number of cores for each run
     @param num_of_threads:      the number of parallel benchmark executions
     @param use_hyperthreading:  boolean to check if no-hyperthreading method is being used
     @param allCpus:             list of all available core objects
     @param siblings_of_core:    mapping from one of the sibling cores to the list of siblings including the core itself
     @param hierarchy_levels:    list of dicts mapping from a memory region identifier to its belonging cores
+    @return result:             list of lists each containing the cores assigned to the same thread
     """
 
     # check whether the distribution can work with the given parameters
@@ -420,17 +441,26 @@ def get_cpu_distribution(
     blocked_cores = []
     active_hierarchy_level = hierarchy_levels[chosen_level]
     while len(result) < num_of_threads:  # and i < len(active_hierarchy_level):
+        """
+        for each new thread, the algorithm searches the hierarchy_levels for a
+        dict with an unequal number of cores, chooses the value list with the most cores and
+        compiles a child dict with these cores, then again choosing the value list with the most cores ...
+        until the value lists have the same length.
+        Thus the algorithm finds the index i for hierarchy_levels that indicates the dict
+        from which to continue the search for the cores with the highest distance from the cores
+        assigned before
+        """
         # choose cores for assignment:
         i = len(hierarchy_levels) - 1
         distribution_dict = hierarchy_levels[i]
-        # start with highest dict: continue while length = 1 or length of values equal
+        # start with highest dict: continue while length = 1 or equal length of values
         while i > 0:
             # if length of core lists equal:
-            if not (check_asymmetric_num_of_values(distribution_dict)):
+            if check_symmetric_num_of_values(distribution_dict):
                 i = i - 1
                 distribution_dict = hierarchy_levels[i]
             else:
-                # get element with highest length
+                # if length of core lists unequal: get element with highest length
                 distribution_list = list(distribution_dict.values())
                 distribution_list.sort(reverse=True)
                 parent_list = distribution_list[0]
@@ -439,12 +469,17 @@ def get_cpu_distribution(
                     for element in hierarchy_levels[i - 1][key]:
                         if element in parent_list:
                             child_dict.setdefault(key, hierarchy_levels[i - 1][key])
-                if not (check_asymmetric_num_of_values(child_dict)):
+                if check_symmetric_num_of_values(child_dict):
                     break
                 else:
                     i = i - 1
                     distribution_dict = child_dict.copy()
 
+        """
+        The values of the hierarchy_levels dict at index i are sorted by length and 
+        from the the largest list of values, the first core is used to identify 
+        the memory region and the list of cores relevant for the core assignment for the next thread
+        """
         spread_level = hierarchy_levels[i]
         # make a list of the core lists in spread_level(values())
         spread_level_values = list(spread_level.values())
@@ -460,13 +495,21 @@ def get_cpu_distribution(
         # Core assignment per thread:
         cores = []
         for _sub_unit in range(sub_units_per_run):
-            # read key of sub_region for first list element
+            """
+            the active cores at chosen level are assigned to the current thread
+            ensuring the assignment of all cores belonging to the same key-value pair
+            and all cores of one sub_unit before changing to the next sub_unit
+            """
+            # read key of sub_region from first element of active cores list
             key = allCpus[active_cores[0]].memory_regions[chosen_level - 1]
 
             # read list of cores of corresponding sub_region
             sub_unit_hierarchy_level = hierarchy_levels[chosen_level - 1]
             sub_unit_cores = sub_unit_hierarchy_level[key]
+
             while len(cores) < coreLimit and sub_unit_cores:
+                """assigns the cores from sub_unit_cores list into child dict
+                in accordance with their memory regions"""
                 parent_list = sub_unit_cores.copy()
                 child_dict = {}
                 for iter1 in hierarchy_levels[chosen_level - 1]:  # subunit level
@@ -477,9 +520,15 @@ def get_cpu_distribution(
                             child_dict.setdefault(
                                 iter1, hierarchy_levels[chosen_level - 1][iter1]
                             )
+                """
+                searches for the key-value pair that already provided cores for the assignment 
+                and therefore has the fewest elements in its value list while non-empty, 
+                and returns one of the cores in this key-value pair. 
+                If no cores have been assigned yet, any core can be chosen and the next best core is returned.
+                """
                 j = chosen_level - 1
                 while j > 0:
-                    if not (check_asymmetric_num_of_values(child_dict)):
+                    if check_symmetric_num_of_values(child_dict):
                         break
                     else:
                         j -= 1
@@ -498,7 +547,10 @@ def get_cpu_distribution(
                                     )
                 next_core = list(child_dict.values())[0][0]
 
-                # read list of next core with siblings
+                """
+                Adds the core selected before and its hyper-threading sibling to the thread 
+                and deletes those cores from all hierarchy_levels
+                """
                 core_with_siblings = hierarchy_levels[0][
                     allCpus[next_core].memory_regions[0]
                 ].copy()
@@ -519,12 +571,17 @@ def get_cpu_distribution(
             # if coreLimit reached: append core to result, delete remaining cores from active_cores
             if len(cores) == coreLimit:
                 result.append(cores)
-                print(result)
 
     # cleanup: while-loop stops before running through all units: while some active_cores-lists
     # & sub_unit_cores-lists are empty, other stay half-full or full
 
     return result
+
+
+def check_symmetric_num_of_values(hierarchy_level):
+    """returns True if the number of values in the lists of the key-value pairs
+    is equal throughout the dict"""
+    return not check_asymmetric_num_of_values(hierarchy_level)
 
 
 def check_asymmetric_num_of_values(hierarchy_level):
@@ -568,7 +625,7 @@ def frequency_filter(allCpus_list, threshold):
     Filters the list of all available CPU cores so that only the fastest cores
     are used for the benchmark run.
     Cores with a maximal frequency smaller than the distance of the defined threshold
-    from the fastest core are removed from allCpus_list
+    from the fastest core are removed from allCpus_list.
 
     @param allCpus_list: list of all cores available for the benchmark run
     @param threshold: accepted difference in the maximal frequency of a core from
@@ -648,7 +705,6 @@ def get_group_mapping(cores_of_NUMA_region):
     try:
         for node_id in cores_of_NUMA_region.keys():
             group = get_nodes_of_group(node_id)
-            print(group)
             nodes_of_groups[node_id].extend(group)
     except FileNotFoundError:
         nodes_of_groups = {}
@@ -677,6 +733,10 @@ def get_group_mapping(cores_of_NUMA_region):
 
 
 def get_nodes_of_group(node_id):
+    """
+    returns the nodes that belong to the same group because they have a smaller distance
+    between each other than to rest of the nodes
+    """
     temp_list = (
         util.read_file(f"/sys/devices/system/node/node{node_id}/distance")
     ).split(" ")
@@ -687,9 +747,11 @@ def get_nodes_of_group(node_id):
     return sorted(group_list)
 
 
-# helper function to identify groups of nodes via distance
-def get_closest_nodes(distance_list):
-    sorted_distance_list = sorted(distance_list.copy())
+def get_closest_nodes(distance_list):  # 10 11 11 11 20 20 20 20
+    """returns a list of the indices of the node itself (smallest distance) and
+    its next neighbours by distance
+    The indices are the same as the node IDs"""
+    sorted_distance_list = sorted(distance_list)
     smallest_distance = sorted_distance_list[0]
     for value in sorted_distance_list:
         if value != smallest_distance:
@@ -708,7 +770,7 @@ def get_closest_nodes(distance_list):
             if dist == second_to_smallest:
                 group_list.append(index)
             index += 1
-    return group_list
+    return group_list  # [0 1 2 3]
 
 
 def get_cluster_id_for_core(core):
