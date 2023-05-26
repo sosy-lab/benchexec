@@ -71,7 +71,7 @@ def get_cpu_cores_per_run(
         # read list of available CPU cores (int)
         allCpus_list = get_cpu_list(my_cgroups, coreSet)
 
-        # read & prepare hyper-threading information, filter superfluous entries
+        # read & prepare hyper-threading information, filter redundant entries
         siblings_of_core = get_siblings_mapping(allCpus_list)
         cleanList = []
         for core in siblings_of_core:
@@ -149,11 +149,47 @@ def get_cpu_cores_per_run(
                 )  # memory_regions is a list of keys
 
     check_and_add_meta_level(hierarchy_levels, allCpus)
+    get_cpu_distribution(
+        coreLimit,
+        num_of_threads,
+        use_hyperthreading,
+        allCpus,
+        siblings_of_core,
+        hierarchy_levels,
+        coreRequirement,
+    )
 
-    result = []
+
+def get_cpu_distribution(
+    coreLimit,
+    num_of_threads,
+    use_hyperthreading,
+    allCpus,
+    siblings_of_core,
+    hierarchy_levels,
+    coreRequirement=None,
+):
     """implements optional restrictions and calls the actual assignment function"""
+    result = []
+
+    # check if all HT siblings are available for benchexec
+    all_cpus_set = set(allCpus.keys())
+    for core, siblings in siblings_of_core.items():
+        siblings_set = set(siblings)
+        if not siblings_set.issubset(all_cpus_set):
+            unusable_cores = siblings_set.difference(all_cpus_set)
+            sys.exit(
+                f"Core assignment is unsupported because siblings {unusable_cores} "
+                f"of core {core} are not usable. "
+                f"Please always make all virtual cores of a physical core available."
+            )
+
+    # no HT filter: delete all but the key core from siblings_of_core & hierarchy_levels
+    if not use_hyperthreading:
+        filter_hyperthreading_siblings(allCpus, siblings_of_core, hierarchy_levels)
+
     if not coreRequirement:
-        result = get_cpu_distribution(
+        result = core_allocation_algorithm(
             coreLimit,
             num_of_threads,
             use_hyperthreading,
@@ -163,7 +199,7 @@ def get_cpu_cores_per_run(
         )
     else:
         if coreRequirement >= coreLimit:
-            prelim_result = get_cpu_distribution(
+            prelim_result = core_allocation_algorithm(
                 coreRequirement,
                 num_of_threads,
                 use_hyperthreading,
@@ -185,18 +221,17 @@ def get_cpu_cores_per_run(
                     hierarchy_levels,
                     isTest=True,
                 ):
-                    result = get_cpu_distribution(
-                        i,
-                        num_of_threads,
-                        use_hyperthreading,
-                        allCpus,
-                        siblings_of_core,
-                        hierarchy_levels,
-                    )
                     break
                 else:
                     i -= 1
-
+            result = core_allocation_algorithm(
+                i,
+                num_of_threads,
+                use_hyperthreading,
+                allCpus,
+                siblings_of_core,
+                hierarchy_levels,
+            )
     return result
 
 
@@ -252,9 +287,6 @@ def check_distribution_feasibility(
     """Checks, whether the core distribution can work with the given parameters"""
     is_feasible = True
 
-    if not use_hyperthreading:
-        filter_hyperthreading_siblings(allCpus, siblings_of_core, hierarchy_levels)
-
     # compare number of available cores to required cores per run
     coreCount = len(allCpus)
     if coreLimit > coreCount:
@@ -299,7 +331,6 @@ def check_distribution_feasibility(
     sub_units_per_run = calculate_sub_units_per_run(
         coreLimit_rounded_up, hierarchy_levels, chosen_level
     )
-    print("sub_units_per_run = ", sub_units_per_run)
     # number of nodes at subunit-Level / sub_units_per_run
     if len(hierarchy_levels[chosen_level - 1]) / sub_units_per_run < num_of_threads:
         if not isTest:
@@ -358,7 +389,7 @@ def check_and_add_meta_level(hierarchy_levels, allCpus):
             allCpus[cpu_nr].memory_regions.append(0)
 
 
-def get_cpu_distribution(
+def core_allocation_algorithm(
     coreLimit,
     num_of_threads,
     use_hyperthreading,
@@ -404,21 +435,6 @@ def get_cpu_distribution(
         isTest=False,
     )
 
-    # no HT filter: delete all but the key core from siblings_of_core & hierarchy_levels
-    if not use_hyperthreading:
-        filter_hyperthreading_siblings(allCpus, siblings_of_core, hierarchy_levels)
-
-    # check if all HT siblings are available for benchexec
-    all_cpus_set = set(allCpus.keys())
-    for core, siblings in siblings_of_core.items():
-        siblings_set = set(siblings)
-        if not siblings_set.issubset(all_cpus_set):
-            unusable_cores = siblings_set.difference(all_cpus_set)
-            sys.exit(
-                f"Core assignment is unsupported because siblings {unusable_cores} "
-                f"of core {core} are not usable. "
-                f"Please always make all virtual cores of a physical core available."
-            )
     # check if all units of the same hierarchy level have the same number of cores
     for hierarchy_level in hierarchy_levels:
         if check_asymmetric_num_of_values(hierarchy_level):
