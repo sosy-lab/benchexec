@@ -5,6 +5,10 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+"""
+This module contains functions for computing assignments of resources to runs.
+"""
+import collections
 import itertools
 import logging
 import math
@@ -495,7 +499,6 @@ def core_allocation_algorithm(
                 else:
                     i = i - 1
                     distribution_dict = child_dict.copy()
-
         """
         The values of the hierarchy_levels dict at index i are sorted by length and 
         from the the largest list of values, the first core is used to identify 
@@ -531,20 +534,16 @@ def core_allocation_algorithm(
             while len(cores) < coreLimit and sub_unit_cores:
                 """assigns the cores from sub_unit_cores list into child dict
                 in accordance with their memory regions"""
-                # parent_list = sub_unit_cores.copy()
                 j = chosen_level - 1
                 if j - 1 > 0:
                     j = j - 1
-
                 child_dict = get_sub_unit_dict(allCpus, sub_unit_cores.copy(), j)
-
                 """
                 searches for the key-value pair that already provided cores for the assignment 
                 and therefore has the fewest elements in its value list while non-empty, 
                 and returns one of the cores in this key-value pair. 
                 If no cores have been assigned yet, any core can be chosen and the next best core is returned.
                 """
-
                 while j > 0:
                     if check_symmetric_num_of_values(child_dict):
                         break
@@ -558,7 +557,6 @@ def core_allocation_algorithm(
                         child_dict = get_sub_unit_dict(allCpus, distribution_list[0], j)
 
                 next_core = list(child_dict.values())[0][0]
-
                 """
                 Adds the core selected before and its hyper-threading sibling to the thread 
                 and deletes those cores from all hierarchy_levels
