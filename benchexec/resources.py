@@ -155,7 +155,7 @@ def get_cpu_cores_per_run(
         allCpus,
         siblings_of_core,
         hierarchy_levels,
-        coreRequirement=None,
+        coreRequirement,
     )
 
 
@@ -388,9 +388,7 @@ def check_and_add_meta_level(hierarchy_levels, allCpus):
             allCpus[cpu_nr].memory_regions.append(0)
 
 
-def get_sub_unit_dict(
-    allCpus: dict[int, VirtualCore], parent_list: list[int], hLevel: int
-) -> dict[int, int]:
+def get_sub_unit_dict(allCpus, parent_list, hLevel):
     child_dict = {}
     for element in parent_list:
         subSubUnitKey = allCpus[element].memory_regions[hLevel]
@@ -537,6 +535,7 @@ def core_allocation_algorithm(
                 j = chosen_level - 1
                 if j - 1 > 0:
                     j = j - 1
+
                 child_dict = get_sub_unit_dict(allCpus, sub_unit_cores.copy(), j)
                 """
                 searches for the key-value pair that already provided cores for the assignment 
@@ -555,7 +554,6 @@ def core_allocation_algorithm(
                                 distribution_list.remove(iter2)
                         distribution_list.sort(reverse=False)
                         child_dict = get_sub_unit_dict(allCpus, distribution_list[0], j)
-
                 next_core = list(child_dict.values())[0][0]
                 """
                 Adds the core selected before and its hyper-threading sibling to the thread 
