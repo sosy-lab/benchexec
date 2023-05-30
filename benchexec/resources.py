@@ -8,6 +8,7 @@
 """
 This module contains functions for computing assignments of resources to runs.
 """
+
 import collections
 import itertools
 import logging
@@ -488,29 +489,23 @@ def core_allocation_algorithm(
             else:
                 # if length of core lists unequal: get element with highest length
                 distribution_list = list(distribution_dict.values())
-                distribution_list.sort(reverse=True)
+                distribution_list.sort(key=lambda l: len(l), reverse=True)
 
                 child_dict = get_sub_unit_dict(allCpus, distribution_list[0], i - 1)
-
+                distribution_dict = child_dict.copy()
                 if check_symmetric_num_of_values(child_dict):
                     break
                 else:
                     i = i - 1
-                    distribution_dict = child_dict.copy()
         """
-        The values of the hierarchy_levels dict at index i are sorted by length and 
-        from the the largest list of values, the first core is used to identify 
+        The values of the hierarchy_levels dict at index i are sorted by length and
+        from the the largest list of values, the first core is used to identify
         the memory region and the list of cores relevant for the core assignment for the next thread
         """
-        spread_level = hierarchy_levels[i]
-        # make a list of the core lists in spread_level(values())
-        spread_level_values = list(spread_level.values())
-        # choose values from key-value pair with the highest number of cores
-        spread_level_values.sort(key=lambda l: len(l), reverse=True)
         # return the memory region key of values first core at chosen_level
-        spreading_memory_region_key = allCpus[spread_level_values[0][0]].memory_regions[
-            chosen_level
-        ]
+        spreading_memory_region_key = allCpus[
+            list(distribution_dict.values())[0][0]
+        ].memory_regions[chosen_level]
         # return the list of cores belonging to the spreading_memory_region_key
         active_cores = active_hierarchy_level[spreading_memory_region_key]
 
@@ -537,10 +532,11 @@ def core_allocation_algorithm(
                     j = j - 1
 
                 child_dict = get_sub_unit_dict(allCpus, sub_unit_cores.copy(), j)
+
                 """
-                searches for the key-value pair that already provided cores for the assignment 
-                and therefore has the fewest elements in its value list while non-empty, 
-                and returns one of the cores in this key-value pair. 
+                searches for the key-value pair that already provided cores for the assignment
+                and therefore has the fewest elements in its value list while non-empty,
+                and returns one of the cores in this key-value pair.
                 If no cores have been assigned yet, any core can be chosen and the next best core is returned.
                 """
                 while j > 0:
@@ -554,9 +550,11 @@ def core_allocation_algorithm(
                                 distribution_list.remove(iter2)
                         distribution_list.sort(reverse=False)
                         child_dict = get_sub_unit_dict(allCpus, distribution_list[0], j)
+
                 next_core = list(child_dict.values())[0][0]
+
                 """
-                Adds the core selected before and its hyper-threading sibling to the thread 
+                Adds the core selected before and its hyper-threading sibling to the thread
                 and deletes those cores from all hierarchy_levels
                 """
                 core_with_siblings = hierarchy_levels[0][
