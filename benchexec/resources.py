@@ -5,11 +5,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-"""
-This module contains functions for computing assignments of resources to runs.
-"""
-
-import collections
 import itertools
 import logging
 import math
@@ -156,7 +151,7 @@ def get_cpu_cores_per_run(
         allCpus,
         siblings_of_core,
         hierarchy_levels,
-        coreRequirement,
+        coreRequirement=None,
     )
 
 
@@ -389,6 +384,19 @@ def check_and_add_meta_level(hierarchy_levels, allCpus):
             allCpus[cpu_nr].memory_regions.append(0)
 
 
+def get_sub_unit_dict(
+    allCpus: dict[int, VirtualCore], parent_list: list[int], hLevel: int
+) -> dict[int, int]:
+    child_dict = {}
+    for element in parent_list:
+        subSubUnitKey = allCpus[element].memory_regions[hLevel]
+        if subSubUnitKey in list(child_dict.keys()):
+            child_dict[subSubUnitKey].append(element)
+        else:
+            child_dict.update({subSubUnitKey: [element]})
+    return child_dict
+
+
 def core_allocation_algorithm(
     coreLimit,
     num_of_threads,
@@ -479,12 +487,9 @@ def core_allocation_algorithm(
                 # if length of core lists unequal: get element with highest length
                 distribution_list = list(distribution_dict.values())
                 distribution_list.sort(reverse=True)
-                parent_list = distribution_list[0]
-                child_dict = {}
-                for key in hierarchy_levels[i - 1]:
-                    for element in hierarchy_levels[i - 1][key]:
-                        if element in parent_list:
-                            child_dict.setdefault(key, hierarchy_levels[i - 1][key])
+
+                child_dict = get_sub_unit_dict(allCpus, distribution_list[0], i - 1)
+
                 if check_symmetric_num_of_values(child_dict):
                     break
                 else:
@@ -526,23 +531,20 @@ def core_allocation_algorithm(
             while len(cores) < coreLimit and sub_unit_cores:
                 """assigns the cores from sub_unit_cores list into child dict
                 in accordance with their memory regions"""
-                parent_list = sub_unit_cores.copy()
-                child_dict = {}
-                for iter1 in hierarchy_levels[chosen_level - 1]:  # subunit level
-                    for element in hierarchy_levels[chosen_level - 1][
-                        iter1
-                    ]:  # elements in value-lists
-                        if element in parent_list:
-                            child_dict.setdefault(
-                                iter1, hierarchy_levels[chosen_level - 1][iter1]
-                            )
+                # parent_list = sub_unit_cores.copy()
+                j = chosen_level - 1
+                if j - 1 > 0:
+                    j = j - 1
+
+                child_dict = get_sub_unit_dict(allCpus, sub_unit_cores.copy(), j)
+
                 """
                 searches for the key-value pair that already provided cores for the assignment 
                 and therefore has the fewest elements in its value list while non-empty, 
                 and returns one of the cores in this key-value pair. 
                 If no cores have been assigned yet, any core can be chosen and the next best core is returned.
                 """
-                j = chosen_level - 1
+
                 while j > 0:
                     if check_symmetric_num_of_values(child_dict):
                         break
@@ -553,14 +555,8 @@ def core_allocation_algorithm(
                             if len(iter2) == 0:
                                 distribution_list.remove(iter2)
                         distribution_list.sort(reverse=False)
-                        parent_list = distribution_list[0]
-                        child_dict = {}
-                        for iter3 in hierarchy_levels[j]:
-                            for element in hierarchy_levels[j][iter3]:
-                                if element in parent_list:
-                                    child_dict.setdefault(
-                                        iter3, hierarchy_levels[j][iter3]
-                                    )
+                        child_dict = get_sub_unit_dict(allCpus, distribution_list[0], j)
+
                 next_core = list(child_dict.values())[0][0]
 
                 """
