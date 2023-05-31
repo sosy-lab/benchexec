@@ -36,7 +36,7 @@ def get_cpu_cores_per_run(
     my_cgroups,
     coreSet=None,
     coreRequirement=None,
-):
+) -> list[list[int]]:
     """
     Sets variables and reads data from the machine to prepare for the distribution algorithm
     Preparation and the distribution algorithm itself are separated to facilitate
@@ -149,7 +149,7 @@ def get_cpu_cores_per_run(
                 )  # memory_regions is a list of keys
 
     check_and_add_meta_level(hierarchy_levels, allCpus)
-    get_cpu_distribution(
+    return get_cpu_distribution(
         coreLimit,
         num_of_threads,
         use_hyperthreading,
@@ -489,7 +489,9 @@ def core_allocation_algorithm(
             else:
                 # if length of core lists unequal: get element with highest length
                 distribution_list = list(distribution_dict.values())
-                distribution_list.sort(key=lambda l: len(l), reverse=True)
+                distribution_list.sort(
+                    key=lambda list_length: len(list_length), reverse=True
+                )
 
                 child_dict = get_sub_unit_dict(allCpus, distribution_list[0], i - 1)
                 distribution_dict = child_dict.copy()
@@ -532,7 +534,6 @@ def core_allocation_algorithm(
                     j = j - 1
 
                 child_dict = get_sub_unit_dict(allCpus, sub_unit_cores.copy(), j)
-
                 """
                 searches for the key-value pair that already provided cores for the assignment
                 and therefore has the fewest elements in its value list while non-empty,
@@ -550,7 +551,6 @@ def core_allocation_algorithm(
                                 distribution_list.remove(iter2)
                         distribution_list.sort(reverse=False)
                         child_dict = get_sub_unit_dict(allCpus, distribution_list[0], j)
-
                 next_core = list(child_dict.values())[0][0]
 
                 """
