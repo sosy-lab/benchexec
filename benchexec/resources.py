@@ -36,7 +36,7 @@ def get_cpu_cores_per_run(
     my_cgroups,
     coreSet=None,
     coreRequirement=None,
-) -> list[list[int]]:
+):
     """
     Sets variables and reads data from the machine to prepare for the distribution algorithm
     Preparation and the distribution algorithm itself are separated to facilitate
