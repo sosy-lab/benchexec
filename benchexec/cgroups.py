@@ -268,11 +268,16 @@ def remove_cgroup(cgroup):
     except OSError:
         # sometimes this fails because the cgroup is still busy, we try again once
         try:
+            os.chmod(os.path.basename(cgroup), stat.S_IWUSR)
             os.rmdir(cgroup)
         except OSError as e:
-            logging.warning(
-                "Failed to remove cgroup %s: error %s (%s)", cgroup, e.errno, e.strerror
-            )
+            if e.errno != errno.ENOENT:
+                logging.warning(
+                    "Failed to remove cgroup %s: error %s (%s)",
+                    cgroup,
+                    e.errno,
+                    e.strerror,
+                )
 
 
 def _register_process_with_cgrulesengd(pid):
@@ -306,17 +311,17 @@ class Cgroup(object):
         assert set(cgroupsPerSubsystem.keys()) <= ALL_KNOWN_SUBSYSTEMS
         assert all(cgroupsPerSubsystem.values())
         # Also update self.paths on every update to this!
-        self.per_subsystem = cgroupsPerSubsystem
+        self.subsystems = cgroupsPerSubsystem
         self.paths = set(cgroupsPerSubsystem.values())  # without duplicates
         # for error messages:
         self.unusable_subsystems = set()
         self.denied_subsystems = {}
 
     def __contains__(self, key):
-        return key in self.per_subsystem
+        return key in self.subsystems
 
     def __getitem__(self, key):
-        return self.per_subsystem[key]
+        return self.subsystems[key]
 
     def __str__(self):
         return str(self.paths)
@@ -346,16 +351,16 @@ class Cgroup(object):
         except OSError as e:
             log_method(
                 "Cannot use cgroup %s for subsystem %s, reason: %s (%s).",
-                self.per_subsystem[subsystem],
+                self.subsystems[subsystem],
                 subsystem,
                 e.strerror,
                 e.errno,
             )
             self.unusable_subsystems.add(subsystem)
             if e.errno == errno.EACCES:
-                self.denied_subsystems[subsystem] = self.per_subsystem[subsystem]
-            del self.per_subsystem[subsystem]
-            self.paths = set(self.per_subsystem.values())
+                self.denied_subsystems[subsystem] = self.subsystems[subsystem]
+            del self.subsystems[subsystem]
+            self.paths = set(self.subsystems.values())
             return False
 
         return True
@@ -418,11 +423,11 @@ class Cgroup(object):
         Create child cgroups of the current cgroup for at least the given subsystems.
         @return: A Cgroup instance representing the new child cgroup(s).
         """
-        assert set(subsystems).issubset(self.per_subsystem.keys())
+        assert set(subsystems).issubset(self.subsystems.keys())
         createdCgroupsPerSubsystem = {}
         createdCgroupsPerParent = {}
         for subsystem in subsystems:
-            parentCgroup = self.per_subsystem[subsystem]
+            parentCgroup = self.subsystems[subsystem]
             if parentCgroup in createdCgroupsPerParent:
                 # reuse already created cgroup
                 createdCgroupsPerSubsystem[subsystem] = createdCgroupsPerParent[
@@ -464,9 +469,7 @@ class Cgroup(object):
         """
         Return a generator of all PIDs currently in this cgroup for the given subsystem.
         """
-        with open(
-            os.path.join(self.per_subsystem[subsystem], "tasks"), "r"
-        ) as tasksFile:
+        with open(os.path.join(self.subsystems[subsystem], "tasks"), "r") as tasksFile:
             for line in tasksFile:
                 yield int(line)
 
@@ -497,18 +500,13 @@ class Cgroup(object):
                 yield from recursive_child_cgroups(cgroup)
 
         def try_unfreeze(cgroup):
-            freezer_file = os.path.join(cgroup, "freezer.state")
             try:
-                util.write_file("THAWED", freezer_file)
+                util.write_file("THAWED", cgroup, "freezer.state", force=True)
             except OSError:
-                # Somebody could have fiddle with permissions, try to set them.
-                # If we are not owner, this also fails, but then there is nothing we
-                # can do. But the processes inside the run cannot change the owner.
-                try:
-                    os.chmod(freezer_file, stat.S_IRUSR | stat.S_IWUSR)
-                    util.write_file("THAWED", freezer_file)
-                except OSError:
-                    pass
+                # With force=True this fails only if we are not owner, but then there is
+                # nothing we can do. But the processes inside the run cannot change the
+                # owner, so this should not happen.
+                pass
 
         # First, we go through all cgroups recursively while they are frozen and kill
         # all processes. This helps against fork bombs and prevents processes from
@@ -516,10 +514,9 @@ class Cgroup(object):
         # But this is only possible if we have freezer, and all processes will stay
         # until they are thawed (so we cannot check for cgroup emptiness and we cannot
         # delete subgroups).
-        if FREEZER in self.per_subsystem:
-            cgroup = self.per_subsystem[FREEZER]
-            freezer_file = os.path.join(cgroup, "freezer.state")
-            util.write_file("FROZEN", freezer_file)
+        if FREEZER in self.subsystems:
+            cgroup = self.subsystems[FREEZER]
+            util.write_file("FROZEN", cgroup, "freezer.state", force=True)
 
             for child_cgroup in recursive_child_cgroups(cgroup):
                 with _force_open_read(os.path.join(child_cgroup, "tasks")) as tasks:
@@ -531,7 +528,7 @@ class Cgroup(object):
                 # https://github.com/sosy-lab/benchexec/issues/840
                 try_unfreeze(child_cgroup)
 
-            util.write_file("THAWED", freezer_file)
+            util.write_file("THAWED", cgroup, "freezer.state", force=True)
 
         # Second, we go through all cgroups again, kill what is left,
         # check for emptiness, and remove subgroups.
@@ -552,7 +549,7 @@ class Cgroup(object):
         """
         assert subsystem in self
         return os.path.isfile(
-            os.path.join(self.per_subsystem[subsystem], f"{subsystem}.{option}")
+            os.path.join(self.subsystems[subsystem], f"{subsystem}.{option}")
         )
 
     def get_value(self, subsystem, option):
@@ -562,7 +559,7 @@ class Cgroup(object):
         Only call this method if the given subsystem is available.
         """
         assert subsystem in self, f"Subsystem {subsystem} is missing"
-        return util.read_file(self.per_subsystem[subsystem], f"{subsystem}.{option}")
+        return util.read_file(self.subsystems[subsystem], f"{subsystem}.{option}")
 
     def get_file_lines(self, subsystem, option):
         """
@@ -572,7 +569,7 @@ class Cgroup(object):
         """
         assert subsystem in self
         with open(
-            os.path.join(self.per_subsystem[subsystem], f"{subsystem}.{option}")
+            os.path.join(self.subsystems[subsystem], f"{subsystem}.{option}")
         ) as f:
             for line in f:
                 yield line
@@ -586,7 +583,7 @@ class Cgroup(object):
         """
         assert subsystem in self
         return util.read_key_value_pairs_from_file(
-            self.per_subsystem[subsystem], f"{subsystem}.{filename}"
+            self.subsystems[subsystem], f"{subsystem}.{filename}"
         )
 
     def set_value(self, subsystem, option, value):
@@ -596,9 +593,7 @@ class Cgroup(object):
         Only call this method if the given subsystem is available.
         """
         assert subsystem in self
-        util.write_file(
-            str(value), self.per_subsystem[subsystem], f"{subsystem}.{option}"
-        )
+        util.write_file(str(value), self.subsystems[subsystem], f"{subsystem}.{option}")
 
     def remove(self):
         """
@@ -609,7 +604,7 @@ class Cgroup(object):
             remove_cgroup(cgroup)
 
         del self.paths
-        del self.per_subsystem
+        del self.subsystems
 
     def read_cputime(self):
         """
@@ -618,6 +613,10 @@ class Cgroup(object):
         """
         # convert nano-seconds to seconds
         return float(self.get_value(CPUACCT, "usage")) / 1_000_000_000
+
+    def read_allowed_cpus(self):
+        """Get the list of all CPU cores allowed by this cgroup."""
+        return util.parse_int_list(self.get_value(CPUSET, "cpus"))
 
     def read_allowed_memory_banks(self):
         """Get the list of all memory banks allowed by this cgroup."""
