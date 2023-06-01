@@ -166,6 +166,10 @@ def get_cpu_cores_per_run(
                 )  # memory_regions is a list of keys
 
     check_and_add_meta_level(hierarchy_levels, allCpus)
+
+    for level in hierarchy_levels:
+        logging.debug(level)
+
     return get_cpu_distribution(
         coreLimit,
         num_of_threads,
@@ -606,7 +610,7 @@ def core_allocation_algorithm(
 
     # cleanup: while-loop stops before running through all units: while some active_cores-lists
     # & sub_unit_cores-lists are empty, other stay half-full or full
-    logging.debug("Core allocation:" + result)
+    logging.debug("Core allocation:" + str(result))
     return result
 
 
