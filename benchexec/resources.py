@@ -29,12 +29,16 @@ __all__ = [
     "get_cpu_package_for_core",
 ]
 
+# typing defintions
+
+HierarchyLevel = Dict[int, List[int]]
+
 
 def get_cpu_cores_per_run(
     coreLimit: int,
     num_of_threads: int,
     use_hyperthreading: bool,
-    my_cgroups: Cgroup,
+    my_cgroups: cgroups,
     coreSet: Optional[List] = None,
     coreRequirement: Optional[int] = None,
 ) -> List[List[int]]:
@@ -72,12 +76,12 @@ def get_cpu_cores_per_run(
         type(coreLimit) != int
         or type(num_of_threads) != int
         or type(use_hyperthreading) != bool
-        or type(my_cgroups) != Cgroup
+        or type(my_cgroups) != cgroups
     ):
-        sys.exit(f"Incorrect data type entered")
+        sys.exit("Incorrect data type entered")
 
     if coreLimit < 1 or num_of_threads < 1:
-        sys.exit(f"Only integers > 0 accepted for coreLimit & num_of_threads")
+        sys.exit("Only integers > 0 accepted for coreLimit & num_of_threads")
 
     hierarchy_levels = []
     try:
@@ -138,7 +142,7 @@ def get_cpu_cores_per_run(
     except ValueError as e:
         sys.exit(f"Could not read CPU information from kernel: {e}")
 
-    def compare_hierarchy_by_dict_length(level: Dict[int, List[int]]):
+    def compare_hierarchy_by_dict_length(level: HierarchyLevel):
         """comparator function for number of elements in a dict's value list"""
         return len(next(iter(level.values())))
 
@@ -195,8 +199,8 @@ def get_cpu_distribution(
     num_of_threads: int,
     use_hyperthreading: bool,
     allCpus: Dict[int, VirtualCore],
-    siblings_of_core: Dict[int, List[int]],
-    hierarchy_levels: List[Dict[int, List[int]]],
+    siblings_of_core: HierarchyLevel,
+    hierarchy_levels: List[HierarchyLevel],
     coreRequirement: Optional[int] = None,
 ) -> List[List[int]]:
     """implements optional restrictions and calls the actual assignment function"""
@@ -263,8 +267,8 @@ def get_cpu_distribution(
 
 def filter_hyperthreading_siblings(
     allCpus: Dict[int, VirtualCore],
-    siblings_of_core: Dict[int, List[int]],
-    hierarchy_levels: List[Dict[int, List[int]]],
+    siblings_of_core: HierarchyLevel,
+    hierarchy_levels: List[HierarchyLevel],
 ) -> None:
     """
     Deletes all but one hyperthreading sibling per physical core out of allCpus,
@@ -292,8 +296,8 @@ def check_distribution_feasibility(
     coreLimit: int,
     num_of_threads: int,
     allCpus: Dict[int, VirtualCore],
-    siblings_of_core: Dict[int, List[int]],
-    hierarchy_levels: List[Dict[int, List[int]]],
+    siblings_of_core: HierarchyLevel,
+    hierarchy_levels: List[HierarchyLevel],
     isTest: bool = True,
 ) -> bool:
     """Checks, whether the core distribution can work with the given parameters"""
@@ -357,7 +361,7 @@ def check_distribution_feasibility(
 
 
 def calculate_chosen_level(
-    hierarchy_levels: List[Dict[int, List[int]]], coreLimit_rounded_up: int
+    hierarchy_levels: List[HierarchyLevel], coreLimit_rounded_up: int
 ) -> int:
     """Calculates the hierarchy level necessary so that number of cores at the chosen_level is at least
     as big as the cores necessary for one thread"""
@@ -374,7 +378,7 @@ def calculate_chosen_level(
 
 
 def calculate_coreLimit_rounded_up(
-    siblings_of_core: Dict[int, List[int]], coreLimit: int
+    siblings_of_core: HierarchyLevel, coreLimit: int
 ) -> int:
     """coreLimit_rounded_up (int): recalculate # cores for each run accounting for HT"""
     core_size = len(next(iter(siblings_of_core.values())))
@@ -386,7 +390,7 @@ def calculate_coreLimit_rounded_up(
 
 def calculate_sub_units_per_run(
     coreLimit_rounded_up: int,
-    hierarchy_levels: List[Dict[int, List[int]]],
+    hierarchy_levels: List[HierarchyLevel],
     chosen_level: int,
 ) -> int:
     """calculate how many sub_units have to be used to accommodate the runs_per_unit"""
@@ -397,7 +401,7 @@ def calculate_sub_units_per_run(
 
 
 def check_and_add_meta_level(
-    hierarchy_levels: List[Dict[int, List[int]]], allCpus: Dict[int, VirtualCore]
+    hierarchy_levels: List[HierarchyLevel], allCpus: Dict[int, VirtualCore]
 ) -> None:
     """
     Adds a meta_level to hierarchy_levels to iterate through all cores (if necessary)
@@ -428,8 +432,8 @@ def core_allocation_algorithm(
     coreLimit: int,
     num_of_threads: int,
     allCpus: Dict[int, VirtualCore],
-    siblings_of_core: Dict[int, List[int]],
-    hierarchy_levels: List[Dict[int, List[int]]],
+    siblings_of_core: HierarchyLevel,
+    hierarchy_levels: List[HierarchyLevel],
 ) -> List[List[int]]:
     """Actual core distribution method:
     uses the architecture read from the file system by get_cpu_cores_per_run
@@ -602,17 +606,17 @@ def core_allocation_algorithm(
 
     # cleanup: while-loop stops before running through all units: while some active_cores-lists
     # & sub_unit_cores-lists are empty, other stay half-full or full
-
+    logging.debug("Core allocation:" + result)
     return result
 
 
-def check_symmetric_num_of_values(hierarchy_level: Dict[int, List[int]]) -> bool:
+def check_symmetric_num_of_values(hierarchy_level: HierarchyLevel) -> bool:
     """returns True if the number of values in the lists of the key-value pairs
     is equal throughout the dict"""
     return not check_asymmetric_num_of_values(hierarchy_level)
 
 
-def check_asymmetric_num_of_values(hierarchy_level: Dict[int, List[int]]) -> bool:
+def check_asymmetric_num_of_values(hierarchy_level: HierarchyLevel) -> bool:
     """returns True if the number of values in the lists of the key-value pairs
     is not equal throughout the dict"""
     is_asymmetric = False
@@ -625,7 +629,7 @@ def check_asymmetric_num_of_values(hierarchy_level: Dict[int, List[int]]) -> boo
 def core_clean_up(
     core: int,
     allCpus: Dict[int, VirtualCore],
-    hierarchy_levels: List[Dict[int, List[int]]],
+    hierarchy_levels: List[HierarchyLevel],
 ) -> None:
     current_core_regions = allCpus[core].memory_regions
     for mem_index in range(len(current_core_regions)):
@@ -634,7 +638,7 @@ def core_clean_up(
 
 
 # return list of available CPU cores
-def get_cpu_list(my_cgroups: Cgroup, coreSet: Optional[List] = None) -> List[int]:
+def get_cpu_list(my_cgroups: cgroups, coreSet: Optional[List] = None) -> List[int]:
     # read list of available CPU cores
     allCpus = my_cgroups.read_allowed_cpus()
 
@@ -680,14 +684,14 @@ def frequency_filter(allCpus_list: List[int], threshold: float) -> List[int]:
     return allCpus_list
 
 
-def get_siblings_mapping(allCpus: Dict[int, VirtualCore]) -> Dict[int, List[int]]:
+def get_siblings_mapping(allCpus_list: List[int]) -> HierarchyLevel:
     """Get hyperthreading siblings from core_cpus_list or thread_siblings_list (deprecated)."""
     siblings_of_core = {}
     # if no hyperthreading available, the siblings list contains only the core itself
     if util.try_read_file(
-        f"/sys/devices/system/cpu/cpu{allCpus[0]}/topology/core_cpus_list"
+        f"/sys/devices/system/cpu/cpu{allCpus_list[0]}/topology/core_cpus_list"
     ):
-        for core in allCpus:
+        for core in allCpus_list:
             siblings = util.parse_int_list(
                 util.read_file(
                     f"/sys/devices/system/cpu/cpu{core}/topology/core_cpus_list"
@@ -696,9 +700,9 @@ def get_siblings_mapping(allCpus: Dict[int, VirtualCore]) -> Dict[int, List[int]
             siblings_of_core[core] = siblings
 
     elif util.try_read_file(
-        f"/sys/devices/system/cpu/cpu{allCpus[0]}/topology/thread_siblings_list"
+        f"/sys/devices/system/cpu/cpu{allCpus_list[0]}/topology/thread_siblings_list"
     ):
-        for core in allCpus:
+        for core in allCpus_list:
             siblings = util.parse_int_list(
                 util.read_file(
                     f"/sys/devices/system/cpu/cpu{core}/topology/thread_siblings_list"
@@ -718,11 +722,11 @@ def get_die_id_for_core(core: int) -> int:
     return int(util.read_file(f"/sys/devices/system/cpu/cpu{core}/topology/die_id"))
 
 
-def get_die_mapping(allCpus: Dict[int, VirtualCore]) -> Dict[int, List[int]]:
+def get_die_mapping(allCpus_list: List[int]) -> HierarchyLevel:
     """Generates a mapping from a die to its corresponding cores."""
     cores_of_die = collections.defaultdict(list)
     try:
-        for core in allCpus:
+        for core in allCpus_list:
             die = get_die_id_for_core(core)
             cores_of_die[die].append(core)
     except FileNotFoundError:
@@ -734,9 +738,7 @@ def get_die_mapping(allCpus: Dict[int, VirtualCore]) -> Dict[int, List[int]]:
     return cores_of_die
 
 
-def get_group_mapping(
-    cores_of_NUMA_region: Dict[int, List[int]]
-) -> Dict[int, List[int]]:
+def get_group_mapping(cores_of_NUMA_region: HierarchyLevel) -> HierarchyLevel:
     cores_of_groups = collections.defaultdict(list)
     nodes_of_groups = collections.defaultdict(list)
     # generates dict of all available nodes with their group nodes
@@ -770,7 +772,7 @@ def get_group_mapping(
     return cores_of_groups
 
 
-def get_nodes_of_group(node_id: int) -> int:
+def get_nodes_of_group(node_id: int) -> List[int]:
     """
     returns the nodes that belong to the same group because they have a smaller distance
     between each other than to rest of the nodes
@@ -816,10 +818,10 @@ def get_cluster_id_for_core(core: int) -> int:
     return int(util.read_file(f"/sys/devices/system/cpu/cpu{core}/topology/cluster_id"))
 
 
-def get_cluster_mapping(allCpus: Dict[int, VirtualCore]) -> Dict[int, List[int]]:
+def get_cluster_mapping(allCpus_list: List[int]) -> HierarchyLevel:
     cores_of_cluster = collections.defaultdict(list)  # Zuordnung DIE ID zu core ID
     try:
-        for core in allCpus:
+        for core in allCpus_list:
             cluster = get_cluster_id_for_core(core)
             cores_of_cluster[cluster].append(core)
     except FileNotFoundError:
@@ -836,10 +838,10 @@ def get_book_id_for_core(core: int) -> int:
     return int(util.read_file(f"/sys/devices/system/cpu/cpu{core}/topology/book_id"))
 
 
-def get_book_mapping(allCpus: Dict[int, VirtualCore]) -> Dict[int, List[int]]:
+def get_book_mapping(allCpus_list: List[int]) -> HierarchyLevel:
     cores_of_book = collections.defaultdict(list)
     try:
-        for core in allCpus:
+        for core in allCpus_list:
             book = get_book_id_for_core(core)
             cores_of_book[book].append(core)
     except FileNotFoundError:
@@ -856,10 +858,10 @@ def get_drawer_id_for_core(core: int) -> int:
     return int(util.read_file(f"/sys/devices/system/cpu/cpu{core}/topology/drawer_id"))
 
 
-def get_drawer_mapping(allCpus: Dict[int, VirtualCore]) -> Dict[int, List[int]]:
+def get_drawer_mapping(allCpus_list: List[int]) -> HierarchyLevel:
     cores_of_drawer = collections.defaultdict(list)
     try:
-        for core in allCpus:
+        for core in allCpus_list:
             drawer = get_drawer_id_for_core(core)
             cores_of_drawer[drawer].append(core)
     except FileNotFoundError:
@@ -893,10 +895,10 @@ def get_L3cache_id_for_core(core: int) -> int:
     )
 
 
-def get_L3cache_mapping(allCpus: Dict[int, VirtualCore]) -> Dict[int, List[int]]:
+def get_L3cache_mapping(allCpus_list: List[int]) -> HierarchyLevel:
     cores_of_L3cache = collections.defaultdict(list)
     try:
-        for core in allCpus:
+        for core in allCpus_list:
             L3cache = get_L3cache_id_for_core(core)
             cores_of_L3cache[L3cache].append(core)
     except FileNotFoundError:
@@ -909,9 +911,9 @@ def get_L3cache_mapping(allCpus: Dict[int, VirtualCore]) -> Dict[int, List[int]]
 
 
 # returns dict of mapping NUMA region to list of cores
-def get_NUMA_mapping(allCpus: Dict[int, VirtualCore]) -> Dict[int, List[int]]:
+def get_NUMA_mapping(allCpus_list: List[int]) -> HierarchyLevel:
     cores_of_NUMA_region = collections.defaultdict(list)
-    for core in allCpus:
+    for core in allCpus_list:
         coreDir = f"/sys/devices/system/cpu/cpu{core}/"
         NUMA_regions = _get_memory_banks_listed_in_dir(coreDir)
         if NUMA_regions:
@@ -929,9 +931,9 @@ def get_NUMA_mapping(allCpus: Dict[int, VirtualCore]) -> Dict[int, List[int]]:
 
 
 # returns dict of mapping CPU/physical package to list of cores
-def get_package_mapping(allCpus: Dict[int, VirtualCore]) -> Dict[int, List[int]]:
+def get_package_mapping(allCpus_list: List[int]) -> HierarchyLevel:
     cores_of_package = collections.defaultdict(list)
-    for core in allCpus:
+    for core in allCpus_list:
         package = get_cpu_package_for_core(core)
         cores_of_package[package].append(core)
     logging.debug("Physical packages of cores are %s.", cores_of_package)
@@ -939,7 +941,7 @@ def get_package_mapping(allCpus: Dict[int, VirtualCore]) -> Dict[int, List[int]]
 
 
 def get_memory_banks_per_run(
-    coreAssignment, cgroups: Cgroup
+    coreAssignment, cgroups: cgroups
 ) -> Optional[List[List[int]]]:
     """Get an assignment of memory banks to runs that fits to the given coreAssignment,
     i.e., no run is allowed to use memory that is not local (on the same NUMA node)
@@ -1076,7 +1078,7 @@ def _get_memory_bank_size(memBank):
     raise ValueError(f"Failed to read total memory from {fileName}.")
 
 
-def get_cpu_package_for_core(core):
+def get_cpu_package_for_core(core: int) -> int:
     """Get the number of the physical package (socket) a core belongs to."""
     return int(
         util.read_file(
@@ -1085,7 +1087,7 @@ def get_cpu_package_for_core(core):
     )
 
 
-def get_cores_of_same_package_as(core):
+def get_cores_of_same_package_as(core: int) -> List[int]:
     return util.parse_int_list(
         util.read_file(f"/sys/devices/system/cpu/cpu{core}/topology/core_siblings_list")
     )
