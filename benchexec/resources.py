@@ -30,7 +30,7 @@ __all__ = [
 ]
 
 # typing defintions
-
+ListOfIntLists = List[List[int]]
 HierarchyLevel = Dict[int, List[int]]
 
 
@@ -38,7 +38,7 @@ def get_cpu_cores_per_run(
     coreLimit: int,
     num_of_threads: int,
     use_hyperthreading: bool,
-    my_cgroups: cgroups,
+    my_cgroups,
     coreSet: Optional[List] = None,
     coreRequirement: Optional[int] = None,
 ) -> List[List[int]]:
@@ -76,7 +76,6 @@ def get_cpu_cores_per_run(
         type(coreLimit) != int
         or type(num_of_threads) != int
         or type(use_hyperthreading) != bool
-        or type(my_cgroups) != cgroups
     ):
         sys.exit("Incorrect data type entered")
 
@@ -190,7 +189,11 @@ class VirtualCore:
                             according to its size
     """
 
-    def __init__(self, coreId: int, memory_regions: Optional[List[int]] = None):
+    def __init__(self, coreId: int):
+        self.coreId = coreId
+        self.memory_regions = []
+
+    def __init__(self, coreId: int, memory_regions: List[int]):
         self.coreId = coreId
         self.memory_regions = memory_regions
 
@@ -610,7 +613,7 @@ def core_allocation_algorithm(
 
     # cleanup: while-loop stops before running through all units: while some active_cores-lists
     # & sub_unit_cores-lists are empty, other stay half-full or full
-    logging.debug("Core allocation:" + str(result))
+    logging.debug(f"Core allocation:{result}")
     return result
 
 
@@ -642,7 +645,7 @@ def core_clean_up(
 
 
 # return list of available CPU cores
-def get_cpu_list(my_cgroups: cgroups, coreSet: Optional[List] = None) -> List[int]:
+def get_cpu_list(my_cgroups, coreSet: Optional[List] = None) -> List[int]:
     # read list of available CPU cores
     allCpus = my_cgroups.read_allowed_cpus()
 
@@ -944,9 +947,7 @@ def get_package_mapping(allCpus_list: List[int]) -> HierarchyLevel:
     return cores_of_package
 
 
-def get_memory_banks_per_run(
-    coreAssignment, cgroups: cgroups
-) -> Optional[List[List[int]]]:
+def get_memory_banks_per_run(coreAssignment, cgroups) -> Optional[ListOfIntLists]:
     """Get an assignment of memory banks to runs that fits to the given coreAssignment,
     i.e., no run is allowed to use memory that is not local (on the same NUMA node)
     to one of its CPU cores."""
