@@ -166,9 +166,6 @@ def get_cpu_cores_per_run(
 
     check_and_add_meta_level(hierarchy_levels, allCpus)
 
-    for level in hierarchy_levels:
-        logging.debug(level)
-
     return get_cpu_distribution(
         coreLimit,
         num_of_threads,
@@ -192,10 +189,6 @@ class VirtualCore:
     def __init__(self, coreId: int):
         self.coreId = coreId
         self.memory_regions = []
-
-    def __init__(self, coreId: int, memory_regions: List[int]):
-        self.coreId = coreId
-        self.memory_regions = memory_regions
 
     def __str__(self):
         return str(self.coreId) + " " + str(self.memory_regions)
@@ -642,6 +635,9 @@ def core_clean_up(
     for mem_index in range(len(current_core_regions)):
         region = current_core_regions[mem_index]
         hierarchy_levels[mem_index][region].remove(core)
+        if (len(hierarchy_levels[mem_index][region]) == 0):
+            hierarchy_levels[mem_index].pop(region)
+
 
 
 # return list of available CPU cores
@@ -776,6 +772,7 @@ def get_group_mapping(cores_of_NUMA_region: HierarchyLevel) -> HierarchyLevel:
         for entry in node_list:
             cores_of_groups[id_index].extend(cores_of_NUMA_region[entry])
         id_index += 1
+    logging.debug("Groups of cores are %s.", cores_of_groups)
     return cores_of_groups
 
 
