@@ -68,8 +68,10 @@ def mock_benchmark_fixture(request):
     patchers = [
         patch("benchexec.model.load_task_definition_file", new=mock_load_task_def_file),
         patch("benchexec.result.Property.create", new=mock_property_create),
-        patch("benchexec.util.expand_filename_pattern", new=mock_expand_filename_pattern),
-        patch("os.path.samefile", new=lambda a, b: a == b)
+        patch(
+            "benchexec.util.expand_filename_pattern", new=mock_expand_filename_pattern
+        ),
+        patch("os.path.samefile", new=lambda a, b: a == b),
     ]
     for patcher in patchers:
         patcher.start()

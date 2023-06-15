@@ -24,8 +24,10 @@ def execute_run_extern(*args, **kwargs):
             print(e.output)
             raise e
 
+
 def test_extern_command():
     execute_run_extern()
+
 
 def test_simple():
     try:
@@ -34,12 +36,14 @@ def test_simple():
         # expected if cgroups are not available
         pytest.skip(e)
 
+
 def test_threaded():
     try:
         check_cgroups.main([])
     except SystemExit as e:
         # expected if cgroups are not available
         pytest.skip(e)
+
 
 def test_thread_result_is_returned():
     """
