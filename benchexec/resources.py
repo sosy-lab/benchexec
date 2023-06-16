@@ -66,10 +66,8 @@ def get_cpu_cores_per_run(
     @param coreLimit:           the number of cores for each thread
     @param num_of_threads:      the number of parallel benchmark executions
     @param use_hyperthreading:  boolean to check if no-hyperthreading method is being used
-    @param coreSet:             the list of CPU core identifiers provided by a user,
-                                None makes benchexec using all cores
-    @return hierarchy_levels:   list of dicts of lists: each dict in the list corresponds to one topology layer
-                                and maps from the identifier read from the topology to a list of the cores belonging to it
+    @param coreSet:             the list of CPU core identifiers provided by a user,None makes benchexec using all cores
+    @return list of lists, where each inner list contains the cores for one run
     """
 
     if (
@@ -182,9 +180,8 @@ def get_cpu_cores_per_run(
 
     logging.debug(hierarchy_levels)
 
-    # create VirtualCores
+    # creates a dict of VirtualCore objects from core ID list
     allCpus = {}
-    """creates a dict of VirtualCore objects from core ID list"""
     for cpu_nr in allCpus_list:
         allCpus.update({cpu_nr: VirtualCore(cpu_nr, [])})
 
@@ -234,7 +231,10 @@ def get_cpu_distribution(
     hierarchy_levels: List[HierarchyLevel],
     coreRequirement: Optional[int] = None,
 ) -> List[List[int]]:
-    """implements optional restrictions and calls the actual assignment function"""
+    """
+    implements optional restrictions and calls the actual assignment function
+    @param hierarchy_levels:   list of dicts of lists: each dict in the list corresponds to one topology layer and maps from the identifier read from the topology to a list of the cores belonging to it
+    """
     result = []
 
     # no HT filter: delete all but the key core from siblings_of_core & hierarchy_levels
@@ -423,7 +423,9 @@ def check_and_add_meta_level(
     hierarchy_levels: List[HierarchyLevel], allCpus: Dict[int, VirtualCore]
 ) -> None:
     """
-    Adds a meta_level to hierarchy_levels to iterate through all cores (if necessary)
+    Adds a meta_level or root_level which includes all cores to hierarchy_levels (if necessary).
+    This is necessary to iterate through all cores if the highest hierarchy level consists of more than one unit.
+    Also adds the identifier for the new level to the memory region of all cores in allCpus
     """
     if len(hierarchy_levels[-1]) > 1:
         top_level_cores = []
@@ -666,7 +668,7 @@ def get_cpu_list(my_cgroups, coreSet: Optional[List] = None) -> List[int]:
     # Filter CPU cores according to the list of identifiers provided by a user
     if coreSet:
         invalid_cores = sorted(set(coreSet).difference(set(allCpus)))
-        if len(invalid_cores) > 0:
+        if invalid_cores:
             raise ValueError(
                 "The following provided CPU cores are not available: "
                 + ", ".join(map(str, invalid_cores))
@@ -683,13 +685,15 @@ def frequency_filter(allCpus_list: List[int], threshold: float) -> List[int]:
     """
     Filters the list of all available CPU cores so that only the fastest cores
     are used for the benchmark run.
-    Cores with a maximal frequency smaller than the distance of the defined threshold
-    from the fastest core are removed from allCpus_list.
+    Only cores with a maximal frequency within the distance of the defined threshold
+    from the maximal frequency of the fastest core are added to the filtered_allCpus_list
+    and returned for further use. (max_frequency of core) >= (1-threshold)*(max_frequency of fastest core)
+    All cores that are slower will not be used for the benchmark and displayed in a debug message.
 
     @param allCpus_list: list of all cores available for the benchmark run
-    @param threshold: accepted difference in the maximal frequency of a core from
+    @param threshold: accepted difference (as percentage) in the maximal frequency of a core from
     the fastest core to still be used in the benchmark run
-    @return: filtered allCpus_list with only the fastest cores
+    @return: filtered_allCpus_list with only the fastest cores
     """
     cpu_max_frequencies = collections.defaultdict(list)
     for core in allCpus_list:
@@ -700,11 +704,17 @@ def frequency_filter(allCpus_list: List[int], threshold: float) -> List[int]:
         )
         cpu_max_frequencies[max_freq].append(core)
     freq_threshold = max(cpu_max_frequencies.keys()) * (1 - threshold)
+    filtered_allCpus_list = []
+    slow_cores = []
     for key in cpu_max_frequencies:
-        if key < freq_threshold:
-            for core in cpu_max_frequencies[key]:
-                allCpus_list.remove(core)
-    return allCpus_list
+        if key >= freq_threshold:
+            filtered_allCpus_list.extend(cpu_max_frequencies[key])
+        else:
+            slow_cores.extend(cpu_max_frequencies[key])
+    logging.debug(
+        f"Unused cores due to frequency more than {threshold*100}% below frequency of fastest core ({max(cpu_max_frequencies.keys())}): {slow_cores}"
+    )
+    return filtered_allCpus_list
 
 
 def get_generic_mapping(
@@ -725,31 +735,19 @@ def get_generic_mapping(
 def get_siblings_mapping(allCpus_list: List[int]) -> HierarchyLevel:
     """Get hyperthreading siblings from core_cpus_list or thread_siblings_list (deprecated)."""
     siblings_of_core = {}
+    path = "/sys/devices/system/cpu/cpu{}/topology/{}"
+    usePath = ""
     # if no hyperthreading available, the siblings list contains only the core itself
-    if util.try_read_file(
-        f"/sys/devices/system/cpu/cpu{allCpus_list[0]}/topology/core_cpus_list"
-    ):
-        for core in allCpus_list:
-            siblings = util.parse_int_list(
-                util.read_file(
-                    f"/sys/devices/system/cpu/cpu{core}/topology/core_cpus_list"
-                )
-            )
-            siblings_of_core[core] = siblings
-
-    elif util.try_read_file(
-        f"/sys/devices/system/cpu/cpu{allCpus_list[0]}/topology/thread_siblings_list"
-    ):
-        for core in allCpus_list:
-            siblings = util.parse_int_list(
-                util.read_file(
-                    f"/sys/devices/system/cpu/cpu{core}/topology/thread_siblings_list"
-                )
-            )
-            siblings_of_core[core] = siblings
-
+    if os.path.isfile(path.format(str(allCpus_list[0]), "core_cpus_list")):
+        usePath = "core_cpus_list"
+    elif os.path.isfile(path.format(str(allCpus_list[0]), "thread_siblings_list")):
+        usePath = "thread_siblings_list"
     else:
         raise ValueError("No siblings information accessible")
+
+    for core in allCpus_list:
+        siblings = util.parse_int_list(util.read_file(path.format(str(core), usePath)))
+        siblings_of_core[core] = siblings
 
     logging.debug("Siblings of cores are %s.", siblings_of_core)
     return siblings_of_core
