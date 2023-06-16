@@ -812,9 +812,20 @@ def get_nodes_of_group(node_id: int) -> List[int]:
 
 
 def get_closest_nodes(distance_list: List[int]) -> List[int]:  # 10 11 11 11 20 20 20 20
-    """returns a list of the indices of the node itself (smallest distance) and
-    its next neighbours by distance
-    The indices are the same as the node IDs"""
+    """
+    This function groups nodes according to their distance from each other. 
+
+    @param list of distances of all nodes from the node that the list is retrieved from 
+    @return list of the indices of the node itself (smallest distance) and its next neighbours by distance.
+    
+    We assume that the distance to other nodes is smaller than the distance of the core to itself.
+    
+    The indices are the same as the node IDs. That means that in a list [10 11 20 20], 
+    the distance from node0 to node0 is 10, the distance from node0 to node1 (index1 of the list) is 11,
+    and the distance from node0 to node2 and node3 is both 20.
+    
+    If there are only 2 different distances available, they are assigned into different groups.
+    """
     sorted_distance_list = sorted(distance_list)
     smallest_distance = sorted_distance_list[0]
     greatest_distance = sorted_distance_list[-1]
@@ -826,17 +837,15 @@ def get_closest_nodes(distance_list: List[int]) -> List[int]:  # 10 11 11 11 20 
     if distance_list.count(smallest_distance) == 1:
         group_list.append(distance_list.index(smallest_distance))
     else:
+        # we assume that all other nodes are slower to access than the core itself
         raise Exception("More then one smallest distance")
     if second_to_smallest != greatest_distance:
-        if distance_list.count(second_to_smallest) == 1:
-            group_list.append(distance_list.index(second_to_smallest))
-        elif distance_list.count(second_to_smallest) > 1:
-            index = 0
-            for dist in distance_list:
-                if dist == second_to_smallest:
-                    group_list.append(index)
-                index += 1
-    return group_list  # [0 1 2 3] # 0 1
+        index = 0
+        for dist in distance_list:
+            if dist == second_to_smallest:
+                group_list.append(index)
+            index += 1
+    return group_list  # [0 1 2 3]
 
 
 def get_cluster_mapping(allCpus_list: List[int]) -> HierarchyLevel:
