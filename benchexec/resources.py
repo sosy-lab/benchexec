@@ -167,10 +167,7 @@ def get_cpu_cores_per_run(
             for key in hierarchy_levels[index]:
                 set1 = set(hierarchy_levels[index][key])
                 anyIdentical = False
-                if any(
-                    len(set1.difference(set(s2))) == 0
-                    for s2 in hierarchy_levels[index + 1].values()
-                ):
+                if any(set1 == set(s2) for s2 in hierarchy_levels[index + 1].values()):
                     anyIdentical = True
                 allIdentical = allIdentical and anyIdentical
             if allIdentical:
@@ -355,9 +352,10 @@ def check_distribution_feasibility(
     # compare num of units & runs per unit vs num_of_threads
     if len(hierarchy_levels[chosen_level]) * runs_per_unit < num_of_threads:
         if not isTest:
+            num_of_possible_runs = len(hierarchy_levels[chosen_level]) * runs_per_unit
             sys.exit(
                 f"Cannot assign required number of threads."
-                f"Please reduce the number of threads to {len(hierarchy_levels[chosen_level]) * runs_per_unit}."
+                f"Please reduce the number of threads to {num_of_possible_runs}."
             )
         else:
             is_feasible = False
@@ -369,9 +367,12 @@ def check_distribution_feasibility(
     # number of nodes at subunit-Level / sub_units_per_run
     if len(hierarchy_levels[chosen_level - 1]) / sub_units_per_run < num_of_threads:
         if not isTest:
+            max_desirable_runs = math.floor(
+                len(hierarchy_levels[chosen_level - 1]) / sub_units_per_run
+            )
             sys.exit(
                 f"Cannot split memory regions between runs. "
-                f"Please reduce the number of threads to {math.floor(len(hierarchy_levels[chosen_level-1]) / sub_units_per_run)}."
+                f"Please reduce the number of threads to {max_desirable_runs}."
             )
         else:
             is_feasible = False
@@ -439,13 +440,10 @@ def check_and_add_meta_level(
 def get_sub_unit_dict(
     allCpus: Dict[int, VirtualCore], parent_list: List[int], hLevel: int
 ) -> Dict[int, List[int]]:
-    child_dict = {}
+    child_dict = collections.defaultdict(list)
     for element in parent_list:
         subSubUnitKey = allCpus[element].memory_regions[hLevel]
-        if subSubUnitKey in list(child_dict.keys()):
-            child_dict[subSubUnitKey].append(element)
-        else:
-            child_dict.update({subSubUnitKey: [element]})
+        child_dict[subSubUnitKey].append(element)
     return child_dict
 
 
@@ -660,8 +658,17 @@ def core_clean_up(
             hierarchy_levels[mem_index].pop(region)
 
 
-# return list of available CPU cores
 def get_cpu_list(my_cgroups, coreSet: Optional[List] = None) -> List[int]:
+    """
+    retrieves all cores available to the users cgroup.
+    If a coreSet is provided, the list of all available cores is reduced to those cores
+    that are in both - available cores and coreSet.
+    A filter is applied to make sure, all cores used for the benchmark run
+    at the same clock speed (allowing a deviation of 0.05 (5%) from the highest frequency)
+    @param cgroup
+    @param coreSet list of cores to be used in the assignment as specified by the user
+    @return list of available cores
+    """
     # read list of available CPU cores
     allCpus = my_cgroups.read_allowed_cpus()
 
@@ -692,7 +699,7 @@ def frequency_filter(allCpus_list: List[int], threshold: float) -> List[int]:
 
     @param allCpus_list: list of all cores available for the benchmark run
     @param threshold: accepted difference (as percentage) in the maximal frequency of a core from
-    the fastest core to still be used in the benchmark run
+    the fastest core to still be used in the benchmark run (e.g. 0.05 which equals an accepted deviation of 5%)
     @return: filtered_allCpus_list with only the fastest cores
     """
     cpu_max_frequencies = collections.defaultdict(list)
@@ -813,17 +820,17 @@ def get_nodes_of_group(node_id: int) -> List[int]:
 
 def get_closest_nodes(distance_list: List[int]) -> List[int]:  # 10 11 11 11 20 20 20 20
     """
-    This function groups nodes according to their distance from each other. 
+    This function groups nodes according to their distance from each other.
 
-    @param list of distances of all nodes from the node that the list is retrieved from 
+    @param list of distances of all nodes from the node that the list is retrieved from
     @return list of the indices of the node itself (smallest distance) and its next neighbours by distance.
-    
+
     We assume that the distance to other nodes is smaller than the distance of the core to itself.
-    
-    The indices are the same as the node IDs. That means that in a list [10 11 20 20], 
+
+    The indices are the same as the node IDs. That means that in a list [10 11 20 20],
     the distance from node0 to node0 is 10, the distance from node0 to node1 (index1 of the list) is 11,
     and the distance from node0 to node2 and node3 is both 20.
-    
+
     If there are only 2 different distances available, they are assigned into different groups.
     """
     sorted_distance_list = sorted(distance_list)

@@ -24,12 +24,12 @@ def lrange(start, end):
 
 
 class TestCpuCoresPerRun(unittest.TestCase):
-    num_of_cores = 0
-    num_of_packages = 0
-    num_of_groups = 0
-    num_of_NUMAs = 0
-    num_of_L3_regions = 0
-    num_of_hyperthreading_siblings = 0
+    num_of_packages = None
+    num_of_groups = None
+    num_of_NUMAs = None
+    num_of_L3_regions = None
+    num_of_cores = None
+    num_of_hyperthreading_siblings = None
 
     @classmethod
     def setUpClass(cls):
@@ -81,24 +81,24 @@ class TestCpuCoresPerRun(unittest.TestCase):
 
         for cpu_nr in range(self.num_of_cores):
             # package
-            if self.num_of_packages and self.num_of_packages != 0:
+            if self.num_of_packages:
                 packageNr = math.trunc(
                     cpu_nr / (self.num_of_cores / self.num_of_packages)
                 )
                 cores_of_package[packageNr].append(cpu_nr)
 
             # groups
-            if self.num_of_groups and self.num_of_groups != 0:
+            if self.num_of_groups:
                 groupNr = math.trunc(cpu_nr / (self.num_of_cores / self.num_of_groups))
                 cores_of_group[groupNr].append(cpu_nr)
 
             # numa
-            if self.num_of_NUMAs and self.num_of_NUMAs != 0:
+            if self.num_of_NUMAs:
                 numaNr = math.trunc(cpu_nr / (self.num_of_cores / self.num_of_NUMAs))
                 cores_of_NUMA_Region[numaNr].append(cpu_nr)
 
             # L3
-            if self.num_of_L3_regions and self.num_of_L3_regions != 0:
+            if self.num_of_L3_regions:
                 l3Nr = math.trunc(cpu_nr / (self.num_of_cores / self.num_of_L3_regions))
                 cores_of_L3cache[l3Nr].append(cpu_nr)
 
@@ -214,20 +214,25 @@ class TestCpuCoresPerRun(unittest.TestCase):
 
 
 class Test_Topology_P1_NUMA2_L8_C16_F(TestCpuCoresPerRun):
-    num_of_cores = 16
     num_of_packages = 1
     num_of_NUMAs = 2
     num_of_L3_regions = 8
+    num_of_cores = 16
     num_of_hyperthreading_siblings = 2
     use_hyperthreading = False
 
-    """                 x
+    """
+    x : symbolizes a unit (package, NUMA, L3, core)
+    - : visualizes that a core is there, but it is not available because
+        use_hyperthreading is set to False
+
+                         x
 
             x                       x
 
     x   x       x   x       x   x      x    x
 
-    x-  x-      x-  x-      x-  x-     x-  x-
+    0-  2-     4-   6-     8-   10-   12-  14-
     """
     # expected results for different coreLimits
     oneCore_assignment = [[x] for x in [0, 8, 2, 10, 4, 12, 6, 14]]
@@ -248,10 +253,10 @@ class Test_Topology_P1_NUMA2_L8_C16_F(TestCpuCoresPerRun):
 
 
 class Test_Topology_P1_NUMA2_L8_C16_T(TestCpuCoresPerRun):
-    num_of_cores = 16
     num_of_packages = 1
     num_of_NUMAs = 2
     num_of_L3_regions = 8
+    num_of_cores = 16
     num_of_hyperthreading_siblings = 2
     use_hyperthreading = True
 
