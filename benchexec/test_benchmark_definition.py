@@ -5,10 +5,10 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import collections
 import os
 import tempfile
 import pytest
+import collections
 from unittest.mock import patch
 import yaml
 
