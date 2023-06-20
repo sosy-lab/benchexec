@@ -30,7 +30,7 @@ __all__ = [
 ]
 
 # typing defintions
-ListOfIntLists = List[List[int]]
+_2DIntList = List[List[int]]
 HierarchyLevel = Dict[int, List[int]]
 
 
@@ -63,11 +63,11 @@ def get_cpu_cores_per_run(
     This script does currently not support situations where the available cores are
     asymmetrically split over CPUs, e.g. 3 cores on one CPU and 5 on another.
 
-    @param coreLimit:           the number of cores for each thread
-    @param num_of_threads:      the number of parallel benchmark executions
-    @param use_hyperthreading:  boolean to check if no-hyperthreading method is being used
-    @param coreSet:             the list of CPU core identifiers provided by a user,None makes benchexec using all cores
-    @return list of lists, where each inner list contains the cores for one run
+    @param: coreLimit           the number of cores for each thread
+    @param: num_of_threads      the number of parallel benchmark executions
+    @param: use_hyperthreading  boolean to check if no-hyperthreading method is being used
+    @param: coreSet             the list of CPU core identifiers provided by a user,None makes benchexec using all cores
+    @return:                    list of lists, where each inner list contains the cores for one run
     """
 
     if (
@@ -186,10 +186,16 @@ def get_cpu_cores_per_run(
         coreRequirement,
     )
 
-def filter_duplicate_hierarchy_levels(hierarchy_levels: List[HierarchyLevel]) -> List[HierarchyLevel]:
-    '''
-    Checks hierarchy levels for duplicate entrys and return aa filtered version of it
-    '''
+
+def filter_duplicate_hierarchy_levels(
+    hierarchy_levels: List[HierarchyLevel],
+) -> List[HierarchyLevel]:
+    """
+    Checks hierarchy levels for duplicates in the values of each dict key and return a filtered version of it
+
+    @param: hierarchy_levels    the list of hierarchyLevels to be filtered for duplicate levels
+    @return:                    a list of hierarchyLevels without identical levels
+    """
     removeList = []
     filteredList = hierarchy_levels.copy()
     for index in range(len(hierarchy_levels) - 1):
@@ -199,23 +205,23 @@ def filter_duplicate_hierarchy_levels(hierarchy_levels: List[HierarchyLevel]) ->
                 set1 = set(hierarchy_levels[index][key])
                 anyIdentical = False
                 if any(
-                    set1 == (set(s2))
-                    for s2 in hierarchy_levels[index + 1].values()
+                    set1 == (set(s2)) for s2 in hierarchy_levels[index + 1].values()
                 ):
                     anyIdentical = True
                 allIdentical = allIdentical and anyIdentical
             if allIdentical:
-                removeList.append(hierarchy_levels[index+1])
-    for level in removeList: 
+                removeList.append(hierarchy_levels[index + 1])
+    for level in removeList:
         filteredList.remove(level)
     return filteredList
+
 
 class VirtualCore:
     """
     Generates an object for each available CPU core,
     providing its ID and a list of the memory regions it belongs to.
     @attr coreId: int returned from the system to identify a specific core
-    @attr memory_regions: list with the ID of the corresponding regions the core belongs to sorted 
+    @attr memory_regions: list with the ID of the corresponding regions the core belongs to sorted
     according to its size
     """
 
@@ -237,8 +243,16 @@ def get_cpu_distribution(
     coreRequirement: Optional[int] = None,
 ) -> List[List[int]]:
     """
-    implements optional restrictions and calls the actual assignment function
-    @param hierarchy_levels:   list of dicts of lists: each dict in the list corresponds to one topology layer and maps from the identifier read from the topology to a list of the cores belonging to it
+    Implements optional restrictions and calls the actual assignment function
+
+    @param: coreLimit           the number of cores for each parallel benchmark execution
+    @param: num_of_threads      the number of parallel benchmark executions
+    @param: use_hyperthreading  boolean to check if no-hyperthreading method is being used
+    @param: allCpus             list of @VirtualCore Objects to address a core from its id to the ids of the memory regions
+    @param: siblings_of_core    mapping from one of the sibling cores to the list of siblings including the core itself
+    @param: hierarchy_levels    list of dicts of lists: each dict in the list corresponds to one topology layer and maps from the identifier read from the topology to a list of the cores belonging to it
+    @param: coreRequirement     minimum number of cores to be reserved for each execution run
+    @return:                    list of lists, where each inner list contains the cores for one run
     """
     result = []
 
@@ -256,6 +270,7 @@ def get_cpu_distribution(
         )
     else:
         if coreRequirement >= coreLimit:
+            # reserves coreRequirement number of cores of which coreLimit is used
             prelim_result = core_allocation_algorithm(
                 coreRequirement,
                 num_of_threads,
@@ -268,6 +283,7 @@ def get_cpu_distribution(
         else:
             i = coreLimit
             while i >= coreRequirement:
+                # uses as many cores as possible (with maximum coreLimit), but at least coreRequirement num of cores
                 if check_distribution_feasibility(
                     i,
                     num_of_threads,
@@ -297,9 +313,10 @@ def filter_hyperthreading_siblings(
     """
     Deletes all but one hyperthreading sibling per physical core out of allCpus,
     siblings_of_core & hierarchy_levels
-    @param allCpus: list of VirtualCore objects
-    @param siblings_of_core:    mapping from one of the sibling cores to the list of siblings
+    @param: allCpus             list of VirtualCore objects
+    @param: siblings_of_core    mapping from one of the sibling cores to the list of siblings
                                 including the core itself
+    @param: hierarchy_levels    list of dicts of lists: each dict in the list corresponds to one topology layer and maps from the identifier read from the topology to a list of the cores belonging to it
     """
     for core in siblings_of_core:
         no_HT_filter = []
@@ -325,7 +342,17 @@ def check_distribution_feasibility(
     hierarchy_levels: List[HierarchyLevel],
     isTest: bool = True,
 ) -> bool:
-    """Checks, whether the core distribution can work with the given parameters"""
+    """
+    Checks, whether the core distribution can work with the given parameters
+
+    @param: coreLimit           the number of cores for each parallel benchmark execution
+    @param: num_of_threads      the number of parallel benchmark executions
+    @param: allCpus             list of @VirtualCore Objects to address a core from its id to the ids of the memory regions
+    @param: siblings_of_core    mapping from one of the sibling cores to the list of siblings including the core itself
+    @param: hierarchy_levels    list of dicts of lists: each dict in the list corresponds to one topology layer and maps from the identifier read from the topology to a list of the cores belonging to it
+    @param: isTest              boolean whether the check is used to test the coreLimit or for the actual core allocation
+    @return:                    list of lists, where each inner list contains the cores for one run
+    """
     is_feasible = True
 
     # compare number of available cores to required cores per run
@@ -392,8 +419,16 @@ def check_distribution_feasibility(
 def calculate_chosen_level(
     hierarchy_levels: List[HierarchyLevel], coreLimit_rounded_up: int
 ) -> int:
-    """Calculates the hierarchy level necessary so that number of cores at the chosen_level is at least
-    as big as the cores necessary for one thread"""
+    """
+    Calculates the hierarchy level necessary so that number of cores at the chosen_level is at least
+    as big as the cores necessary for one thread
+
+    @param: hierarchy_levels        list of dicts of lists: each dict in the list corresponds to one topology layer and
+                                    maps from the identifier read from the topology to a list of the cores belonging to it
+    @param: coreLimit_rounded_up    rounding up the coreLimit to a multiple of the num of hyper-threading siblings per core
+    @return:                        calculated chosen level as index
+    """
+
     chosen_level = 1
     # move up in hierarchy as long as the number of cores at the current level is smaller than the coreLimit
     # if the number of cores at the current level is as big as the coreLimit: exit loop
@@ -409,7 +444,14 @@ def calculate_chosen_level(
 def calculate_coreLimit_rounded_up(
     siblings_of_core: HierarchyLevel, coreLimit: int
 ) -> int:
-    """coreLimit_rounded_up (int): recalculate # cores for each run accounting for HT"""
+    """
+    coreLimit_rounded_up (int): recalculate # cores for each run accounting for HT
+
+    @param: hierarchy_levels    list of dicts of lists: each dict in the list corresponds to one topology layer and
+                                maps from the identifier read from the topology to a list of the cores belonging to it
+    @param: coreLimit           the number of cores for each parallel benchmark execution
+    @return:                    rounding up the coreLimit to a multiple of the num of hyper-threading siblings per core
+    """
     core_size = len(next(iter(siblings_of_core.values())))
     # Take value from hierarchy_levels instead from siblings_of_core
     coreLimit_rounded_up = int(math.ceil(coreLimit / core_size) * core_size)
@@ -422,7 +464,14 @@ def calculate_sub_units_per_run(
     hierarchy_levels: List[HierarchyLevel],
     chosen_level: int,
 ) -> int:
-    """calculate how many sub_units have to be used to accommodate the runs_per_unit"""
+    """
+    calculate how many sub_units (units on the hierarchy level below chosen level) have to be used to accommodate the coreLimit_rounded_up
+
+    @param: coreLimit_rounded_up    rounding up the coreLimit to a multiple of the num of hyper-threading siblings per core
+    @param: hierarchy_levels        list of dicts of lists: each dict in the list corresponds to one topology layer and
+                                    maps from the identifier read from the topology to a list of the cores belonging to it
+    @return:                        number of subunits (rounded up) to accommodate the coreLimit
+    """
     sub_units_per_run = math.ceil(
         coreLimit_rounded_up / len(hierarchy_levels[chosen_level - 1][0])
     )
@@ -436,6 +485,9 @@ def check_and_add_meta_level(
     Adds a meta_level or root_level which includes all cores to hierarchy_levels (if necessary).
     This is necessary to iterate through all cores if the highest hierarchy level consists of more than one unit.
     Also adds the identifier for the new level to the memory region of all cores in allCpus
+    @param: hierarchy_levels    list of dicts of lists: each dict in the list corresponds to one topology layer and
+                                maps from the identifier read from the topology to a list of the cores belonging to it
+    @param: allCpus             list of @VirtualCore Objects to address a core from its id to the ids of the memory regions
     """
     if len(hierarchy_levels[-1]) > 1:
         top_level_cores = []
@@ -449,6 +501,16 @@ def check_and_add_meta_level(
 def get_sub_unit_dict(
     allCpus: Dict[int, VirtualCore], parent_list: List[int], hLevel: int
 ) -> Dict[int, List[int]]:
+    """
+    Generates a dict including all units at a specify hierarchy level which consist of cores from parent_list
+    Collects all region keys from the hierarchy level where the core ids in parent_list are stored and returns
+    the collected data as dictionary
+
+    @param: allCpus       list of @VirtualCore Objects to address a core from its id to the ids of the memory regions
+    @param: parent_list   list of core ids from the parent hierarchyLevel
+    @param: hLevel        the index of the hierarchy level to search in
+    """
+
     child_dict = collections.defaultdict(list)
     for element in parent_list:
         subSubUnitKey = allCpus[element].memory_regions[hLevel]
@@ -481,12 +543,12 @@ def core_allocation_algorithm(
     with two 16-core CPUs (this would have unfair core assignment
     and thus undesirable performance characteristics anyway).
 
-    @param coreLimit:           the number of cores for each run
-    @param num_of_threads:      the number of parallel benchmark executions
-    @param use_hyperthreading:  boolean to check if no-hyperthreading method is being used
-    @param allCpus:             list of all available core objects
-    @param siblings_of_core:    mapping from one of the sibling cores to the list of siblings including the core itself
-    @param hierarchy_levels:    list of dicts mapping from a memory region identifier to its belonging cores
+    @param: coreLimit           the number of cores for each parallel execution run
+    @param: num_of_threads      the number of parallel benchmark executions
+    @param: use_hyperthreading  boolean to check if no-hyperthreading method is being used
+    @param: allCpus             list of all available core objects
+    @param: siblings_of_core    mapping from one of the sibling cores to the list of siblings including the core itself
+    @param: hierarchy_levels    list of dicts mapping from a memory region identifier to its belonging cores
     @return result:             list of lists each containing the cores assigned to the same thread
     """
 
@@ -559,7 +621,9 @@ def core_allocation_algorithm(
                                 key=lambda list_length: len(list_length), reverse=True
                             )
 
-                            child_dict = get_sub_unit_dict(allCpus, distribution_list[0], i - 1)
+                            child_dict = get_sub_unit_dict(
+                                allCpus, distribution_list[0], i - 1
+                            )
                             distribution_dict = child_dict.copy()
                     break
                 else:
@@ -650,14 +714,26 @@ def core_allocation_algorithm(
 
 
 def check_symmetric_num_of_values(hierarchy_level: HierarchyLevel) -> bool:
-    """returns True if the number of values in the lists of the key-value pairs
-    is equal throughout the dict"""
+    """
+    returns True if the number of values in the lists of the key-value pairs
+    is equal throughout the dict
+
+    @param: hierarchy_levels    list of dicts of lists: each dict in the list corresponds to one topology layer and
+                                maps from the identifier read from the topology to a list of the cores belonging to it
+    @return:                    true if symmetric
+    """
     return not check_asymmetric_num_of_values(hierarchy_level)
 
 
 def check_asymmetric_num_of_values(hierarchy_level: HierarchyLevel) -> bool:
-    """returns True if the number of values in the lists of the key-value pairs
-    is not equal throughout the dict"""
+    """
+    returns True if the number of values in the lists of the key-value pairs
+    is not equal throughout the dict
+
+    @param: hierarchy_levels    list of dicts of lists: each dict in the list corresponds to one topology layer and
+                                maps from the identifier read from the topology to a list of the cores belonging to it
+    @return:                    true if asymmetric
+    """
     is_asymmetric = False
     cores_per_unit = len(next(iter(hierarchy_level.values())))
     if any(len(cores) != cores_per_unit for cores in hierarchy_level.values()):
@@ -670,6 +746,14 @@ def core_clean_up(
     allCpus: Dict[int, VirtualCore],
     hierarchy_levels: List[HierarchyLevel],
 ) -> None:
+    """
+    Delete the given core Id from all hierarchy levels and remove unit if empty
+
+    @param: core                Id of the core to delete
+    @param: allCpus             list of all available core objects
+    @param: hierarchy_levels    list of dicts of lists: each dict in the list corresponds to one topology layer and
+                                maps from the identifier read from the topology to a list of the cores belonging to it
+    """
     current_core_regions = allCpus[core].memory_regions
     for mem_index in range(len(current_core_regions)):
         region = current_core_regions[mem_index]
@@ -717,10 +801,10 @@ def frequency_filter(allCpus_list: List[int], threshold: float) -> List[int]:
     and returned for further use. (max_frequency of core) >= (1-threshold)*(max_frequency of fastest core)
     All cores that are slower will not be used for the benchmark and displayed in a debug message.
 
-    @param allCpus_list: list of all cores available for the benchmark run
-    @param threshold: accepted difference (as percentage) in the maximal frequency of a core from
-    the fastest core to still be used in the benchmark run (e.g. 0.05 which equals an accepted deviation of 5%)
-    @return: filtered_allCpus_list with only the fastest cores
+    @param: allCpus_list    list of all cores available for the benchmark run
+    @param: threshold       accepted difference (as percentage) in the maximal frequency of a core from
+                            the fastest core to still be used in the benchmark run
+    @return:                filtered_allCpus_list with only the fastest cores
     """
     cpu_max_frequencies = collections.defaultdict(list)
     for core in allCpus_list:
@@ -738,15 +822,27 @@ def frequency_filter(allCpus_list: List[int], threshold: float) -> List[int]:
             filtered_allCpus_list.extend(cpu_max_frequencies[key])
         else:
             slow_cores.extend(cpu_max_frequencies[key])
-    logging.debug(
-        f"Unused cores due to frequency more than {threshold*100}% below frequency of fastest core ({max(cpu_max_frequencies.keys())}): {slow_cores}"
-    )
+    fastest = max(cpu_max_frequencies.keys())
+    if slow_cores:
+        logging.debug(
+            f"Unused cores due to frequency more than {threshold*100}% below frequency of fastest core ({fastest}): {slow_cores}"
+        )
     return filtered_allCpus_list
 
 
 def get_generic_mapping(
     allCpus_list: List[int], mappingPath: str, mappingName: str = "generic"
 ) -> HierarchyLevel:
+    """
+    Generic mapping function for multiple layers that can be read the same way. Read data from given path
+    for each cpu id listed in allCpus_list.
+
+    @param: allCpus_list    list of cpu Ids to be read
+    @param: mappingPath     system path where to read from
+    @param: mappingName     name of the mapping to be read
+    @return:                mapping of unit id to list of cores (dict)
+    """
+
     cores_of_generic = collections.defaultdict(list)
     try:
         for core in allCpus_list:
@@ -760,7 +856,12 @@ def get_generic_mapping(
 
 
 def get_siblings_mapping(allCpus_list: List[int]) -> HierarchyLevel:
-    """Get hyperthreading siblings from core_cpus_list or thread_siblings_list (deprecated)."""
+    """
+    Get hyperthreading siblings from core_cpus_list or thread_siblings_list (deprecated).
+
+    @param: allCpus_list    list of cpu Ids to be read
+    @return:                mapping of siblings id to list of cores (dict)
+    """
     siblings_of_core = {}
     path = "/sys/devices/system/cpu/cpu{}/topology/{}"
     usePath = ""
@@ -781,13 +882,25 @@ def get_siblings_mapping(allCpus_list: List[int]) -> HierarchyLevel:
 
 
 def get_die_mapping(allCpus_list: List[int]) -> HierarchyLevel:
-    """Generates a mapping from a die to its corresponding cores."""
+    """
+    Generates a mapping from a die to its corresponding cores.
+
+    @param: allCpus_list    list of cpu Ids to be read
+    @return:                mapping of die id to list of cores (dict)
+    """
     return get_generic_mapping(
         allCpus_list, "/sys/devices/system/cpu/cpu{}/topology/die_id", "Dies"
     )
 
 
 def get_group_mapping(cores_of_NUMA_region: HierarchyLevel) -> HierarchyLevel:
+    """
+    Generates a mapping from groups to their corresponding cores.
+
+    @param: allCpus_list    list of cpu Ids to be read
+    @return:                mapping of group id to list of cores (dict)
+    """
+
     cores_of_groups = collections.defaultdict(list)
     nodes_of_groups = collections.defaultdict(list)
     # generates dict of all available nodes with their group nodes
@@ -827,6 +940,9 @@ def get_nodes_of_group(node_id: int) -> List[int]:
     """
     returns the nodes that belong to the same group because they have a smaller distance
     between each other than to rest of the nodes
+
+    @param: node_id
+    @return:list of nodes of the group that the node_id belongs to
     """
     temp_list = (
         util.read_file(f"/sys/devices/system/node/node{node_id}/distance")
@@ -842,8 +958,8 @@ def get_closest_nodes(distance_list: List[int]) -> List[int]:  # 10 11 11 11 20 
     """
     This function groups nodes according to their distance from each other.
 
-    @param list of distances of all nodes from the node that the list is retrieved from
-    @return list of the indices of the node itself (smallest distance) and its next neighbours by distance.
+    @param: list of distances of all nodes from the node that the list is retrieved from
+    @return: list of the indices of the node itself (smallest distance) and its next neighbours by distance.
 
     We assume that the distance to other nodes is smaller than the distance of the core to itself.
 
@@ -876,25 +992,49 @@ def get_closest_nodes(distance_list: List[int]) -> List[int]:  # 10 11 11 11 20 
 
 
 def get_cluster_mapping(allCpus_list: List[int]) -> HierarchyLevel:
+    """
+    Generates a mapping from a cluster to its corresponding cores.
+
+    @param: allCpus_list    list of cpu Ids to be read
+    @return:                mapping of cluster id to list of cores (dict)
+    """
+
     return get_generic_mapping(
         allCpus_list, "/sys/devices/system/cpu/cpu{}/topology/cluster_id", "Clusters"
     )
 
 
 def get_book_mapping(allCpus_list: List[int]) -> HierarchyLevel:
+    """
+    Generates a mapping from a book to its corresponding cores.
+
+    @param: allCpus_list    list of cpu Ids to be read
+    @return:                mapping of book id to list of cores (dict)
+    """
     return get_generic_mapping(
         allCpus_list, "/sys/devices/system/cpu/cpu{}/topology/book_id", "Books"
     )
 
 
 def get_drawer_mapping(allCpus_list: List[int]) -> HierarchyLevel:
+    """
+    Generates a mapping from a drawer to its corresponding cores.
+
+    @param: allCpus_list    list of cpu Ids to be read
+    @return:                mapping of drawer id to list of cores (dict)
+    """
     return get_generic_mapping(
         allCpus_list, "/sys/devices/system/cpu/cpu{}/topology/drawer_id", "drawers"
     )
 
 
 def get_L3cache_id_for_core(core: int) -> int:
-    """Check whether index level 3 is level 3 cache"""
+    """
+    Check whether index level 3 is level 3 cache and returns id of L3 cache
+
+    @param: core    id of the core whose L3cache id is retreived
+    @return:        identifier (int) for the L3 cache the core belongs to
+    """
     dir_path = f"/sys/devices/system/cpu/cpu{core}/cache/"
     index_L3_cache = ""
     for entry in os.listdir(dir_path):
@@ -912,6 +1052,12 @@ def get_L3cache_id_for_core(core: int) -> int:
 
 
 def get_L3cache_mapping(allCpus_list: List[int]) -> HierarchyLevel:
+    """
+    Generates a mapping from a L3 Cache to its corresponding cores.
+
+    @param: allCpus_list    list of cpu Ids to be read
+    @return:                mapping of L3 Cache id to list of cores (dict)
+    """
     cores_of_L3cache = collections.defaultdict(list)
     try:
         for core in allCpus_list:
@@ -926,8 +1072,13 @@ def get_L3cache_mapping(allCpus_list: List[int]) -> HierarchyLevel:
     return cores_of_L3cache
 
 
-# returns dict of mapping NUMA region to list of cores
 def get_NUMA_mapping(allCpus_list: List[int]) -> HierarchyLevel:
+    """
+    Generates a mapping from a Numa Region to its corresponding cores.
+
+    @param: allCpus_list    list of cpu Ids to be read
+    @return:                mapping of Numa Region id to list of cores (dict)
+    """
     cores_of_NUMA_region = collections.defaultdict(list)
     for core in allCpus_list:
         coreDir = f"/sys/devices/system/cpu/cpu{core}/"
@@ -945,8 +1096,13 @@ def get_NUMA_mapping(allCpus_list: List[int]) -> HierarchyLevel:
     return cores_of_NUMA_region
 
 
-# returns dict of mapping CPU/physical package to list of cores
 def get_package_mapping(allCpus_list: List[int]) -> HierarchyLevel:
+    """
+    Generates a mapping from a CPU/physical package to its corresponding cores.
+
+    @param: allCpus_list    list of cpu Ids to be read
+    @return:                mapping of CPU/physical package id to list of cores (dict)
+    """
     return get_generic_mapping(
         allCpus_list,
         "/sys/devices/system/cpu/cpu{}/topology/physical_package_id",
@@ -954,10 +1110,12 @@ def get_package_mapping(allCpus_list: List[int]) -> HierarchyLevel:
     )
 
 
-def get_memory_banks_per_run(coreAssignment, cgroups) -> Optional[ListOfIntLists]:
-    """Get an assignment of memory banks to runs that fits to the given coreAssignment,
+def get_memory_banks_per_run(coreAssignment, cgroups) -> Optional[_2DIntList]:
+    """
+    Get an assignment of memory banks to runs that fits to the given coreAssignment,
     i.e., no run is allowed to use memory that is not local (on the same NUMA node)
-    to one of its CPU cores."""
+    to one of its CPU cores.
+    """
     try:
         # read list of available memory banks
         allMems = set(cgroups.read_allowed_memory_banks())
@@ -987,7 +1145,8 @@ def get_memory_banks_per_run(coreAssignment, cgroups) -> Optional[ListOfIntLists
 
 
 def _get_memory_banks_listed_in_dir(path) -> List[int]:
-    """Get all memory banks the kernel lists in a given directory.
+    """
+    Get all memory banks the kernel lists in a given directory.
     Such a directory can be /sys/devices/system/node/ (contains all memory banks)
     or /sys/devices/system/cpu/cpu*/ (contains all memory banks on the same NUMA node as that core).
     """
@@ -996,10 +1155,12 @@ def _get_memory_banks_listed_in_dir(path) -> List[int]:
 
 
 def check_memory_size(memLimit, num_of_threads, memoryAssignment, my_cgroups):
-    """Check whether the desired amount of parallel benchmarks fits in the memory.
+    """
+    Check whether the desired amount of parallel benchmarks fits in the memory.
     Implemented are checks for memory limits via cgroup controller "memory" and
     memory bank restrictions via cgroup controller "cpuset",
     as well as whether the system actually has enough memory installed.
+
     @param memLimit: the memory limit in bytes per run
     @param num_of_threads: the number of parallel benchmark executions
     @param memoryAssignment: the allocation of memory banks to runs (if not present, all banks are assigned to all runs)
@@ -1072,7 +1233,9 @@ def check_memory_size(memLimit, num_of_threads, memoryAssignment, my_cgroups):
 
 
 def _get_memory_bank_size(memBank):
-    """Get the size of a memory bank in bytes."""
+    """
+    Get the size of a memory bank in bytes.
+    """
     fileName = f"/sys/devices/system/node/node{memBank}/meminfo"
     size = None
     with open(fileName) as f:
@@ -1091,8 +1254,13 @@ def _get_memory_bank_size(memBank):
 
 
 def get_cpu_package_for_core(core: int) -> int:
-    """Get the number of the physical package (socket) a core belongs to.
-    This function is exported and therefore not obsolet yet (l.25)"""
+    """
+    Get the number of the physical package (socket) a core belongs to.
+
+    @attention:     This function is exported and therefore not obsolet yet (l.25)
+    @param: core    id of core
+    @return:        identifier of the physical package the core belongs to
+    """
     return int(
         util.read_file(
             f"/sys/devices/system/cpu/cpu{core}/topology/physical_package_id"
@@ -1101,6 +1269,12 @@ def get_cpu_package_for_core(core: int) -> int:
 
 
 def get_cores_of_same_package_as(core: int) -> List[int]:
+    """
+    Generates a list of all cores that belong to the same physical package
+    as the core whose id is used in the function call
+    @param: core    id of core
+    @return:        list of core ids that all belong to the same physical package
+    """
     return util.parse_int_list(
         util.read_file(f"/sys/devices/system/cpu/cpu{core}/topology/core_siblings_list")
     )
