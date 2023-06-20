@@ -124,11 +124,11 @@ def check_task_filter(filter_attr, expected):
     for bench_def in benchmark_definitions:
         benchmark = parse_benchmark_definition(bench_def.format(filter_attr))
         run_ids = [run.identifier for run in benchmark.run_sets[0].runs]
-        assert run_ids == sorted(expected)
+        assert run_ids == sorted(expected, key=lambda x: ALL_TEST_TASKS[x])
 
 
 def test_expected_verdict_no_filter():
-    check_task_filter("", sorted(ALL_TEST_TASKS.keys()))
+    check_task_filter("", ALL_TEST_TASKS.keys())
 
 
 def test_expected_verdict_true_filter():
@@ -164,4 +164,4 @@ def test_expected_verdict_false_subproperties_filter():
         """
     benchmark = parse_benchmark_definition(benchmark_definition)
     run_ids = [run.identifier for run in benchmark.run_sets[0].runs]
-    assert run_ids == sorted(["false_sub_task.yml", "false_sub2_task.yml"])
+    assert sorted(run_ids) == ["false_sub_task.yml", "false_sub2_task.yml"]
