@@ -67,6 +67,7 @@ def get_cpu_cores_per_run(
     @param: num_of_threads      the number of parallel benchmark executions
     @param: use_hyperthreading  boolean to check if no-hyperthreading method is being used
     @param: coreSet             the list of CPU core identifiers provided by a user,None makes benchexec using all cores
+    @param: coreRequirement     minimum number of cores to be reserved for each execution run
     @return:                    list of lists, where each inner list contains the cores for one run
     """
 
@@ -153,7 +154,7 @@ def get_cpu_cores_per_run(
         return len(next(iter(level.values())))
 
     hierarchy_levels.sort(key=compare_hierarchy_by_dict_length, reverse=False)
-    """sort hierarchy_levels (list of dicts) according to the dicts' value sizes"""
+    #sort hierarchy_levels (list of dicts) according to the dicts' value sizes
 
     # add siblings_of_core at the beginning of the list to ensure the correct index
     hierarchy_levels.insert(0, siblings_of_core)
