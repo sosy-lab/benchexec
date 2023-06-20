@@ -138,9 +138,8 @@ def get_cpu_cores_per_run(
         siblings_set = set(siblings)
         if not siblings_set.issubset(all_cpus_set):
             unusable_cores.extend(list(siblings_set.difference(all_cpus_set)))
-    # logging.debug(unusable_cores)
+
     unusable_cores_set = set(unusable_cores)
-    # logging.debug(type(unusable_cores_set))
     unavailable_cores = unusable_cores_set.difference(set(allowedCpus))
     if len(unavailable_cores) > 0:
         sys.exit(
@@ -159,21 +158,7 @@ def get_cpu_cores_per_run(
     # add siblings_of_core at the beginning of the list to ensure the correct index
     hierarchy_levels.insert(0, siblings_of_core)
 
-    # delete identical hierarchy levels
-    removeList = []
-    for index in range(len(hierarchy_levels) - 1):
-        if len(hierarchy_levels[index]) == len(hierarchy_levels[index + 1]):
-            allIdentical = True
-            for key in hierarchy_levels[index]:
-                set1 = set(hierarchy_levels[index][key])
-                anyIdentical = False
-                if any(set1 == set(s2) for s2 in hierarchy_levels[index + 1].values()):
-                    anyIdentical = True
-                allIdentical = allIdentical and anyIdentical
-            if allIdentical:
-                removeList.append(hierarchy_levels[index])
-    for hLevel in removeList:
-        hierarchy_levels.remove(hLevel)
+    hierarchy_levels = filter_duplicate_hierarchy_levels(hierarchy_levels)
 
     logging.debug(hierarchy_levels)
 
@@ -201,14 +186,37 @@ def get_cpu_cores_per_run(
         coreRequirement,
     )
 
+def filter_duplicate_hierarchy_levels(hierarchy_levels: List[HierarchyLevel]) -> List[HierarchyLevel]:
+    '''
+    Checks hierarchy levels for duplicate entrys and return aa filtered version of it
+    '''
+    removeList = []
+    filteredList = hierarchy_levels.copy()
+    for index in range(len(hierarchy_levels) - 1):
+        if len(hierarchy_levels[index]) == len(hierarchy_levels[index + 1]):
+            allIdentical = True
+            for key in hierarchy_levels[index]:
+                set1 = set(hierarchy_levels[index][key])
+                anyIdentical = False
+                if any(
+                    set1 == (set(s2))
+                    for s2 in hierarchy_levels[index + 1].values()
+                ):
+                    anyIdentical = True
+                allIdentical = allIdentical and anyIdentical
+            if allIdentical:
+                removeList.append(hierarchy_levels[index+1])
+    for level in removeList: 
+        filteredList.remove(level)
+    return filteredList
 
 class VirtualCore:
     """
     Generates an object for each available CPU core,
     providing its ID and a list of the memory regions it belongs to.
     @attr coreId: int returned from the system to identify a specific core
-    @attr memory_regions: list with the ID of the corresponding regions the core belongs to sorted
-                            according to its size
+    @attr memory_regions: list with the ID of the corresponding regions the core belongs to sorted 
+    according to its size
     """
 
     def __init__(self, coreId: int, memory_regions: List[int]):
@@ -301,9 +309,10 @@ def filter_hyperthreading_siblings(
         for virtual_core in no_HT_filter:
             siblings_of_core[core].remove(virtual_core)
             region_keys = allCpus[virtual_core].memory_regions
-            i = 1
+            i = 0
             while i < len(region_keys):
-                hierarchy_levels[i][region_keys[i]].remove(virtual_core)
+                if virtual_core in hierarchy_levels[i][region_keys[i]]:
+                    hierarchy_levels[i][region_keys[i]].remove(virtual_core)
                 i = i + 1
             allCpus.pop(virtual_core)
 
@@ -541,6 +550,17 @@ def core_allocation_algorithm(
                 child_dict = get_sub_unit_dict(allCpus, distribution_list[0], i - 1)
                 distribution_dict = child_dict.copy()
                 if check_symmetric_num_of_values(child_dict):
+                    if i > chosen_level:
+                        while i >= chosen_level and i > 0:
+                            i = i - 1
+                            # if length of core lists unequal: get element with highest length
+                            distribution_list = list(distribution_dict.values())
+                            distribution_list.sort(
+                                key=lambda list_length: len(list_length), reverse=True
+                            )
+
+                            child_dict = get_sub_unit_dict(allCpus, distribution_list[0], i - 1)
+                            distribution_dict = child_dict.copy()
                     break
                 else:
                     i = i - 1
@@ -616,7 +636,7 @@ def core_allocation_algorithm(
 
             while sub_unit_cores:
                 core_clean_up(sub_unit_cores[0], allCpus, hierarchy_levels)
-                # active_cores & sub_unit_cores are deleted as well since they're joust pointers
+                # active_cores & sub_unit_cores are deleted as well since they're just pointers
                 # to hierarchy_levels
 
             # if coreLimit reached: append core to result, delete remaining cores from active_cores
