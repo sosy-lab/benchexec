@@ -5,10 +5,10 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import collections
 import os
 import tempfile
 import pytest
-import collections
 from unittest.mock import patch
 import yaml
 
@@ -124,7 +124,7 @@ def check_task_filter(filter_attr, expected):
     for bench_def in benchmark_definitions:
         benchmark = parse_benchmark_definition(bench_def.format(filter_attr))
         run_ids = [run.identifier for run in benchmark.run_sets[0].runs]
-        assert run_ids == sorted(expected, key=lambda x: ALL_TEST_TASKS[x])
+        assert run_ids == sorted(expected)
 
 
 def test_expected_verdict_no_filter():
@@ -164,4 +164,4 @@ def test_expected_verdict_false_subproperties_filter():
         """
     benchmark = parse_benchmark_definition(benchmark_definition)
     run_ids = [run.identifier for run in benchmark.run_sets[0].runs]
-    assert sorted(run_ids) == ["false_sub_task.yml", "false_sub2_task.yml"]
+    assert run_ids == ["false_sub_task.yml", "false_sub2_task.yml"]
