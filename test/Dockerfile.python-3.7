@@ -15,9 +15,6 @@
 
 FROM python:3.7
 
-# Cannot use apt package python3-pystemd here
-# because these images do not use the Python installed via apt.
-
 RUN apt-get update && apt-get install -y \
   libsystemd-dev \
   lxcfs \
@@ -27,6 +24,7 @@ RUN pip install \
   coloredlogs \
   "coverage[toml] >= 5.0" \
   lxml \
-  nose \
   pystemd \
-  pyyaml
+  pyyaml \
+  pytest \
+  pytest-cov
