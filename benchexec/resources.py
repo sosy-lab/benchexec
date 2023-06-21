@@ -135,7 +135,7 @@ def get_cpu_cores_per_run(
     # check if all HT siblings are available for benchexec
     all_cpus_set = set(allCpus_list)
     unusable_cores = []
-    for core, siblings in siblings_of_core.items():
+    for _core, siblings in siblings_of_core.items():
         siblings_set = set(siblings)
         if not siblings_set.issubset(all_cpus_set):
             unusable_cores.extend(list(siblings_set.difference(all_cpus_set)))
@@ -154,7 +154,7 @@ def get_cpu_cores_per_run(
         return len(next(iter(level.values())))
 
     hierarchy_levels.sort(key=compare_hierarchy_by_dict_length, reverse=False)
-    #sort hierarchy_levels (list of dicts) according to the dicts' value sizes
+    # sort hierarchy_levels (list of dicts) according to the dicts' value sizes
 
     # add siblings_of_core at the beginning of the list to ensure the correct index
     hierarchy_levels.insert(0, siblings_of_core)

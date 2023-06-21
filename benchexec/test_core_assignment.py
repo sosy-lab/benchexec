@@ -14,7 +14,6 @@ from benchexec.resources import (
     get_cpu_distribution,
     VirtualCore,
     check_and_add_meta_level,
-    check_asymmetric_num_of_values,
     filter_duplicate_hierarchy_levels,
 )
 
@@ -163,13 +162,17 @@ class TestCpuCoresPerRun(unittest.TestCase):
                 if not self.use_hyperthreading:
                     threadLimit = math.floor(
                         self.num_of_cores
-                        / math.ceil(self.coreLimit * self.num_of_hyperthreading_siblings)
+                        / math.ceil(
+                            self.coreLimit * self.num_of_hyperthreading_siblings
+                        )
                     )
                 else:
                     threadLimit = math.floor(
                         self.num_of_cores
                         / (
-                            math.ceil(self.coreLimit / self.num_of_hyperthreading_siblings)
+                            math.ceil(
+                                self.coreLimit / self.num_of_hyperthreading_siblings
+                            )
                             * self.num_of_hyperthreading_siblings
                         )
                     )
@@ -208,12 +211,13 @@ class TestCpuCoresPerRun(unittest.TestCase):
         # test all possible numOfThread values for runs with eight cores
         self.mainAssertValid(8, self.eightCore_assignment)
 
+
 class TestCpuCoresPerRun_singleCPU(TestCpuCoresPerRun):
     num_of_packages = 1
     num_of_cores = 8
     num_of_hyperthreading_siblings = 1
     use_hyperthreading = False
-    
+
     oneCore_assignment = [[x] for x in range(8)]
     twoCore_assignment = [[0, 1], [2, 3], [4, 5], [6, 7]]
     threeCore_assignment = [[0, 1, 2], [3, 4, 5]]
@@ -225,19 +229,20 @@ class TestCpuCoresPerRun_singleCPU(TestCpuCoresPerRun):
         self.assertInvalid(5, 2)
         self.assertInvalid(3, 3)
 
+
 class TestCpuCoresPerRun_singleCPU_HT(TestCpuCoresPerRun_singleCPU):
     num_of_cores = 16
     num_of_hyperthreading_siblings = 2
     use_hyperthreading = False
 
-    # 0(1)  2(3)    4(5)    6(7)   
-    oneCore_assignment = [[x] for x in range(0,16,2)]
+    # 0(1)  2(3)    4(5)    6(7)
+    oneCore_assignment = [[x] for x in range(0, 16, 2)]
     twoCore_assignment = [[0, 2], [4, 6], [8, 10], [12, 14]]
     threeCore_assignment = [[0, 2, 4], [6, 8, 10]]
     fourCore_assignment = [[0, 2, 4, 6], [8, 10, 12, 14]]
-    eightCore_assignment = [list(range(0,16,2))]
+    eightCore_assignment = [list(range(0, 16, 2))]
 
-    '''def test_halfPhysicalCore(self):
+    """def test_halfPhysicalCore(self):
         # Can now run if we have only half of one physical core
         self.assertRaises(
             SystemExit,
@@ -254,7 +259,8 @@ class TestCpuCoresPerRun_singleCPU_HT(TestCpuCoresPerRun_singleCPU):
                 {0: [0, 1]},
                 {0: [0, 1]},
             ],
-        )'''
+        )"""
+
 
 class TestCpuCoresPerRun_dualCPU_HT(TestCpuCoresPerRun):
     num_of_packages = 2
@@ -262,45 +268,81 @@ class TestCpuCoresPerRun_dualCPU_HT(TestCpuCoresPerRun):
     num_of_hyperthreading_siblings = 2
     use_hyperthreading = True
 
-    oneCore_assignment = [[x] for x in [0,16,2,18,4,20,6,22,8,24,10,26,12,28,14,30,]]
-   
+    oneCore_assignment = [
+        [x]
+        for x in [
+            0,
+            16,
+            2,
+            18,
+            4,
+            20,
+            6,
+            22,
+            8,
+            24,
+            10,
+            26,
+            12,
+            28,
+            14,
+            30,
+        ]
+    ]
+
     twoCore_assignment = [
-        [0, 1], [16, 17],
-        [2, 3], [18, 19],
-        [4, 5], [20, 21],
-        [6, 7], [22, 23],
-        [8, 9], [24, 25],
-        [10, 11], [26, 27],
-        [12, 13], [28, 29],
-        [14, 15], [30, 31],
+        [0, 1],
+        [16, 17],
+        [2, 3],
+        [18, 19],
+        [4, 5],
+        [20, 21],
+        [6, 7],
+        [22, 23],
+        [8, 9],
+        [24, 25],
+        [10, 11],
+        [26, 27],
+        [12, 13],
+        [28, 29],
+        [14, 15],
+        [30, 31],
     ]
 
     # Note: the core assignment here is non-uniform, the last two threads are spread over three physical cores
     # Currently, the assignment algorithm cannot do better for odd coreLimits,
     # but this affects only cases where physical cores are split between runs, which is not recommended anyway.
     threeCore_assignment = [
-        [0, 1, 2], [16, 17, 18],
-        [4, 5, 6], [20, 21, 22],
-        [8, 9, 10], [24, 25, 26],
-        [12, 13, 14], [28, 29, 30],
+        [0, 1, 2],
+        [16, 17, 18],
+        [4, 5, 6],
+        [20, 21, 22],
+        [8, 9, 10],
+        [24, 25, 26],
+        [12, 13, 14],
+        [28, 29, 30],
     ]
 
     fourCore_assignment = [
-        [0, 1, 2, 3], [16, 17, 18, 19],
-        [4, 5, 6, 7], [20, 21, 22, 23],
-        [8, 9, 10, 11], [24, 25, 26, 27],
-        [12, 13, 14, 15], [28, 29, 30, 31],
+        [0, 1, 2, 3],
+        [16, 17, 18, 19],
+        [4, 5, 6, 7],
+        [20, 21, 22, 23],
+        [8, 9, 10, 11],
+        [24, 25, 26, 27],
+        [12, 13, 14, 15],
+        [28, 29, 30, 31],
     ]
 
     eightCore_assignment = [
-        [0, 1, 2, 3, 4, 5, 6, 7], [16, 17, 18, 19, 20, 21, 22, 23],
-        [8, 9, 10, 11, 12, 13, 14, 15], [24, 25, 26, 27, 28, 29, 30, 31],
+        [0, 1, 2, 3, 4, 5, 6, 7],
+        [16, 17, 18, 19, 20, 21, 22, 23],
+        [8, 9, 10, 11, 12, 13, 14, 15],
+        [24, 25, 26, 27, 28, 29, 30, 31],
     ]
 
     def test_dualCPU_HT(self):
-        self.assertValid(
-            16, 2, [lrange(0, 16), lrange(16, 32)]
-        )
+        self.assertValid(16, 2, [lrange(0, 16), lrange(16, 32)])
 
     def test_dualCPU_HT_invalid(self):
         self.assertInvalid(2, 17)
@@ -309,17 +351,24 @@ class TestCpuCoresPerRun_dualCPU_HT(TestCpuCoresPerRun):
         self.assertInvalid(9, 4)
         self.assertInvalid(8, 5)
         self.assertInvalid(5, 8)
-       
+
+
 class TestCpuCoresPerRun_threeCPU(TestCpuCoresPerRun):
     num_of_packages = 3
     num_of_cores = 15
     num_of_hyperthreading_siblings = 1
     use_hyperthreading = False
-       
-    oneCore_assignment = [[x] for x in [0, 5, 10, 1, 6, 11, 2, 7, 12, 3, 8, 13, 4, 9, 14]]
+
+    oneCore_assignment = [
+        [x] for x in [0, 5, 10, 1, 6, 11, 2, 7, 12, 3, 8, 13, 4, 9, 14]
+    ]
     twoCore_assignment = [
-        [0, 1], [5, 6], [10, 11], 
-        [2, 3], [7, 8], [12, 13], 
+        [0, 1],
+        [5, 6],
+        [10, 11],
+        [2, 3],
+        [7, 8],
+        [12, 13],
     ]
     threeCore_assignment = [[0, 1, 2], [5, 6, 7], [10, 11, 12]]
     fourCore_assignment = [[0, 1, 2, 3], [5, 6, 7, 8], [10, 11, 12, 13]]
@@ -327,56 +376,71 @@ class TestCpuCoresPerRun_threeCPU(TestCpuCoresPerRun):
 
     def test_twoCoresPerRun(self):
         # Overwritten because the maximum is only 6
-        self.mainAssertValid(2, self.twoCore_assignment,6)
+        self.mainAssertValid(2, self.twoCore_assignment, 6)
 
     def test_threeCoresPerRun(self):
-        # Overwritten because the maximum is only 3 
-        self.mainAssertValid(3, self.threeCore_assignment,3)
+        # Overwritten because the maximum is only 3
+        self.mainAssertValid(3, self.threeCore_assignment, 3)
 
     def test_threeCPU_invalid(self):
         self.assertInvalid(6, 2)
-        
+
+
 class TestCpuCoresPerRun_threeCPU_HT(TestCpuCoresPerRun):
     num_of_packages = 3
     num_of_cores = 30
     num_of_hyperthreading_siblings = 2
     use_hyperthreading = True
 
-    oneCore_assignment = [[x] for x in [
-        0, 10, 20,
-        2, 12, 22,
-        4, 14, 24,
-        6, 16, 26,
-        8, 18, 28]
+    oneCore_assignment = [
+        [x] for x in [0, 10, 20, 2, 12, 22, 4, 14, 24, 6, 16, 26, 8, 18, 28]
     ]
     twoCore_assignment = [
-        [0, 1], [10, 11], [20, 21],
-        [2, 3], [12, 13], [22, 23],
-        [4, 5], [14, 15], [24, 25],
-        [6, 7], [16, 17], [26, 27],
-        [8, 9], [18, 19], [28, 29],
+        [0, 1],
+        [10, 11],
+        [20, 21],
+        [2, 3],
+        [12, 13],
+        [22, 23],
+        [4, 5],
+        [14, 15],
+        [24, 25],
+        [6, 7],
+        [16, 17],
+        [26, 27],
+        [8, 9],
+        [18, 19],
+        [28, 29],
     ]
     threeCore_assignment = [
-        [0, 1, 2], [10, 11, 12], [20, 21, 22],
-        [4, 5, 6], [14, 15, 16], [24, 25, 26],
+        [0, 1, 2],
+        [10, 11, 12],
+        [20, 21, 22],
+        [4, 5, 6],
+        [14, 15, 16],
+        [24, 25, 26],
     ]
     fourCore_assignment = [
-        [0, 1, 2, 3], [10, 11, 12, 13], [20, 21, 22, 23], 
-        [4, 5, 6, 7], [14, 15, 16, 17], [24, 25, 26, 27],
+        [0, 1, 2, 3],
+        [10, 11, 12, 13],
+        [20, 21, 22, 23],
+        [4, 5, 6, 7],
+        [14, 15, 16, 17],
+        [24, 25, 26, 27],
     ]
     eightCore_assignment = [
         [0, 1, 2, 3, 4, 5, 6, 7],
         [10, 11, 12, 13, 14, 15, 16, 17],
         [20, 21, 22, 23, 24, 25, 26, 27],
     ]
-    
+
     def test_threeCoresPerRun(self):
-        # Overwritten because the maximum is only 6 
-        self.mainAssertValid(3, self.threeCore_assignment,6)
-        
+        # Overwritten because the maximum is only 6
+        self.mainAssertValid(3, self.threeCore_assignment, 6)
+
     def test_fourCoresPerRun(self):
-        # Overwritten because the maximum is only 6 
-        self.mainAssertValid(3, self.threeCore_assignment,6)
+        # Overwritten because the maximum is only 6
+        self.mainAssertValid(3, self.threeCore_assignment, 6)
 
     def test_threeCPU_HT_invalid(self):
         self.assertInvalid(11, 2)
@@ -412,7 +476,6 @@ class TestCpuCoresPerRun_threeCPU_HT(TestCpuCoresPerRun):
         )
 
 
-
 class TestCpuCoresPerRun_quadCPU_HT(TestCpuCoresPerRun):
     num_of_packages = 4
     num_of_cores = 64
@@ -437,11 +500,11 @@ class TestCpuCoresPerRun_quadCPU_HT(TestCpuCoresPerRun):
         self.assertValid(64, 1)
         self.assertValid(2, 32)
         self.assertValid(32, 2)
-        #self.assertValid(3, 20) - we do not divide HT siblings: 4*20 = 80
+        # self.assertValid(3, 20) - we do not divide HT siblings: 4*20 = 80
         self.assertValid(16, 3)
         self.assertValid(4, 16)
         self.assertValid(16, 4)
-        #self.assertValid(5, 12) - we do not divide HT siblings: 6*12 =72 
+        # self.assertValid(5, 12) - we do not divide HT siblings: 6*12 =72
         self.assertValid(8, 8)
 
     def test_quadCPU_HT_invalid(self):
@@ -484,7 +547,7 @@ class TestCpuCoresPerRun_singleCPU_no_ht(TestCpuCoresPerRun):
     num_of_hyperthreading_siblings = 2
     use_hyperthreading = False
 
-    oneCore_assignment = [[x] for x in [0,2,4,6]]
+    oneCore_assignment = [[x] for x in [0, 2, 4, 6]]
     twoCore_assignment = [[0, 2], [4, 6]]
     threeCore_assignment = [[0, 2, 4]]
     fourCore_assignment = [[0, 2, 4, 6]]
@@ -540,7 +603,7 @@ class TestCpuCoresPerRun_threeCPU_no_ht(TestCpuCoresPerRun):
         self.assertInvalid(3, 4)
         self.assertInvalid(4, 2)
         self.assertInvalid(8, 2)
-        
+
     def test_twoCoresPerRun(self):
         # Overwritten because the maximum is only 3
         self.mainAssertValid(2, self.twoCore_assignment, 3)
@@ -570,12 +633,20 @@ class TestCpuCoresPerRun_quadCPU_no_ht(TestCpuCoresPerRun):
         [28, 30],
     ]
     threeCore_assignment = [[0, 2, 4], [8, 10, 12], [16, 18, 20], [24, 26, 28]]
-    fourCore_assignment = [[0, 2, 4, 6], [8, 10, 12, 14], [16, 18, 20, 22], [24, 26, 28, 30]]
-    eightCore_assignment = [[0, 2, 4, 6, 8, 10, 12, 14], [16, 18, 20, 22, 24, 26, 28, 30]]
+    fourCore_assignment = [
+        [0, 2, 4, 6],
+        [8, 10, 12, 14],
+        [16, 18, 20, 22],
+        [24, 26, 28, 30],
+    ]
+    eightCore_assignment = [
+        [0, 2, 4, 6, 8, 10, 12, 14],
+        [16, 18, 20, 22, 24, 26, 28, 30],
+    ]
 
     def test_threeCoresPerRun(self):
-        # Overwritten because the maximum is only 6 
-        self.mainAssertValid(3, self.threeCore_assignment,4)
+        # Overwritten because the maximum is only 6
+        self.mainAssertValid(3, self.threeCore_assignment, 4)
 
     def test_quadCPU_no_ht_invalid(self):
         self.assertInvalid(1, 17)
@@ -896,7 +967,6 @@ class Test_Topology_P2_G2_NUMA8_L16_C256_T(TestCpuCoresPerRun):
     # fmt: off
 
     # expected results for different coreLimits
-    #oneCore_assignment = [[x] for x in [0, 128, 32, 160, 64, 192, 96, 224]]
     oneCore_assignment = [[x] for x in [
         0, 128, 32, 160, 64, 192, 96, 224,
         16, 144, 48, 176, 80, 208, 112, 240,
