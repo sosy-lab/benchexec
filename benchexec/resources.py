@@ -283,7 +283,7 @@ def get_cpu_distribution(
                 result.append(resultlist[:coreLimit])
         else:
             i = coreLimit
-            while i >= coreRequirement:
+            while i > coreRequirement:
                 # uses as many cores as possible (with maximum coreLimit), but at least coreRequirement num of cores
                 if check_distribution_feasibility(
                     i,
