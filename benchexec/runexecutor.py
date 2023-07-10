@@ -782,11 +782,10 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             return {"terminationreason": "failed"}
         except OSError as e:
             logging.critical(
-                "OSError %s while starting '%s' in '%s': %s.",
-                e.errno,
+                "Error while starting '%s' in '%s': %s.",
                 util.escape_string_shell(args[0]),
                 workingDir or ".",
-                e.strerror,
+                e,
             )
             logging.debug("Source of this OSError is:", exc_info=True)
             return {"terminationreason": "failed"}
