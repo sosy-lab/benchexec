@@ -788,6 +788,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 workingDir or ".",
                 e.strerror,
             )
+            logging.debug("Source of this OSError is:", exc_info=True)
             return {"terminationreason": "failed"}
 
     def _execute(
