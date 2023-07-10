@@ -9,6 +9,17 @@ SPDX-License-Identifier: Apache-2.0
 
 # BenchExec Changelog
 
+## BenchExec 3.17
+
+- Even more robust handling of child cgroups created within a run  
+  Despite the improvements from BenchExec 3.13 there could be crashes
+  because sometimes cgroups vanish while we iterate over them.
+  Avoiding this did not fully work, maybe due to some delays in the kernel,
+  so now we handle this.
+- Actually fix handling of non-printable characters in environment variables.  
+  The fix that was part of BenchExec 3.12 only worked if a non-printable character
+  was the first character of the value of the environment variable.
+
 ## BenchExec 3.16
 
 This release works only on Python 3.7 and newer!
