@@ -770,7 +770,8 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 # Now the parent copies the output files, we need to wait until this is
                 # finished. If the child terminates, the container file system and its
                 # tmpfs go away.
-                assert os.read(from_parent, 1) == MARKER_PARENT_POST_RUN_COMPLETED
+                received = os.read(from_parent, 1)
+                assert received == MARKER_PARENT_POST_RUN_COMPLETED, received
                 os.close(from_parent)
 
                 return 0
