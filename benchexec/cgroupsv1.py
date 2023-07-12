@@ -461,9 +461,22 @@ class CgroupsV1(Cgroups):
         # check for emptiness, and remove subgroups.
         # Furthermore, we do this for all hierarchies, not only the one with freezer.
         for cgroup in self.paths:
-            for child_cgroup in recursive_child_cgroups(cgroup):
-                kill_all_tasks_in_cgroup(child_cgroup)
-                self._remove_cgroup(child_cgroup)
+            # Sometimes nested cgroups vanish while we iterate over them.
+            # Not sure why because the freezing above should prevent any process
+            # from still being alive, but maybe we are iterating here already
+            # while the kernel is still doing some cleanup. So in order to prevent
+            # crashes we handle this.
+            while True:
+                try:
+                    for child_cgroup in recursive_child_cgroups(cgroup):
+                        kill_all_tasks_in_cgroup(child_cgroup)
+                        self._remove_cgroup(child_cgroup)
+                    break
+                except FileNotFoundError as e:
+                    logging.debug(
+                        "Cgroup vanished while we were trying to clean it up: %s", e
+                    )
+                continue
 
             kill_all_tasks_in_cgroup(cgroup)
 
