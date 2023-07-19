@@ -73,11 +73,9 @@ class SystemInfo(object):
         # modern cpus may not work with full speed the whole day
         # read the number from cpufreq and overwrite cpu_max_frequency from above
         freqInfoFilename = "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq"
-        try:
-            cpu_max_frequency = util.read_file(freqInfoFilename)
+        cpu_max_frequency = util.try_read_file(freqInfoFilename)
+        if cpu_max_frequency:
             self.cpu_max_frequency = int(cpu_max_frequency) * 1000  # convert to Hz
-        except OSError:
-            pass  # does not necessarily exist
 
         self.cpu_turboboost = is_turbo_boost_enabled()
 
