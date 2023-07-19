@@ -70,9 +70,10 @@ class SystemInfo(object):
             freq_hz = Decimal(cpuInfo["cpu MHz"]) * 1000 * 1000  # convert to Hz
             self.cpu_max_frequency = int((freq_hz).to_integral_value())
 
-        # modern cpus may not work with full speed the whole day
-        # read the number from cpufreq and overwrite cpu_max_frequency from above
-        freqInfoFilename = "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq"
+        # Modern CPUs do not have a constant frequency and can be limited.
+        # We want the maximum frequency that the CPU could use,
+        # and if we can read it we will overwrite the value from above.
+        freqInfoFilename = "/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq"
         cpu_max_frequency = util.try_read_file(freqInfoFilename)
         if cpu_max_frequency:
             self.cpu_max_frequency = int(cpu_max_frequency) * 1000  # convert to Hz
