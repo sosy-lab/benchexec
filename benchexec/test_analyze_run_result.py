@@ -8,7 +8,7 @@
 import logging
 import sys
 import pytest
-from types import SimpleNamespace
+import types
 
 from benchexec.util import ProcessExitCode
 from benchexec.model import Run
@@ -24,15 +24,9 @@ sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
 normal_result = ProcessExitCode(raw=0, value=0, signal=None)
 
-
-@pytest.fixture(scope="class")
-def setup_class():
-    logging.disable(logging.CRITICAL)
-
-
 class TestResult:
     def create_run(self, info_result=RESULT_UNKNOWN):
-        runSet = SimpleNamespace()
+        runSet = types.SimpleNamespace()
         runSet.log_folder = "."
         runSet.result_files_folder = "."
         runSet.options = []
