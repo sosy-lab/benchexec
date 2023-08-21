@@ -793,9 +793,8 @@ class P4Execution(object):
                     ):
                         logging.debug("Link between none defined devices detected")
                         return False
-                    if (
-                        not type(link["device1_port"]) == int
-                        or not type(link["device2_port"]) == int
+                    if not isinstance(link["device1_port"], int) or not isinstance(
+                        link["device2_port"], int
                     ):
                         return False
 
