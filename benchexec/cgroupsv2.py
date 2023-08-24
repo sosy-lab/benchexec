@@ -30,6 +30,14 @@ The following cgroup subsystems were required but are not usable: {}.
 Please enable them, e.g., by setting up delegation.
 The cgroup that we attempted to use was: {}"""
 
+_ERROR_MSG_MISSING_CPUSET = """
+The kernel has a bug where delegation of cpuset does not work if there are processes of other users in this user's cgroup.
+This happens commonly if xdg-document-portal is running while such delegation is attempted for the first time.
+For more information cf. https://github.com/systemd/systemd/issues/18293.
+
+As a quick workaround, execute this command, which forces the missing delegation as root user:
+  echo +cpuset | sudo tee {}"""
+
 _ERROR_NO_SYSTEMD = """
 System is using cgroups v2 but not systemd.
 If you are using BenchExec within a container, please ensure that cgroups are properly delegated into the container.
@@ -389,6 +397,17 @@ class CgroupsV2(Cgroups):
             if unknown_subsystems:
                 sys.exit(
                     _ERROR_MSG_UNKNOWN_SUBSYSTEMS.format(", ".join(unknown_subsystems))
+                )
+            elif critical_cgroups == {self.CPUSET}:
+                problem_cgroup = self.path
+                while not self.CPUSET in util.read_file(
+                    problem_cgroup, "cgroup.controllers"
+                ):
+                    problem_cgroup = problem_cgroup.parent
+                sys.exit(
+                    _ERROR_MSG_MISSING_CPUSET.format(
+                        problem_cgroup / "cgroup.subtree_control"
+                    )
                 )
             else:
                 sys.exit(
