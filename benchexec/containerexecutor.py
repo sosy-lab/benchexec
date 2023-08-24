@@ -930,6 +930,13 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 child_pid,
             )
 
+            # cgroups is the cgroups where we configure limits.
+            # So for isolation, we need to create a child cgroup that becomes the root
+            # of the cgroup ns, such that the limit settings are not accessible in the
+            # container and cannot be changed.
+            if use_cgroup_ns:
+                cgroups = cgroups.create_fresh_child_cgroup_for_delegation()
+
             # start measurements
             cgroups.add_task(grandchild_pid)
             parent_setup = parent_setup_fn()

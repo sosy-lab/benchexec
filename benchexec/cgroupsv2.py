@@ -259,6 +259,9 @@ class CgroupsV2(Cgroups):
             next(iter(self.subsystems.values())) if len(self.subsystems) else None
         )
 
+        # Store reference to child cgroup if we delegated controllers to it.
+        self._delegated_to = None
+
     @classmethod
     def from_system(cls, cgroup_procinfo=None):
         logging.debug(
@@ -311,6 +314,29 @@ class CgroupsV2(Cgroups):
             child_subsystems.add(self.KILL)
 
         return CgroupsV2({c: child_path for c in child_subsystems})
+
+    def create_fresh_child_cgroup_for_delegation(self, prefix="delegate_"):
+        """
+        Create a special child cgroup and delegate all controllers to it.
+        The current cgroup must not have processes and may never have processes.
+        This method can be called only once because we remember what child cgroup
+        we create here and use it for some special purposes later on.
+        """
+        assert not self._delegated_to
+        self._delegate_controllers()
+        child_cgroup = self.create_fresh_child_cgroup(self.subsystems.keys(), prefix)
+        assert (
+            self.subsystems.keys() == child_cgroup.subsystems.keys()
+        ), "delegation failed for at least one controller"
+        self._delegated_to = child_cgroup
+
+        if self.MEMORY in child_cgroup:
+            # Copy memory limit to child. This has no actual effect (limits apply
+            # recursively), but informs the users of the child cgroup about the limit
+            # (otherwise they would not see it).
+            child_cgroup.write_memory_limit(self.read_memory_limit() or "max")
+
+        return child_cgroup
 
     def _delegate_controllers(self):
         """
@@ -385,6 +411,7 @@ class CgroupsV2(Cgroups):
         """
         Add a process to the cgroups represented by this instance.
         """
+        assert not self._delegated_to, "Delegated cgroups cannot have processes"
         with open(self.path / "cgroup.procs", "w") as tasksFile:
             tasksFile.write(str(pid))
 
@@ -433,9 +460,14 @@ class CgroupsV2(Cgroups):
         # On cgroupsv2, frozen processes can still be killed, so this is all we need to
         # do.
         util.write_file("1", self.path, "cgroup.freeze", force=True)
+        keep_child = self._delegated_to.path if self._delegated_to else None
         for child_cgroup in recursive_child_cgroups(self.path):
             kill_all_tasks_in_cgroup(child_cgroup)
-            self._remove_cgroup(child_cgroup)
+
+            # Remove child_cgroup, but not if it is our immediate child because of
+            # delegation. We need that cgroup to read the OOM kill count.
+            if child_cgroup != keep_child:
+                self._remove_cgroup(child_cgroup)
 
         kill_all_tasks_in_cgroup(self.path)
 
@@ -530,6 +562,14 @@ class CgroupsV2(Cgroups):
         self.set_value(self.MEMORY, "swap.max", "0")
 
     def read_oom_kill_count(self):
+        # We read only the counter from memory.events.local to avoid reporting OOM
+        # if the process used cgroups internally and there was an OOM in some
+        # arbitrary nested child cgroup, but not for the main process itself.
+        # But if we have delegated, then our own cgroup has no processes and OOM count
+        # would remain zero, so we have to read it from the child cgroup.
+        if self._delegated_to:
+            return self._delegated_to.read_oom_kill_count()
+
         for k, v in self.get_key_value_pairs(self.MEMORY, "events.local"):
             if k == "oom_kill":
                 return int(v)
