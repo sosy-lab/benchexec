@@ -624,6 +624,18 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 os.write(to_parent, str(my_outer_pid).encode())
                 received = os.read(from_parent, 1)
                 assert received == MARKER_PARENT_COMPLETED, received
+            except BaseException as e:
+                # When using runexec, this logging will end up in the output.log file,
+                # where usually the tool output is. This is suboptimal, but probably
+                # better than swallowing it. (In cases where this logs something,
+                # there will be no tool output, so at least no confusion.)
+                # For a complete solution we would have to send the exception via
+                # the to_parent pipe.
+                logging.error(
+                    "Error during final preparation of container in target process: %s",
+                    e,
+                )
+                raise
             finally:
                 # close remaining ends of pipe
                 os.close(from_parent)
@@ -778,6 +790,16 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             except OSError:
                 logging.exception("Error in child process of RunExecutor")
                 return CHILD_OSERROR
+            except subprocess.SubprocessError as e:
+                # only reason should be "Exception occurred in preexec_fn"
+                if "Exception occurred in preexec_fn" in str(e):
+                    logging.error(
+                        "Error during final preparation of container in target process,"
+                        " check logs."
+                    )
+                else:
+                    logging.exception("Error in child process of RunExecutor")
+                return CHILD_UNKNOWN_ERROR
             except BaseException:
                 # Need to catch everything because this method always needs to return an
                 # int (we are inside a C callback that requires returning int).
