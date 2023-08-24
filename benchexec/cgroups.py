@@ -45,7 +45,7 @@ class Cgroups(ABC):
     """
 
     @staticmethod
-    def initialize():
+    def initialize(allowed_versions=None):
         """
         Try to find or create a usable cgroup and return a Cgroups instance
         that represents it.
@@ -69,8 +69,15 @@ class Cgroups(ABC):
 
         Typically, callers should use the returned cgroup instance only for creating
         child cgroups and not call any other modifying method such as add_task().
+
+        @param allowed_versions: None, or a sequence of allowed cgroup versions (1 or 2).
+            If the current system uses a different cgroup version, no attempt at
+            returning a usable Cgroups instance is made.
         """
         version = _get_cgroup_version()
+        if allowed_versions is not None and version not in allowed_versions:
+            return Cgroups.dummy()
+
         if version == CGROUPS_V1:
             from .cgroupsv1 import CgroupsV1
 
@@ -346,7 +353,7 @@ class _DummyCgroups(Cgroups):
         pass
 
     def create_fresh_child_cgroup(self, subsystems):
-        pass
+        return self
 
     def handle_errors(self, critical_cgroups):
         pass
