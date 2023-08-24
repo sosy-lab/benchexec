@@ -102,13 +102,7 @@ def initialize():
         assert not cgroup.has_tasks()
 
         # Now that the cgroup is empty, we can enable controller delegation.
-        # We enable all controllers, even those that we do not need ourselves,
-        # in order to allow nesting of other cgroup-using software.
-        controllers = util.read_file(cgroup.path / "cgroup.controllers").split()
-        util.write_file(
-            " ".join(f"+{c}" for c in controllers),
-            cgroup.path / "cgroup.subtree_control",
-        )
+        cgroup._delegate_controllers()
 
         _usable_cgroup = cgroup
 
@@ -317,6 +311,20 @@ class CgroupsV2(Cgroups):
             child_subsystems.add(self.KILL)
 
         return CgroupsV2({c: child_path for c in child_subsystems})
+
+    def _delegate_controllers(self):
+        """
+        Enable delegation of all controllers of this cgroup to child cgroups.
+        This is relevant if processes in child cgroups also want to use cgroup features.
+        The current cgroup needs to have no processes in order to do so!
+        """
+        # We enable all controllers, even those that we do not need ourselves,
+        # in order to allow nesting of other cgroup-using software.
+        controllers = util.read_file(self.path / "cgroup.controllers").split()
+        util.write_file(
+            " ".join(f"+{c}" for c in controllers),
+            self.path / "cgroup.subtree_control",
+        )
 
     def require_subsystem(self, subsystem, log_method=logging.warning):
         """
