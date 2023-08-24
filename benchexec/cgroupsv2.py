@@ -15,6 +15,7 @@ import sys
 import tempfile
 import threading
 import time
+import typing
 from decimal import Decimal
 
 from benchexec import systeminfo, util
@@ -260,7 +261,7 @@ class CgroupsV2(Cgroups):
         )
 
         # Store reference to child cgroup if we delegated controllers to it.
-        self._delegated_to = None
+        self._delegated_to: typing.Optional[CgroupsV2] = None
 
     @classmethod
     def from_system(cls, cgroup_procinfo=None):
@@ -325,6 +326,7 @@ class CgroupsV2(Cgroups):
         assert not self._delegated_to
         self._delegate_controllers()
         child_cgroup = self.create_fresh_child_cgroup(self.subsystems.keys(), prefix)
+        assert isinstance(child_cgroup, CgroupsV2)
         assert (
             self.subsystems.keys() == child_cgroup.subsystems.keys()
         ), "delegation failed for at least one controller"

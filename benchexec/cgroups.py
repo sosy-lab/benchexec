@@ -355,6 +355,9 @@ class _DummyCgroups(Cgroups):
     def create_fresh_child_cgroup(self, subsystems):
         return self
 
+    def create_fresh_child_cgroup_for_delegation(self):
+        return self
+
     def handle_errors(self, critical_cgroups):
         pass
 
