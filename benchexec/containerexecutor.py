@@ -601,6 +601,8 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             root_dir = os.path.abspath(root_dir)
             cwd = os.path.abspath(cwd)
 
+        use_cgroup_ns = cgroups.version == 2
+
         def grandchild():
             """Setup everything inside the process that finally exec()s the tool."""
             try:
@@ -615,7 +617,6 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 my_outer_pid = container.get_my_pid_from_procfs()
 
                 container.mount_proc(self._container_system_config)
-                container.drop_capabilities()
                 container.reset_signal_handling()
                 child_setup_fn()  # Do some other setup the caller wants.
 
@@ -624,6 +625,14 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 os.write(to_parent, str(my_outer_pid).encode())
                 received = os.read(from_parent, 1)
                 assert received == MARKER_PARENT_COMPLETED, received
+
+                # Finalize setup
+                # We want to do as little as possible here because measurements are
+                # already running, but we can only setup the cgroup namespace
+                # once we are in the desired cgroup.
+                if use_cgroup_ns:
+                    container.setup_cgroup_namespace()
+                container.drop_capabilities()
             except BaseException as e:
                 # When using runexec, this logging will end up in the output.log file,
                 # where usually the tool output is. This is suboptimal, but probably
