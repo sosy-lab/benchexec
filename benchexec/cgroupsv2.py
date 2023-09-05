@@ -400,7 +400,7 @@ class CgroupsV2(Cgroups):
                 )
             elif critical_cgroups == {self.CPUSET}:
                 problem_cgroup = self.path
-                while not self.CPUSET in util.read_file(
+                while self.CPUSET not in util.read_file(
                     problem_cgroup, "cgroup.controllers"
                 ):
                     problem_cgroup = problem_cgroup.parent
