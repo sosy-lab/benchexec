@@ -290,8 +290,13 @@ or whether additional settings are necessary as [described below](#testing-cgrou
 
 ### Setting up Cgroups in a Docker/Podman Container
 
-If you want to run benchmarks within a Docker/Podman container,
-and the cgroups file system is not available within the container,
+If you want to run BenchExec inside a container,
+we recommend Podman and systems with cgroups v2.
+Then pass `--security-opt unmask=/sys/fs/cgroup` to `podman run`.
+This will work if BenchExec is the main process inside the container,
+otherwise a separate cgroup needs to be created.
+
+For other cases, if the cgroups file system is not available within the container,
 please use the following command line argument
 to mount the cgroup hierarchy within the container when starting it
 (same for Podman):

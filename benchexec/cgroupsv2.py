@@ -38,6 +38,15 @@ For more information cf. https://github.com/systemd/systemd/issues/18293.
 As a quick workaround, execute this command, which forces the missing delegation as root user:
   echo +cpuset | sudo tee {}"""
 
+_ERROR_PODMAN = """
+BenchExec seems to be running in a Podman container without enabled cgroups.
+Please pass "--security-opt unmask=/sys/fs/cgroup" to your "podman run" command."""
+
+_ERROR_RO_CGROUPFS = """
+System is using cgroups v2 but the cgroupfs is mounted read-only.
+This likely means that you are using BenchExec within a container.
+Please ensure that cgroups are properly delegated into the container."""
+
 _ERROR_NO_SYSTEMD = """
 System is using cgroups v2 but not systemd.
 If you are using BenchExec within a container, please ensure that cgroups are properly delegated into the container.
@@ -102,9 +111,16 @@ def initialize():
 
         # Now we are the only process in this cgroup. In order to make it usable for
         # benchmarking, we need to move ourselves into a child cgroup.
-        child_cgroup = cgroup.create_fresh_child_cgroup(
-            cgroup.subsystems.keys(), prefix="benchexec_process_"
-        )
+        try:
+            child_cgroup = cgroup.create_fresh_child_cgroup(
+                cgroup.subsystems.keys(), prefix="benchexec_process_"
+            )
+        except OSError as e:
+            # No usable cgroup, e.g., because of read-only cgroup fs.
+            # Continue as described above.
+            logging.debug("Cgroup found, but cannot create child cgroups: %s", e)
+            return CgroupsV2({})
+
         for pid in cgroup.get_all_tasks():
             child_cgroup.add_task(pid)
         assert child_cgroup.has_tasks()
@@ -417,8 +433,18 @@ class CgroupsV2(Cgroups):
                 )
 
         else:
-            # no cgroup available at all
-            if not systeminfo.has_systemd():
+            # no cgroup available at all, likely a container
+
+            # Podman detection from https://github.com/containers/podman/issues/3586
+            if os.getenv("container") == "podman" or os.path.exists(
+                "/run/.containerenv"
+            ):
+                sys.exit(_ERROR_PODMAN)
+
+            elif os.statvfs("/sys/fs/cgroup").f_flag & os.ST_RDONLY:
+                sys.exit(_ERROR_RO_CGROUPFS)
+
+            elif not systeminfo.has_systemd():
                 sys.exit(_ERROR_NO_SYSTEMD)
 
             try:
