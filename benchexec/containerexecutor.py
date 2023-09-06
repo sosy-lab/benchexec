@@ -677,7 +677,14 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 try:
                     if self._container_system_config:
                         # A standard hostname increases reproducibility.
-                        socket.sethostname(container.CONTAINER_HOSTNAME)
+                        try:
+                            socket.sethostname(container.CONTAINER_HOSTNAME)
+                        except PermissionError:
+                            logging.warning(
+                                "Changing hostname in container prevented "
+                                "by system configuration, "
+                                "real hostname will leak into the container."
+                            )
 
                     if not self._allow_network:
                         container.activate_network_interface("lo")
