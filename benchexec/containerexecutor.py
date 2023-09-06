@@ -19,6 +19,7 @@ import socket
 import subprocess
 import sys
 import tempfile
+import traceback
 
 from benchexec import __version__
 from benchexec import baseexecutor
@@ -714,7 +715,13 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                     # It needs to be done after MARKER_USER_MAPPING_COMPLETED.
                     libc.prctl(libc.PR_SET_DUMPABLE, libc.SUID_DUMP_DISABLE, 0, 0, 0)
                 except OSError as e:
-                    logging.critical("Failed to configure container: %s", e)
+                    logging.critical(
+                        "Failed to configure container with operation '%s': %s",
+                        # Show executed statement, often the error does not contain
+                        # information about what was attempted.
+                        traceback.extract_tb(e.__traceback__, limit=-1)[0].line,
+                        e,
+                    )
                     return CHILD_OSERROR
 
                 try:
