@@ -61,6 +61,35 @@ but please note that the PPA currently does not work for Debian
 due to a [compression mechanism not supported by Debian](https://github.com/sosy-lab/benchexec/issues/880),
 so you have to install the `.deb` package manually from GitHub.
 
+### NixOS
+
+For NixOS 23.11 and later, refer to the options:
+ - [`programs.benchexec.*`](https://search.nixos.org/options?query=programs.benchexec)
+   to configure BenchExec.
+ - [`programs.cpu-energy-meter.*`](https://search.nixos.org/options?query=programs.cpu-energy-meter)
+   to configure the optional dependency [cpu-energy-meter].
+ - [`programs.pqos-wrapper.*`](https://search.nixos.org/options?query=programs.pqos-wrapper)
+   to configure the optional dependency [pqos_wrapper].
+ - [`users.users.<name>.extraGroups`](https://search.nixos.org/options?show=users.users.<name>.extraGroups)
+   to add user accounts to the group `msr` (required for both optional dependencies mentioned above).
+ - [`virtualisation.lxc.lxcfs.*`](https://search.nixos.org/options?query=virtualisation.lxc.lxcfs)
+   to configure the optional dependency [LXCFS].
+
+For example:
+```nix
+{
+  programs = {
+    benchexec.enable = true;
+    cpu-energy-meter.enable = true;
+    pqos-wrapper.enable = true;
+  };
+  
+  users.users.<USER>.extraGroups = [ "msr" ];
+
+  virtualisation.lxc.lxcfs.enable = true;
+}
+```
+
 ### Other Distributions
 
 For other distributions we recommend to use the Python package installer pip.
