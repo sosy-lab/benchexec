@@ -64,6 +64,41 @@ but please note that the PPA currently does not work for Debian
 due to a [compression mechanism not supported by Debian](https://github.com/sosy-lab/benchexec/issues/880),
 so you have to install the `.deb` package manually from GitHub.
 
+### NixOS
+
+For NixOS 24.05 and later, refer to the options:
+ - [`programs.benchexec.*`](https://search.nixos.org/options?query=programs.benchexec)
+   to configure BenchExec. The optional dependencies
+   [cpu-energy-meter], [pqos_wrapper], and [LXCFS] as well as
+   kernel module loading for access to MSR registers
+   will all be enabled with BenchExec by default.
+   To opt out, set the respective `*.enable` option to `false` explicitly.
+ - [`programs.cpu-energy-meter.*`](https://search.nixos.org/options?query=programs.cpu-energy-meter)
+   to configure the optional dependency [cpu-energy-meter].
+ - [`programs.pqos-wrapper.*`](https://search.nixos.org/options?query=programs.pqos-wrapper)
+   to configure the optional dependency [pqos_wrapper].
+ - [`virtualisation.lxc.lxcfs.*`](https://search.nixos.org/options?query=virtualisation.lxc.lxcfs)
+   to configure the optional dependency [LXCFS].
+ - [`hardware.cpu.x86.msr`](https://search.nixos.org/options?query=hardware.cpu.x86.msr)
+   to configure access to MSR registers, by default for members of the group `msr`.
+ - [`users.users.<name>.extraGroups`](https://search.nixos.org/options?show=users.users.<name>.extraGroups)
+   to add user accounts extra groups such as `msr`
+   (required for both [cpu-energy-meter] and [pqos_wrapper]).
+   Note that users are *NOT* added to `msr` by default.
+   This decision is opt-in for your security.
+
+For example:
+```nix
+{
+  programs.benchexec = {
+    enable = true;
+    users = [ "<USER>" ];
+  };
+  
+  users.users."<USER>".extraGroups = [ "msr" ];
+}
+```
+
 ### Other Distributions
 
 For other distributions we recommend to use the Python package installer pip.
