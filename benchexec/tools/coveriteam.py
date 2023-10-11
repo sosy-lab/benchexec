@@ -5,6 +5,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import re
 import benchexec.tools.template
 
 
@@ -37,3 +38,14 @@ class Tool(benchexec.tools.template.BaseTool2):
         return self._program_files_from_executable(
             executable, self.REQUIRED_PATHS, parent_dir=True
         )
+
+    def get_value_from_output(self, output, identifier):
+        delimiter = ":"
+        if identifier.endswith(delimiter):
+            delimiter = ""
+        regex = re.compile(identifier + delimiter + r"\s*(.*)")
+        for line in reversed(output):
+            matches = regex.search(line)
+            if matches:
+                return matches.group(1)
+        return None
