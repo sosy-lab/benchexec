@@ -10,6 +10,7 @@ import benchexec.result as result
 from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, LP64
 import os
 
+
 class Tool(benchexec.tools.template.BaseTool2):
     """
     Tool info for sbt-fizzer.
@@ -66,9 +67,9 @@ class Tool(benchexec.tools.template.BaseTool2):
         @return a list of strings that represent the command line to execute
         """
         return (
-            [executable, "--input_file", task.single_input_file] +
-            options +
-            get_data_model_from_task(task, {ILP32: ["--m32"], LP64: []})
+            [executable, "--input_file", task.single_input_file]
+            + options
+            + get_data_model_from_task(task, {ILP32: ["--m32"], LP64: []})
         )
 
     def determine_result(self, run):
@@ -121,7 +122,8 @@ class Tool(benchexec.tools.template.BaseTool2):
 
         # Now we are ready to compute the result string.
 
-        def result_string(error_code, message = None): return error_code + ("" if message is None else " (" + message + ")")
+        def result_string(error_code, message=None):
+            return error_code + ("" if message is None else " (" + message + ")")
 
         if compilation is None:
             return result_string(result.RESULT_ERROR, "compilation")
@@ -130,15 +132,27 @@ class Tool(benchexec.tools.template.BaseTool2):
         elif linking is None:
             return result_string(result.RESULT_ERROR, "linking")
 
-        if termination_type in [ "SERVER_INTERNAL_ERROR", "CLIENT_COMMUNICATION_ERROR", "UNCLASSIFIED_ERROR" ]:
+        if termination_type in [
+            "SERVER_INTERNAL_ERROR",
+            "CLIENT_COMMUNICATION_ERROR",
+            "UNCLASSIFIED_ERROR",
+        ]:
             result_code = result.RESULT_ERROR
-            termination_reason = error_message if error_message is not None else termination_reason
+            termination_reason = (
+                error_message if error_message is not None else termination_reason
+            )
         elif termination_type != "NORMAL":
             result_code = result.RESULT_UNKNOWN
-        elif termination_reason in [ "ALL_REACHABLE_BRANCHINGS_COVERED", "FUZZING_STRATEGY_DEPLETED", "EXECUTIONS_BUDGET_DEPLETED", "TIME_BUDGET_DEPLETED" ]:
+        elif termination_reason in [
+            "ALL_REACHABLE_BRANCHINGS_COVERED",
+            "FUZZING_STRATEGY_DEPLETED",
+            "EXECUTIONS_BUDGET_DEPLETED",
+            "TIME_BUDGET_DEPLETED",
+        ]:
             result_code = result.RESULT_DONE
         else:
             result_code = result.RESULT_UNKNOWN
 
-        return result_string(result_code, str(termination_type) + "," + str(termination_reason) )
-
+        return result_string(
+            result_code, str(termination_type) + "," + str(termination_reason)
+        )
