@@ -1,3 +1,10 @@
+# This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
+#
+# SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
+#
+# SPDX-License-Identifier: Apache-2.0
+
 import benchexec.tools.template
 import benchexec.result as result
 from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, LP64
@@ -6,7 +13,10 @@ import os
 class Tool(benchexec.tools.template.BaseTool2):
     """
     Tool info for sbt-fizzer.
+    https://github.com/staticafi/sbt-fizzer
     """
+
+    REQUIRED_PATHS = ["lib", "lib32", "tools"]
 
     def name(self):
         """
@@ -39,21 +49,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         from the returned tool output.
         @return a (possibly empty) string
         """
-        return ""
-
-    def program_files(self, executable):
-        """
-        OPTIONAL, this method is only necessary for situations when the benchmark environment
-        needs to know all files belonging to a tool
-        (to transport them to a cloud service, for example).
-        Returns a list of files or directories that are necessary to run the tool,
-        relative to the current directory.
-        The default implementation returns a list with the executable itself
-        and all paths that result from expanding patterns in self.REQUIRED_PATHS,
-        interpreting the latter as relative to the directory of the executable.
-        @return a list of paths as strings
-        """
-        return [executable] + self._program_files_from_executable(executable, ["lib", "lib32", "tools"], parent_dir=False)
+        return self._version_from_tool(executable)
 
     def cmdline(self, executable, options, task, rlimits):
         """
@@ -70,7 +66,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         @return a list of strings that represent the command line to execute
         """
         return (
-            [executable, "--input_file", os.path.relpath(task.single_input_file, os.getcwd())] +
+            [executable, "--input_file", task.single_input_file] +
             options +
             get_data_model_from_task(task, {ILP32: ["--m32"], LP64: []})
         )
