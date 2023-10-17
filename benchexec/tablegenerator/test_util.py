@@ -7,6 +7,7 @@
 
 from decimal import Decimal
 from benchexec.tablegenerator import util
+import pytest
 
 
 class TestUnit:
@@ -129,15 +130,15 @@ class TestUnit:
             assert v == util.cap_first_letter(k)
 
     def test_merge_lists(self):
-        l = (1, 2, 3)
-        assert list(l) == util.merge_lists([l])
-        assert list(l) == util.merge_lists([l, l])
-        assert list(l) == util.merge_lists([l, l, l, l, l, l, l])
-        assert list(l) == util.merge_lists([[], l, l, []])
-        assert list(l) == util.merge_lists([[1, 2, 3], [1, 2], [1]])
-        assert list(l) == util.merge_lists([[1, 2, 3], [2, 3], [3]])
-        assert list(l) == util.merge_lists([[1], [1, 2], [1, 2, 3]])
-        assert list(l) == util.merge_lists([[3], [2, 3], [1, 2, 3]])
+        l1 = (1, 2, 3)
+        assert list(l1) == util.merge_lists([l1])
+        assert list(l1) == util.merge_lists([l1, l1])
+        assert list(l1) == util.merge_lists([l1, l1, l1, l1, l1, l1, l1])
+        assert list(l1) == util.merge_lists([[], l1, l1, []])
+        assert list(l1) == util.merge_lists([[1, 2, 3], [1, 2], [1]])
+        assert list(l1) == util.merge_lists([[1, 2, 3], [2, 3], [3]])
+        assert list(l1) == util.merge_lists([[1], [1, 2], [1, 2, 3]])
+        assert list(l1) == util.merge_lists([[3], [2, 3], [1, 2, 3]])
         assert [1, 2, 3, 4, 5, 6] == util.merge_lists([[1, 2, 4, 6], [1, 2, 3, 4, 5]])
 
     def test_find_common_elements(self):
