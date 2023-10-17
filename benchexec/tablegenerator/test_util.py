@@ -8,6 +8,7 @@
 from decimal import Decimal
 from benchexec.tablegenerator import util
 
+
 class TestUnit:
     def test_split_number_and_unit(self):
         assert util.split_number_and_unit("") == ("", "")
