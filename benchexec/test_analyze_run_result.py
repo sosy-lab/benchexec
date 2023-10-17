@@ -5,9 +5,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import logging
 import sys
-import pytest
 import types
 
 from benchexec.util import ProcessExitCode
@@ -23,6 +21,7 @@ from benchexec.tools.template import BaseTool
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
 normal_result = ProcessExitCode(raw=0, value=0, signal=None)
+
 
 class TestResult:
     def create_run(self, info_result=RESULT_UNKNOWN):
@@ -64,36 +63,27 @@ class TestResult:
         assert RESULT_TRUE_PROP == run._analyze_result(normal_result, "", None)
 
         run = self.create_run(info_result=RESULT_FALSE_REACH)
-        assert (
-            RESULT_FALSE_REACH
-            == run._analyze_result(normal_result, "", None)
-        )
+        assert RESULT_FALSE_REACH == run._analyze_result(normal_result, "", None)
 
     def test_timeout(self):
         run = self.create_run(info_result=RESULT_UNKNOWN)
         assert "TIMEOUT" == run._analyze_result(normal_result, "", "cputime")
-        assert (
-            "TIMEOUT"
-            == run._analyze_result(normal_result, "", "cputime-soft")
-        )
+        assert "TIMEOUT" == run._analyze_result(normal_result, "", "cputime-soft")
         assert "TIMEOUT" == run._analyze_result(normal_result, "", "walltime")
 
         run = self.create_run(info_result=RESULT_TRUE_PROP)
-        assert (
-            f"TIMEOUT ({RESULT_TRUE_PROP})"
-            == run._analyze_result(normal_result, "", "cputime")
+        assert f"TIMEOUT ({RESULT_TRUE_PROP})" == run._analyze_result(
+            normal_result, "", "cputime"
         )
 
         run = self.create_run(info_result=RESULT_FALSE_REACH)
-        assert (
-            f"TIMEOUT ({RESULT_FALSE_REACH})"
-            == run._analyze_result(normal_result, "", "cputime")
+        assert f"TIMEOUT ({RESULT_FALSE_REACH})" == run._analyze_result(
+            normal_result, "", "cputime"
         )
 
         run = self.create_run(info_result="SOME OTHER RESULT")
-        assert (
-            "TIMEOUT (SOME OTHER RESULT)"
-            == run._analyze_result(normal_result, "", "cputime")
+        assert "TIMEOUT (SOME OTHER RESULT)" == run._analyze_result(
+            normal_result, "", "cputime"
         )
 
         run = self.create_run(info_result=RESULT_ERROR)
@@ -105,34 +95,25 @@ class TestResult:
 
     def test_out_of_memory(self):
         run = self.create_run(info_result=RESULT_UNKNOWN)
-        assert (
-            "OUT OF MEMORY"
-            == run._analyze_result(normal_result, "", "memory")
-        )
+        assert "OUT OF MEMORY" == run._analyze_result(normal_result, "", "memory")
 
         run = self.create_run(info_result=RESULT_TRUE_PROP)
-        assert (
-            f"OUT OF MEMORY ({RESULT_TRUE_PROP})"
-            == run._analyze_result(normal_result, "", "memory")
+        assert f"OUT OF MEMORY ({RESULT_TRUE_PROP})" == run._analyze_result(
+            normal_result, "", "memory"
         )
 
         run = self.create_run(info_result=RESULT_FALSE_REACH)
-        assert (
-            f"OUT OF MEMORY ({RESULT_FALSE_REACH})"
-            == run._analyze_result(normal_result, "", "memory")
+        assert f"OUT OF MEMORY ({RESULT_FALSE_REACH})" == run._analyze_result(
+            normal_result, "", "memory"
         )
 
         run = self.create_run(info_result="SOME OTHER RESULT")
-        assert (
-            "OUT OF MEMORY (SOME OTHER RESULT)"
-            == run._analyze_result(normal_result, "", "memory")
+        assert "OUT OF MEMORY (SOME OTHER RESULT)" == run._analyze_result(
+            normal_result, "", "memory"
         )
 
         run = self.create_run(info_result=RESULT_ERROR)
-        assert (
-            "OUT OF MEMORY"
-            == run._analyze_result(normal_result, "", "memory")
-        )
+        assert "OUT OF MEMORY" == run._analyze_result(normal_result, "", "memory")
 
     def test_timeout_and_out_of_memory(self):
         run = self.create_run(info_result=RESULT_UNKNOWN)
@@ -141,23 +122,20 @@ class TestResult:
 
         run = self.create_run(info_result=RESULT_TRUE_PROP)
         run._is_timeout = lambda: True
-        assert (
-            f"TIMEOUT ({RESULT_TRUE_PROP})"
-            == run._analyze_result(normal_result, "", "memory")
+        assert f"TIMEOUT ({RESULT_TRUE_PROP})" == run._analyze_result(
+            normal_result, "", "memory"
         )
 
         run = self.create_run(info_result=RESULT_FALSE_REACH)
         run._is_timeout = lambda: True
-        assert (
-            f"TIMEOUT ({RESULT_FALSE_REACH})"
-            == run._analyze_result(normal_result, "", "memory")
+        assert f"TIMEOUT ({RESULT_FALSE_REACH})" == run._analyze_result(
+            normal_result, "", "memory"
         )
 
         run = self.create_run(info_result="SOME OTHER RESULT")
         run._is_timeout = lambda: True
-        assert (
-            "TIMEOUT (SOME OTHER RESULT)"
-            == run._analyze_result(normal_result, "", "memory")
+        assert "TIMEOUT (SOME OTHER RESULT)" == run._analyze_result(
+            normal_result, "", "memory"
         )
 
         run = self.create_run(info_result=RESULT_ERROR)
@@ -173,10 +151,7 @@ class TestResult:
         assert "TIMEOUT" == run._analyze_result(signal(9), "", "cputime")
 
         run = self.create_run(info_result=RESULT_ERROR)
-        assert (
-            "OUT OF MEMORY"
-            == run._analyze_result(signal(9), "", "memory")
-        )
+        assert "OUT OF MEMORY" == run._analyze_result(signal(9), "", "memory")
 
         run = self.create_run(info_result=RESULT_TRUE_PROP)
         assert RESULT_TRUE_PROP == run._analyze_result(signal(9), "", None)
@@ -185,10 +160,7 @@ class TestResult:
         assert RESULT_FALSE_REACH == run._analyze_result(signal(9), "", None)
 
         run = self.create_run(info_result="SOME OTHER RESULT")
-        assert (
-            "SOME OTHER RESULT"
-            == run._analyze_result(signal(9), "", None)
-        )
+        assert "SOME OTHER RESULT" == run._analyze_result(signal(9), "", None)
 
         run = self.create_run(info_result=RESULT_UNKNOWN)
         assert "KILLED BY SIGNAL 9" == run._analyze_result(signal(9), "", None)
@@ -202,10 +174,7 @@ class TestResult:
         assert "TIMEOUT" == run._analyze_result(returnvalue(1), "", "cputime")
 
         run = self.create_run(info_result=RESULT_UNKNOWN)
-        assert (
-            "OUT OF MEMORY"
-            == run._analyze_result(returnvalue(1), "", "memory")
-        )
+        assert "OUT OF MEMORY" == run._analyze_result(returnvalue(1), "", "memory")
 
         run = self.create_run(info_result=RESULT_TRUE_PROP)
         assert RESULT_TRUE_PROP == run._analyze_result(returnvalue(1), "", None)
@@ -214,10 +183,7 @@ class TestResult:
         assert RESULT_FALSE_REACH == run._analyze_result(returnvalue(1), "", None)
 
         run = self.create_run(info_result="SOME OTHER RESULT")
-        assert (
-            "SOME OTHER RESULT"
-            == run._analyze_result(returnvalue(1), "", None)
-        )
+        assert "SOME OTHER RESULT" == run._analyze_result(returnvalue(1), "", None)
 
         run = self.create_run(info_result=RESULT_UNKNOWN)
         assert RESULT_UNKNOWN == run._analyze_result(returnvalue(1), "", None)

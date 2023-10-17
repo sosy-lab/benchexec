@@ -50,7 +50,7 @@ stages:
   script:
     - sudo -u $PRIMARY_USER
         COVERAGE_PROCESS_START=.coveragerc
-        coverage run -m nose
+        coverage run -m pytest
   after_script:
     - sudo -u $PRIMARY_USER coverage combine
     - sudo -u $PRIMARY_USER coverage report

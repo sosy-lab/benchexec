@@ -27,6 +27,7 @@ RUN pip install \
   coloredlogs \
   "coverage[toml] >= 5.0" \
   lxml \
+  pytest \
   pystemd \
   pyyaml \
   'setuptools < 58'
@@ -34,4 +35,4 @@ RUN pip install \
 # Avoid the wheel on PyPi for nose, because it does not work on Python 3.11.
 # An installation from source does work, though, if setuptools<58 exists.
 # Cf. https://github.com/nose-devs/nose/issues/1099
-RUN pip install nose --no-binary :all:
+# RUN pip install nose --no-binary :all:

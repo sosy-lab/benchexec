@@ -14,10 +14,12 @@ import shutil
 
 from benchexec import util
 
+
 @pytest.fixture(scope="class")
 def setup_test_class(request):
     request.cls.longMessage = True
     request.cls.maxDiff = None
+
 
 @pytest.fixture
 def temp_test_dir():
@@ -25,6 +27,7 @@ def temp_test_dir():
     yield base_dir
     # Automatically cleanup the temporary directory after the test
     shutil.rmtree(base_dir)
+
 
 class TestParse:
     def test_split_number_and_unit(self):
@@ -59,6 +62,7 @@ class TestParse:
         assert util.parse_timespan_value("1h") == 60 * 60
         assert util.parse_timespan_value("1d") == 24 * 60 * 60
 
+
 class TestProcessExitCode:
     def ProcessExitCode_with_value(self, value):
         return ProcessExitCode(raw=value << 8, value=value, signal=None)
@@ -87,25 +91,34 @@ class TestProcessExitCode:
         assert ProcessExitCode.from_raw(0).signal is None
         assert ProcessExitCode.from_raw(256).signal is None
 
+
 class TestRmtree:
     def test_writable_file(self, temp_test_dir):
-        with tempfile.TemporaryDirectory(prefix="BenchExec_test_util_rmtree") as temp_test_dir:
+        with tempfile.TemporaryDirectory(
+            prefix="BenchExec_test_util_rmtree"
+        ) as temp_test_dir:
             temp_file = os.path.join(temp_test_dir, "tempfile")
             util.write_file("", temp_file)
             assert os.path.exists(temp_file), "Failed to create temporary file"
 
     def test_writable_dir(self, temp_test_dir):
-        with tempfile.TemporaryDirectory(prefix="BenchExec_test_util_rmtree") as temp_test_dir:
+        with tempfile.TemporaryDirectory(
+            prefix="BenchExec_test_util_rmtree"
+        ) as temp_test_dir:
             temp_dir = os.path.join(temp_test_dir, "tempdir")
             os.mkdir(temp_dir)
             assert os.path.exists(temp_dir), "Failed to create temporary directory"
 
     def test_nonwritable_file(self, temp_test_dir):
-        with tempfile.TemporaryDirectory(prefix="BenchExec_test_util_rmtree") as temp_test_dir:
+        with tempfile.TemporaryDirectory(
+            prefix="BenchExec_test_util_rmtree"
+        ) as temp_test_dir:
             temp_file = os.path.join(temp_test_dir, "tempfile")
             util.write_file("", temp_file)
             os.chmod(temp_file, 0)
-            assert os.path.exists(temp_file), "Failed to create temporary non-writable file"
+            assert os.path.exists(
+                temp_file
+            ), "Failed to create temporary non-writable file"
 
     def create_and_delete_directory(self, mode):
         base_dir = tempfile.mkdtemp(prefix="BenchExec_test_util_rmtree")
