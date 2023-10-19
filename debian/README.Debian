@@ -1,11 +1,15 @@
 benchexec for Debian
 --------------------
 
-This package uses a systemd service (benchexec-cgroup)
+For systems with cgroupsv1,
+this package uses a systemd service (benchexec-cgroup)
 to configure the Linux kernel cgroups as necessary for BenchExec.
 Users that should be able to use BenchExec should be added to the group "benchexec".
 Alternatively, the permissions assigned to the cgroups
 can be changed by changing the BENCHEXEC_CGROUP_GROUP and BENCHEXEC_CGROUP_PERM
 environment variables of that service.
+
+For systems with cgroupsv2 and systemd,
+no special configuration is necessary.
 
  -- Philipp Wendler <debian@philippwendler.de>  Fri, 11 Sep 2015 10:29:29 +0200
