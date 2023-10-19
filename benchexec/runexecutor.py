@@ -619,7 +619,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         error_filename=None,
         write_header=True,
         **kwargs,
-    ):
+    ):  # pytype: disable=signature-mismatch  discrepancy is ok here
         """
         This function executes a given command with resource limits,
         and writes the output to a file.

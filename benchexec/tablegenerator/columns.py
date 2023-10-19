@@ -371,7 +371,7 @@ def _format_number(
         # Round to the given amount of significant digits
         intended_digits = min(initial_value_sig_digits, number_of_significant_digits)
 
-        assert number.adjusted() == int(floor(log10(abs(number))))
+        assert number.adjusted() == int(floor(abs(number).log10()))
         rounding_point = -number.adjusted() + (intended_digits - 1)
         # Contrary to its documentation, round() seems to be affected by the rounding
         # mode of decimal's context (which is good for us) when rounding Decimals.

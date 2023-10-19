@@ -135,6 +135,7 @@ The developers of the following tools use BenchExec:
 
 - [CPAchecker](https://cpachecker.sosy-lab.org), also for regression testing
 - [Dartagnan](https://github.com/hernanponcedeleon/Dat3M)
+- [ESBMC](https://github.com/esbmc/esbmc), also for regression testing and even with a [GitHub action](https://github.com/esbmc/esbmc/blob/master/.github/workflows/benchexec.yml) for BenchExec
 - [SMACK](https://github.com/smackers/smack)
 - [SMTInterpol](https://github.com/ultimate-pa/smtinterpol)
 - [TriCera](https://github.com/uuverifiers/tricera)

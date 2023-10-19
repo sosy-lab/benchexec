@@ -5,6 +5,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import collections
 import copy
 import json
 import logging
@@ -140,7 +141,7 @@ def _prepare_benchmark_setup_data(
                 formatStr = default
             else:
                 formatStr = format_string
-            return formatStr.format(**attributes)
+            return formatStr.format_map(collections.defaultdict(str, attributes))
 
         values = [
             format_cell(runSetResult.attributes) for runSetResult in runSetResults

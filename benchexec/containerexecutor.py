@@ -19,6 +19,7 @@ import socket
 import subprocess
 import sys
 import tempfile
+import traceback
 
 from benchexec import __version__
 from benchexec import baseexecutor
@@ -713,7 +714,14 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 try:
                     if self._container_system_config:
                         # A standard hostname increases reproducibility.
-                        socket.sethostname(container.CONTAINER_HOSTNAME)
+                        try:
+                            socket.sethostname(container.CONTAINER_HOSTNAME)
+                        except PermissionError:
+                            logging.warning(
+                                "Changing hostname in container prevented "
+                                "by system configuration, "
+                                "real hostname will leak into the container."
+                            )
 
                     if not self._allow_network:
                         container.activate_network_interface("lo")
@@ -743,7 +751,13 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                     # It needs to be done after MARKER_USER_MAPPING_COMPLETED.
                     libc.prctl(libc.PR_SET_DUMPABLE, libc.SUID_DUMP_DISABLE, 0, 0, 0)
                 except OSError as e:
-                    logging.critical("Failed to configure container: %s", e)
+                    logging.critical(
+                        "Failed to configure container with operation '%s': %s",
+                        # Show executed statement, often the error does not contain
+                        # information about what was attempted.
+                        traceback.extract_tb(e.__traceback__, limit=-1)[0].line,
+                        e,
+                    )
                     return CHILD_OSERROR
 
                 try:
