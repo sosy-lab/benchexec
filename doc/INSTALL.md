@@ -26,6 +26,7 @@ The following packages are optional but recommended dependencies:
 - [pqos_wrapper] and [pqos library][pqos]
   provide isolation of L3 cache and measurement of cache usage and memory bandwidth
   (only in `benchexec`).
+- [pystemd] allows BenchExec to automatically configure cgroups on systems with systemd and cgroups v2.
 
 Note that the `table-generator` utility requires only Python and works on all platforms.
 
@@ -68,11 +69,11 @@ To automatically download and install the latest stable version and its dependen
 from the [Python Packaging Index](https://pypi.python.org/pypi/BenchExec) with pip,
 run this command:
 
-    sudo pip3 install benchexec coloredlogs
+    sudo pip3 install benchexec[systemd] coloredlogs
 
 You can also install BenchExec only for your user with
 
-    pip3 install --user benchexec coloredlogs
+    pip3 install --user benchexec[systemd] coloredlogs
 
 In the latter case you probably need to add the directory where pip installs the commands
 to the PATH environment by adding the following line to your `~/.profile` file:
@@ -80,6 +81,8 @@ to the PATH environment by adding the following line to your `~/.profile` file:
     export PATH=~/.local/bin:$PATH
 
 Of course you can also install BenchExec in a virtualenv if you are familiar with Python tools.
+
+On systems without systemd you can omit the `[systemd]` part.
 
 Please make sure to configure cgroups as [described below](#setting-up-cgroups)
 and install [cpu-energy-meter], [libseccomp2], [LXCFS], and [pqos_wrapper] if desired.
@@ -148,17 +151,18 @@ If container mode does not work, please check the [common problems](container.md
 
 ## Setting up Cgroups
 
-If you have installed the Debian package and you are running systemd
-(default since Debian 8 and Ubuntu 15.04),
-the package should have configured everything automatically
-as long as the system is using cgroups v1.
-Just add your user to the group `benchexec` and reboot:
+This depends on whether your system is using cgroups v1 or v2.
+To find out, please check whether `/sys/fs/cgroup/cgroup.controllers` exists.
+If yes, you are using v2, otherwise v1
+(for the purpose of BenchExec, a hybrid usage of v1 and v2 counts as v1).
 
-    adduser <USER> benchexec
+Then please follow the instructions from the appropriate subsection
+and the instructions for [testing and troubleshooting](#testing-cgroups-setup-and-known-problems).
 
-Support for cgroups v2 is still under development for BenchExec.
-On recent distributions (e.g., Ubuntu 22.04),
-please switch back to cgroups v1 for now by putting
+Note that support for cgroups v2 is available only since BenchExec 3.18
+and has received less testing than using cgroups v1 so far.
+If you are on a distribution with cgroups v2 and want to switch to cgroups v1,
+you can switch back to cgroups v1 for now by putting
 `systemd.unified_cgroup_hierarchy=0` on the kernel command line.
 On Debian/Ubuntu, this could be done with the following steps and rebooting afterwards:
 ```
@@ -166,7 +170,47 @@ echo 'GRUB_CMDLINE_LINUX_DEFAULT="${GRUB_CMDLINE_LINUX_DEFAULT} systemd.unified_
 sudo update-grub
 ```
 
-### Setting up Cgroups on Machines with systemd
+### Setting up Cgroups v2 on Machines with systemd
+
+This applies for example for Ubuntu 21.10 and newer,
+Debian 11 and newer, and most other current Linux distributions.
+
+BenchExec can use systemd to automatically take care of any necessary cgroup configuration,
+so no manual configuration is necessary.
+However, the Python package `pystemd` needs to be installed,
+which happens automatically if you installed our Ubuntu package
+including its recommended dependencies or `benchexec[systemd]` via pip.
+If missing, install the package with `sudo apt install python3-pystemd`
+or `pip install pystemd` according to how you installed BenchExec.
+
+BenchExec also works without `pystemd` if you start BenchExec inside its own cgroup.
+The easiest way to do so is using `systemd-run`:
+
+    systemd-run --user --scope --slice=benchexec -p Delegate=yes benchexec ...
+
+If you want to use systemd to pre-configure the cgroups that BenchExec uses
+(e.g., influence the allowed CPU cores etc.),
+you can do so by configuring `benchexec.slice` in the user-specific systemd instance(s)
+(all cgroups that BenchExec creates will be inside this systemd slice).
+
+### Setting up Cgroups v2 on Machines without systemd
+
+This is possible if you ensure manually that
+BenchExec is started in its own cgroup
+(i.e., a cgroup with no other processes inside).
+We recommend using systemd, though.
+
+### Setting up Cgroups v1 on Machines with systemd and BenchExec as Debian package
+
+This applies to Ubuntu 21.04 and older and Debian 10 and older
+(if the Debian package for BenchExec was used).
+
+Our Debian package should have configured everything automatically.
+Just add your user to the group `benchexec` and reboot:
+
+    adduser <USER> benchexec
+
+### Setting up Cgroups v1 on Machines with systemd
 
 Most distributions today use systemd, and
 systemd makes extensive usage of cgroups and [claims that it should be the only process that accesses cgroups directly](https://wiki.freedesktop.org/www/Software/systemd/ControlGroupInterface/).
@@ -207,7 +251,7 @@ echo $$ > /sys/fs/cgroup/freezer/<CGROUP>/tasks
 In any case, please check whether everything works
 or whether additional settings are necessary as [described below](#testing-cgroups-setup-and-known-problems).
 
-### Setting up Cgroups on Machines without systemd
+### Setting up Cgroups v1 on Machines without systemd
 
 The cgroup virtual file system is typically mounted at or below `/sys/fs/cgroup`.
 If it is not, you can mount it with
@@ -259,7 +303,7 @@ which are explained in the [container documentation](container.md#using-benchexe
 
 ### Testing Cgroups Setup and Known Problems
 
-After installing BenchExec and setting up the cgroups file system, please run
+After installing BenchExec and configuring cgroups if appropriate, please run
 
     python3 -m benchexec.check_cgroups
 
@@ -267,6 +311,7 @@ This will report warnings and exit with code 1 if something is missing.
 If you find that something does not work,
 please check the following list of solutions.
 
+For cgroups v1:
 If your machine has swap, cgroups should be configured to also track swap memory.
 This is turned off by several distributions.
 If the file `memory.memsw.usage_in_bytes` does not exist in the directory
@@ -296,3 +341,4 @@ Please refer to the [development instructions](DEVELOPMENT.md).
 [LXCFS]: https://github.com/lxc/lxcfs
 [pqos]: https://github.com/intel/intel-cmt-cat/tree/master/pqos
 [pqos_wrapper]: https://gitlab.com/sosy-lab/software/pqos-wrapper
+[pystemd]: https://github.com/systemd/pystemd
