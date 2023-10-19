@@ -135,7 +135,7 @@ ruff:
     - "pip install ruff"
   script:
     - "ruff check ."
-    - "ruff check . --format=gitlab > gl-code-quality-report.json"
+    - "ruff check . --output-format=gitlab > gl-code-quality-report.json"
   variables:
     PYTHON_VERSION: '3.10'
   artifacts:
