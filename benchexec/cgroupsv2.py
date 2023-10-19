@@ -34,6 +34,7 @@ _ERROR_MSG_MISSING_CPUSET = """
 The kernel has a bug where delegation of cpuset does not work if there are processes of other users in this user's cgroup.
 This happens commonly if xdg-document-portal is running while such delegation is attempted for the first time.
 For more information cf. https://github.com/systemd/systemd/issues/18293.
+Linux 6.6 is expected to contain a fix for this bug.
 
 As a quick workaround, execute this command, which forces the missing delegation as root user:
   echo +cpuset | sudo tee {}"""

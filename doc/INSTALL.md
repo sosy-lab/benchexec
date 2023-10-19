@@ -15,7 +15,7 @@ SPDX-License-Identifier: Apache-2.0
 
 - Python 3.7 or newer
 - Linux (cf. [Kernel Requirements](#kernel-requirements) below for details)
-- Cgroups v1 (cf. [Setting up Cgroups](#setting-up-cgroups) below for details)
+- Access to cgroups (cf. [Setting up Cgroups](#setting-up-cgroups) below for details)
 - x86 or ARM machine (please [contact us](https://github.com/sosy-lab/benchexec/issues/new) for other architectures)
 
 The following packages are optional but recommended dependencies:
@@ -42,9 +42,11 @@ and install manually (note that the leading `./` is important, otherwise `apt` w
 
     apt install --install-recommends ./benchexec_*.deb
 
-Our package automatically configures the necessary cgroup permissions
-if the system uses cgroups v1.
-Just add the users that should be able to use BenchExec to the group `benchexec`
+On Ubuntu 21.10 and newer with the default cgroup config, this is all.
+
+On older Ubuntu versions or those configured for cgroups v1,
+our package automatically configures the necessary cgroup permissions.
+Then add the users that should be able to use BenchExec to the group `benchexec`
 (group membership will be effective after the next login of the respective user):
 
     adduser <USER> benchexec
