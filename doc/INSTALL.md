@@ -235,9 +235,6 @@ The following steps are necessary:
    By default, this gives permissions to users of the group `benchexec`,
    this can be adjusted in the `Environment` line as necessary.
 
-  * If the system is using cgroups v2, you need to tell systemd to use cgroups v1 instead
-   as [described above](#setting-up-cgroups).
-
 By default, BenchExec will automatically attempt to use the cgroup
 `system.slice/benchexec-cgroup.service` that is created by this service file.
 If you use a different cgroup structure,
@@ -268,7 +265,7 @@ you can use
 Of course permissions can also be assigned in a more fine-grained way if necessary.
 
 Alternatively, software such as `cgrulesengd` from
-the [cgroup-bin](http://libcg.sourceforge.net/) package
+the [libcgroup](https://github.com/libcgroup/libcgroup) project
 can be used to setup the cgroups hierarchy.
 
 Note that `cgrulesengd` might interfere with the cgroups of processes,
@@ -296,7 +293,8 @@ If you want to run BenchExec inside a container,
 we recommend Podman and systems with cgroups v2.
 Then pass `--security-opt unmask=/sys/fs/cgroup` to `podman run`.
 This will work if BenchExec is the main process inside the container,
-otherwise a separate cgroup needs to be created.
+otherwise you need to create an appropriate cgroup hierarchy inside the container,
+i.e., one where BenchExec has its own separate cgroup.
 
 For other cases, if the cgroups file system is not available within the container,
 please use the following command line argument
