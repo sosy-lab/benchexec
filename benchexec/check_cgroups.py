@@ -33,11 +33,18 @@ def check_cgroup_availability(wait=1):
 
     if not (
         my_cgroups.CPU in my_cgroups
-        and my_cgroups.CPUSET in my_cgroups
         # and FREEZER in my_cgroups # For now, we do not require freezer
         and my_cgroups.MEMORY in my_cgroups
     ):
         sys.exit(1)
+
+    if my_cgroups.CPUSET in my_cgroups:
+        cores = my_cgroups.read_allowed_cpus()
+        mems = my_cgroups.read_allowed_memory_banks()
+    else:
+        # Use dummy value (does not matter which) to let execute_run() fail.
+        cores = [0]
+        mems = [0]
 
     with tempfile.NamedTemporaryFile(mode="rt") as tmp:
         runexecutor.execute_run(
@@ -45,8 +52,8 @@ def check_cgroup_availability(wait=1):
             tmp.name,
             memlimit=1024 * 1024,  # set memlimit to force check for swapaccount
             # set cores and memory_nodes to force usage of CPUSET
-            cores=my_cgroups.read_allowed_cpus(),
-            memory_nodes=my_cgroups.read_allowed_memory_banks(),
+            cores=cores,
+            memory_nodes=mems,
         )
         lines = []
         for line in tmp:
