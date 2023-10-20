@@ -379,7 +379,9 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                     '"sudo swapoff -a".'
                 )
 
-        self.cgroups.require_subsystem(self.cgroups.CPUSET)
+        # Do not warn about missing CPUSET here, it is only useful for core limits
+        # and if one is set we terminate with a better error message later.
+        self.cgroups.require_subsystem(self.cgroups.CPUSET, log_method=logging.debug)
         self.cpus = None  # to indicate that we cannot limit cores
         self.memory_nodes = None  # to indicate that we cannot limit cores
         if self.cgroups.CPUSET in self.cgroups:
