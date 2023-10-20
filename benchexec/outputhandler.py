@@ -723,6 +723,8 @@ class OutputHandler(object):
                     value_suffix = "B"
             elif title.startswith("mbm"):
                 value_suffix = "B/s"
+            elif title.startswith("pressure-") and title.endswith("-some"):
+                value_suffix = "s"
 
         value = f"{value}{value_suffix}"
 

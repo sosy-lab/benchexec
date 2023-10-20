@@ -8,7 +8,7 @@
 import argparse
 import collections
 import datetime
-import errno
+import decimal
 import logging
 import multiprocessing
 import os
@@ -24,10 +24,11 @@ from benchexec import __version__
 from benchexec import baseexecutor
 from benchexec import BenchExecException
 from benchexec import containerexecutor
-from benchexec.cgroups import BLKIO, CPUACCT, CPUSET, FREEZER, MEMORY, find_my_cgroups
+from benchexec.cgroups import Cgroups
 from benchexec.filehierarchylimit import FileHierarchyLimitThread
 from benchexec import intel_cpu_energy
 from benchexec import oomhandler
+from benchexec.util import print_decimal
 from benchexec import resources
 from benchexec import systeminfo
 from benchexec import util
@@ -277,12 +278,19 @@ def main(argv=None):
     # exit_code is a util.ProcessExitCode instance
     exit_code = cast(Optional[util.ProcessExitCode], result.pop("exitcode", None))
 
-    def print_optional_result(key, unit="", format_fn=str):
+    def print_optional_result(key, unit=""):
         if key in result:
-            print(f"{key}={format_fn(result[key])}{unit}")
+            value = result[key]
+            if isinstance(value, decimal.Decimal):
+                format_fn = print_decimal
+            elif isinstance(value, datetime.datetime):
+                format_fn = datetime.datetime.isoformat
+            else:
+                format_fn = str
+            print(f"{key}={format_fn(value)}{unit}")
 
     # output results
-    print_optional_result("starttime", unit="", format_fn=datetime.datetime.isoformat)
+    print_optional_result("starttime", unit="")
     print_optional_result("terminationreason")
     if exit_code is not None and exit_code.value is not None:
         print(f"returnvalue={exit_code.value}")
@@ -296,6 +304,9 @@ def main(argv=None):
     print_optional_result("memory", "B")
     print_optional_result("blkio-read", "B")
     print_optional_result("blkio-write", "B")
+    print_optional_result("pressure-cpu-some", "s")
+    print_optional_result("pressure-io-some", "s")
+    print_optional_result("pressure-memory-some", "s")
     energy = intel_cpu_energy.format_energy_results(result.get("cpuenergy"))
     for energy_key, energy_value in energy.items():
         print(f"{energy_key}={energy_value}J")
@@ -327,7 +338,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         """
         This function initializes the cgroups for the limitations and measurements.
         """
-        self.cgroups = find_my_cgroups()
+        self.cgroups = Cgroups.initialize()
         critical_cgroups = set()
 
         for subsystem in self._cgroup_subsystems:
@@ -340,29 +351,27 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 )
 
         # Feature is still experimental, do not warn loudly
-        self.cgroups.require_subsystem(BLKIO, log_method=logging.debug)
-        if BLKIO not in self.cgroups:
+        self.cgroups.require_subsystem(self.cgroups.IO, log_method=logging.debug)
+        if self.cgroups.IO not in self.cgroups:
             logging.debug("Cannot measure I/O without blkio cgroup.")
 
-        self.cgroups.require_subsystem(CPUACCT)
-        if CPUACCT not in self.cgroups:
+        self.cgroups.require_subsystem(self.cgroups.CPU)
+        if self.cgroups.CPU not in self.cgroups:
             logging.warning("Cannot measure CPU time without cpuacct cgroup.")
 
-        self.cgroups.require_subsystem(FREEZER)
-        if FREEZER not in self.cgroups and not self._use_namespaces:
-            critical_cgroups.add(FREEZER)
+        self.cgroups.require_subsystem(self.cgroups.FREEZE)
+        if self.cgroups.FREEZE not in self.cgroups and not self._use_namespaces:
+            critical_cgroups.add(self.cgroups.FREEZE)
             logging.error(
                 "Cannot reliably kill sub-processes without freezer cgroup "
                 "or container mode. Please enable at least one of them."
             )
 
-        self.cgroups.require_subsystem(MEMORY)
-        if MEMORY not in self.cgroups:
+        self.cgroups.require_subsystem(self.cgroups.MEMORY)
+        if self.cgroups.MEMORY not in self.cgroups:
             logging.warning("Cannot measure memory consumption without memory cgroup.")
         else:
-            if systeminfo.has_swap() and (
-                not self.cgroups.has_value(MEMORY, "memsw.max_usage_in_bytes")
-            ):
+            if systeminfo.has_swap() and not self.cgroups.can_limit_swap():
                 logging.warning(
                     "Kernel misses feature for accounting swap memory, but machine has swap. "
                     "Memory usage may be measured inaccurately. "
@@ -370,10 +379,12 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                     '"sudo swapoff -a".'
                 )
 
-        self.cgroups.require_subsystem(CPUSET)
+        # Do not warn about missing CPUSET here, it is only useful for core limits
+        # and if one is set we terminate with a better error message later.
+        self.cgroups.require_subsystem(self.cgroups.CPUSET, log_method=logging.debug)
         self.cpus = None  # to indicate that we cannot limit cores
         self.memory_nodes = None  # to indicate that we cannot limit cores
-        if CPUSET in self.cgroups:
+        if self.cgroups.CPUSET in self.cgroups:
             # Read available cpus/memory nodes:
             try:
                 self.cpus = self.cgroups.read_allowed_cpus()
@@ -382,9 +393,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             logging.debug("List of available CPU cores is %s.", self.cpus)
 
             try:
-                self.memory_nodes = util.parse_int_list(
-                    self.cgroups.get_value(CPUSET, "mems")
-                )
+                self.memory_nodes = self.cgroups.read_allowed_memory_banks()
             except ValueError as e:
                 logging.warning(
                     "Could not read available memory nodes from kernel: %s", str(e)
@@ -414,12 +423,17 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         logging.debug("Setting up cgroups for run.")
 
         # Setup cgroups, need a single call to create_cgroup() for all subsystems
-        subsystems = [BLKIO, CPUACCT, FREEZER, MEMORY] + self._cgroup_subsystems
+        subsystems = [
+            self.cgroups.IO,
+            self.cgroups.CPU,
+            self.cgroups.FREEZE,
+            self.cgroups.MEMORY,
+        ] + self._cgroup_subsystems
         if my_cpus is not None or memory_nodes is not None:
-            subsystems.append(CPUSET)
+            subsystems.append(self.cgroups.CPUSET)
         subsystems = [s for s in subsystems if s in self.cgroups]
 
-        cgroups = self.cgroups.create_fresh_child_cgroup(*subsystems)
+        cgroups = self.cgroups.create_fresh_child_cgroup(subsystems)
 
         logging.debug("Created cgroups %s.", cgroups)
 
@@ -444,51 +458,27 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         # Setup cpuset cgroup if necessary to limit the CPU cores/memory nodes to be used.
         if my_cpus is not None:
             my_cpus_str = ",".join(map(str, my_cpus))
-            cgroups.set_value(CPUSET, "cpus", my_cpus_str)
-            my_cpus_str = cgroups.get_value(CPUSET, "cpus")
+            cgroups.set_value(self.cgroups.CPUSET, "cpus", my_cpus_str)
+            my_cpus_str = cgroups.get_value(self.cgroups.CPUSET, "cpus")
             logging.debug("Using cpu cores [%s].", my_cpus_str)
 
         if memory_nodes is not None:
-            cgroups.set_value(CPUSET, "mems", ",".join(map(str, memory_nodes)))
-            memory_nodesStr = cgroups.get_value(CPUSET, "mems")
+            cgroups.set_value(
+                self.cgroups.CPUSET, "mems", ",".join(map(str, memory_nodes))
+            )
+            memory_nodesStr = cgroups.get_value(self.cgroups.CPUSET, "mems")
             logging.debug("Using memory nodes [%s].", memory_nodesStr)
 
         # Setup memory limit
         if memlimit is not None:
-            limit = "limit_in_bytes"
-            cgroups.set_value(MEMORY, limit, memlimit)
+            cgroups.write_memory_limit(memlimit)
 
-            swap_limit = "memsw.limit_in_bytes"
-            # We need swap limit because otherwise the kernel just starts swapping
-            # out our process if the limit is reached.
-            # Some kernels might not have this feature,
-            # which is ok if there is actually no swap.
-            if not cgroups.has_value(MEMORY, swap_limit):
-                if systeminfo.has_swap():
-                    sys.exit(
-                        'Kernel misses feature for accounting swap memory, but machine has swap. Please set swapaccount=1 on your kernel command line or disable swap with "sudo swapoff -a".'
-                    )
-            else:
-                try:
-                    cgroups.set_value(MEMORY, swap_limit, memlimit)
-                except OSError as e:
-                    if e.errno == errno.ENOTSUP:
-                        # kernel responds with operation unsupported if this is disabled
-                        sys.exit(
-                            'Memory limit specified, but kernel does not allow limiting swap memory. Please set swapaccount=1 on your kernel command line or disable swap with "sudo swapoff -a".'
-                        )
-                    raise e
-
-            memlimit = cgroups.get_value(MEMORY, limit)
+            memlimit = cgroups.read_memory_limit()
             logging.debug("Effective memory limit is %s bytes.", memlimit)
 
-        if MEMORY in cgroups:
+        if cgroups.MEMORY in cgroups:
             try:
-                # Note that this disables swapping completely according to
-                # https://www.kernel.org/doc/Documentation/cgroups/memory.txt
-                # (unlike setting the global swappiness to 0).
-                # Our process might get killed because of this.
-                cgroups.set_value(MEMORY, "swappiness", "0")
+                cgroups.disable_swap()
             except OSError as e:
                 logging.warning(
                     "Could not disable swapping for benchmarked process: %s", e
@@ -570,11 +560,13 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             return timelimitThread
         return None
 
-    def _setup_cgroup_memory_limit(self, memlimit, cgroups, pid_to_kill):
+    def _setup_cgroup_memory_limit_thread(self, memlimit, cgroups, pid_to_kill):
         """Start memory-limit handler.
         @return None or the memory-limit handler for calling cancel()
         """
-        if memlimit is not None:
+        # On CgroupsV2, the kernel kills the whole cgroup for us on OOM
+        # and we can detect OOMs reliably after the fact. So no need to do anything.
+        if memlimit is not None and cgroups.version == 1:
             try:
                 oomThread = oomhandler.KillProcessOnOomThread(
                     cgroups=cgroups,
@@ -671,19 +663,19 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         if hardtimelimit is not None:
             if hardtimelimit <= 0:
                 sys.exit(f"Invalid time limit {hardtimelimit}.")
-            if CPUACCT not in self.cgroups:
+            if self.cgroups.CPU not in self.cgroups:
                 logging.error("Time limit cannot be specified without cpuacct cgroup.")
-                critical_cgroups.add(CPUACCT)
+                critical_cgroups.add(self.cgroups.CPU)
         if softtimelimit is not None:
             if softtimelimit <= 0:
                 sys.exit(f"Invalid soft time limit {softtimelimit}.")
             if hardtimelimit and (softtimelimit > hardtimelimit):
                 sys.exit("Soft time limit cannot be larger than the hard time limit.")
-            if CPUACCT not in self.cgroups:
+            if self.cgroups.CPU not in self.cgroups:
                 logging.error(
                     "Soft time limit cannot be specified without cpuacct cgroup."
                 )
-                critical_cgroups.add(CPUACCT)
+                critical_cgroups.add(self.cgroups.CPU)
 
         if walltimelimit is None:
             if hardtimelimit is not None:
@@ -697,7 +689,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         if cores is not None:
             if self.cpus is None:
                 logging.error("Cannot limit CPU cores without cpuset cgroup.")
-                critical_cgroups.add(CPUSET)
+                critical_cgroups.add(self.cgroups.CPUSET)
             elif not cores:
                 sys.exit("Cannot execute run without any CPU core.")
             elif not set(cores).issubset(self.cpus):
@@ -707,16 +699,16 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         if memlimit is not None:
             if memlimit <= 0:
                 sys.exit(f"Invalid memory limit {memlimit}.")
-            if MEMORY not in self.cgroups:
+            if self.cgroups.MEMORY not in self.cgroups:
                 logging.error(
                     "Memory limit specified, but cannot be implemented without cgroup support."
                 )
-                critical_cgroups.add(MEMORY)
+                critical_cgroups.add(self.cgroups.MEMORY)
 
         if memory_nodes is not None:
             if self.memory_nodes is None:
                 logging.error("Cannot restrict memory nodes without cpuset cgroup.")
-                critical_cgroups.add(CPUSET)
+                critical_cgroups.add(self.cgroups.CPUSET)
             elif len(memory_nodes) == 0:
                 sys.exit("Cannot execute run without any memory node.")
             elif not set(memory_nodes).issubset(self.memory_nodes):
@@ -861,7 +853,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             # process existed, and killing via cgroups prevents this.
             # But if we do not have freezer, it is safer to just let all processes run
             # until the container is killed.
-            if FREEZER in cgroups:
+            if cgroups.FREEZE in cgroups:
                 cgroups.kill_all_tasks()
 
             # For a similar reason, we cancel all limits. Otherwise a run could have
@@ -932,7 +924,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             timelimitThread = self._setup_cgroup_time_limit(
                 hardtimelimit, softtimelimit, walltimelimit, cgroups, cores, pid
             )
-            oomThread = self._setup_cgroup_memory_limit(memlimit, cgroups, pid)
+            oomThread = self._setup_cgroup_memory_limit_thread(memlimit, cgroups, pid)
             file_hierarchy_limit_thread = self._setup_file_hierarchy_limit(
                 files_count_limit, files_size_limit, temp_dir, cgroups, pid
             )
@@ -1011,10 +1003,18 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 }
         if self._termination_reason:
             result["terminationreason"] = self._termination_reason
-        elif memlimit and "memory" in result and result["memory"] >= memlimit:
+        elif self.cgroups.version == 2 and result.get("oom_kill_count"):
+            # At least one process was killed by the kernel due to OOM.
+            result["terminationreason"] = "memory"
+        elif self.cgroups.version == 1 and (
+            memlimit and result.get("memory", 0) >= memlimit
+        ):
             # The kernel does not always issue OOM notifications and thus the OOMHandler
             # does not always run even in case of OOM. We detect this there and report OOM.
             result["terminationreason"] = "memory"
+
+        # Cleanup
+        result.pop("oom_kill_count", None)
 
         return result
 
@@ -1027,7 +1027,12 @@ class RunExecutor(containerexecutor.ContainerExecutor):
 
         cputime_wait = ru_child.ru_utime + ru_child.ru_stime if ru_child else 0
         cputime_cgroups = None
-        if CPUACCT in cgroups:
+
+        def store_result(key, value):
+            if value is not None:
+                result[key] = value
+
+        if cgroups.CPU in cgroups:
             # We want to read the value from the cgroup.
             # The documentation warns about outdated values.
             # So we read twice with 0.1s time difference,
@@ -1063,57 +1068,21 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             else:
                 result["cputime"] = cputime_cgroups
 
-            for core, coretime in enumerate(
-                cgroups.get_value(CPUACCT, "usage_percpu").split(" ")
-            ):
-                try:
-                    coretime = int(coretime)
-                    if coretime != 0:
-                        # convert nanoseconds to seconds
-                        result[f"cputime-cpu{core}"] = coretime / 1_000_000_000
-                except (OSError, ValueError) as e:
-                    logging.debug(
-                        "Could not read CPU time for core %s from kernel: %s", core, e
-                    )
+            for core, coretime in cgroups.read_usage_per_cpu().items():
+                result[f"cputime-cpu{core}"] = coretime
 
-        if MEMORY in cgroups:
-            # This measurement reads the maximum number of bytes of RAM+Swap the process used.
-            # For more details, c.f. the kernel documentation:
-            # https://www.kernel.org/doc/Documentation/cgroups/memory.txt
-            memUsageFile = "memsw.max_usage_in_bytes"
-            if not cgroups.has_value(MEMORY, memUsageFile):
-                memUsageFile = "max_usage_in_bytes"
-            if not cgroups.has_value(MEMORY, memUsageFile):
-                logging.warning("Memory-usage is not available due to missing files.")
-            else:
-                try:
-                    result["memory"] = int(cgroups.get_value(MEMORY, memUsageFile))
-                except OSError as e:
-                    if e.errno == errno.ENOTSUP:
-                        # kernel responds with operation unsupported if this is disabled
-                        logging.critical(
-                            "Kernel does not track swap memory usage, cannot measure memory usage."
-                            " Please set swapaccount=1 on your kernel command line."
-                        )
-                    else:
-                        raise e
+        if cgroups.MEMORY in cgroups:
+            store_result("memory", cgroups.read_max_mem_usage())
+            store_result("oom_kill_count", cgroups.read_oom_kill_count())
 
-        if BLKIO in cgroups:
-            blkio_bytes_file = "throttle.io_service_bytes"
-            if cgroups.has_value(BLKIO, blkio_bytes_file):
-                bytes_read = 0
-                bytes_written = 0
-                for blkio_line in cgroups.get_file_lines(BLKIO, blkio_bytes_file):
-                    try:
-                        dev_no, io_type, bytes_amount = blkio_line.split(" ")
-                        if io_type == "Read":
-                            bytes_read += int(bytes_amount)
-                        elif io_type == "Write":
-                            bytes_written += int(bytes_amount)
-                    except ValueError:
-                        pass  # There are irrelevant lines in this file with a different structure
-                result["blkio-read"] = bytes_read
-                result["blkio-write"] = bytes_written
+        if cgroups.IO in cgroups:
+            result["blkio-read"], result["blkio-write"] = cgroups.read_io_stat()
+
+        # Pressure information does not depend on enabled controllers:
+        # https://docs.kernel.org/accounting/psi.html
+        store_result("pressure-cpu-some", cgroups.read_cpu_pressure())
+        store_result("pressure-memory-some", cgroups.read_mem_pressure())
+        store_result("pressure-io-some", cgroups.read_io_pressure())
 
         logging.debug(
             "Resource usage of run: walltime=%s, cputime=%s, cgroup-cputime=%s, memory=%s",
@@ -1233,7 +1202,7 @@ class _TimelimitThread(threading.Thread):
         self.finished = threading.Event()
 
         if hardtimelimit or softtimelimit:
-            assert CPUACCT in cgroups
+            assert cgroups.CPU in cgroups
         assert walltimelimit is not None
 
         if cores:
@@ -1262,7 +1231,7 @@ class _TimelimitThread(threading.Thread):
 
     def run(self):
         while not self.finished.is_set():
-            usedCpuTime = self.read_cputime() if CPUACCT in self.cgroups else 0
+            usedCpuTime = self.read_cputime() if self.cgroups.CPU in self.cgroups else 0
             remainingCpuTime = self.timelimit - usedCpuTime
             remainingSoftCpuTime = self.softtimelimit - usedCpuTime
             remainingWallTime = self.latestKillTime - time.monotonic()

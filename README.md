@@ -57,8 +57,11 @@ Results from multiple runs can be combined into CSV and interactive HTML tables,
 of which the latter provide scatter and quantile plots
 (have a look at our [demo table](https://sosy-lab.github.io/benchexec/example-table/svcomp-simple-cbmc-cpachecker.table.html)).
 
-BenchExec works only on Linux and needs a one-time setup of cgroups by the machine's administrator.
-The actual benchmarking can be done by any user and does not need root access.
+On modern Linux systems (e.g., Debian 11, Ubuntu 22.04, etc.),
+BenchExec works out-of-the box and without the need for root access,
+not even for installation.
+On older Linux systems, a one-time setup of cgroups by the machine's administrator may be needed.
+The actual benchmarking can always be done by any user and does not need root access.
 
 BenchExec was originally developed for use with the software verification framework
 [CPAchecker](https://cpachecker.sosy-lab.org)
@@ -103,6 +106,7 @@ Contributors:
 - [Montgomery Carter](https://github.com/MontyCarter)
 - [Andreas Donig](https://github.com/adonig)
 - [Karlheinz Friedberger](https://www.sosy-lab.org/people/friedberger)
+- [Robin Gloster](https://github.com/globin)
 - Peter Häring
 - [Florian Heck](https://github.com/fheck)
 - [Hugo](https://github.com/hugovk)

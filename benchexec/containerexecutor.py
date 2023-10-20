@@ -24,7 +24,7 @@ import traceback
 from benchexec import __version__
 from benchexec import baseexecutor
 from benchexec import BenchExecException
-from benchexec.cgroups import Cgroup
+from benchexec.cgroups import Cgroups
 from benchexec import container
 from benchexec import libc
 from benchexec import util
@@ -253,6 +253,14 @@ def main(argv=None):
         default=None,
         help="use given GID within container (default: current UID)",
     )
+    parser.add_argument(
+        "--cgroup-access",
+        action="store_true",
+        help="Allow processes in the container to use cgroups. "
+        "This only works on cgroupsv2 systems and if containerexec is either started in"
+        " its own cgroup or can talk to systemd to create a cgroup (same requirements"
+        " as for runexec).",
+    )
     add_basic_container_args(parser)
     add_container_output_args(parser)
     baseexecutor.add_basic_executor_options(parser)
@@ -261,6 +269,7 @@ def main(argv=None):
     baseexecutor.handle_basic_executor_options(options, parser)
     logging.debug("This is containerexec %s.", __version__)
     container_options = handle_basic_container_args(options, parser)
+    container_options["cgroup_access"] = options.cgroup_access
     container_output_options = handle_container_output_args(options, parser)
 
     if options.root:
@@ -308,6 +317,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         dir_modes={"/": DIR_OVERLAY, "/run": DIR_HIDDEN, "/tmp": DIR_HIDDEN},
         container_system_config=True,
         container_tmpfs=True,
+        cgroup_access=False,
         *args,
         **kwargs,
     ):
@@ -323,6 +333,9 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         @param container_system_config: Whether to use a special system configuration in
             the container that disables all remote host and user lookups, sets a custom
             hostname, etc.
+        @param cgroup_access:
+            Whether to allow processes in the contain to access cgroups.
+            Only supported on systems with cgroupsv2.
         """
         super(ContainerExecutor, self).__init__(*args, **kwargs)
         self._use_namespaces = use_namespaces
@@ -389,6 +402,17 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 "threads please read https://github.com/sosy-lab/benchexec/issues/435"
             )
 
+        self._cgroups = Cgroups.dummy()
+        if cgroup_access:
+            self._cgroups = Cgroups.initialize(allowed_versions=[2])
+            if self._cgroups.version != 2:
+                sys.exit(
+                    "Cgroup access unsupported on this system, "
+                    "BenchExec only supports this for cgroupsv2."
+                )
+            if self._cgroups.CPU not in self._cgroups:
+                self._cgroups.handle_errors([self._cgroups.CPU])
+
     def _get_result_files_base(self, temp_dir):
         """Given the temp directory that is created for each run, return the path to the
         directory where files created by the tool are stored."""
@@ -434,6 +458,9 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         if environ is None:
             environ = os.environ.copy()
 
+        cgroups = self._cgroups.create_fresh_child_cgroup(
+            self._cgroups.subsystems.keys()
+        )
         pid = None
         returnvalue = 0
 
@@ -449,7 +476,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 root_dir=rootDir,
                 cwd=workingDir,
                 temp_dir=temp_dir,
-                cgroups=Cgroup({}),
+                cgroups=cgroups,
                 output_dir=output_dir,
                 result_files_patterns=result_files_patterns,
                 child_setup_fn=util.dummy_fn,
@@ -602,6 +629,8 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             root_dir = os.path.abspath(root_dir)
             cwd = os.path.abspath(cwd)
 
+        use_cgroup_ns = cgroups.version == 2
+
         def grandchild():
             """Setup everything inside the process that finally exec()s the tool."""
             try:
@@ -616,7 +645,6 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 my_outer_pid = container.get_my_pid_from_procfs()
 
                 container.mount_proc(self._container_system_config)
-                container.drop_capabilities()
                 container.reset_signal_handling()
                 child_setup_fn()  # Do some other setup the caller wants.
 
@@ -625,6 +653,14 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 os.write(to_parent, str(my_outer_pid).encode())
                 received = os.read(from_parent, 1)
                 assert received == MARKER_PARENT_COMPLETED, received
+
+                # Finalize setup
+                # We want to do as little as possible here because measurements are
+                # already running, but we can only setup the cgroup namespace
+                # once we are in the desired cgroup.
+                if use_cgroup_ns:
+                    container.setup_cgroup_namespace()
+                container.drop_capabilities()
             except BaseException as e:
                 # When using runexec, this logging will end up in the output.log file,
                 # where usually the tool output is. This is suboptimal, but probably
@@ -934,6 +970,13 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 grandchild_pid,
                 child_pid,
             )
+
+            # cgroups is the cgroups where we configure limits.
+            # So for isolation, we need to create a child cgroup that becomes the root
+            # of the cgroup ns, such that the limit settings are not accessible in the
+            # container and cannot be changed.
+            if use_cgroup_ns:
+                cgroups = cgroups.create_fresh_child_cgroup_for_delegation()
 
             # start measurements
             cgroups.add_task(grandchild_pid)
