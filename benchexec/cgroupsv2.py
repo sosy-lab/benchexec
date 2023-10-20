@@ -30,6 +30,16 @@ The following cgroup subsystems were required but are not usable: {}.
 Please enable them, e.g., by setting up delegation.
 The cgroup that we attempted to use was: {}"""
 
+_ERROR_MSG_MISSING_USER_DELEGATION = """
+In order to allow using all of BenchExec's features,
+systemd should be configured to delegate all cgroups to each user.
+To do so, run "sudo systemctl edit user@.service", insert the following lines, save and quit:
+
+[Service]
+# For BenchExec
+Delegate=yes
+"""
+
 _ERROR_MSG_MISSING_CPUSET = """
 The kernel has a bug where delegation of cpuset does not work if there are processes of other users in this user's cgroup.
 This happens commonly if xdg-document-portal is running while such delegation is attempted for the first time.
@@ -415,17 +425,20 @@ class CgroupsV2(Cgroups):
                 sys.exit(
                     _ERROR_MSG_UNKNOWN_SUBSYSTEMS.format(", ".join(unknown_subsystems))
                 )
-            elif critical_cgroups == {self.CPUSET}:
-                problem_cgroup = self.path
-                while self.CPUSET not in util.read_file(
-                    problem_cgroup, "cgroup.controllers"
-                ):
-                    problem_cgroup = problem_cgroup.parent
-                sys.exit(
-                    _ERROR_MSG_MISSING_CPUSET.format(
-                        problem_cgroup / "cgroup.subtree_control"
-                    )
-                )
+            elif systeminfo.has_systemd():
+                if critical_cgroups == {self.CPUSET}:
+                    problem_cgroup = self.path
+                    while self.CPUSET not in util.read_file(
+                        problem_cgroup, "cgroup.controllers"
+                    ):
+                        problem_cgroup = problem_cgroup.parent
+                    if problem_cgroup.name != "user.slice":
+                        sys.exit(
+                            _ERROR_MSG_MISSING_CPUSET.format(
+                                problem_cgroup / "cgroup.subtree_control"
+                            )
+                        )
+                sys.exit(_ERROR_MSG_MISSING_USER_DELEGATION)
             else:
                 sys.exit(
                     _ERROR_MSG_MISSING_SUBSYSTEMS.format(

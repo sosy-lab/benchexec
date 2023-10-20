@@ -177,11 +177,24 @@ sudo update-grub
 This applies for example for Ubuntu 21.10 and newer,
 Debian 11 and newer, and most other current Linux distributions.
 
+If you installed the Ubuntu/Debian package,
+everything should be taken care of and no manual steps are necessary.
+Otherwise, follow these instructions.
+
+By default, not all cgroups are delegated to each user,
+so only a restricted feature set of BenchExec would be available.
+To enabled delegation of all cgroup features, run
+`sudo systemctl edit user@.service`, insert the following lines, save and quit:
+
+    [Service]
+    # For BenchExec
+    Delegate=yes
+
+Apart from this one-time setup,
 BenchExec can use systemd to automatically take care of any necessary cgroup configuration,
 so no manual configuration is necessary.
 However, the Python package `pystemd` needs to be installed,
-which happens automatically if you installed our Ubuntu package
-including its recommended dependencies or `benchexec[systemd]` via pip.
+which happens automatically if you installed `benchexec[systemd]` via pip.
 If missing, install the package with `sudo apt install python3-pystemd`
 or `pip install pystemd` according to how you installed BenchExec.
 
