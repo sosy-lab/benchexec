@@ -9,6 +9,25 @@ SPDX-License-Identifier: Apache-2.0
 
 # BenchExec Changelog
 
+## BenchExec 3.18
+
+The big change in this release is the long-awaited support for cgroups v2!
+Please refer to the [installation instructions](https://github.com/sosy-lab/benchexec/blob/master/doc/INSTALL.md)
+for how to use it (on Ubuntu/Debian, installing our package is enough).
+Note that this of course has not been tested yet on as many different systems
+as our support for cgroups v1, so there might still be some rough edges.
+Please provide [feedback](https://github.com/sosy-lab/benchexec/issues/new)
+if you encounter any problems or have questions.
+On systems with cgroups v1, everything should work the same way as before.
+
+There are also some other minor improvements:
+
+- If the system administrator has configured a lower frequency limit
+  than what the CPU supports, BenchExec now reports this limit as the CPU speed.
+- Fixes in `table-generator` for result files that conform to the specification
+  but were not produced by `benchexec`.
+- A few minor improvements for better integration with Podman containers.
+
 ## BenchExec 3.17
 
 - Even more robust handling of child cgroups created within a run  
