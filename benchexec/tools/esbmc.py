@@ -6,10 +6,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import os
+import re
 from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, LP64
 import benchexec.tools.template
 import benchexec.result as result
-
 
 class Tool(benchexec.tools.template.BaseTool2):
     """
@@ -69,3 +69,22 @@ class Tool(benchexec.tools.template.BaseTool2):
                 status = "ERROR"
 
         return status
+    
+    def get_value_from_output(self, output, identifier):
+        regex = re.compile(identifier)
+        matches = list()
+
+        # Match first element of each line
+        for line in output:
+            match = regex.search(line.strip())
+            if match and len(match.groups()) >= 1:
+                matches.append(match.group(1))
+
+        if len(matches) == 1:
+            return matches[0]
+        elif len(matches) > 1:
+            total = 0
+            for x in matches:
+                total = total + float(x)
+            return str(total)
+        return None
