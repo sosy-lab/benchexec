@@ -66,11 +66,10 @@ class Tool(benchexec.tools.template.BaseTool2):
         @param rlimits: An instance of class ResourceLimits with the limits for this run
         @return a list of strings that represent the command line to execute
         """
-        return (
-            [executable, "--input_file", task.single_input_file]
-            + options
-            + get_data_model_from_task(task, {ILP32: ["--m32"], LP64: []})
-        )
+        data_model = get_data_model_from_task(task, {ILP32: ["--m32"], LP64: []})
+        if data_model is None:
+            data_model = []
+        return ([executable, "--input_file", task.single_input_file] + options + data_model)
 
     def determine_result(self, run):
         """
