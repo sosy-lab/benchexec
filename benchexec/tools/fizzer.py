@@ -13,7 +13,7 @@ import os
 
 class Tool(benchexec.tools.template.BaseTool2):
     """
-    Tool info for sbt-fizzer.
+    Tool info for fizzer.
     https://github.com/staticafi/sbt-fizzer
     """
 
@@ -26,7 +26,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         return "My Toolname"
         @return a non-empty string
         """
-        return "sbt-fizzer"
+        return "fizzer"
 
     def executable(self, tool_locator):
         """
