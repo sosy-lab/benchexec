@@ -711,9 +711,10 @@ class BaseTool(object):
         OPTIONAL, extract a statistic value from the output of the tool.
         This value will be added to the resulting tables.
         It may contain HTML code, which will be rendered appropriately in the HTML tables.
+        It can also be a numeric value, e.g., int, float, or decimal.Decimal.
         @param lines: The output of the tool as list of lines.
         @param identifier: The user-specified identifier for the statistic item.
-        @return a (possibly empty) string, optional with HTML tags
+        @return a (possibly empty) string, optional with HTML tags, or a numeric value
         """
 
     def working_directory(self, executable):

@@ -153,7 +153,9 @@ def is_url(path_or_url):
 
 
 def to_decimal(s):
-    if s:
+    if s is None:
+        return None
+    if isinstance(s, str):
         s = s.strip()
         if s.lower() in ["nan", "inf", "+inf", "-inf"]:
             return Decimal(s)
@@ -162,7 +164,7 @@ def to_decimal(s):
             s, _ = split_number_and_unit(s)
             return Decimal(s) if s else None
     else:
-        return None
+        return Decimal(s)
 
 
 def collapse_equal_values(values, counts):

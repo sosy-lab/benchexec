@@ -128,10 +128,12 @@ class TestUnit(unittest.TestCase):
             [1, 2, 3], util.find_common_elements([[1, 2, 3, 4], [1, 2, 3, 5]])
         )
 
-    def test_to_decimal(self):
+    def test_to_decimal_empty(self):
         self.assertIsNone(util.to_decimal(None))
         self.assertIsNone(util.to_decimal(""))
         self.assertIsNone(util.to_decimal(" "))
+
+    def test_to_decimal_str(self):
         self.assertTrue(util.to_decimal("NaN").is_nan())
         self.assertTrue(util.to_decimal(" NaN ").is_nan())
         self.assertEqual(Decimal("+Inf"), util.to_decimal("Inf"))
@@ -142,3 +144,8 @@ class TestUnit(unittest.TestCase):
         self.assertEqual(Decimal("1.234"), util.to_decimal(" 1.234 s "))
         self.assertEqual(Decimal("1.234"), util.to_decimal("+1.234"))
         self.assertEqual(Decimal("-1.234"), util.to_decimal("-1.234"))
+
+    def test_to_decimal_numeric(self):
+        self.assertEqual(Decimal("-1"), util.to_decimal(-1))
+        self.assertEqual(Decimal(-1.234), util.to_decimal(-1.234))
+        self.assertEqual(Decimal("-1.234"), util.to_decimal(Decimal("-1.234")))

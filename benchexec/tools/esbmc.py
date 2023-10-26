@@ -85,5 +85,5 @@ class Tool(benchexec.tools.template.BaseTool2):
         if len(matches) == 1:
             return matches[0]
         if len(matches) > 1:
-            return str(sum(decimal.Decimal(value) for value in matches))
+            return sum(decimal.Decimal(value) for value in matches)
         return None
