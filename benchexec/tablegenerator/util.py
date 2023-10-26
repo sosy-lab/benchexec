@@ -154,11 +154,12 @@ def is_url(path_or_url):
 
 def to_decimal(s):
     if s:
-        if s.lower() in ["nan", "inf", "-inf"]:
+        s = s.strip()
+        if s.lower() in ["nan", "inf", "+inf", "-inf"]:
             return Decimal(s)
         else:
-            # remove whitespaces and trailing units (e.g., in '1.23s')
-            s, _ = split_number_and_unit(s.strip())
+            # remove trailing units (e.g., in '1.23s')
+            s, _ = split_number_and_unit(s)
             return Decimal(s) if s else None
     else:
         return None
