@@ -10,6 +10,8 @@ import re
 from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, LP64
 import benchexec.tools.template
 import benchexec.result as result
+import decimal
+
 
 class Tool(benchexec.tools.template.BaseTool2):
     """
@@ -69,10 +71,10 @@ class Tool(benchexec.tools.template.BaseTool2):
                 status = "ERROR"
 
         return status
-    
+
     def get_value_from_output(self, output, identifier):
         regex = re.compile(identifier)
-        matches = list()
+        matches = []
 
         # Match first element of each line
         for line in output:
@@ -82,9 +84,6 @@ class Tool(benchexec.tools.template.BaseTool2):
 
         if len(matches) == 1:
             return matches[0]
-        elif len(matches) > 1:
-            total = 0
-            for x in matches:
-                total = total + float(x)
-            return str(total)
+        if len(matches) > 1:
+            return str(sum(decimal.Decimal(value) for value in matches))
         return None
