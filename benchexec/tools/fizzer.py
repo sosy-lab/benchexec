@@ -8,7 +8,6 @@
 import benchexec.tools.template
 import benchexec.result as result
 from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, LP64
-import os
 
 
 class Tool(benchexec.tools.template.BaseTool2):
@@ -26,7 +25,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         return "My Toolname"
         @return a non-empty string
         """
-        return "fizzer"
+        return "Fizzer"
 
     def executable(self, tool_locator):
         """
@@ -69,7 +68,9 @@ class Tool(benchexec.tools.template.BaseTool2):
         data_model = get_data_model_from_task(task, {ILP32: ["--m32"], LP64: []})
         if data_model is None:
             data_model = []
-        return ([executable, "--input_file", task.single_input_file] + options + data_model)
+        return (
+            [executable, "--input_file", task.single_input_file] + options + data_model
+        )
 
     def determine_result(self, run):
         """
