@@ -18,10 +18,6 @@ class Tool(BaseTool2):
     def executable(self, tool_locator):
         return tool_locator.find_executable("run-swat.sh")
 
-#    def version(self, executable):
-#        return '42'
-#        #return self._version_from_tool(executable, arg="-v")
-
     def name(self):
         return "SWAT"
 
@@ -32,7 +28,6 @@ class Tool(BaseTool2):
         return cmd + list(task.input_files)
 
     def determine_result(self, run):
-
         if run.output.any_line_contains("== ERROR-UNREACH-CALL"):
             return result.RESULT_FALSE_REACH
         elif run.output.any_line_contains("== ERROR"):
