@@ -11,14 +11,16 @@ from benchexec.tools.template import BaseTool2
 
 class Tool(BaseTool2):
     """
-    Tool info module for SWAT a tool ensemble for the dynamic symbolic execution of modern Java.
+    Tool info module for SWAT, a dynamic symbolic execution tool for Java 17.
+    SWAT is currently being developed by the Institute for IT Security at the University of Luebeck ( https://www.its.uni-luebeck.de/en/institute.html ).
     """
 
     def executable(self, tool_locator):
         return tool_locator.find_executable("run-swat.sh")
 
-    def version(self, executable):
-        return '42'
+#    def version(self, executable):
+#        return '42'
+#        #return self._version_from_tool(executable, arg="-v")
 
     def name(self):
         return "SWAT"
@@ -30,14 +32,14 @@ class Tool(BaseTool2):
         return cmd + list(task.input_files)
 
     def determine_result(self, run):
-        status = result.RESULT_ERROR
-        if run.output.any_line_contains("== ERROR-UNREACH-CALL"):
-            status = result.RESULT_FALSE_REACH
-        elif run.output.any_line_contains("== ERROR"):
-            status = result.RESULT_FALSE_PROP
-        elif run.output.any_line_contains("== OK"):
-            status = result.RESULT_TRUE_PROP
-        elif run.output.any_line_contains("== DONT-KNOW"):
-            status = result.RESULT_UNKNOWN
 
-        return status
+        if run.output.any_line_contains("== ERROR-UNREACH-CALL"):
+            return result.RESULT_FALSE_REACH
+        elif run.output.any_line_contains("== ERROR"):
+            return result.RESULT_FALSE_PROP
+        elif run.output.any_line_contains("== OK"):
+            return result.RESULT_TRUE_PROP
+        elif run.output.any_line_contains("== DONT-KNOW"):
+            return result.RESULT_UNKNOWN
+
+        return result.RESULT_ERROR
