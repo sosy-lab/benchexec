@@ -18,6 +18,8 @@ class Tool(benchexec.tools.template.BaseTool2):
     URL: https://people.eecs.berkeley.edu/~alanmi/abc/
     """
 
+    REQUIRED_PATHS = ["bin/", "abc.rc"]
+
     def executable(self, tool_locator):
         return tool_locator.find_executable("abc", subdir="bin")
 
@@ -27,6 +29,11 @@ class Tool(benchexec.tools.template.BaseTool2):
     def version(self, executable):
         return self._version_from_tool(
             executable, arg="-q version", line_prefix="UC Berkeley, ABC"
+        )
+
+    def program_files(self, executable):
+        return self._program_files_from_executable(
+            executable, self.REQUIRED_PATHS, parent_dir=True
         )
 
     def cmdline(self, executable, options, task, rlimits):

@@ -15,6 +15,8 @@ class Tool(benchexec.tools.template.BaseTool2):
     URL: https://github.com/aman-goel/avr
     """
 
+    REQUIRED_PATHS = ["build/"]
+
     def executable(self, tool_locator):
         return tool_locator.find_executable("avr.py")
 
