@@ -24,6 +24,11 @@ class Tool(benchexec.tools.template.BaseTool2):
     def name(self):
         return "ABC"
 
+    def version(self, executable):
+        return self._version_from_tool(
+            executable, arg="-q version", line_prefix="UC Berkeley, ABC"
+        )
+
     def cmdline(self, executable, options, task, rlimits):
         # The default read method in ABC cannot process uninitialized registers properly.
         # Therefore, a new read method `&r` (`&read`) is invoked here.
