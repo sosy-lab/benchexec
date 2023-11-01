@@ -48,4 +48,3 @@ class Tool(benchexec.tools.template.BaseTool2):
             if "Done : End analysis" in line:
                 return result.RESULT_DONE
         return result.RESULT_UNKNOWN
-        
