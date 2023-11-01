@@ -5,14 +5,14 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import benchexec.result as result
 import benchexec.tools.template
-import benchexec.model
-from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, LP64
+import benchexec.result as result
+
 
 class Tool(benchexec.tools.template.BaseTool2):
     """
-    Tool info for FDSE (https://github.com/zbchen/FDSE).
+    Tool info for FDSE.
+    https://github.com/zbchen/FDSE
     """
 
     def executable(self, tool_locator):
@@ -32,10 +32,6 @@ class Tool(benchexec.tools.template.BaseTool2):
             new_option += [f"--property-file={task.property_file}"]
         if rlimits.cputime:
             new_option += [f"-mt={rlimits.cputime}"]
-        data_model_param = get_data_model_from_task(task, {ILP32: "32", LP64: "64"})
-
-        if data_model_param and "--arch" not in options:
-            new_option += ["--arch=" + data_model_param]
 
         new_option += [f"-sf={task.single_input_file}"]
         return [executable] + new_option + options
