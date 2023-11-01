@@ -24,6 +24,12 @@ class Tool(benchexec.tools.template.BaseTool2):
         return "AVR"
 
     def cmdline(self, executable, options, task, rlimits):
+        from math import ceil
+
+        if rlimits.cputime and "--timeout" not in options:
+            options += ["--timeout", str(rlimits.cputime)]
+        if rlimits.memory and "--memout" not in options:
+            options += ["--memout", str(ceil(rlimits.memory / 1000000.0))]
         return [executable] + options + [task.single_input_file]
 
     def determine_result(self, run):
