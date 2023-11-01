@@ -13,7 +13,7 @@ import benchexec.result as result
 class Tool(benchexec.tools.template.BaseTool2):
     """
     Wrapper for a Predator - Hunting Party
-    http://www.fit.vutbr.cz/research/groups/verifit/tools/predator-hp/
+    https://www.fit.vutbr.cz/research/groups/verifit/tools/predatorhp/
     """
 
     def executable(self, tool_locator):
