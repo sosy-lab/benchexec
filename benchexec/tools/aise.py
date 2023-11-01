@@ -8,7 +8,6 @@
 import benchexec.result as result
 import benchexec.tools.template
 import benchexec.model
-from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, LP64
 
 
 class Tool(benchexec.tools.template.BaseTool2):
@@ -23,7 +22,6 @@ class Tool(benchexec.tools.template.BaseTool2):
         return self._program_files_from_executable(
             executable, self.REQUIRED_PATHS, parent_dir=True
         )
-
 
     def cmdline(self, executable, options, task, rlimits):
         return [executable] + options + list(task.input_files_or_identifier)
