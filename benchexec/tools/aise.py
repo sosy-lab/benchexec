@@ -12,25 +12,20 @@ import benchexec.model
 
 class Tool(benchexec.tools.template.BaseTool2):
     """
-    Tool info for AISE.
+    Tool info for AISE(https://github.com/ZhenWang233/AISE).
     """
 
     def executable(self, tool_locator):
         return tool_locator.find_executable("aise", subdir="bin")
 
-    def program_files(self, executable):
-        return self._program_files_from_executable(
-            executable, self.REQUIRED_PATHS, parent_dir=True
-        )
-
     def cmdline(self, executable, options, task, rlimits):
-        return [executable] + options + list(task.input_files_or_identifier)
+        return [executable] + options + [task.single_input_file]
 
     def name(self):
         return "AISE"
 
     def version(self, executable):
-        return "AISE 1.0.0"
+        return self._version_from_tool(executable, arg="--version")
 
     def determine_result(self, run):
         """
@@ -43,28 +38,25 @@ class Tool(benchexec.tools.template.BaseTool2):
         (e.g., "CRASH", "OUT_OF_MEMORY", etc.).
         """
         for line in run.output:
-            if line.startswith("KLEE: ERROR: "):
-                if line.find("ASSERTION FAIL:") != -1:
-                    return result.RESULT_FALSE_REACH
+            if line.startswith("KLEE: ERROR: ") and "ASSERTION FAIL:" in line:
+                return result.RESULT_FALSE_REACH
         for line in run.output:
             if line.startswith("CLAM ERROR:"):
-                return f"ERROR ({run.exit_code.value})"
-            if line.startswith("KLEE: WARNING"):
-                if line.find("silently concretizing") != -1:
-                    return result.RESULT_UNKNOWN
-            if line.startswith("KLEE: ERROR: "):
-                if line.find("memory error: out of bound pointer") != -1:
+                return result.RESULT_ERROR
+            elif line.startswith("KLEE: WARNING") and "silently concretizing" in line:
+                return result.RESULT_UNKNOWN
+            elif line.startswith("KLEE: ERROR: "):
+                if "memory error: out of bound pointer" in line:
                     return result.RESULT_FALSE_DEREF
-                elif line.find("overflow") != -1:
+                elif "overflow" in line:
                     return result.RESULT_FALSE_OVERFLOW
-                elif line.find("abort failure") != -1:
+                elif "abort failure" in line:
                     continue
-                elif line.find("concretized symbolic size") != -1:
+                elif "concretized symbolic size" in line:
                     return result.RESULT_UNKNOWN
                 else:
-                    return f"ERROR ({run.exit_code.value})"
-
-            if line.startswith("KLEE: done"):
+                    return result.RESULT_ERROR
+            elif line.startswith("KLEE: done"):
                 if "AISE_VERIFICATION_TRUE" in line:
                     return result.RESULT_TRUE_PROP
                 elif "AISE_VERIFICATION_FALSE" in line:
@@ -73,17 +65,3 @@ class Tool(benchexec.tools.template.BaseTool2):
                     return result.RESULT_UNKNOWN
                 return result.RESULT_DONE
         return result.RESULT_UNKNOWN
-
-    def get_value_from_output(self, lines, identifier):
-        # search for the text in output and get its value,
-        # stop after the first line, that contains the searched text
-        for line in lines:
-            if (
-                line.startswith("KLEE: done: ") or line.startswith("AISE: done: ")
-            ) and line.find(identifier + " = ") != -1:
-                startPosition = line.rfind("=") + 2
-                return line[startPosition:].strip()
-            elif line.find("Number of total " + identifier) != -1:
-                endPosition = line.find(" Number")
-                return line[0:endPosition].strip()
-        return None
