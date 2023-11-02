@@ -25,15 +25,13 @@ class Tool(benchexec.tools.template.BaseTool2):
         return "relay-sv"
 
     def cmdline(self, executable, options, task, rlimits):
-        return [executable, *options, *task.input_files]
+        return [executable, *options, task.single_input_file]
 
     def determine_result(self, run):
-        status = result.RESULT_ERROR
         if run.output:
             if run.output.any_line_contains("Possible race"):
-                status = result.RESULT_UNKNOWN
-            elif run.output.any_line_contains("Fatal error"):
-                status = result.RESULT_ERROR
+                return result.RESULT_UNKNOWN
+            elif run.output.any_line_contains("Total Warnings: 0"):
+                return result.RESULT_TRUE_PROP
             else:
-                status = result.RESULT_TRUE_PROP
-        return status
+                return result.RESULT_ERROR
