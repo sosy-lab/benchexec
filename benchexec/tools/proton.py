@@ -12,7 +12,7 @@ import benchexec.result as result
 
 class Tool(benchexec.tools.template.BaseTool2):
     """
-    PROTON -- intended to be shared in future  at : https://github.com/kumarmadhukar/term
+    PROTON --- https://github.com/kumarmadhukar/term
     """
 
     def executable(self, tool_locator):
@@ -39,7 +39,6 @@ class Tool(benchexec.tools.template.BaseTool2):
 
         status = result.RESULT_ERROR
         if run.exit_code.value in [0, 10] and len(output) > 0:
-            # SV-COMP mode
             result_str = output[-1].strip()
 
             if result_str == "TRUE":
