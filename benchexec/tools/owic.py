@@ -23,7 +23,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         return self._version_from_tool(executable, "--version")
 
     def name(self):
-        return "owic"
+        return "OWI"
 
     def cmdline(self, executable, options, task, _):
         if task.property_file:
