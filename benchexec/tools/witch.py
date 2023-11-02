@@ -19,4 +19,4 @@ class Tool(SymbioticTool):
         """
         Return the name of the tool, formatted for humans.
         """
-        return "Witch"
+        return "witch"
