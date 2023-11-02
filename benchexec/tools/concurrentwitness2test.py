@@ -9,6 +9,11 @@ import benchexec.tools.template
 
 
 class Tool(benchexec.tools.template.BaseTool2):
+    """
+    Tool info for ConcurrentWitness2Test: A violation witness validator for concurrent programs
+    URL: https://github.com/ftsrg/ConcurrentWitness2Test
+    """
+
     def executable(self, tool_locator):
         return tool_locator.find_executable("start.sh")
 
@@ -22,21 +27,20 @@ class Tool(benchexec.tools.template.BaseTool2):
         return [executable, task.single_input_file] + options
 
     def determine_result(self, run):
-        status = result.RESULT_UNKNOWN
         for line in run.output:
             if "Verdict: SOMETIMES" in line or "Verdict: ALWAYS" in line:
-                status = result.RESULT_FALSE_REACH
+                return result.RESULT_FALSE_REACH
             elif "Verdict: NEVER" in line:
-                status = result.RESULT_TRUE_PROP
+                return result.RESULT_TRUE_PROP
             elif "Verdict: TIMEOUT" in line:
-                status = result.RESULT_TIMEOUT + "(inner)"
+                return result.RESULT_TIMEOUT + "(inner)"
             elif "Verdict: Unknown error" in line:
-                status = result.RESULT_ERROR
+                return result.RESULT_ERROR
             elif "Verdict: Incompatible witness" in line:
-                status = result.RESULT_ERROR + "(Incompatible witness)"
+                return result.RESULT_ERROR + "(Incompatible witness)"
             elif "Verdict: Parsing failed" in line:
-                status = result.RESULT_ERROR + "(Parsing failed)"
+                return result.RESULT_ERROR + "(Parsing failed)"
             elif "Verdict: Compilation error" in line:
-                status = result.RESULT_ERROR + "(Compilation error)"
+                return result.RESULT_ERROR + "(Compilation error)"
 
-        return status
+        return result.RESULT_UNKNOWN
