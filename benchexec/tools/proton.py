@@ -47,7 +47,7 @@ class Tool(benchexec.tools.template.BaseTool2):
             elif "FALSE(termination)" in result_str:
                 status = result.RESULT_FALSE_TERMINATION
 
-            elif "UNKNOWN" in output:
+            elif "UNKNOWN" in result_str:
                 status = result.RESULT_UNKNOWN
 
             elif "INTERNAL-ERROR" in result_str:
@@ -58,8 +58,5 @@ class Tool(benchexec.tools.template.BaseTool2):
 
         elif run.exit_code.value == 64 and "Usage error!" in output:
             status = "INVALID ARGUMENTS"
-
-        else:
-            status = result.RESULT_ERROR
 
         return status
