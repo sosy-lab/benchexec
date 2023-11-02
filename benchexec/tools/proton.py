@@ -12,7 +12,7 @@ import benchexec.result as result
 
 class Tool(benchexec.tools.template.BaseTool2):
     """
-    PROTON
+    PROTON -- intended to be shared in future  at : https://github.com/kumarmadhukar/term
     """
 
     def executable(self, tool_locator):
@@ -32,34 +32,28 @@ class Tool(benchexec.tools.template.BaseTool2):
         if data_model_param and data_model_param not in options:
             options += [data_model_param]
 
-        self.options = options
-
-        return [executable] + options + list(task.input_files_or_identifier)
+        return [executable] + options + [task.single_input_file]
 
     def determine_result(self, run):
         output = run.output
 
-        if run.exit_code.value in [0, 10]:
-            status = result.RESULT_ERROR
-            if len(output) > 0:
-                # SV-COMP mode
-                result_str = output[-1].strip()
+        status = result.RESULT_ERROR
+        if run.exit_code.value in [0, 10] and len(output) > 0:
+            # SV-COMP mode
+            result_str = output[-1].strip()
 
-                if result_str == "TRUE":
-                    status = result.RESULT_TRUE_PROP
-                elif "FALSE" in result_str:
-                    if result_str == "FALSE(termination)":
-                        status = result.RESULT_FALSE_TERMINATION
-                    else:
-                        status = result.RESULT_FALSE_REACH
-                elif "UNKNOWN" in output:
-                    status = result.RESULT_UNKNOWN
+            if result_str == "TRUE":
+                status = result.RESULT_TRUE_PROP
+            elif "FALSE" in result_str:
+                if result_str == "FALSE(termination)":
+                    status = result.RESULT_FALSE_TERMINATION
+                else:
+                    status = result.RESULT_FALSE_REACH
+            elif "UNKNOWN" in output:
+                status = result.RESULT_UNKNOWN
 
         elif run.exit_code.value == 64 and "Usage error!" in output:
             status = "INVALID ARGUMENTS"
-
-        elif run.exit_code.value == 6 and "Out of memory" in output:
-            status = "OUT OF MEMORY"
 
         elif run.exit_code.value == 6:
             status = "OUT-OF-MEMORY or INTERNAL-ERROR"
