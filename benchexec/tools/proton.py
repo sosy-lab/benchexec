@@ -61,7 +61,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         elif run.exit_code.value == 6 and "Out of memory" in output:
             status = "OUT OF MEMORY"
 
-        elif run.exit_code.value == 6 and "SAT or SMT checker error: out-of-memory or internal-error" in output:
+        elif run.exit_code.value == 6:
             status = "OUT-OF-MEMORY or INTERNAL-ERROR"
 
         else:
