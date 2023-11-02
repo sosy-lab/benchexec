@@ -18,11 +18,23 @@ class Tool(benchexec.tools.template.BaseTool2):
     URL: https://people.eecs.berkeley.edu/~alanmi/abc/
     """
 
+    REQUIRED_PATHS = ["bin/", "abc.rc"]
+
     def executable(self, tool_locator):
         return tool_locator.find_executable("abc", subdir="bin")
 
     def name(self):
         return "ABC"
+
+    def version(self, executable):
+        return self._version_from_tool(
+            executable, arg="-q version", line_prefix="UC Berkeley, ABC"
+        )
+
+    def program_files(self, executable):
+        return self._program_files_from_executable(
+            executable, self.REQUIRED_PATHS, parent_dir=True
+        )
 
     def cmdline(self, executable, options, task, rlimits):
         # The default read method in ABC cannot process uninitialized registers properly.
@@ -39,7 +51,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         """
         if run.was_timeout:
             return result.RESULT_TIMEOUT
-        for line in run.output:
+        for line in run.output[::-1]:
             if line.startswith("Property proved") or line.startswith(
                 "Networks are equivalent"
             ):
