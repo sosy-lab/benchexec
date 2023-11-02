@@ -7,6 +7,7 @@
 
 import benchexec.result as result
 import benchexec.tools.template
+from math import ceil
 
 
 class Tool(benchexec.tools.template.BaseTool2):
@@ -24,8 +25,6 @@ class Tool(benchexec.tools.template.BaseTool2):
         return "AVR"
 
     def cmdline(self, executable, options, task, rlimits):
-        from math import ceil
-
         if rlimits.cputime and "--timeout" not in options:
             options += ["--timeout", str(rlimits.cputime)]
         if rlimits.memory and "--memout" not in options:
