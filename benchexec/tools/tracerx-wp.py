@@ -17,7 +17,7 @@ class Tool(benchexec.tools.template.BaseTool2):
     """
 
     def executable(self, tool_locator):
-        return tool_locator.find_executable("tracerx", subdir="bin")
+        return tool_locator.find_executable("tracerx-wp", subdir="bin")
 
     def program_files(self, executable):
         return self._program_files_from_executable(
@@ -56,7 +56,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         return [executable] + options + list(task.input_files_or_identifier)
 
     def name(self):
-        return "TracerX-Del"
+        return "TracerX-WP"
 
     def determine_result(self, run):
         """
