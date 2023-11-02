@@ -12,7 +12,7 @@ import benchexec.result as result
 class Tool(benchexec.tools.template.BaseTool2):
     """
     Tool info for FDSE.
-    https://github.com/zbchen/FDSE (now is private)
+    https://github.com/passengerZ/FDSE
     """
 
     def executable(self, tool_locator):
