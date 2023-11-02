@@ -135,16 +135,27 @@ def _prepare_benchmark_setup_data(
     # It is used for calculating the column spans of the header cells.
     runSetWidths = [len(runSetResult.columns) for runSetResult in runSetResults]
 
-    def get_row(rowName, format_string, collapse=False, onlyIf=None, default="Unknown"):
-        def format_cell(attributes):
-            if onlyIf and onlyIf not in attributes:
-                formatStr = default
-            else:
-                formatStr = format_string
-            return formatStr.format_map(collections.defaultdict(str, attributes))
+    def format_string_cell(attributes, format_string, onlyIf=None, default="Unknown"):
+        if onlyIf and onlyIf not in attributes:
+            formatStr = default
+        else:
+            formatStr = format_string
+        return formatStr.format_map(collections.defaultdict(str, attributes))
 
+    def tool_data_cell(attributes):
+        keys = ["tool", "version"]
+        return {k: str(attributes[k]) for k in keys if attributes.get(k)}
+
+    def get_row(
+        rowName,
+        *format_args,
+        cell_format=format_string_cell,
+        collapse=False,
+        **format_kwargs,
+    ):
         values = [
-            format_cell(runSetResult.attributes) for runSetResult in runSetResults
+            cell_format(runSetResult.attributes, *format_args, **format_kwargs)
+            for runSetResult in runSetResults
         ]
         if not any(values):
             return None  # skip row without values completely
@@ -183,7 +194,7 @@ def _prepare_benchmark_setup_data(
             )
 
     return {
-        "tool": get_row("Tool", "{tool} {version}", collapse=True),
+        "tool": get_row("Tool", cell_format=tool_data_cell, collapse=True),
         "displayName": get_row("Benchmark", "{displayName}", collapse=True),
         "limit": get_row(
             "Limits",
