@@ -17,7 +17,7 @@ class Tool(benchexec.tools.template.BaseTool2):
     """
 
     def executable(self, tool_locator):
-        return tool_locator.find_executable("kleenok", subdir="bin")
+        return tool_locator.find_executable("kleef", subdir="bin")
 
     def program_files(self, executable):
         return self._program_files_from_executable(
