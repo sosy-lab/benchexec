@@ -17,7 +17,6 @@ import benchexec.tools.template
 class Tool(benchexec.tools.template.BaseTool2):
     """
     Tool info for CPAchecker, the Configurable Software-Verification Platform.
-    URL: https://cpachecker.sosy-lab.org/
 
     Both binary and source distributions of CPAchecker are supported.
     If the source of CPAchecker is present, it is checked wether the compiled binaries
@@ -81,6 +80,9 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def name(self):
         return "CPAchecker"
+
+    def project_url(self):
+        return "https://cpachecker.sosy-lab.org/"
 
     def _get_additional_options(self, existing_options, task, rlimits):
         options = []

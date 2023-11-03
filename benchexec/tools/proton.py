@@ -12,7 +12,7 @@ import benchexec.result as result
 
 class Tool(benchexec.tools.template.BaseTool2):
     """
-    PROTON --- https://github.com/kumarmadhukar/term
+    PROTON
     """
 
     def executable(self, tool_locator):
@@ -23,6 +23,9 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def name(self):
         return "PROTON"
+
+    def project_url(self):
+        return "https://github.com/kumarmadhukar/term"
 
     def cmdline(self, executable, options, task, rlimits):
         if task.property_file:

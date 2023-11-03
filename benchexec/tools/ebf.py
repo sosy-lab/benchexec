@@ -14,7 +14,6 @@ import benchexec.result as result
 class Tool(benchexec.tools.template.BaseTool2):
     """
     This class serves as tool adaptor for EBF
-    https://github.com/fatimahkj/EBF
     """
 
     def executable(self, tool_locator):
@@ -29,6 +28,9 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def name(self):
         return "EBF"
+
+    def project_url(self):
+        return "https://github.com/fatimahkj/EBF"
 
     def cmdline(self, executable, options, task, rlimits):
         data_model_param = get_data_model_from_task(task, {ILP32: "32", LP64: "64"})

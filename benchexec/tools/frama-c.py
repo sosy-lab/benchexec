@@ -12,7 +12,6 @@ import benchexec.tools.template
 class Tool(benchexec.tools.template.BaseTool):
     """
     Tool info for Frama-C.
-    URL: https://frama-c.com/
     """
 
     REQUIRED_PATHS = ["bin", "lib", "share"]
@@ -30,6 +29,9 @@ class Tool(benchexec.tools.template.BaseTool):
 
     def name(self):
         return "Frama-C"
+
+    def project_url(self):
+        return "https://frama-c.com/"
 
     def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
         # Always put task input files before first occurrence of '-then*' parameters

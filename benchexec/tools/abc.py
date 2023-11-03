@@ -15,7 +15,6 @@ import benchexec.tools.template
 class Tool(benchexec.tools.template.BaseTool2):
     """
     Tool info for ABC: A System for Sequential Synthesis and Verification
-    URL: https://people.eecs.berkeley.edu/~alanmi/abc/
     """
 
     REQUIRED_PATHS = ["bin/", "abc.rc"]
@@ -25,6 +24,9 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def name(self):
         return "ABC"
+
+    def project_url(self):
+        return "https://people.eecs.berkeley.edu/~alanmi/abc/"
 
     def version(self, executable):
         return self._version_from_tool(

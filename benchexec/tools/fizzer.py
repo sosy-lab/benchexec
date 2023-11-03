@@ -13,7 +13,6 @@ from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, 
 class Tool(benchexec.tools.template.BaseTool2):
     """
     Tool info for fizzer.
-    https://github.com/staticafi/sbt-fizzer
     """
 
     REQUIRED_PATHS = ["lib", "lib32", "tools"]
@@ -26,6 +25,9 @@ class Tool(benchexec.tools.template.BaseTool2):
         @return a non-empty string
         """
         return "Fizzer"
+
+    def project_url(self):
+        return "https://github.com/staticafi/sbt-fizzer"
 
     def executable(self, tool_locator):
         """

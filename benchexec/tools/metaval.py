@@ -52,6 +52,9 @@ class Tool(benchexec.tools.template.BaseTool2):
     def name(self):
         return "MetaVal"
 
+    def project_url(self):
+        return "https://gitlab.com/sosy-lab/software/metaval"
+
     def determine_result(self, run):
         verifierDir = None
         regex = re.compile("verifier used in MetaVal is (.*)")

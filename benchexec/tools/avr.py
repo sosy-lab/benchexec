@@ -13,7 +13,6 @@ from math import ceil
 class Tool(benchexec.tools.template.BaseTool2):
     """
     Tool info for AVR -- Abstractly Verifying Reachability
-    URL: https://github.com/aman-goel/avr
     """
 
     REQUIRED_PATHS = ["build/"]
@@ -23,6 +22,9 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def name(self):
         return "AVR"
+
+    def project_url(self):
+        return "https://github.com/aman-goel/avr"
 
     def cmdline(self, executable, options, task, rlimits):
         if rlimits.cputime and "--timeout" not in options:

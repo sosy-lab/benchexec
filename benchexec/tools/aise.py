@@ -12,7 +12,7 @@ import benchexec.model
 
 class Tool(benchexec.tools.template.BaseTool2):
     """
-    Tool info for AISE(https://github.com/ZhenWang233/AISE).
+    Tool info for AISE.
     """
 
     def executable(self, tool_locator):
@@ -23,6 +23,9 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def name(self):
         return "AISE"
+
+    def project_url(self):
+        return "https://github.com/ZhenWang233/AISE"
 
     def version(self, executable):
         return self._version_from_tool(executable, arg="--version")

@@ -12,7 +12,7 @@ from benchexec.tools.template import BaseTool2
 class Tool(BaseTool2):
     """
     Tool info module for SWAT, a dynamic symbolic execution tool for Java 17.
-    SWAT is currently being developed by the Institute for IT Security at the University of Luebeck ( https://www.its.uni-luebeck.de/en/institute.html ).
+    SWAT is currently being developed by the Institute for IT Security at the University of Luebeck.
     """
 
     def executable(self, tool_locator):
@@ -20,6 +20,9 @@ class Tool(BaseTool2):
 
     def name(self):
         return "SWAT"
+
+    def project_url(self):
+        return "https://www.its.uni-luebeck.de/en/institute.html"
 
     def cmdline(self, executable, options, task, rlimits):
         cmd = [executable] + options

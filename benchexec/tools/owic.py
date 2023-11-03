@@ -13,7 +13,7 @@ from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, 
 
 class Tool(benchexec.tools.template.BaseTool2):
     """
-    This class serves as tool adaptor for OWI (https://github.com/OCamlPro/owi)
+    This class serves as tool adaptor for OWI
     """
 
     def executable(self, tool_locator):
@@ -24,6 +24,9 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def name(self):
         return "OWI"
+
+    def project_url(self):
+        return "https://github.com/OCamlPro/owi"
 
     def cmdline(self, executable, options, task, _):
         if task.property_file:

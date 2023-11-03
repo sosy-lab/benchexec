@@ -11,7 +11,6 @@ import benchexec.tools.template
 class Tool(benchexec.tools.template.BaseTool2):
     """
     Tool info for ConcurrentWitness2Test: A violation witness validator for concurrent programs
-    URL: https://github.com/ftsrg/ConcurrentWitness2Test
     """
 
     def executable(self, tool_locator):
@@ -19,6 +18,9 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def name(self):
         return "ConcurrentWitness2Test"
+
+    def project_url(self):
+        return "https://github.com/ftsrg/ConcurrentWitness2Test"
 
     def version(self, executable):
         return self._version_from_tool(executable)

@@ -12,7 +12,6 @@ import benchexec.tools.template
 class Tool(benchexec.tools.template.BaseTool2):
     """
     Tool info for CPV: A circuit-based program verifier for C
-    URL: https://doi.org/10.5281/zenodo.10063681
     """
 
     REQUIRED_PATHS = [
@@ -26,6 +25,9 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def name(self):
         return "CPV"
+
+    def project_url(self):
+        return "https://doi.org/10.5281/zenodo.10063681"
 
     def version(self, executable):
         return self._version_from_tool(executable)

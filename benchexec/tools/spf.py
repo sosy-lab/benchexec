@@ -13,7 +13,6 @@ import benchexec.result as result
 class Tool(benchexec.tools.template.BaseTool):
     """
     Tool info for JPF with symbolic extension (SPF)
-    (https://github.com/symbolicpathfinder).
     """
 
     REQUIRED_PATHS = [
@@ -31,6 +30,9 @@ class Tool(benchexec.tools.template.BaseTool):
 
     def name(self):
         return "SPF"
+
+    def project_url(self):
+        return "https://github.com/symbolicpathfinder"
 
     def version(self, executable):
         output = self._version_from_tool(executable, arg="--version")

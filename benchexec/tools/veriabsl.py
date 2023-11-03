@@ -11,7 +11,6 @@ from . import veriabs
 class Tool(veriabs.Tool):
     """
     VeriAbsL
-    Homepage: https://www.tcs.com/designing-complex-intelligent-systems
     """
 
     def name(self):

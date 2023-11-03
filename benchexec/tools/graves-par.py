@@ -18,7 +18,6 @@ class Tool(coveriteam.Tool):
     """
     Tool infor for Graves, a verifier selector based on Graph Neural Networks
     We inherit Coveriteam's infrastructure.
-    URL: https://github.com/mgerrard/graves-par
     """
 
     REQUIRED_PATHS = [
@@ -32,6 +31,9 @@ class Tool(coveriteam.Tool):
 
     def name(self):
         return "Graves-Par"
+
+    def project_url(self):
+        return "https://github.com/mgerrard/graves-par"
 
     def executable(self, tool_locator):
         return tool_locator.find_executable("graves.py")
