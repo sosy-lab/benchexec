@@ -143,7 +143,7 @@ def _prepare_benchmark_setup_data(
         return formatStr.format_map(collections.defaultdict(str, attributes))
 
     def tool_data_cell(attributes):
-        keys = ["tool", "version"]
+        keys = ["tool", "version", "project_url", "version_url"]
         return {k: str(attributes[k]) for k in keys if attributes.get(k)}
 
     def get_row(

@@ -33,10 +33,27 @@ const Summary = (props) => {
     ));
   };
 
-  const renderToolNameAndVersion = ({ tool, version }) => {
+  const externalLink = (url, text) => {
+    if (url) {
+      return (
+        <a href={url} target="_blank" rel="noopener noreferrer">
+          {text}
+        </a>
+      );
+    } else {
+      return text;
+    }
+  };
+
+  const renderToolNameAndVersion = ({
+    tool,
+    version,
+    project_url,
+    version_url,
+  }) => {
     return (
       <>
-        {tool} {version}
+        {externalLink(project_url, tool)} {externalLink(version_url, version)}
       </>
     );
   };
