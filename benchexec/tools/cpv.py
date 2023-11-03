@@ -16,19 +16,25 @@ class Tool(benchexec.tools.template.BaseTool2):
     """
 
     REQUIRED_PATHS = [
+        "bin/",
         "hw-verifiers/",
         "kratos2/",
         "witness.tmpl",
     ]
 
     def executable(self, tool_locator):
-        return tool_locator.find_executable("cpv.py")
+        return tool_locator.find_executable("cpv", subdir="bin")
 
     def name(self):
         return "CPV"
 
     def version(self, executable):
         return self._version_from_tool(executable)
+
+    def program_files(self, executable):
+        return self._program_files_from_executable(
+            executable, self.REQUIRED_PATHS, parent_dir=True
+        )
 
     def cmdline(self, executable, options, task, rlimits):
         assert task.options.get("language") == "C"
