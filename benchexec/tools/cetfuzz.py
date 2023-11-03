@@ -15,6 +15,18 @@ class Tool(benchexec.tools.template.BaseTool2):
     Tool info for CETFUZZ
     An Automatic Test Suit Generator
     URL: https://zenodo.org/records/10065857
+
+    Testing tool namely cetfuzz for testing C programs. Our tool uses AFL++, a
+    genetic algorithm based fuzz test generator as a basic building block.
+    AFL++ is parameterised to enable a user to configure fuzzing by assigning
+    permissible values to its parameters. It supports several parameters yielding
+    to a large number of configurations. Finding an optimal configuration for
+    maximising given test objective (specified via a property) for a given C
+    program is a challenging task. We have selected 20 most important  AFL++
+    configurations based on some heuristics. We trained a supervised model that
+    can infer one out of the 20 as the best configurations for the given
+    test objective and the program. We use AFL++ to fuzz the program with
+    the suggested configuration and output the test vectors for validation.
     """
 
     REQUIRED_PATH = [
