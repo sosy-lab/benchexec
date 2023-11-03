@@ -14,7 +14,8 @@ class Tool(benchexec.tools.template.BaseTool2):
     """
     Tool info for CETFUZZ
     An Automatic Test Suit Generator
-    URL: https://zenodo.org/records/10065857
+    URL: https://gitlab.com/Sarathkrishnan/cetfuzz
+         https://zenodo.org/records/10065857
 
     Testing tool namely cetfuzz for testing C programs. Our tool uses AFL++, a
     genetic algorithm based fuzz test generator as a basic building block.
@@ -39,11 +40,6 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def version(self, executable):
         return self._version_from_tool(executable, use_stderr=True)
-
-    def program_files(self, executable):
-        return self._program_files_from_executable(
-            executable, self.REQUIRED_PATHS, parent_dir=True
-        )
 
     def name(self):
         return "cetfuzz"
