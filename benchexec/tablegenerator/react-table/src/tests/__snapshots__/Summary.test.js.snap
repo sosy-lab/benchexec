@@ -800,7 +800,13 @@ exports[`Render Summary for big-table.diff.html 1`] = `
       >
        CPAchecker
       </a>
-      trunk:18107
+      <a
+       href="https://svn.sosy-lab.org/trac/cpachecker/browser/CPAchecker/trunk/?rev=18107"
+       rel="noopener noreferrer"
+       target="_blank"
+      >
+       trunk:18107
+      </a>
      </td>
      <td
       className="header__tool-rowfalse"

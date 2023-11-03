@@ -78,6 +78,42 @@ class Tool(benchexec.tools.template.BaseTool2):
         version = self._version_from_tool(executable, "-help", line_prefix="CPAchecker")
         return version.split("(")[0].strip()
 
+    def url_for_version(self, version):
+        if ":" in version:
+            # Revision from VerifierCloud WebClient like "trunk:44918"
+            branch, revision = version.split(":", maxsplit=1)
+            if branch != "trunk":
+                branch = f"branches/{branch}"
+            return f"https://svn.sosy-lab.org/trac/cpachecker/browser/CPAchecker/{branch}/?rev={revision}"
+
+        elif re.fullmatch("[0-9.]+", version):
+            # Release version like "2.2.1"
+            return f"https://svn.sosy-lab.org/trac/cpachecker/browser/CPAchecker/tags/cpachecker-{version}/"
+
+        elif re.fullmatch("[0-9.]+-svn [0-9]{1,5}", version):
+            # Old development version like "1.7-svn 20000"
+            # Could end in "M", but then has local changes and we do not want a link.
+            version = version.rsplit(" ", maxsplit=1)[-1]
+            return f"https://svn.sosy-lab.org/trac/cpachecker/browser/CPAchecker/trunk/?rev={version}"
+
+        elif re.fullmatch("[0-9.]+-svn-[0-9]{5}", version):
+            # Recent development version like "2.0-svn-30000"
+            # Could end in "M", but then has local changes and we do not want a link.
+            version = version.rsplit("-", maxsplit=1)[-1]
+            return f"https://svn.sosy-lab.org/trac/cpachecker/browser/CPAchecker/trunk/?rev={version}"
+
+        elif re.fullmatch("[0-9.]+-svn-[0-9a-f]{6,}", version):
+            # Development version with git commit like "2.2.1-svn-9743f6eae7"
+            # Could end in "+", but then has local changes and we do not want a link.
+            version = version.rsplit("-", maxsplit=1)[-1]
+            return f"https://gitlab.com/sosy-lab/software/cpachecker/-/tree/{version}"
+
+        elif re.fullmatch("[0-9a-f]{40}", version):
+            # Full git hash produced by VerifierCloud WebClient
+            return f"https://gitlab.com/sosy-lab/software/cpachecker/-/tree/{version}"
+
+        return None
+
     def name(self):
         return "CPAchecker"
 
