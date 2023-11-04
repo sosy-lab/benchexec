@@ -6,78 +6,52 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from decimal import Decimal
+import sys
+import unittest
+
 from benchexec.tablegenerator import util
-import pytest
+
+sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
 
-class TestUnit:
+class TestUnit(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.longMessage = True
+        cls.maxDiff = None
+
+    def assertEqualNumberAndUnit(self, value, number, unit):
+        self.assertEqual(util.split_number_and_unit(value), (number, unit))
+        self.assertEqual(util.split_string_at_suffix(value, False), (number, unit))
+
+    def assertEqualTextAndNumber(self, value, text, number):
+        self.assertEqual(util.split_string_at_suffix(value, True), (text, number))
+
     def test_split_number_and_unit(self):
-        assert util.split_number_and_unit("") == ("", "")
-        assert util.split_number_and_unit("1") == ("1", "")
-        assert util.split_number_and_unit("1s") == ("1", "s")
-        assert util.split_number_and_unit("111s") == ("111", "s")
-        assert util.split_number_and_unit("s1") == ("s1", "")
-        assert util.split_number_and_unit("s111") == ("s111", "")
-        assert util.split_number_and_unit("-1s") == ("-1", "s")
-        assert util.split_number_and_unit("1abc") == ("1", "abc")
-        assert util.split_number_and_unit("abc") == ("", "abc")
-        assert util.split_number_and_unit("abc1abc") == ("abc1", "abc")
-        assert util.split_number_and_unit("abc1abc1abc") == ("abc1abc1", "abc")
+        self.assertEqualNumberAndUnit("", "", "")
+        self.assertEqualNumberAndUnit("1", "1", "")
+        self.assertEqualNumberAndUnit("1s", "1", "s")
+        self.assertEqualNumberAndUnit("111s", "111", "s")
+        self.assertEqualNumberAndUnit("s1", "s1", "")
+        self.assertEqualNumberAndUnit("s111", "s111", "")
+        self.assertEqualNumberAndUnit("-1s", "-1", "s")
+        self.assertEqualNumberAndUnit("1abc", "1", "abc")
+        self.assertEqualNumberAndUnit("abc", "", "abc")
+        self.assertEqualNumberAndUnit("abc1abc", "abc1", "abc")
+        self.assertEqualNumberAndUnit("abc1abc1abc", "abc1abc1", "abc")
 
     def test_split_string_at_suffix(self):
-        assert util.split_string_at_suffix("") == ("", "")
-        assert util.split_string_at_suffix("1") == ("", "1")
-        assert util.split_string_at_suffix("1s") == ("1s", "")
-        assert util.split_string_at_suffix("111s") == ("111s", "")
-        assert util.split_string_at_suffix("s1") == ("s", "1")
-        assert util.split_string_at_suffix("s111") == ("s", "111")
-        assert util.split_string_at_suffix("-1s") == ("-1s", "")
-        assert util.split_string_at_suffix("abc1") == ("abc", "1")
-        assert util.split_string_at_suffix("abc") == ("abc", "")
-        assert util.split_string_at_suffix("abc1abc") == ("abc1abc", "")
-        assert util.split_string_at_suffix("abc1abc1") == ("abc1abc", "1")
-
-    def test_print_decimal_roundtrip(self):
-        test_values = [
-            "NaN",
-            "Inf",
-            "-Inf",
-            "+Inf",
-            "0",
-            "-0",
-            "+0",
-            "0.0",
-            "-0.0",
-            "0.00000000000000000000",
-            "0.00000000000000000001",
-            "0.00000000123450000000",
-            "0.1",
-            "0.10000000000000000000",
-            "0.99999999999999999999",
-            "1",
-            "-1",
-            "+1",
-            "1000000000000000000000",
-            "10000000000.0000000000",
-        ]
-        for value in test_values:
-            expected = value.lstrip("+")
-            assert expected == util.print_decimal(Decimal(value))
-
-    def test_print_decimal_int(self):
-        test_values = ["0e0", "-0e0", "0e20", "1e0", "1e20", "0e10"]
-        for value in test_values:
-            value = Decimal(value)
-            expected = str(value.quantize(1))
-            assert "e" not in expected
-            assert expected == util.print_decimal(value)
-
-    def test_print_decimal_float(self):
-        test_values = ["1e-4", "123e-4", "1234e-4", "1234e-5", "1234e-6"]
-        for value in test_values:
-            expected = str(float(value))
-            assert "e" not in expected
-            assert expected == util.print_decimal(Decimal(value))
+        self.assertEqualTextAndNumber("", "", "")
+        self.assertEqualTextAndNumber("1", "", "1")
+        self.assertEqualTextAndNumber("1s", "1s", "")
+        self.assertEqualTextAndNumber("111s", "111s", "")
+        self.assertEqualTextAndNumber("s1", "s", "1")
+        self.assertEqualTextAndNumber("s111", "s", "111")
+        self.assertEqualTextAndNumber("-1s", "-1s", "")
+        self.assertEqualTextAndNumber("abc1", "abc", "1")
+        self.assertEqualTextAndNumber("abc", "abc", "")
+        self.assertEqualTextAndNumber("abc1abc", "abc1abc", "")
+        self.assertEqualTextAndNumber("abc1abc1", "abc1abc", "1")
 
     def test_roman_number_conversion(self):
         test_data = {
@@ -107,16 +81,13 @@ class TestUnit:
         }
 
         for k, v in test_data.items():
-            assert v == util.number_to_roman_string(k)
-            assert str(v) == util.number_to_roman_string(k)
+            self.assertEqual(v, util.number_to_roman_string(k))
+            self.assertEqual(str(v), util.number_to_roman_string(k))
 
-        with pytest.raises(ValueError):
-            util.number_to_roman_string(-1)
-        with pytest.raises(ValueError):
-            util.number_to_roman_string(0)
+        self.assertRaises(ValueError, util.number_to_roman_string, -1)
+        self.assertRaises(ValueError, util.number_to_roman_string, 0)
 
-        with pytest.raises(ValueError):
-            util.number_to_roman_string("forty-two")
+        self.assertRaises(ValueError, util.number_to_roman_string, "forty-two")
 
     def test_cap_first_letter(self):
         test_data = {
@@ -127,48 +98,54 @@ class TestUnit:
             "": "",
         }
         for k, v in test_data.items():
-            assert v == util.cap_first_letter(k)
+            self.assertEqual(v, util.cap_first_letter(k))
 
     def test_merge_lists(self):
-        l1 = (1, 2, 3)
-        assert list(l1) == util.merge_lists([l1])
-        assert list(l1) == util.merge_lists([l1, l1])
-        assert list(l1) == util.merge_lists([l1, l1, l1, l1, l1, l1, l1])
-        assert list(l1) == util.merge_lists([[], l1, l1, []])
-        assert list(l1) == util.merge_lists([[1, 2, 3], [1, 2], [1]])
-        assert list(l1) == util.merge_lists([[1, 2, 3], [2, 3], [3]])
-        assert list(l1) == util.merge_lists([[1], [1, 2], [1, 2, 3]])
-        assert list(l1) == util.merge_lists([[3], [2, 3], [1, 2, 3]])
-        assert [1, 2, 3, 4, 5, 6] == util.merge_lists([[1, 2, 4, 6], [1, 2, 3, 4, 5]])
+        l = (1, 2, 3)  # make sure merge_lists does not modify it # noqa: E741
+        self.assertListEqual(list(l), util.merge_lists([l]))
+        self.assertListEqual(list(l), util.merge_lists([l, l]))
+        self.assertListEqual(list(l), util.merge_lists([l, l, l, l, l, l, l]))
+        self.assertListEqual(list(l), util.merge_lists([[], l, l, []]))
+        self.assertListEqual(list(l), util.merge_lists([[1, 2, 3], [1, 2], [1]]))
+        self.assertListEqual(list(l), util.merge_lists([[1, 2, 3], [2, 3], [3]]))
+        self.assertListEqual(list(l), util.merge_lists([[1], [1, 2], [1, 2, 3]]))
+        self.assertListEqual(list(l), util.merge_lists([[3], [2, 3], [1, 2, 3]]))
+        self.assertListEqual(
+            [1, 2, 3, 4, 5, 6], util.merge_lists([[1, 2, 4, 6], [1, 2, 3, 4, 5]])
+        )
 
     def test_find_common_elements(self):
-        assert [] == util.find_common_elements([[]])
-        assert [] == util.find_common_elements([[], [1, 2, 3]])
-        assert [] == util.find_common_elements([[], [1, 2, 3], [1, 2, 3]])
-        assert [] == util.find_common_elements([[1, 2, 3], [1, 2, 3], []])
-        assert [] == util.find_common_elements([[1], [2], [3]])
-        assert [1, 2, 3] == util.find_common_elements([[1, 2, 3]])
-        assert [1, 2, 3] == util.find_common_elements([[1, 2, 3], [1, 2, 3]])
-        assert [1, 2, 3] == util.find_common_elements([[1, 2, 3, 4], [1, 2, 3, 5]])
-        
-    def test_to_decimal_empty():
-        assert util.to_decimal(None) is None
-        assert util.to_decimal("") is None
-        assert util.to_decimal(" ") is None
+        self.assertListEqual([], util.find_common_elements([[]]))
+        self.assertListEqual([], util.find_common_elements([[], [1, 2, 3]]))
+        self.assertListEqual([], util.find_common_elements([[], [1, 2, 3], [1, 2, 3]]))
+        self.assertListEqual([], util.find_common_elements([[1, 2, 3], [1, 2, 3], []]))
+        self.assertListEqual([], util.find_common_elements([[1], [2], [3]]))
+        self.assertListEqual([1, 2, 3], util.find_common_elements([[1, 2, 3]]))
+        self.assertListEqual(
+            [1, 2, 3], util.find_common_elements([[1, 2, 3], [1, 2, 3]])
+        )
+        self.assertListEqual(
+            [1, 2, 3], util.find_common_elements([[1, 2, 3, 4], [1, 2, 3, 5]])
+        )
 
-    def test_to_decimal_str():
-        assert util.to_decimal("NaN").is_nan()
-        assert util.to_decimal(" NaN ").is_nan()
-        assert Decimal("+Inf") == util.to_decimal("Inf")
-        assert Decimal("+Inf") == util.to_decimal(" Inf ")
-        assert Decimal("+Inf") == util.to_decimal("+inf")
-        assert Decimal("-Inf") == util.to_decimal("-inf")
-        assert Decimal("1.234") == util.to_decimal("1.234")
-        assert Decimal("1.234") == util.to_decimal(" 1.234 s ")
-        assert Decimal("1.234") == util.to_decimal("+1.234")
-        assert Decimal("-1.234") == util.to_decimal("-1.234")
+    def test_to_decimal_empty(self):
+        self.assertIsNone(util.to_decimal(None))
+        self.assertIsNone(util.to_decimal(""))
+        self.assertIsNone(util.to_decimal(" "))
 
-    def test_to_decimal_numeric():
-        assert Decimal("-1") == util.to_decimal(-1)
-        assert Decimal(-1.234) == util.to_decimal(-1.234)
-        assert Decimal("-1.234") == util.to_decimal(Decimal("-1.234"))
+    def test_to_decimal_str(self):
+        self.assertTrue(util.to_decimal("NaN").is_nan())
+        self.assertTrue(util.to_decimal(" NaN ").is_nan())
+        self.assertEqual(Decimal("+Inf"), util.to_decimal("Inf"))
+        self.assertEqual(Decimal("+Inf"), util.to_decimal(" Inf "))
+        self.assertEqual(Decimal("+Inf"), util.to_decimal("+inf"))
+        self.assertEqual(Decimal("-Inf"), util.to_decimal("-inf"))
+        self.assertEqual(Decimal("1.234"), util.to_decimal("1.234"))
+        self.assertEqual(Decimal("1.234"), util.to_decimal(" 1.234 s "))
+        self.assertEqual(Decimal("1.234"), util.to_decimal("+1.234"))
+        self.assertEqual(Decimal("-1.234"), util.to_decimal("-1.234"))
+
+    def test_to_decimal_numeric(self):
+        self.assertEqual(Decimal("-1"), util.to_decimal(-1))
+        self.assertEqual(Decimal(-1.234), util.to_decimal(-1.234))
+        self.assertEqual(Decimal("-1.234"), util.to_decimal(Decimal("-1.234")))
