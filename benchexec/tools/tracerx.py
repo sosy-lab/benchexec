@@ -13,7 +13,7 @@ from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, 
 
 class Tool(benchexec.tools.template.BaseTool2):
     """
-    Tool info for Tracer-X (https://www.comp.nus.edu.sg/~tracerx/).
+    Tool info for Tracer-X.
     """
 
     def executable(self, tool_locator):
@@ -57,6 +57,9 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def name(self):
         return "Tracer-X"
+
+    def project_url(self):
+        return "https://www.comp.nus.edu.sg/~tracerx/"
 
     def determine_result(self, run):
         """

@@ -185,7 +185,7 @@ because it provides "rootless" containers
 To use BenchExec within Podman,
 start it as a regular user (not root) and use the following arguments:
 ```
-podman run --security-opt unmask=/proc/* --security-opt seccomp=unconfined ...
+podman run --security-opt unmask=/proc/* --security-opt unmask=/sys/fs/cgroup --security-opt seccomp=unconfined ...
 ```
 You may additionally need the arguments documented for
 [cgroup usage](INSTALL.md#setting-up-cgroups-in-a-dockerpodman-container).

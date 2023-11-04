@@ -15,7 +15,6 @@ import logging
 class Tool(benchexec.tools.template.BaseTool2):
     """
     Tool info for Goblint.
-    URL: https://goblint.in.tum.de/
     """
 
     def executable(self, tool_locator):
@@ -26,6 +25,9 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def name(self):
         return "Goblint"
+
+    def project_url(self):
+        return "https://goblint.in.tum.de/"
 
     _DATA_MODELS = {"ILP32": "32bit", "LP64": "64bit"}
 

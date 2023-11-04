@@ -14,7 +14,6 @@ class Tool(benchexec.tools.template.BaseTool2):
     Fuzzing with stochastic optimization guided by CMA-ES
 
     Hynsung Kim, Gidon Ernst
-    https://github.com/lazygrey/fuzzing_with_cmaes
     """
 
     REQUIRED_PATHS = [
@@ -46,6 +45,9 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def name(self):
         return "CMA-ES Fuzz"
+
+    def project_url(self):
+        return "https://github.com/lazygrey/fuzzing_with_cmaes"
 
     def get_value_from_output(self, output, identifier):
         for line in reversed(output):

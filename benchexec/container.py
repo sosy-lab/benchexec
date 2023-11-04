@@ -39,6 +39,7 @@ __all__ = [
     "drop_capabilities",
     "wait_for_child_and_forward_signals",
     "setup_container_system_config",
+    "setup_cgroup_namespace",
     "CONTAINER_UID",
     "CONTAINER_GID",
     "CONTAINER_HOME",
@@ -958,3 +959,23 @@ def is_container_system_config_file(file):
     return file in (
         os.path.join("/etc", f.decode()) for f in CONTAINER_ETC_FILE_OVERRIDE
     )
+
+
+def setup_cgroup_namespace():
+    """Move the current process into a new cgroup namespace and setup /sys/fs/cgroup
+    appropriately. This method assumes that cgroupv2 is used.
+    It needs to be called from within the target process."""
+    # Move us to new namespace.
+    libc.unshare(libc.CLONE_NEWCGROUP)
+
+    # Mount /sys/fs/cgroup with view of new namespace.
+    # For some reason, mounting directly on top of /sys/fs/cgroup gives EBUSY,
+    # but mounting somewhere else and moving into the correct place works.
+    libc.mount(
+        b"cgroup2",
+        b"/proc",
+        b"cgroup2",
+        libc.MS_NOSUID | libc.MS_NODEV | libc.MS_NOEXEC,
+        None,
+    )
+    libc.mount(b"/proc", b"/sys/fs/cgroup", b"none", libc.MS_MOVE, None)

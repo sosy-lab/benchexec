@@ -21,6 +21,7 @@ from benchexec import container
 from benchexec import containerexecutor
 from benchexec import filehierarchylimit
 from benchexec.runexecutor import RunExecutor
+from benchexec.cgroups import Cgroups
 from benchexec import runexecutor
 from benchexec import util
 
@@ -42,6 +43,8 @@ class TestRunExecutor(unittest.TestCase):
         logging.disable(logging.NOTSET)  # need to make sure to get all messages
         if not hasattr(cls, "assertRegex"):
             cls.assertRegex = cls.assertRegexpMatches
+
+        cls.cgroups = Cgroups.initialize()
 
         cls.echo = shutil.which("echo") or "/bin/echo"
         cls.sleep = shutil.which("sleep") or "/bin/sleep"
@@ -154,6 +157,9 @@ class TestRunExecutor(unittest.TestCase):
             "blkio-read",
             "blkio-write",
             "starttime",
+            "pressure-cpu-some",
+            "pressure-io-some",
+            "pressure-memory-some",
         }
         expected_keys.update(additional_keys)
         for key in result.keys():
@@ -732,6 +738,8 @@ class TestRunExecutor(unittest.TestCase):
             self.skipTest(e)
         if not os.path.exists(self.cat):
             self.skipTest("missing cat")
+        if self.cgroups.version != 1:
+            self.skipTest("not relevant in unified hierarchy")
         (result, output) = self.execute_run(self.cat, "/proc/self/cgroup")
         self.check_exitcode(result, 0, "exit code of cat is not zero")
         for line in output:
@@ -743,10 +751,17 @@ class TestRunExecutor(unittest.TestCase):
         if not os.path.exists(self.echo):
             self.skipTest("missing echo")
         try:
-            self.setUp(additional_cgroup_subsystems=["cpu"])
+            if self.cgroups.version == 1:
+                self.setUp(additional_cgroup_subsystems=["cpu"])
+            else:
+                self.setUp(additional_cgroup_subsystems=["memory"])
         except SystemExit as e:
             self.skipTest(e)
-        (result, _) = self.execute_run(self.echo, cgroupValues={("cpu", "shares"): 42})
+        if self.cgroups.version == 1:
+            cgValues = {("cpu", "shares"): 42}
+        else:
+            cgValues = {("memory", "high"): 420000000}
+        (result, _) = self.execute_run(self.echo, cgroupValues=cgValues)
         self.check_exitcode(result, 0, "exit code of echo is not zero")
         # Just assert that execution was successful,
         # testing that the value was actually set is much more difficult.
@@ -798,7 +813,7 @@ class TestRunExecutor(unittest.TestCase):
         # https://github.com/sosy-lab/benchexec/issues/840
         if not os.path.exists(self.sleep):
             self.skipTest("missing sleep")
-        if not os.path.exists("/sys/fs/cgroup/freezer"):
+        if self.cgroups.version == 1 and not os.path.exists("/sys/fs/cgroup/freezer"):
             self.skipTest("missing freezer cgroup")
         self.setUp(
             dir_modes={
@@ -808,10 +823,7 @@ class TestRunExecutor(unittest.TestCase):
                 "/sys/fs/cgroup": containerexecutor.DIR_FULL_ACCESS,
             }
         )
-        (result, output) = self.execute_run(
-            "/bin/sh",
-            "-c",
-            """#!/bin/sh
+        script_v1 = """#!/bin/sh
 # create process, move it to sub-cgroup, and freeze it
 set -eu
 
@@ -832,7 +844,33 @@ chmod 000 "$cgroup/freezer.state"
 chmod 000 "$cgroup/tasks"
 echo FROZEN
 wait $child_pid
-""",
+"""
+        script_v2 = """#!/bin/sh
+# create process, move it to sub-cgroup, and freeze it
+set -eu
+
+cgroup="/sys/fs/cgroup/$(cut -f 3 -d : /proc/self/cgroup)"
+mkdir "$cgroup/tmp"
+mkdir "$cgroup/tmp/tmp"
+
+sleep 10 &
+child_pid=$!
+
+echo $child_pid > "$cgroup/tmp/cgroup.procs"
+echo 1 > "$cgroup/tmp/cgroup.freeze"
+# remove permissions in order to test our handling of this case
+chmod 000 "$cgroup/tmp/cgroup.freeze"
+chmod 000 "$cgroup/tmp/cgroup.procs"
+chmod 000 "$cgroup/tmp"
+chmod 000 "$cgroup/cgroup.freeze"
+chmod 000 "$cgroup/cgroup.kill"
+echo FROZEN
+wait $child_pid
+"""
+        (result, output) = self.execute_run(
+            "/bin/sh",
+            "-c",
+            script_v1 if self.cgroups.version == 1 else script_v2,
             walltimelimit=1,
             expect_terminationreason="walltime",
         )

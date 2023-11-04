@@ -12,7 +12,7 @@ from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, 
 
 class Tool(benchexec.tools.template.BaseTool2):
     """
-    Tool info for Crux (https://crux.galois.com/).
+    Tool info for Crux.
     """
 
     REQUIRED_PATHS = ["."]
@@ -22,6 +22,9 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def name(self):
         return "Crux"
+
+    def project_url(self):
+        return "https://crux.galois.com/"
 
     def cmdline(self, executable, options, task, rlimits):
         if task.property_file:

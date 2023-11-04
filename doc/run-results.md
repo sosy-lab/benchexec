@@ -57,6 +57,7 @@ The meanings of the current possible result values are as follows:
     The value might not accurately represent disk I/O due to caches or if virtual block devices such as LVM, RAID, RAM disks etc. are used.
 - **cpuenergy-pkg`<n>`**: Energy consumption of the CPU ([more information](resources.md#energy)).
     This is still experimental.
+- **pressure-`*`-some**: Number of seconds (as decimal with suffix "s") that at least some process had to wait for the respective resource, e.g., the CPU becoming available ([more information](https://docs.kernel.org/accounting/psi.html)).
 - **returnvalue**: The return value of the process (between 0 and 255).
     Not present if process was killed.
 - **exitsignal**: The signal with which the process was killed (if any).

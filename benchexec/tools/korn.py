@@ -13,7 +13,6 @@ import benchexec.tools.template
 class Tool(benchexec.tools.template.BaseTool2):
     """
     Tool info for Korn, a software verifier based on Horn-clauses.
-    URL: https://github.com/gernst/korn
     """
 
     REQUIRED_PATHS = [
@@ -34,6 +33,9 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def name(self):
         return "Korn"
+
+    def project_url(self):
+        return "https://github.com/gernst/korn"
 
     def determine_result(self, run):
         """

@@ -14,7 +14,7 @@ import threading
 import time
 
 from benchexec import BenchExecException
-from benchexec import cgroups
+from benchexec.cgroups import Cgroups
 from benchexec import containerexecutor
 from benchexec import resources
 from benchexec.runexecutor import RunExecutor
@@ -68,7 +68,7 @@ def execute_benchmark(benchmark, output_handler):
             "only resource limits are used."
         )
 
-    my_cgroups = cgroups.find_my_cgroups()
+    my_cgroups = Cgroups.initialize()
     required_cgroups = set()
 
     coreAssignment = None  # cores per run
@@ -78,8 +78,8 @@ def execute_benchmark(benchmark, output_handler):
     pqos.reset_monitoring()
 
     if benchmark.rlimits.cpu_cores:
-        if not my_cgroups.require_subsystem(cgroups.CPUSET):
-            required_cgroups.add(cgroups.CPUSET)
+        if not my_cgroups.require_subsystem(my_cgroups.CPUSET):
+            required_cgroups.add(my_cgroups.CPUSET)
             logging.error(
                 "Cgroup subsystem cpuset is required "
                 "for limiting the number of CPU cores/memory nodes."
@@ -107,8 +107,8 @@ def execute_benchmark(benchmark, output_handler):
         )
 
     if benchmark.rlimits.memory:
-        if not my_cgroups.require_subsystem(cgroups.MEMORY):
-            required_cgroups.add(cgroups.MEMORY)
+        if not my_cgroups.require_subsystem(my_cgroups.MEMORY):
+            required_cgroups.add(my_cgroups.MEMORY)
             logging.error("Cgroup subsystem memory is required for memory limit.")
         else:
             # check whether we have enough memory in the used memory banks for all runs
@@ -120,8 +120,8 @@ def execute_benchmark(benchmark, output_handler):
             )
 
     if benchmark.rlimits.cputime:
-        if not my_cgroups.require_subsystem(cgroups.CPUACCT):
-            required_cgroups.add(cgroups.CPUACCT)
+        if not my_cgroups.require_subsystem(my_cgroups.CPU):
+            required_cgroups.add(my_cgroups.CPU)
             logging.error("Cgroup subsystem cpuacct is required for cputime limit.")
 
     my_cgroups.handle_errors(required_cgroups)

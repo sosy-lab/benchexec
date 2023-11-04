@@ -150,3 +150,25 @@ class TestUnit:
         assert [1, 2, 3] == util.find_common_elements([[1, 2, 3]])
         assert [1, 2, 3] == util.find_common_elements([[1, 2, 3], [1, 2, 3]])
         assert [1, 2, 3] == util.find_common_elements([[1, 2, 3, 4], [1, 2, 3, 5]])
+        
+    def test_to_decimal_empty():
+        assert util.to_decimal(None) is None
+        assert util.to_decimal("") is None
+        assert util.to_decimal(" ") is None
+
+    def test_to_decimal_str():
+        assert util.to_decimal("NaN").is_nan()
+        assert util.to_decimal(" NaN ").is_nan()
+        assert Decimal("+Inf") == util.to_decimal("Inf")
+        assert Decimal("+Inf") == util.to_decimal(" Inf ")
+        assert Decimal("+Inf") == util.to_decimal("+inf")
+        assert Decimal("-Inf") == util.to_decimal("-inf")
+        assert Decimal("1.234") == util.to_decimal("1.234")
+        assert Decimal("1.234") == util.to_decimal(" 1.234 s ")
+        assert Decimal("1.234") == util.to_decimal("+1.234")
+        assert Decimal("-1.234") == util.to_decimal("-1.234")
+
+    def test_to_decimal_numeric():
+        assert Decimal("-1") == util.to_decimal(-1)
+        assert Decimal(-1.234) == util.to_decimal(-1.234)
+        assert Decimal("-1.234") == util.to_decimal(Decimal("-1.234"))
