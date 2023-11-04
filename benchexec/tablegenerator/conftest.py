@@ -5,7 +5,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import pytest
 import decimal
 
 # Store the original rounding values
