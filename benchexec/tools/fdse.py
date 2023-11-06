@@ -35,9 +35,12 @@ class Tool(benchexec.tools.template.BaseTool2):
         return "FDSE"
 
     def determine_result(self, run):
-        status = result.RESULT_UNKNOWN
+        status = result.RESULT_ERROR
 
-        if run.output.any_line_contains("Done : End analysis"):
-            status = result.RESULT_DONE
+        for line in run.output:
+            if "Done : End analysis" in line:
+                status = result.RESULT_DONE
+            elif "HaltTimer invoked!!!" in line:
+                status = result.RESULT_TIMEOUT
 
         return status
