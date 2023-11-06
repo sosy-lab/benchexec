@@ -35,16 +35,9 @@ class Tool(benchexec.tools.template.BaseTool2):
         return "FDSE"
 
     def determine_result(self, run):
-        for line in run.output:
-            if "[BUG]" in line:
-                if "ASSERTION FAIL!" in line:
-                    return result.RESULT_FALSE_REACH
-                elif "Index out-of-bound" in line:
-                    return result.RESULT_FALSE_DEREF
-                elif "overflow" in line:
-                    return result.RESULT_FALSE_OVERFLOW
-                else:
-                    return result.RESULT_ERROR
-            if "Done : End analysis" in line:
-                return result.RESULT_DONE
-        return result.RESULT_UNKNOWN
+        status = result.RESULT_UNKNOWN
+
+        if run.output.any_line_contains("Done : End analysis"):
+            status = result.RESULT_DONE
+
+        return status
