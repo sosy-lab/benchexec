@@ -7,10 +7,10 @@
 
 import benchexec.tools.fizzer as fizzer
 
+
 class Tool(fizzer.Tool):
     """
     Tool info for rizzer.
-    https://github.com/staticafi/sbt-fizzer/tree/rizzer
     """
 
     REQUIRED_PATHS = fizzer.REQUIRED_PATHS
@@ -23,3 +23,6 @@ class Tool(fizzer.Tool):
         @return a non-empty string
         """
         return "Rizzer"
+
+    def project_url(self):
+        return "https://github.com/staticafi/sbt-fizzer/tree/rizzer"

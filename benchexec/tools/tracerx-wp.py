@@ -10,7 +10,7 @@ import benchexec.tools.tracerx as tracerx
 
 class Tool(tracerx.Tool):
     """
-    Tool info for TracerX-WP (https://www.comp.nus.edu.sg/~tracerx/).
+    Tool info for TracerX-WP.
     """
 
     def executable(self, tool_locator):
