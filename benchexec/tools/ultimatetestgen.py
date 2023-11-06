@@ -54,35 +54,15 @@ class Tool(ultimate.UltimateTool):
     def name(self):
         return "ULTIMATE TestGen"
 
-    def _determine_result_without_property_file(self, run):
-        # special strings in ultimate output
-        unsupported_syntax_errorstring = "ShortDescription: Unsupported Syntax"
-        incorrect_syntax_errorstring = "ShortDescription: Incorrect Syntax"
-        type_errorstring = "Type Error"
-        exception_errorstring = "ExceptionOrErrorResult"
-
-        for line in run.output:
-            if unsupported_syntax_errorstring in line:
-                return "ERROR: UNSUPPORTED SYNTAX"
-            if incorrect_syntax_errorstring in line:
-                return "ERROR: INCORRECT SYNTAX"
-            if type_errorstring in line:
-                return "ERROR: TYPE ERROR"
-            if exception_errorstring in line:
-                return "ERROR: EXCEPTION"
-            if self._contains_overapproximation_result(line):
-                return "UNKNOWN: OverapproxCex"
-            if line.startswith("DONE"):
-                return result.RESULT_DONE
-        return result.RESULT_UNKNOWN
+    def _determine_result_without_property_file_for_line(self, line):
+        if line.startswith("DONE"):
+            return result.RESULT_DONE
+        else:
+            return super(Tool, Tool)._determine_result_with_property_file_for_line(line)
 
     @staticmethod
-    def _determine_result_with_property_file(run):
-        for line in run.output:
-            if line.startswith("DONE"):
-                return result.RESULT_DONE
-            elif line.startswith("UNKNOWN"):
-                return result.RESULT_UNKNOWN
-            elif line.startswith("ERROR"):
-                return result.RESULT_ERROR
-        return result.RESULT_UNKNOWN
+    def _determine_result_with_property_file_for_line(line):
+        if line.startswith("DONE"):
+            return result.RESULT_DONE
+        else:
+            return super(Tool, Tool)._determine_result_with_property_file_for_line(line)
