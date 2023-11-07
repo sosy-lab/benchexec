@@ -25,8 +25,8 @@ class Tool(benchexec.tools.template.BaseTool2):
         return "https://github.com/thufv/Deagle"
 
     def version_geq(self, version_str1, version_str2):
-        version1 = version_str1.split('.')
-        version2 = version_str2.split('.')
+        version1 = version_str1.split(".")
+        version2 = version_str2.split(".")
         for i in range(len(version1)):
             if int(version1[i]) > int(version2[i]):
                 return True
