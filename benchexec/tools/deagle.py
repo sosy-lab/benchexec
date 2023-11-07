@@ -5,6 +5,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, LP64
 import benchexec.result as result
 import benchexec.tools.template
 
@@ -21,13 +22,32 @@ class Tool(benchexec.tools.template.BaseTool2):
         return "Deagle"
 
     def project_url(self):
-        return "https://github.com/Misasasa/Deagle"
+        return "https://github.com/thufv/Deagle"
+
+    def version_geq(self, version_str1, version_str2):
+        version1 = version_str1.split('.')
+        version2 = version_str2.split('.')
+        for i in range(len(version1)):
+            if int(version1[i]) > int(version2[i]):
+                return True
+            if int(version1[i]) < int(version2[i]):
+                return False
+        return True
 
     def version(self, executable):
         return self._version_from_tool(executable, arg="--version")
 
     def cmdline(self, executable, options, task, rlimits):
-        return [executable] + [task.property_file] + [task.single_input_file]
+        ver = self.version(executable)
+        if self.version_geq(ver, "2.2"):
+            return [executable] + [task.property_file] + [task.single_input_file]
+        else:
+            data_model_param = get_data_model_from_task(task, {ILP32: "--32", LP64: "--64"})
+            if not data_model_param:
+                data_model_param = "--32"
+            if data_model_param not in options:
+                options += [data_model_param]
+            return [executable] + options + [task.single_input_file]
 
     def determine_result(self, run):
         if run.output.any_line_contains("SUCCESSFUL"):
