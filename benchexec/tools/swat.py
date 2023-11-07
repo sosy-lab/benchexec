@@ -16,8 +16,7 @@ class Tool(BaseTool2):
     """
 
     REQUIRED_PATHS = [
-        "knife-fuzzer/symbolic-executor/lib/symbolic-executor.jar",
-        "knife-fuzzer/symbolic-explorer",
+        "knife-fuzzer",
         "local_z3_installation",
         "WitnessCreator",
         "run-swat.sh",
