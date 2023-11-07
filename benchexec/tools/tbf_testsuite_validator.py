@@ -13,7 +13,7 @@ import benchexec.tools.template
 
 class Tool(benchexec.tools.template.BaseTool):
     """
-    Tool info for tbf test-suite validator (https://gitlab.com/sosy-lab/software/test-format).
+    Tool info for tbf test-suite validator.
     """
 
     REQUIRED_PATHS = ["python_modules", "lib", "bin"]
@@ -33,6 +33,9 @@ class Tool(benchexec.tools.template.BaseTool):
 
     def name(self):
         return "Tbf Test-suite Validator"
+
+    def project_url(self):
+        return "https://gitlab.com/sosy-lab/software/test-format"
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         """

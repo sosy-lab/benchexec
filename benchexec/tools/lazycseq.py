@@ -10,7 +10,7 @@ from . import cseq
 
 class Tool(cseq.CSeqTool):
     """
-    Tool info for Lazy-CSeq (http://github.com/omainv/cseq/releases).
+    Tool info for Lazy-CSeq.
     """
 
     def executable(self, tool_locator):
@@ -18,3 +18,6 @@ class Tool(cseq.CSeqTool):
 
     def name(self):
         return "Lazy-CSeq"
+
+    def project_url(self):
+        return "http://github.com/omainv/cseq/releases"

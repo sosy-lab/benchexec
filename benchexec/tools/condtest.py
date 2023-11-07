@@ -12,8 +12,10 @@ import benchexec.util as util
 class Tool(benchexec.tools.template.BaseTool):
     """
     An abstract class for the conditonal-testing tools.
-    url: https://gitlab.com/sosy-lab/software/conditional-testing
     """
+
+    def project_url(self):
+        return "https://gitlab.com/sosy-lab/software/conditional-testing"
 
     def executable(self):
         return util.find_executable(self._exec_path)

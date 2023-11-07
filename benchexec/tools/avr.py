@@ -7,13 +7,15 @@
 
 import benchexec.result as result
 import benchexec.tools.template
+from math import ceil
 
 
 class Tool(benchexec.tools.template.BaseTool2):
     """
     Tool info for AVR -- Abstractly Verifying Reachability
-    URL: https://github.com/aman-goel/avr
     """
+
+    REQUIRED_PATHS = ["build/"]
 
     def executable(self, tool_locator):
         return tool_locator.find_executable("avr.py")
@@ -21,7 +23,14 @@ class Tool(benchexec.tools.template.BaseTool2):
     def name(self):
         return "AVR"
 
+    def project_url(self):
+        return "https://github.com/aman-goel/avr"
+
     def cmdline(self, executable, options, task, rlimits):
+        if rlimits.cputime and "--timeout" not in options:
+            options += ["--timeout", str(rlimits.cputime)]
+        if rlimits.memory and "--memout" not in options:
+            options += ["--memout", str(ceil(rlimits.memory / 1000000.0))]
         return [executable] + options + [task.single_input_file]
 
     def determine_result(self, run):
@@ -30,7 +39,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         """
         if run.was_timeout:
             return result.RESULT_TIMEOUT
-        for line in run.output:
+        for line in run.output[::-1]:
             # skip the lines that do not contain verification result
             if not line.startswith("Verification result:"):
                 continue

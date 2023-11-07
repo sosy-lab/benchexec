@@ -12,7 +12,7 @@ import benchexec.result as result
 
 class Tool(benchexec.tools.template.BaseTool2):
     """
-    Wrapper for 2LS (http://www.cprover.org/2LS).
+    Wrapper for 2LS.
     """
 
     def executable(self, tool_locator):
@@ -20,6 +20,9 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def name(self):
         return "2LS"
+
+    def project_url(self):
+        return "http://www.cprover.org/2LS"
 
     def version(self, executable):
         return self._version_from_tool(executable)

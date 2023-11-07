@@ -33,17 +33,49 @@ const Summary = (props) => {
     ));
   };
 
+  const externalLink = (url, text) => {
+    if (url) {
+      return (
+        <a href={url} target="_blank" rel="noopener noreferrer">
+          {text}
+        </a>
+      );
+    } else {
+      return text;
+    }
+  };
+
+  const renderToolNameAndVersion = ({
+    tool,
+    version,
+    project_url,
+    version_url,
+  }) => {
+    return (
+      <>
+        {externalLink(project_url, tool)} {externalLink(version_url, version)}
+      </>
+    );
+  };
+
   /* ++++++++++++++ Table render functions ++++++++++++++ */
 
-  const renderEnvironmentRow = (row, text, colSpan, j) => {
+  const renderRow = (row, text, colSpan, j) => {
     const isOptionRow = row === "options";
+    const isToolRow = row === "tool";
     return (
       <td
         colSpan={colSpan}
         key={text + j}
         className={`header__tool-row${isOptionRow && " options"}`}
       >
-        {isOptionRow ? <ul>{renderOptions(text)}</ul> : text}
+        {isOptionRow ? (
+          <ul>{renderOptions(text)}</ul>
+        ) : isToolRow ? (
+          renderToolNameAndVersion(text)
+        ) : (
+          text
+        )}
       </td>
     );
   };
@@ -57,11 +89,11 @@ const Summary = (props) => {
             {infos
               .map((row) => props.tableHeader[row])
               .filter((row) => row !== null)
-              .map((row, i) => (
+              .map((row) => (
                 <tr key={"tr-" + row.id} className={row.id}>
                   <th key={"td-" + row.id}>{row.name}</th>
                   {row.content.map((tool, j) =>
-                    renderEnvironmentRow(row.id, tool[0], tool[1], j),
+                    renderRow(row.id, tool[0], tool[1], j),
                   )}
                 </tr>
               ))}

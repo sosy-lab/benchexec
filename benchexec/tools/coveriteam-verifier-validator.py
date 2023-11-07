@@ -16,7 +16,6 @@ class Tool(coveriteam.Tool):
     """
     Tool info for a verifier or a validator based on
     CoVeriTeam: a Configurable Software-Verification Platform.
-    URL: https://gitlab.com/sosy-lab/software/coveriteam.
     """
 
     def cmdline(self, executable, options, task, rlimits):

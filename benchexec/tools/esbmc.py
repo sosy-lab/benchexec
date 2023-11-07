@@ -15,7 +15,7 @@ import decimal
 
 class Tool(benchexec.tools.template.BaseTool2):
     """
-    This class serves as tool adaptor for ESBMC (http://www.esbmc.org/)
+    This class serves as tool adaptor for ESBMC
     """
 
     def executable(self, tool_locator):
@@ -30,6 +30,9 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def name(self):
         return "ESBMC"
+
+    def project_url(self):
+        return "http://www.esbmc.org/"
 
     def cmdline(self, executable, options, task, rlimits):
         data_model_param = get_data_model_from_task(task, {ILP32: "32", LP64: "64"})

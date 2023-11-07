@@ -15,7 +15,6 @@ import benchexec.tools.template
 class Tool(benchexec.tools.template.BaseTool2):
     """
     Tool info for the NITWIT Validator, an interpreter-based violation witness validator.
-    URL: https://github.com/moves-rwth/nitwit-validator
     """
 
     REQUIRED_PATHS = ["bin/nitwit32", "bin/nitwit64"]
@@ -39,6 +38,9 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def name(self):
         return "Nitwit"
+
+    def project_url(self):
+        return "https://github.com/moves-rwth/nitwit-validator"
 
     def cmdline(self, executable, options, task, rlimits):
         if task.property_file:

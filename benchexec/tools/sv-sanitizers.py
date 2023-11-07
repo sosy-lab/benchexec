@@ -14,7 +14,6 @@ import re
 class Tool(benchexec.tools.template.BaseTool2):
     """
     Tool info for sanitizers via SV-COMP wrapper.
-    URL: https://github.com/sim642/sv-sanitizers/
     """
 
     def executable(self, tool_locator):
@@ -25,6 +24,9 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def name(self):
         return "sv-sanitizers"
+
+    def project_url(self):
+        return "https://github.com/sim642/sv-sanitizers/"
 
     def cmdline(self, executable, options, task, rlimits):
         additional_options = []

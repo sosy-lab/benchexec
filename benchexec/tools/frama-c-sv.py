@@ -13,7 +13,6 @@ from collections.abc import Mapping
 class Tool(benchexec.tools.template.BaseTool2):
     """
     Tool info for Frama-C with a wrapper for usage in the SVCOMP.
-    URL: https://gitlab.com/sosy-lab/software/frama-c-sv
     """
 
     REQUIRED_PATHS = ["."]
@@ -28,6 +27,9 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def name(self):
         return Tool._TOOL_NAME
+
+    def project_url(self):
+        return "https://gitlab.com/sosy-lab/software/frama-c-sv"
 
     def cmdline(self, executable, options, task, rlimits):
         cmd = [executable, "--program"] + list(task.input_files)

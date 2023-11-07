@@ -13,7 +13,7 @@ from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, 
 
 class Tool(benchexec.tools.template.BaseTool2):
     """
-    Tool info for KLEEF (https://github.com/UnitTestBot/klee).
+    Tool info for KLEEF.
     """
 
     def executable(self, tool_locator):
@@ -54,6 +54,9 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def name(self):
         return "KLEEF"
+
+    def project_url(self):
+        return "https://github.com/UnitTestBot/klee"
 
     def determine_result(self, run):
         """

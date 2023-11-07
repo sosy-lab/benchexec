@@ -12,7 +12,6 @@ import benchexec.result as result
 class Tool(benchexec.tools.template.BaseTool2):
     """
     Tool info for Mopsa.
-    URL: https://gitlab.com/mopsa/mopsa-analyzer/
     """
 
     def executable(self, tool_locator):
@@ -23,6 +22,9 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def name(self):
         return "Mopsa"
+
+    def project_url(self):
+        return "https://gitlab.com/mopsa/mopsa-analyzer/"
 
     def cmdline(self, executable, options, task, rlimits):
         cmd = [executable, "--program", *task.input_files]

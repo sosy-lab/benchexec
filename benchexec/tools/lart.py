@@ -13,7 +13,6 @@ import benchexec.result as result
 class Tool(benchexec.tools.template.BaseTool2):
     """
     Tool info for LART, the LLVM Abstraction and Refinement Tool.
-    URL: https://github.com/xlauko/lart
     """
 
     REQUIRED_PATHS = ["."]
@@ -46,6 +45,9 @@ class Tool(benchexec.tools.template.BaseTool2):
         Return the name of the tool, formatted for humans.
         """
         return "LART"
+
+    def project_url(self):
+        return "https://github.com/xlauko/lart"
 
     def cmdline(self, executable, options, task, rlimits):
         """
