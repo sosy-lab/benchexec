@@ -20,7 +20,7 @@ class Tool(BaseTool2):
         "local_z3_installation",
         "WitnessCreator",
         "run-swat.sh",
-        "run_swat.py"
+        "run_swat.py",
     ]
 
     def executable(self, tool_locator):
