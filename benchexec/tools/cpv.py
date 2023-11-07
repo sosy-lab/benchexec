@@ -17,8 +17,9 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     REQUIRED_PATHS = [
         "bin/",
-        "hw-verifiers/",
+        "cpv/",
         "kratos2/",
+        "lib/",
         "witness.tmpl",
     ]
 
