@@ -42,7 +42,9 @@ class Tool(benchexec.tools.template.BaseTool2):
         if self.version_geq(ver, "2.2"):
             return [executable] + [task.property_file] + [task.single_input_file]
         else:
-            data_model_param = get_data_model_from_task(task, {ILP32: "--32", LP64: "--64"})
+            data_model_param = get_data_model_from_task(
+                task, {ILP32: "--32", LP64: "--64"}
+            )
             if not data_model_param:
                 data_model_param = "--32"
             if data_model_param not in options:
