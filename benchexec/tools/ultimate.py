@@ -67,7 +67,7 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
         self.java = None
 
     def project_url(self):
-        return "https://github.com/ultimate-pa/ultimate"
+        return "https://www.ultimate-pa.org"
 
     def executable(self, tool_locator):
         exe = tool_locator.find_executable("Ultimate.py")
