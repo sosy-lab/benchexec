@@ -15,7 +15,7 @@ import benchexec.result as result
 
 class Tool(benchexec.tools.template.BaseTool2):
     """
-    Tool info for CBMC (http://www.cprover.org/cbmc/).
+    Tool info for CBMC.
     It always adds --xml-ui to the command-line arguments for easier parsing of
     the output, unless a propertyfile is passed -- in which case running under
     SV-COMP conditions is assumed.
@@ -29,6 +29,9 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def name(self):
         return "CBMC"
+
+    def project_url(self):
+        return "http://www.cprover.org/cbmc/"
 
     def cmdline(self, executable, options, task, rlimits):
         if task.property_file:

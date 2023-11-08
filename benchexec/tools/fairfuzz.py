@@ -13,7 +13,7 @@ import benchexec.model
 
 class Tool(benchexec.tools.template.BaseTool):
     """
-    Tool info for FairFuzz (https://https://github.com/carolemieux/afl-rb/tree/testcomp).
+    Tool info for FairFuzz.
     """
 
     REQUIRED_PATHS = ["bin", "helper"]
@@ -32,6 +32,9 @@ class Tool(benchexec.tools.template.BaseTool):
 
     def name(self):
         return "FairFuzz"
+
+    def project_url(self):
+        return "https://https://github.com/carolemieux/afl-rb/tree/testcomp"
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         """

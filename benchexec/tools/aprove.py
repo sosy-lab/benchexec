@@ -19,7 +19,6 @@ from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, 
 class Tool(benchexec.tools.template.BaseTool2):
     """
     Tool info for AProVE.
-    URL: http://aprove.informatik.rwth-aachen.de/
     Only the binary (jar) distribution of AProVE is supported.
     """
 
@@ -31,6 +30,9 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def name(self):
         return "AProVE"
+
+    def project_url(self):
+        return "http://aprove.informatik.rwth-aachen.de/"
 
     def version(self, executable):
         with tempfile.NamedTemporaryFile(suffix=".c") as trivial_example:

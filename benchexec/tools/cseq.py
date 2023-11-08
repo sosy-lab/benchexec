@@ -11,8 +11,11 @@ import benchexec.result as result
 
 class CSeqTool(benchexec.tools.template.BaseTool2):
     """
-    Abstract tool info for CSeq-based tools (http://users.ecs.soton.ac.uk/gp4/cseq/cseq.html).
+    Abstract tool info for CSeq-based tools.
     """
+
+    def project_url(self):
+        return "http://users.ecs.soton.ac.uk/gp4/cseq/cseq.html"
 
     def version(self, executable):
         output = self._version_from_tool(executable, arg="--version")

@@ -12,7 +12,6 @@ import benchexec.result as result
 class Tool(benchexec.tools.template.BaseTool2):
     """
     Tool info for Locksmith.
-    URL: http://www.cs.umd.edu/projects/PL/locksmith
     """
 
     def executable(self, tool_locator):
@@ -23,6 +22,9 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def name(self):
         return "Locksmith"
+
+    def project_url(self):
+        return "http://www.cs.umd.edu/projects/PL/locksmith"
 
     def cmdline(self, executable, options, task, rlimits):
         return [executable, *options, *task.input_files]

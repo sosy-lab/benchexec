@@ -12,7 +12,6 @@ from benchexec.tools.symbiotic import Tool as SymbioticTool
 class Tool(SymbioticTool):
     """
     Symbiotic-Witch tool info object
-    https://github.com/staticafi/symbiotic
     """
 
     def name(self):
@@ -20,3 +19,6 @@ class Tool(SymbioticTool):
         Return the name of the tool, formatted for humans.
         """
         return "symbiotic-witch"
+
+    def project_url(self):
+        return "https://github.com/staticafi/symbiotic"

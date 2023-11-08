@@ -66,7 +66,7 @@
       "name": "benchexec/tablegenerator/test_integration/results/"
     },
     "tool": {
-      "content": [["CPAchecker 1.4-svn 15944M", 6]],
+      "content": [[{"tool": "CPAchecker", "version": "1.4-svn 15944M", "project_url": "https://cpachecker.sosy-lab.org"}, 6]],
       "id": "tool",
       "name": "Tool"
     }
@@ -139,6 +139,7 @@
       "niceName": "predicateAnalysis",
       "options": "-noout -setprop log.consoleLevel=WARNING -predicateAnalysis",
       "os": "Linux 3.13.0-45-generic x86_64",
+      "project_url": "https://cpachecker.sosy-lab.org",
       "ram": "16389384 kB",
       "timelimit": "10 s",
       "tool": "CPAchecker",

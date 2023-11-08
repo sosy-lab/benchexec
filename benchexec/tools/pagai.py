@@ -12,7 +12,7 @@ import benchexec.result as result
 
 class Tool(benchexec.tools.template.BaseTool):
     """
-    Wrapper for a PAGAI tool (http://pagai.forge.imag.fr/).
+    Wrapper for a PAGAI tool.
     """
 
     def executable(self):
@@ -20,6 +20,9 @@ class Tool(benchexec.tools.template.BaseTool):
 
     def name(self):
         return "PAGAI"
+
+    def project_url(self):
+        return "http://pagai.forge.imag.fr/"
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         output = "\n".join(output)

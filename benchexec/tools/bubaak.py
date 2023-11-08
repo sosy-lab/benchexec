@@ -18,8 +18,6 @@ def get_verdict(s: str):
 class Tool(benchexec.tools.template.BaseTool2):
     """
     Info object for the tool Bubaak.
-
-    URL: https://gitlab.com/mchalupa/bubaak
     """
 
     REQUIRED_PATHS = ["."]
@@ -33,6 +31,9 @@ class Tool(benchexec.tools.template.BaseTool2):
     def name(self):
         """The human-readable name of the tool."""
         return "Bubaak"
+
+    def project_url(self):
+        return "https://gitlab.com/mchalupa/bubaak"
 
     def cmdline(self, executable, options, task, rlimits):
         if task.property_file:

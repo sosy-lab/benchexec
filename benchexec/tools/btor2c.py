@@ -13,7 +13,6 @@ import benchexec.tools.template
 class Tool(benchexec.tools.template.BaseTool2):
     """
     Tool info for BTOR2C: A Converter from BTOR2 models to C programs
-    URL: https://gitlab.com/sosy-lab/software/btor2c
     """
 
     def executable(self, tool_locator):
@@ -21,6 +20,9 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def name(self):
         return "BTOR2C"
+
+    def project_url(self):
+        return "https://gitlab.com/sosy-lab/software/btor2c"
 
     def cmdline(self, executable, options, task, rlimits):
         return [executable] + options + [task.single_input_file]

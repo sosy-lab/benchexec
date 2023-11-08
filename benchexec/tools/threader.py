@@ -13,7 +13,7 @@ import benchexec.result as result
 
 class Tool(benchexec.tools.template.BaseTool):
     """
-    This class serves as tool adaptor for Threader (http://www.esbmc.org/)
+    This class serves as tool adaptor for Threader
     """
 
     def executable(self):
@@ -32,6 +32,9 @@ class Tool(benchexec.tools.template.BaseTool):
 
     def name(self):
         return "Threader"
+
+    def project_url(self):
+        return "http://www.esbmc.org/"
 
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
         assert len(tasks) == 1, "only one inputfile supported"

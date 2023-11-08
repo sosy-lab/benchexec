@@ -13,7 +13,7 @@ from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, 
 
 class Tool(benchexec.tools.template.BaseTool2):
     """
-    Tool info for KLEE (https://klee.github.io).
+    Tool info for KLEE.
     """
 
     def executable(self, tool_locator):
@@ -59,6 +59,9 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def name(self):
         return "KLEE"
+
+    def project_url(self):
+        return "https://klee.github.io"
 
     def determine_result(self, run):
         """
