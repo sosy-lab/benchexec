@@ -67,7 +67,7 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
         self.java = None
 
     def project_url(self):
-        return "https://github.com/ultimate-pa/ultimate"
+        return "https://www.ultimate-pa.org"
 
     def executable(self, tool_locator):
         exe = tool_locator.find_executable("Ultimate.py")
@@ -403,6 +403,8 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
                 return "unsat"
             if treeautomizer_sat in line or all_spec_string in line:
                 return "sat"
+            if line.startswith("DONE"):
+                return result.RESULT_DONE
 
         return result.RESULT_UNKNOWN
 
@@ -450,6 +452,8 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
                 if line.startswith("ERROR: INVALID WITNESS FILE"):
                     status += " (invalid witness file)"
                 return status
+            elif line.startswith("DONE"):
+                return result.RESULT_DONE
         return result.RESULT_UNKNOWN
 
     def get_value_from_output(self, output, identifier):
