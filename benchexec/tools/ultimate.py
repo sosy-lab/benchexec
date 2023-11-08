@@ -66,6 +66,9 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
     def __init__(self):
         self.java = None
 
+    def project_url(self):
+        return "https://github.com/ultimate-pa/ultimate"
+
     def executable(self, tool_locator):
         exe = tool_locator.find_executable("Ultimate.py")
         dir_name = os.path.dirname(exe)
@@ -333,19 +336,10 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
 
     def determine_result(self, run):
         if any(arg for arg in run.cmdline if "--spec" == arg or ".prp" in arg):
-            return self._determine_result_with_property_file(self, run)
+            return self._determine_result_with_property_file(run)
         return self._determine_result_without_property_file(run)
 
     def _determine_result_without_property_file(self, run):
-        for line in run.output:
-            ultimate_result = self._determine_result_without_property_file_for_line(
-                self, line
-            )
-            if ultimate_result is not None:
-                return ultimate_result
-        return result.RESULT_UNKNOWN
-
-    def _determine_result_without_property_file_for_line(self, line):
         # special strings in ultimate output
         treeautomizer_sat = "TreeAutomizerSatResult"
         treeautomizer_unsat = "TreeAutomizerUnsatResult"
@@ -370,45 +364,49 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
         ltl_true_string = "Buchi Automizer proved that the LTL property"
         overflow_false_string = "overflow possible"
 
-        if unsupported_syntax_errorstring in line:
-            return "ERROR: UNSUPPORTED SYNTAX"
-        if incorrect_syntax_errorstring in line:
-            return "ERROR: INCORRECT SYNTAX"
-        if type_errorstring in line:
-            return "ERROR: TYPE ERROR"
-        if witness_errorstring in line:
-            return "ERROR: INVALID WITNESS FILE"
-        if exception_errorstring in line:
-            return "ERROR: EXCEPTION"
-        if self._contains_overapproximation_result(line):
-            return "UNKNOWN: OverapproxCex"
-        if termination_false_string in line:
-            return result.RESULT_FALSE_TERMINATION
-        if termination_true_string in line:
-            return result.RESULT_TRUE_PROP
-        if ltl_false_string in line:
-            return "FALSE(valid-ltl)"
-        if ltl_true_string in line:
-            return result.RESULT_TRUE_PROP
-        if unsafety_string in line:
-            return result.RESULT_FALSE_REACH
-        if mem_deref_false_string in line:
-            return result.RESULT_FALSE_DEREF
-        if mem_deref_false_string_2 in line:
-            return result.RESULT_FALSE_DEREF
-        if mem_free_false_string in line:
-            return result.RESULT_FALSE_FREE
-        if mem_memtrack_false_string in line:
-            return result.RESULT_FALSE_MEMTRACK
-        if overflow_false_string in line:
-            return result.RESULT_FALSE_OVERFLOW
-        if safety_string in line or all_spec_string in line:
-            return result.RESULT_TRUE_PROP
-        if treeautomizer_unsat in line:
-            return "unsat"
-        if treeautomizer_sat in line or all_spec_string in line:
-            return "sat"
-        return None
+        for line in run.output:
+            if unsupported_syntax_errorstring in line:
+                return "ERROR: UNSUPPORTED SYNTAX"
+            if incorrect_syntax_errorstring in line:
+                return "ERROR: INCORRECT SYNTAX"
+            if type_errorstring in line:
+                return "ERROR: TYPE ERROR"
+            if witness_errorstring in line:
+                return "ERROR: INVALID WITNESS FILE"
+            if exception_errorstring in line:
+                return "ERROR: EXCEPTION"
+            if self._contains_overapproximation_result(line):
+                return "UNKNOWN: OverapproxCex"
+            if termination_false_string in line:
+                return result.RESULT_FALSE_TERMINATION
+            if termination_true_string in line:
+                return result.RESULT_TRUE_PROP
+            if ltl_false_string in line:
+                return "FALSE(valid-ltl)"
+            if ltl_true_string in line:
+                return result.RESULT_TRUE_PROP
+            if unsafety_string in line:
+                return result.RESULT_FALSE_REACH
+            if mem_deref_false_string in line:
+                return result.RESULT_FALSE_DEREF
+            if mem_deref_false_string_2 in line:
+                return result.RESULT_FALSE_DEREF
+            if mem_free_false_string in line:
+                return result.RESULT_FALSE_FREE
+            if mem_memtrack_false_string in line:
+                return result.RESULT_FALSE_MEMTRACK
+            if overflow_false_string in line:
+                return result.RESULT_FALSE_OVERFLOW
+            if safety_string in line or all_spec_string in line:
+                return result.RESULT_TRUE_PROP
+            if treeautomizer_unsat in line:
+                return "unsat"
+            if treeautomizer_sat in line or all_spec_string in line:
+                return "sat"
+            if line.startswith("DONE"):
+                return result.RESULT_DONE
+
+        return result.RESULT_UNKNOWN
 
     @staticmethod
     def _contains_overapproximation_result(line):
@@ -428,39 +426,34 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
 
         return False
 
-    def _determine_result_with_property_file_for_line(line):
-        if line.startswith("FALSE(valid-free)"):
-            return result.RESULT_FALSE_FREE
-        elif line.startswith("FALSE(valid-deref)"):
-            return result.RESULT_FALSE_DEREF
-        elif line.startswith("FALSE(valid-memtrack)"):
-            return result.RESULT_FALSE_MEMTRACK
-        elif line.startswith("FALSE(valid-memcleanup)"):
-            return result.RESULT_FALSE_MEMCLEANUP
-        elif line.startswith("FALSE(TERM)"):
-            return result.RESULT_FALSE_TERMINATION
-        elif line.startswith("FALSE(OVERFLOW)"):
-            return result.RESULT_FALSE_OVERFLOW
-        elif line.startswith("FALSE"):
-            return result.RESULT_FALSE_REACH
-        elif line.startswith("TRUE"):
-            return result.RESULT_TRUE_PROP
-        elif line.startswith("UNKNOWN"):
-            return result.RESULT_UNKNOWN
-        elif line.startswith("ERROR"):
-            status = result.RESULT_ERROR
-            if line.startswith("ERROR: INVALID WITNESS FILE"):
-                status += " (invalid witness file)"
-            return status
-        else:
-            return None
-
     @staticmethod
-    def _determine_result_with_property_file(self, run):
+    def _determine_result_with_property_file(run):
         for line in run.output:
-            ultimate_result = self._determine_result_with_property_file_for_line(line)
-            if ultimate_result is not None:
-                return ultimate_result
+            if line.startswith("FALSE(valid-free)"):
+                return result.RESULT_FALSE_FREE
+            elif line.startswith("FALSE(valid-deref)"):
+                return result.RESULT_FALSE_DEREF
+            elif line.startswith("FALSE(valid-memtrack)"):
+                return result.RESULT_FALSE_MEMTRACK
+            elif line.startswith("FALSE(valid-memcleanup)"):
+                return result.RESULT_FALSE_MEMCLEANUP
+            elif line.startswith("FALSE(TERM)"):
+                return result.RESULT_FALSE_TERMINATION
+            elif line.startswith("FALSE(OVERFLOW)"):
+                return result.RESULT_FALSE_OVERFLOW
+            elif line.startswith("FALSE"):
+                return result.RESULT_FALSE_REACH
+            elif line.startswith("TRUE"):
+                return result.RESULT_TRUE_PROP
+            elif line.startswith("UNKNOWN"):
+                return result.RESULT_UNKNOWN
+            elif line.startswith("ERROR"):
+                status = result.RESULT_ERROR
+                if line.startswith("ERROR: INVALID WITNESS FILE"):
+                    status += " (invalid witness file)"
+                return status
+            elif line.startswith("DONE"):
+                return result.RESULT_DONE
         return result.RESULT_UNKNOWN
 
     def get_value_from_output(self, output, identifier):

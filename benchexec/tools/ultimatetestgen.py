@@ -53,16 +53,3 @@ class Tool(ultimate.UltimateTool):
 
     def name(self):
         return "ULTIMATE TestGen"
-
-    def _determine_result_without_property_file_for_line(self, line):
-        if line.startswith("DONE"):
-            return result.RESULT_DONE
-        else:
-            return super(Tool, Tool)._determine_result_with_property_file_for_line(line)
-
-    @staticmethod
-    def _determine_result_with_property_file_for_line(line):
-        if line.startswith("DONE"):
-            return result.RESULT_DONE
-        else:
-            return super(Tool, Tool)._determine_result_with_property_file_for_line(line)
