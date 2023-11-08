@@ -15,8 +15,13 @@ class Tool(benchexec.tools.template.BaseTool2):
     Tool info for Deagle, an SMT-based concurrent program verification tool.
     """
 
+    def version(self, executable):
+        return self._version_from_tool(executable, arg="--version")
+
     def executable(self, tool_locator):
-        return tool_locator.find_executable("deagle")
+        exe = tool_locator.find_executable("deagle")
+        self.ver = self.version(exe)
+        return exe
 
     def name(self):
         return "Deagle"
@@ -34,19 +39,15 @@ class Tool(benchexec.tools.template.BaseTool2):
                 return False
         return True
 
-    def version(self, executable):
-        return self._version_from_tool(executable, arg="--version")
-
     def cmdline(self, executable, options, task, rlimits):
-        ver = self.version(executable)
-        if self.version_geq(ver, "2.2"):
-            return [executable] + [task.property_file] + [task.single_input_file]
+        data_model_param = get_data_model_from_task(
+            task, {ILP32: "--32", LP64: "--64"}
+        )
+        if not data_model_param:
+            data_model_param = "--32"
+        if self.version_geq(self.ver, "2.2"):
+            return [executable] + [task.property_file] + [task.single_input_file] + [data_model_param]
         else:
-            data_model_param = get_data_model_from_task(
-                task, {ILP32: "--32", LP64: "--64"}
-            )
-            if not data_model_param:
-                data_model_param = "--32"
             if data_model_param not in options:
                 options += [data_model_param]
             return [executable] + options + [task.single_input_file]
