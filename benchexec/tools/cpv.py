@@ -15,13 +15,15 @@ class Tool(benchexec.tools.template.BaseTool2):
     """
 
     REQUIRED_PATHS = [
-        "hw-verifiers/",
+        "bin/",
+        "cpv/",
         "kratos2/",
+        "lib/",
         "witness.tmpl",
     ]
 
     def executable(self, tool_locator):
-        return tool_locator.find_executable("cpv.py")
+        return tool_locator.find_executable("cpv", subdir="bin")
 
     def name(self):
         return "CPV"
@@ -31,6 +33,11 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def version(self, executable):
         return self._version_from_tool(executable)
+
+    def program_files(self, executable):
+        return self._program_files_from_executable(
+            executable, self.REQUIRED_PATHS, parent_dir=True
+        )
 
     def cmdline(self, executable, options, task, rlimits):
         assert task.options.get("language") == "C"
@@ -43,12 +50,12 @@ class Tool(benchexec.tools.template.BaseTool2):
         if run.was_timeout:
             return result.RESULT_TIMEOUT
         for line in run.output[::-1]:
-            if not line.startswith("INFO:root:Verification result:"):
+            if not line.startswith("INFO: Verification result:"):
                 continue
             if "TRUE" in line:
                 return result.RESULT_TRUE_PROP
             if "FALSE" in line:
-                return result.RESULT_FALSE_PROP
+                return result.RESULT_FALSE_REACH
             if "UNKNOWN" in line:
                 return result.RESULT_UNKNOWN
             if "ERROR" in line:
