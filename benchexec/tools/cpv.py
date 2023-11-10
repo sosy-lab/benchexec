@@ -19,7 +19,6 @@ class Tool(benchexec.tools.template.BaseTool2):
         "cpv/",
         "kratos2/",
         "lib/",
-        "witness.tmpl",
     ]
 
     def executable(self, tool_locator):
