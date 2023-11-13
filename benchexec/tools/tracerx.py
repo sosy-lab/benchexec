@@ -56,7 +56,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         return [executable] + options + list(task.input_files_or_identifier)
 
     def name(self):
-        return "TracerX-Del"
+        return "Tracer-X"
 
     def project_url(self):
         return "https://www.comp.nus.edu.sg/~tracerx/"
