@@ -13,8 +13,6 @@ class Tool(fizzer.Tool):
     Tool info for rizzer.
     """
 
-    REQUIRED_PATHS = fizzer.REQUIRED_PATHS
-
     def name(self):
         """
         Return the name of the tool, formatted for humans.
