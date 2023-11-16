@@ -77,6 +77,20 @@ class Tool(benchexec.tools.template.BaseTool2):
         ), "we expect that all wrapped tools extend BaseTool2"
         return tool.determine_result(run)
 
+    def _select_verifier_from_property(self, property: str):
+        if "unreach-call" in property:
+            return "cpachecker"
+        elif "valid-memcleanup" in property:
+            return "symbiotic"
+        elif "valid-memsafety" in property:
+            return "symbiotic"
+        elif "no-overflow" in property:
+            return "ultimateautomizer"
+        elif "termination" in property:
+            return "ultimateautomizer"
+        else:
+            assert False, "Could not determine verifier from property file!"
+
     def cmdline(self, executable, options, task, rlimits):
         if not task.property_file:
             raise UnsupportedFeatureException(
@@ -84,11 +98,14 @@ class Tool(benchexec.tools.template.BaseTool2):
             )
         parser = argparse.ArgumentParser(add_help=False, usage=argparse.SUPPRESS)
         parser.add_argument("--metavalWitness", required=True)
-        parser.add_argument("--metavalVerifierBackend", required=True)
+        parser.add_argument("--metavalVerifierBackend", default=None)
         parser.add_argument("--metavalAdditionalPATH")
         parser.add_argument("--metavalWitnessType")
         (knownargs, options) = parser.parse_known_args(options)
         verifierName = knownargs.metavalVerifierBackend.lower()
+        if verifierName is None:
+            verifierName = self._select_verifier_from_property(str(task.property_file))
+
         witnessName = knownargs.metavalWitness
         additionalPathArgument = (
             ["--additionalPATH", knownargs.metavalAdditionalPATH]
