@@ -12,7 +12,6 @@ import benchexec.tools.template
 class Tool(benchexec.tools.template.BaseTool2):
     """
     Tool info for Kissat SAT Solver.
-    URL: http://fmv.jku.at/kissat/
     """
 
     def executable(self, tool_locator):
@@ -20,6 +19,9 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def name(self):
         return "Kissat"
+
+    def project_url(self):
+        return "http://fmv.jku.at/kissat/"
 
     def version(self, executable):
         return self._version_from_tool(executable)

@@ -11,7 +11,7 @@ import benchexec.result as result
 
 class Tool(benchexec.tools.template.BaseTool2):
     """
-    Tool info for Dartagnan (https://github.com/hernanponcedeleon/Dat3M).
+    Tool info for Dartagnan.
     """
 
     def executable(self, tool_locator):
@@ -19,6 +19,9 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def name(self):
         return "Dartagnan"
+
+    def project_url(self):
+        return "https://github.com/hernanponcedeleon/Dat3M"
 
     def cmdline(self, executable, options, task, rlimits):
         if task.property_file:

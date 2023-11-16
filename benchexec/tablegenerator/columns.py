@@ -13,6 +13,7 @@ from math import floor, ceil, log10
 import logging
 from typing import Tuple, Union
 
+from benchexec.util import print_decimal
 from benchexec.tablegenerator import util
 
 __all__ = ["Column", "ColumnType", "ColumnMeasureType"]
@@ -206,7 +207,7 @@ class Column(object):
             number = Decimal(number_str)
         elif isinstance(value, Decimal):
             number = value
-            number_str = util.print_decimal(number)
+            number_str = print_decimal(number)
         else:
             raise TypeError(f"Unexpected number type {type(value)}")
 
@@ -229,7 +230,7 @@ class Column(object):
         ):
             # Column of type count (integral values) without specified sig. digits.
             # However, we need to round values like stdev, so we just round somehow.
-            return util.print_decimal(round(number, DEFAULT_TOOLTIP_PRECISION))
+            return print_decimal(round(number, DEFAULT_TOOLTIP_PRECISION))
 
         number_of_significant_digits = self.get_number_of_significant_digits(
             format_target
@@ -250,7 +251,7 @@ class Column(object):
                 format_target,
             )
         else:
-            return util.print_decimal(number)
+            return print_decimal(number)
 
     def set_column_type_from(self, column_values):
         """
@@ -370,7 +371,7 @@ def _format_number(
         # Round to the given amount of significant digits
         intended_digits = min(initial_value_sig_digits, number_of_significant_digits)
 
-        assert number.adjusted() == int(floor(log10(abs(number))))
+        assert number.adjusted() == int(floor(abs(number).log10()))
         rounding_point = -number.adjusted() + (intended_digits - 1)
         # Contrary to its documentation, round() seems to be affected by the rounding
         # mode of decimal's context (which is good for us) when rounding Decimals.
@@ -378,7 +379,7 @@ def _format_number(
         rounded_value = round(number, rounding_point)
         assert rounded_value == number.quantize(Decimal(1).scaleb(-rounding_point))
 
-    formatted_value = util.print_decimal(rounded_value)
+    formatted_value = print_decimal(rounded_value)
 
     # Get the number of resulting significant digits.
     current_sig_digits = _get_significant_digits(formatted_value)

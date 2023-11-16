@@ -12,7 +12,6 @@ import benchexec.tools.template
 class Tool(benchexec.tools.template.BaseTool2):
     """
     Tool info for the witness checker (witnesslint)
-    (https://github.com/sosy-lab/sv-witnesses)
     """
 
     REQUIRED_PATHS = ["witnesslint"]
@@ -22,6 +21,9 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def name(self):
         return "witnesslint"
+
+    def project_url(self):
+        return "https://github.com/sosy-lab/sv-witnesses"
 
     def version(self, executable):
         version_string = self._version_from_tool(executable)

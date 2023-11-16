@@ -13,7 +13,7 @@ from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, 
 
 class Tool(benchexec.tools.template.BaseTool2):
     """
-    Tool info for TestCov (https://gitlab.com/sosy-lab/software/test-suite-validator).
+    Tool info for TestCov.
     """
 
     REQUIRED_PATHS = ["suite_validation", "lib", "bin"]
@@ -42,6 +42,9 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def name(self):
         return "TestCov"
+
+    def project_url(self):
+        return "https://gitlab.com/sosy-lab/software/test-suite-validator"
 
     def determine_result(self, run):
         """

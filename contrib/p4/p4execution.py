@@ -788,14 +788,13 @@ class P4Execution(object):
 
                 for link in self.network_config["links"]:
                     if (
-                        not link["device1"] in all_devices
-                        or not link["device2"] in all_devices
+                        link["device1"] not in all_devices
+                        or link["device2"] not in all_devices
                     ):
                         logging.debug("Link between none defined devices detected")
                         return False
-                    if (
-                        not type(link["device1_port"]) == int
-                        or not type(link["device2_port"]) == int
+                    if not isinstance(link["device1_port"], int) or not isinstance(
+                        link["device2_port"], int
                     ):
                         return False
 

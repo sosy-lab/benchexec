@@ -250,6 +250,49 @@ def non_empty_str(s):
     return s
 
 
+def print_decimal(d):
+    """
+    Print a Decimal instance in non-scientific (i.e., decimal) notation with full
+    precision, i.e., all digits are printed exactly as stored in the Decimal instance.
+    Note that str(d) always falls back to scientific notation for very small values.
+    """
+
+    if d.is_nan():
+        return "NaN"
+    elif d.is_infinite():
+        return "Inf" if d > 0 else "-Inf"
+    assert d.is_finite()
+
+    sign, digits, exp = d.as_tuple()
+    # sign is 1 if negative
+    # digits is exactly the sequence of significant digits in the decimal representation
+    # exp tells us whether we need to shift digits (pos: left shift; neg: right shift).
+    # left shift can only add zeros, right shift adds decimal separator
+
+    sign = "-" if sign == 1 else ""
+    digits = list(map(str, digits))
+
+    if exp >= 0:
+        if digits == ["0"]:
+            # special case: return "0" instead of "0000" for "0e4"
+            return sign + "0"
+        return sign + "".join(digits) + ("0" * exp)
+
+    # Split digits into parts before and after decimal separator.
+    # If -exp > len(digits) the result needs to start with "0.", so we force a 0.
+    integral_part = digits[:exp] or ["0"]
+    decimal_part = digits[exp:]
+    assert decimal_part
+
+    return (
+        sign
+        + "".join(integral_part)
+        + "."
+        + ("0" * (-exp - len(decimal_part)))  # additional zeros if necessary
+        + "".join(decimal_part)
+    )
+
+
 def expand_filename_pattern(pattern, base_dir):
     """
     Expand a file name pattern containing wildcards, environment variables etc.
@@ -416,12 +459,21 @@ def copy_all_lines_from_to(inputFile, outputFile):
         currentLine = inputFile.readline()
 
 
-def write_file(content, *path):
+def write_file(content, *path, force=False):
     """
     Simply write some content to a file, overriding the file if necessary.
+    If force is set this will attempt to ignore missing write permissions.
     """
-    with open(os.path.join(*path), "w") as file:
-        return file.write(content)
+    filename = os.path.join(*path)
+    try:
+        with open(filename, "w") as file:
+            return file.write(content)
+    except OSError:
+        if force:
+            os.chmod(filename, stat.S_IRUSR | stat.S_IWUSR)
+            write_file(content, filename)
+        else:
+            raise
 
 
 def shrink_text_file(filename, max_size, removal_marker=None):

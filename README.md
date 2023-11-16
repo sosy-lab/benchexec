@@ -17,7 +17,7 @@ SPDX-License-Identifier: Apache-2.0
 
 
 **News and Updates**:
-- BenchExec is part of [Google Summer of Code](https://summerofcode.withgoogle.com/) again! If you are interested in being paid by Google for contributing to BenchExec, check our [project ideas and instructions](https://www.sosy-lab.org/gsoc/).
+- BenchExec 3.18 brings support for systems with cgroups v2!
 - Linux kernel 5.11 finally [makes it possible](https://github.com/sosy-lab/benchexec/blob/main/doc/INSTALL.md#kernel-requirements) to use all BenchExec features on distributions other than Ubuntu!
 - We now provide an [Ubuntu PPA](https://launchpad.net/~sosy-lab/+archive/ubuntu/benchmarking) that makes installing and upgrading BenchExec easier ([docs](https://github.com/sosy-lab/benchexec/blob/main/doc/INSTALL.md#debianubuntu)).
 - An extended version of our paper on BenchExec and its background was published as open access in the journal STTT,
@@ -104,6 +104,7 @@ Contributors:
 - [Montgomery Carter](https://github.com/MontyCarter)
 - [Andreas Donig](https://github.com/adonig)
 - [Karlheinz Friedberger](https://www.sosy-lab.org/people/friedberger)
+- [Robin Gloster](https://github.com/globin)
 - Peter Häring
 - [Florian Heck](https://github.com/fheck)
 - [Hugo](https://github.com/hugovk)
@@ -136,6 +137,7 @@ The developers of the following tools use BenchExec:
 
 - [CPAchecker](https://cpachecker.sosy-lab.org), also for regression testing
 - [Dartagnan](https://github.com/hernanponcedeleon/Dat3M)
+- [ESBMC](https://github.com/esbmc/esbmc), also for regression testing and even with a [GitHub action](https://github.com/esbmc/esbmc/blob/master/.github/workflows/benchexec.yml) for BenchExec
 - [SMACK](https://github.com/smackers/smack)
 - [SMTInterpol](https://github.com/ultimate-pa/smtinterpol)
 - [TriCera](https://github.com/uuverifiers/tricera)

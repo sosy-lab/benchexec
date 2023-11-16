@@ -15,7 +15,6 @@ import benchexec.result as result
 class Tool(benchexec.tools.template.BaseTool):
     """
     Tool info for JPF (plain jpf-core)
-    (https://github.com/javapathfinder/jpf-core/).
     """
 
     def executable(self):
@@ -29,6 +28,9 @@ class Tool(benchexec.tools.template.BaseTool):
 
     def name(self):
         return "JPF"
+
+    def project_url(self):
+        return "https://github.com/javapathfinder/jpf-core/"
 
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
         options = options + ["--propertyfile", propertyfile]

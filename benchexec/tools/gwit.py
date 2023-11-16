@@ -13,7 +13,6 @@ class Tool(BaseTool2):
     """
     Tool info module for GWIT. GWIT (as in 'guess what I am thinking' or as in 'GDart witness validator')
     is a witness validator for SVCOMP witnesses for Java programs, based on the *GDart* tool ensemble.
-    https://github.com/tudo-aqua/gwit
     """
 
     def executable(self, tool_locator):
@@ -24,6 +23,9 @@ class Tool(BaseTool2):
 
     def name(self):
         return "GWIT"
+
+    def project_url(self):
+        return "https://github.com/tudo-aqua/gwit"
 
     def cmdline(self, executable, options, task, rlimits):
         cmd = [executable] + options

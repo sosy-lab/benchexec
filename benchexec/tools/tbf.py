@@ -15,7 +15,7 @@ from benchexec.model import SOFTTIMELIMIT
 
 class Tool(benchexec.tools.template.BaseTool):
     """
-    Tool info for tbf (https://github.com/sosy-lab/tbf).
+    Tool info for tbf.
     """
 
     REQUIRED_PATHS = ["tbf", "lib", "bin"]
@@ -33,6 +33,9 @@ class Tool(benchexec.tools.template.BaseTool):
 
     def name(self):
         return "tbf"
+
+    def project_url(self):
+        return "https://github.com/sosy-lab/tbf"
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         """

@@ -12,7 +12,6 @@ class Tool(condtest.Tool):
     """
     This tool instruments the test criteria in the C file, such that a verifier
     can be used on it.
-    url: https://gitlab.com/sosy-lab/software/conditional-testing
     """
 
     _exec_path = "bin/instrumenter/instrumenter"

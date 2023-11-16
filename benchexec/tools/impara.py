@@ -15,7 +15,7 @@ import benchexec.result as result
 
 class Tool(benchexec.tools.template.BaseTool):
     """
-    Tool info for impara (https://github.com/bjowac/impara).
+    Tool info for impara.
     It always adds --xml-ui to the command-line arguments for easier parsing of the output.
     """
 
@@ -29,6 +29,9 @@ class Tool(benchexec.tools.template.BaseTool):
 
     def name(self):
         return "impara"
+
+    def project_url(self):
+        return "https://github.com/bjowac/impara"
 
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
         if "--xml-ui" not in options:

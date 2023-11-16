@@ -12,11 +12,13 @@ import benchexec.result as result
 class Tool(benchexec.tools.template.BaseTool2):
     """
     Tool info for Vampire.
-    https://github.com/vprover/vampire
     """
 
     def name(self):
         return "Vampire"
+
+    def project_url(self):
+        return "https://github.com/vprover/vampire"
 
     def executable(self, tool_locator):
         return tool_locator.find_executable("vampire")

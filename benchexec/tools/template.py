@@ -98,6 +98,14 @@ class BaseTool2(object, metaclass=ABCMeta):
         """
         raise NotImplementedError()
 
+    def project_url(self):
+        """
+        OPTIONAL, return the URL of the tool's webpage, if available.
+
+        @return None or a string with a URL in valid syntax for links on webpages
+        """
+        return None  # noqa: R501
+
     @abstractmethod
     def executable(self, tool_locator):
         """
@@ -178,6 +186,27 @@ class BaseTool2(object, metaclass=ABCMeta):
             )
             output = next(matches, "")
         return output
+
+    def url_for_version(self, version):
+        """
+        OPTIONAL, return a link to the specific version of the tool.
+        This could be for example a link to a specific release page or even a revision
+        in the project's repository if the version is fine-granular enough.
+        BenchExec will use this link to make version numbers of the tool clickable.
+
+        Note that this method may be called without any of the other methods
+        being called before.
+        The string that is passed as a parameter is guaranteed to have been returned
+        by the version() method at some point, but not necessarily in the current
+        execution of BenchExec and possibly by a previous implementation of this
+        tool-info module.
+
+        If no URL can be produced, the method may simply return None.
+
+        @param version: a version string as returned by the version() method in the past
+        @return None or a string with a URL in valid syntax for links on webpages
+        """
+        return None  # noqa: R501
 
     def environment(self, executable):
         """
@@ -711,9 +740,10 @@ class BaseTool(object):
         OPTIONAL, extract a statistic value from the output of the tool.
         This value will be added to the resulting tables.
         It may contain HTML code, which will be rendered appropriately in the HTML tables.
+        It can also be a numeric value, e.g., int, float, or decimal.Decimal.
         @param lines: The output of the tool as list of lines.
         @param identifier: The user-specified identifier for the statistic item.
-        @return a (possibly empty) string, optional with HTML tags
+        @return a (possibly empty) string, optional with HTML tags, or a numeric value
         """
 
     def working_directory(self, executable):

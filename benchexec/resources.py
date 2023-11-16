@@ -16,7 +16,6 @@ import math
 import os
 import sys
 
-from benchexec import cgroups
 from benchexec import util
 
 __all__ = [
@@ -361,8 +360,8 @@ def _get_memory_banks_listed_in_dir(path):
 
 def check_memory_size(memLimit, num_of_threads, memoryAssignment, my_cgroups):
     """Check whether the desired amount of parallel benchmarks fits in the memory.
-    Implemented are checks for memory limits via cgroup controller "memory" and
-    memory bank restrictions via cgroup controller "cpuset",
+    Implemented are checks for memory limits via cgroup subsystem "memory" and
+    memory bank restrictions via cgroup subsystem "cpuset",
     as well as whether the system actually has enough memory installed.
     @param memLimit: the memory limit in bytes per run
     @param num_of_threads: the number of parallel benchmark executions
@@ -389,19 +388,14 @@ def check_memory_size(memLimit, num_of_threads, memoryAssignment, my_cgroups):
             )
             return
 
-        if cgroups.MEMORY in my_cgroups:
-            # We use the entries hierarchical_*_limit in memory.stat and not memory.*limit_in_bytes
-            # because the former may be lower if memory.use_hierarchy is enabled.
-            for key, value in my_cgroups.get_key_value_pairs(cgroups.MEMORY, "stat"):
-                if (
-                    key == "hierarchical_memory_limit"
-                    or key == "hierarchical_memsw_limit"
-                ):
-                    check_limit(int(value))
+        if my_cgroups.MEMORY in my_cgroups:
+            actual_limit = my_cgroups.read_hierarchical_memory_limit()
+            if actual_limit is not None:
+                check_limit(actual_limit)
 
         # Get list of all memory banks, either from memory assignment or from system.
         if not memoryAssignment:
-            if cgroups.CPUSET in my_cgroups:
+            if my_cgroups.CPUSET in my_cgroups:
                 allMems = my_cgroups.read_allowed_memory_banks()
             else:
                 allMems = _get_memory_banks_listed_in_dir("/sys/devices/system/node/")

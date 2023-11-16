@@ -13,7 +13,6 @@ from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, 
 class Tool(benchexec.tools.template.BaseTool2):
     """
     VeriAbs
-    Homepage: https://www.tcs.com/designing-complex-intelligent-systems
     """
 
     REQUIRED_PATHS = [
@@ -45,6 +44,9 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def name(self):
         return "VeriAbs"
+
+    def project_url(self):
+        return "https://www.tcs.com/designing-complex-intelligent-systems"
 
     def cmdline(self, executable, options, task, rlimits):
         if task.property_file:

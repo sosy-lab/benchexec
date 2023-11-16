@@ -12,7 +12,6 @@ import benchexec.result as result
 class Tool(benchexec.tools.template.BaseTool2):
     """
     Tool info for MLB
-    (https://github.com/MLB-SE/Experiment).
     """
 
     def executable(self, tool_locator):
@@ -23,6 +22,9 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def name(self):
         return "MLB"
+
+    def project_url(self):
+        return "https://github.com/MLB-SE/Experiment"
 
     def cmdline(self, executable, options, task, rlimits):
         cmd = [executable]

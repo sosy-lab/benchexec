@@ -11,7 +11,7 @@ from . import cseq
 
 class Tool(cseq.CSeqTool):
     """
-    Tool info for UL-CSeq (http://users.ecs.soton.ac.uk/gp4/cseq/cseq.html).
+    Tool info for UL-CSeq.
     """
 
     REQUIRED_PATHS = ["backends", "bin", "include", "ul-cseq.py"]

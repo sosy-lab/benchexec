@@ -13,12 +13,13 @@ import benchexec.result as result
 class Tool(benchexec.tools.template.BaseTool2):
     """
     VeriOover
-
-    http://github.com/PaperSheeper/VeriOover-SV
     """
 
     def name(self):
         return "VeriOover"
+
+    def project_url(self):
+        return "http://github.com/PaperSheeper/VeriOover-SV"
 
     def executable(self, tool_locator):
         return tool_locator.find_executable("VeriOover")

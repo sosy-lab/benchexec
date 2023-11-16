@@ -12,7 +12,7 @@ import benchexec.result as result
 
 class Tool(benchexec.tools.template.BaseTool):
     """
-    Tool info for JayHorn (https://github.com/jayhorn/jayhorn).
+    Tool info for JayHorn.
     """
 
     def executable(self):
@@ -23,6 +23,9 @@ class Tool(benchexec.tools.template.BaseTool):
 
     def name(self):
         return "JayHorn"
+
+    def project_url(self):
+        return "https://github.com/jayhorn/jayhorn"
 
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
         options = options + ["--propertyfile", propertyfile]

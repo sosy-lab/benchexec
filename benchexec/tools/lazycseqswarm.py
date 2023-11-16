@@ -10,7 +10,7 @@ from . import cseq
 
 class Tool(cseq.CSeqTool):
     """
-    Tool info for Lazy CSeq Swarm (http://users.ecs.soton.ac.uk/gp4/cseq/cseq.html).
+    Tool info for Lazy CSeq Swarm.
     """
 
     def executable(self, tool_locator):
