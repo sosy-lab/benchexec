@@ -77,16 +77,16 @@ class Tool(benchexec.tools.template.BaseTool2):
         ), "we expect that all wrapped tools extend BaseTool2"
         return tool.determine_result(run)
 
-    def _select_verifier_from_property(self, property: str):
-        if "unreach-call" in property:
+    def _select_verifier_from_property(self, property_name: str):
+        if "unreach-call" in property_name:
             return "cpachecker"
-        elif "valid-memcleanup" in property:
+        elif "valid-memcleanup" in property_name:
             return "symbiotic"
-        elif "valid-memsafety" in property:
+        elif "valid-memsafety" in property_name:
             return "symbiotic"
-        elif "no-overflow" in property:
+        elif "no-overflow" in property_name:
             return "ultimateautomizer"
-        elif "termination" in property:
+        elif "termination" in property_name:
             return "ultimateautomizer"
         else:
             assert False, "Could not determine verifier from property file!"
