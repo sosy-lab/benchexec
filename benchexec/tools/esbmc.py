@@ -6,14 +6,16 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import os
+import re
 from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, LP64
 import benchexec.tools.template
 import benchexec.result as result
+import decimal
 
 
 class Tool(benchexec.tools.template.BaseTool2):
     """
-    This class serves as tool adaptor for ESBMC (http://www.esbmc.org/)
+    This class serves as tool adaptor for ESBMC
     """
 
     def executable(self, tool_locator):
@@ -28,6 +30,9 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def name(self):
         return "ESBMC"
+
+    def project_url(self):
+        return "http://www.esbmc.org/"
 
     def cmdline(self, executable, options, task, rlimits):
         data_model_param = get_data_model_from_task(task, {ILP32: "32", LP64: "64"})
@@ -69,3 +74,19 @@ class Tool(benchexec.tools.template.BaseTool2):
                 status = "ERROR"
 
         return status
+
+    def get_value_from_output(self, output, identifier):
+        regex = re.compile(identifier)
+        matches = []
+
+        # Match first element of each line
+        for line in output:
+            match = regex.search(line.strip())
+            if match and len(match.groups()) >= 1:
+                matches.append(match.group(1))
+
+        if len(matches) == 1:
+            return matches[0]
+        if len(matches) > 1:
+            return sum(decimal.Decimal(value) for value in matches)
+        return None

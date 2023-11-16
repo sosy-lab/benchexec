@@ -11,7 +11,7 @@ from . import cseq
 
 class Tool(cseq.CSeqTool):
     """
-    Tool info for Mu-CSeq (http://users.ecs.soton.ac.uk/gp4/cseq/cseq.html).
+    Tool info for Mu-CSeq.
     """
 
     REQUIRED_PATHS = [

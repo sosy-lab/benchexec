@@ -15,7 +15,6 @@ import logging
 class Tool(benchexec.tools.template.BaseTool2):
     """
     Tool info for Goblint.
-    URL: https://goblint.in.tum.de/
     """
 
     def executable(self, tool_locator):
@@ -24,8 +23,22 @@ class Tool(benchexec.tools.template.BaseTool2):
     def version(self, executable):
         return self._version_from_tool(executable, line_prefix="Goblint version: ")
 
+    def url_for_version(self, version):
+        m = re.fullmatch(r"(heads|tags)/(.+)-(\d+)-g([0-9a-f]{7,})(-dirty)?", version)
+        if m:
+            return f"https://github.com/goblint/analyzer/commit/{m.group(4)}"
+
+        m = re.fullmatch(r"([0-9.]+) ([0-9a-f]{40})", version)
+        if m:
+            return f"https://github.com/goblint/analyzer/commit/{m.group(2)}"
+
+        return None
+
     def name(self):
         return "Goblint"
+
+    def project_url(self):
+        return "https://goblint.in.tum.de/"
 
     _DATA_MODELS = {"ILP32": "32bit", "LP64": "64bit"}
 

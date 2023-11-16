@@ -15,7 +15,8 @@ For more general guidelines about benchmarking,
 e.g., what to do when implementing a benchmarking tool,
 please read our paper [Reliable Benchmarking: Requirements and Solutions](https://www.sosy-lab.org/research/pub/2019-STTT.Reliable_Benchmarking_Requirements_and_Solutions.pdf).
 There are also many other valuable resources about benchmarking,
-for example this list of [Benchmarking Crimes](https://gernot-heiser.org/benchmarking-crimes.html).
+for example this list of [Benchmarking Crimes](https://gernot-heiser.org/benchmarking-crimes.html)
+and these [ACM SIGSOFT Empirical Standards for Benchmarking](https://github.com/acmsigsoft/EmpiricalStandards/blob/master/docs/Benchmarking.md).
 
 ### Document as much as possible
 For correct interpretation of results, it is important that everything important

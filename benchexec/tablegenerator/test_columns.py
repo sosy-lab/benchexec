@@ -126,6 +126,12 @@ class ColumnsTest(unittest.TestCase):
         )
         self.assertEqual(formatted_value, "0.00000000001")
 
+    def test_format_value_many_digits(self):
+        formatted_value_no_align_rounded = self.measure_column.format_value(
+            "0.09999999999999999", *self.default_optionals
+        )
+        self.assertEqual(formatted_value_no_align_rounded, "0.1000")
+
     def test_format_value_align_decimal(self):
         formatted_value_aligned = self.measure_column.format_value(
             "1.555s", "html_cell"

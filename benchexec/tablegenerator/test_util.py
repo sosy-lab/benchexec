@@ -53,52 +53,6 @@ class TestUnit(unittest.TestCase):
         self.assertEqualTextAndNumber("abc1abc", "abc1abc", "")
         self.assertEqualTextAndNumber("abc1abc1", "abc1abc", "1")
 
-    def test_print_decimal_roundtrip(self):
-        # These values should be printed exactly as in the input (with "+" removed)
-        test_values = [
-            "NaN",
-            "Inf",
-            "-Inf",
-            "+Inf",
-            "0",
-            "-0",
-            "+0",
-            "0.0",
-            "-0.0",
-            "0.00000000000000000000",
-            "0.00000000000000000001",
-            "0.00000000123450000000",
-            "0.1",
-            "0.10000000000000000000",
-            "0.99999999999999999999",
-            "1",
-            "-1",
-            "+1",
-            "1000000000000000000000",
-            "10000000000.0000000000",
-        ]
-        for value in test_values:
-            expected = value.lstrip("+")
-            self.assertEqual(expected, util.print_decimal(Decimal(value)))
-
-    def test_print_decimal_int(self):
-        # These values should be printed like Decimal prints them after quantizing
-        # to remove the exponent.
-        test_values = ["0e0", "-0e0", "0e20", "1e0", "1e20", "0e10"]
-        for value in test_values:
-            value = Decimal(value)
-            expected = str(value.quantize(1))
-            assert "e" not in expected
-            self.assertEqual(expected, util.print_decimal(value))
-
-    def test_print_decimal_float(self):
-        # These values should be printed like str prints floats.
-        test_values = ["1e-4", "123e-4", "1234e-4", "1234e-5", "1234e-6"]
-        for value in test_values:
-            expected = str(float(value))
-            assert "e" not in expected, expected
-            self.assertEqual(expected, util.print_decimal(Decimal(value)))
-
     def test_roman_number_conversion(self):
         test_data = {
             1: "I",
@@ -173,3 +127,25 @@ class TestUnit(unittest.TestCase):
         self.assertListEqual(
             [1, 2, 3], util.find_common_elements([[1, 2, 3, 4], [1, 2, 3, 5]])
         )
+
+    def test_to_decimal_empty(self):
+        self.assertIsNone(util.to_decimal(None))
+        self.assertIsNone(util.to_decimal(""))
+        self.assertIsNone(util.to_decimal(" "))
+
+    def test_to_decimal_str(self):
+        self.assertTrue(util.to_decimal("NaN").is_nan())
+        self.assertTrue(util.to_decimal(" NaN ").is_nan())
+        self.assertEqual(Decimal("+Inf"), util.to_decimal("Inf"))
+        self.assertEqual(Decimal("+Inf"), util.to_decimal(" Inf "))
+        self.assertEqual(Decimal("+Inf"), util.to_decimal("+inf"))
+        self.assertEqual(Decimal("-Inf"), util.to_decimal("-inf"))
+        self.assertEqual(Decimal("1.234"), util.to_decimal("1.234"))
+        self.assertEqual(Decimal("1.234"), util.to_decimal(" 1.234 s "))
+        self.assertEqual(Decimal("1.234"), util.to_decimal("+1.234"))
+        self.assertEqual(Decimal("-1.234"), util.to_decimal("-1.234"))
+
+    def test_to_decimal_numeric(self):
+        self.assertEqual(Decimal("-1"), util.to_decimal(-1))
+        self.assertEqual(Decimal(-1.234), util.to_decimal(-1.234))
+        self.assertEqual(Decimal("-1.234"), util.to_decimal(Decimal("-1.234")))

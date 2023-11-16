@@ -15,7 +15,7 @@ import benchexec.result as result
 
 class Tool(benchexec.tools.template.BaseTool):
     """
-    Tool info for Cascade (http://cascade.cims.nyu.edu/).
+    Tool info for Cascade.
     """
 
     REQUIRED_PATHS = ["bin", "cascade.sh", "lib", "run_cascade"]
@@ -25,6 +25,9 @@ class Tool(benchexec.tools.template.BaseTool):
 
     def name(self):
         return "Cascade"
+
+    def project_url(self):
+        return "http://cascade.cims.nyu.edu/"
 
     def version(self, executable):
         return self._version_from_tool(executable)

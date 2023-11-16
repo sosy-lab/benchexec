@@ -13,7 +13,6 @@ import benchexec.result as result
 class Tool(benchexec.tools.template.BaseTool):
     """
     Tool info for COASTAL
-    (http://www.cs.sun.ac.za/coastal/).
     """
 
     REQUIRED_PATHS = ["coastal", "coastal-sv-comp"]
@@ -23,6 +22,9 @@ class Tool(benchexec.tools.template.BaseTool):
 
     def name(self):
         return "COASTAL"
+
+    def project_url(self):
+        return "http://www.cs.sun.ac.za/coastal/"
 
     def version(self, executable):
         output = self._version_from_tool(executable, arg="--version")

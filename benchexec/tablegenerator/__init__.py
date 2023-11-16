@@ -404,12 +404,19 @@ class RunSetResult(object):
         """
         self.results = []
 
+        tool = load_tool(self)
+        if tool:
+            self.attributes["project_url"] = [tool.project_url()]
+
+            versions = self.attributes["version"]
+            if len(versions) == 1 and versions[0]:
+                self.attributes["version_url"] = [tool.url_for_version(versions[0])]
+
         def get_value_from_logfile(lines, identifier):
             """
             This method searches for values in lines of the content.
             It uses a tool-specific method to so.
             """
-            tool = load_tool(self)
             if not tool:
                 return None
             output = tooladapter.CURRENT_BASETOOL.RunOutput(lines)

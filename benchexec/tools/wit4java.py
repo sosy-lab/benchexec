@@ -14,7 +14,6 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     """
     Tool info for wit4java
-    (https://github.com/wit4java/wit4java).
     """
 
     def executable(self, tool_locator):
@@ -28,6 +27,9 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def name(self):
         return "wit4java"
+
+    def project_url(self):
+        return "https://github.com/wit4java/wit4java"
 
     def cmdline(self, executable, options, task, rlimits):
         return [executable] + options + list(task.input_files)

@@ -13,7 +13,6 @@ import benchexec.result as result
 class Tool(benchexec.tools.template.BaseTool):
     """
     Tool info for JDart modified by TU Dortmund
-    (https://github.com/tudo-aqua/jdart).
     """
 
     def executable(self):
@@ -24,6 +23,9 @@ class Tool(benchexec.tools.template.BaseTool):
 
     def name(self):
         return "JDart"
+
+    def project_url(self):
+        return "https://github.com/tudo-aqua/jdart"
 
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
         cmd = [executable]

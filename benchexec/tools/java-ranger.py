@@ -13,7 +13,6 @@ import benchexec.result as result
 class Tool(benchexec.tools.template.BaseTool):
     """
     Tool info for Java Ranger that is based on the symbolic extension (SPF) of Java PathFinder (JPF)
-    (https://github.com/vaibhavbsharma/java-ranger).
     """
 
     def executable(self):
@@ -21,6 +20,9 @@ class Tool(benchexec.tools.template.BaseTool):
 
     def name(self):
         return "Java Ranger"
+
+    def project_url(self):
+        return "https://github.com/vaibhavbsharma/java-ranger"
 
     def version(self, executable):
         output = self._version_from_tool(executable, arg="--version")

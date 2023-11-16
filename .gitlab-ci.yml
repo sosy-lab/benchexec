@@ -129,6 +129,24 @@ pytype:
       - ".cache/pip"
       - ".pytype"
 
+ruff:
+  stage: test
+  before_script:
+    - "pip install ruff"
+  script:
+    - "ruff check . || true"
+    - "ruff check . --output-format=gitlab > gl-code-quality-report.json"
+  variables:
+    PYTHON_VERSION: '3.10'
+  artifacts:
+    reports:
+      codequality: "gl-code-quality-report.json"
+  cache:
+    key: "${CI_JOB_NAME}"
+    paths:
+      - ".cache/pip"
+      - ".ruff_cache"
+
 
 # For HTML tables, test that bundled files are uptodate
 javascript-build:
@@ -171,7 +189,7 @@ javascript-eslint:
 reuse:
   stage: test
   image:
-    name: fsfe/reuse:latest
+    name: fsfe/reuse:1
     entrypoint: [""]
   script:
     - reuse lint

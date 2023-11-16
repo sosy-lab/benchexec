@@ -13,7 +13,6 @@ from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, 
 class Tool(benchexec.tools.template.BaseTool2):
     """
     A Symbolic Executor based on Separation Logic
-    https://spencerl-y.github.io/SESL/
     """
 
     REQUIRED_PATHS = [
@@ -27,6 +26,9 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def name(self):
         return "SESL"
+
+    def project_url(self):
+        return "https://spencerl-y.github.io/SESL/"
 
     def version(self, executable):
         return self._version_from_tool(executable, arg="--version")

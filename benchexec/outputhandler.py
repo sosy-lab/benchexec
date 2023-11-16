@@ -9,6 +9,7 @@ import base64
 import bz2
 import collections
 import datetime
+import decimal
 import io
 import os
 import threading
@@ -702,6 +703,8 @@ class OutputHandler(object):
             value = ",".join(map(str, value))  # pytype: disable=wrong-arg-types
         elif isinstance(value, datetime.datetime):
             value = value.isoformat()
+        elif isinstance(value, decimal.Decimal):
+            value = util.print_decimal(value)
 
         if prefix:
             title = prefix + "_" + title
@@ -723,6 +726,8 @@ class OutputHandler(object):
                     value_suffix = "B"
             elif title.startswith("mbm"):
                 value_suffix = "B/s"
+            elif title.startswith("pressure-") and title.endswith("-some"):
+                value_suffix = "s"
 
         value = f"{value}{value_suffix}"
 
