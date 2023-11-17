@@ -23,12 +23,6 @@ class Tool(BaseTool2):
         return tool_locator.find_executable("liv", subdir="bin")
 
     def program_files(self, executable):
-        print(
-            [executable]
-            + self._program_files_from_executable(
-                executable, self.REQUIRED_PATHS, parent_dir=True
-            )
-        )
         return [executable] + self._program_files_from_executable(
             executable, self.REQUIRED_PATHS, parent_dir=True
         )
@@ -37,7 +31,10 @@ class Tool(BaseTool2):
         return self._version_from_tool(executable)
 
     def name(self):
-        return "liv"
+        return "LIV"
+
+    def project_url(self):
+        return "https://gitlab.com/sosy-lab/software/liv"
 
     def cmdline(self, executable, options, task, rlimits):
         if task.property_file:
@@ -50,7 +47,6 @@ class Tool(BaseTool2):
         if data_model_param and "--data-model" not in options:
             options += ["--data-model", data_model_param]
 
-        self.options = options
         return [executable] + options + list(task.input_files_or_identifier)
 
     def determine_result(self, run):
