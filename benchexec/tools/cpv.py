@@ -16,10 +16,11 @@ class Tool(benchexec.tools.template.BaseTool2):
     """
 
     REQUIRED_PATHS = [
+        "actors/",
         "bin/",
         "cpv/",
-        "kratos2/",
         "lib/",
+        "kratos2/",
     ]
 
     def executable(self, tool_locator):
