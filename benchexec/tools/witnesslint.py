@@ -40,6 +40,9 @@ class Tool(benchexec.tools.template.BaseTool2):
         witness_type_match = self.get_value_from_output(
             run.output, "Witness Type-Match"
         )
+        witness_version_match = self.get_value_from_output(
+            run.output, "Witness Version-Match"
+        )
         if "witnesslint finished" not in run.output[-1] or exit_code == 7:
             return "EXCEPTION"
         elif exit_code == 1:
@@ -50,6 +53,8 @@ class Tool(benchexec.tools.template.BaseTool2):
             return result.RESULT_ERROR + " (program does not exist)"
         elif witness_type_match == "False":
             return result.RESULT_ERROR + " (unexpected witness type)"
+        elif witness_version_match == "False":
+            return result.RESULT_ERROR + " (unexpected witness version)"
         elif exit_code == 0:
             return result.RESULT_DONE
 
