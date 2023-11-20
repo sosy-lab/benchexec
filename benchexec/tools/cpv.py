@@ -50,14 +50,15 @@ class Tool(benchexec.tools.template.BaseTool2):
         if run.was_timeout:
             return result.RESULT_TIMEOUT
         for line in run.output[::-1]:
-            if not line.startswith("INFO: Verification result:"):
-                continue
-            if "TRUE" in line:
-                return result.RESULT_TRUE_PROP
-            if "FALSE" in line:
-                return result.RESULT_FALSE_REACH
-            if "UNKNOWN" in line:
-                return result.RESULT_UNKNOWN
-            if "ERROR" in line:
-                return result.RESULT_ERROR
+            if line.startswith("INFO: Verification result:"):
+                if "TRUE" in line:
+                    return result.RESULT_TRUE_PROP
+                if "FALSE" in line:
+                    return result.RESULT_FALSE_REACH
+                if "UNKNOWN" in line:
+                    return result.RESULT_UNKNOWN
+                if "ERROR" in line:
+                    return result.RESULT_ERROR + "(verification failed)"
+            if line.startswith("cpv.task_translator.TranslationFailedError"):
+                return result.RESULT_ERROR + "(translation failed)"
         return result.RESULT_ERROR
