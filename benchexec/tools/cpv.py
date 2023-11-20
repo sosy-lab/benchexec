@@ -44,7 +44,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         options += ["--property", task.property_file]
         if task.options.get("data_model") and "--model" not in options:
             options += ["--model", task.options.get("data_model")]
-        return [executable, *options, task.single_input_file]
+        return [executable, task.single_input_file, *options]
 
     def determine_result(self, run):
         if run.was_timeout:
