@@ -37,7 +37,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         return tool_locator.find_executable("runTool.py")
 
     def version(self, executable):
-        return self._version_from_tool(executable, use_stderr=True)
+        return self._version_from_tool(executable, arg="--version")
 
     def name(self):
         return "cetfuzz"
