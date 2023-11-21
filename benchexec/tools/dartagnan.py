@@ -36,7 +36,15 @@ class Tool(benchexec.tools.template.BaseTool2):
         if run.output:
             result_str = run.output[-1].strip()
             if "FAIL" in result_str:
-                status = result.RESULT_FALSE_REACH
+                failure_str = run.output[-3].strip()
+                if "integer overflow" in failure_str:
+                    status = result.RESULT_FALSE_OVERFLOW
+                elif "invalid dereference" in failure_str:
+                    status = result.RESULT_FALSE_DEREF
+                elif "user assertion" in failure_str:
+                    status = result.RESULT_FALSE_REACH
+                else:
+                    status = result.RESULT_FALSE_PROP
             elif "PASS" in result_str:
                 status = result.RESULT_TRUE_PROP
             elif "UNKNOWN" in result_str:
