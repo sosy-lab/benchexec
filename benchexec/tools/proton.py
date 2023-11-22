@@ -43,28 +43,27 @@ class Tool(benchexec.tools.template.BaseTool2):
         if run.exit_code.value not in [0, 10] or len(output) == 0:
             return result.RESULT_ERROR
 
-        status = "UNKNOWN ERROR"
         result_str = output[-1].strip()
 
         if result_str == "TRUE":
-            status = result.RESULT_TRUE_PROP
+            return result.RESULT_TRUE_PROP
 
         elif "FALSE(termination)" in result_str:
-            status = result.RESULT_FALSE_TERMINATION
+            return result.RESULT_FALSE_TERMINATION
 
         elif "UNKNOWN" in result_str:
-            status = result.RESULT_UNKNOWN
+            return result.RESULT_UNKNOWN
 
         elif "INTERNAL-ERROR" in result_str:
-            status = "INTERNAL-ERROR"
+            return "INTERNAL-ERROR"
 
         elif "OUT OF MEMORY" in result_str:
-            status = "OUT OF MEMORY"
+            return "OUT OF MEMORY"
 
         elif "INCONCLUSIVE" in result_str:
-            status = "INCONCLUSIVE"
+            return "INCONCLUSIVE"
 
         elif "UNRECOGNIZED PROPERTY" in result_str:
-            status = "UNSUPPORTED PROPERTY SPECIFIED"
+            return "UNSUPPORTED PROPERTY SPECIFIED"
 
-        return status
+        return "UNKNOWN ERROR"
