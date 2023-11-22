@@ -42,7 +42,7 @@ class Tool(benchexec.tools.template.BaseTool2):
 
         status = result.RESULT_ERROR
 
-        result_str = "UNKNOWN ERROR"
+        result_str = ""
 
         if run.exit_code.value in [0, 10] and len(output) > 0:
             result_str = output[-1].strip()
