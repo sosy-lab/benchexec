@@ -44,20 +44,21 @@ class Tool(benchexec.tools.template.BaseTool2):
         options += ["--property", task.property_file]
         if task.options.get("data_model") and "--model" not in options:
             options += ["--model", task.options.get("data_model")]
-        return [executable, *options, task.single_input_file]
+        return [executable, task.single_input_file, *options]
 
     def determine_result(self, run):
         if run.was_timeout:
             return result.RESULT_TIMEOUT
         for line in run.output[::-1]:
-            if not line.startswith("INFO: Verification result:"):
-                continue
-            if "TRUE" in line:
-                return result.RESULT_TRUE_PROP
-            if "FALSE" in line:
-                return result.RESULT_FALSE_REACH
-            if "UNKNOWN" in line:
-                return result.RESULT_UNKNOWN
-            if "ERROR" in line:
-                return result.RESULT_ERROR
+            if line.startswith("INFO: Verification result:"):
+                if "TRUE" in line:
+                    return result.RESULT_TRUE_PROP
+                if "FALSE" in line:
+                    return result.RESULT_FALSE_REACH
+                if "UNKNOWN" in line:
+                    return result.RESULT_UNKNOWN
+                if "ERROR" in line:
+                    return result.RESULT_ERROR + "(verification failed)"
+            if line.startswith("cpv.task_translator.TranslationFailedError"):
+                return result.RESULT_ERROR + "(translation failed)"
         return result.RESULT_ERROR
