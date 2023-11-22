@@ -40,12 +40,11 @@ class Tool(benchexec.tools.template.BaseTool2):
     def determine_result(self, run):
         output = run.output
 
-        status = result.RESULT_ERROR
+        if run.exit_code.value not in [0, 10] or len(output) == 0:
+            return result.RESULT_ERROR
 
-        result_str = ""
-
-        if run.exit_code.value in [0, 10] and len(output) > 0:
-            result_str = output[-1].strip()
+        status = "UNKNOWN ERROR"
+        result_str = output[-1].strip()
 
         if result_str == "TRUE":
             status = result.RESULT_TRUE_PROP
