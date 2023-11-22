@@ -64,4 +64,4 @@ class Tool(benchexec.tools.template.BaseTool2):
         elif "UNRECOGNIZED PROPERTY" in result_str:
             return "UNSUPPORTED PROPERTY SPECIFIED"
 
-        return "UNKNOWN ERROR"
+        return result.RESULT_ERROR
