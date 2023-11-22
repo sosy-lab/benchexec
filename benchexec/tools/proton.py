@@ -38,34 +38,30 @@ class Tool(benchexec.tools.template.BaseTool2):
         return [executable] + options + [task.single_input_file]
 
     def determine_result(self, run):
-        output = run.output
+        if run.exit_code.value not in [0, 10] or len(run.output) == 0:
+            return result.RESULT_ERROR
 
-        status = result.RESULT_ERROR
-
-        result_str = "UNKNOWN ERROR"
-
-        if run.exit_code.value in [0, 10] and len(output) > 0:
-            result_str = output[-1].strip()
+        result_str = run.output[-1].strip()
 
         if result_str == "TRUE":
-            status = result.RESULT_TRUE_PROP
+            return result.RESULT_TRUE_PROP
 
         elif "FALSE(termination)" in result_str:
-            status = result.RESULT_FALSE_TERMINATION
+            return result.RESULT_FALSE_TERMINATION
 
         elif "UNKNOWN" in result_str:
-            status = result.RESULT_UNKNOWN
+            return result.RESULT_UNKNOWN
 
         elif "INTERNAL-ERROR" in result_str:
-            status = "INTERNAL-ERROR"
+            return "INTERNAL-ERROR"
 
         elif "OUT OF MEMORY" in result_str:
-            status = "OUT OF MEMORY"
+            return "OUT OF MEMORY"
 
         elif "INCONCLUSIVE" in result_str:
-            status = "INCONCLUSIVE"
+            return "INCONCLUSIVE"
 
         elif "UNRECOGNIZED PROPERTY" in result_str:
-            status = "UNSUPPORTED PROPERTY SPECIFIED"
+            return "UNSUPPORTED PROPERTY SPECIFIED"
 
-        return status
+        return result.RESULT_ERROR
