@@ -38,12 +38,10 @@ class Tool(benchexec.tools.template.BaseTool2):
         return [executable] + options + [task.single_input_file]
 
     def determine_result(self, run):
-        output = run.output
-
-        if run.exit_code.value not in [0, 10] or len(output) == 0:
+        if run.exit_code.value not in [0, 10] or len(run.output) == 0:
             return result.RESULT_ERROR
 
-        result_str = output[-1].strip()
+        result_str = run.output[-1].strip()
 
         if result_str == "TRUE":
             return result.RESULT_TRUE_PROP
