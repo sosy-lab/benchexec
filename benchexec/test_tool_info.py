@@ -131,6 +131,7 @@ def print_tool_info(tool, tool_locator):
         if not os.path.commonpath((abs_directory, abs_executable)) == abs_directory:
             logging.warning("Executable is not within specified tool directory.")
 
+    version = None
     try:
         version = tool.version(executable)
     except BaseException:
