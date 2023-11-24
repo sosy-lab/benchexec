@@ -9,6 +9,15 @@ SPDX-License-Identifier: Apache-2.0
 
 # BenchExec Changelog
 
+## BenchExec 3.19
+
+- Tool-info modules can now provide URLs that will be used for links in HTML tables.  
+  There are two new methods, `project_url()` and `url_for_version()`
+  that can be implemented, and `table-generator` will put links to these URLs
+  in the summary table of the HTML tables (for the tool name and the version).
+  Most existing tool-info modules were extended with `project_url()`.
+- Many new and improved tool-info modules.
+
 ## BenchExec 3.18
 
 The big change in this release is the long-awaited support for cgroups v2!
