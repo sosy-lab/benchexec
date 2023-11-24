@@ -6,6 +6,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
+import re
 
 import benchexec.result
 from benchexec.tools.sv_benchmarks_util import ILP32, LP64, get_data_model_from_task
@@ -53,14 +54,18 @@ class Tool(BaseTool2):
         if not run.output:
             return benchexec.result.RESULT_ERROR
         lastline = run.output[-1]
-        if "true" in lastline:
-            return benchexec.result.RESULT_TRUE_PROP
-        elif "false" in lastline:
-            return benchexec.result.RESULT_FALSE_PROP
-        elif "unknown" in lastline:
-            return benchexec.result.RESULT_UNKNOWN
+        if lastline.startswith("Overall result: true"):
+            status = benchexec.result.RESULT_TRUE_PROP
+        elif lastline.startswith("Overall result: false"):
+            status = benchexec.result.RESULT_FALSE_PROP
+        elif lastline.startswith("Overall result: unknown"):
+            status = benchexec.result.RESULT_UNKNOWN
         else:
-            return benchexec.result.RESULT_ERROR
+            status = benchexec.result.RESULT_ERROR
+        match = re.match(r".*\((.*)\)", lastline)
+        if match:
+            status += f"({match.group(1)})"
+        return status
 
     def get_value_from_output(self, output, identifier):
         # search for the text in output and get its value,
