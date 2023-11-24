@@ -12,7 +12,6 @@ import benchexec.result as result
 class Tool(benchexec.tools.template.BaseTool2):
     """
     Tool info for FDSE.
-    https://github.com/passengerZ/FDSE
     """
 
     def executable(self, tool_locator):
@@ -33,6 +32,9 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def name(self):
         return "FDSE"
+
+    def project_url(self):
+        return "https://github.com/passengerZ/FDSE"
 
     def determine_result(self, run):
         status = result.RESULT_ERROR
