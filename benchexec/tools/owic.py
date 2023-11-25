@@ -46,7 +46,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         if run.exit_code == 1:
             return result.RESULT_ERROR
 
-        for line in run.ouput:
+        for line in run.output:
             if "Assert failure" in line:
                 return result.RESULT_FALSE_REACH
             elif "ERROR" in line:
