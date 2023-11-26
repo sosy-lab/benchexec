@@ -39,6 +39,6 @@ class Tool(benchexec.tools.template.BaseTool2):
             elif "Verdict: Unknown error" in line:
                 return result.RESULT_ERROR
             elif "Verdict: " in line:
-                return result.RESULT_ERROR + "(" + line[len("Verdict: "):] + ")"
+                return result.RESULT_ERROR + "(" + line[len("Verdict: ") :] + ")"
 
         return result.RESULT_UNKNOWN
