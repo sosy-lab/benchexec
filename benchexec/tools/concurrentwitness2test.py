@@ -38,11 +38,7 @@ class Tool(benchexec.tools.template.BaseTool2):
                 return result.RESULT_TIMEOUT + "(inner)"
             elif "Verdict: Unknown error" in line:
                 return result.RESULT_ERROR
-            elif "Verdict: Incompatible witness" in line:
-                return result.RESULT_ERROR + "(Incompatible witness)"
-            elif "Verdict: Parsing failed" in line:
-                return result.RESULT_ERROR + "(Parsing failed)"
-            elif "Verdict: Compilation error" in line:
-                return result.RESULT_ERROR + "(Compilation error)"
+            elif "Verdict: " in line:
+                return result.RESULT_ERROR + "(" + line[len("Verdict: "):] + ")"
 
         return result.RESULT_UNKNOWN
