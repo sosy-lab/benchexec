@@ -138,6 +138,10 @@ def print_tool_info(tool, tool_locator):
         logging.warning("Determining version failed:", exc_info=1)
     if version:
         print_value("Version", tool.version(executable))
+        if version[0] < "0" or version[0] > "9":
+            logging.warning(
+                "Version does not start with a digit, please remove any prefixes like the tool name."
+            )
         print_optional_value("URL for version", tool.url_for_version(version))
 
     working_directory = tool.working_directory(executable)
