@@ -9,6 +9,10 @@ SPDX-License-Identifier: Apache-2.0
 
 # BenchExec Changelog
 
+## BenchExec 3.20
+
+- Two tool-info modules improved.
+
 ## BenchExec 3.19
 
 - Tool-info modules can now provide URLs that will be used for links in HTML tables.  
