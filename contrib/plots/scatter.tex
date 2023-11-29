@@ -13,7 +13,7 @@
 \usepackage[
     group-digits=integer, group-minimum-digits=4, % group digits by thousands
     free-standing-units, unit-optional-argument, % easier input of numbers with units
-    ]{siunitx}
+    ]{siunitx}[=v2]
 \usepackage{pgfplots}
 \pgfplotsset{
     compat=1.9,
@@ -32,11 +32,11 @@
     xlabel=CPU time for Tool 1 (\second),
     ylabel=CPU time for Tool 2 (\second),
     % axis ranges
-    xmin=0.01,
+    xmin=0.1,
     xmax=1000,
-    ymin=0.01,
+    ymin=0.1,
     ymax=1000,
-    domain=0.01:1001,
+    domain=0.1:1001,
     %
     clip mode=individual,
     axis equal image,
@@ -45,8 +45,8 @@
          table[
              header=false,
              skip first n=3, % ignore CSV table header produced by table-generator
-             x index=2, % index of x column
-             y index=6  % index of y column
+             x index=3, % index of x column
+             y index=7  % index of y column
              ] {scatter.table.csv};
     \addplot[gray] {x};
     \addplot[gray] {10*x};

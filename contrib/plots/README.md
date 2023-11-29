@@ -104,7 +104,7 @@ Our suggested options for these packages are:
     free-standing-units, unit-optional-argument, % easier input of numbers with units
     binary-units,
     detect-weight=true, detect-inline-weight=math, % for bold cells
-    ]{siunitx}
+    ]{siunitx}[=v2]
 \usepackage{pgfplots}
 \pgfplotsset{
     compat=1.9,
