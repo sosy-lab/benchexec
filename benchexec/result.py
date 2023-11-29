@@ -6,7 +6,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import collections
-import functools
 import os
 import re
 
@@ -133,6 +132,8 @@ class Property(collections.namedtuple("Property", "filename is_svcomp name")):
 
     __slots__ = ()  # reduce per-instance memory consumption
 
+    _cache = dict()  # cache for Property instances / OSErrors on creation
+
     def _adjust_score_for_witness_validation(self, score, witness_category):
         if witness_category == WITNESS_CATEGORY_CORRECT:
             # Score is already correctly set.
@@ -179,29 +180,42 @@ class Property(collections.namedtuple("Property", "filename is_svcomp name")):
         return self.name
 
     @classmethod
-    @functools.lru_cache()  # cache because it reads files
     def create(cls, propertyfile):
         """
         Create a Property instance by attempting to parse the given property file.
         @param propertyfile: A file name of a property file
         """
-        with open(propertyfile) as f:
-            # SV-COMP property files have every non-empty line start with CHECK,
-            # and there needs to be at least one such line.
-            is_svcomp = False
-            for line in f.readlines():
-                if line.rstrip():
-                    if line.startswith("CHECK"):
-                        # Found line with CHECK, might be an SV-COMP property
-                        is_svcomp = True
-                    else:
-                        # Found line without CHECK, definitely not an SV-COMP property
-                        is_svcomp = False
-                        break
+        # Use cache to prevent potentially lots of I/O.
+        # Also cache exceptions, which is why we cannot use functools.lru_cache
+        cached = cls._cache.get(propertyfile)
+        if isinstance(cached, OSError):
+            raise cached
+        elif cached:
+            return cached
+
+        try:
+            with open(propertyfile) as f:
+                # SV-COMP property files have every non-empty line start with CHECK,
+                # and there needs to be at least one such line.
+                is_svcomp = False
+                for line in f.readlines():
+                    if line.rstrip():
+                        if line.startswith("CHECK"):
+                            # Found line with CHECK, might be an SV-COMP property
+                            is_svcomp = True
+                        else:
+                            # Found line without CHECK, definitely not an SV-COMP property
+                            is_svcomp = False
+                            break
+        except OSError as e:
+            cls._cache[propertyfile] = e
+            raise e
 
         name = os.path.splitext(os.path.basename(propertyfile))[0]
 
-        return cls(propertyfile, is_svcomp, name)
+        result = cls(propertyfile, is_svcomp, name)
+        cls._cache[propertyfile] = result
+        return result
 
 
 def _svcomp_max_score(expected_result):
