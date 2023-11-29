@@ -546,6 +546,10 @@ def read_key_value_pairs_from_file(*path):
             yield line.split(" ", 1)  # maxsplit=1
 
 
+def is_url(path_or_url):
+    return "://" in path_or_url or path_or_url.startswith("file:")
+
+
 class ProcessExitCode(collections.namedtuple("ProcessExitCode", "raw value signal")):
     """Tuple for storing the exit status indication given by a os.wait() call.
     Only value or signal are present, not both

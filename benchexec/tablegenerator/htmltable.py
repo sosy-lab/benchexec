@@ -486,7 +486,7 @@ def _create_link(href, base_dir, runResult=None, href_base=None):
         else None
     )
 
-    if util.is_url(href):
+    if benchexec.util.is_url(href):
         # quote special characters only in inserted variable values, not full URL
         if source_file:
             source_file = url_quote(source_file)

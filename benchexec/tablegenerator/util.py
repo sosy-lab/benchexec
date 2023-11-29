@@ -19,6 +19,8 @@ import urllib.request
 import platform
 from typing import Iterable, List, TypeVar, Union
 
+import benchexec.util
+
 
 # May be extended with higher numbers
 ROMAN_NUMBERS = {
@@ -91,7 +93,7 @@ def make_url(path_or_url):
     """Make a URL from a string which is either a URL or a local path,
     by adding "file:" if necessary.
     """
-    if not is_url(path_or_url):
+    if not benchexec.util.is_url(path_or_url):
         return "file:" + urllib.request.pathname2url(path_or_url)
     return path_or_url
 
@@ -146,10 +148,6 @@ def remove_unit(s):
     """
     (prefix, suffix) = split_number_and_unit(s)
     return suffix if prefix == "" else prefix
-
-
-def is_url(path_or_url):
-    return "://" in path_or_url or path_or_url.startswith("file:")
 
 
 def to_decimal(s):

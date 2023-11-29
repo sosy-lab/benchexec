@@ -290,7 +290,7 @@ def _get_columns_relevant_for_diff(columns_to_show):
 
 def normalize_path(path, base_path_or_url):
     """Returns a normalized form of path, interpreted relative to base_path_or_url"""
-    if util.is_url(base_path_or_url):
+    if benchexec.util.is_url(base_path_or_url):
         return urllib.parse.urljoin(base_path_or_url, path)
     else:
         return os.path.normpath(os.path.join(os.path.dirname(base_path_or_url), path))
