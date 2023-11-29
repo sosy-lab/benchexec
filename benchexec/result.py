@@ -136,7 +136,7 @@ class Property(collections.namedtuple("Property", "filename is_svcomp name")):
 
     __slots__ = ()  # reduce per-instance memory consumption
 
-    _cache = dict()  # cache for Property instances / OSErrors on creation
+    _cache = {}  # cache for Property instances / OSErrors on creation
 
     def _adjust_score_for_witness_validation(self, score, witness_category):
         if witness_category == WITNESS_CATEGORY_CORRECT:
@@ -198,7 +198,7 @@ class Property(collections.namedtuple("Property", "filename is_svcomp name")):
             return cached
 
         open_func = (
-            (lambda f: io.TextIOWrapper(urllib.request.urlopen(f)))
+            (lambda f: io.TextIOWrapper(urllib.request.urlopen(f)))  # noqa: S310
             if util.is_url(propertyfile)
             else open
         )
