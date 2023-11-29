@@ -6,8 +6,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import collections
+import io
 import os
 import re
+import urllib.request
+
+from benchexec import util
 
 # CONSTANTS
 
@@ -193,8 +197,14 @@ class Property(collections.namedtuple("Property", "filename is_svcomp name")):
         elif cached:
             return cached
 
+        open_func = (
+            (lambda f: io.TextIOWrapper(urllib.request.urlopen(f)))
+            if util.is_url(propertyfile)
+            else open
+        )
+
         try:
-            with open(propertyfile) as f:
+            with open_func(propertyfile) as f:
                 # SV-COMP property files have every non-empty line start with CHECK,
                 # and there needs to be at least one such line.
                 is_svcomp = False
