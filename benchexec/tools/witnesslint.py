@@ -46,8 +46,10 @@ class Tool(benchexec.tools.template.BaseTool2):
 
         if not run.output:
             return result.RESULT_ERROR + " (no output)"
-        elif "witnesslint finished" not in run.output[-1] or exit_code == 7:
+        elif exit_code == 7 or any(line.startswith("Traceback") for line in run.output):
             return "EXCEPTION"
+        elif "witnesslint finished" not in run.output[-1]:
+            return result.RESULT_ERROR + " (linter did not finish)"
         elif exit_code == 1:
             return result.RESULT_ERROR + " (invalid witness syntax)"
         elif exit_code == 5:
