@@ -45,7 +45,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         )
 
         if not run.output:
-            return result.RESULT_ERROR + "(no output)"
+            return result.RESULT_ERROR + " (no output)"
         elif "witnesslint finished" not in run.output[-1] or exit_code == 7:
             return "EXCEPTION"
         elif exit_code == 1:
@@ -61,5 +61,4 @@ class Tool(benchexec.tools.template.BaseTool2):
         elif exit_code == 0:
             return result.RESULT_DONE
 
-        else:
-            return result.UNKNOWN
+        return result.RESULT_ERROR + " (could not determine output)"
