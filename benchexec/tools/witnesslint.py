@@ -43,12 +43,13 @@ class Tool(benchexec.tools.template.BaseTool2):
         witness_version_match = self.get_value_from_output(
             run.output, "Witness Version-Match"
         )
-        if (
-            len(run.output) == 0
-            or "witnesslint finished" not in run.output[-1]
-            or exit_code == 7
-        ):
+
+        if not run.output:
+            return result.RESULT_ERROR + " (no output)"
+        elif exit_code == 7 or any(line.startswith("Traceback") for line in run.output):
             return "EXCEPTION"
+        elif "witnesslint finished" not in run.output[-1]:
+            return result.RESULT_ERROR + " (linter did not finish)"
         elif exit_code == 1:
             return result.RESULT_ERROR + " (invalid witness syntax)"
         elif exit_code == 5:
@@ -62,5 +63,4 @@ class Tool(benchexec.tools.template.BaseTool2):
         elif exit_code == 0:
             return result.RESULT_DONE
 
-        else:
-            return result.UNKNOWN
+        return result.RESULT_ERROR + " (could not determine output)"
