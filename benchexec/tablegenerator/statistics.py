@@ -210,7 +210,10 @@ def _get_stats_of_status_column(run_results, col_index):
     )
 
     counts = collections.Counter(
-        (run_result.category, result.get_result_classification(run_result.values[col_index]))
+        (
+            run_result.category,
+            result.get_result_classification(run_result.values[col_index]),
+        )
         for run_result in run_results
     )
 
