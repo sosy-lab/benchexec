@@ -34,7 +34,7 @@ CATEGORY_ERROR = "error"
 
 CATEGORY_MISSING = "missing"
 """BenchExec could not determine whether run result was correct or wrong
-because no property was defined, and no other categories apply."""
+because no property was defined, no expected result was defined, and no other categories apply."""
 
 # categorization of a witness of a run result
 # 'valid' and 'invalid' refer to whether the witness type matches the expected result.
