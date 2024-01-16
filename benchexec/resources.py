@@ -855,7 +855,7 @@ def get_generic_mapping(
     cores_of_generic = collections.defaultdict(list)
     try:
         for core in allCpus_list:
-            generic_level = int(util.read_file(mappingPath.format(str(core))))
+            generic_level = int(util.read_file(mappingPath.format(core)))
             cores_of_generic[generic_level].append(core)
     except FileNotFoundError:
         logging.debug(f"{mappingName} information not available at {mappingPath}")
@@ -875,15 +875,15 @@ def get_siblings_mapping(allCpus_list: List[int]) -> HierarchyLevel:
     path = "/sys/devices/system/cpu/cpu{}/topology/{}"
     usePath = ""
     # if no hyperthreading available, the siblings list contains only the core itself
-    if os.path.isfile(path.format(str(allCpus_list[0]), "core_cpus_list")):
+    if os.path.isfile(path.format(allCpus_list[0], "core_cpus_list")):
         usePath = "core_cpus_list"
-    elif os.path.isfile(path.format(str(allCpus_list[0]), "thread_siblings_list")):
+    elif os.path.isfile(path.format(allCpus_list[0], "thread_siblings_list")):
         usePath = "thread_siblings_list"
     else:
         raise ValueError("No siblings information accessible")
 
     for core in allCpus_list:
-        siblings = util.parse_int_list(util.read_file(path.format(str(core), usePath)))
+        siblings = util.parse_int_list(util.read_file(path.format(core, usePath)))
         siblings_of_core[core] = siblings
 
     logging.debug("Siblings of cores are %s.", siblings_of_core)
