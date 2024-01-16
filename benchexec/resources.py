@@ -125,14 +125,13 @@ def get_cpu_cores_per_run(
     # check if all HT siblings are available for benchexec
     all_cpus_set = set(allCpus_list)
     unusable_cores = []
-    for _core, siblings in siblings_of_core.items():
+    for siblings in siblings_of_core.values():
         siblings_set = set(siblings)
         if not siblings_set.issubset(all_cpus_set):
-            unusable_cores.extend(list(siblings_set.difference(all_cpus_set)))
+            unusable_cores.extend(siblings_set.difference(all_cpus_set))
 
-    unusable_cores_set = set(unusable_cores)
-    unavailable_cores = unusable_cores_set.difference(set(allowedCpus))
-    if len(unavailable_cores) > 0:
+    unavailable_cores = set(unusable_cores).difference(allowedCpus)
+    if unavailable_cores:
         sys.exit(
             f"Core assignment is unsupported because siblings {unavailable_cores} "
             f"are not usable. "
@@ -783,7 +782,7 @@ def get_cpu_list(my_cgroups, coreSet: Optional[List] = None) -> List[int]:
 
     # Filter CPU cores according to the list of identifiers provided by a user
     if coreSet:
-        invalid_cores = sorted(set(coreSet).difference(set(allCpus)))
+        invalid_cores = sorted(set(coreSet).difference(allCpus))
         if invalid_cores:
             raise ValueError(
                 "The following provided CPU cores are not available: "
