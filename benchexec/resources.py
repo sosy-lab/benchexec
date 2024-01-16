@@ -953,12 +953,12 @@ def get_nodes_of_group(node_id: int) -> List[int]:
     @param: node_id
     @return:list of nodes of the group that the node_id belongs to
     """
-    temp_list = (
-        util.read_file(f"/sys/devices/system/node/node{node_id}/distance")
-    ).split(" ")
-    distance_list = []
-    for split_string in temp_list:
-        distance_list.append(int(split_string))
+    distance_list = [
+        int(dist)
+        for dist in util.read_file(
+            f"/sys/devices/system/node/node{node_id}/distance"
+        ).split(" ")
+    ]
     group_list = get_closest_nodes(distance_list)
     return sorted(group_list)
 
