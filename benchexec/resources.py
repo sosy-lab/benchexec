@@ -97,11 +97,13 @@ def get_cpu_cores_per_run(
 
         levels_to_add = [
             get_L3cache_mapping(allCpus_list),
-            get_package_mapping(allCpus_list),
-            get_die_mapping(allCpus_list),
-            get_cluster_mapping(allCpus_list),
-            get_drawer_mapping(allCpus_list),
-            get_book_mapping(allCpus_list),
+            read_topology_level(
+                allCpus_list, "Physical packages", "physical_package_id"
+            ),
+            read_topology_level(allCpus_list, "Dies", "die_id"),
+            read_topology_level(allCpus_list, "Clusters", "cluster_id"),
+            read_topology_level(allCpus_list, "Drawers", "drawer_id"),
+            read_topology_level(allCpus_list, "Books", "book_id"),
         ]
         for mapping in levels_to_add:
             if mapping:
@@ -831,29 +833,39 @@ def frequency_filter(allCpus_list: List[int], threshold: float) -> List[int]:
     return filtered_allCpus_list
 
 
-def get_generic_mapping(
-    allCpus_list: List[int], mappingPath: str, mappingName: str = "generic"
-) -> HierarchyLevel:
+def read_generic_reverse_mapping(
+    ids: List[int],
+    name,
+    path_template: str,
+) -> dict[int, List[int]]:
     """
-    Generic mapping function for multiple layers that can be read the same way. Read data from given path
-    for each cpu id listed in allCpus_list.
+    Given a list of ids and a path template, read an int value for every id,
+    and return a reverse mapping (from value to id).
 
-    @param: allCpus_list    list of cpu Ids to be read
-    @param: mappingPath     system path where to read from
-    @param: mappingName     name of the mapping to be read
-    @return:                mapping of unit id to list of cores (dict)
+    @param: ids list of ids to be inserted into the path template
+    @param: name name of the mapping to be read (for debug messages)
+    @param: path_template path template compatible with str.format()
+    @return: mapping of read int values to the ids for which they were read
     """
 
-    cores_of_generic = collections.defaultdict(list)
+    mapping = collections.defaultdict(list)
     try:
-        for core in allCpus_list:
-            generic_level = int(util.read_file(mappingPath.format(core)))
-            cores_of_generic[generic_level].append(core)
+        for i in ids:
+            value = int(util.read_file(path_template.format(i)))
+            mapping[value].append(i)
     except FileNotFoundError:
-        logging.debug(f"{mappingName} information not available at {mappingPath}")
+        logging.debug("%s information not available at %s.", name, path_template)
         return {}
-    logging.debug(f"{mappingName} of cores are %s.", cores_of_generic)
-    return cores_of_generic
+    return mapping
+
+
+def read_topology_level(
+    allCpus_list: List[int], name: str, filename: str
+) -> HierarchyLevel:
+    """Read one level of the CPU code topology information provided by the kernel."""
+    return read_generic_reverse_mapping(
+        allCpus_list, name, "/sys/devices/system/cpu/cpu{}/topology/" + filename
+    )
 
 
 def get_siblings_mapping(allCpus_list: List[int]) -> HierarchyLevel:
@@ -880,18 +892,6 @@ def get_siblings_mapping(allCpus_list: List[int]) -> HierarchyLevel:
 
     logging.debug("Siblings of cores are %s.", siblings_of_core)
     return siblings_of_core
-
-
-def get_die_mapping(allCpus_list: List[int]) -> HierarchyLevel:
-    """
-    Generates a mapping from a die to its corresponding cores.
-
-    @param: allCpus_list    list of cpu Ids to be read
-    @return:                mapping of die id to list of cores (dict)
-    """
-    return get_generic_mapping(
-        allCpus_list, "/sys/devices/system/cpu/cpu{}/topology/die_id", "Dies"
-    )
 
 
 def get_group_mapping(cores_of_NUMA_region: HierarchyLevel) -> HierarchyLevel:
@@ -987,43 +987,6 @@ def get_closest_nodes(distance_list: List[int]) -> List[int]:  # 10 11 11 11 20 
     return group_list  # [0 1 2 3]
 
 
-def get_cluster_mapping(allCpus_list: List[int]) -> HierarchyLevel:
-    """
-    Generates a mapping from a cluster to its corresponding cores.
-
-    @param: allCpus_list    list of cpu Ids to be read
-    @return:                mapping of cluster id to list of cores (dict)
-    """
-
-    return get_generic_mapping(
-        allCpus_list, "/sys/devices/system/cpu/cpu{}/topology/cluster_id", "Clusters"
-    )
-
-
-def get_book_mapping(allCpus_list: List[int]) -> HierarchyLevel:
-    """
-    Generates a mapping from a book to its corresponding cores.
-
-    @param: allCpus_list    list of cpu Ids to be read
-    @return:                mapping of book id to list of cores (dict)
-    """
-    return get_generic_mapping(
-        allCpus_list, "/sys/devices/system/cpu/cpu{}/topology/book_id", "Books"
-    )
-
-
-def get_drawer_mapping(allCpus_list: List[int]) -> HierarchyLevel:
-    """
-    Generates a mapping from a drawer to its corresponding cores.
-
-    @param: allCpus_list    list of cpu Ids to be read
-    @return:                mapping of drawer id to list of cores (dict)
-    """
-    return get_generic_mapping(
-        allCpus_list, "/sys/devices/system/cpu/cpu{}/topology/drawer_id", "drawers"
-    )
-
-
 def get_L3cache_id_for_core(core: int) -> int:
     """
     Check whether index level 3 is level 3 cache and returns id of L3 cache
@@ -1090,20 +1053,6 @@ def get_NUMA_mapping(allCpus_list: List[int]) -> HierarchyLevel:
             return {}
     logging.debug("Memory regions of cores are %s.", cores_of_NUMA_region)
     return cores_of_NUMA_region
-
-
-def get_package_mapping(allCpus_list: List[int]) -> HierarchyLevel:
-    """
-    Generates a mapping from a CPU/physical package to its corresponding cores.
-
-    @param: allCpus_list    list of cpu Ids to be read
-    @return:                mapping of CPU/physical package id to list of cores (dict)
-    """
-    return get_generic_mapping(
-        allCpus_list,
-        "/sys/devices/system/cpu/cpu{}/topology/physical_package_id",
-        "Physical packages",
-    )
 
 
 def get_memory_banks_per_run(coreAssignment, cgroups) -> Optional[_2DIntList]:
