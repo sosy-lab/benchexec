@@ -983,23 +983,16 @@ def get_closest_nodes(distance_list: List[int]) -> List[int]:  # 10 11 11 11 20 
         return [0]
     sorted_distance_list = sorted(distance_list)
     smallest_distance = sorted_distance_list[0]
+    second_smallest = sorted_distance_list[1]
     greatest_distance = sorted_distance_list[-1]
-    for value in sorted_distance_list:
-        if value != smallest_distance:
-            second_to_smallest = value
-            break
-    group_list = []
-    if distance_list.count(smallest_distance) == 1:
-        group_list.append(distance_list.index(smallest_distance))
-    else:
-        # we assume that all other nodes are slower to access than the core itself
-        raise Exception("More then one smallest distance")
-    if second_to_smallest != greatest_distance:
-        index = 0
-        for dist in distance_list:
-            if dist == second_to_smallest:
+    # we assume that all other nodes are slower to access than the core itself
+    assert second_smallest > smallest_distance, "More than one smallest distance"
+
+    group_list = [distance_list.index(smallest_distance)]
+    if second_smallest != greatest_distance:
+        for index, dist in enumerate(distance_list):
+            if dist == second_smallest:
                 group_list.append(index)
-            index += 1
     return group_list  # [0 1 2 3]
 
 
