@@ -980,6 +980,9 @@ def get_closest_nodes(distance_list: List[int]) -> List[int]:  # 10 11 11 11 20 
 
     If there are only 2 different distances available, they are assigned into different groups.
     """
+    if len(distance_list) == 1:
+        # single node
+        return [0]
     sorted_distance_list = sorted(distance_list)
     smallest_distance = sorted_distance_list[0]
     greatest_distance = sorted_distance_list[-1]
