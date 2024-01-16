@@ -6,9 +6,45 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import unittest
-from benchexec.resources import get_closest_nodes
+from benchexec.resources import frequency_filter, get_closest_nodes
 
 # High-level tests for the allocation algorithm are in test_core_assignment.py
+
+
+class TestFrequencyFilter(unittest.TestCase):
+    def test_single_cpu(self):
+        self.assertEqual(frequency_filter({1000: [0]}), [0])
+
+    def test_all_equal(self):
+        self.assertEqual(frequency_filter({1000: [0, 1, 2, 3, 4]}), [0, 1, 2, 3, 4])
+
+    def test_all_fast(self):
+        self.assertEqual(
+            frequency_filter({1000: [0, 1], 950: [2, 3], 999: [4, 5]}),
+            [0, 1, 2, 3, 4, 5],
+        )
+
+    def test_mixed(self):
+        self.assertEqual(
+            frequency_filter(
+                {1000: [0, 1], 950: [2, 3], 999: [4, 5], 949: [6, 7], 500: [8, 9]}
+            ),
+            [0, 1, 2, 3, 4, 5],
+        )
+
+    def test_assymetric_counts(self):
+        self.assertEqual(
+            frequency_filter(
+                {
+                    1000: [0],
+                    950: [1, 2],
+                    999: [3, 4, 5],
+                    949: [6, 7, 8, 9],
+                    500: [10, 11],
+                }
+            ),
+            [0, 1, 2, 3, 4, 5],
+        )
 
 
 class TestGetClosestNodes(unittest.TestCase):

@@ -30,6 +30,9 @@ __all__ = [
 _2DIntList = List[List[int]]
 HierarchyLevel = Dict[int, List[int]]
 
+FREQUENCY_FILTER_THRESHOLD = 0.95
+"""Fraction of highest CPU frequency that is still allowed"""
+
 
 def get_cpu_cores_per_run(
     coreLimit: int,
@@ -770,54 +773,43 @@ def get_cpu_list(my_cgroups, coreSet: Optional[List] = None) -> List[int]:
     retrieves all cores available to the users cgroup.
     If a coreSet is provided, the list of all available cores is reduced to those cores
     that are in both - available cores and coreSet.
-    A filter is applied to make sure, all cores used for the benchmark run
-    at the same clock speed (allowing a deviation of 0.05 (5%) from the highest frequency)
-    @param cgroup
+    A filter is applied to make sure that all used cores run roughly at the same
+    clock speed (allowing within FREQUENCY_FILTER_THRESHOLD from the highest frequency)
     @param coreSet list of cores to be used in the assignment as specified by the user
     @return list of available cores
     """
     # read list of available CPU cores
-    allCpus = my_cgroups.read_allowed_cpus()
+    cpus = my_cgroups.read_allowed_cpus()
 
     # Filter CPU cores according to the list of identifiers provided by a user
     if coreSet:
-        invalid_cores = sorted(set(coreSet).difference(allCpus))
+        invalid_cores = sorted(set(coreSet).difference(cpus))
         if invalid_cores:
             raise ValueError(
                 "The following provided CPU cores are not available: "
                 + ", ".join(map(str, invalid_cores))
             )
-        allCpus_list = [core for core in allCpus if core in coreSet]
-        allCpus_list = frequency_filter(allCpus_list, 0.05)
-    else:
-        allCpus_list = frequency_filter(allCpus, 0.05)
-    logging.debug("List of available CPU cores is %s.", allCpus_list)
-    return allCpus_list
+        cpus = [core for core in cpus if core in coreSet]
+
+    cpu_max_frequencies = read_generic_reverse_mapping(
+        cpus, "CPU frequency", "/sys/devices/system/cpu/cpu{}/cpufreq/cpuinfo_max_freq"
+    )
+    fastest_cpus = frequency_filter(cpu_max_frequencies)
+    logging.debug("List of available CPU cores is %s.", fastest_cpus)
+    return fastest_cpus
 
 
-def frequency_filter(allCpus_list: List[int], threshold: float) -> List[int]:
+def frequency_filter(cpu_max_frequencies: dict[int, List[int]]) -> List[int]:
     """
-    Filters the list of all available CPU cores so that only the fastest cores
-    are used for the benchmark run.
-    Only cores with a maximal frequency within the distance of the defined threshold
-    from the maximal frequency of the fastest core are added to the filtered_allCpus_list
-    and returned for further use. (max_frequency of core) >= (1-threshold)*(max_frequency of fastest core)
-    All cores that are slower will not be used for the benchmark and displayed in a debug message.
+    Filters the available CPU cores so that only the fastest cores remain.
+    Only cores with a maximal frequency above the defined threshold
+    (FREQUENCY_FILTER_THRESHOLD times the maximal frequency of the fastest core)
+    are returned for further use.
 
-    @param: allCpus_list    list of all cores available for the benchmark run
-    @param: threshold       accepted difference (as percentage) in the maximal frequency of a core from
-                            the fastest core to still be used in the benchmark run
-    @return:                filtered_allCpus_list with only the fastest cores
+    @param: cpu_max_frequencies mapping from frequencies to core ids
+    @return: list with the ids of the fastest cores
     """
-    cpu_max_frequencies = collections.defaultdict(list)
-    for core in allCpus_list:
-        max_freq = int(
-            util.read_file(
-                f"/sys/devices/system/cpu/cpu{core}/cpufreq/cpuinfo_max_freq"
-            )
-        )
-        cpu_max_frequencies[max_freq].append(core)
-    freq_threshold = max(cpu_max_frequencies.keys()) * (1 - threshold)
+    freq_threshold = max(cpu_max_frequencies.keys()) * FREQUENCY_FILTER_THRESHOLD
     filtered_allCpus_list = []
     slow_cores = []
     for key in cpu_max_frequencies:
@@ -828,7 +820,10 @@ def frequency_filter(allCpus_list: List[int], threshold: float) -> List[int]:
     fastest = max(cpu_max_frequencies.keys())
     if slow_cores:
         logging.debug(
-            f"Unused cores due to frequency more than {threshold*100}% below frequency of fastest core ({fastest}): {slow_cores}"
+            "Unused cores due to frequency less than %s%% of fastest core (%s): %s",
+            FREQUENCY_FILTER_THRESHOLD * 100,
+            fastest,
+            slow_cores,
         )
     return filtered_allCpus_list
 
