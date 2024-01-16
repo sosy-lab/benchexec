@@ -613,25 +613,21 @@ def core_allocation_algorithm(
                 distribution_dict = hierarchy_levels[i]
             else:
                 # if length of core lists unequal: get element with highest length
-                distribution_list = list(distribution_dict.values())
-                distribution_list.sort(
-                    key=lambda list_length: len(list_length), reverse=True
-                )
+                largest_core_subset = max(distribution_dict.values(), key=len)
 
-                child_dict = get_sub_unit_dict(allCpus, distribution_list[0], i - 1)
+                child_dict = get_sub_unit_dict(allCpus, largest_core_subset, i - 1)
                 distribution_dict = child_dict.copy()
                 if check_symmetric_num_of_values(child_dict):
                     if i > chosen_level:
                         while i >= chosen_level and i > 0:
                             i = i - 1
                             # if length of core lists unequal: get element with highest length
-                            distribution_list = list(distribution_dict.values())
-                            distribution_list.sort(
-                                key=lambda list_length: len(list_length), reverse=True
+                            largest_core_subset = max(
+                                distribution_dict.values(), key=len
                             )
 
                             child_dict = get_sub_unit_dict(
-                                allCpus, distribution_list[0], i - 1
+                                allCpus, largest_core_subset, i - 1
                             )
                             distribution_dict = child_dict.copy()
                     break
