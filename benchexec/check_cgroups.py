@@ -47,14 +47,15 @@ def check_cgroup_availability(wait=1):
         mems = [0]
 
     with tempfile.NamedTemporaryFile(mode="rt") as tmp:
-        runexecutor.execute_run(
+        execution = runexecutor.execute_run(
             ["sh", "-c", f"sleep {wait}; cat /proc/self/cgroup"],
             tmp.name,
-            memlimit=1024 * 1024,  # set memlimit to force check for swapaccount
+            memlimit=100 * 1024 * 1024,  # set memlimit to force check for swapaccount
             # set cores and memory_nodes to force usage of CPUSET
             cores=cores,
             memory_nodes=mems,
         )
+        assert execution["exitcode"].raw == 0, execution
         lines = []
         for line in tmp:
             line = line.strip()
