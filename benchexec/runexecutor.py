@@ -18,7 +18,7 @@ import sys
 import threading
 import time
 import tempfile
-from typing import cast, Any, Optional
+from typing import cast, Any, Dict, Optional
 
 from benchexec import __version__
 from benchexec import baseexecutor
@@ -621,7 +621,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         error_filename=None,
         write_header=True,
         **kwargs,
-    ) -> dict[str, Any]:  # pytype: disable=signature-mismatch
+    ) -> Dict[str, Any]:  # pytype: disable=signature-mismatch
         """
         This function executes a given command with resource limits,
         and writes the output to a file.
