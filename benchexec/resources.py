@@ -710,7 +710,7 @@ def core_allocation_algorithm(
 
     # cleanup: while-loop stops before running through all units: while some active_cores-lists
     # & sub_unit_cores-lists are empty, other stay half-full or full
-    logging.debug(f"Core allocation:{result}")
+    logging.debug("Core allocation: %s", result)
     return result
 
 
