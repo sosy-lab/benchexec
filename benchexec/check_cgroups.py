@@ -55,6 +55,12 @@ def check_cgroup_availability(wait=1):
             cores=cores,
             memory_nodes=mems,
         )
+        if "terminationreason" in execution:
+            logging.error(
+                "Cgroup check terminated with reason '%s'.",
+                execution["terminationreason"],
+            )
+            sys.exit(1)
         assert execution["exitcode"].raw == 0, execution
         lines = []
         for line in tmp:
