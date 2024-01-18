@@ -524,10 +524,10 @@ def get_sub_unit_dict(
     @param: hLevel        the index of the hierarchy level to search in
     """
 
-    child_dict = collections.defaultdict(list)
+    child_dict = {}
     for element in parent_list:
         subSubUnitKey = allCpus[element].memory_regions[hLevel]
-        child_dict[subSubUnitKey].append(element)
+        child_dict.setdefault(subSubUnitKey, []).append(element)
     return child_dict
 
 
@@ -843,11 +843,11 @@ def read_generic_reverse_mapping(
     @return: mapping of read int values to the ids for which they were read
     """
 
-    mapping = collections.defaultdict(list)
+    mapping = {}
     try:
         for i in ids:
             value = int(util.read_file(path_template.format(i)))
-            mapping[value].append(i)
+            mapping.setdefault(value, []).append(i)
     except FileNotFoundError:
         logging.debug("%s information not available at %s.", name, path_template)
         return {}
@@ -897,13 +897,13 @@ def get_group_mapping(cores_of_NUMA_region: HierarchyLevel) -> HierarchyLevel:
     @return:                mapping of group id to list of cores (dict)
     """
 
-    cores_of_groups = collections.defaultdict(list)
-    nodes_of_groups = collections.defaultdict(list)
+    cores_of_groups = {}
+    nodes_of_groups = {}
     # generates dict of all available nodes with their group nodes
     try:
         for node_id in cores_of_NUMA_region.keys():
             group = get_nodes_of_group(node_id)
-            nodes_of_groups[node_id].extend(group)
+            nodes_of_groups.setdefault(node_id, []).extend(group)
     except FileNotFoundError:
         nodes_of_groups = {}
         logging.warning(
@@ -925,7 +925,7 @@ def get_group_mapping(cores_of_NUMA_region: HierarchyLevel) -> HierarchyLevel:
     id_index = 0
     for node_list in nodes_of_groups.values():
         for entry in node_list:
-            cores_of_groups[id_index].extend(cores_of_NUMA_region[entry])
+            cores_of_groups.setdefault(id_index, []).extend(cores_of_NUMA_region[entry])
         id_index += 1
     logging.debug("Groups of cores are %s.", cores_of_groups)
     return cores_of_groups
@@ -1012,11 +1012,11 @@ def get_L3cache_mapping(allCpus_list: List[int]) -> HierarchyLevel:
     @param: allCpus_list    list of cpu Ids to be read
     @return:                mapping of L3 Cache id to list of cores (dict)
     """
-    cores_of_L3cache = collections.defaultdict(list)
+    cores_of_L3cache = {}
     try:
         for core in allCpus_list:
             L3cache = get_L3cache_id_for_core(core)
-            cores_of_L3cache[L3cache].append(core)
+            cores_of_L3cache.setdefault(L3cache, []).append(core)
     except FileNotFoundError:
         logging.debug(
             "Level 3 cache information not available at /sys/devices/system/cpu/cpuX/cache/cacheX"
@@ -1033,12 +1033,12 @@ def get_NUMA_mapping(allCpus_list: List[int]) -> HierarchyLevel:
     @param: allCpus_list    list of cpu Ids to be read
     @return:                mapping of Numa Region id to list of cores (dict)
     """
-    cores_of_NUMA_region = collections.defaultdict(list)
+    cores_of_NUMA_region = {}
     for core in allCpus_list:
         coreDir = f"/sys/devices/system/cpu/cpu{core}/"
         NUMA_regions = _get_memory_banks_listed_in_dir(coreDir)
         if NUMA_regions:
-            cores_of_NUMA_region[NUMA_regions[0]].append(core)
+            cores_of_NUMA_region.setdefault(NUMA_regions[0], []).append(core)
             # adds core to value list at key [NUMA_region[0]]
         else:
             # If some cores do not have NUMA information, skip using it completely
