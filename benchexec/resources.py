@@ -76,7 +76,6 @@ def get_cpu_cores_per_run(
         # read list of available CPU cores (int)
         allowedCpus = get_cpu_list(my_cgroups)
         allCpus_list = get_cpu_list(my_cgroups, coreSet)
-        logging.debug(allCpus_list)
 
         # read & prepare hyper-threading information, filter redundant entries
         siblings_of_core = get_siblings_mapping(allCpus_list)
@@ -152,8 +151,6 @@ def get_cpu_cores_per_run(
     hierarchy_levels.append(get_root_level(hierarchy_levels))
 
     hierarchy_levels = filter_duplicate_hierarchy_levels(hierarchy_levels)
-
-    logging.debug(hierarchy_levels)
 
     return get_cpu_distribution(
         coreLimit,
@@ -919,7 +916,6 @@ def get_group_mapping(cores_of_NUMA_region: HierarchyLevel) -> HierarchyLevel:
         )
     # deletes superfluous entries after symmetry check
     clean_list = []
-    logging.debug("nodes_of_groups: %s", nodes_of_groups)
     for node_key in nodes_of_groups:
         if node_key not in clean_list:
             for node in nodes_of_groups[node_key]:
