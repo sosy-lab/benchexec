@@ -70,15 +70,8 @@ def get_cpu_cores_per_run(
     @return:                    list of lists, where each inner list contains the cores for one run
     """
 
-    if (
-        type(coreLimit) != int
-        or type(num_of_threads) != int
-        or type(use_hyperthreading) != bool
-    ):
-        sys.exit("Incorrect data type entered")
-
-    if coreLimit < 1 or num_of_threads < 1:
-        sys.exit("Only integers > 0 accepted for coreLimit & num_of_threads")
+    assert coreLimit >= 1
+    assert num_of_threads >= 1
 
     hierarchy_levels = []
     try:
