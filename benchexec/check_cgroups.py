@@ -96,6 +96,7 @@ def check_cgroup_availability_in_thread(options):
     (and this will happen if "benchexec -N" is used).
     """
     thread = _CheckCgroupsThread(options)
+    thread.daemon = True
     thread.start()
     thread.join()
     if thread.error:
