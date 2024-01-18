@@ -1060,10 +1060,10 @@ def get_L3cache_mapping(allCpus_list: List[int]) -> HierarchyLevel:
             L3cache = get_L3cache_id_for_core(core)
             cores_of_L3cache[L3cache].append(core)
     except FileNotFoundError:
-        cores_of_L3cache = {}
         logging.debug(
             "Level 3 cache information not available at /sys/devices/system/cpu/cpuX/cache/cacheX"
         )
+        return {}
     logging.debug("Level 3 caches of cores are %s.", cores_of_L3cache)
     return cores_of_L3cache
 
