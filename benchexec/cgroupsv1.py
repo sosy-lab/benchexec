@@ -26,6 +26,8 @@ attempt to use this cgroup as fallback."""
 
 CGROUP_NAME_PREFIX = "benchmark_"
 
+BLKIO_BYTES_FILE = "throttle.io_service_bytes"
+
 _PERMISSION_HINT_GROUPS = """
 You need to add your account to the following groups: {0}
 Remember to logout and login again afterwards to make group changes effective."""
@@ -90,6 +92,15 @@ def find_my_cgroups(cgroup_paths=None, fallback=True):
                 and os.path.isdir(fallbackPath)
             ):
                 cgroupPath = fallbackPath
+
+            if subsystem == CgroupsV1.IO and not os.path.exists(
+                os.path.join(cgroupPath, f"{CgroupsV1.IO}.{BLKIO_BYTES_FILE}")
+            ):
+                # At least on Docker Desktop blkio can exist in an incomplete way
+                # (cf. 985). Instead of ignoring this later we can simply skip the
+                # whole subsystem because we only need it for this single file.
+                continue
+
             cgroupsParents[subsystem] = cgroupPath
 
     return cgroupsParents
@@ -539,10 +550,9 @@ class CgroupsV1(Cgroups):
         return util.parse_int_list(self.get_value(self.CPUSET, "mems"))
 
     def read_io_stat(self):
-        blkio_bytes_file = "throttle.io_service_bytes"
         bytes_read = 0
         bytes_written = 0
-        for blkio_line in self.get_file_lines(self.IO, blkio_bytes_file):
+        for blkio_line in self.get_file_lines(self.IO, BLKIO_BYTES_FILE):
             try:
                 dev_no, io_type, bytes_amount = blkio_line.split(" ")
                 if io_type == "Read":
