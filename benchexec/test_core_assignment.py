@@ -13,7 +13,7 @@ from collections import defaultdict
 from benchexec.resources import (
     get_cpu_distribution,
     VirtualCore,
-    check_and_add_meta_level,
+    get_root_level,
     filter_duplicate_hierarchy_levels,
 )
 
@@ -140,6 +140,8 @@ class TestCpuCoresPerRun(unittest.TestCase):
         # sort hierarchy_levels (list of dicts) according to the dicts' corresponding unit sizes
         hierarchy_levels.sort(key=compare_hierarchy_by_dict_length, reverse=False)
 
+        hierarchy_levels.append(get_root_level(hierarchy_levels))
+
         hierarchy_levels = filter_duplicate_hierarchy_levels(hierarchy_levels)
 
         for cpu_nr in range(self.num_of_cores):
@@ -148,8 +150,6 @@ class TestCpuCoresPerRun(unittest.TestCase):
             for key in level:
                 for core in level[key]:
                     allCpus[core].memory_regions.append(key)
-
-        check_and_add_meta_level(hierarchy_levels, allCpus)
 
         return allCpus, hierarchy_levels
 

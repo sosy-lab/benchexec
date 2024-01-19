@@ -151,6 +151,9 @@ def get_cpu_cores_per_run(
     # add siblings_of_core at the beginning of the list to ensure the correct index
     hierarchy_levels.insert(0, siblings_of_core)
 
+    # add root level at the end to have one level with a single node
+    hierarchy_levels.append(get_root_level(hierarchy_levels))
+
     hierarchy_levels = filter_duplicate_hierarchy_levels(hierarchy_levels)
 
     logging.debug(hierarchy_levels)
@@ -166,8 +169,6 @@ def get_cpu_cores_per_run(
                 allCpus[core].memory_regions.append(
                     key
                 )  # memory_regions is a list of keys
-
-    check_and_add_meta_level(hierarchy_levels, allCpus)
 
     return get_cpu_distribution(
         coreLimit,
@@ -500,24 +501,16 @@ def calculate_sub_units_per_run(
     return sub_units_per_run
 
 
-def check_and_add_meta_level(
-    hierarchy_levels: List[HierarchyLevel], allCpus: Dict[int, VirtualCore]
-) -> None:
+def get_root_level(hierarchy_levels: List[HierarchyLevel]) -> HierarchyLevel:
     """
-    Adds a meta_level or root_level which includes all cores to hierarchy_levels (if necessary).
+    Creates a "meta" or "root" level that includes all cores.
     This is necessary to iterate through all cores if the highest hierarchy level consists of more than one unit.
-    Also adds the identifier for the new level to the memory region of all cores in allCpus
     @param: hierarchy_levels    list of dicts of lists: each dict in the list corresponds to one topology layer and
                                 maps from the identifier read from the topology to a list of the cores belonging to it
-    @param: allCpus             list of @VirtualCore Objects to address a core from its id to the ids of the memory regions
+    @return: a hierachy level with all cores in a single node
     """
-    if len(hierarchy_levels[-1]) > 1:
-        top_level_cores = []
-        for node in hierarchy_levels[-1]:
-            top_level_cores.extend(hierarchy_levels[-1][node])
-        hierarchy_levels.append({0: top_level_cores})
-        for cpu_nr in allCpus:
-            allCpus[cpu_nr].memory_regions.append(0)
+    all_cores = list(itertools.chain.from_iterable(hierarchy_levels[-1].values()))
+    return {0: all_cores}
 
 
 def get_sub_unit_dict(
