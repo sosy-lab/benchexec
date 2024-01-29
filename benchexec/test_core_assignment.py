@@ -54,17 +54,6 @@ class TestCpuCoresPerRun(unittest.TestCase):
             *self.machine(),
         )
 
-    def assertEqualResult(self, coreLimit, num_of_threads, expectedResult=None):
-        result = get_cpu_distribution(
-            coreLimit, num_of_threads, self.use_hyperthreading, *self.machine()
-        )
-        if expectedResult:
-            self.assertEqual(
-                expectedResult,
-                result,
-                f"Incorrect result for {coreLimit} cores and {num_of_threads} threads.",
-            )
-
     def machine(self):
         """Create the necessary parameters of get_cpu_distribution for a specific machine."""
         core_count = self.cpus * self.cores
