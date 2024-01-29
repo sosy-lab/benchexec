@@ -226,6 +226,46 @@ class VirtualCore:
         return str(self.coreId) + " " + str(self.memory_regions)
 
 
+def check_internal_validity(
+    allCpus: Dict[int, VirtualCore],
+    hierarchy_levels: List[HierarchyLevel],
+):
+    def all_equal(items):
+        first = next(items)
+        return all(first == item for item in items)
+
+    def is_sorted(items):
+        return sorted(items) == list(items)
+
+    # TODO check whether this assertion holds and/or is required
+    # assert is_sorted(allCpus.keys()), "CPUs are not sorted"
+
+    node_count_per_level = [len(level) for level in hierarchy_levels]
+    assert node_count_per_level[-1] == 1, "Root level is missing"
+    assert (
+        sorted(node_count_per_level, reverse=True) == node_count_per_level
+    ), "Levels are not sorted correctly"
+    assert len(set(node_count_per_level)) == len(
+        node_count_per_level
+    ), "Redundant levels with same node count"
+    assert next(iter(hierarchy_levels[-1].values())) == list(
+        allCpus.keys()
+    ), "Root level has different cores"
+
+    for level in hierarchy_levels:
+        cores_on_level = list(itertools.chain.from_iterable(level.values()))
+        # cores_on_level needs to be a permutation of allCpus.keys()
+        assert len(cores_on_level) == len(allCpus), "Level has different core count"
+        assert set(cores_on_level) == allCpus.keys(), "Level has different cores"
+        # TODO check whether this assertion holds and/or is required
+        # assert all(
+        #    is_sorted(cores) for cores in level.values()
+        # ), "Level has node with unsorted cores"
+        assert all_equal(
+            len(cores) for cores in level.values()
+        ), "Level has nodes with different sizes"
+
+
 def get_cpu_distribution(
     coreLimit: int,
     num_of_threads: int,
@@ -247,11 +287,13 @@ def get_cpu_distribution(
     @param: coreRequirement     minimum number of cores to be reserved for each execution run
     @return:                    list of lists, where each inner list contains the cores for one run
     """
+    check_internal_validity(allCpus, hierarchy_levels)
     result = []
 
     # no HT filter: delete all but the key core from siblings_of_core & hierarchy_levels
     if not use_hyperthreading:
         filter_hyperthreading_siblings(allCpus, siblings_of_core, hierarchy_levels)
+        check_internal_validity(allCpus, hierarchy_levels)
 
     if not coreRequirement:
         result = core_allocation_algorithm(
