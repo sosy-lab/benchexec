@@ -151,7 +151,7 @@ class TestCpuCoresPerRun(unittest.TestCase):
 
         check_and_add_meta_level(hierarchy_levels, allCpus)
 
-        return allCpus, siblings_of_core, hierarchy_levels
+        return allCpus, hierarchy_levels
 
     def mainAssertValid(self, coreLimit, expectedResult, maxThreads=None):
         self.coreLimit = coreLimit
@@ -463,7 +463,6 @@ class TestCpuCoresPerRun_threeCPU_HT(TestCpuCoresPerRun):
                 6: VirtualCore(6, [3, 0]),
                 7: VirtualCore(7, [3, 0]),
             },
-            {0: [0, 1], 2: [2, 3], 3: [6, 7]},
             [
                 {0: [0, 1], 2: [2, 3], 3: [6, 7]},
                 {0: [0, 1, 2, 3, 6, 7]},

@@ -174,7 +174,6 @@ def get_cpu_cores_per_run(
         num_of_threads,
         use_hyperthreading,
         allCpus,
-        siblings_of_core,
         hierarchy_levels,
         coreRequirement,
     )
@@ -271,7 +270,6 @@ def get_cpu_distribution(
     num_of_threads: int,
     use_hyperthreading: bool,
     allCpus: Dict[int, VirtualCore],
-    siblings_of_core: HierarchyLevel,
     hierarchy_levels: List[HierarchyLevel],
     coreRequirement: Optional[int] = None,
 ) -> List[List[int]]:
@@ -282,7 +280,6 @@ def get_cpu_distribution(
     @param: num_of_threads      the number of parallel benchmark executions
     @param: use_hyperthreading  boolean to check if no-hyperthreading method is being used
     @param: allCpus             list of @VirtualCore Objects to address a core from its id to the ids of the memory regions
-    @param: siblings_of_core    mapping from one of the sibling cores to the list of siblings including the core itself
     @param: hierarchy_levels    list of dicts of lists: each dict in the list corresponds to one topology layer and maps from the identifier read from the topology to a list of the cores belonging to it
     @param: coreRequirement     minimum number of cores to be reserved for each execution run
     @return:                    list of lists, where each inner list contains the cores for one run
@@ -290,9 +287,9 @@ def get_cpu_distribution(
     check_internal_validity(allCpus, hierarchy_levels)
     result = []
 
-    # no HT filter: delete all but the key core from siblings_of_core & hierarchy_levels
+    # no HT filter: delete all but the key core from hierarchy_levels
     if not use_hyperthreading:
-        filter_hyperthreading_siblings(allCpus, siblings_of_core, hierarchy_levels)
+        filter_hyperthreading_siblings(allCpus, hierarchy_levels)
         check_internal_validity(allCpus, hierarchy_levels)
 
     if not coreRequirement:
@@ -300,7 +297,6 @@ def get_cpu_distribution(
             coreLimit,
             num_of_threads,
             allCpus,
-            siblings_of_core,
             hierarchy_levels,
         )
     else:
@@ -310,7 +306,6 @@ def get_cpu_distribution(
                 coreRequirement,
                 num_of_threads,
                 allCpus,
-                siblings_of_core,
                 hierarchy_levels,
             )
             for resultlist in prelim_result:
@@ -323,7 +318,6 @@ def get_cpu_distribution(
                     i,
                     num_of_threads,
                     allCpus,
-                    siblings_of_core,
                     hierarchy_levels,
                     isTest=True,
                 ):
@@ -334,7 +328,6 @@ def get_cpu_distribution(
                 i,
                 num_of_threads,
                 allCpus,
-                siblings_of_core,
                 hierarchy_levels,
             )
     return result
@@ -342,24 +335,20 @@ def get_cpu_distribution(
 
 def filter_hyperthreading_siblings(
     allCpus: Dict[int, VirtualCore],
-    siblings_of_core: HierarchyLevel,
     hierarchy_levels: List[HierarchyLevel],
 ) -> None:
     """
-    Deletes all but one hyperthreading sibling per physical core out of allCpus,
-    siblings_of_core & hierarchy_levels
+    Deletes all but one hyperthreading sibling per physical core out of allCpus and
+    hierarchy_levels.
     @param: allCpus             list of VirtualCore objects
-    @param: siblings_of_core    mapping from one of the sibling cores to the list of siblings
-                                including the core itself
     @param: hierarchy_levels    list of dicts of lists: each dict in the list corresponds to one topology layer and maps from the identifier read from the topology to a list of the cores belonging to it
     """
-    for core in siblings_of_core:
+    for core in hierarchy_levels[0]:
         no_HT_filter = []
-        for sibling in siblings_of_core[core]:
+        for sibling in hierarchy_levels[0][core]:
             if sibling != core:
                 no_HT_filter.append(sibling)
         for virtual_core in no_HT_filter:
-            siblings_of_core[core].remove(virtual_core)
             region_keys = allCpus[virtual_core].memory_regions
             i = 0
             while i < len(region_keys):
@@ -373,7 +362,6 @@ def check_distribution_feasibility(
     coreLimit: int,
     num_of_threads: int,
     allCpus: Dict[int, VirtualCore],
-    siblings_of_core: HierarchyLevel,
     hierarchy_levels: List[HierarchyLevel],
     isTest: bool = True,
 ) -> bool:
@@ -383,7 +371,6 @@ def check_distribution_feasibility(
     @param: coreLimit           the number of cores for each parallel benchmark execution
     @param: num_of_threads      the number of parallel benchmark executions
     @param: allCpus             list of @VirtualCore Objects to address a core from its id to the ids of the memory regions
-    @param: siblings_of_core    mapping from one of the sibling cores to the list of siblings including the core itself
     @param: hierarchy_levels    list of dicts of lists: each dict in the list corresponds to one topology layer and maps from the identifier read from the topology to a list of the cores belonging to it
     @param: isTest              boolean whether the check is used to test the coreLimit or for the actual core allocation
     @return:                    list of lists, where each inner list contains the cores for one run
@@ -412,7 +399,7 @@ def check_distribution_feasibility(
         else:
             is_feasible = False
 
-    coreLimit_rounded_up = calculate_coreLimit_rounded_up(siblings_of_core, coreLimit)
+    coreLimit_rounded_up = calculate_coreLimit_rounded_up(hierarchy_levels, coreLimit)
     chosen_level = calculate_chosen_level(hierarchy_levels, coreLimit_rounded_up)
 
     # calculate runs per unit of hierarchy level i
@@ -477,7 +464,7 @@ def calculate_chosen_level(
 
 
 def calculate_coreLimit_rounded_up(
-    siblings_of_core: HierarchyLevel, coreLimit: int
+    hiearchy_levels: List[HierarchyLevel], coreLimit: int
 ) -> int:
     """
     coreLimit_rounded_up (int): recalculate # cores for each run accounting for HT
@@ -487,8 +474,8 @@ def calculate_coreLimit_rounded_up(
     @param: coreLimit           the number of cores for each parallel benchmark execution
     @return:                    rounding up the coreLimit to a multiple of the num of hyper-threading siblings per core
     """
-    core_size = len(next(iter(siblings_of_core.values())))
-    # Take value from hierarchy_levels instead from siblings_of_core
+    # Always use full physical cores.
+    core_size = len(next(iter(hiearchy_levels[0].values())))
     coreLimit_rounded_up = int(math.ceil(coreLimit / core_size) * core_size)
     assert coreLimit <= coreLimit_rounded_up < (coreLimit + core_size)
     return coreLimit_rounded_up
@@ -557,7 +544,6 @@ def core_allocation_algorithm(
     coreLimit: int,
     num_of_threads: int,
     allCpus: Dict[int, VirtualCore],
-    siblings_of_core: HierarchyLevel,
     hierarchy_levels: List[HierarchyLevel],
 ) -> List[List[int]]:
     """Actual core distribution method:
@@ -582,7 +568,6 @@ def core_allocation_algorithm(
     @param: num_of_threads      the number of parallel benchmark executions
     @param: use_hyperthreading  boolean to check if no-hyperthreading method is being used
     @param: allCpus             list of all available core objects
-    @param: siblings_of_core    mapping from one of the sibling cores to the list of siblings including the core itself
     @param: hierarchy_levels    list of dicts mapping from a memory region identifier to its belonging cores
     @return result:             list of lists each containing the cores assigned to the same thread
     """
@@ -592,7 +577,6 @@ def core_allocation_algorithm(
         coreLimit,
         num_of_threads,
         allCpus,
-        siblings_of_core,
         hierarchy_levels,
         isTest=False,
     )
@@ -606,7 +590,7 @@ def core_allocation_algorithm(
             )
 
     # coreLimit_rounded_up (int): recalculate # cores for each run accounting for HT
-    coreLimit_rounded_up = calculate_coreLimit_rounded_up(siblings_of_core, coreLimit)
+    coreLimit_rounded_up = calculate_coreLimit_rounded_up(hierarchy_levels, coreLimit)
     # Choose hierarchy level for core assignment
     chosen_level = calculate_chosen_level(hierarchy_levels, coreLimit_rounded_up)
     # calculate how many sub_units have to be used to accommodate the runs_per_unit
