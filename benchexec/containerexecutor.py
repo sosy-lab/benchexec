@@ -346,16 +346,12 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         self._uid = (
             uid
             if uid is not None
-            else container.CONTAINER_UID
-            if container_system_config
-            else os.getuid()
+            else container.CONTAINER_UID if container_system_config else os.getuid()
         )
         self._gid = (
             gid
             if gid is not None
-            else container.CONTAINER_GID
-            if container_system_config
-            else os.getgid()
+            else container.CONTAINER_GID if container_system_config else os.getgid()
         )
         self._allow_network = network_access
         self._env_override = {}
