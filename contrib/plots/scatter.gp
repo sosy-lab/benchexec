@@ -12,8 +12,8 @@ set xlabel 'CPU Time for Tool 1 (s)'
 set ylabel 'CPU Time for Tool 2 (s)' offset 2
 
 # set value range
-set xrange [0.01:1000]
-set yrange [0.01:1000]
+set xrange [0.1:1000]
+set yrange [0.1:1000]
 
 # use logscale
 set logscale
@@ -29,4 +29,4 @@ plot \
      x*10 linecolor rgb "dark-gray", \
      x/10 linecolor rgb "dark-gray", \
      x linecolor rgb "dark-gray", \
-     "scatter.table.csv" using 3:7 with points pointtype 1
+     "scatter.table.csv" using 4:8 with points pointtype 1

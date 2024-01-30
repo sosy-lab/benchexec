@@ -11,7 +11,6 @@ import benchexec.tools.condtest as condtest
 class Tool(condtest.Tool):
     """
     This tool prunes the input file by removing any goal targets not provided in the input.
-    url: https://gitlab.com/sosy-lab/software/conditional-testing
     """
 
     _exec_path = "bin/reducer/annotator"

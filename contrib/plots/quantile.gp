@@ -12,8 +12,8 @@ set xlabel 'n-th fastest correct result'
 set ylabel "CPU time (s)" offset 2
 
 # set value range
-set xrange [0:1600]
-set yrange [0.01:1000]
+set xrange [0:1200]
+set yrange [0.1:1000]
 
 # use logscale
 set logscale y 10
@@ -29,5 +29,5 @@ set style data linespoints
 
 # plot with data points from prepared CSV files (more lines can be added here)
 plot \
-     "example-tool1.quantile.csv" using 1:4 title "Tool 1" with linespoints pointinterval -500, \
-     "example-tool2.quantile.csv" using 1:4 title "Tool 2" with linespoints pointinterval -500
+     "example-tool1.quantile.csv" using 1:5 title "Tool 1" with linespoints pointinterval -500, \
+     "example-tool2.quantile.csv" using 1:5 title "Tool 2" with linespoints pointinterval -500

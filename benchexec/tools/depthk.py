@@ -16,9 +16,8 @@ import re
 
 
 class Tool(benchexec.tools.template.BaseTool):
-
     """
-    This class serves as tool adaptor for DepthK (www.esbmc.org)
+    This class serves as tool adaptor for DepthK
     Autor: Williame Rocha - williame.rocha10@gmail.com - Federal University of Amazonas, Brazil.
     """
 
@@ -48,6 +47,9 @@ class Tool(benchexec.tools.template.BaseTool):
 
     def name(self):
         return "DepthK"
+
+    def project_url(self):
+        return "http://www.esbmc.org"
 
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
         assert len(tasks) == 1, "only one sourcefile supported"

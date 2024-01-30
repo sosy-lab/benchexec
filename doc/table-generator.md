@@ -179,7 +179,7 @@ for which we recommend something like the following configuration:
     binary-units,
     detect-weight=true, detect-inline-weight=math, % for bold cells
     round-mode=figures, round-precision=3, % rounding to 3 significant digits
-    ]{siunitx}
+    ]{siunitx}[=v2]
 ```
 
 An example of using the statistics in LaTeX could look like this:

@@ -86,6 +86,12 @@ class Tool1To2:
     def get_value_from_output(self, output, identifier):
         return self._wrapped.get_value_from_output(output._lines, identifier)
 
+    def project_url(self):
+        return None
+
+    def url_for_version(self, version):
+        return None
+
     def close(self):
         pass
 

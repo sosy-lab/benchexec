@@ -45,17 +45,17 @@ class P4SetupHandler(object):
                         prop = [result.Property("/", False, "Yo")]
                         run.properties = prop
                         if run.identifier in expected_dict and len(prop) > 0:
-                            run.expected_results[
-                                prop[0].filename
-                            ] = result.ExpectedResult(
-                                expected_dict[run.identifier] == "True"
-                                or expected_dict[run.identifier] == "true",
-                                None,
+                            run.expected_results[prop[0].filename] = (
+                                result.ExpectedResult(
+                                    expected_dict[run.identifier] == "True"
+                                    or expected_dict[run.identifier] == "true",
+                                    None,
+                                )
                             )
                         else:
-                            run.expected_results[
-                                prop[0].filename
-                            ] = result.ExpectedResult(True, None)
+                            run.expected_results[prop[0].filename] = (
+                                result.ExpectedResult(True, None)
+                            )
                         runSet.runs.append(run)
 
     def _read_expected_result_json(self, json_file_path):

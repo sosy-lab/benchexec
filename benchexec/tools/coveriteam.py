@@ -11,7 +11,6 @@ import benchexec.tools.template
 class Tool(benchexec.tools.template.BaseTool2):
     """
     Tool info for CoVeriTeam: On-Demand Composition of Cooperative Verification Systems.
-    URL: https://gitlab.com/sosy-lab/software/coveriteam.
 
     This class has 2 purposes:
         1. to serve as an abstract class for specific coveriteam programs like verifiers, validators, etc.
@@ -26,6 +25,9 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def name(self):
         return "CoVeriTeam"
+
+    def project_url(self):
+        return "https://gitlab.com/sosy-lab/software/coveriteam"
 
     def executable(self, tool_locator):
         return tool_locator.find_executable("coveriteam", subdir="bin")

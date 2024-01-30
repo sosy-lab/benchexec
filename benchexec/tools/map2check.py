@@ -13,7 +13,7 @@ from benchexec.tools.template import ToolNotFoundException
 
 class Tool(benchexec.tools.template.BaseTool2):
     """
-    This class serves as tool adaptor for Map2Check (https://github.com/hbgit/Map2Check)
+    This class serves as tool adaptor for Map2Check
     """
 
     REQUIRED_PATHS_6 = [
@@ -55,6 +55,9 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def name(self):
         return "Map2Check"
+
+    def project_url(self):
+        return "https://github.com/hbgit/Map2Check"
 
     def cmdline(self, executable, options, task, rlimits):
         assert task.property_file, "property file required"

@@ -16,8 +16,6 @@ class Tool(benchexec.tools.template.BaseTool2):
     of Technology and Economics, aiming to support the design and
     evaluation of abstraction refinement-based algorithms for the
     reachability analysis of various formalisms.
-
-    https://github.com/ftsrg/theta
     """
 
     def executable(self, tool_locator):
@@ -25,6 +23,9 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def name(self):
         return "Theta"
+
+    def project_url(self):
+        return "https://github.com/ftsrg/theta"
 
     def version(self, executable):
         return self._version_from_tool(executable)

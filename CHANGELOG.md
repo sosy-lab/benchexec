@@ -9,6 +9,49 @@ SPDX-License-Identifier: Apache-2.0
 
 # BenchExec Changelog
 
+## BenchExec 3.20
+
+- Two tool-info modules improved.
+
+## BenchExec 3.19
+
+- Tool-info modules can now provide URLs that will be used for links in HTML tables.  
+  There are two new methods, `project_url()` and `url_for_version()`
+  that can be implemented, and `table-generator` will put links to these URLs
+  in the summary table of the HTML tables (for the tool name and the version).
+  Most existing tool-info modules were extended with `project_url()`.
+- Many new and improved tool-info modules.
+
+## BenchExec 3.18
+
+The big change in this release is the long-awaited support for cgroups v2!
+Please refer to the [installation instructions](https://github.com/sosy-lab/benchexec/blob/master/doc/INSTALL.md)
+for how to use it (on Ubuntu/Debian, installing our package is enough).
+Note that this of course has not been tested yet on as many different systems
+as our support for cgroups v1, so there might still be some rough edges.
+Please provide [feedback](https://github.com/sosy-lab/benchexec/issues/new)
+if you encounter any problems or have questions.
+On systems with cgroups v1, everything should work the same way as before.
+
+There are also some other minor improvements:
+
+- If the system administrator has configured a lower frequency limit
+  than what the CPU supports, BenchExec now reports this limit as the CPU speed.
+- Fixes in `table-generator` for result files that conform to the specification
+  but were not produced by `benchexec`.
+- A few minor improvements for better integration with Podman containers.
+
+## BenchExec 3.17
+
+- Even more robust handling of child cgroups created within a run  
+  Despite the improvements from BenchExec 3.13 there could be crashes
+  because sometimes cgroups vanish while we iterate over them.
+  Avoiding this did not fully work, maybe due to some delays in the kernel,
+  so now we handle this.
+- Actually fix handling of non-printable characters in environment variables.  
+  The fix that was part of BenchExec 3.12 only worked if a non-printable character
+  was the first character of the value of the environment variable.
+
 ## BenchExec 3.16
 
 This release works only on Python 3.7 and newer!

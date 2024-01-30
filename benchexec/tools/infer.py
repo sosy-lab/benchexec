@@ -13,7 +13,6 @@ import benchexec.result as result
 class Tool(benchexec.tools.template.BaseTool2):
     """
     Tool info for Infer with a wrapper for usage in the SVCOMP.
-    URL: https://fbinfer.com/
     """
 
     def executable(self, tool_locator):
@@ -24,6 +23,9 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def name(self):
         return "Infer-SV"
+
+    def project_url(self):
+        return "https://fbinfer.com/"
 
     def cmdline(self, executable, options, task, rlimits):
         cmd = [executable, "--program", task.single_input_file]

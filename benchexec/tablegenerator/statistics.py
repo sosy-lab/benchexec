@@ -201,16 +201,19 @@ def _get_stats_of_number_column(values, categoryList, correct_only):
     return stats
 
 
-def _get_stats_of_status_column(run_results, col):
+def _get_stats_of_status_column(run_results, col_index):
     stats = ColumnStatistics()
     stats.score = StatValue(sum(run_result.score or 0 for run_result in run_results))
 
     stats.total = StatValue(
-        sum(1 for run_result in run_results if run_result.values[col])
+        sum(1 for run_result in run_results if run_result.values[col_index])
     )
 
     counts = collections.Counter(
-        (run_result.category, result.get_result_classification(run_result.values[col]))
+        (
+            run_result.category,
+            result.get_result_classification(run_result.values[col_index]),
+        )
         for run_result in run_results
     )
 

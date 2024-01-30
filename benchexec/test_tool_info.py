@@ -50,6 +50,11 @@ def print_value(description, value, extra_line=False):
     )
 
 
+def print_optional_value(description, value, *args, **kwargs):
+    if value:
+        print_value(description, value, *args, **kwargs)
+
+
 def print_list(description, value):
     print_value(description, list(value), extra_line=True)
 
@@ -103,6 +108,7 @@ def print_tool_info(tool, tool_locator):
     print_multiline_text("Documentation of tool module", inspect.getdoc(tool))
 
     print_value("Name of tool", tool.name())
+    print_optional_value("Webpage", tool.project_url())
 
     executable = tool.executable(tool_locator)
     print_value("Executable", executable)
@@ -125,10 +131,18 @@ def print_tool_info(tool, tool_locator):
         if not os.path.commonpath((abs_directory, abs_executable)) == abs_directory:
             logging.warning("Executable is not within specified tool directory.")
 
+    version = None
     try:
-        print_value("Version", tool.version(executable))
+        version = tool.version(executable)
     except BaseException:
         logging.warning("Determining version failed:", exc_info=1)
+    if version:
+        print_value("Version", tool.version(executable))
+        if version[0] < "0" or version[0] > "9":
+            logging.warning(
+                "Version does not start with a digit, please remove any prefixes like the tool name."
+            )
+        print_optional_value("URL for version", tool.url_for_version(version))
 
     working_directory = tool.working_directory(executable)
     print_value("Working directory", working_directory)

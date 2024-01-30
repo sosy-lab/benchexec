@@ -290,7 +290,7 @@ def _get_columns_relevant_for_diff(columns_to_show):
 
 def normalize_path(path, base_path_or_url):
     """Returns a normalized form of path, interpreted relative to base_path_or_url"""
-    if util.is_url(base_path_or_url):
+    if benchexec.util.is_url(base_path_or_url):
         return urllib.parse.urljoin(base_path_or_url, path)
     else:
         return os.path.normpath(os.path.join(os.path.dirname(base_path_or_url), path))
@@ -404,12 +404,19 @@ class RunSetResult(object):
         """
         self.results = []
 
+        tool = load_tool(self)
+        if tool:
+            self.attributes["project_url"] = [tool.project_url()]
+
+            versions = self.attributes["version"]
+            if len(versions) == 1 and versions[0]:
+                self.attributes["version_url"] = [tool.url_for_version(versions[0])]
+
         def get_value_from_logfile(lines, identifier):
             """
             This method searches for values in lines of the content.
             It uses a tool-specific method to so.
             """
-            tool = load_tool(self)
             if not tool:
                 return None
             output = tooladapter.CURRENT_BASETOOL.RunOutput(lines)

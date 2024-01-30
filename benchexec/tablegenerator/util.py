@@ -19,6 +19,8 @@ import urllib.request
 import platform
 from typing import Iterable, List, TypeVar, Union
 
+import benchexec.util
+
 
 # May be extended with higher numbers
 ROMAN_NUMBERS = {
@@ -91,7 +93,7 @@ def make_url(path_or_url):
     """Make a URL from a string which is either a URL or a local path,
     by adding "file:" if necessary.
     """
-    if not is_url(path_or_url):
+    if not benchexec.util.is_url(path_or_url):
         return "file:" + urllib.request.pathname2url(path_or_url)
     return path_or_url
 
@@ -148,63 +150,19 @@ def remove_unit(s):
     return suffix if prefix == "" else prefix
 
 
-def is_url(path_or_url):
-    return "://" in path_or_url or path_or_url.startswith("file:")
-
-
 def to_decimal(s):
-    if s:
-        if s.lower() in ["nan", "inf", "-inf"]:
+    if s is None:
+        return None
+    if isinstance(s, str):
+        s = s.strip()
+        if s.lower() in ["nan", "inf", "+inf", "-inf"]:
             return Decimal(s)
         else:
-            # remove whitespaces and trailing units (e.g., in '1.23s')
-            s, _ = split_number_and_unit(s.strip())
+            # remove trailing units (e.g., in '1.23s')
+            s, _ = split_number_and_unit(s)
             return Decimal(s) if s else None
     else:
-        return None
-
-
-def print_decimal(d):
-    """
-    Print a Decimal instance in non-scientific (i.e., decimal) notation with full
-    precision, i.e., all digits are printed exactly as stored in the Decimal instance.
-    Note that str(d) always falls back to scientific notation for very small values.
-    """
-
-    if d.is_nan():
-        return "NaN"
-    elif d.is_infinite():
-        return "Inf" if d > 0 else "-Inf"
-    assert d.is_finite()
-
-    sign, digits, exp = d.as_tuple()
-    # sign is 1 if negative
-    # digits is exactly the sequence of significant digits in the decimal representation
-    # exp tells us whether we need to shift digits (pos: left shift; neg: right shift).
-    # left shift can only add zeros, right shift adds decimal separator
-
-    sign = "-" if sign == 1 else ""
-    digits = list(map(str, digits))
-
-    if exp >= 0:
-        if digits == ["0"]:
-            # special case: return "0" instead of "0000" for "0e4"
-            return sign + "0"
-        return sign + "".join(digits) + ("0" * exp)
-
-    # Split digits into parts before and after decimal separator.
-    # If -exp > len(digits) the result needs to start with "0.", so we force a 0.
-    integral_part = digits[:exp] or ["0"]
-    decimal_part = digits[exp:]
-    assert decimal_part
-
-    return (
-        sign
-        + "".join(integral_part)
-        + "."
-        + ("0" * (-exp - len(decimal_part)))  # additional zeros if necessary
-        + "".join(decimal_part)
-    )
+        return Decimal(s)
 
 
 def collapse_equal_values(values, counts):

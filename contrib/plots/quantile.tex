@@ -13,7 +13,7 @@
 \usepackage[
     group-digits=integer, group-minimum-digits=4, % group digits by thousands
     free-standing-units, unit-optional-argument, % easier input of numbers with units
-    ]{siunitx}
+    ]{siunitx}[=v2]
 \usepackage{pgfplots}
 \pgfplotsset{
     compat=1.9,
@@ -36,15 +36,15 @@
     ylabel=CPU time (\second),
     % axis ranges
     xmin=0,
-    ymin=0.01,
+    ymin=0.1,
     ymax=1000,
     mark repeat=500,
     % legend
     legend entries={Tool 1, Tool 2},
     every axis legend/.append style={at={(0,1)}, anchor=north west, outer xsep=5pt, outer ysep=5pt,},
     ]
-    \addplot+ table {example-tool1.quantile.csv};
-    \addplot+ table {example-tool2.quantile.csv};
+    \addplot+ table[y index=4] {example-tool1.quantile.csv};
+    \addplot+ table[y index=4] {example-tool2.quantile.csv};
 \end{semilogyaxis}
 \end{tikzpicture}
 

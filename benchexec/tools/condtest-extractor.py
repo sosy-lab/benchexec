@@ -11,7 +11,6 @@ import benchexec.tools.condtest as condtest
 class Tool(condtest.Tool):
     """
     This tool extracts the goals from generated test cases.
-    url: https://gitlab.com/sosy-lab/software/conditional-testing
     """
 
     _exec_path = "bin/extractor/test_executor"

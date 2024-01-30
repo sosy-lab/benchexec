@@ -13,7 +13,6 @@ import benchexec.result as result
 class Tool(benchexec.tools.template.BaseTool2):
     """
     Tool info for GACAL.
-    URL: https://gitlab.com/bquiring/sv-comp-submission
     """
 
     def executable(self, tool_locator):
@@ -21,6 +20,9 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def name(self):
         return "GACAL"
+
+    def project_url(self):
+        return "https://gitlab.com/bquiring/sv-comp-submission"
 
     def version(self, executable):
         return self._version_from_tool(executable)

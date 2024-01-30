@@ -9,7 +9,6 @@ import logging
 import os
 import threading
 
-from benchexec.cgroups import MEMORY
 from benchexec import util
 
 from ctypes import cdll
@@ -53,7 +52,7 @@ class KillProcessOnOomThread(threading.Thread):
         self._cgroups = cgroups
         self._callback = callbackFn
 
-        cgroup = cgroups[MEMORY]  # for raw access
+        cgroup = cgroups[cgroups.MEMORY]  # for raw access
         ofd = os.open(os.path.join(cgroup, "memory.oom_control"), os.O_WRONLY)
         try:
             # Important to use CLOEXEC, otherwise the benchmarked tool inherits
@@ -103,7 +102,9 @@ class KillProcessOnOomThread(threading.Thread):
                 )
                 util.kill_process(self._pid_to_kill)
                 # Also kill all children of subprocesses directly.
-                with open(os.path.join(self._cgroups[MEMORY], "tasks"), "rt") as tasks:
+                with open(
+                    os.path.join(self._cgroups[self._cgroups.MEMORY], "tasks"), "rt"
+                ) as tasks:
                     for task in tasks:
                         util.kill_process(int(task))
 
@@ -116,11 +117,11 @@ class KillProcessOnOomThread(threading.Thread):
             close(self._efd)
 
     def _reset_memory_limit(self, limitFile):
-        if self._cgroups.has_value(MEMORY, limitFile):
+        if self._cgroups.has_value(self._cgroups.MEMORY, limitFile):
             try:
                 # Write a high value (1 PB) as the limit
                 self._cgroups.set_value(
-                    MEMORY,
+                    self._cgroups.MEMORY,
                     limitFile,
                     str(
                         1

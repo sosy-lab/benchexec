@@ -11,10 +11,12 @@ import benchexec.tools.cpachecker as cpachecker
 class Tool(cpachecker.Tool):
     """
     Tool info for PIChecker.
-    URL: https://gitlab.com/Lapulatos/pichecker
     """
 
     REQUIRED_PATHS = list(cpachecker.Tool.REQUIRED_PATHS) + ["resources"]
+
+    def project_url(self):
+        return "https://gitlab.com/Lapulatos/pichecker"
 
     def version(self, executable):
         version = self._version_from_tool(executable, "-help", line_prefix="PIChecker")

@@ -10,7 +10,7 @@ from . import cbmc
 
 class Tool(cbmc.Tool):
     """
-    Tool info for CBMC Path (http://www.cprover.org/cbmc/).
+    Tool info for CBMC Path.
     It always adds --xml-ui to the command-line arguments for easier parsing of
     the output, unless a propertyfile is passed -- in which case running under
     SV-COMP conditions is assumed.

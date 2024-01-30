@@ -58,6 +58,7 @@ clone.errcheck = _check_errno
 
 # /usr/include/linux/sched.h
 CLONE_NEWNS = 0x00020000
+CLONE_NEWCGROUP = 0x02000000
 CLONE_NEWUTS = 0x04000000
 CLONE_NEWIPC = 0x08000000
 CLONE_NEWUSER = 0x10000000
