@@ -19,8 +19,6 @@ from typing import Optional, List, Dict
 
 from benchexec import util
 
-sys.dont_write_bytecode = True  # prevent creation of .pyc files
-
 __all__ = [
     "check_memory_size",
     "get_cpu_cores_per_run",
