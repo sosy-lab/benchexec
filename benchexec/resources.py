@@ -316,7 +316,6 @@ def get_cpu_distribution(
                 if check_distribution_feasibility(
                     i,
                     num_of_threads,
-                    allCpus,
                     hierarchy_levels,
                     isTest=True,
                 ):
@@ -360,7 +359,6 @@ def filter_hyperthreading_siblings(
 def check_distribution_feasibility(
     coreLimit: int,
     num_of_threads: int,
-    allCpus: Dict[int, VirtualCore],
     hierarchy_levels: List[HierarchyLevel],
     isTest: bool = True,
 ) -> bool:
@@ -369,7 +367,6 @@ def check_distribution_feasibility(
 
     @param: coreLimit           the number of cores for each parallel benchmark execution
     @param: num_of_threads      the number of parallel benchmark executions
-    @param: allCpus             list of @VirtualCore Objects to address a core from its id to the ids of the memory regions
     @param: hierarchy_levels    list of dicts of lists: each dict in the list corresponds to one topology layer and maps from the identifier read from the topology to a list of the cores belonging to it
     @param: isTest              boolean whether the check is used to test the coreLimit or for the actual core allocation
     @return:                    list of lists, where each inner list contains the cores for one run
@@ -377,7 +374,7 @@ def check_distribution_feasibility(
     is_feasible = True
 
     # compare number of available cores to required cores per run
-    coreCount = len(allCpus)
+    coreCount = len(next(iter(hierarchy_levels[-1].values())))
     if coreLimit > coreCount:
         if not isTest:
             sys.exit(
@@ -567,7 +564,6 @@ def core_allocation_algorithm(
     check_distribution_feasibility(
         coreLimit,
         num_of_threads,
-        allCpus,
         hierarchy_levels,
         isTest=False,
     )
