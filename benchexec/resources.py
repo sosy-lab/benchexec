@@ -77,7 +77,6 @@ def get_cpu_cores_per_run(
     hierarchy_levels = []
     try:
         # read list of available CPU cores (int)
-        allowedCpus = get_cpu_list(my_cgroups)
         allCpus_list = get_cpu_list(my_cgroups, coreSet)
 
         # read & prepare hyper-threading information, filter redundant entries
@@ -88,9 +87,6 @@ def get_cpu_cores_per_run(
                 for sibling in siblings_of_core[core].copy():
                     if sibling != core:
                         cleanList.append(sibling)
-                        if coreSet:
-                            if sibling not in coreSet:
-                                siblings_of_core[core].remove(sibling)
         for element in cleanList:
             if element in siblings_of_core:
                 siblings_of_core.pop(element)
@@ -125,14 +121,8 @@ def get_cpu_cores_per_run(
         sys.exit(f"Could not read CPU information from kernel: {e}")
 
     # check if all HT siblings are available for benchexec
-    all_cpus_set = set(allCpus_list)
-    unusable_cores = []
-    for siblings in siblings_of_core.values():
-        siblings_set = set(siblings)
-        if not siblings_set.issubset(all_cpus_set):
-            unusable_cores.extend(siblings_set.difference(all_cpus_set))
-
-    unavailable_cores = set(unusable_cores).difference(allowedCpus)
+    all_siblings = set(itertools.chain.from_iterable(siblings_of_core.values()))
+    unavailable_cores = all_siblings.difference(allCpus_list)
     if unavailable_cores:
         sys.exit(
             f"Core assignment is unsupported because siblings {unavailable_cores} "
