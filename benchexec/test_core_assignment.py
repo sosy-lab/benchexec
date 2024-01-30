@@ -11,7 +11,7 @@ import sys
 import unittest
 import math
 
-from benchexec.resources import _get_cpu_cores_per_run0
+from benchexec.resources import get_cpu_distribution
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
@@ -27,10 +27,12 @@ class TestCpuCoresPerRun(unittest.TestCase):
         logging.disable(logging.CRITICAL)
 
     def assertValid(self, coreLimit, num_of_threads, expectedResult=None):
-        result = _get_cpu_cores_per_run0(
+        result = get_cpu_distribution(
             coreLimit, num_of_threads, self.use_ht, *self.machine()
         )
         if expectedResult:
+            # TODO update expected results or actual result to not differ in sorting
+            result = [sorted(cores) for cores in result]
             self.assertEqual(
                 expectedResult,
                 result,
@@ -40,7 +42,7 @@ class TestCpuCoresPerRun(unittest.TestCase):
     def assertInvalid(self, coreLimit, num_of_threads):
         self.assertRaises(
             SystemExit,
-            _get_cpu_cores_per_run0,
+            get_cpu_distribution,
             coreLimit,
             num_of_threads,
             self.use_ht,
@@ -48,7 +50,7 @@ class TestCpuCoresPerRun(unittest.TestCase):
         )
 
     def assertEqualResult(self, coreLimit, num_of_threads, expectedResult=None):
-        result = _get_cpu_cores_per_run0(
+        result = get_cpu_distribution(
             coreLimit, num_of_threads, self.use_hyperthreading, *self.machine()
         )
         if expectedResult:
@@ -59,7 +61,7 @@ class TestCpuCoresPerRun(unittest.TestCase):
             )
 
     def machine(self):
-        """Create the necessary parameters of _get_cpu_cores_per_run0 for a specific machine."""
+        """Create the necessary parameters of get_cpu_distribution for a specific machine."""
         core_count = self.cpus * self.cores
         allCpus = range(core_count)
         cores_of_package = {}
@@ -72,14 +74,20 @@ class TestCpuCoresPerRun(unittest.TestCase):
                 cores_of_package[package].extend(
                     range(start + ht_spread, end + ht_spread)
                 )
+
         siblings_of_core = {}
-        for core in allCpus:
-            siblings_of_core[core] = [core]
         if self.ht:
             for core in allCpus:
-                siblings_of_core[core].append((core + ht_spread) % core_count)
-                siblings_of_core[core].sort()
-        return allCpus, cores_of_package, siblings_of_core
+                core2 = (core + ht_spread) % core_count
+                if core2 > core:
+                    siblings_of_core[core] = [core, core2]
+        else:
+            siblings_of_core = {core: [core] for core in allCpus}
+
+        hierarchy_levels = [siblings_of_core, cores_of_package]
+        if self.cpus > 1:
+            hierarchy_levels.append({0: list(range(core_count))})
+        return (hierarchy_levels,)
 
     def test_singleThread(self):
         # test all possible coreLimits for a single thread
@@ -105,7 +113,7 @@ class TestCpuCoresPerRun(unittest.TestCase):
 
     # expected order in which cores are used for runs with coreLimit==1/2/3/4/8, used by the following tests
     # these fields should be filled in by subclasses to activate the corresponding tests
-    # (same format as the expected return value by _get_cpu_cores_per_run)
+    # (same format as the expected return value by get_cpu_distribution)
     oneCore_assignment = None
     twoCore_assignment = None
     threeCore_assignment = None
@@ -454,13 +462,11 @@ class TestCpuCoresPerRun_threeCPU_HT(TestCpuCoresPerRun):
         """3 CPUs with one core (plus HT) and non-contiguous core and package numbers.
         This may happen on systems with administrative core restrictions,
         because the ordering of core and package numbers is not always consistent."""
-        result = _get_cpu_cores_per_run0(
+        result = get_cpu_distribution(
             2,
             3,
             True,
-            [0, 1, 2, 3, 6, 7],
-            {0: [0, 1], 2: [2, 3], 3: [6, 7]},
-            {0: [0, 1], 1: [0, 1], 2: [2, 3], 3: [2, 3], 6: [6, 7], 7: [6, 7]},
+            [{0: [0, 1], 2: [2, 3], 3: [6, 7]}, {0: [0, 1, 2, 3, 6, 7]}],
         )
         self.assertEqual(
             [[0, 1], [2, 3], [6, 7]],
@@ -481,35 +487,29 @@ class TestCpuCoresPerRun_quadCPU_HT(TestCpuCoresPerRun):
         Furthermore, sibling cores have numbers next to each other (occurs on AMD Opteron machines with shared L1/L2 caches)
         and are not split as far as possible from each other (as it occurs on hyper-threading machines).
         """
-        result = _get_cpu_cores_per_run0(
+        result = get_cpu_distribution(
             1,
             8,
             True,
-            [0, 1, 8, 9, 16, 17, 24, 25, 32, 33, 40, 41, 48, 49, 56, 57],
-            {
-                0: [0, 1, 8, 9],
-                1: [32, 33, 40, 41],
-                2: [48, 49, 56, 57],
-                3: [16, 17, 24, 25],
-            },
-            {
-                0: [0, 1],
-                1: [0, 1],
-                48: [48, 49],
-                33: [32, 33],
-                32: [32, 33],
-                40: [40, 41],
-                9: [8, 9],
-                16: [16, 17],
-                17: [16, 17],
-                56: [56, 57],
-                57: [56, 57],
-                8: [8, 9],
-                41: [40, 41],
-                24: [24, 25],
-                25: [24, 25],
-                49: [48, 49],
-            },
+            [
+                {
+                    0: [0, 1],
+                    48: [48, 49],
+                    32: [32, 33],
+                    40: [40, 41],
+                    16: [16, 17],
+                    56: [56, 57],
+                    8: [8, 9],
+                    24: [24, 25],
+                },
+                {
+                    0: [0, 1, 8, 9],
+                    1: [32, 33, 40, 41],
+                    2: [48, 49, 56, 57],
+                    3: [16, 17, 24, 25],
+                },
+                {0: [0, 1, 8, 9, 16, 17, 24, 25, 32, 33, 40, 41, 48, 49, 56, 57]},
+            ],
         )
         self.assertEqual(
             [[0], [32], [48], [16], [8], [40], [56], [24]],
@@ -619,30 +619,24 @@ class TestCpuCoresPerRun_dualCPU_no_ht(TestCpuCoresPerRun):
         self.assertInvalid(8, 3)
 
     def test_dualCPU_noncontiguousID(self):
-        results = _get_cpu_cores_per_run0(
+        results = get_cpu_distribution(
             2,
             3,
             False,
-            [0, 4, 9, 15, 21, 19, 31, 12, 10, 11, 8, 23, 27, 14, 1, 20],
-            {0: [0, 4, 9, 12, 15, 19, 21, 31], 2: [10, 11, 8, 23, 27, 14, 1, 20]},
-            {
-                0: [0, 4],
-                4: [0, 4],
-                9: [9, 12],
-                12: [9, 12],
-                15: [15, 19],
-                19: [15, 19],
-                21: [21, 31],
-                31: [21, 31],
-                10: [10, 11],
-                11: [10, 11],
-                8: [8, 23],
-                23: [8, 23],
-                27: [27, 14],
-                14: [27, 14],
-                1: [1, 20],
-                20: [1, 20],
-            },
+            [
+                {
+                    0: [0, 4],
+                    9: [9, 12],
+                    15: [15, 19],
+                    21: [21, 31],
+                    10: [10, 11],
+                    8: [8, 23],
+                    14: [27, 14],
+                    1: [1, 20],
+                },
+                {0: [0, 4, 9, 12, 15, 19, 21, 31], 2: [10, 11, 8, 23, 27, 14, 1, 20]},
+                {0: [0, 4, 9, 15, 21, 19, 31, 12, 10, 11, 8, 23, 27, 14, 1, 20]},
+            ],
         )
         self.assertEqual(
             results,
