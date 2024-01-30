@@ -83,7 +83,6 @@ def get_cpu_cores_per_run(
         # read & prepare hyper-threading information, filter redundant entries
         siblings_of_core = get_siblings_mapping(allCpus_list)
         cleanList = []
-        unused_siblings = []
         for core in siblings_of_core:
             if core not in cleanList:
                 for sibling in siblings_of_core[core].copy():
@@ -91,7 +90,6 @@ def get_cpu_cores_per_run(
                         cleanList.append(sibling)
                         if coreSet:
                             if sibling not in coreSet:
-                                unused_siblings.append(sibling)
                                 siblings_of_core[core].remove(sibling)
         for element in cleanList:
             if element in siblings_of_core:
