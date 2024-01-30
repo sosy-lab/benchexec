@@ -15,7 +15,7 @@ import logging
 import math
 import os
 import sys
-from typing import Optional, List, Dict
+from typing import Generator, Optional, List, Dict
 
 from benchexec import util
 
@@ -79,20 +79,24 @@ def get_cpu_cores_per_run(
         # read list of available CPU cores (int)
         allCpus_list = get_cpu_list(my_cgroups, coreSet)
 
-        # read & prepare hyper-threading information, filter redundant entries
-        siblings_of_core = get_siblings_mapping(allCpus_list)
-        cleanList = []
-        for core in siblings_of_core:
-            if core not in cleanList:
-                for sibling in siblings_of_core[core].copy():
-                    if sibling != core:
-                        cleanList.append(sibling)
-        for element in cleanList:
-            if element in siblings_of_core:
-                siblings_of_core.pop(element)
-        # siblings_of_core will be added to hierarchy_levels list after sorting
+        # check if all HT siblings are available for benchexec
+        all_siblings = set(get_siblings_of_cores(allCpus_list))
+        unavailable_siblings = all_siblings.difference(allCpus_list)
+        if unavailable_siblings:
+            sys.exit(
+                f"Core assignment is unsupported because sibling cores "
+                f"{unavailable_siblings} are not usable. "
+                f"Please always make all virtual cores of a physical core available."
+            )
+
+        # read information about various topology levels
+
+        cores_of_physical_cores = read_topology_level(
+            allCpus_list, "Physical cores", "core_id"
+        )
 
         levels_to_add = [
+            cores_of_physical_cores,
             get_L3cache_mapping(allCpus_list),
             read_topology_level(
                 allCpus_list, "Physical packages", "physical_package_id"
@@ -120,16 +124,6 @@ def get_cpu_cores_per_run(
     except ValueError as e:
         sys.exit(f"Could not read CPU information from kernel: {e}")
 
-    # check if all HT siblings are available for benchexec
-    all_siblings = set(itertools.chain.from_iterable(siblings_of_core.values()))
-    unavailable_cores = all_siblings.difference(allCpus_list)
-    if unavailable_cores:
-        sys.exit(
-            f"Core assignment is unsupported because siblings {unavailable_cores} "
-            f"are not usable. "
-            f"Please always make all virtual cores of a physical core available."
-        )
-
     def compare_hierarchy_by_dict_length(level: HierarchyLevel):
         """comparator function for number of elements in a dict's value list"""
         return len(next(iter(level.values())))
@@ -137,13 +131,12 @@ def get_cpu_cores_per_run(
     hierarchy_levels.sort(key=compare_hierarchy_by_dict_length, reverse=False)
     # sort hierarchy_levels (list of dicts) according to the dicts' value sizes
 
-    # add siblings_of_core at the beginning of the list to ensure the correct index
-    hierarchy_levels.insert(0, siblings_of_core)
-
     # add root level at the end to have one level with a single node
     hierarchy_levels.append(get_root_level(hierarchy_levels))
 
     hierarchy_levels = filter_duplicate_hierarchy_levels(hierarchy_levels)
+
+    assert hierarchy_levels[0] == cores_of_physical_cores
 
     return get_cpu_distribution(
         coreLimit,
@@ -847,14 +840,13 @@ def read_topology_level(
     )
 
 
-def get_siblings_mapping(allCpus_list: List[int]) -> HierarchyLevel:
+def get_siblings_of_cores(allCpus_list: List[int]) -> Generator[int, None, None]:
     """
     Get hyperthreading siblings from core_cpus_list or thread_siblings_list (deprecated).
 
     @param: allCpus_list    list of cpu Ids to be read
-    @return:                mapping of siblings id to list of cores (dict)
+    @return:                list of all siblings of all given cores
     """
-    siblings_of_core = {}
     path = "/sys/devices/system/cpu/cpu{}/topology/{}"
     usePath = ""
     # if no hyperthreading available, the siblings list contains only the core itself
@@ -866,11 +858,7 @@ def get_siblings_mapping(allCpus_list: List[int]) -> HierarchyLevel:
         raise ValueError("No siblings information accessible")
 
     for core in allCpus_list:
-        siblings = util.parse_int_list(util.read_file(path.format(core, usePath)))
-        siblings_of_core[core] = siblings
-
-    logging.debug("Siblings of cores are %s.", siblings_of_core)
-    return siblings_of_core
+        yield from util.parse_int_list(util.read_file(path.format(core, usePath)))
 
 
 def get_group_mapping(cores_of_NUMA_region: HierarchyLevel) -> HierarchyLevel:
