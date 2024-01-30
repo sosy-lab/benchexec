@@ -97,7 +97,7 @@ def get_cpu_cores_per_run(
 
         levels_to_add = [
             cores_of_physical_cores,
-            get_L3cache_mapping(allCpus_list),
+            *read_cache_levels(allCpus_list),
             read_topology_level(
                 allCpus_list, "Physical packages", "physical_package_id"
             ),
@@ -954,48 +954,25 @@ def get_closest_nodes(distance_list: List[int]) -> List[int]:  # 10 11 11 11 20 
     return group_list  # [0 1 2 3]
 
 
-def get_L3cache_id_for_core(core: int) -> int:
+def read_cache_levels(allCpus_list: List[int]) -> Generator[HierarchyLevel, None, None]:
     """
-    Check whether index level 3 is level 3 cache and returns id of L3 cache
-
-    @param: core    id of the core whose L3cache id is retreived
-    @return:        identifier (int) for the L3 cache the core belongs to
-    """
-    dir_path = f"/sys/devices/system/cpu/cpu{core}/cache/"
-    index_L3_cache = ""
-    for entry in os.listdir(dir_path):
-        if entry.startswith("index"):
-            cacheIndex = int(
-                util.read_file(f"/sys/devices/system/cpu/cpu{core}/cache/{entry}/level")
-            )
-            if cacheIndex == 3:
-                index_L3_cache = entry
-                break
-    """Get the id of the Level 3 cache a core belongs to."""
-    return int(
-        util.read_file(f"/sys/devices/system/cpu/cpu{core}/cache/{index_L3_cache}/id")
-    )
-
-
-def get_L3cache_mapping(allCpus_list: List[int]) -> HierarchyLevel:
-    """
-    Generates a mapping from a L3 Cache to its corresponding cores.
+    Generates mappings from cache ids to the corresponding cores.
+    One mapping is created for each cache level.
 
     @param: allCpus_list    list of cpu Ids to be read
-    @return:                mapping of L3 Cache id to list of cores (dict)
+    @return:                generator of hiearchy levels
     """
-    cores_of_L3cache = {}
-    try:
-        for core in allCpus_list:
-            L3cache = get_L3cache_id_for_core(core)
-            cores_of_L3cache.setdefault(L3cache, []).append(core)
-    except FileNotFoundError:
-        logging.debug(
-            "Level 3 cache information not available at /sys/devices/system/cpu/cpuX/cache/cacheX"
+    dir_path = "/sys/devices/system/cpu/cpu{}/cache"
+    # pick caches available for first core and assume all cores have the same caches
+    cache_names = [
+        entry
+        for entry in os.listdir(dir_path.format(allCpus_list[0]))
+        if entry.startswith("index")
+    ]
+    for cache in cache_names:
+        yield read_generic_reverse_mapping(
+            allCpus_list, f"Cache {cache}", f"{dir_path}/{cache}/id"
         )
-        return {}
-    logging.debug("Level 3 caches of cores are %s.", cores_of_L3cache)
-    return cores_of_L3cache
 
 
 def get_NUMA_mapping(allCpus_list: List[int]) -> HierarchyLevel:
