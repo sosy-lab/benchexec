@@ -12,7 +12,6 @@ import math
 from collections import defaultdict
 from benchexec.resources import (
     get_cpu_distribution,
-    VirtualCore,
     get_root_level,
     filter_duplicate_hierarchy_levels,
 )
@@ -72,7 +71,6 @@ class TestCpuCoresPerRun(unittest.TestCase):
     def machine(self):
         """Create the necessary parameters of get_cpu_distribution for a specific machine."""
 
-        allCpus = {}
         siblings_of_core = defaultdict(list)
         cores_of_L3cache = defaultdict(list)
         cores_of_NUMA_Region = defaultdict(list)
@@ -144,14 +142,7 @@ class TestCpuCoresPerRun(unittest.TestCase):
 
         hierarchy_levels = filter_duplicate_hierarchy_levels(hierarchy_levels)
 
-        for cpu_nr in range(self.num_of_cores):
-            allCpus.update({cpu_nr: VirtualCore(cpu_nr, [])})
-        for level in hierarchy_levels:  # hierarchy_levels = [dict1, dict2, dict3]
-            for key in level:
-                for core in level[key]:
-                    allCpus[core].memory_regions.append(key)
-
-        return allCpus, hierarchy_levels
+        return (hierarchy_levels,)
 
     def mainAssertValid(self, coreLimit, expectedResult, maxThreads=None):
         self.coreLimit = coreLimit
@@ -455,14 +446,6 @@ class TestCpuCoresPerRun_threeCPU_HT(TestCpuCoresPerRun):
             2,
             3,
             True,
-            {
-                0: VirtualCore(0, [0, 0]),
-                1: VirtualCore(1, [0, 0]),
-                2: VirtualCore(2, [2, 0]),
-                3: VirtualCore(3, [2, 0]),
-                6: VirtualCore(6, [3, 0]),
-                7: VirtualCore(7, [3, 0]),
-            },
             [
                 {0: [0, 1], 2: [2, 3], 3: [6, 7]},
                 {0: [0, 1, 2, 3, 6, 7]},

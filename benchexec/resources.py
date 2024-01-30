@@ -158,23 +158,10 @@ def get_cpu_cores_per_run(
 
     logging.debug(hierarchy_levels)
 
-    # creates a dict of VirtualCore objects from core ID list
-    allCpus = {}
-    for cpu_nr in allCpus_list:
-        allCpus.update({cpu_nr: VirtualCore(cpu_nr, [])})
-
-    for level in hierarchy_levels:  # hierarchy_levels (list of dicts)
-        for key in level:
-            for core in level[key]:
-                allCpus[core].memory_regions.append(
-                    key
-                )  # memory_regions is a list of keys
-
     return get_cpu_distribution(
         coreLimit,
         num_of_threads,
         use_hyperthreading,
-        allCpus,
         hierarchy_levels,
         coreRequirement,
     )
@@ -270,7 +257,6 @@ def get_cpu_distribution(
     coreLimit: int,
     num_of_threads: int,
     use_hyperthreading: bool,
-    allCpus: Dict[int, VirtualCore],
     hierarchy_levels: List[HierarchyLevel],
     coreRequirement: Optional[int] = None,
 ) -> List[List[int]]:
@@ -280,11 +266,24 @@ def get_cpu_distribution(
     @param: coreLimit           the number of cores for each parallel benchmark execution
     @param: num_of_threads      the number of parallel benchmark executions
     @param: use_hyperthreading  boolean to check if no-hyperthreading method is being used
-    @param: allCpus             list of @VirtualCore Objects to address a core from its id to the ids of the memory regions
     @param: hierarchy_levels    list of dicts of lists: each dict in the list corresponds to one topology layer and maps from the identifier read from the topology to a list of the cores belonging to it
     @param: coreRequirement     minimum number of cores to be reserved for each execution run
     @return:                    list of lists, where each inner list contains the cores for one run
     """
+
+    # creates a dict of VirtualCore objects from core ID list
+    allCpus = {
+        core: VirtualCore(core, [])
+        for core in itertools.chain.from_iterable(hierarchy_levels[-1].values())
+    }
+
+    for level in hierarchy_levels:  # hierarchy_levels (list of dicts)
+        for key, cores in level.items():
+            for core in cores:
+                allCpus[core].memory_regions.append(
+                    key
+                )  # memory_regions is a list of keys
+
     check_internal_validity(allCpus, hierarchy_levels)
     result = []
 
