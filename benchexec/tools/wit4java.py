@@ -11,7 +11,6 @@ from benchexec.tools.template import ToolNotFoundException
 
 
 class Tool(benchexec.tools.template.BaseTool2):
-
     """
     Tool info for wit4java
     """

@@ -16,7 +16,6 @@ import re
 
 
 class Tool(benchexec.tools.template.BaseTool):
-
     """
     This class serves as tool adaptor for DepthK
     Autor: Williame Rocha - williame.rocha10@gmail.com - Federal University of Amazonas, Brazil.

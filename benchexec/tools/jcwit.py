@@ -10,7 +10,6 @@ import benchexec.result as result
 
 
 class Tool(benchexec.tools.template.BaseTool2):
-
     """
     Tool info for jcwit
     """
