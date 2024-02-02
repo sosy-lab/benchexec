@@ -14,7 +14,10 @@ from benchexec.tools.template import ToolNotFoundException, BaseTool2
 
 class Tool(BaseTool2):
     """
-    Tool info for VFIT
+    Tool info for VFIT.
+    V-FIT (Verified Fault Injection Tool) is a tool that is designed to generate/reproduce a benchmark set of injected
+    tasks.
+    It incorporates Coveriteam for verification with CPAChecker and UAutomizer.
     """
 
     REQUIRED_PATHS = []
@@ -23,7 +26,7 @@ class Tool(BaseTool2):
         return "V-Fit"
 
     def executable(self, tool_locator):
-        exe = tool_locator.find_executable("vfit")
+        return tool_locator.find_executable("vfit")
         # dir_name = os.path.dirname(exe)
         # logging.debug("Looking for V-Fit executable in %s", dir_name)
         # for _, dir_names, file_names in os.walk(dir_name):
@@ -35,13 +38,12 @@ class Tool(BaseTool2):
         #     f"but no 'vfit' directory besides it"
         # )
         # raise ToolNotFoundException(msg)
-        return exe
 
     def version(self, executable):
-        return self._version_from_tool(executable, line_prefix="v-fit version")
+        return self._version_from_tool(executable, arg="--version", line_prefix="v-fit version")
 
     def cmdline(self, executable, options, task, resource_limits):
-        return [executable] + options + ["--c"] + list(task.input_files)
+        return [executable] + options + ["--c"] + list(task.single_input_file)
 
     # def determine_result(self, run):
     #     if run.exit_code != 0:

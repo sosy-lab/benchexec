@@ -14,7 +14,10 @@ from benchexec.tools.template import ToolNotFoundException, BaseTool2
 
 class Tool(BaseTool2):
     """
-    Tool info for Coccinelle
+    Tool info for Coccinelle.
+    Coccinelle is NOT a verification tool, but rather a tool that takes a c task and a .cocci template file
+    and injects faults into the given program.
+    The provided template dictates if a fault is to be injected into the program, and at which position in the code.
     """
 
     REQUIRED_PATHS = ["standard.h" "ocaml" "standard.iso" "ocaml"]
@@ -23,7 +26,7 @@ class Tool(BaseTool2):
         return "Coccinelle"
 
     def executable(self, tool_locator):
-        exe = tool_locator.find_executable("spatch")
+        return tool_locator.find_executable("spatch")
         # dir_name = os.path.dirname(exe)
         # logging.debug("Looking in %s for spatch", dir_name)
         # for _, dir_names, file_names in os.walk(dir_name):
@@ -36,13 +39,12 @@ class Tool(BaseTool2):
         #     f"but no 'spatch' directory besides it"
         # )
         # raise ToolNotFoundException(msg)
-        return exe
 
     def version(self, executable):
-        return self._version_from_tool(executable, line_prefix="spatch version")
+        return self._version_from_tool(executable, arg="--version", line_prefix="spatch version")
 
     def cmdline(self, executable, options, task, resource_limits):
-        return [executable] + options + list(task.input_files) + [task.property_file]
+        return [executable] + options + list(task.single_input_file) + [task.property_file]
 
     # def determine_result(self, run):
     #     if run.exit_code != 0:
