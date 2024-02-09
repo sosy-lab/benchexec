@@ -489,24 +489,23 @@ def get_root_level(hierarchy_levels: List[HierarchyLevel]) -> HierarchyLevel:
     return {0: all_cores}
 
 
-def get_sub_unit_dict(
-    allCpus: Dict[int, VirtualCore], parent_list: List[int], hLevel: int
+def get_core_units_on_level(
+    allCpus: Dict[int, VirtualCore], cores: List[int], hLevel: int
 ) -> Dict[int, List[int]]:
     """
-    Generates a dict including all units at a specify hierarchy level which consist of cores from parent_list
-    Collects all region keys from the hierarchy level where the core ids in parent_list are stored and returns
-    the collected data as dictionary
+    Partitions a given list of cores according to which topological unit they belong to
+    on a given hierarchy level.
 
-    @param: allCpus       list of @VirtualCore Objects to address a core from its id to the ids of the memory regions
-    @param: parent_list   list of core ids from the parent hierarchyLevel
+    @param: allCpus       VirtualCore instances for every core id
+    @param: cores         list of core ids
     @param: hLevel        the index of the hierarchy level to search in
     """
 
-    child_dict = {}
-    for element in parent_list:
-        subSubUnitKey = allCpus[element].memory_regions[hLevel]
-        child_dict.setdefault(subSubUnitKey, []).append(element)
-    return child_dict
+    result = {}
+    for core in cores:
+        unit_key = allCpus[core].memory_regions[hLevel]
+        result.setdefault(unit_key, []).append(core)
+    return result
 
 
 def core_allocation_algorithm(
@@ -593,7 +592,9 @@ def core_allocation_algorithm(
                 # if length of core lists unequal: get element with highest length
                 largest_core_subset = max(distribution_dict.values(), key=len)
 
-                child_dict = get_sub_unit_dict(allCpus, largest_core_subset, i - 1)
+                child_dict = get_core_units_on_level(
+                    allCpus, largest_core_subset, i - 1
+                )
                 distribution_dict = child_dict.copy()
                 if check_symmetric_num_of_values(child_dict):
                     if i > chosen_level:
@@ -604,7 +605,7 @@ def core_allocation_algorithm(
                                 distribution_dict.values(), key=len
                             )
 
-                            child_dict = get_sub_unit_dict(
+                            child_dict = get_core_units_on_level(
                                 allCpus, largest_core_subset, i - 1
                             )
                             distribution_dict = child_dict.copy()
@@ -645,7 +646,7 @@ def core_allocation_algorithm(
                 if j - 1 > 0:
                     j = j - 1
 
-                child_dict = get_sub_unit_dict(allCpus, sub_unit_cores.copy(), j)
+                child_dict = get_core_units_on_level(allCpus, sub_unit_cores.copy(), j)
                 """
                 searches for the key-value pair that already provided cores for the assignment
                 and therefore has the fewest elements in its value list while non-empty,
@@ -662,7 +663,9 @@ def core_allocation_algorithm(
                             if len(iter2) == 0:
                                 distribution_list.remove(iter2)
                         distribution_list.sort(reverse=False)
-                        child_dict = get_sub_unit_dict(allCpus, distribution_list[0], j)
+                        child_dict = get_core_units_on_level(
+                            allCpus, distribution_list[0], j
+                        )
                 next_core = list(child_dict.values())[0][0]
 
                 """
