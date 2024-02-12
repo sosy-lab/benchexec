@@ -582,7 +582,7 @@ def determine_directory_mode(dir_modes, path, fstype=None):
     From a high-level mapping of desired directory modes, determine the actual mode
     for a given directory.
     """
-    if fstype == b"proc":
+    if path == b"/proc" and fstype == b"proc":
         # proc is necessary for the grandchild to read PID, will be replaced later.
         return DIR_READ_ONLY
     if util.path_is_below(path, b"/proc"):
