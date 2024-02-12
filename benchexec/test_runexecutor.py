@@ -1092,6 +1092,23 @@ class TestRunExecutorWithContainer(TestRunExecutor):
         count_msg = next(msg for msg in log.output if " output files matched" in msg)
         self.assertIn(f"{file_count} output files matched", count_msg)
 
+    def test_parent_fns(self):
+        if not os.path.exists("/bin/sh"):
+            self.skipTest("missing /bin/sh")
+
+        def parent_setup_fn(*, tool_pid, **kwargs):
+            # I don't want to require psutil just for this
+            # I'll just read the procfs
+            assert os.path.exists("/proc/{tool_pid}")
+            return 12345
+
+        def parent_cleanup_fn(parent_setup, exit_code, path):
+            assert parent_setup == 12345
+            assert exit_code == 123
+
+        self.setUp(parent_setup_fn=parent_setup_fn, parent_cleanup_fn=parent_cleanup_fn)
+        self.execute_run("/bin/sh", "-c", "exit 123")
+
     def test_file_count_limit(self):
         if not os.path.exists("/bin/sh"):
             self.skipTest("missing /bin/sh")

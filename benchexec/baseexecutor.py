@@ -49,7 +49,24 @@ def handle_basic_executor_options(options, parser):
 class BaseExecutor(object):
     """Class for starting and handling processes."""
 
-    def __init__(self):
+    def __init__(
+        self,
+        child_setup_fn=None,
+        parent_setup_fn=None,
+        parent_cleanup_fn=None,
+    ):
+        """
+        See BaseExecutor._start_execution for a description of the parameters.
+        """
+        self.child_setup_fn = (
+            child_setup_fn if child_setup_fn is None else util.dummy_fn
+        )
+        self.parent_setup_fn = (
+            parent_setup_fn if parent_setup_fn is None else util.dummy_fn
+        )
+        self.parent_cleanup_fn = (
+            parent_cleanup_fn if parent_cleanup_fn is None else util.dummy_fn
+        )
         self.PROCESS_KILLED = False
         # killing process is triggered asynchronously, need a lock for synchronization
         self.SUB_PROCESS_PIDS_LOCK = threading.Lock()
@@ -75,8 +92,8 @@ class BaseExecutor(object):
         parent_cleanup_fn,
     ):
         """Actually start the tool and the measurements.
-        @param parent_setup_fn a function without parameters that is called in the parent process
-            immediately before the tool is started
+        @param parent_setup_fn a function that is called in the parent process
+            immediately before the tool is started. The keyword-arguments passed may differ in subclasses.
         @param child_setup_fn a function without parameters that is called in the child process
             before the tool is started
         @param parent_cleanup_fn a function that is called in the parent process

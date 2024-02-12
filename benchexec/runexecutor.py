@@ -829,7 +829,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                     # Disable energy measurements because we use only parts of a CPU
                     packages = None
 
-        def preParent():
+        def preParent(**kwargs):
             """Setup that is executed in the parent process immediately before the actual tool is started."""
             # start measurements
             if self._energy_measurement is not None and packages:

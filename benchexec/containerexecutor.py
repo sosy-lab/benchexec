@@ -475,9 +475,9 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 cgroups=cgroups,
                 output_dir=output_dir,
                 result_files_patterns=result_files_patterns,
-                child_setup_fn=util.dummy_fn,
-                parent_setup_fn=util.dummy_fn,
-                parent_cleanup_fn=util.dummy_fn,
+                child_setup_fn=self.child_setup_fn,
+                parent_setup_fn=self.parent_setup_fn,
+                parent_cleanup_fn=self.parent_cleanup_fn,
             )
 
             with self.SUB_PROCESS_PIDS_LOCK:
@@ -647,6 +647,9 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 # Signal readiness to parent by sending our PID
                 # and wait until parent is also ready
                 os.write(to_parent, str(my_outer_pid).encode())
+                logging.debug(
+                    "Grandchild: Sent my pid; waiting for grandparent to be ready"
+                )
                 received = os.read(from_parent, 1)
                 assert received == MARKER_PARENT_COMPLETED, received
 
@@ -974,11 +977,18 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             if use_cgroup_ns:
                 cgroups = cgroups.create_fresh_child_cgroup_for_delegation()
 
+            # Do parent setup
+            logging.debug("Calling parent_setup_fn)")
+            parent_setup = parent_setup_fn(
+                child_pid=child_pid,
+                grandchild_pid=grandchild_pid,
+            )
+
             # start measurements
             cgroups.add_task(grandchild_pid)
-            parent_setup = parent_setup_fn()
 
             # Signal grandchild that setup is finished
+            logging.debug("Telling grandchild we are ready")
             os.write(to_grandchild, MARKER_PARENT_COMPLETED)
 
             # Copy file descriptor, otherwise we could not close from_grandchild in
