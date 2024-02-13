@@ -1095,19 +1095,32 @@ class TestRunExecutorWithContainer(TestRunExecutor):
     def test_parent_fns(self):
         if not os.path.exists("/bin/sh"):
             self.skipTest("missing /bin/sh")
-
-        def parent_setup_fn(*, tool_pid, **kwargs):
+        parent_setup_ran = False
+        parent_cleanup_ran = False
+        def parent_setup_fn(*, grandchild_pid, child_pid, **kwargs):
             # I don't want to require psutil just for this
             # I'll just read the procfs
-            assert os.path.exists("/proc/{tool_pid}")
+            print("parent setup fn")
+            assert os.path.exists(f"/proc/{grandchild_pid}")
+            assert os.path.exists(f"/proc/{child_pid}")
+            nonlocal parent_setup_ran
+            parent_setup_ran = True
             return 12345
 
         def parent_cleanup_fn(parent_setup, exit_code, path):
+            print("parent cleanup fn")
             assert parent_setup == 12345
-            assert exit_code == 123
-
-        self.setUp(parent_setup_fn=parent_setup_fn, parent_cleanup_fn=parent_cleanup_fn)
-        self.execute_run("/bin/sh", "-c", "exit 123")
+            nonlocal parent_cleanup_ran
+            parent_cleanup_ran = True
+        self.execute_run(
+            "/bin/sh",
+            "-c",
+            "echo hi",
+            parent_setup_fn=parent_setup_fn,
+            parent_cleanup_fn=parent_cleanup_fn,
+        )
+        assert parent_setup_ran
+        assert parent_cleanup_ran
 
     def test_file_count_limit(self):
         if not os.path.exists("/bin/sh"):

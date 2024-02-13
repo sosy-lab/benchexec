@@ -620,6 +620,8 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         files_size_limit=None,
         error_filename=None,
         write_header=True,
+        parent_setup_fn=None,
+        parent_cleanup_fn=None,
         **kwargs,
     ) -> Dict[str, Any]:  # pytype: disable=signature-mismatch
         """
@@ -648,6 +650,8 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         @param files_size_limit: None or maximum size of files that may be written.
         @param error_filename: the file where the error output should be written to (default: same as output_filename)
         @param write_headers: Write informational headers to the output and the error file if separate (default: True)
+        @param parent_setup_fn: A function that gets called in the parent process before the tool is allowed to run (default: noop fn). When used with use_namespaces=True, the function recieves child_pid and grandchild_pid.
+        @param parent_cleanup_fn: A function that gets called after the tool finishes running with the return value of parent_setup_fn.
         @param **kwargs: further arguments for ContainerExecutor.execute_run()
         @return: dict with result of run (measurement results and process exitcode)
         """
@@ -745,6 +749,13 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             if files_size_limit < 0:
                 sys.exit(f"Invalid files-size limit {files_size_limit}.")
 
+        self.parent_setup_fn = (
+            util.dummy_fn if parent_setup_fn is None else parent_setup_fn
+        )
+        self.parent_cleanup_fn = (
+            util.dummy_fn if parent_cleanup_fn is None else parent_cleanup_fn
+        )
+
         try:
             return self._execute(
                 args,
@@ -832,16 +843,17 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         def preParent(**kwargs):
             """Setup that is executed in the parent process immediately before the actual tool is started."""
             # start measurements
+            parent_setup = self.parent_setup_fn(**kwargs)
             if self._energy_measurement is not None and packages:
                 self._energy_measurement.start()
             starttime = util.read_local_time()
             walltime_before = time.monotonic()
-            return starttime, walltime_before
+            return starttime, walltime_before, parent_setup
 
         def postParent(preParent_result, exit_code, base_path):
             """Cleanup that is executed in the parent process immediately after the actual tool terminated."""
             # finish measurements
-            starttime, walltime_before = preParent_result
+            starttime, walltime_before, parent_setup = preParent_result
             walltime = time.monotonic() - walltime_before
             energy = (
                 self._energy_measurement.stop() if self._energy_measurement else None
@@ -868,6 +880,8 @@ class RunExecutor(containerexecutor.ContainerExecutor):
 
             if exit_code.value not in [0, 1]:
                 _get_debug_output_after_crash(output_filename, base_path)
+
+            self.parent_cleanup_fn(parent_setup, exit_code, base_path)
 
             return starttime, walltime, energy
 
