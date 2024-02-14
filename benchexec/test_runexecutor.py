@@ -1097,6 +1097,7 @@ class TestRunExecutorWithContainer(TestRunExecutor):
             self.skipTest("missing /bin/sh")
         parent_setup_ran = False
         parent_cleanup_ran = False
+
         def parent_setup_fn(*, grandchild_pid, child_pid, **kwargs):
             # I don't want to require psutil just for this
             # I'll just read the procfs
@@ -1112,6 +1113,7 @@ class TestRunExecutorWithContainer(TestRunExecutor):
             assert parent_setup == 12345
             nonlocal parent_cleanup_ran
             parent_cleanup_ran = True
+
         self.execute_run(
             "/bin/sh",
             "-c",
