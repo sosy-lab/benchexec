@@ -205,7 +205,7 @@ def check_internal_validity(
         return sorted(items) == list(items)
 
     # TODO check whether this assertion holds and/or is required
-    # assert is_sorted(allCpus.keys()), "CPUs are not sorted"
+    # assert is_sorted(allCpus.keys()), "CPUs are not sorted"  #noqa: E800
 
     node_count_per_level = [len(level) for level in hierarchy_levels]
     assert node_count_per_level[-1] == 1, "Root level is missing"
@@ -779,7 +779,7 @@ def get_cpu_list(my_cgroups, coreSet: Optional[List] = None) -> List[int]:
     return fastest_cpus
 
 
-def frequency_filter(cpu_max_frequencies: dict[int, List[int]]) -> List[int]:
+def frequency_filter(cpu_max_frequencies: Dict[int, List[int]]) -> List[int]:
     """
     Filters the available CPU cores so that only the fastest cores remain.
     Only cores with a maximal frequency above the defined threshold
@@ -812,7 +812,7 @@ def read_generic_reverse_mapping(
     ids: List[int],
     name,
     path_template: str,
-) -> dict[int, List[int]]:
+) -> Dict[int, List[int]]:
     """
     Given a list of ids and a path template, read an int value for every id,
     and return a reverse mapping (from value to id).
