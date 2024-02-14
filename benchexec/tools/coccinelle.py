@@ -25,11 +25,15 @@ class Tool(BaseTool2):
         return tool_locator.find_executable("spatch")
 
     def version(self, executable):
-        return self._version_from_tool(executable, arg="--version", line_prefix="spatch version")
+        return self._version_from_tool(
+            executable, arg="--version", line_prefix="spatch version"
+        )
 
     def cmdline(self, executable, options, task, resource_limits):
         if task.property_file is not None:
-            return [executable] + options + [task.single_input_file] + [task.property_file]
+            return (
+                [executable] + options + [task.single_input_file] + [task.property_file]
+            )
         else:
             return [executable] + options + [task.single_input_file]
 

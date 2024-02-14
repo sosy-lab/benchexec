@@ -25,7 +25,9 @@ class Tool(BaseTool2):
         return tool_locator.find_executable("vfit")
 
     def version(self, executable):
-        return self._version_from_tool(executable, arg="--version", line_prefix="v-fit version")
+        return self._version_from_tool(
+            executable, arg="--version", line_prefix="v-fit version"
+        )
 
     def cmdline(self, executable, options, task, resource_limits):
         return [executable] + options + ["--c"] + [task.single_input_file]
