@@ -11,7 +11,7 @@ from benchexec.tools.template import BaseTool2
 class Tool(BaseTool2):
     """
     Tool info for Coccinelle.
-    Coccinelle is NOT a verification tool, but rather a tool that takes a c task and a .cocci template, it injects
+    Coccinelle is a tool that takes a c task and a .cocci template, it injects
     faults into the given task and returns the generated mutant.
     The provided template dictates if a fault is to be injected into the program, and at which position in the code.
     """
@@ -30,7 +30,7 @@ class Tool(BaseTool2):
         )
 
     def cmdline(self, executable, options, task, resource_limits):
-        if task.property_file is not None:
+        if task.property_file:
             return (
                 [executable] + options + [task.single_input_file] + [task.property_file]
             )

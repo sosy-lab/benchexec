@@ -13,7 +13,7 @@ class Tool(BaseTool2):
     Tool info for VFIT.
     V-FIT (Verified Fault Injection Tool) is a tool that is designed to generate/reproduce a benchmark set of verified
     fault-injected tasks.
-    It incorporates Coveriteam for verification with CPAChecker and UAutomizer.
+    It incorporates Coveriteam for verification with CPAchecker and UAutomizer.
     """
 
     REQUIRED_PATHS = []
