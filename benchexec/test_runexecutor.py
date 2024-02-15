@@ -887,6 +887,35 @@ wait $child_pid
             "run output misses command output and was not executed properly",
         )
 
+    def test_parent_fns(self):
+        if not os.path.exists("/bin/sh"):
+            self.skipTest("missing /bin/sh")
+        parent_setup_ran = False
+        parent_cleanup_ran = False
+
+        def parent_setup_fn(*, child_pid, **kwargs):
+            # I don't want to require psutil just for this
+            # I'll just read the procfs
+            assert os.path.exists(f"/proc/{child_pid}")
+            nonlocal parent_setup_ran
+            parent_setup_ran = True
+            return 12345
+
+        def parent_cleanup_fn(parent_setup, exit_code, path):
+            assert parent_setup == 12345
+            nonlocal parent_cleanup_ran
+            parent_cleanup_ran = True
+
+        self.execute_run(
+            "/bin/sh",
+            "-c",
+            "echo hi",
+            parent_setup_fn=parent_setup_fn,
+            parent_cleanup_fn=parent_cleanup_fn,
+        )
+        assert parent_setup_ran
+        assert parent_cleanup_ran
+
 
 class TestRunExecutorWithContainer(TestRunExecutor):
     def setUp(self, *args, **kwargs):
@@ -1101,7 +1130,6 @@ class TestRunExecutorWithContainer(TestRunExecutor):
         def parent_setup_fn(*, grandchild_pid, child_pid, **kwargs):
             # I don't want to require psutil just for this
             # I'll just read the procfs
-            print("parent setup fn")
             assert os.path.exists(f"/proc/{grandchild_pid}")
             assert os.path.exists(f"/proc/{child_pid}")
             nonlocal parent_setup_ran
@@ -1109,7 +1137,6 @@ class TestRunExecutorWithContainer(TestRunExecutor):
             return 12345
 
         def parent_cleanup_fn(parent_setup, exit_code, path):
-            print("parent cleanup fn")
             assert parent_setup == 12345
             nonlocal parent_cleanup_ran
             parent_cleanup_ran = True
