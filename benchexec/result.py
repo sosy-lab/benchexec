@@ -107,7 +107,8 @@ _SCORE_WRONG_FALSE = -16
 _SCORE_WRONG_TRUE = -32
 # Score factor for validation results on invalid witnesses
 # as described in https://doi.org/10.1007/978-3-031-22308-2_8 (page 171, last paragraph, factor q)
-_SCORE_FACTOR_WRONG_WITNESS = 2
+# Factor was updated to 1 for SV-COMP 2024.
+_SCORE_FACTOR_WRONG_WITNESS = 1
 
 
 class ExpectedResult(collections.namedtuple("ExpectedResult", "result subproperty")):
