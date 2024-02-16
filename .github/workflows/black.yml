@@ -17,4 +17,4 @@ jobs:
       - uses: psf/black@stable
         with:
           options: "--check --diff"
-          version: "<2024"
+          version: "<25"
