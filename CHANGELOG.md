@@ -9,6 +9,16 @@ SPDX-License-Identifier: Apache-2.0
 
 # BenchExec Changelog
 
+## BenchExec 3.21
+
+- `table-generator` computes scores according to SV-COMP'24 scoring scheme.  
+  This changes only the scoring for witness-validation results.
+- Support for property files at HTTP(S) URLs in `table-generator`.  
+  Tables can already be produced not only from local result files,
+  but also from files that are downloaded on the fly.
+  Now this also works for results with property files.
+- Fix for tool-info module `witnesslint`.
+
 ## BenchExec 3.20
 
 - Two tool-info modules improved.
