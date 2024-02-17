@@ -218,15 +218,13 @@ def run_slurm(args, log_file, timelimit, cpus, memory):
                f"| grep -o 'job [0-9]* queued' | grep -o '[0-9]*'"
                f")")
 
-    print(command)
-
     result = subprocess.run(["bash", "-c", command], shell=False, stdout=subprocess.PIPE)
 
-    exit_code, cpu_time, memory_usage = parse_seff(str(result.stdout))
+    exit_code, cpu_time, wall_time, memory_usage = parse_seff(str(result.stdout))
 
     return {
         'starttime': benchexec.util.read_local_time(),
-        'walltime': 12.345,
+        'walltime': wall_time,
         'cputime': cpu_time,
         'memory': memory_usage,
         'exitcode': ProcessExitCode(raw=exit_code, value=exit_code, signal=None)
@@ -236,15 +234,21 @@ def run_slurm(args, log_file, timelimit, cpus, memory):
 def parse_seff(result):
     exit_code_pattern = re.compile(r"State: COMPLETED \(exit code (\d+)\)")
     cpu_time_pattern = re.compile(r"CPU Utilized: (\d+):(\d+):(\d+)")
+    wall_time_pattern = re.compile(r"Job Wall-clock time: (\d+):(\d+):(\d+)")
     memory_pattern = re.compile(r"Memory Utilized: (\d+\.\d+) MB")
     exit_code_match = exit_code_pattern.search(result)
     cpu_time_match = cpu_time_pattern.search(result)
+    wall_time_match = wall_time_pattern.search(result)
     memory_match = memory_pattern.search(result)
     exit_code = int(exit_code_match.group(1)) if exit_code_match else None
     cpu_time = None
     if cpu_time_match:
         hours, minutes, seconds = map(int, cpu_time_match.groups())
         cpu_time = hours * 3600 + minutes * 60 + seconds
+    wall_time = None
+    if wall_time_match:
+        hours, minutes, seconds = map(int, wall_time_match.groups())
+        wall_time = hours * 3600 + minutes * 60 + seconds
     memory_usage = float(memory_match.group(1)) * 1000000 if memory_match else None
 
-    return exit_code, cpu_time, memory_usage
+    return exit_code, cpu_time, wall_time, memory_usage
