@@ -222,7 +222,7 @@ def run_slurm(args, log_file, timelimit, cpus, memory):
 
     result = subprocess.run(["bash", "-c", command], shell=False, stdout=subprocess.PIPE)
 
-    exit_code, cpu_time, memory_usage = parse_seff(result)
+    exit_code, cpu_time, memory_usage = parse_seff(str(result.stdout))
 
     return {
         'starttime': benchexec.util.read_local_time(),
@@ -237,9 +237,9 @@ def parse_seff(result):
     exit_code_pattern = re.compile(r"State: COMPLETED \(exit code (\d+)\)")
     cpu_time_pattern = re.compile(r"CPU Utilized: (\d+):(\d+):(\d+)")
     memory_pattern = re.compile(r"Memory Utilized: (\d+\.\d+) MB")
-    exit_code_match = exit_code_pattern.search(result.stdout)
-    cpu_time_match = cpu_time_pattern.search(result.stdout)
-    memory_match = memory_pattern.search(result.stdout)
+    exit_code_match = exit_code_pattern.search(result)
+    cpu_time_match = cpu_time_pattern.search(result)
+    memory_match = memory_pattern.search(result)
     exit_code = int(exit_code_match.group(1)) if exit_code_match else None
     cpu_time = None
     if cpu_time_match:
