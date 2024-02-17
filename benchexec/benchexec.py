@@ -331,6 +331,15 @@ class BenchExec(object):
         )
 
         parser.add_argument(
+            "--slurm",
+            dest="slurm",
+            action="store_true",
+            help="""
+                If true, run the benchmark through SLURM
+            """
+        )
+
+        parser.add_argument(
             "--version", action="version", version="%(prog)s " + __version__
         )
 
@@ -355,7 +364,10 @@ class BenchExec(object):
         for example with an implementation that delegates to some cloud service.
         """
         logging.debug("This is benchexec %s.", __version__)
-        from . import localexecution as executor
+        if self.config.slurm:
+            from contrib.slurm import slurmexecutor as executor
+        else:
+            from . import localexecution as executor
 
         return executor
 
