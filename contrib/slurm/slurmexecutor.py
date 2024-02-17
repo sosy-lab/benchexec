@@ -8,6 +8,8 @@
 import logging
 import os
 import queue
+import re
+import subprocess
 import sys
 import threading
 import time
@@ -208,12 +210,44 @@ class _Worker(threading.Thread):
 def run_slurm(args, log_file, timelimit, cpus, memory):
     # -c: cpu, -o: output, --mem-per-cpu: mem per cpu (MB), --threads-per-core=1 / --threads-per-core=2
 
-    print("srun -c %s -o %s --mem-per-cpu %s --threads-per-core=1 %s" % (cpus, log_file, int(memory / cpus / 1000000), " ".join(args)))
+    srun_timelimit_h = int(timelimit.softtimelimit / 3600)
+    srun_timelimit_m = int((timelimit.softtimelimit % 3600) / 60)
+    srun_timelimit_s = int(timelimit.softtimelimit % 60)
+    srun_timelimit = f"{srun_timelimit_h}:{srun_timelimit_m}:{srun_timelimit_s}"
+
+    mem_per_cpu = int(memory / cpus / 1000000)
+
+    command = (f"seff $("
+               f"srun -t {srun_timelimit} -c {cpus} -o {log_file} --mem-per-cpu {mem_per_cpu} --threads-per-core=1 "
+               f"singularity exec -B $PWD:$HOME executor.sif {' '.join(args)}  2>&1 "
+               f"| grep -o 'job [0-9]* queued' | grep -o '[0-9]*'"
+               f")")
+
+    result = subprocess.run(["bash", "-c", command], shell=False, check=True, text=True)
+
+    exit_code, cpu_time, memory_usage = parse_seff(result)
 
     return {
         'starttime': benchexec.util.read_local_time(),
         'walltime': 12.345,
-        'cputime': 24.567,
-        'memory': 123456789,
-        'exitcode': ProcessExitCode(raw=0, value=0, signal=None)
+        'cputime': cpu_time,
+        'memory': memory_usage,
+        'exitcode': ProcessExitCode(raw=exit_code, value=exit_code, signal=None)
     }
+
+
+def parse_seff(result):
+    exit_code_pattern = re.compile(r"State: COMPLETED \(exit code (\d+)\)")
+    cpu_time_pattern = re.compile(r"CPU Utilized: (\d+):(\d+):(\d+)")
+    memory_pattern = re.compile(r"Memory Utilized: (\d+\.\d+) MB")
+    exit_code_match = exit_code_pattern.search(result.stdout)
+    cpu_time_match = cpu_time_pattern.search(result.stdout)
+    memory_match = memory_pattern.search(result.stdout)
+    exit_code = int(exit_code_match.group(1)) if exit_code_match else None
+    cpu_time = None
+    if cpu_time_match:
+        hours, minutes, seconds = map(int, cpu_time_match.groups())
+        cpu_time = hours * 3600 + minutes * 60 + seconds
+    memory_usage = float(memory_match.group(1)) * 1000000 if memory_match else None
+
+    return exit_code, cpu_time, memory_usage
