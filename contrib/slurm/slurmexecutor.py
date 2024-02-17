@@ -178,11 +178,8 @@ class _Worker(threading.Thread):
                 for i in range(6):
                     f.write(os.linesep)
 
-            timelimit = {
-                "hardtimelimit": benchmark.rlimits.cputime_hard,
-                "softtimelimit": benchmark.rlimits.cputime,
-                "walltimelimit": benchmark.rlimits.walltime
-            }
+            timelimit = self.benchmark.rlimits.cputime
+
             run_result = run_slurm(
                 args,
                 run.log_file,
@@ -210,9 +207,9 @@ class _Worker(threading.Thread):
 def run_slurm(args, log_file, timelimit, cpus, memory):
     # -c: cpu, -o: output, --mem-per-cpu: mem per cpu (MB), --threads-per-core=1 / --threads-per-core=2
 
-    srun_timelimit_h = int(timelimit.softtimelimit / 3600)
-    srun_timelimit_m = int((timelimit.softtimelimit % 3600) / 60)
-    srun_timelimit_s = int(timelimit.softtimelimit % 60)
+    srun_timelimit_h = int(timelimit / 3600)
+    srun_timelimit_m = int((timelimit % 3600) / 60)
+    srun_timelimit_s = int(timelimit % 60)
     srun_timelimit = f"{srun_timelimit_h}:{srun_timelimit_m}:{srun_timelimit_s}"
 
     mem_per_cpu = int(memory / cpus / 1000000)
