@@ -116,8 +116,6 @@ def _execute_run_set(
 
 
 def stop():
-    global event_handler
-    event_handler.set()
     global STOPPED_BY_INTERRUPT
     STOPPED_BY_INTERRUPT = True
 
@@ -219,6 +217,8 @@ def run_slurm(args, log_file, timelimit, cpus, memory):
                f"singularity exec -B $PWD:$HOME executor.sif {' '.join(args)}  2>&1 "
                f"| grep -o 'job [0-9]* queued' | grep -o '[0-9]*'"
                f")")
+
+    print(command)
 
     result = subprocess.run(["bash", "-c", command], shell=False, stdout=subprocess.PIPE)
 
