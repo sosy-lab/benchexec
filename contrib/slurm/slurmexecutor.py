@@ -23,6 +23,7 @@ sys.dont_write_bytecode = True  # prevent creation of .pyc files
 WORKER_THREADS = []
 STOPPED_BY_INTERRUPT = False
 
+
 def init(config, benchmark):
     tool_locator = tooladapter.create_tool_locator(config)
     benchmark.executable = benchmark.tool.executable(tool_locator)
@@ -70,7 +71,7 @@ def execute_benchmark(benchmark, output_handler):
 
 
 def _execute_run_set(
-    runSet, benchmark, output_handler, num_of_cores, mem_limit,
+        runSet, benchmark, output_handler, num_of_cores, mem_limit,
 ):
     # get times before runSet
     walltime_before = time.monotonic()
@@ -106,7 +107,7 @@ def _execute_run_set(
     # get times after runSet
     walltime_after = time.monotonic()
     usedWallTime = walltime_after - walltime_before
-    usedCpuTime = 1000 # TODO
+    usedCpuTime = 1000  # TODO
 
     if STOPPED_BY_INTERRUPT:
         output_handler.set_error("interrupted", runSet)
@@ -128,7 +129,7 @@ class _Worker(threading.Thread):
     working_queue = queue.Queue()
 
     def __init__(
-        self, benchmark, my_cpus, my_memory_nodes, output_handler, run_finished_callback
+            self, benchmark, my_cpus, my_memory_nodes, output_handler, run_finished_callback
     ):
         threading.Thread.__init__(self)  # constuctor of superclass
         self.run_finished_callback = run_finished_callback
