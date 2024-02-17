@@ -220,7 +220,7 @@ def run_slurm(args, log_file, timelimit, cpus, memory):
                f"| grep -o 'job [0-9]* queued' | grep -o '[0-9]*'"
                f")")
 
-    result = subprocess.run(["bash", "-c", command], shell=False)
+    result = subprocess.run(["bash", "-c", command], shell=False, stdout=subprocess.PIPE)
 
     exit_code, cpu_time, memory_usage = parse_seff(result)
 
