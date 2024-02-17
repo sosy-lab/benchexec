@@ -220,6 +220,13 @@ def run_slurm(args, log_file, timelimit, cpus, memory):
 
     result = subprocess.run(["bash", "-c", command], shell=False, stdout=subprocess.PIPE)
 
+    # Runexec would populate the first 6 lines with metadata
+    with open(log_file, 'r+') as file:
+        content = file.read()
+        file.seek(0, 0)
+        empty_lines = '\n' * 6
+        file.write(empty_lines + content)
+
     exit_code, cpu_time, wall_time, memory_usage = parse_seff(str(result.stdout))
 
     return {
