@@ -208,7 +208,7 @@ class _Worker(threading.Thread):
 def run_slurm(args, log_file, timelimit, cpus, memory):
     # -c: cpu, -o: output, --mem-per-cpu: mem per cpu (MB), --threads-per-core=1 / --threads-per-core=2
 
-    print("srun -c %s -o %s --mem-per-cpu %s --threads-per-core=1 %s" % (cpus, log_file, memory / cpus, " ".join(args)))
+    print("srun -c %s -o %s --mem-per-cpu %s --threads-per-core=1 %s" % (cpus, log_file, memory / cpus / 1000000, " ".join(args)))
 
     return {
         'starttime': benchexec.util.read_local_time(),
