@@ -213,13 +213,13 @@ def run_slurm(args, log_file, timelimit, cpus, memory):
 
     mem_per_cpu = int(memory / cpus / 1000000)
 
-    command = (f"seff $("
-               f"srun -t {srun_timelimit} -c {cpus} -o {log_file} --mem-per-cpu {mem_per_cpu} --threads-per-core=1 "
-               f"singularity exec -B $PWD:$HOME executor.sif {' '.join(args)}  2>&1 "
-               f"| grep -o 'job [0-9]* queued' | grep -o '[0-9]*'"
-               f")")
+    tool_command = {' '.join(args)}
+    singularity_command = f"singularity exec -B $PWD:$HOME executor.sif {tool_command}"
+    srun_command = f"srun -t {srun_timelimit} -c {cpus} -o {log_file} --mem-per-cpu {mem_per_cpu} --threads-per-core=1 {singularity_command}"
+    jobid_command = f"{srun_command} 2>&1 | grep -o 'job [0-9]* queued' | grep -o '[0-9]*'"
+    seff_command = f"seff $({jobid_command})"
 
-    result = subprocess.run(["bash", "-c", command], shell=False, stdout=subprocess.PIPE)
+    result = subprocess.run(["bash", "-c", seff_command], shell=False, stdout=subprocess.PIPE)
 
     # Runexec would populate the first 6 lines with metadata
     with open(log_file, 'r+') as file:
