@@ -217,7 +217,7 @@ def run_slurm(benchmark, args, log_file, timelimit, cpus, memory):
 
     tool_command = " ".join(args)
     singularity_command = (
-        f"singularity exec --no-home {benchmark.config.singularity} {tool_command}"
+        f"singularity exec --no-home --contain {benchmark.config.singularity} {tool_command}"
         if benchmark.config.singularity
         else tool_command
     )
