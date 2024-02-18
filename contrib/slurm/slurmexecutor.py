@@ -13,9 +13,8 @@ import subprocess
 import sys
 import threading
 import time
-from threading import Event
 
-from benchexec import benchexec, resources, BenchExecException, tooladapter
+from benchexec import benchexec, BenchExecException, tooladapter
 from benchexec.util import ProcessExitCode
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
@@ -37,8 +36,6 @@ def get_system_info():
 
 
 def execute_benchmark(benchmark, output_handler):
-    start_time = benchexec.util.read_local_time()
-
     num_of_cores = benchmark.rlimits.cpu_cores
     mem_limit = benchmark.rlimits.memory
     run_sets_executed = 0
@@ -66,8 +63,6 @@ def execute_benchmark(benchmark, output_handler):
             )
 
     output_handler.output_after_benchmark(STOPPED_BY_INTERRUPT)
-
-    end_time = benchexec.util.read_local_time()
 
 
 def _execute_run_set(
@@ -186,11 +181,17 @@ class _Worker(threading.Thread):
             timelimit = self.benchmark.rlimits.cputime
 
             run_result = run_slurm(
-                args, run.log_file, timelimit, self.my_cpus, benchmark.rlimits.memory
+                benchmark,
+                args,
+                run.log_file,
+                timelimit,
+                self.my_cpus,
+                benchmark.rlimits.memory,
             )
 
         except KeyboardInterrupt:
             # If the run was interrupted, we ignore the result and cleanup.
+            stop()
             try:
                 if benchmark.config.debug:
                     os.rename(run.log_file, run.log_file + ".killed")
@@ -206,9 +207,7 @@ class _Worker(threading.Thread):
         return None
 
 
-def run_slurm(args, log_file, timelimit, cpus, memory):
-    # -c: cpu, -o: output, --mem-per-cpu: mem per cpu (MB), --threads-per-core=1 / --threads-per-core=2
-
+def run_slurm(benchmark, args, log_file, timelimit, cpus, memory):
     srun_timelimit_h = int(timelimit / 3600)
     srun_timelimit_m = int((timelimit % 3600) / 60)
     srun_timelimit_s = int(timelimit % 60)
@@ -217,7 +216,11 @@ def run_slurm(args, log_file, timelimit, cpus, memory):
     mem_per_cpu = int(memory / cpus / 1000000)
 
     tool_command = {" ".join(args)}
-    singularity_command = f"singularity exec -B $PWD:$HOME executor.sif {tool_command}"
+    singularity_command = (
+        f"singularity exec -B $PWD:$HOME {benchmark.config.singularity} {tool_command}"
+        if benchmark.config.singularity
+        else tool_command
+    )
     srun_command = f"srun -t {srun_timelimit} -c {cpus} -o {log_file} --mem-per-cpu {mem_per_cpu} --threads-per-core=1 {singularity_command}"
     jobid_command = (
         f"{srun_command} 2>&1 | grep -o 'job [0-9]* queued' | grep -o '[0-9]*'"
