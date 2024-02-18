@@ -9,8 +9,10 @@ import logging
 import os
 import queue
 import re
+import shutil
 import subprocess
 import sys
+import tempfile
 import threading
 import time
 
@@ -214,30 +216,39 @@ def run_slurm(benchmark, args, log_file, timelimit, cpus, memory):
 
     mem_per_cpu = int(memory / cpus / 1000000)
 
-    tool_command = " ".join(args)
-    singularity_command = (
-        f"singularity exec -B $PWD:$HOME --no-home --contain {benchmark.config.singularity} {tool_command}"
-        if benchmark.config.singularity
-        else tool_command
-    )
-    srun_command = (
-        f"srun "
-        f"-t {srun_timelimit} "
-        f"-c {cpus} "
-        f"-o {log_file} "
-        f"--mem-per-cpu {mem_per_cpu} "
-        f"--threads-per-core=1 "
-        f"--ntasks=1 "
-        f"{singularity_command}"
-    )
-    jobid_command = (
-        f"{srun_command} 2>&1 | grep -o 'job [0-9]* queued' | grep -o '[0-9]*'"
-    )
-    seff_command = f"seff $({jobid_command})"
-    logging.debug("Command to run: %s", seff_command)
-    result = subprocess.run(
-        ["bash", "-c", seff_command], shell=False, stdout=subprocess.PIPE
-    )
+    with tempfile.TemporaryDirectory() as tempdir:
+
+        os.makedirs(os.path.join(tempdir, "upper"))
+        os.makedirs(os.path.join(tempdir, "work"))
+
+        tool_command = " ".join(args)
+        singularity_command = (
+            f"singularity exec "
+            f"-B $PWD:/lower --no-home "
+            f"-B {tempdir}:/overlay "
+            f"--fusemount \"container:fuse-overlayfs -o lowerdir=/lower -o upperdir=/overlay/upper -o workdir=/overlay/work $HOME\" "
+            f"{benchmark.config.singularity} {tool_command}"
+            if benchmark.config.singularity
+            else tool_command
+        )
+        srun_command = (
+            f"srun "
+            f"-t {srun_timelimit} "
+            f"-c {cpus} "
+            f"-o {log_file} "
+            f"--mem-per-cpu {mem_per_cpu} "
+            f"--threads-per-core=1 "
+            f"--ntasks=1 "
+            f"{singularity_command}"
+        )
+        jobid_command = (
+            f"{srun_command} 2>&1 | grep -o 'job [0-9]* queued' | grep -o '[0-9]*'"
+        )
+        seff_command = f"seff $({jobid_command})"
+        logging.debug("Command to run: %s", seff_command)
+        result = subprocess.run(
+            ["bash", "-c", seff_command], shell=False, stdout=subprocess.PIPE
+        )
 
     # Runexec would populate the first 6 lines with metadata
     with open(log_file, "r+") as file:
