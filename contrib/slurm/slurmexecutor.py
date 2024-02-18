@@ -215,7 +215,7 @@ def run_slurm(benchmark, args, log_file, timelimit, cpus, memory):
 
     mem_per_cpu = int(memory / cpus / 1000000)
 
-    tool_command = {" ".join(args)}
+    tool_command = " ".join(args)
     singularity_command = (
         f"singularity exec -B $PWD:$HOME {benchmark.config.singularity} {tool_command}"
         if benchmark.config.singularity
