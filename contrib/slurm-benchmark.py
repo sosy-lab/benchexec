@@ -11,9 +11,7 @@ import logging
 import os
 import sys
 
-from benchexec import __version__
 import benchexec.benchexec
-import benchexec.model
 import benchexec.tools
 import benchexec.util
 
