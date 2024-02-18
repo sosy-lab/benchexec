@@ -202,7 +202,6 @@ class _Worker(threading.Thread):
             return 1
 
         run.set_result(run_result)
-        print(run.status)
         self.output_handler.output_after_run(run)
         return None
 
@@ -221,7 +220,16 @@ def run_slurm(benchmark, args, log_file, timelimit, cpus, memory):
         if benchmark.config.singularity
         else tool_command
     )
-    srun_command = f"srun -t {srun_timelimit} -c {cpus} -o {log_file} --mem-per-cpu {mem_per_cpu} --threads-per-core=1 {singularity_command}"
+    srun_command = (
+        f"srun "
+        f"-t {srun_timelimit} "
+        f"-c {cpus} "
+        f"-o {log_file} "
+        f"--mem-per-cpu {mem_per_cpu} "
+        f"--threads-per-core=1 "
+        f"--ntasks=1 "
+        f"{singularity_command}"
+    )
     jobid_command = (
         f"{srun_command} 2>&1 | grep -o 'job [0-9]* queued' | grep -o '[0-9]*'"
     )
