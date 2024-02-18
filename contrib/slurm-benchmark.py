@@ -53,7 +53,7 @@ class Benchmark(benchexec.benchexec.BenchExec):
 
     def load_executor(self):
         if self.config.slurm:
-            from contrib.slurm import slurmexecutor as executor
+            from slurm import slurmexecutor as executor
         else:
             logging.warning(
                 "SLURM flag was not specified. Benchexec will be executed only on the local machine."
