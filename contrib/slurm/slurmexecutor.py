@@ -226,7 +226,7 @@ def run_slurm(benchmark, args, log_file, timelimit, cpus, memory):
         f"{srun_command} 2>&1 | grep -o 'job [0-9]* queued' | grep -o '[0-9]*'"
     )
     seff_command = f"seff $({jobid_command})"
-
+    logging.debug("Command to run: %s", seff_command)
     result = subprocess.run(
         ["bash", "-c", seff_command], shell=False, stdout=subprocess.PIPE
     )
