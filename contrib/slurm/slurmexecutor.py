@@ -71,7 +71,11 @@ def execute_benchmark(benchmark, output_handler):
 
 
 def _execute_run_set(
-        runSet, benchmark, output_handler, num_of_cores, mem_limit,
+    runSet,
+    benchmark,
+    output_handler,
+    num_of_cores,
+    mem_limit,
 ):
     # get times before runSet
     walltime_before = time.monotonic()
@@ -112,7 +116,9 @@ def _execute_run_set(
     if STOPPED_BY_INTERRUPT:
         output_handler.set_error("interrupted", runSet)
     output_handler.output_after_run_set(
-        runSet, cputime=usedCpuTime, walltime=usedWallTime,
+        runSet,
+        cputime=usedCpuTime,
+        walltime=usedWallTime,
     )
 
 
@@ -129,7 +135,7 @@ class _Worker(threading.Thread):
     working_queue = queue.Queue()
 
     def __init__(
-            self, benchmark, my_cpus, my_memory_nodes, output_handler, run_finished_callback
+        self, benchmark, my_cpus, my_memory_nodes, output_handler, run_finished_callback
     ):
         threading.Thread.__init__(self)  # constuctor of superclass
         self.run_finished_callback = run_finished_callback
@@ -180,11 +186,8 @@ class _Worker(threading.Thread):
             timelimit = self.benchmark.rlimits.cputime
 
             run_result = run_slurm(
-                args,
-                run.log_file,
-                timelimit,
-                self.my_cpus,
-                benchmark.rlimits.memory)
+                args, run.log_file, timelimit, self.my_cpus, benchmark.rlimits.memory
+            )
 
         except KeyboardInterrupt:
             # If the run was interrupted, we ignore the result and cleanup.
@@ -213,29 +216,33 @@ def run_slurm(args, log_file, timelimit, cpus, memory):
 
     mem_per_cpu = int(memory / cpus / 1000000)
 
-    tool_command = {' '.join(args)}
+    tool_command = {" ".join(args)}
     singularity_command = f"singularity exec -B $PWD:$HOME executor.sif {tool_command}"
     srun_command = f"srun -t {srun_timelimit} -c {cpus} -o {log_file} --mem-per-cpu {mem_per_cpu} --threads-per-core=1 {singularity_command}"
-    jobid_command = f"{srun_command} 2>&1 | grep -o 'job [0-9]* queued' | grep -o '[0-9]*'"
+    jobid_command = (
+        f"{srun_command} 2>&1 | grep -o 'job [0-9]* queued' | grep -o '[0-9]*'"
+    )
     seff_command = f"seff $({jobid_command})"
 
-    result = subprocess.run(["bash", "-c", seff_command], shell=False, stdout=subprocess.PIPE)
+    result = subprocess.run(
+        ["bash", "-c", seff_command], shell=False, stdout=subprocess.PIPE
+    )
 
     # Runexec would populate the first 6 lines with metadata
-    with open(log_file, 'r+') as file:
+    with open(log_file, "r+") as file:
         content = file.read()
         file.seek(0, 0)
-        empty_lines = '\n' * 6
+        empty_lines = "\n" * 6
         file.write(empty_lines + content)
 
     exit_code, cpu_time, wall_time, memory_usage = parse_seff(str(result.stdout))
 
     return {
-        'starttime': benchexec.util.read_local_time(),
-        'walltime': wall_time,
-        'cputime': cpu_time,
-        'memory': memory_usage,
-        'exitcode': ProcessExitCode(raw=exit_code, value=exit_code, signal=None)
+        "starttime": benchexec.util.read_local_time(),
+        "walltime": wall_time,
+        "cputime": cpu_time,
+        "memory": memory_usage,
+        "exitcode": ProcessExitCode(raw=exit_code, value=exit_code, signal=None),
     }
 
 
