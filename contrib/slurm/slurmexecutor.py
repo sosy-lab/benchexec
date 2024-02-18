@@ -194,6 +194,8 @@ class _Worker(threading.Thread):
         except KeyboardInterrupt:
             # If the run was interrupted, we ignore the result and cleanup.
             stop()
+
+        if STOPPED_BY_INTERRUPT:
             try:
                 if benchmark.config.debug:
                     os.rename(run.log_file, run.log_file + ".killed")
@@ -216,7 +218,9 @@ def run_slurm(benchmark, args, log_file, timelimit, cpus, memory):
 
     mem_per_cpu = int(memory / cpus / 1000000)
 
-    with tempfile.TemporaryDirectory() as tempdir:
+    assert benchmark.config.scratchdir and os.path.exists(benchmark.config.scratchdir)
+
+    with tempfile.TemporaryDirectory(dir=benchmark.config.scratchdir) as tempdir:
 
         os.makedirs(os.path.join(tempdir, "upper"))
         os.makedirs(os.path.join(tempdir, "work"))

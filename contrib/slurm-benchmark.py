@@ -46,6 +46,13 @@ class Benchmark(benchexec.benchexec.BenchExec):
             type=str,
             help="The path to the singularity .sif file to use. Will bind $PWD to $HOME when run.",
         )
+        slurm_args.add_argument(
+            "--scratchdir",
+            dest="scratchdir",
+            type=str,
+            default="./",
+            help="The path to the singularity .sif file to use. Will bind $PWD to $HOME when run.",
+        )
 
         return parser
 
