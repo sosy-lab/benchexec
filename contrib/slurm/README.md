@@ -13,6 +13,8 @@ SPDX-License-Identifier: Apache-2.0
 
 This Python script extends BenchExec, a benchmarking framework, to facilitate benchmarking via SLURM, optionally using a Singularity container.
 
+In case of problems, contact / tag in an issue: [Levente Bajczi](https://github.com/leventeBajczi)
+
 ## Preliminaries
 
 * *SLURM* is an open-source job scheduling and workload management system used primarily in high-performance computing (HPC) environments.
