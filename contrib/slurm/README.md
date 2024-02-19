@@ -1,3 +1,14 @@
+<!--
+This file is part of BenchExec, a framework for reliable benchmarking:
+https://github.com/sosy-lab/benchexec
+
+SPDX-FileCopyrightText: 2021 Dirk Beyer <https://www.sosy-lab.org>
+SPDX-FileCopyrightText: 2024 Levente Bajczi
+SPDX-FileCopyrightText: Critical Systems Research Group
+SPDX-FileCopyrightText: Budapest University of Technology and Economics <https://www.ftsrg.mit.bme.hu>
+
+SPDX-License-Identifier: Apache-2.0
+-->
 # BenchExec Extension for Benchmarking via SLURM
 
 This Python script extends BenchExec, a benchmarking framework, to facilitate benchmarking via SLURM, optionally using a Singularity container.
