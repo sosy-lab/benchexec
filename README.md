@@ -122,6 +122,7 @@ Contributors:
 - [Thomas Stieglmaier](https://stieglmaier.me/)
 - [Martin Yankov](https://github.com/marto97)
 - [Ilja Zakharov](https://github.com/IljaZakharov)
+- [Levente Bajczi](https://github.com/leventeBajczi)
 - and [lots of more people who integrated tools into BenchExec](https://github.com/sosy-lab/benchexec/graphs/contributors)
 
 ### Users of BenchExec
