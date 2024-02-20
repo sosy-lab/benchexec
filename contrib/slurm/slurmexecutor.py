@@ -218,7 +218,7 @@ def run_slurm(benchmark, args, log_file):
             f"singularity exec "
             f'-B "$PWD":/lower --no-home '
             f'-B "{tempdir}":/overlay '
-            f'--fusemount "container:fuse-overlayfs -o lowerdir=/lower -o upperdir=/overlay/upper -o workdir=/overlay/work \\"$HOME\\"" '
+            f'--fusemount "container:fuse-overlayfs -o lowerdir=/lower -o upperdir=/overlay/upper -o workdir=/overlay/work ""$HOME""" '
             f"{benchmark.config.singularity} {tool_command}"
             if benchmark.config.singularity
             else tool_command
