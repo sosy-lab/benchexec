@@ -32,6 +32,7 @@ def init(config, benchmark):
     benchmark.executable = benchmark.tool.executable(tool_locator)
     benchmark.tool_version = benchmark.tool.version(benchmark.executable)
 
+
 def get_system_info():
     return None
 
@@ -39,7 +40,9 @@ def get_system_info():
 def execute_benchmark(benchmark, output_handler):
 
     if benchmark.config.use_hyperthreading:
-        sys.exit("SLURM can only work properly without hyperthreading enabled. See README.md for details.")
+        sys.exit(
+            "SLURM can only work properly without hyperthreading enabled. See README.md for details."
+        )
 
     for runSet in benchmark.run_sets:
         if STOPPED_BY_INTERRUPT:
