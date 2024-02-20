@@ -294,7 +294,10 @@ def parse_seff(result):
     cpu_time_match = cpu_time_pattern.search(result)
     wall_time_match = wall_time_pattern.search(result)
     memory_match = memory_pattern.search(result)
-    exit_code = int(exit_code_match.group(1)) if exit_code_match else None
+    if exit_code_match:
+        exit_code = int(exit_code_match.group(1))
+    else:
+        raise Exception(f"Exit code not matched in output: {result}")
     cpu_time = None
     if cpu_time_match:
         hours, minutes, seconds = map(int, cpu_time_match.groups())
