@@ -13,7 +13,7 @@ SPDX-License-Identifier: Apache-2.0
 
 This Python script extends BenchExec, a benchmarking framework, to facilitate benchmarking via SLURM, optionally using a Singularity container.
 
-In case of problems, contact / tag in an issue: [Levente Bajczi](https://github.com/leventeBajczi)
+In case of problems, please tag in an [issue](https://github.com/sosy-lab/benchexec/issues/new/choose): [Levente Bajczi](https://github.com/leventeBajczi) (@leventeBajczi).
 
 ## Preliminaries
 
