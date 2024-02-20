@@ -84,3 +84,4 @@ Currently, there are the following limitations compared to local benchexec:
 4. Without singularity, no constraint is placed on the resulting files of the runs: this will populate the current directory with all the output files of all the runs.
 5. For timed-out runs, where SLURM terminated the run, no CPU time values are available.
 6. The executor only works with hyperthreading disabled, due to the inability to query nodes about the number of threads per core. Assuming it's always 2 is risky, as it may not hold true universally. Consequently, because we can only request whole cores from SLURM instead of threads, we must divide the requested number of threads by the threads-per-core value, which is unknown if hyperthreading could be enabled.
+7. Cancelling a benchmark run (by sending SIGINT) could be delayed up to a few minutes depending on the SLURM configuration.  
