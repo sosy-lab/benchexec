@@ -38,7 +38,7 @@ In case of problems, please tag in an [issue](https://github.com/sosy-lab/benche
     
 ## Overview of the Workflow
 
-The workflow is based on `localexecution.py`, and uses the same general layout. However, instead of delegating to `runexec`, it delegates to `srun`.
+This works similarly to BenchExec, however, instead of delegating each run to `runexec`, it delegates to `srun` from SLURM.
 
 1. If the `--singularity` option is given, the script wraps the command to run in a container. This is useful for dependency management (in most HPC environments, arbitrary package installations are frowned upon). For a simple container, use the following: 
 
