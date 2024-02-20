@@ -41,7 +41,7 @@ def execute_benchmark(benchmark, output_handler):
 
     if benchmark.config.use_hyperthreading:
         sys.exit(
-            "SLURM can only work properly without hyperthreading enabled. See README.md for details."
+            "SLURM can only work properly without hyperthreading enabled, by passing the --no-hyperthreading option. See README.md for details."
         )
 
     for runSet in benchmark.run_sets:
@@ -215,28 +215,41 @@ def run_slurm(benchmark, args, log_file):
         os.makedirs(os.path.join(tempdir, "upper"))
         os.makedirs(os.path.join(tempdir, "work"))
 
-        tool_command = " ".join(args)
         singularity_command = (
-            f"singularity exec "
-            f'-B "$PWD":/lower --no-home '
-            f'-B "{tempdir}":/overlay '
-            f'--fusemount "container:fuse-overlayfs -o lowerdir=/lower -o upperdir=/overlay/upper -o workdir=/overlay/work ""$HOME""" '
-            f"{benchmark.config.singularity} {tool_command}"
+            (
+                [
+                    "singularity",
+                    "exec",
+                    "-B",
+                    "./:/lower",
+                    "--no-home",
+                    "-B",
+                    f"{tempdir}:/overlay",
+                    "--fusemount",
+                    f"container:fuse-overlayfs -o lowerdir=/lower -o upperdir=/overlay/upper -o workdir=/overlay/work /home/{os.getlogin()}",
+                    benchmark.config.singularity,
+                ]
+                + args
+            )
             if benchmark.config.singularity
-            else tool_command
+            else args
         )
-        srun_command = (
-            f"srun "
-            f"-t {srun_timelimit} "
-            f"-c {cpus} "
-            f"-o {log_file} "
-            f"--mem-per-cpu {mem_per_cpu} "
-            f"--threads-per-core=1 "  # --use_hyperthreading=False is always given here
-            f"--ntasks=1 "
-            f"{singularity_command}"
-        )
+        srun_command = [
+            "srun",
+            "-t",
+            srun_timelimit,
+            "-c",
+            cpus,
+            "-o",
+            log_file,
+            "--mem-per-cpu",
+            mem_per_cpu,
+            "--threads-per-core=1"  # --use_hyperthreading=False is always given here
+            "--ntasks=1",
+        ] + singularity_command
+        logging.debug("Command to run: %s", " ".join(srun_command))
         srun_result = subprocess.run(
-            ["bash", "-c", srun_command],
+            srun_command,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
         )
@@ -253,10 +266,10 @@ def run_slurm(benchmark, args, log_file):
             stop()
             return -1
 
-        seff_command = f"seff {jobid}"
-        logging.debug("Command to run: %s", seff_command)
+        seff_command = ["seff", jobid]
+        logging.debug("Command to run: %s", " ".join(seff_command))
         result = subprocess.run(
-            ["bash", "-c", seff_command],
+            seff_command,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
         )
