@@ -192,6 +192,26 @@ class _Worker(threading.Thread):
 jobid_pattern = re.compile(r"job (\d*) queued")
 
 
+def wait_for(func, timeout_sec=None, poll_interval_sec=1):
+    """
+    Waits until the func() returns non-None
+    :param func: function to call until a value is returned
+    :param timeout_sec: How much time to give up after
+    :param poll_interval_sec: How frequently to check the result
+    """
+    start_time = time.time()
+
+    while True:
+        ret = func()
+        if ret is not None:
+            return ret
+
+        if timeout_sec is not None and time.time() - start_time > timeout_sec:
+            raise TimeoutError(f"Timeout exceeded.")
+
+        time.sleep(poll_interval_sec)
+
+
 def run_slurm(benchmark, args, log_file):
     timelimit = benchmark.rlimits.cputime
     cpus = benchmark.rlimits.cpu_cores
@@ -269,22 +289,46 @@ def run_slurm(benchmark, args, log_file):
             if jobid_match:
                 jobid = int(jobid_match.group(1))
 
-        # otherwise we'd need to wait for seff to realize the job's finished
-        subprocess.run(
-            ["srun", "--dependency", str(jobid), "echo"],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-        )
+        wait_for(lambda: os.path.exists(log_file), 30, 2)
 
         seff_command = ["seff", str(jobid)]
         logging.debug(
             "Command to run: %s", " ".join(map(util.escape_string_shell, seff_command))
         )
-        result = subprocess.run(
-            seff_command,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
+
+        def get_checked_seff_result():
+            seff_result = subprocess.run(
+                seff_command,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+            )
+            if "exit code" in str(seff_result.stdout):
+                return seff_result
+            else:
+                return None
+
+        result = wait_for(get_checked_seff_result, 30, 2)
+
+        status, exit_code, cpu_time, wall_time, memory_usage = parse_seff(
+            str(result.stdout)
         )
+
+        result = {
+            "walltime": wall_time,
+            "cputime": cpu_time,
+            "memory": memory_usage,
+            "exitcode": ProcessExitCode.create(value=exit_code),
+        }
+
+        if status != "COMPLETED" and status != "FAILED":
+            result["terminationreason"] = {
+                "OUT_OF_MEMORY": "memory",
+                "TIMEOUT": "cputime",
+                "ERROR": "failed",
+                "CANCELLED": "killed",
+            }.get(status, status)
+
+        return result
 
         # Runexec would populate the first 6 lines with metadata
         with open(log_file, "w+") as file:
@@ -295,32 +339,6 @@ def run_slurm(benchmark, args, log_file):
             file.write(f"seff output: {str(result.stdout)}\n")
             empty_lines = "\n" * 3
             file.write(empty_lines + content)
-
-    status, exit_code, cpu_time, wall_time, memory_usage = parse_seff(
-        str(result.stdout)
-    )
-
-    if exit_code is None:
-        raise Exception(
-            f"No exitcode for job {jobid} in seff output: {str(result.stdout)}. Other variables: {[status, exit_code, cpu_time, wall_time, memory_usage]}"
-        )
-
-    result = {
-        "walltime": wall_time,
-        "cputime": cpu_time,
-        "memory": memory_usage,
-        "exitcode": ProcessExitCode.create(value=exit_code),
-    }
-
-    if status != "COMPLETED" and status != "FAILED":
-        result["terminationreason"] = {
-            "OUT_OF_MEMORY": "memory",
-            "TIMEOUT": "cputime",
-            "ERROR": "failed",
-            "CANCELLED": "killed",
-        }.get(status, status)
-
-    return result
 
 
 exit_code_pattern = re.compile(r"State: ([A-Z-_]*) \(exit code (\d+)\)")
