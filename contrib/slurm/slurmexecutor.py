@@ -301,6 +301,8 @@ def parse_seff(result):
         wall_time = hours * 3600 + minutes * 60 + seconds
     memory_usage = float(memory_match.group(1)) * 1000000 if memory_match else None
 
-    logging.debug(f"Exit code: {exit_code}, memory usage: {memory_usage}, walltime: {wall_time}, cpu time: {cpu_time}")
+    logging.debug(
+        f"Exit code: {exit_code}, memory usage: {memory_usage}, walltime: {wall_time}, cpu time: {cpu_time}"
+    )
 
     return exit_code, cpu_time, wall_time, memory_usage
