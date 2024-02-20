@@ -90,9 +90,7 @@ def _execute_run_set(
     for i in range(min(benchmark.num_of_threads, unfinished_runs)):
         if STOPPED_BY_INTERRUPT:
             break
-        WORKER_THREADS.append(
-            _Worker(benchmark, output_handler, run_finished)
-        )
+        WORKER_THREADS.append(_Worker(benchmark, output_handler, run_finished))
 
     # wait until workers are finished (all tasks done or STOPPED_BY_INTERRUPT)
     for worker in WORKER_THREADS:
@@ -123,9 +121,7 @@ class _Worker(threading.Thread):
 
     working_queue = queue.Queue()
 
-    def __init__(
-        self, benchmark, output_handler, run_finished_callback
-    ):
+    def __init__(self, benchmark, output_handler, run_finished_callback):
         threading.Thread.__init__(self)  # constuctor of superclass
         self.run_finished_callback = run_finished_callback
         self.benchmark = benchmark
@@ -195,6 +191,9 @@ class _Worker(threading.Thread):
         return None
 
 
+jobid_pattern = re.compile(r"job (\d*) queued")
+
+
 def run_slurm(benchmark, args, log_file):
     timelimit = benchmark.rlimits.cputime
     cpus = benchmark.rlimits.cpu_cores
@@ -217,9 +216,9 @@ def run_slurm(benchmark, args, log_file):
         tool_command = " ".join(args)
         singularity_command = (
             f"singularity exec "
-            f"-B $PWD:/lower --no-home "
-            f"-B {tempdir}:/overlay "
-            f'--fusemount "container:fuse-overlayfs -o lowerdir=/lower -o upperdir=/overlay/upper -o workdir=/overlay/work $HOME" '
+            f'-B "$PWD":/lower --no-home '
+            f'-B "{tempdir}":/overlay '
+            f'--fusemount "container:fuse-overlayfs -o lowerdir=/lower -o upperdir=/overlay/upper -o workdir=/overlay/work \\"$HOME\\"" '
             f"{benchmark.config.singularity} {tool_command}"
             if benchmark.config.singularity
             else tool_command
@@ -234,13 +233,32 @@ def run_slurm(benchmark, args, log_file):
             f"--ntasks=1 "
             f"{singularity_command}"
         )
-        jobid_command = (
-            f"{srun_command} 2>&1 | grep -o 'job [0-9]* queued' | grep -o '[0-9]*'"
+        srun_result = subprocess.run(
+            ["bash", "-c", srun_command],
+            shell=False,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
         )
-        seff_command = f"seff $({jobid_command})"
+        logging.debug(
+            "srun: returncode: %d, output: %s",
+            srun_result.returncode,
+            srun_result.stdout,
+        )
+        jobid_match = jobid_pattern.search(srun_result.stdout)
+        if jobid_match:
+            jobid = int(jobid_match.group(1))
+        else:
+            logging.debug("Jobid not found in stderr, aborting")
+            stop()
+            return -1
+
+        seff_command = f"seff {jobid}"
         logging.debug("Command to run: %s", seff_command)
         result = subprocess.run(
-            ["bash", "-c", seff_command], shell=False, stdout=subprocess.PIPE
+            ["bash", "-c", seff_command],
+            shell=False,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
         )
 
     # Runexec would populate the first 6 lines with metadata
@@ -260,11 +278,13 @@ def run_slurm(benchmark, args, log_file):
     }
 
 
+exit_code_pattern = re.compile(r"State: COMPLETED \(exit code (\d+)\)")
+cpu_time_pattern = re.compile(r"CPU Utilized: (\d+):(\d+):(\d+)")
+wall_time_pattern = re.compile(r"Job Wall-clock time: (\d+):(\d+):(\d+)")
+memory_pattern = re.compile(r"Memory Utilized: (\d+\.\d+) MB")
+
+
 def parse_seff(result):
-    exit_code_pattern = re.compile(r"State: COMPLETED \(exit code (\d+)\)")
-    cpu_time_pattern = re.compile(r"CPU Utilized: (\d+):(\d+):(\d+)")
-    wall_time_pattern = re.compile(r"Job Wall-clock time: (\d+):(\d+):(\d+)")
-    memory_pattern = re.compile(r"Memory Utilized: (\d+\.\d+) MB")
     exit_code_match = exit_code_pattern.search(result)
     cpu_time_match = cpu_time_pattern.search(result)
     wall_time_match = wall_time_pattern.search(result)
