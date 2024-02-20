@@ -237,13 +237,13 @@ def run_slurm(benchmark, args, log_file):
         srun_command = [
             "srun",
             "-t",
-            srun_timelimit,
+            str(srun_timelimit),
             "-c",
-            cpus,
+            str(cpus),
             "-o",
-            log_file,
+            str(log_file),
             "--mem-per-cpu",
-            mem_per_cpu,
+            str(mem_per_cpu),
             "--threads-per-core=1"  # --use_hyperthreading=False is always given here
             "--ntasks=1",
         ] + singularity_command
