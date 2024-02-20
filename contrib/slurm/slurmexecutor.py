@@ -285,6 +285,7 @@ memory_pattern = re.compile(r"Memory Utilized: (\d+\.\d+) MB")
 
 
 def parse_seff(result):
+    logging.debug(f"Got {result} as output from seff")
     exit_code_match = exit_code_pattern.search(result)
     cpu_time_match = cpu_time_pattern.search(result)
     wall_time_match = wall_time_pattern.search(result)
@@ -299,5 +300,7 @@ def parse_seff(result):
         hours, minutes, seconds = map(int, wall_time_match.groups())
         wall_time = hours * 3600 + minutes * 60 + seconds
     memory_usage = float(memory_match.group(1)) * 1000000 if memory_match else None
+
+    logging.debug(f"Exit code: {exit_code}, memory usage: {memory_usage}, walltime: {wall_time}, cpu time: {cpu_time}")
 
     return exit_code, cpu_time, wall_time, memory_usage
