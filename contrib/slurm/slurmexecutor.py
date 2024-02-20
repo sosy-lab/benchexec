@@ -18,7 +18,7 @@ import tempfile
 import threading
 import time
 
-from benchexec import BenchExecException, tooladapter
+from benchexec import BenchExecException, tooladapter, util
 from benchexec.util import ProcessExitCode
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
@@ -215,25 +215,6 @@ def run_slurm(benchmark, args, log_file):
         os.makedirs(os.path.join(tempdir, "upper"))
         os.makedirs(os.path.join(tempdir, "work"))
 
-        singularity_command = (
-            (
-                [
-                    "singularity",
-                    "exec",
-                    "-B",
-                    "./:/lower",
-                    "--no-home",
-                    "-B",
-                    f"{tempdir}:/overlay",
-                    "--fusemount",
-                    f"container:fuse-overlayfs -o lowerdir=/lower -o upperdir=/overlay/upper -o workdir=/overlay/work /home/{os.getlogin()}",
-                    benchmark.config.singularity,
-                ]
-                + args
-            )
-            if benchmark.config.singularity
-            else args
-        )
         srun_command = [
             "srun",
             "-t",
@@ -246,8 +227,25 @@ def run_slurm(benchmark, args, log_file):
             str(mem_per_cpu),
             "--threads-per-core=1",  # --use_hyperthreading=False is always given here
             "--ntasks=1",
-        ] + singularity_command
-        logging.debug("Command to run: %s", " ".join(srun_command))
+        ]
+        if benchmark.config.singularity:
+            srun_command.extend(
+                [
+                    "singularity",
+                    "exec",
+                    "-B",
+                    "./:/lower",
+                    "--no-home",
+                    "-B",
+                    f"{tempdir}:/overlay",
+                    "--fusemount",
+                    f"container:fuse-overlayfs -o lowerdir=/lower -o upperdir=/overlay/upper -o workdir=/overlay/work /home/{os.getlogin()}",
+                    benchmark.config.singularity,
+                ]
+            )
+        srun_command.extend(args)
+
+        logging.debug("Command to run: %s", " ".join(map(util.escape_string_shell, srun_command)))
         srun_result = subprocess.run(
             srun_command,
             stdout=subprocess.PIPE,
@@ -267,7 +265,7 @@ def run_slurm(benchmark, args, log_file):
             return -1
 
         seff_command = ["seff", str(jobid)]
-        logging.debug("Command to run: %s", " ".join(seff_command))
+        logging.debug("Command to run: %s", " ".join(map(util.escape_string_shell, seff_command)))
         result = subprocess.run(
             seff_command,
             stdout=subprocess.PIPE,
