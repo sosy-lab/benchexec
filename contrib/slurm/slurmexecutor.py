@@ -90,7 +90,7 @@ def _execute_run_set(
             unfinished_runs -= 1
 
     # create some workers
-    for i in range(min(benchmark.num_of_threads, unfinished_runs)):
+    for _ in range(min(benchmark.num_of_threads, unfinished_runs)):
         if STOPPED_BY_INTERRUPT:
             break
         WORKER_THREADS.append(_Worker(benchmark, output_handler, run_finished))
@@ -165,7 +165,7 @@ class _Worker(threading.Thread):
 
         try:
             with open(run.log_file, "w") as f:
-                for i in range(6):
+                for _ in range(6):
                     f.write(os.linesep)
 
             run_result = run_slurm(
