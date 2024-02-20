@@ -244,7 +244,7 @@ def run_slurm(benchmark, args, log_file):
             srun_result.returncode,
             srun_result.stdout,
         )
-        jobid_match = jobid_pattern.search(srun_result.stdout)
+        jobid_match = jobid_pattern.search(str(srun_result.stdout))
         if jobid_match:
             jobid = int(jobid_match.group(1))
         else:
