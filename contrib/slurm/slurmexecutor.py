@@ -164,10 +164,6 @@ class _Worker(threading.Thread):
         logging.debug("Command line of run is %s", args)
 
         try:
-            with open(run.log_file, "w") as f:
-                for _ in range(6):
-                    f.write(os.linesep)
-
             run_result = run_slurm(
                 self.benchmark,
                 args,
@@ -225,6 +221,7 @@ def run_slurm(benchmark, args, log_file):
 
         srun_command = [
             "srun",
+            "--quit-on-interrupt",
             "-t",
             str(srun_timelimit),
             "-c",
@@ -256,23 +253,28 @@ def run_slurm(benchmark, args, log_file):
         logging.debug(
             "Command to run: %s", " ".join(map(util.escape_string_shell, srun_command))
         )
-        srun_result = subprocess.run(
-            srun_command,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
+        jobid = None
+        while jobid is None:
+            srun_result = subprocess.run(
+                srun_command,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+            )
+            logging.debug(
+                "srun: returncode: %d, output: %s",
+                srun_result.returncode,
+                srun_result.stdout,
+            )
+            jobid_match = jobid_pattern.search(str(srun_result.stdout))
+            if jobid_match:
+                jobid = int(jobid_match.group(1))
+
+        # otherwise we'd need to wait for seff to realize the job's finished
+        subprocess.run(
+            ["srun", "--dependency", str(jobid), "echo"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
         )
-        logging.debug(
-            "srun: returncode: %d, output: %s",
-            srun_result.returncode,
-            srun_result.stdout,
-        )
-        jobid_match = jobid_pattern.search(str(srun_result.stdout))
-        if jobid_match:
-            jobid = int(jobid_match.group(1))
-        else:
-            logging.debug("Jobid not found in stderr, aborting")
-            stop()
-            return -1
 
         seff_command = ["seff", str(jobid)]
         logging.debug(
@@ -284,24 +286,44 @@ def run_slurm(benchmark, args, log_file):
             stderr=subprocess.STDOUT,
         )
 
-    # Runexec would populate the first 6 lines with metadata
-    with open(log_file, "r+") as file:
-        content = file.read()
-        file.seek(0, 0)
-        empty_lines = "\n" * 6
-        file.write(empty_lines + content)
+        # Runexec would populate the first 6 lines with metadata
+        with open(log_file, "w+") as file:
+            content = file.read()
+            file.seek(0, 0)
+            file.write(f"jobid: {jobid}\n")
+            file.write(f"srun output: {str(srun_result.stdout)}\n")
+            file.write(f"seff output: {str(result.stdout)}\n")
+            empty_lines = "\n" * 3
+            file.write(empty_lines + content)
 
-    exit_code, cpu_time, wall_time, memory_usage = parse_seff(str(result.stdout))
+    status, exit_code, cpu_time, wall_time, memory_usage = parse_seff(
+        str(result.stdout)
+    )
 
-    return {
+    if exit_code is None:
+        raise Exception(
+            f"No exitcode for job {jobid} in seff output: {str(result.stdout)}. Other variables: {[status, exit_code, cpu_time, wall_time, memory_usage]}"
+        )
+
+    result = {
         "walltime": wall_time,
         "cputime": cpu_time,
         "memory": memory_usage,
         "exitcode": ProcessExitCode.create(value=exit_code),
     }
 
+    if status != "COMPLETED" and status != "FAILED":
+        result["terminationreason"] = {
+            "OUT_OF_MEMORY": "memory",
+            "TIMEOUT": "cputime",
+            "ERROR": "failed",
+            "CANCELLED": "killed",
+        }.get(status, status)
 
-exit_code_pattern = re.compile(r"exit code (\d+)")
+    return result
+
+
+exit_code_pattern = re.compile(r"State: ([A-Z-_]*) \(exit code (\d+)\)")
 cpu_time_pattern = re.compile(r"CPU Utilized: (\d+):(\d+):(\d+)")
 wall_time_pattern = re.compile(r"Job Wall-clock time: (\d+):(\d+):(\d+)")
 memory_pattern = re.compile(r"Memory Utilized: (\d+\.\d+) MB")
@@ -313,10 +335,12 @@ def parse_seff(result):
     cpu_time_match = cpu_time_pattern.search(result)
     wall_time_match = wall_time_pattern.search(result)
     memory_match = memory_pattern.search(result)
+    exit_code = None
     if exit_code_match:
-        exit_code = int(exit_code_match.group(1))
+        status = str(exit_code_match.group(1))
+        exit_code = int(exit_code_match.group(2))
     else:
-        raise Exception(f"Exit code not matched in output: {result}")
+        status = "ERROR"
     cpu_time = None
     if cpu_time_match:
         hours, minutes, seconds = map(int, cpu_time_match.groups())
@@ -331,4 +355,4 @@ def parse_seff(result):
         f"Exit code: {exit_code}, memory usage: {memory_usage}, walltime: {wall_time}, cpu time: {cpu_time}"
     )
 
-    return exit_code, cpu_time, wall_time, memory_usage
+    return status, exit_code, cpu_time, wall_time, memory_usage
