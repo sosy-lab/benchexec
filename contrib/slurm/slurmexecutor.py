@@ -40,9 +40,6 @@ def get_system_info():
 
 
 def execute_benchmark(benchmark, output_handler):
-    num_of_cores = benchmark.rlimits.cpu_cores
-    mem_limit = benchmark.rlimits.memory
-    run_sets_executed = 0
 
     for runSet in benchmark.run_sets:
         if STOPPED_BY_INTERRUPT:
@@ -57,13 +54,10 @@ def execute_benchmark(benchmark, output_handler):
             )
 
         else:
-            run_sets_executed += 1
             _execute_run_set(
                 runSet,
                 benchmark,
                 output_handler,
-                num_of_cores,
-                mem_limit,
             )
 
     output_handler.output_after_benchmark(STOPPED_BY_INTERRUPT)
@@ -73,8 +67,6 @@ def _execute_run_set(
     runSet,
     benchmark,
     output_handler,
-    num_of_cores,
-    mem_limit,
 ):
     # get times before runSet
     walltime_before = time.monotonic()
@@ -99,7 +91,7 @@ def _execute_run_set(
         if STOPPED_BY_INTERRUPT:
             break
         WORKER_THREADS.append(
-            _Worker(benchmark, num_of_cores, mem_limit, output_handler, run_finished)
+            _Worker(benchmark, output_handler, run_finished)
         )
 
     # wait until workers are finished (all tasks done or STOPPED_BY_INTERRUPT)
@@ -110,13 +102,11 @@ def _execute_run_set(
     # get times after runSet
     walltime_after = time.monotonic()
     usedWallTime = walltime_after - walltime_before
-    usedCpuTime = 1000  # TODO
 
     if STOPPED_BY_INTERRUPT:
         output_handler.set_error("interrupted", runSet)
     output_handler.output_after_run_set(
         runSet,
-        cputime=usedCpuTime,
         walltime=usedWallTime,
     )
 
@@ -134,13 +124,11 @@ class _Worker(threading.Thread):
     working_queue = queue.Queue()
 
     def __init__(
-        self, benchmark, my_cpus, my_memory_nodes, output_handler, run_finished_callback
+        self, benchmark, output_handler, run_finished_callback
     ):
         threading.Thread.__init__(self)  # constuctor of superclass
         self.run_finished_callback = run_finished_callback
         self.benchmark = benchmark
-        self.my_cpus = my_cpus
-        self.my_memory_nodes = my_memory_nodes
         self.output_handler = output_handler
         self.setDaemon(True)
 
@@ -182,15 +170,10 @@ class _Worker(threading.Thread):
                 for i in range(6):
                     f.write(os.linesep)
 
-            timelimit = self.benchmark.rlimits.cputime
-
             run_result = run_slurm(
                 benchmark,
                 args,
                 run.log_file,
-                timelimit,
-                self.my_cpus,
-                benchmark.rlimits.memory,
             )
 
         except KeyboardInterrupt:
@@ -212,7 +195,11 @@ class _Worker(threading.Thread):
         return None
 
 
-def run_slurm(benchmark, args, log_file, timelimit, cpus, memory):
+def run_slurm(benchmark, args, log_file):
+    timelimit = benchmark.rlimits.cputime
+    cpus = benchmark.rlimits.cpu_cores
+    memory = benchmark.rlimits.memory
+
     srun_timelimit_h = int(timelimit / 3600)
     srun_timelimit_m = int((timelimit % 3600) / 60)
     srun_timelimit_s = int(timelimit % 60)
