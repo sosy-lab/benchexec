@@ -17,8 +17,8 @@ In case of problems, please tag in an [issue](https://github.com/sosy-lab/benche
 
 ## Preliminaries
 
-* *SLURM* is an open-source job scheduling and workload management system used primarily in high-performance computing (HPC) environments.
-* *Singularity* is a containerization platform designed for scientific and high-performance computing (HPC) workloads, providing users with a reproducible and portable environment for running applications and workflows.
+* [SLURM](https://slurm.schedmd.com/documentation.html) is an open-source job scheduling and workload management system used primarily in high-performance computing (HPC) environments.
+* [Singularity](https://docs.sylabs.io/guides/latest/user-guide/) is a containerization platform designed for scientific and high-performance computing (HPC) workloads, providing users with a reproducible and portable environment for running applications and workflows.
 
 ## Requirements
 
