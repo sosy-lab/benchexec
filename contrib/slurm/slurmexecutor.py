@@ -41,6 +41,10 @@ def get_system_info():
 
 def execute_benchmark(benchmark, output_handler):
 
+    assert (
+        not benchmark.config.use_hyperthreading
+    ), "SLURM can only work properly without hyperthreading enabled. See README.md for details."
+
     for runSet in benchmark.run_sets:
         if STOPPED_BY_INTERRUPT:
             break
@@ -229,7 +233,7 @@ def run_slurm(benchmark, args, log_file):
             f"-c {cpus} "
             f"-o {log_file} "
             f"--mem-per-cpu {mem_per_cpu} "
-            f"--threads-per-core=1 "
+            f"--threads-per-core=1 " # --use_hyperthreading=False is always given here
             f"--ntasks=1 "
             f"{singularity_command}"
         )
