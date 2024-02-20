@@ -22,8 +22,8 @@ In case of problems, please tag in an [issue](https://github.com/sosy-lab/benche
 
 ## Requirements
 
-* Singularity (optional), tested with `singularity-ce version 4.0.1`
-* SLURM, tested with `slurm 22.05.7` on `Red Hat Enterprise Linux 8.6 (Ootpa)`, kernel version `4.18.0-372.9.1.el8.x86_64`
+* SLURM, tested with `slurm 22.05.7`, should work withink `22.x.x`
+* Singularity (optional), tested with `singularity-ce version 4.0.1`, should work within `4.x.x`
 
 ## Usage
 1. Run the script with Python 3:
