@@ -256,7 +256,7 @@ def run_slurm(benchmark, args, log_file):
         "walltime": wall_time,
         "cputime": cpu_time,
         "memory": memory_usage,
-        "exitcode": ProcessExitCode(raw=exit_code, value=exit_code, signal=None),
+        "exitcode": ProcessExitCode.create(value=exit_code),
     }
 
 
