@@ -266,7 +266,7 @@ def run_slurm(benchmark, args, log_file):
             stop()
             return -1
 
-        seff_command = ["seff", jobid]
+        seff_command = ["seff", str(jobid)]
         logging.debug("Command to run: %s", " ".join(seff_command))
         result = subprocess.run(
             seff_command,
