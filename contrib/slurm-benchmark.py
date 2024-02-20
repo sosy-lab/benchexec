@@ -29,8 +29,8 @@ benchexec.tools.__path__ = [
 
 class Benchmark(benchexec.benchexec.BenchExec):
     """
-    An extension of BenchExec for use with CPAchecker
-    to execute benchmarks using SLURM, optionally via Singularity.
+    An extension of BenchExec to execute benchmarks using SLURM,
+    optionally via Singularity.
     """
 
     def create_argument_parser(self):
