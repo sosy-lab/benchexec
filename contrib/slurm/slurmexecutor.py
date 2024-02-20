@@ -278,7 +278,7 @@ def run_slurm(benchmark, args, log_file):
     }
 
 
-exit_code_pattern = re.compile(r"State: COMPLETED \(exit code (\d+)\)")
+exit_code_pattern = re.compile(r"exit code (\d+)")
 cpu_time_pattern = re.compile(r"CPU Utilized: (\d+):(\d+):(\d+)")
 wall_time_pattern = re.compile(r"Job Wall-clock time: (\d+):(\d+):(\d+)")
 memory_pattern = re.compile(r"Memory Utilized: (\d+\.\d+) MB")
