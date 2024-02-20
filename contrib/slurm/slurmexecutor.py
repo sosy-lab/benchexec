@@ -245,7 +245,9 @@ def run_slurm(benchmark, args, log_file):
             )
         srun_command.extend(args)
 
-        logging.debug("Command to run: %s", " ".join(map(util.escape_string_shell, srun_command)))
+        logging.debug(
+            "Command to run: %s", " ".join(map(util.escape_string_shell, srun_command))
+        )
         srun_result = subprocess.run(
             srun_command,
             stdout=subprocess.PIPE,
@@ -265,7 +267,9 @@ def run_slurm(benchmark, args, log_file):
             return -1
 
         seff_command = ["seff", str(jobid)]
-        logging.debug("Command to run: %s", " ".join(map(util.escape_string_shell, seff_command)))
+        logging.debug(
+            "Command to run: %s", " ".join(map(util.escape_string_shell, seff_command))
+        )
         result = subprocess.run(
             seff_command,
             stdout=subprocess.PIPE,
