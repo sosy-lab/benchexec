@@ -233,7 +233,7 @@ def run_slurm(benchmark, args, log_file):
             f"-c {cpus} "
             f"-o {log_file} "
             f"--mem-per-cpu {mem_per_cpu} "
-            f"--threads-per-core=1 " # --use_hyperthreading=False is always given here
+            f"--threads-per-core=1 "  # --use_hyperthreading=False is always given here
             f"--ntasks=1 "
             f"{singularity_command}"
         )
