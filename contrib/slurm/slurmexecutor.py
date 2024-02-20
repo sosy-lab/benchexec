@@ -313,7 +313,7 @@ def run_slurm(benchmark, args, log_file):
             str(result.stdout)
         )
 
-        result = {
+        ret = {
             "walltime": wall_time,
             "cputime": cpu_time,
             "memory": memory_usage,
@@ -321,14 +321,12 @@ def run_slurm(benchmark, args, log_file):
         }
 
         if status != "COMPLETED" and status != "FAILED":
-            result["terminationreason"] = {
+            ret["terminationreason"] = {
                 "OUT_OF_MEMORY": "memory",
                 "TIMEOUT": "cputime",
                 "ERROR": "failed",
                 "CANCELLED": "killed",
             }.get(status, status)
-
-        return result
 
         # Runexec would populate the first 6 lines with metadata
         with open(log_file, "w+") as file:
@@ -338,7 +336,13 @@ def run_slurm(benchmark, args, log_file):
             file.write(f"srun output: {str(srun_result.stdout)}\n")
             file.write(f"seff output: {str(result.stdout)}\n")
             empty_lines = "\n" * 3
-            file.write(empty_lines + content)
+            file.write(empty_lines)
+            file.write("\n")
+            file.write(content)
+            if content == "":
+                file.write("Original log file did not contain anything.")
+
+        return ret
 
 
 exit_code_pattern = re.compile(r"State: ([A-Z-_]*) \(exit code (\d+)\)")
