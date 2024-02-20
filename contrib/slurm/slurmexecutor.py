@@ -253,7 +253,6 @@ def run_slurm(benchmark, args, log_file):
     exit_code, cpu_time, wall_time, memory_usage = parse_seff(str(result.stdout))
 
     return {
-        "starttime": benchexec.util.read_local_time(),
         "walltime": wall_time,
         "cputime": cpu_time,
         "memory": memory_usage,
