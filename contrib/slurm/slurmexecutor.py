@@ -208,7 +208,15 @@ def run_slurm(benchmark, args, log_file):
 
     mem_per_cpu = int(memory / cpus / 1000000)
 
-    assert benchmark.config.scratchdir and os.path.exists(benchmark.config.scratchdir)
+    if not benchmark.config.scratchdir:
+        sys.exit("No scratchdir present. Please specify using --scratchdir <path>.")
+    elif not os.path.exists(benchmark.config.scratchdir):
+        os.makedirs(benchmark.config.scratchdir)
+        logging.debug(f"Created scratchdir: {benchmark.config.scratchdir}")
+    elif not os.path.isdir(benchmark.config.scratchdir):
+        sys.exit(
+            f"Scratchdir {benchmark.config.scratchdir} not a directory. Please specify using --scratchdir <path>."
+        )
 
     with tempfile.TemporaryDirectory(dir=benchmark.config.scratchdir) as tempdir:
 
