@@ -54,7 +54,7 @@ class Benchmark(benchexec.benchexec.BenchExec):
             dest="scratchdir",
             type=str,
             default="./",
-            help="The path to the singularity .sif file to use. Will bind $PWD to $HOME when run.",
+            help="The directory where temporary directories can be created for use within singularity.",
         )
 
         return parser
