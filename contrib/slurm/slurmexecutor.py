@@ -235,6 +235,7 @@ def run_slurm(benchmark, args, log_file):
         )
 
     with tempfile.TemporaryDirectory(dir=benchmark.config.scratchdir) as tempdir:
+        tmp_log = os.path.join(tempdir, "log")
 
         os.makedirs(os.path.join(tempdir, "upper"))
         os.makedirs(os.path.join(tempdir, "work"))
@@ -247,7 +248,7 @@ def run_slurm(benchmark, args, log_file):
             "-c",
             str(cpus),
             "-o",
-            str(log_file),
+            str(tmp_log),
             "--mem-per-cpu",
             str(mem_per_cpu),
             "--threads-per-core=1",  # --use_hyperthreading=False is always given here
@@ -289,7 +290,7 @@ def run_slurm(benchmark, args, log_file):
             if jobid_match:
                 jobid = int(jobid_match.group(1))
 
-        wait_for(lambda: os.path.exists(log_file), 30, 2)
+        wait_for(lambda: os.path.exists(tmp_log), 30, 2)
 
         seff_command = ["seff", str(jobid)]
         logging.debug(
@@ -330,17 +331,17 @@ def run_slurm(benchmark, args, log_file):
 
         # Runexec would populate the first 6 lines with metadata
         with open(log_file, "w+") as file:
-            content = file.read()
-            file.seek(0, 0)
-            file.write(f"jobid: {jobid}\n")
-            file.write(f"srun output: {str(srun_result.stdout)}\n")
-            file.write(f"seff output: {str(result.stdout)}\n")
-            empty_lines = "\n" * 3
-            file.write(empty_lines)
-            file.write("\n")
-            file.write(content)
-            if content == "":
-                file.write("Original log file did not contain anything.")
+            with open(tmp_log, "r") as log_source:
+                content = log_source.read()
+                file.write(f"jobid: {jobid}\n")
+                file.write(f"srun output: {str(srun_result.stdout)}\n")
+                file.write(f"seff output: {str(result.stdout)}\n")
+                empty_lines = "\n" * 3
+                file.write(empty_lines)
+                file.write("\n")
+                file.write(content)
+                if content == "":
+                    file.write("Original log file did not contain anything.")
 
         return ret
 
