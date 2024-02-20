@@ -32,18 +32,14 @@ def init(config, benchmark):
     benchmark.executable = benchmark.tool.executable(tool_locator)
     benchmark.tool_version = benchmark.tool.version(benchmark.executable)
 
-    logging.info("Using %s version %s.", benchmark.tool_name, benchmark.tool_version)
-
-
 def get_system_info():
     return None
 
 
 def execute_benchmark(benchmark, output_handler):
 
-    assert (
-        not benchmark.config.use_hyperthreading
-    ), "SLURM can only work properly without hyperthreading enabled. See README.md for details."
+    if benchmark.config.use_hyperthreading:
+        sys.exit("SLURM can only work properly without hyperthreading enabled. See README.md for details.")
 
     for runSet in benchmark.run_sets:
         if STOPPED_BY_INTERRUPT:
@@ -160,7 +156,6 @@ class _Worker(threading.Thread):
         It also calls functions for output before and after the run.
         """
         self.output_handler.output_before_run(run)
-        benchmark = self.benchmark
 
         args = run.cmdline()
         logging.debug("Command line of run is %s", args)
@@ -171,7 +166,7 @@ class _Worker(threading.Thread):
                     f.write(os.linesep)
 
             run_result = run_slurm(
-                benchmark,
+                self.benchmark,
                 args,
                 run.log_file,
             )
@@ -182,7 +177,7 @@ class _Worker(threading.Thread):
 
         if STOPPED_BY_INTERRUPT:
             try:
-                if benchmark.config.debug:
+                if self.benchmark.config.debug:
                     os.rename(run.log_file, run.log_file + ".killed")
                 else:
                     os.remove(run.log_file)
@@ -239,7 +234,6 @@ def run_slurm(benchmark, args, log_file):
         )
         srun_result = subprocess.run(
             ["bash", "-c", srun_command],
-            shell=False,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
         )
@@ -260,7 +254,6 @@ def run_slurm(benchmark, args, log_file):
         logging.debug("Command to run: %s", seff_command)
         result = subprocess.run(
             ["bash", "-c", seff_command],
-            shell=False,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
         )
