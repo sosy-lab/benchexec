@@ -244,7 +244,7 @@ def run_slurm(benchmark, args, log_file):
             str(log_file),
             "--mem-per-cpu",
             str(mem_per_cpu),
-            "--threads-per-core=1"  # --use_hyperthreading=False is always given here
+            "--threads-per-core=1",  # --use_hyperthreading=False is always given here
             "--ntasks=1",
         ] + singularity_command
         logging.debug("Command to run: %s", " ".join(srun_command))
