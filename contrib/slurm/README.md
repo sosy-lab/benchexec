@@ -60,8 +60,6 @@ This works similarly to BenchExec, however, instead of delegating each run to `r
     * `--no-home`: Do not bind the home directory
     * `-B {tempdir}:/overlay`: Bind the temporary directory to `/overlay` (must be writeable)
     * `--fusemount  "container:fuse-overlayfs -o lowerdir=/lower -o upperdir=/overlay/upper -o workdir=/overlay/work $HOME"`: mount an overlay filesystem at $HOME, where modifications go in the temp dir but files can be read from the current dir
-    
-    Modifications to the script are necessary if the user on the host and the container differ (due to using $HOME). Also, files not under the current directory will not be visible.
 
 2. Currently, the following parameters are passed to `srun` (calculated from the benchmark's parameters):
    * `-t <hh:mm:ss>` CPU timelimit (generally, SLURM will round up to nearest minute)
@@ -82,5 +80,6 @@ Currently, there are the following limitations compared to local benchexec:
 
 1. No advanced resource constraining / monitoring: only CPU time, CPU core and memory limits are handled, and only CPU time, wall time, and memory usage are monitored.
 2. No exotic paths in the command are handled: only the current working directory and its children are visible in the container
+3. The  user on the host and the container should not differ (due to using $HOME in the commands).
 3. Without singularity, no constraint is placed on the resulting files of the runs: this will populate the current directory with all the output files of all the runs.
 4. For timed-out runs, where SLURM terminated the run, no CPU time values are available.
