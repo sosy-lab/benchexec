@@ -285,7 +285,7 @@ memory_pattern = re.compile(r"Memory Utilized: (\d+\.\d+) MB")
 
 
 def parse_seff(result):
-    logging.debug(f"Got {result} as output from seff")
+    logging.debug(f"Got output from seff: {result}")
     exit_code_match = exit_code_pattern.search(result)
     cpu_time_match = cpu_time_pattern.search(result)
     wall_time_match = wall_time_pattern.search(result)

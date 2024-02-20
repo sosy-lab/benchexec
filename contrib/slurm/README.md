@@ -22,7 +22,7 @@ In case of problems, please tag in an [issue](https://github.com/sosy-lab/benche
 
 ## Requirements
 
-* SLURM, tested with `slurm 22.05.7`, should work withink `22.x.x`
+* SLURM, tested with `slurm 22.05.7`, should work within `22.x.x`
 * Singularity (optional), tested with `singularity-ce version 4.0.1`, should work within `4.x.x`
 
 ## Usage
