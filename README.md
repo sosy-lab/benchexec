@@ -98,6 +98,7 @@ Maintainer: [Philipp Wendler](https://www.philippwendler.de)
 
 Contributors:
 - [Aditya Arora](https://github.com/alohamora)
+- [Levente Bajczi](https://github.com/leventeBajczi)
 - [Dirk Beyer](https://www.sosy-lab.org/people/beyer/)
 - [Laura Bschor](https://github.com/laurabschor)
 - [Thomas Bunk](https://github.com/TBunk)
