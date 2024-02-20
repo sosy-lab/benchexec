@@ -18,7 +18,7 @@ import tempfile
 import threading
 import time
 
-from benchexec import benchexec, BenchExecException, tooladapter
+from benchexec import BenchExecException, tooladapter
 from benchexec.util import ProcessExitCode
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
