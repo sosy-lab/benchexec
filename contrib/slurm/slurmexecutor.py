@@ -345,7 +345,7 @@ def run_slurm(benchmark, args, log_file):
                 content = log_source.read()
                 file.write(f"jobid: {jobid}\n")
                 file.write(
-                    f"srun output ({str(returncode)}): {str(srun_result.stdout)}\n"
+                    f"srun output (retcode: {str(returncode)}), truncated: {str(first_lines)}\n"
                 )
                 file.write(f"seff output: {str(result.stdout)}\n")
                 file.write(f"Parsed data: {str(ret)}\n")
