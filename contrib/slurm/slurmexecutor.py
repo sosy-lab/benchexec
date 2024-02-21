@@ -222,8 +222,6 @@ def run_slurm(benchmark, args, log_file):
     srun_timelimit_s = int(timelimit % 60)
     srun_timelimit = f"{srun_timelimit_h}:{srun_timelimit_m}:{srun_timelimit_s}"
 
-    mem_per_cpu = int(memory / cpus / 1000000)
-
     if not benchmark.config.scratchdir:
         sys.exit("No scratchdir present. Please specify using --scratchdir <path>.")
     elif not os.path.exists(benchmark.config.scratchdir):
@@ -249,8 +247,8 @@ def run_slurm(benchmark, args, log_file):
             str(cpus),
             "-o",
             str(tmp_log),
-            "--mem-per-cpu",
-            str(mem_per_cpu),
+            "--mem",
+            str(int(memory / 1000000)) + "M",
             "--threads-per-core=1",  # --use_hyperthreading=False is always given here
             "--ntasks=1",
         ]
@@ -275,6 +273,7 @@ def run_slurm(benchmark, args, log_file):
             "Command to run: %s", " ".join(map(util.escape_string_shell, srun_command))
         )
         jobid = None
+        returncode = None
         while jobid is None:
             srun_result = subprocess.run(
                 srun_command,
@@ -289,6 +288,7 @@ def run_slurm(benchmark, args, log_file):
             jobid_match = jobid_pattern.search(str(srun_result.stdout))
             if jobid_match:
                 jobid = int(jobid_match.group(1))
+                returncode = srun_result.returncode
 
         wait_for(lambda: os.path.exists(tmp_log), 30, 2)
 
@@ -318,24 +318,35 @@ def run_slurm(benchmark, args, log_file):
             "walltime": wall_time,
             "cputime": cpu_time,
             "memory": memory_usage,
-            "exitcode": ProcessExitCode.create(value=exit_code),
+            "exitcode": ProcessExitCode.create(
+                value=exit_code if not returncode else returncode
+            ),
         }
 
         if status != "COMPLETED" and status != "FAILED":
             ret["terminationreason"] = {
                 "OUT_OF_MEMORY": "memory",
+                "OUT_OF_ME+": "memory",
                 "TIMEOUT": "cputime",
                 "ERROR": "failed",
                 "CANCELLED": "killed",
             }.get(status, status)
+
+            if ret["terminationreason"] == "memory":
+                ret["memory"] = memory
+            if ret["terinationreason"] == "cputime":
+                ret["cputime"] = timelimit
 
         # Runexec would populate the first 6 lines with metadata
         with open(log_file, "w+") as file:
             with open(tmp_log, "r") as log_source:
                 content = log_source.read()
                 file.write(f"jobid: {jobid}\n")
-                file.write(f"srun output: {str(srun_result.stdout)}\n")
+                file.write(
+                    f"srun output ({str(returncode)}): {str(srun_result.stdout)}\n"
+                )
                 file.write(f"seff output: {str(result.stdout)}\n")
+                file.write(f"Parsed data: {str(ret)}\n")
                 empty_lines = "\n" * 3
                 file.write(empty_lines)
                 file.write("\n")
