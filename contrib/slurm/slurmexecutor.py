@@ -273,7 +273,7 @@ def run_slurm(benchmark, args, log_file):
         jobid = None
         returncode = None
         while jobid is None:
-            with open("w", tmp_log) as tmp_log_f:
+            with open(tmp_log, "w") as tmp_log_f:
                 srun_result = subprocess.run(
                     srun_command,
                     stdout=tmp_log_f,
@@ -282,7 +282,7 @@ def run_slurm(benchmark, args, log_file):
                 returncode = srun_result.returncode
 
             # we try to read back the log, in the first two lines there should be the jobid
-            with open("r", tmp_log) as tmp_log_f:
+            with open(tmp_log, "r") as tmp_log_f:
                 first_lines = tmp_log_f.readline(100).strip("\r\n") + "\\n" + tmp_log_f.readline(100).strip("\r\n")
                 logging.debug(
                     "srun: returncode: %d, output (truncated): %s",
