@@ -56,6 +56,13 @@ class Benchmark(benchexec.benchexec.BenchExec):
             default="./",
             help="The directory where temporary directories can be created for use within singularity.",
         )
+        slurm_args.add_argument(
+            "--retry-killed",
+            dest="retry",
+            type=int,
+            default="0",
+            help="Retry killed jobs this many times. Use a negative number for unbounded retry attempts.",
+        )
 
         return parser
 

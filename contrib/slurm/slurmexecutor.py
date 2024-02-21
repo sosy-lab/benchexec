@@ -164,11 +164,17 @@ class _Worker(threading.Thread):
         logging.debug("Command line of run is %s", args)
 
         try:
-            run_result = run_slurm(
-                self.benchmark,
-                args,
-                run.log_file,
-            )
+            attempts = 0
+            while True:
+                run_result = run_slurm(
+                    self.benchmark,
+                    args,
+                    run.log_file,
+                )
+                if (not run_result["terminationreason"] == "killed"
+                        or (attempts > self.benchmark.config.retry > 0)):
+                    break
+                attempts += 1
 
         except KeyboardInterrupt:
             # If the run was interrupted, we ignore the result and cleanup.
