@@ -172,7 +172,7 @@ class _Worker(threading.Thread):
                     run.log_file,
                 )
                 if (not run_result["terminationreason"] == "killed"
-                        or (attempts > self.benchmark.config.retry > 0)):
+                        or (attempts >= self.benchmark.config.retry >= 0)):
                     break
                 attempts += 1
 
