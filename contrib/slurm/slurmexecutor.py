@@ -245,8 +245,6 @@ def run_slurm(benchmark, args, log_file):
             str(srun_timelimit),
             "-c",
             str(cpus),
-            "-o",
-            str(tmp_log),
             "--mem",
             str(int(memory / 1000000)) + "M",
             "--threads-per-core=1",  # --use_hyperthreading=False is always given here
@@ -275,22 +273,25 @@ def run_slurm(benchmark, args, log_file):
         jobid = None
         returncode = None
         while jobid is None:
-            srun_result = subprocess.run(
-                srun_command,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,
-            )
-            logging.debug(
-                "srun: returncode: %d, output: %s",
-                srun_result.returncode,
-                srun_result.stdout,
-            )
-            jobid_match = jobid_pattern.search(str(srun_result.stdout))
-            if jobid_match:
-                jobid = int(jobid_match.group(1))
+            with open("w", tmp_log) as tmp_log_f:
+                srun_result = subprocess.run(
+                    srun_command,
+                    stdout=tmp_log_f,
+                    stderr=subprocess.STDOUT,
+                )
                 returncode = srun_result.returncode
 
-        wait_for(lambda: os.path.exists(tmp_log), 30, 2)
+            # we try to read back the log, in the first two lines there should be the jobid
+            with open("r", tmp_log) as tmp_log_f:
+                first_lines = tmp_log_f.readline(100).strip("\r\n") + "\\n" + tmp_log_f.readline(100).strip("\r\n")
+                logging.debug(
+                    "srun: returncode: %d, output (truncated): %s",
+                    srun_result.returncode,
+                    first_lines,
+                )
+                jobid_match = jobid_pattern.search(str(first_lines))
+                if jobid_match:
+                    jobid = int(jobid_match.group(1))
 
         seff_command = ["seff", str(jobid)]
         logging.debug(
@@ -308,6 +309,7 @@ def run_slurm(benchmark, args, log_file):
             else:
                 return None
 
+        # sometimes `seff` needs a few extra seconds to realize the task has ended
         result = wait_for(get_checked_seff_result, 30, 2)
 
         status, exit_code, cpu_time, wall_time, memory_usage = parse_seff(
@@ -334,7 +336,7 @@ def run_slurm(benchmark, args, log_file):
 
             if ret["terminationreason"] == "memory":
                 ret["memory"] = memory
-            if ret["terinationreason"] == "cputime":
+            if ret["terminationreason"] == "cputime":
                 ret["cputime"] = timelimit
 
         # Runexec would populate the first 6 lines with metadata
