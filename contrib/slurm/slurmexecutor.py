@@ -179,7 +179,12 @@ class _Worker(threading.Thread):
                 ):
                     break
                 attempts += 1
-                logging.debug("Retrying after %d attempts, limit: %d", attempts, self.benchmark.config.retry)
+                time.sleep(1)  # as to not overcrowd a failing scheduler
+                logging.debug(
+                    "Retrying after %d attempts, limit: %d",
+                    attempts,
+                    self.benchmark.config.retry,
+                )
 
         except KeyboardInterrupt:
             # If the run was interrupted, we ignore the result and cleanup.
@@ -336,7 +341,7 @@ def run_slurm(benchmark, args, log_file):
             "cputime": cpu_time,
             "memory": memory_usage,
             "exitcode": ProcessExitCode.create(
-                value=exit_code if not returncode else returncode
+                value=exit_code if exit_code is not None else returncode
             ),
         }
 
