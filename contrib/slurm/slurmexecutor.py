@@ -171,8 +171,11 @@ class _Worker(threading.Thread):
                     args,
                     run.log_file,
                 )
-                if (not run_result["terminationreason"] == "killed"
-                        or (attempts >= self.benchmark.config.retry >= 0)):
+                if (
+                    "terminationreason" not in run_result
+                    or not run_result["terminationreason"] == "killed"
+                    or (attempts >= self.benchmark.config.retry >= 0)
+                ):
                     break
                 attempts += 1
 
@@ -289,7 +292,11 @@ def run_slurm(benchmark, args, log_file):
 
             # we try to read back the log, in the first two lines there should be the jobid
             with open(tmp_log, "r") as tmp_log_f:
-                first_lines = tmp_log_f.readline(100).strip("\r\n") + "\\n" + tmp_log_f.readline(100).strip("\r\n")
+                first_lines = (
+                    tmp_log_f.readline(100).strip("\r\n")
+                    + "\\n"
+                    + tmp_log_f.readline(100).strip("\r\n")
+                )
                 logging.debug(
                     "srun: returncode: %d, output (truncated): %s",
                     srun_result.returncode,
