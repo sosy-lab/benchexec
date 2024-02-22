@@ -390,6 +390,8 @@ def parse_seff(result):
     if exit_code_match:
         status = str(exit_code_match.group(1))
         exit_code = int(exit_code_match.group(2))
+        if status == "FAILED" and exit_code == 0:
+            status = "CANCELLED"
     else:
         status = "ERROR"
     cpu_time = None
