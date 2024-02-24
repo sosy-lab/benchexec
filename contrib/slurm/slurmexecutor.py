@@ -319,9 +319,6 @@ def run_slurm(benchmark, args, log_file):
                 if jobid_match:
                     jobid = int(jobid_match.group(1))
 
-        with open(exitcode_file, "r") as f:
-            returncode = int(f.read())
-
         seff_command = ["seff", str(jobid)]
         logging.debug(
             "Command to run: %s", " ".join(map(util.escape_string_shell, seff_command))
@@ -344,6 +341,14 @@ def run_slurm(benchmark, args, log_file):
         status, exit_code, cpu_time, wall_time, memory_usage = parse_seff(
             str(result.stdout)
         )
+
+        if os.path.exists(exitcode_file):
+            with open(exitcode_file, "r") as f:
+                returncode = int(f.read())
+                logging.debug("Exit code in file %s: %d", exitcode_file, returncode)
+        else:
+            logging.debug("Exit code not found in file: %s", exitcode_file)
+            returncode = -1
 
         ret = {
             "walltime": wall_time,
