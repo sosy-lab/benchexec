@@ -254,7 +254,7 @@ def run_slurm(benchmark, args, log_file):
         os.makedirs(os.path.join(tempdir, "upper"))
         os.makedirs(os.path.join(tempdir, "work"))
 
-        exitcode_file = f"{tempdir}/exitcode"
+        exitcode_file = f"{tempdir}/upper/exitcode"
 
         srun_command = [
             "srun",
@@ -287,7 +287,7 @@ def run_slurm(benchmark, args, log_file):
             [
                 "bash",
                 "-c",
-                f"{' '.join(args)} && echo 0 > {exitcode_file} || echo $? > {exitcode_file}",
+                f"{' '.join(args)} && echo 0 > exitcode || echo $? > exitcode",
             ]
         )
 
