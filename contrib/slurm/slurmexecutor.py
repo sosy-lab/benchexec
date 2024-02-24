@@ -269,20 +269,27 @@ def run_slurm(benchmark, args, log_file):
             "--ntasks=1",
         ]
         if benchmark.config.singularity:
-            singularity_command = [
-                "singularity",
-                "exec",
-                "-B",
-                "./:/lower",
-                "--no-home",
-                "-B",
-                f"{tempdir}:/overlay",
-                "--fusemount",
-                f"container:fuse-overlayfs -o lowerdir=/lower -o upperdir=/overlay/upper -o workdir=/overlay/work /home/{os.getlogin()}",
-                benchmark.config.singularity,
+            srun_command.extend(
+                [
+                    "singularity",
+                    "exec",
+                    "-B",
+                    "./:/lower",
+                    "--no-home",
+                    "-B",
+                    f"{tempdir}:/overlay",
+                    "--fusemount",
+                    f"container:fuse-overlayfs -o lowerdir=/lower -o upperdir=/overlay/upper -o workdir=/overlay/work /home/{os.getlogin()}",
+                    benchmark.config.singularity,
+                ]
+            )
+        srun_command.extend(
+            [
+                "bash",
+                "-c",
+                f"{' '.join(args)} && echo 0 > {exitcode_file} || echo $? > {exitcode_file}",
             ]
-            srun_command.extend(["bash", "-c", f"{' '.join(singularity_command)} && echo 0 > {exitcode_file} || echo $? > {exitcode_file}"])
-        srun_command.extend(args)
+        )
 
         logging.debug(
             "Command to run: %s", " ".join(map(util.escape_string_shell, srun_command))
