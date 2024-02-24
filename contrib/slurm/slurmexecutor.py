@@ -254,6 +254,8 @@ def run_slurm(benchmark, args, log_file):
         os.makedirs(os.path.join(tempdir, "upper"))
         os.makedirs(os.path.join(tempdir, "work"))
 
+        exitcode_file = f"{tempdir}/exitcode"
+
         srun_command = [
             "srun",
             "--quit-on-interrupt",
@@ -267,27 +269,25 @@ def run_slurm(benchmark, args, log_file):
             "--ntasks=1",
         ]
         if benchmark.config.singularity:
-            srun_command.extend(
-                [
-                    "singularity",
-                    "exec",
-                    "-B",
-                    "./:/lower",
-                    "--no-home",
-                    "-B",
-                    f"{tempdir}:/overlay",
-                    "--fusemount",
-                    f"container:fuse-overlayfs -o lowerdir=/lower -o upperdir=/overlay/upper -o workdir=/overlay/work /home/{os.getlogin()}",
-                    benchmark.config.singularity,
-                ]
-            )
+            singularity_command = [
+                "singularity",
+                "exec",
+                "-B",
+                "./:/lower",
+                "--no-home",
+                "-B",
+                f"{tempdir}:/overlay",
+                "--fusemount",
+                f"container:fuse-overlayfs -o lowerdir=/lower -o upperdir=/overlay/upper -o workdir=/overlay/work /home/{os.getlogin()}",
+                benchmark.config.singularity,
+            ]
+            srun_command.extend(["bash", "-c", f"{' '.join(singularity_command)} && echo 0 > {exitcode_file} || echo $? > {exitcode_file}"])
         srun_command.extend(args)
 
         logging.debug(
             "Command to run: %s", " ".join(map(util.escape_string_shell, srun_command))
         )
         jobid = None
-        returncode = None
         while jobid is None:
             with open(tmp_log, "w") as tmp_log_f:
                 srun_result = subprocess.run(
@@ -295,7 +295,6 @@ def run_slurm(benchmark, args, log_file):
                     stdout=tmp_log_f,
                     stderr=subprocess.STDOUT,
                 )
-                returncode = srun_result.returncode
 
             # we try to read back the log, in the first two lines there should be the jobid
             with open(tmp_log, "r") as tmp_log_f:
@@ -312,6 +311,9 @@ def run_slurm(benchmark, args, log_file):
                 jobid_match = jobid_pattern.search(str(first_lines))
                 if jobid_match:
                     jobid = int(jobid_match.group(1))
+
+        with open(exitcode_file, "r") as f:
+            returncode = int(f.read())
 
         seff_command = ["seff", str(jobid)]
         logging.debug(
@@ -340,17 +342,16 @@ def run_slurm(benchmark, args, log_file):
             "walltime": wall_time,
             "cputime": cpu_time,
             "memory": memory_usage,
-            "exitcode": ProcessExitCode.create(
-                value=exit_code if exit_code is not None else returncode
-            ),
+            "exitcode": ProcessExitCode.create(value=returncode),
         }
 
-        if status != "COMPLETED" and status != "FAILED":
+        if status != "COMPLETED":
             ret["terminationreason"] = {
                 "OUT_OF_MEMORY": "memory",
                 "OUT_OF_ME+": "memory",
                 "TIMEOUT": "cputime",
                 "ERROR": "failed",
+                "FAILED": "killed",
                 "CANCELLED": "killed",
             }.get(status, status)
 
@@ -395,8 +396,6 @@ def parse_seff(result):
     if exit_code_match:
         status = str(exit_code_match.group(1))
         exit_code = int(exit_code_match.group(2))
-        if status == "FAILED" and exit_code == 0:
-            status = "CANCELLED"
     else:
         status = "ERROR"
     cpu_time = None
