@@ -62,6 +62,8 @@ This works similarly to BenchExec, however, instead of delegating each run to `r
     * `-B {tempdir}:/overlay`: Bind the temporary directory to `/overlay` (must be writeable)
     * `--fusemount  "container:fuse-overlayfs -o lowerdir=/lower -o upperdir=/overlay/upper -o workdir=/overlay/work $HOME"`: mount an overlay filesystem at $HOME, where modifications go in the temp dir but files can be read from the current dir
 
+    We also wrap this command inside the container using `bash -c "{command} && echo 0 > exitcode || echo $? > exitcode` to save the exitcode of the process, _and_ always have 0 as the exitcode of a completed run. Otherwise, we cannot differentiate between a FAILURE happening due to SLURM-issues (e.g., transport failures), or a simply failing command. Otherwise, retrying would not work.
+
 2. Currently, the following parameters are passed to `srun` (calculated from the benchmark's parameters):
    * `-t <hh:mm:ss>` CPU timelimit (generally, SLURM will round up to nearest minute)
    * `-c <cpus>` number of cpus 
