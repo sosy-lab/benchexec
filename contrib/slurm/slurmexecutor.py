@@ -223,7 +223,7 @@ def wait_for(func, timeout_sec=None, poll_interval_sec=1):
             return ret
 
         if timeout_sec is not None and time.time() - start_time > timeout_sec:
-            raise TimeoutError(f"Timeout exceeded.")
+            raise TimeoutError("Timeout exceeded.")
 
         time.sleep(poll_interval_sec)
 
@@ -347,8 +347,12 @@ def run_slurm(benchmark, args, log_file):
                 returncode = int(f.read())
                 logging.debug("Exit code in file %s: %d", exitcode_file, returncode)
         else:
+            if status == "COMPLETED":
+                raise Exception(
+                    "Should never happen: exit code not found, but task was reported COMPLETED."
+                )
             logging.debug("Exit code not found in file: %s", exitcode_file)
-            returncode = -1
+            returncode = 0
 
         ret = {
             "walltime": wall_time,
