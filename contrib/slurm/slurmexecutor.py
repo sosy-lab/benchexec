@@ -338,7 +338,7 @@ def run_slurm(benchmark, args, log_file):
         # sometimes `seff` needs a few extra seconds to realize the task has ended
         result = wait_for(get_checked_seff_result, 30, 2)
 
-        status, exit_code, cpu_time, wall_time, memory_usage = parse_seff(
+        slurm_status, exit_code, cpu_time, wall_time, memory_usage = parse_seff(
             str(result.stdout)
         )
 
@@ -348,7 +348,7 @@ def run_slurm(benchmark, args, log_file):
                 logging.debug("Exit code in file %s: %d", exitcode_file, returncode)
         else:
             assert (
-                status != "COMPLETED"
+                slurm_status != "COMPLETED"
             ), "Should never happen: exit code not found, but task was reported COMPLETED."
             logging.debug("Exit code not found in file: %s", exitcode_file)
             returncode = 0
@@ -360,7 +360,7 @@ def run_slurm(benchmark, args, log_file):
             "exitcode": ProcessExitCode.create(value=returncode),
         }
 
-        if status != "COMPLETED":
+        if slurm_status != "COMPLETED":
             ret["terminationreason"] = {
                 "OUT_OF_MEMORY": "memory",
                 "OUT_OF_ME+": "memory",
@@ -368,12 +368,7 @@ def run_slurm(benchmark, args, log_file):
                 "ERROR": "failed",
                 "FAILED": "killed",
                 "CANCELLED": "killed",
-            }.get(status, status)
-
-            if ret["terminationreason"] == "memory":
-                ret["memory"] = memory
-            if ret["terminationreason"] == "cputime":
-                ret["cputime"] = timelimit
+            }.get(slurm_status, slurm_status)
 
         # Runexec would populate the first 6 lines with metadata
         with open(log_file, "w+") as file:
@@ -411,10 +406,10 @@ def parse_seff(result):
     memory_match = memory_pattern.search(result)
     exit_code = None
     if exit_code_match:
-        status = str(exit_code_match.group(1))
+        slurm_status = str(exit_code_match.group(1))
         exit_code = int(exit_code_match.group(2))
     else:
-        status = "ERROR"
+        slurm_status = "ERROR"
     cpu_time = None
     if cpu_time_match:
         hours, minutes, seconds = map(int, cpu_time_match.groups())
@@ -429,4 +424,4 @@ def parse_seff(result):
         f"Exit code: {exit_code}, memory usage: {memory_usage}, walltime: {wall_time}, cpu time: {cpu_time}"
     )
 
-    return status, exit_code, cpu_time, wall_time, memory_usage
+    return slurm_status, exit_code, cpu_time, wall_time, memory_usage
