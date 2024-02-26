@@ -298,7 +298,7 @@ def run_slurm(benchmark, args, log_file):
         jobid = None
         while jobid is None:
             with open(tmp_log, "w") as tmp_log_f:
-                srun_result = subprocess.run(
+                subprocess.run(
                     srun_command,
                     stdout=tmp_log_f,
                     stderr=subprocess.STDOUT,
