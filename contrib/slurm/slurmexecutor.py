@@ -379,15 +379,17 @@ def run_slurm(benchmark, args, log_file):
         with open(log_file, "w+") as file:
             with open(tmp_log, "r") as log_source:
                 content = log_source.read()
-                file.write(f"jobid: {jobid}\n")
-                file.write(
-                    f"srun output (retcode: {str(returncode)}), truncated: {str(first_lines)}\n"
-                )
-                file.write(f"seff output: {str(result.stdout)}\n")
-                file.write(f"Parsed data: {str(ret)}\n")
-                empty_lines = "\n" * 3
-                file.write(empty_lines)
-                file.write("\n")
+                file.write(" ".join(args))
+                if benchmark.config.debug:
+                    file.write(f"jobid: {jobid}\n")
+                    file.write(
+                        f"srun output (retcode: {str(returncode)}), truncated: {str(first_lines)}\n"
+                    )
+                    file.write(f"seff output: {str(result.stdout)}\n")
+                    file.write(f"Parsed data: {str(ret)}\n")
+                    file.write("\n")
+                else:
+                    file.write("\n" * 5)
                 file.write(content)
                 if content == "":
                     file.write("Original log file did not contain anything.")
