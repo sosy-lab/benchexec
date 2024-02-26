@@ -215,14 +215,14 @@ def wait_for(func, timeout_sec=None, poll_interval_sec=1):
     :param timeout_sec: How much time to give up after
     :param poll_interval_sec: How frequently to check the result
     """
-    start_time = time.time()
+    start_time = time.monotonic()
 
     while True:
         ret = func()
         if ret is not None:
             return ret
 
-        if timeout_sec is not None and time.time() - start_time > timeout_sec:
+        if timeout_sec is not None and time.monotonic() - start_time > timeout_sec:
             raise TimeoutError("Timeout exceeded.")
 
         time.sleep(poll_interval_sec)
@@ -306,9 +306,9 @@ def run_slurm(benchmark, args, log_file):
             # we try to read back the log, in the first two lines there should be the jobid
             with open(tmp_log, "r") as tmp_log_f:
                 first_lines = (
-                    tmp_log_f.readline(100).strip("\r\n")
+                    tmp_log_f.readline(100).strip()
                     + "\\n"
-                    + tmp_log_f.readline(100).strip("\r\n")
+                    + tmp_log_f.readline(100).strip()
                 )
                 logging.debug(
                     "srun: returncode: %d, output (truncated): %s",
@@ -347,10 +347,7 @@ def run_slurm(benchmark, args, log_file):
                 returncode = int(f.read())
                 logging.debug("Exit code in file %s: %d", exitcode_file, returncode)
         else:
-            if status == "COMPLETED":
-                raise Exception(
-                    "Should never happen: exit code not found, but task was reported COMPLETED."
-                )
+            assert status != "COMPLETED", "Should never happen: exit code not found, but task was reported COMPLETED."
             logging.debug("Exit code not found in file: %s", exitcode_file)
             returncode = 0
 

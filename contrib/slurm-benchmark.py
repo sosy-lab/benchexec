@@ -61,7 +61,7 @@ class Benchmark(benchexec.benchexec.BenchExec):
             dest="retry",
             type=int,
             default="0",
-            help="Retry killed jobs this many times. Use a negative number for unbounded retry attempts.",
+            help="Retry killed jobs this many times. Use -1 for unbounded retry attempts.",
         )
 
         return parser
