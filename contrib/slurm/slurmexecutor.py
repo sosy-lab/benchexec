@@ -222,7 +222,7 @@ def wait_for(func, timeout_sec=None, poll_interval_sec=1):
             return ret
 
         if timeout_sec is not None and time.monotonic() - start_time > timeout_sec:
-            raise TimeoutError(
+            raise BenchExecException(
                 "Timeout exceeded for waiting for job to realize it has finished. Scheduler may be failing."
             )
 
