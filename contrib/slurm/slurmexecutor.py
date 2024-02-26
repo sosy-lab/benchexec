@@ -286,7 +286,7 @@ def run_slurm(benchmark, args, log_file):
             )
         srun_command.extend(
             [
-                "bash",
+                "sh",
                 "-c",
                 f"{' '.join(map(util.escape_string_shell, args))}; echo $? > exitcode",
             ]
