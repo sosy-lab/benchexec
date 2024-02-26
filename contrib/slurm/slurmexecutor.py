@@ -7,7 +7,7 @@
 # SPDX-FileCopyrightText: Budapest University of Technology and Economics <https://www.ftsrg.mit.bme.hu>
 #
 # SPDX-License-Identifier: Apache-2.0
-
+import itertools
 import logging
 import os
 import queue
@@ -306,19 +306,11 @@ def run_slurm(benchmark, args, log_file):
 
             # we try to read back the log, in the first two lines there should be the jobid
             with open(tmp_log, "r") as tmp_log_f:
-                first_lines = (
-                    tmp_log_f.readline(100).strip()
-                    + "\\n"
-                    + tmp_log_f.readline(100).strip()
-                )
-                logging.debug(
-                    "srun: returncode: %d, output (truncated): %s",
-                    srun_result.returncode,
-                    first_lines,
-                )
-                jobid_match = jobid_pattern.search(str(first_lines))
-                if jobid_match:
-                    jobid = int(jobid_match.group(1))
+                for line in itertools.islice(tmp_log_f, 2):
+                    jobid_match = jobid_pattern.search(line)
+                    if jobid_match:
+                        jobid = int(jobid_match.group(1))
+                        break
 
         seff_command = ["seff", str(jobid)]
         logging.debug(
@@ -376,20 +368,16 @@ def run_slurm(benchmark, args, log_file):
             with open(tmp_log, "r") as log_source:
                 content = log_source.read()
                 file.write(f"{' '.join(map(util.escape_string_shell, args))}")
-                if benchmark.config.debug:
-                    file.write("\n")
-                    file.write(f"jobid: {jobid}\n")
-                    file.write(
-                        f"srun output (retcode: {str(returncode)}), truncated: {str(first_lines)}\n"
-                    )
-                    file.write(f"seff output: {str(result.stdout)}\n")
-                    file.write(f"Parsed data: {str(ret)}\n")
-                    file.write("\n")
-                else:
-                    file.write("\n\n\n" + "-" * 80 + "\n\n\n")
+                file.write("\n\n\n" + "-" * 80 + "\n\n\n")
                 file.write(content)
                 if content == "":
                     file.write("Original log file did not contain anything.")
+
+        if benchmark.config.debug:
+            with open(log_file + ".debug_info", "w+") as file:
+                file.write(f"jobid: {jobid}\n")
+                file.write(f"seff output: {str(result.stdout)}\n")
+                file.write(f"Parsed data: {str(ret)}\n")
 
         return ret
 
