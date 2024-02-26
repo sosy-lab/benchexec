@@ -38,7 +38,6 @@ def get_system_info():
 
 
 def execute_benchmark(benchmark, output_handler):
-
     if benchmark.config.use_hyperthreading:
         sys.exit(
             "SLURM can only work properly without hyperthreading enabled, by passing the --no-hyperthreading option. See README.md for details."
@@ -376,8 +375,9 @@ def run_slurm(benchmark, args, log_file):
         with open(log_file, "w+") as file:
             with open(tmp_log, "r") as log_source:
                 content = log_source.read()
-                file.write(f"{' '.join(map(util.escape_string_shell, args))}\n")
+                file.write(f"{' '.join(map(util.escape_string_shell, args))}")
                 if benchmark.config.debug:
+                    file.write("\n")
                     file.write(f"jobid: {jobid}\n")
                     file.write(
                         f"srun output (retcode: {str(returncode)}), truncated: {str(first_lines)}\n"
@@ -386,7 +386,7 @@ def run_slurm(benchmark, args, log_file):
                     file.write(f"Parsed data: {str(ret)}\n")
                     file.write("\n")
                 else:
-                    file.write("\n" * 5)
+                    file.write("\n\n\n" + "-" * 80 + "\n\n\n")
                 file.write(content)
                 if content == "":
                     file.write("Original log file did not contain anything.")
