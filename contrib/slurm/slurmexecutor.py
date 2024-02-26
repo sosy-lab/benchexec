@@ -20,6 +20,7 @@ import time
 
 from benchexec import BenchExecException, tooladapter, util
 from benchexec.util import ProcessExitCode
+from shlex import quote
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
@@ -287,7 +288,7 @@ def run_slurm(benchmark, args, log_file):
             [
                 "bash",
                 "-c",
-                f"{' '.join(args)} && echo 0 > exitcode || echo $? > exitcode",
+                f"{' '.join(map(quote, args))}; echo $? > exitcode",
             ]
         )
 
