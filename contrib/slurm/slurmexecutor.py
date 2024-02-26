@@ -379,7 +379,7 @@ def run_slurm(benchmark, args, log_file):
         with open(log_file, "w+") as file:
             with open(tmp_log, "r") as log_source:
                 content = log_source.read()
-                file.write(" ".join(args))
+                file.write(f"{' '.join(args)}\n")
                 if benchmark.config.debug:
                     file.write(f"jobid: {jobid}\n")
                     file.write(
