@@ -347,7 +347,9 @@ def run_slurm(benchmark, args, log_file):
                 returncode = int(f.read())
                 logging.debug("Exit code in file %s: %d", exitcode_file, returncode)
         else:
-            assert status != "COMPLETED", "Should never happen: exit code not found, but task was reported COMPLETED."
+            assert (
+                status != "COMPLETED"
+            ), "Should never happen: exit code not found, but task was reported COMPLETED."
             logging.debug("Exit code not found in file: %s", exitcode_file)
             returncode = 0
 
