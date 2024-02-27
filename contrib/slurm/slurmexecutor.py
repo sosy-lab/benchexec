@@ -7,7 +7,7 @@
 # SPDX-FileCopyrightText: Budapest University of Technology and Economics <https://www.ftsrg.mit.bme.hu>
 #
 # SPDX-License-Identifier: Apache-2.0
-
+import itertools
 import logging
 import os
 import queue
@@ -38,7 +38,6 @@ def get_system_info():
 
 
 def execute_benchmark(benchmark, output_handler):
-
     if benchmark.config.use_hyperthreading:
         sys.exit(
             "SLURM can only work properly without hyperthreading enabled, by passing the --no-hyperthreading option. See README.md for details."
@@ -164,15 +163,27 @@ class _Worker(threading.Thread):
         logging.debug("Command line of run is %s", args)
 
         try:
-            with open(run.log_file, "w") as f:
-                for _ in range(6):
-                    f.write(os.linesep)
-
-            run_result = run_slurm(
-                self.benchmark,
-                args,
-                run.log_file,
-            )
+            attempts = 0
+            while True:
+                run_result = run_slurm(
+                    self.benchmark,
+                    args,
+                    run.log_file,
+                )
+                if (
+                    "terminationreason" not in run_result
+                    or not run_result["terminationreason"] == "killed"
+                    or (attempts >= self.benchmark.config.retry >= 0)
+                    or STOPPED_BY_INTERRUPT
+                ):
+                    break
+                attempts += 1
+                time.sleep(1)  # as to not overcrowd a failing scheduler
+                logging.debug(
+                    "Retrying after %d attempts, limit: %d",
+                    attempts,
+                    self.benchmark.config.retry,
+                )
 
         except KeyboardInterrupt:
             # If the run was interrupted, we ignore the result and cleanup.
@@ -196,6 +207,28 @@ class _Worker(threading.Thread):
 jobid_pattern = re.compile(r"job (\d*) queued")
 
 
+def wait_for(func, timeout_sec=None, poll_interval_sec=1):
+    """
+    Waits until the func() returns non-None
+    :param func: function to call until a value is returned
+    :param timeout_sec: How much time to give up after
+    :param poll_interval_sec: How frequently to check the result
+    """
+    start_time = time.monotonic()
+
+    while True:
+        ret = func()
+        if ret is not None:
+            return ret
+
+        if timeout_sec is not None and time.monotonic() - start_time > timeout_sec:
+            raise BenchExecException(
+                "Timeout exceeded for waiting for job to realize it has finished. Scheduler may be failing."
+            )
+
+        time.sleep(poll_interval_sec)
+
+
 def run_slurm(benchmark, args, log_file):
     timelimit = benchmark.rlimits.cputime
     cpus = benchmark.rlimits.cpu_cores
@@ -205,8 +238,6 @@ def run_slurm(benchmark, args, log_file):
     srun_timelimit_m = int((timelimit % 3600) / 60)
     srun_timelimit_s = int(timelimit % 60)
     srun_timelimit = f"{srun_timelimit_h}:{srun_timelimit_m}:{srun_timelimit_s}"
-
-    mem_per_cpu = int(memory / cpus / 1000000)
 
     if not benchmark.config.scratchdir:
         sys.exit("No scratchdir present. Please specify using --scratchdir <path>.")
@@ -219,20 +250,22 @@ def run_slurm(benchmark, args, log_file):
         )
 
     with tempfile.TemporaryDirectory(dir=benchmark.config.scratchdir) as tempdir:
+        tmp_log = os.path.join(tempdir, "log")
 
         os.makedirs(os.path.join(tempdir, "upper"))
         os.makedirs(os.path.join(tempdir, "work"))
 
+        exitcode_file = f"{tempdir}/upper/exitcode"
+
         srun_command = [
             "srun",
+            "--quit-on-interrupt",
             "-t",
             str(srun_timelimit),
             "-c",
             str(cpus),
-            "-o",
-            str(log_file),
-            "--mem-per-cpu",
-            str(mem_per_cpu),
+            "--mem",
+            str(int(memory / 1000000)) + "M",
             "--threads-per-core=1",  # --use_hyperthreading=False is always given here
             "--ntasks=1",
         ]
@@ -251,57 +284,105 @@ def run_slurm(benchmark, args, log_file):
                     benchmark.config.singularity,
                 ]
             )
-        srun_command.extend(args)
+        srun_command.extend(
+            [
+                "sh",
+                "-c",
+                f"{' '.join(map(util.escape_string_shell, args))}; echo $? > exitcode",
+            ]
+        )
 
         logging.debug(
             "Command to run: %s", " ".join(map(util.escape_string_shell, srun_command))
         )
-        srun_result = subprocess.run(
-            srun_command,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-        )
-        logging.debug(
-            "srun: returncode: %d, output: %s",
-            srun_result.returncode,
-            srun_result.stdout,
-        )
-        jobid_match = jobid_pattern.search(str(srun_result.stdout))
-        if jobid_match:
-            jobid = int(jobid_match.group(1))
-        else:
-            logging.debug("Jobid not found in stderr, aborting")
-            stop()
-            return -1
+        jobid = None
+        while jobid is None:
+            with open(tmp_log, "w") as tmp_log_f:
+                subprocess.run(
+                    srun_command,
+                    stdout=tmp_log_f,
+                    stderr=subprocess.STDOUT,
+                )
+
+            # we try to read back the log, in the first two lines there should be the jobid
+            with open(tmp_log, "r") as tmp_log_f:
+                for line in itertools.islice(tmp_log_f, 2):
+                    jobid_match = jobid_pattern.search(line)
+                    if jobid_match:
+                        jobid = int(jobid_match.group(1))
+                        break
 
         seff_command = ["seff", str(jobid)]
         logging.debug(
             "Command to run: %s", " ".join(map(util.escape_string_shell, seff_command))
         )
-        result = subprocess.run(
-            seff_command,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
+
+        def get_checked_seff_result():
+            seff_result = subprocess.run(
+                seff_command,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+            )
+            if "exit code" in str(seff_result.stdout):
+                return seff_result
+            else:
+                return None
+
+        # sometimes `seff` needs a few extra seconds to realize the task has ended
+        result = wait_for(get_checked_seff_result, 30, 2)
+
+        slurm_status, exit_code, cpu_time, wall_time, memory_usage = parse_seff(
+            str(result.stdout)
         )
 
-    # Runexec would populate the first 6 lines with metadata
-    with open(log_file, "r+") as file:
-        content = file.read()
-        file.seek(0, 0)
-        empty_lines = "\n" * 6
-        file.write(empty_lines + content)
+        if os.path.exists(exitcode_file):
+            with open(exitcode_file, "r") as f:
+                returncode = int(f.read())
+                logging.debug("Exit code in file %s: %d", exitcode_file, returncode)
+        else:
+            assert (
+                slurm_status != "COMPLETED"
+            ), "Should never happen: exit code not found, but task was reported COMPLETED."
+            logging.debug("Exit code not found in file: %s", exitcode_file)
+            returncode = 0
 
-    exit_code, cpu_time, wall_time, memory_usage = parse_seff(str(result.stdout))
+        ret = {
+            "walltime": wall_time,
+            "cputime": cpu_time,
+            "memory": memory_usage,
+            "exitcode": ProcessExitCode.create(value=returncode),
+        }
 
-    return {
-        "walltime": wall_time,
-        "cputime": cpu_time,
-        "memory": memory_usage,
-        "exitcode": ProcessExitCode.create(value=exit_code),
-    }
+        if slurm_status != "COMPLETED":
+            ret["terminationreason"] = {
+                "OUT_OF_MEMORY": "memory",
+                "OUT_OF_ME+": "memory",
+                "TIMEOUT": "cputime",
+                "ERROR": "failed",
+                "FAILED": "killed",
+                "CANCELLED": "killed",
+            }.get(slurm_status, slurm_status)
+
+        # Runexec would populate the first 6 lines with metadata
+        with open(log_file, "w+") as file:
+            with open(tmp_log, "r") as log_source:
+                content = log_source.read()
+                file.write(f"{' '.join(map(util.escape_string_shell, args))}")
+                file.write("\n\n\n" + "-" * 80 + "\n\n\n")
+                file.write(content)
+                if content == "":
+                    file.write("Original log file did not contain anything.")
+
+        if benchmark.config.debug:
+            with open(log_file + ".debug_info", "w+") as file:
+                file.write(f"jobid: {jobid}\n")
+                file.write(f"seff output: {str(result.stdout)}\n")
+                file.write(f"Parsed data: {str(ret)}\n")
+
+        return ret
 
 
-exit_code_pattern = re.compile(r"exit code (\d+)")
+exit_code_pattern = re.compile(r"State: ([A-Z-_]*) \(exit code (\d+)\)")
 cpu_time_pattern = re.compile(r"CPU Utilized: (\d+):(\d+):(\d+)")
 wall_time_pattern = re.compile(r"Job Wall-clock time: (\d+):(\d+):(\d+)")
 memory_pattern = re.compile(r"Memory Utilized: (\d+\.\d+) MB")
@@ -313,10 +394,12 @@ def parse_seff(result):
     cpu_time_match = cpu_time_pattern.search(result)
     wall_time_match = wall_time_pattern.search(result)
     memory_match = memory_pattern.search(result)
+    exit_code = None
     if exit_code_match:
-        exit_code = int(exit_code_match.group(1))
+        slurm_status = str(exit_code_match.group(1))
+        exit_code = int(exit_code_match.group(2))
     else:
-        raise Exception(f"Exit code not matched in output: {result}")
+        slurm_status = "ERROR"
     cpu_time = None
     if cpu_time_match:
         hours, minutes, seconds = map(int, cpu_time_match.groups())
@@ -331,4 +414,4 @@ def parse_seff(result):
         f"Exit code: {exit_code}, memory usage: {memory_usage}, walltime: {wall_time}, cpu time: {cpu_time}"
     )
 
-    return exit_code, cpu_time, wall_time, memory_usage
+    return slurm_status, exit_code, cpu_time, wall_time, memory_usage
