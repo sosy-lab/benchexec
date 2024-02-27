@@ -54,10 +54,17 @@ BenchExec always uses the SI standard units:
 
 - **option**: A command-line argument for a tool.
 
+- **property (file)**: A file that tells BenchExec which task
+  defined by a task definition it should select for execution,
+  and also whether it should apply use-case-specific features
+  such as computing a score.
+  The tool info can also decide to give the property file to the tool
+  in order to tell the tool what it should do with the input files.
+
 - **result file**: A file written by a tool during a run.
 
 - **run**: A single execution of a tool.
-  It consists of the full command-line arguments (including input file)
+  It consists of the full command-line arguments (including input file(s))
   and the resource limits,
   and produces a result including measured values for the resource consumption.
 
@@ -65,8 +72,15 @@ BenchExec always uses the SI standard units:
   which consists of the options for a tool configuration
   and will be combined with a task to define a run.
 
-- **task**: A combination of an input file and an expected result
+- **task**: A combination of a set of input files, a property file, and an expected verdict
   that defines a problem for a tool to solve.
+  A task corresponds to exactly one row in the result tables.
+  Depending on what the tool supports, the set of input files can be empty.
+  Properties and expected verdicts are optional.
+
+- **task definition**: A file in [this format](https://gitlab.com/sosy-lab/benchmarking/task-definition-format)
+  that describes a set of tasks
+  (all of which have the same input files, but potentially different properties).
 
 - **tool**: A program that should be benchmarked with BenchExec.
 
