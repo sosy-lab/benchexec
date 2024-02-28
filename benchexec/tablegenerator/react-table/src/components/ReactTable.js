@@ -626,10 +626,7 @@ const Table = (props) => {
   function getNewFilteredColumnValues() {
     const newFilteredColumnValues = {};
     for (const filter of props.filters) {
-      const { value, values, id } = filter;
-      if (id === "id") {
-        setDisableTaskText(!isNil(values));
-      }
+      const { value, id } = filter;
       const { tool: runset, column } = decodeFilter(id);
       const currentRunsetFilters = newFilteredColumnValues[runset] || {};
 
@@ -653,6 +650,12 @@ const Table = (props) => {
 
   // get selected status and category values
   useEffect(() => {
+    for (const filter of props.filters) {
+      const { values, id } = filter;
+      if (id === "id") {
+        setDisableTaskText(!isNil(values));
+      }
+    }
     let newFilteredColumnValues = getNewFilteredColumnValues();
     if (!deepEqual(newFilteredColumnValues, filteredColumnValues)) {
       setFilteredColumnValues(newFilteredColumnValues);
