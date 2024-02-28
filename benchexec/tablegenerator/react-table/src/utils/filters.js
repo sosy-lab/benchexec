@@ -234,7 +234,11 @@ const applyMatcher = (matcher) => (data) => {
     const { value: idValue, values: idValues } = matcher.id;
     if (idValue) {
       diffd = diffd.filter(({ id }) =>
-        id.some((idName) => idName === idValue || idName.includes(idValue)),
+        id.some(
+          (idName) =>
+            idName === idValue ||
+            idName.toLowerCase().includes(idValue.toLowerCase()),
+        ),
       );
     } else {
       diffd = diffd.filter(({ id }) =>
