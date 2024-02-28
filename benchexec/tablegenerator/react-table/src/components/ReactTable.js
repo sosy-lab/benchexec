@@ -100,7 +100,9 @@ const createRelevantFilterLabel = ({
 
 const Table = (props) => {
   const [isFixed, setIsFixed] = useState(true);
-  const [filteredColumnValues, setFilteredColumnValues] = useState({});
+  const [filteredColumnValues, setFilteredColumnValues] = useState(
+    getNewFilteredColumnValues(),
+  );
   const [columnsResizeValues, setColumnsResizeValues] = useState({});
   const [disableTaskText, setDisableTaskText] = useState(false);
   const history = useHistory();
@@ -619,8 +621,8 @@ const Table = (props) => {
     }
   }, [columnResizing, columnsResizeValues]);
 
-  // get selected status and category values
-  useEffect(() => {
+  // Convert the props.filters array into Filtered Column Values object
+  function getNewFilteredColumnValues() {
     const newFilteredColumnValues = {};
     for (const filter of props.filters) {
       const { value, values, id } = filter;
@@ -645,6 +647,12 @@ const Table = (props) => {
 
       newFilteredColumnValues[runset] = currentRunsetFilters;
     }
+    return newFilteredColumnValues;
+  }
+
+  // get selected status and category values
+  useEffect(() => {
+    let newFilteredColumnValues = getNewFilteredColumnValues();
     if (!deepEqual(newFilteredColumnValues, filteredColumnValues)) {
       setFilteredColumnValues(newFilteredColumnValues);
     }
@@ -652,6 +660,12 @@ const Table = (props) => {
     if (pageIndex >= pageCount) {
       gotoPage(pageCount - 1);
     }
+
+    // react-hooks/exhaustive-deps shows that getNewFilteredColumnValues to be included in the dependency array.
+    // But useEffect functionality is not dependent on getNewFilteredColumnValues as it never changes.
+    // So react-hooks/exhaustive-deps can be ignored here.
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.filters, filteredColumnValues, gotoPage, pageIndex, pageCount]);
 
   // Update table relevant parameters after URL change
