@@ -16,6 +16,7 @@ import {
   makeFilterSerializer,
   makeFilterDeserializer,
   splitUrlPathForMatchingPrefix,
+  decodeFilter
 } from "../utils/utils";
 
 describe("isStatusOk", () => {
@@ -118,6 +119,26 @@ describe("hashRouting helpers", () => {
     });
   });
 });
+
+describe("decodeFilter", () => {
+  test("should decode filter correctly", () => {
+    const filter = "0_cputime_1";
+    const expected = { tool: 0, name: "cputime", column: 1 };
+    expect(decodeFilter(filter)).toEqual(expected);
+  });
+
+  test("should handle empty filters", () => {
+    const filter = "__";
+    const expected = { tool: "", name: "", column: "" };
+    expect(decodeFilter(filter)).toEqual(expected);
+  });
+
+  test("should throw errors if there are not exactly two '_' in the filter id", () => {
+    expect(() => decodeFilter("0_cputime")).toThrow();
+    expect(() => decodeFilter("0_cputime_1_2")).toThrow();
+  });
+})
+
 describe("serialization", () => {
   let serializer;
   const statusValues = [
