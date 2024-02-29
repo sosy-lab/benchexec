@@ -34,6 +34,7 @@ import {
   setHashSearch,
   getHashSearch,
   getHiddenColIds,
+  decodeFilter,
 } from "../utils/utils";
 import deepEqual from "deep-equal";
 import { statusForEmptyRows } from "../utils/filters";
@@ -168,7 +169,7 @@ const Table = (props) => {
     let additionalFilters = [];
 
     if (newFilter.type === "status") {
-      const [tool, name, column] = newFilter.id.split("_");
+      const { tool, name, column } = decodeFilter(newFilter.id);
       const value = newFilter.value;
 
       if (value.trim() === "all") {
@@ -629,7 +630,7 @@ const Table = (props) => {
       if (id === "id") {
         setDisableTaskText(!isNil(values));
       }
-      const [runset, , column] = id.split("_");
+      const {tool: runset, column} = decodeFilter(id);
       const currentRunsetFilters = newFilteredColumnValues[runset] || {};
 
       const isCategory =
