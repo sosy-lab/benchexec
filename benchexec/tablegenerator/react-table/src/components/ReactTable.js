@@ -630,7 +630,7 @@ const Table = (props) => {
       if (id === "id") {
         setDisableTaskText(!isNil(values));
       }
-      const {tool: runset, column} = decodeFilter(id);
+      const { tool: runset, column } = decodeFilter(id);
       const currentRunsetFilters = newFilteredColumnValues[runset] || {};
 
       const isCategory =

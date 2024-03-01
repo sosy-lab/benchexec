@@ -70,7 +70,7 @@ export default class FilterBox extends React.PureComponent {
       if (id === "id") {
         continue;
       }
-      const {tool, name: title, column } = decodeFilter(id);
+      const { tool, name: title, column } = decodeFilter(id);
       const toolArr = out[tool] || [];
       if (!toolArr[column]) {
         toolArr[column] = { title, values: [value] };

@@ -16,7 +16,7 @@ import {
   makeFilterSerializer,
   makeFilterDeserializer,
   splitUrlPathForMatchingPrefix,
-  decodeFilter
+  decodeFilter,
 } from "../utils/utils";
 
 describe("isStatusOk", () => {
@@ -137,7 +137,7 @@ describe("decodeFilter", () => {
     expect(() => decodeFilter("0_cputime")).toThrow();
     expect(() => decodeFilter("0_cputime_1_2")).toThrow();
   });
-})
+});
 
 describe("serialization", () => {
   let serializer;
