@@ -180,7 +180,7 @@ describe("hashRouting helpers", () => {
 describe("decodeFilter", () => {
   test("should decode filter correctly", () => {
     const filter = "0_cputime_1";
-    const expected = { tool: 0, name: "cputime", column: 1 };
+    const expected = { tool: "0", name: "cputime", column: "1" };
     expect(decodeFilter(filter)).toEqual(expected);
   });
 
