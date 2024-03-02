@@ -359,8 +359,14 @@ function makeStatusColumnFilter(
  * @throws {Error} If the filter ID is invalid
  */
 export const decodeFilter = (filterID) => {
+  if (typeof filterID !== "string") {
+    throw new Error("Invalid filter ID");
+  }
   const splitedArray = filterID.split("_");
-  if (splitedArray.length !== 3) throw new Error("Invalid filter ID");
+
+  if (splitedArray.length > 3) {
+    throw new Error("Invalid filter ID");
+  }
   return {
     tool: splitedArray[0],
     name: splitedArray[1],

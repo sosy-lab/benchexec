@@ -133,8 +133,14 @@ describe("decodeFilter", () => {
     expect(decodeFilter(filter)).toEqual(expected);
   });
 
-  test("should throw errors if there are not exactly two '_' in the filter id", () => {
-    expect(() => decodeFilter("0_cputime")).toThrow();
+  test("should handle empty filters", () => {
+    const filter = "id";
+    const expected = { tool: "id", name: undefined, column: undefined };
+    expect(decodeFilter(filter)).toEqual(expected);
+  });
+
+  test("should throw errors if there are more than two '_' in the filter id", () => {
+    expect(() => decodeFilter("0__cputime_")).toThrow();
     expect(() => decodeFilter("0_cputime_1_2")).toThrow();
   });
 });
