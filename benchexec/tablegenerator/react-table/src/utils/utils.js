@@ -203,68 +203,76 @@ const EXTENDED_DISCRETE_COLOR_RANGE = [
 ];
 
 /**
+ * Parses the search parameters from the URL hash or a provided string.
  *
- * @param {String} [str]
+ * @param {string} [str] - Optional string to parse. If not provided, parses the URL hash of the current document.
+ * @returns {Object} - An object containing the parsed search parameters.
  */
 const getHashSearch = (str) => {
+  // Split the URL string into parts using "?" as a delimiter
   const urlParts = (str || decodeURI(document.location.href)).split("?");
-  const search = urlParts.length > 1 ? urlParts.slice(1).join("?") : undefined;
-  if (search === undefined || search.length === 0) {
-    return {};
-  }
-  const keyValuePairs = search.split("&").map((i) => i.split("="));
 
+  // Extract the search part of the URL
+  const search = urlParts.length > 1 ? urlParts.slice(1).join("?") : undefined;
+
+  // If there are no search parameters, return an empty object
+  if (search === undefined || search.length === 0) return {};
+
+  // Split the search string into key-value pairs and generate an object from them
+  const keyValuePairs = search.split("&").map((pair) => pair.split("="));
   const out = {};
   for (const [key, ...value] of keyValuePairs) {
     out[key] = value.join("=");
   }
+
   return out;
 };
 
 /**
+ * Constructs a query string from the provided parameters
  *
- * @param {Object} params Object containing the params to be encoded as query params
- * @param {Boolean} [returnString] if true, only returns the url without setting it
+ * @param {Object} params - The parameters to be included in the query string. Any undefined or null values will be omitted.
+ * @returns {string} - The constructed query string.
  */
-const setHashSearch = (
-  params = {},
-  options = {
-    returnString: false,
-    baseUrl: null,
-    keepOthers: false,
-    paramName: null,
-    history: null,
-  },
-) => {
-  let additionalParams = {};
-  let transformedParams = params;
-  if (options.keepOthers) {
-    additionalParams = getHashSearch();
-    const removedItems = Object.entries(params).filter(
-      ([_, value]) => value === undefined || value === null,
-    );
-    removedItems.forEach(([key]) => {
-      delete additionalParams[key];
-      delete transformedParams[key];
-    });
-  }
-  const mergedParams = { ...additionalParams, ...params };
-  const optionTemplate = { returnString: false, baseUrl: null };
-  const { returnString, baseUrl, history } = { ...optionTemplate, ...options };
+export const constructQueryString = (params) => {
+  return Object.keys(params)
+    .filter((key) => params[key] !== undefined && params[key] !== null)
+    .map((key) => `${key}=${params[key]}`)
+    .join("&");
+};
+
+/**
+ * Sets or updates the search parameters in the URL hash of the current page.
+ *
+ * @param {Object} params - The parameters to be set or updated in the URL hash.
+ * @param {Object} options - Additional settings for the operation.
+ * @param {boolean} [options.returnString=false] - Whether to return the modified URL string or not
+ * @param {string} [options.baseUrl=null] - The base URL to be used instead of the current page's URL
+ * @param {boolean} [options.keepOthers=false] - Whether to keep existing parameters in the URL hash or not
+ * @param {Object} [options.history=null] - The history object to push the new URL state into
+ * @returns {string|void} - The modified URL string if options.returnString is true, otherwise void.
+ */
+const setHashSearch = (params = {}, options = {}) => {
+  const {
+    returnString = false,
+    baseUrl = null,
+    keepOthers = false,
+    history = null,
+  } = options;
+
+  const additionalParams = keepOthers ? getHashSearch() : {}; // Retrieve existing parameters if keepOthers is true
+  const mergedParams = { ...additionalParams, ...params }; // Merge existing and new parameters
+  const queryString = constructQueryString(mergedParams); // Construct the query string
+
+  // Construct the final URL
   const url = (baseUrl || document.location.href).split("?")[0];
-  const pairs = Object.keys(mergedParams).map(
-    (key) => `${key}=${mergedParams[key]}`,
-  );
-  const searchString = `?${pairs.join("&")}`;
-  const hrefString = encodeURI(`${url}${searchString}`);
-  if (returnString) {
-    return hrefString;
-  }
-  if (history) {
-    history.push(searchString);
-    return;
-  }
+  const hrefString = encodeURI(`${url}?${queryString}`);
+
+  if (history) history.push(hrefString);
   document.location.href = hrefString;
+
+  // Perform side effects based on options
+  if (returnString) return hrefString;
 };
 
 const makeUrlFilterDeserializer = (statusValues, categoryValues) => {
