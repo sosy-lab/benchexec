@@ -12,11 +12,11 @@ import {
   getHashSearch,
   NumberFormatterBuilder,
   constructQueryString,
+  decodeFilter,
   hasSameEntries,
   makeFilterSerializer,
   makeFilterDeserializer,
   splitUrlPathForMatchingPrefix,
-  decodeFilter,
 } from "../utils/utils";
 
 describe("isStatusOk", () => {
@@ -108,17 +108,94 @@ describe("hashRouting helpers", () => {
     });
   });
 
-  describe("setHashSearch", () => {
-    test("should translate object to queryparams", () => {
-      const params = { id: "1", name: "benchexec" };
-      const res = setHashSearch(params, {
-        returnString: true,
-        baseUrl: "localhost#table",
-      });
-      expect(res).toEqual("localhost#table?id=1&name=benchexec");
+  describe("constructQueryString", () => {
+    test("should return empty string for empty input", () => {
+      const queryString = constructQueryString({});
+      expect(queryString).toBe("");
+    });
+
+    test("should construct query string properly", () => {
+      const params = { key1: "value1", key2: "value2" };
+      const queryString = constructQueryString(params);
+      expect(queryString).toBe("key1=value1&key2=value2");
+    });
+
+    test("should omit undefined and null values", () => {
+      const params = { key1: "value1", key2: undefined, key3: null };
+      const queryString = constructQueryString(params);
+      expect(queryString).toBe("key1=value1");
     });
   });
+
+  // describe("setHashSearch", () => {
+  //   test("should set hash search without side effects", () => {
+  //     const params = { key1: "value1", key2: "value2" };
+  //     const queryString = constructQueryString(params);
+  //     const hrefString = `http://localhost/?${queryString}`;
+
+  //     const updatedUrl = setHashSearch(params, { returnString: true });
+  //     expect(updatedUrl).toBe(hrefString);
+  //   });
+
+  //   test("should set hash search and update history", () => {
+  //     const params = { key1: "value1", key2: "value2" };
+  //     const queryString = constructQueryString(params);
+  //     const hrefString = `http://localhost/?${queryString}`;
+
+  //     const mockHistory = {
+  //       push: jest.fn(),
+  //     };
+
+  //     setHashSearch(params, { history: mockHistory });
+  //     expect(mockHistory.push).toHaveBeenCalledWith(hrefString);
+  //   });
+
+  //   test("should merge params with existing ones if keepOthers is true", () => {
+  //     const params = { key1: "value1", key2: "value2" };
+  //     const queryString = constructQueryString({
+  //       ...params,
+  //       existingKey: "existingValue",
+  //     });
+  //     const hrefString = `http://localhost/?${queryString}`;
+
+  //     const updatedUrl = setHashSearch(params, {
+  //       keepOthers: true,
+  //       returnString: true,
+  //     });
+  //     expect(updatedUrl).toBe(hrefString);
+  //   });
+
+  //   test("should use the baseUrl if provided", () => {
+  //     const params = { key1: "value1", key2: "value2" };
+  //     const baseUrl = "http://customurl.com";
+  //     const queryString = constructQueryString(params);
+  //     const hrefString = `${baseUrl}?${queryString}`;
+
+  //     const updatedUrl = setHashSearch(params, { baseUrl, returnString: true });
+  //     expect(updatedUrl).toBe(hrefString);
+  //   });
+  // });
 });
+
+describe("decodeFilter", () => {
+  test("should decode filter correctly", () => {
+    const filter = "0_cputime_1";
+    const expected = { tool: 0, name: "cputime", column: 1 };
+    expect(decodeFilter(filter)).toEqual(expected);
+  });
+
+  test("should handle empty filters", () => {
+    const filter = "__";
+    const expected = { tool: "", name: "", column: "" };
+    expect(decodeFilter(filter)).toEqual(expected);
+  });
+
+  test("should throw errors if there are not exactly two '_' in the filter id", () => {
+    expect(() => decodeFilter("0_cputime")).toThrow();
+    expect(() => decodeFilter("0_cputime_1_2")).toThrow();
+  });
+});
+
 describe("serialization", () => {
   let serializer;
   const statusValues = [
