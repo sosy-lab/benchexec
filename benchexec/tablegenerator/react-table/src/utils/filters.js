@@ -5,7 +5,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { isNil, getRawOrDefault, omit, isNumericColumn } from "./utils";
+import {
+  isNil,
+  getRawOrDefault,
+  omit,
+  isNumericColumn,
+  decodeFilter,
+} from "./utils";
 /* Status that will be used to identify whether empty rows should be shown. Currently,
    filtering for either categories or statuses creates filters for the other one as well.
    Since empty rows don't have a status, they will be filtered out all the time.
@@ -158,7 +164,7 @@ const buildMatcher = (filters) => {
       acc.id = { value, values };
       return acc;
     }
-    const [tool, , columnIdx] = id.split("_");
+    const { tool, column: columnIdx } = decodeFilter(id);
     if (value === "diff") {
       // this branch is noop as of now
       if (!acc.diff) {

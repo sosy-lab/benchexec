@@ -11,7 +11,7 @@ import TaskFilterCard from "./TaskFilterCard";
 import { faClose, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import equals from "deep-equal";
-import { isNil } from "../../utils/utils";
+import { decodeFilter, isNil } from "../../utils/utils";
 const classNames = require("classnames");
 
 export default class FilterBox extends React.PureComponent {
@@ -70,12 +70,12 @@ export default class FilterBox extends React.PureComponent {
       if (id === "id") {
         continue;
       }
-      const [tool, title, col] = id.split("_");
+      const { tool, name: title, column } = decodeFilter(id);
       const toolArr = out[tool] || [];
-      if (!toolArr[col]) {
-        toolArr[col] = { title, values: [value] };
+      if (!toolArr[column]) {
+        toolArr[column] = { title, values: [value] };
       } else {
-        toolArr[col].values.push(value);
+        toolArr[column].values.push(value);
       }
       out[tool] = toolArr;
     }

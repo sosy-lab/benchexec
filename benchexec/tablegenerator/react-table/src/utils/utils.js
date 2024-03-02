@@ -360,6 +360,22 @@ function makeStatusColumnFilter(
   return statusColumnFilter.join(",");
 }
 
+/**
+ * Function to decode a filter ID string from the URL into its parts
+ * @param {String} filterID - The filter ID to be decoded
+ * @returns {Object} The decoded filter ID
+ * @throws {Error} If the filter ID is invalid
+ */
+export const decodeFilter = (filterID) => {
+  const splitedArray = filterID.split("_");
+  if (splitedArray.length !== 3) throw new Error("Invalid filter ID");
+  return {
+    tool: splitedArray[0],
+    name: splitedArray[1],
+    column: splitedArray[2],
+  };
+};
+
 const makeFilterSerializer =
   ({ statusValues: allStatusValues, categoryValues: allCategoryValues }) =>
   (filter) => {
@@ -376,7 +392,7 @@ const makeFilterSerializer =
         }
         continue;
       }
-      const [tool, name, column] = id.split("_");
+      const { tool, name, column } = decodeFilter(id);
       const toolBucket = groupedFilters[tool] || {};
       const columnBucket = toolBucket[column] || { name: escape(name) };
 
