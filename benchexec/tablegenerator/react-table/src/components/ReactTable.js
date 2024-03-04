@@ -591,7 +591,7 @@ const Table = (props) => {
     const value = sort.length ? sort : undefined;
     const prevParams = getHashSearch();
     if (prevParams["sort"] !== value) {
-      setHashSearch({ sort: value }, { keepOthers: true });
+      setHashSearch({ sort: value }, true);
     }
   }, [sortBy]);
 
@@ -600,7 +600,7 @@ const Table = (props) => {
     const value = pageSize !== initialPageSize ? pageSize : undefined;
     const prevParams = getHashSearch();
     if (prevParams["pageSize"] !== value) {
-      setHashSearch({ pageSize: value }, { keepOthers: true });
+      setHashSearch({ pageSize: value }, true);
     }
   }, [pageSize]);
 
@@ -610,7 +610,7 @@ const Table = (props) => {
       pageIndex && pageIndex !== 0 ? Number(pageIndex) + 1 : undefined;
     const prevParams = getHashSearch();
     if (prevParams["page"] !== value) {
-      setHashSearch({ page: value }, { keepOthers: true });
+      setHashSearch({ page: value }, true);
     }
   }, [pageIndex]);
 

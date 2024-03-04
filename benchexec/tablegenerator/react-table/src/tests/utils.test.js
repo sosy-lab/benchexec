@@ -14,6 +14,7 @@ import {
   constructQueryString,
   decodeFilter,
   hasSameEntries,
+  getHashURL,
   makeFilterSerializer,
   makeFilterDeserializer,
   splitUrlPathForMatchingPrefix,
@@ -127,54 +128,47 @@ describe("hashRouting helpers", () => {
     });
   });
 
-  // describe("setHashSearch", () => {
-  //   test("should set hash search without side effects", () => {
-  //     const params = { key1: "value1", key2: "value2" };
-  //     const queryString = constructQueryString(params);
-  //     const hrefString = `http://localhost/?${queryString}`;
+  describe("getHashURL", () => {
+    test("should construct URL hash with provided parameters", () => {
+      const baseUrl = "http://example.com";
+      const params = { key1: "value1", key2: "value2" };
+      const keepOthers = false;
 
-  //     const updatedUrl = setHashSearch(params, { returnString: true });
-  //     expect(updatedUrl).toBe(hrefString);
-  //   });
+      expect(getHashURL(baseUrl, params, keepOthers)).toEqual(
+        "http://example.com?key1=value1&key2=value2",
+      );
+    });
 
-  //   test("should set hash search and update history", () => {
-  //     const params = { key1: "value1", key2: "value2" };
-  //     const queryString = constructQueryString(params);
-  //     const hrefString = `http://localhost/?${queryString}`;
+    test("should construct URL hash with provided parameters and keep others", () => {
+      const baseUrl = "http://example.com?existingKey=existingValue";
+      const params = { key1: "value1", key2: "value2" };
+      const keepOthers = true;
 
-  //     const mockHistory = {
-  //       push: jest.fn(),
-  //     };
+      expect(getHashURL(baseUrl, params, keepOthers)).toEqual(
+        "http://example.com?existingKey=existingValue&key1=value1&key2=value2",
+      );
+    });
 
-  //     setHashSearch(params, { history: mockHistory });
-  //     expect(mockHistory.push).toHaveBeenCalledWith(hrefString);
-  //   });
+    test("should return the same URL with exisiting params if no parameters are provided and keepOthers is true", () => {
+      const baseUrl = "http://example.com?exisitingKey=existingValue";
+      const params = {};
+      const keepOthers = true;
 
-  //   test("should merge params with existing ones if keepOthers is true", () => {
-  //     const params = { key1: "value1", key2: "value2" };
-  //     const queryString = constructQueryString({
-  //       ...params,
-  //       existingKey: "existingValue",
-  //     });
-  //     const hrefString = `http://localhost/?${queryString}`;
+      expect(getHashURL(baseUrl, params, keepOthers)).toEqual(
+        "http://example.com?exisitingKey=existingValue",
+      );
+    });
 
-  //     const updatedUrl = setHashSearch(params, {
-  //       keepOthers: true,
-  //       returnString: true,
-  //     });
-  //     expect(updatedUrl).toBe(hrefString);
-  //   });
+    test("should return the same URL with no params if no parameters are provided and keepOthers is false", () => {
+      const baseUrl = "http://example.com?exisitingKey=existingValue";
+      const params = {};
+      const keepOthers = false;
 
-  //   test("should use the baseUrl if provided", () => {
-  //     const params = { key1: "value1", key2: "value2" };
-  //     const baseUrl = "http://customurl.com";
-  //     const queryString = constructQueryString(params);
-  //     const hrefString = `${baseUrl}?${queryString}`;
-
-  //     const updatedUrl = setHashSearch(params, { baseUrl, returnString: true });
-  //     expect(updatedUrl).toBe(hrefString);
-  //   });
-  // });
+      expect(getHashURL(baseUrl, params, keepOthers)).toEqual(
+        "http://example.com",
+      );
+    });
+  });
 });
 
 describe("decodeFilter", () => {

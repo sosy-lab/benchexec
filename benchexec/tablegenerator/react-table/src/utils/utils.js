@@ -205,7 +205,7 @@ const EXTENDED_DISCRETE_COLOR_RANGE = [
 /**
  * Parses the search parameters from the URL hash or a provided string.
  *
- * @param {string} [str] - Optional string to parse. If not provided, parses the URL hash of the current document.
+ * @param {string} - Optional string to parse. If not provided, parses the URL hash of the current document.
  * @returns {Object} - An object containing the parsed search parameters.
  */
 const getHashSearch = (str) => {
@@ -242,37 +242,39 @@ export const constructQueryString = (params) => {
 };
 
 /**
+ * Constructs a URL hash from the provided parameters
+ *
+ * @param {string} url - The URL to be processed
+ * @param {Object} params - The parameters to be included in the hash
+ * @param {boolean} [keepOthers=false] - Whether to keep existing parameters in the URL hash or not
+ * @returns {string} - The constructed URL hash
+ */
+export const getHashURL = (url, params = {}, keepOthers = false) => {
+  const additionalParams = keepOthers ? getHashSearch(url) : {};
+  const mergedParams = { ...additionalParams, ...params };
+
+  const queryString = constructQueryString(mergedParams);
+  const baseURL = url.split("?")[0];
+
+  return queryString.length > 0 ? `${baseURL}?${queryString}` : baseURL;
+};
+
+/**
  * Sets or updates the search parameters in the URL hash of the current page.
  *
- * @param {Object} params - The parameters to be set or updated in the URL hash.
- * @param {Object} options - Additional settings for the operation.
- * @param {boolean} [options.returnString=false] - Whether to return the modified URL string or not
- * @param {string} [options.baseUrl=null] - The base URL to be used instead of the current page's URL
- * @param {boolean} [options.keepOthers=false] - Whether to keep existing parameters in the URL hash or not
- * @param {Object} [options.history=null] - The history object to push the new URL state into
- * @returns {string|void} - The modified URL string if options.returnString is true, otherwise void.
+ * @param {Object} params - The parameters to be set or updated in the URL hash
+ * @param {boolean} [keepOthers=false] - Whether to keep existing parameters in the URL hash or not
+ * @param {Object} [history=undefined] - The history object to be used for navigation
+ * @returns {void}
  */
-const setHashSearch = (params = {}, options = {}) => {
-  const {
-    returnString = false,
-    baseUrl = null,
-    keepOthers = false,
-    history = null,
-  } = options;
-
-  const additionalParams = keepOthers ? getHashSearch() : {}; // Retrieve existing parameters if keepOthers is true
-  const mergedParams = { ...additionalParams, ...params }; // Merge existing and new parameters
-  const queryString = constructQueryString(mergedParams); // Construct the query string
-
-  // Construct the final URL
-  const url = (baseUrl || document.location.href).split("?")[0];
-  const hrefString = encodeURI(`${url}?${queryString}`);
-
-  if (history) history.push(hrefString);
-  document.location.href = hrefString;
-
-  // Perform side effects based on options
-  if (returnString) return hrefString;
+const setHashSearch = (
+  params = {},
+  keepOthers = false,
+  history = undefined,
+) => {
+  const newUrl = getHashURL(document.location.href, params, keepOthers);
+  if (history) history.push(newUrl);
+  document.location.href = newUrl;
 };
 
 const makeUrlFilterDeserializer = (statusValues, categoryValues) => {
@@ -680,7 +682,7 @@ const setConstantHashSearch = (paramString) => {
  * @param {Object} param The Key-Value pair to be added to the current query param list
  */
 const setParam = (param) => {
-  setHashSearch({ ...getHashSearch(), ...param });
+  setHashSearch(param, true);
 };
 
 const stringAsBoolean = (str) => str === "true";
