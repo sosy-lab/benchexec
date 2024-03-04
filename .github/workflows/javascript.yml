@@ -1,3 +1,10 @@
+# This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
+#
+# SPDX-FileCopyrightText: 2023 Dirk Beyer <https://www.sosy-lab.org>
+#
+# SPDX-License-Identifier: Apache-2.0
+
 name: JavaScript Pipeline
 
 on:
@@ -11,7 +18,7 @@ on:
 
 jobs:
   lint:
-    name: Linting JavaScript code
+    name: Perform linting
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -39,7 +46,7 @@ jobs:
         working-directory: benchexec/tablegenerator/react-table
 
   tests:
-    name: Run JavaScript tests
+    name: Running tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -67,7 +74,7 @@ jobs:
         working-directory: benchexec/tablegenerator/react-table
 
   javascript-build:
-    name: Build JavaScript
+    name: Building the application
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
