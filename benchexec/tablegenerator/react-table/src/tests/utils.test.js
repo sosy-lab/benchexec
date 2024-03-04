@@ -17,6 +17,7 @@ import {
   makeFilterDeserializer,
   splitUrlPathForMatchingPrefix,
   decodeFilter,
+  makeRegExp,
 } from "../utils/utils";
 
 describe("isStatusOk", () => {
@@ -120,6 +121,27 @@ describe("hashRouting helpers", () => {
   });
 });
 
+describe("makeRegExp", () => {
+  test("should return RegExp correctly", () => {
+    const value = "example";
+    const expected = /example/iu;
+    expect(makeRegExp(value)).toEqual(expected);
+  });
+
+  test("should handle special RegExp characters", () => {
+    const value = "...";
+    const expected = /\.\.\./iu;
+    expect(makeRegExp(value)).toEqual(expected);
+  });
+
+  test("should throw error if value is not of type string", () => {
+    const value = [];
+    expect(() => {
+      makeRegExp(value);
+    }).toThrow();
+  });
+});
+
 describe("decodeFilter", () => {
   test("should decode filter correctly", () => {
     const filter = "0_cputime_1";
@@ -133,7 +155,7 @@ describe("decodeFilter", () => {
     expect(decodeFilter(filter)).toEqual(expected);
   });
 
-  test("should handle empty filters", () => {
+  test("should handle text id filters", () => {
     const filter = "id";
     const expected = { tool: "id", name: undefined, column: undefined };
     expect(decodeFilter(filter)).toEqual(expected);

@@ -223,6 +223,11 @@ test("applyMatcher for textual id filter with case mapping", () => {
   expect(getFilteredDataWithMatcher(filters).length).toBe(2);
 });
 
+test("applyMatcher for textual id filter with special RegExp character", () => {
+  const filters = [{ id: "id", value: "..." }];
+  expect(getFilteredDataWithMatcher(filters).length).toBe(0);
+});
+
 test("applyMatcher for no results", () => {
   const filters = [{ id: "id", value: "nomatch" }];
   expect(getFilteredDataWithMatcher(filters).length).toBe(0);

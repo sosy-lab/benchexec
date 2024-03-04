@@ -352,6 +352,15 @@ function makeStatusColumnFilter(
   return statusColumnFilter.join(",");
 }
 
+export const makeRegExp = (value) => {
+  if (typeof value !== "string") {
+    throw new Error("Invalid value type for converting to RegExp");
+  }
+  let regexp = new RegExp(value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "ui");
+
+  return regexp;
+};
+
 /**
  * Function to decode a filter ID string from the URL into its parts
  * @param {String} filterID - The filter ID to be decoded
