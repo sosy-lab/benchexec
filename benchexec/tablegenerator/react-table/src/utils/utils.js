@@ -352,6 +352,15 @@ function makeStatusColumnFilter(
   return statusColumnFilter.join(",");
 }
 
+export const makeRegExp = (value) => {
+  if (typeof value !== "string") {
+    throw new Error("Invalid value type for converting to RegExp");
+  }
+  let regexp = new RegExp(value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "ui");
+
+  return regexp;
+};
+
 /**
  * Function to decode a filter ID string from the URL into its parts
  * @param {String} filterID - The filter ID to be decoded
@@ -359,8 +368,14 @@ function makeStatusColumnFilter(
  * @throws {Error} If the filter ID is invalid
  */
 export const decodeFilter = (filterID) => {
+  if (typeof filterID !== "string") {
+    throw new Error("Invalid filter ID");
+  }
   const splitedArray = filterID.split("_");
-  if (splitedArray.length !== 3) throw new Error("Invalid filter ID");
+
+  if (splitedArray.length > 3) {
+    throw new Error("Invalid filter ID");
+  }
   return {
     tool: splitedArray[0],
     name: splitedArray[1],
