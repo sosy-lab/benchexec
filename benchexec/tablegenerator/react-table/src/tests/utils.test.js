@@ -18,7 +18,6 @@ import {
   makeFilterSerializer,
   makeFilterDeserializer,
   splitUrlPathForMatchingPrefix,
-  decodeFilter,
   makeRegExp,
 } from "../utils/utils";
 
