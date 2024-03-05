@@ -11,6 +11,7 @@ import {
   omit,
   isNumericColumn,
   decodeFilter,
+  makeRegExp,
 } from "./utils";
 /* Status that will be used to identify whether empty rows should be shown. Currently,
    filtering for either categories or statuses creates filters for the other one as well.
@@ -233,12 +234,20 @@ const applyMatcher = (matcher) => (data) => {
   if (!isNil(matcher.id)) {
     const { value: idValue, values: idValues } = matcher.id;
     if (idValue) {
+      // pre computing RegExp of idValue after excaping the special characters
+      let regexToCompare = makeRegExp(idValue);
       diffd = diffd.filter(({ id }) =>
-        id.some((idName) => idName === idValue || idName.includes(idValue)),
+        id.some((idName) => idName === idValue || regexToCompare.test(idName)),
       );
     } else {
+      // pre computing RegExp of each element of idValues array after excaping the special characters
+      let idValuesWithRegex = idValues.map((filterValue) => ({
+        filterRegex: makeRegExp(filterValue),
+        filterValue: filterValue,
+      }));
+
       diffd = diffd.filter(({ id }) =>
-        idValues.every((filterValue, idx) => {
+        idValuesWithRegex.every(({ filterRegex, filterValue }, idx) => {
           const idName = id[idx];
           if (isNil(filterValue) || filterValue === "") {
             return true;
@@ -246,7 +255,7 @@ const applyMatcher = (matcher) => (data) => {
           if (isNil(idName) || idName === "") {
             return false;
           }
-          return idName === filterValue || idName.includes(filterValue);
+          return idName === filterValue || filterRegex.test(idName);
         }),
       );
     }
