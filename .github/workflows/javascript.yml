@@ -22,15 +22,11 @@ jobs:
         with:
           node-version: "lts"
 
-      - name: Cache node modules
+      - name: Cache dependencies
         uses: actions/cache@v3
         with:
-          # npm cache files are stored in `~/.npm` on Linux/macOS
           path: ~/.npm
-          key: ${{ runner.os }}-cache-node-modules-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-cache-node-modules-
-            ${{ runner.os }}-
+          key: npm-${{ hashFiles('package-lock.json') }}
 
       - name: Install dependencies
         run: npm ci
@@ -50,13 +46,11 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v2
 
-      - name: Cache node modules
-        uses: actions/cache@v2
+      - name: Cache dependencies
+        uses: actions/cache@v3
         with:
-          path: benchexec/tablegenerator/react-table/node_modules
-          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-modules-
+          path: ~/.npm
+          key: npm-${{ hashFiles('package-lock.json') }}
 
       - name: Install dependencies
         run: npm ci
@@ -76,13 +70,11 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v2
 
-      - name: Cache node modules
-        uses: actions/cache@v2
+      - name: Cache dependencies
+        uses: actions/cache@v3
         with:
-          path: benchexec/tablegenerator/react-table/node_modules
-          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-modules-
+          path: ~/.npm
+          key: npm-${{ hashFiles('package-lock.json') }}
 
       - name: Install dependencies
         run: npm ci
