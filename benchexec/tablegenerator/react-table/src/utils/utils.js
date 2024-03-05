@@ -262,16 +262,32 @@ export const constructHashURL = (url, params = {}, keepOthers = false) => {
 };
 
 /**
- * Sets or updates the search parameters in the URL hash of the current page.
+ * Sets or updates the search parameters in the URL hash of the current page. All the existing search parameters will not be disturbed. Also accepts a history object to update the URL hash without reloading the page.
  *
  * @param {Object} params - The parameters to be set or updated in the URL hash
- * @param {boolean} [options={}] - The options to be used for setting the URL hash
- * @param {Object} [options.history=null] - The history object to be used for updating the URL hash
- * @param {boolean} [options.keepOthers=false] - Whether to keep existing parameters in the URL hash or not
+ * @param {Object} [history=null] - The history object to use for updating the URL hash
  * @returns {void}
  */
-const setHashSearch = (params = {}, options = {}) => {
-  const { history = null, keepOthers = false } = options;
+const setParam = (params = {}, history = null) => {
+  const keepOthers = true;
+  const newUrl = constructHashURL(document.location.href, params, keepOthers);
+
+  if (history && history.push) {
+    history.push(newUrl);
+  }
+  document.location.href = newUrl;
+};
+
+/**
+ * Removes the specified search parameter from the URL hash of the current page. Also accepts a history object to update the URL hash without reloading the page.
+ * @param {string} param - The name of the parameter to be removed
+ * @param {Object} [history=null] - The history object to use for updating the URL hash
+ */
+export const removeParam = (param, history = null) => {
+  const params = getHashSearch();
+  delete params[param];
+
+  const keepOthers = false;
   const newUrl = constructHashURL(document.location.href, params, keepOthers);
 
   if (history && history.push) {
@@ -298,6 +314,7 @@ const makeSerializedFilterValue = (filter) => {
   }
   return parts.join(",");
 };
+
 const createDistinctValueFilters = (selected, nominal, trim = false) => {
   const filter = {};
   // we want to minimize the needed space to encode the filter
@@ -674,35 +691,25 @@ const makeFilterDeserializer =
 
 const makeUrlFilterSerializer = (statusValues, categoryValues) => {
   const serializer = makeFilterSerializer({ statusValues, categoryValues });
-  return (filter, options) => {
-    const previousParams = getHashSearch();
+  return (filter, history) => {
     if (!filter) {
-      return setHashSearch(previousParams, options);
+      return setParam({}, history);
     }
+
     const encoded = serializer(filter);
     if (encoded) {
-      return setHashSearch({ ...previousParams, filter: encoded }, options);
+      return setParam({ filter: encoded }, history);
     }
-    delete previousParams.filter;
-    return setHashSearch({ ...previousParams }, options);
+
+    return removeParam("filter", history);
   };
 };
+
 // Sets the URL parameters to the given string. Assumes that there is currently no hash or URL parameters defined.
 const setConstantHashSearch = (paramString) => {
   document.location.href = encodeURI(
     `${document.location.href}#${paramString}`,
   );
-};
-
-/**
- * Adds or update given key-value pairs to the query params
- *
- * @param {Object} param The Key-Value pair to be added to the current query param list
- */
-const setParam = (param) => {
-  setHashSearch(param, {
-    keepOthers: true,
-  });
 };
 
 const stringAsBoolean = (str) => str === "true";
@@ -1156,7 +1163,6 @@ export {
   isNil,
   EXTENDED_DISCRETE_COLOR_RANGE,
   getHashSearch,
-  setHashSearch,
   setConstantHashSearch,
   setParam,
   createHiddenColsFromURL,
