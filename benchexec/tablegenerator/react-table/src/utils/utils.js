@@ -216,7 +216,9 @@ const getHashSearch = (str) => {
   const search = urlParts.length > 1 ? urlParts.slice(1).join("?") : undefined;
 
   // If there are no search parameters, return an empty object
-  if (search === undefined || search.length === 0) return {};
+  if (search === undefined || search.length === 0) {
+    return {};
+  }
 
   // Split the search string into key-value pairs and generate an object from them
   const keyValuePairs = search.split("&").map((pair) => pair.split("="));
@@ -249,7 +251,7 @@ export const constructQueryString = (params) => {
  * @param {boolean} [keepOthers=false] - Whether to keep existing parameters in the URL hash or not
  * @returns {string} - The constructed URL hash
  */
-export const getHashURL = (url, params = {}, keepOthers = false) => {
+export const constructHashURL = (url, params = {}, keepOthers = false) => {
   const additionalParams = keepOthers ? getHashSearch(url) : {};
   const mergedParams = { ...additionalParams, ...params };
 
@@ -263,17 +265,18 @@ export const getHashURL = (url, params = {}, keepOthers = false) => {
  * Sets or updates the search parameters in the URL hash of the current page.
  *
  * @param {Object} params - The parameters to be set or updated in the URL hash
- * @param {boolean} [keepOthers=false] - Whether to keep existing parameters in the URL hash or not
- * @param {Object} [history=undefined] - The history object to be used for navigation
+ * @param {boolean} [options={}] - The options to be used for setting the URL hash
+ * @param {Object} [options.history=null] - The history object to be used for updating the URL hash
+ * @param {boolean} [options.keepOthers=false] - Whether to keep existing parameters in the URL hash or not
  * @returns {void}
  */
-const setHashSearch = (
-  params = {},
-  keepOthers = false,
-  history = undefined,
-) => {
-  const newUrl = getHashURL(document.location.href, params, keepOthers);
-  if (history) history.push(newUrl);
+const setHashSearch = (params = {}, options = {}) => {
+  const { history = null, keepOthers = false } = options;
+  const newUrl = constructHashURL(document.location.href, params, keepOthers);
+
+  if (history && history.push) {
+    history.push(newUrl);
+  }
   document.location.href = newUrl;
 };
 
@@ -682,7 +685,9 @@ const setConstantHashSearch = (paramString) => {
  * @param {Object} param The Key-Value pair to be added to the current query param list
  */
 const setParam = (param) => {
-  setHashSearch(param, true);
+  setHashSearch(param, {
+    keepOthers: true,
+  });
 };
 
 const stringAsBoolean = (str) => str === "true";

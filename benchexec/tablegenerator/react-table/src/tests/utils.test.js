@@ -14,7 +14,7 @@ import {
   constructQueryString,
   decodeFilter,
   hasSameEntries,
-  getHashURL,
+  constructHashURL,
   makeFilterSerializer,
   makeFilterDeserializer,
   splitUrlPathForMatchingPrefix,
@@ -128,13 +128,13 @@ describe("hashRouting helpers", () => {
     });
   });
 
-  describe("getHashURL", () => {
+  describe("constructHashURL", () => {
     test("should construct URL hash with provided parameters", () => {
       const baseUrl = "http://example.com";
       const params = { key1: "value1", key2: "value2" };
       const keepOthers = false;
 
-      expect(getHashURL(baseUrl, params, keepOthers)).toEqual(
+      expect(constructHashURL(baseUrl, params, keepOthers)).toEqual(
         "http://example.com?key1=value1&key2=value2",
       );
     });
@@ -144,7 +144,7 @@ describe("hashRouting helpers", () => {
       const params = { key1: "value1", key2: "value2" };
       const keepOthers = true;
 
-      expect(getHashURL(baseUrl, params, keepOthers)).toEqual(
+      expect(constructHashURL(baseUrl, params, keepOthers)).toEqual(
         "http://example.com?existingKey=existingValue&key1=value1&key2=value2",
       );
     });
@@ -154,7 +154,7 @@ describe("hashRouting helpers", () => {
       const params = {};
       const keepOthers = true;
 
-      expect(getHashURL(baseUrl, params, keepOthers)).toEqual(
+      expect(constructHashURL(baseUrl, params, keepOthers)).toEqual(
         "http://example.com?exisitingKey=existingValue",
       );
     });
@@ -164,8 +164,18 @@ describe("hashRouting helpers", () => {
       const params = {};
       const keepOthers = false;
 
-      expect(getHashURL(baseUrl, params, keepOthers)).toEqual(
+      expect(constructHashURL(baseUrl, params, keepOthers)).toEqual(
         "http://example.com",
+      );
+    });
+
+    test("should override existing parameters with new ones", () => {
+      const baseUrl = "http://example.com?key1=value1&key2=value2";
+      const params = { key2: "newValue" };
+      const keepOthers = true;
+
+      expect(constructHashURL(baseUrl, params, keepOthers)).toEqual(
+        "http://example.com?key1=value1&key2=newValue",
       );
     });
   });

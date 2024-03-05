@@ -67,7 +67,10 @@ export default class SelectColumn extends React.Component {
       hiddenParams["hidden"] = null;
     }
 
-    setHashSearch(hiddenParams, true, this.props.history);
+    setHashSearch(hiddenParams, {
+      keepOthers: true,
+      history: this.props.history,
+    });
   }
 
   // -------------------------Rendering-------------------------

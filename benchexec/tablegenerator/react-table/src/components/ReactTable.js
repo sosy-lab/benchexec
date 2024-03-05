@@ -31,7 +31,7 @@ import {
   emptyStateValue,
   isNil,
   hasSameEntries,
-  setHashSearch,
+  setParam,
   getHashSearch,
   getHiddenColIds,
   decodeFilter,
@@ -589,29 +589,20 @@ const Table = (props) => {
       )
       .join(";");
     const value = sort.length ? sort : undefined;
-    const prevParams = getHashSearch();
-    if (prevParams["sort"] !== value) {
-      setHashSearch({ sort: value }, true);
-    }
+    setParam({ sort: value });
   }, [sortBy]);
 
   // Update the URL page size param when the table page size setting changed
   useEffect(() => {
     const value = pageSize !== initialPageSize ? pageSize : undefined;
-    const prevParams = getHashSearch();
-    if (prevParams["pageSize"] !== value) {
-      setHashSearch({ pageSize: value }, true);
-    }
+    setParam({ pageSize: value });
   }, [pageSize]);
 
   // Update the URL page param when the table page changed
   useEffect(() => {
     const value =
       pageIndex && pageIndex !== 0 ? Number(pageIndex) + 1 : undefined;
-    const prevParams = getHashSearch();
-    if (prevParams["page"] !== value) {
-      setHashSearch({ page: value }, true);
-    }
+    setParam({ page: value }, true);
   }, [pageIndex]);
 
   // Store the column resizing values so they can be applied again in case the table rerenders
