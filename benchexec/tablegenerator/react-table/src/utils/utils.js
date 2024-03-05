@@ -244,16 +244,15 @@ export const constructQueryString = (params) => {
 };
 
 /**
- * Constructs a URL hash from the provided parameters
+ * Constructs a URL hash from the provided parameters. It will merge the parameters with the existing ones in the URL hash after filtering out any undefined or null values.
  *
  * @param {string} url - The URL to be processed
  * @param {Object} params - The parameters to be included in the hash
- * @param {boolean} [keepOthers=false] - Whether to keep existing parameters in the URL hash or not
  * @returns {string} - The constructed URL hash
  */
-export const constructHashURL = (url, params = {}, keepOthers = false) => {
-  const additionalParams = keepOthers ? getURLParameters(url) : {};
-  const mergedParams = { ...additionalParams, ...params };
+export const constructHashURL = (url, params = {}) => {
+  const exisitingParams = getURLParameters(url);
+  const mergedParams = { ...exisitingParams, ...params };
 
   const queryString = constructQueryString(mergedParams);
   const baseURL = url.split("?")[0];
@@ -270,26 +269,7 @@ export const constructHashURL = (url, params = {}, keepOthers = false) => {
  * @returns {void}
  */
 const setURLParameter = (params = {}, history = null) => {
-  const keepOthers = true;
-  const newUrl = constructHashURL(document.location.href, params, keepOthers);
-
-  if (history && history.push) {
-    history.push(newUrl);
-  }
-  document.location.href = newUrl;
-};
-
-/**
- * Removes the specified search parameter from the URL hash of the current page. Also accepts a history object to update the URL hash without reloading the page.
- * @param {string} param - The name of the parameter to be removed
- * @param {Object} [history=null] - The history object to use for updating the URL hash
- */
-export const removeParam = (param, history = null) => {
-  const params = getURLParameters();
-  delete params[param];
-
-  const keepOthers = false;
-  const newUrl = constructHashURL(document.location.href, params, keepOthers);
+  const newUrl = constructHashURL(document.location.href, params);
 
   if (history && history.push) {
     history.push(newUrl);

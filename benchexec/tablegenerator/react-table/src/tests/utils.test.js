@@ -133,50 +133,67 @@ describe("hashRouting helpers", () => {
     test("should construct URL hash with provided parameters", () => {
       const baseUrl = "http://example.com";
       const params = { key1: "value1", key2: "value2" };
-      const keepOthers = false;
 
-      expect(constructHashURL(baseUrl, params, keepOthers)).toEqual(
+      expect(constructHashURL(baseUrl, params)).toEqual(
         "http://example.com?key1=value1&key2=value2",
       );
     });
 
-    test("should construct URL hash with provided parameters and keep others", () => {
+    test("should construct URL hash with provided parameters and keep the exisiting parameters", () => {
       const baseUrl = "http://example.com?existingKey=existingValue";
       const params = { key1: "value1", key2: "value2" };
-      const keepOthers = true;
 
-      expect(constructHashURL(baseUrl, params, keepOthers)).toEqual(
+      expect(constructHashURL(baseUrl, params)).toEqual(
         "http://example.com?existingKey=existingValue&key1=value1&key2=value2",
       );
     });
 
-    test("should return the same URL with exisiting params if no parameters are provided and keepOthers is true", () => {
+    test("should return the same URL with exisiting params if no parameters are provided", () => {
       const baseUrl = "http://example.com?exisitingKey=existingValue";
       const params = {};
-      const keepOthers = true;
 
-      expect(constructHashURL(baseUrl, params, keepOthers)).toEqual(
+      expect(constructHashURL(baseUrl, params)).toEqual(
         "http://example.com?exisitingKey=existingValue",
-      );
-    });
-
-    test("should return the same URL with no params if no parameters are provided and keepOthers is false", () => {
-      const baseUrl = "http://example.com?exisitingKey=existingValue";
-      const params = {};
-      const keepOthers = false;
-
-      expect(constructHashURL(baseUrl, params, keepOthers)).toEqual(
-        "http://example.com",
       );
     });
 
     test("should override existing parameters with new ones", () => {
       const baseUrl = "http://example.com?key1=value1&key2=value2";
       const params = { key2: "newValue" };
-      const keepOthers = true;
 
-      expect(constructHashURL(baseUrl, params, keepOthers)).toEqual(
+      expect(constructHashURL(baseUrl, params)).toEqual(
         "http://example.com?key1=value1&key2=newValue",
+      );
+    });
+
+    test("should remove exisiting parameters if they are updated to undefined", () => {
+      const baseUrl = "http://example.com?key1=value1&key2=value2";
+      const params = { key2: undefined };
+
+      expect(constructHashURL(baseUrl, params)).toEqual(
+        "http://example.com?key1=value1",
+      );
+    });
+
+    test("should remove exisiting parameters if they are updated to null", () => {
+      const baseUrl = "http://example.com?key1=value1&key2=value2";
+      const params = { key2: null };
+
+      expect(constructHashURL(baseUrl, params)).toEqual(
+        "http://example.com?key1=value1",
+      );
+    });
+
+    test("should not remove exisiting parameters if they are updated to falsy values", () => {
+      const baseUrl = "http://example.com?key1=value1&key2=value2&key3=value3";
+      const params = {
+        key1: "",
+        key2: false,
+        key3: 0,
+      };
+
+      expect(constructHashURL(baseUrl, params)).toEqual(
+        "http://example.com?key1=&key2=false&key3=0",
       );
     });
   });
