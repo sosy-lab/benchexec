@@ -203,74 +203,84 @@ const EXTENDED_DISCRETE_COLOR_RANGE = [
 ];
 
 /**
+ * Parses the search parameters from the URL hash or a provided string.
  *
- * @param {String} [str]
+ * @param {string} - Optional string to parse. If not provided, parses the URL hash of the current document.
+ * @returns {Object} - An object containing the parsed search parameters.
  */
-const getHashSearch = (str) => {
+const getURLParameters = (str) => {
+  // Split the URL string into parts using "?" as a delimiter
   const urlParts = (str || decodeURI(document.location.href)).split("?");
+
+  // Extract the search part of the URL
   const search = urlParts.length > 1 ? urlParts.slice(1).join("?") : undefined;
+
+  // If there are no search parameters, return an empty object
   if (search === undefined || search.length === 0) {
     return {};
   }
-  const keyValuePairs = search.split("&").map((i) => i.split("="));
 
+  // Split the search string into key-value pairs and generate an object from them
+  const keyValuePairs = search.split("&").map((pair) => pair.split("="));
   const out = {};
   for (const [key, ...value] of keyValuePairs) {
     out[key] = value.join("=");
   }
+
   return out;
 };
 
 /**
+ * Constructs a query string from the provided parameters
  *
- * @param {Object} params Object containing the params to be encoded as query params
- * @param {Boolean} [returnString] if true, only returns the url without setting it
+ * @param {Object} params - The parameters to be included in the query string. Any undefined or null values will be omitted.
+ * @returns {string} - The constructed query string.
  */
-const setHashSearch = (
-  params = {},
-  options = {
-    returnString: false,
-    baseUrl: null,
-    keepOthers: false,
-    paramName: null,
-    history: null,
-  },
-) => {
-  let additionalParams = {};
-  let transformedParams = params;
-  if (options.keepOthers) {
-    additionalParams = getHashSearch();
-    const removedItems = Object.entries(params).filter(
-      ([_, value]) => value === undefined || value === null,
-    );
-    removedItems.forEach(([key]) => {
-      delete additionalParams[key];
-      delete transformedParams[key];
-    });
+export const constructQueryString = (params) => {
+  return Object.keys(params)
+    .filter((key) => params[key] !== undefined && params[key] !== null)
+    .map((key) => `${key}=${params[key]}`)
+    .join("&");
+};
+
+/**
+ * Constructs a URL hash from the provided parameters. It will merge the parameters with the existing ones in the URL hash after filtering out any undefined or null values.
+ *
+ * @param {string} url - The URL to be processed
+ * @param {Object} params - The parameters to be included in the hash
+ * @returns {string} - The constructed URL hash
+ */
+export const constructHashURL = (url, params = {}) => {
+  const exisitingParams = getURLParameters(url);
+  const mergedParams = { ...exisitingParams, ...params };
+
+  const queryString = constructQueryString(mergedParams);
+  const baseURL = url.split("?")[0];
+
+  return queryString.length > 0 ? `${baseURL}?${queryString}` : baseURL;
+};
+
+/**
+ * Sets or updates the search parameters in the URL hash of the current page. All the existing search parameters will not be disturbed. Also accepts a history object to update the URL hash without reloading the page.
+ * It can also be used to remove a parameter from the URL by setting it's value to undefined.
+ *
+ * @param {Object} params - The parameters to be set or updated in the URL hash
+ * @param {Object} [history=null] - The history object to use for updating the URL hash
+ * @returns {void}
+ */
+const setURLParameter = (params = {}, history = null) => {
+  const newUrl = constructHashURL(document.location.href, params);
+
+  if (history && history.push) {
+    history.push(newUrl);
   }
-  const mergedParams = { ...additionalParams, ...params };
-  const optionTemplate = { returnString: false, baseUrl: null };
-  const { returnString, baseUrl, history } = { ...optionTemplate, ...options };
-  const url = (baseUrl || document.location.href).split("?")[0];
-  const pairs = Object.keys(mergedParams).map(
-    (key) => `${key}=${mergedParams[key]}`,
-  );
-  const searchString = `?${pairs.join("&")}`;
-  const hrefString = encodeURI(`${url}${searchString}`);
-  if (returnString) {
-    return hrefString;
-  }
-  if (history) {
-    history.push(searchString);
-    return;
-  }
-  document.location.href = hrefString;
+  document.location.href = newUrl;
 };
 
 const makeUrlFilterDeserializer = (statusValues, categoryValues) => {
   const deserializer = makeFilterDeserializer({ categoryValues, statusValues });
   return (str) => {
-    const params = getHashSearch(str);
+    const params = getURLParameters(str);
     if (params.filter) {
       return deserializer(params.filter);
     }
@@ -285,6 +295,7 @@ const makeSerializedFilterValue = (filter) => {
   }
   return parts.join(",");
 };
+
 const createDistinctValueFilters = (selected, nominal, trim = false) => {
   const filter = {};
   // we want to minimize the needed space to encode the filter
@@ -661,33 +672,25 @@ const makeFilterDeserializer =
 
 const makeUrlFilterSerializer = (statusValues, categoryValues) => {
   const serializer = makeFilterSerializer({ statusValues, categoryValues });
-  return (filter, options) => {
-    const previousParams = getHashSearch();
+  return (filter, history) => {
     if (!filter) {
-      return setHashSearch(previousParams, options);
+      return setURLParameter({ filter: undefined }, history);
     }
+
     const encoded = serializer(filter);
     if (encoded) {
-      return setHashSearch({ ...previousParams, filter: encoded }, options);
+      return setURLParameter({ filter: encoded }, history);
     }
-    delete previousParams.filter;
-    return setHashSearch({ ...previousParams }, options);
+
+    return setURLParameter({ filter: undefined }, history);
   };
 };
+
 // Sets the URL parameters to the given string. Assumes that there is currently no hash or URL parameters defined.
 const setConstantHashSearch = (paramString) => {
   document.location.href = encodeURI(
     `${document.location.href}#${paramString}`,
   );
-};
-
-/**
- * Adds or update given key-value pairs to the query params
- *
- * @param {Object} param The Key-Value pair to be added to the current query param list
- */
-const setParam = (param) => {
-  setHashSearch({ ...getHashSearch(), ...param });
 };
 
 const stringAsBoolean = (str) => str === "true";
@@ -973,7 +976,7 @@ class NumberFormatterBuilder {
  * Each property contains an array of integers which represent the indexes of the columns of the corresponding runset that will be hidden.
  */
 const createHiddenColsFromURL = (tools) => {
-  const urlParams = getHashSearch();
+  const urlParams = getURLParameters();
   // Object containing all hidden runsets from the URL (= param "hidden")
   let hiddenTools = [];
   if (urlParams.hidden) {
@@ -1140,10 +1143,9 @@ export {
   isOkStatus,
   isNil,
   EXTENDED_DISCRETE_COLOR_RANGE,
-  getHashSearch,
-  setHashSearch,
+  getURLParameters,
   setConstantHashSearch,
-  setParam,
+  setURLParameter,
   createHiddenColsFromURL,
   stringAsBoolean,
   without,

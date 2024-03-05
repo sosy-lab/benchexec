@@ -9,14 +9,15 @@ import {
   isOkStatus,
   numericSortMethod,
   textSortMethod,
-  getHashSearch,
-  setHashSearch,
+  getURLParameters,
   NumberFormatterBuilder,
+  constructQueryString,
+  decodeFilter,
   hasSameEntries,
+  constructHashURL,
   makeFilterSerializer,
   makeFilterDeserializer,
   splitUrlPathForMatchingPrefix,
-  decodeFilter,
   makeRegExp,
 } from "../utils/utils";
 
@@ -72,51 +73,128 @@ describe("numericSortMethod", () => {
 });
 
 describe("hashRouting helpers", () => {
-  describe("getHashSearch", () => {
+  describe("getURLParameters", () => {
     test("should get params as object", () => {
-      const res = getHashSearch("localhost#/bla?id=1&name=benchexec");
+      const res = getURLParameters("localhost#/bla?id=1&name=benchexec");
       expect(res).toEqual({ id: "1", name: "benchexec" });
     });
 
     test("should return empty object if no params are given", () => {
-      const res = getHashSearch("localhost#bla");
+      const res = getURLParameters("localhost#bla");
       expect(res).toEqual({});
     });
 
     test("should return empty object if only ? is given", () => {
-      const res = getHashSearch("localhost#bla?");
+      const res = getURLParameters("localhost#bla?");
       expect(res).toEqual({});
     });
 
     test("should handle missing value", () => {
-      const res = getHashSearch("localhost#bla?id=1&foo");
+      const res = getURLParameters("localhost#bla?id=1&foo");
       expect(res).toEqual({ id: "1", foo: "" });
     });
 
     test("should handle empty value", () => {
-      const res = getHashSearch("localhost#bla?foo=&id=1");
+      const res = getURLParameters("localhost#bla?foo=&id=1");
       expect(res).toEqual({ foo: "", id: "1" });
     });
 
     test("should handle values with =", () => {
-      const res = getHashSearch("localhost#bla?a=b=c");
+      const res = getURLParameters("localhost#bla?a=b=c");
       expect(res).toEqual({ a: "b=c" });
     });
 
     test("should handle values with ?", () => {
-      const res = getHashSearch("localhost#bla?a=b?c");
+      const res = getURLParameters("localhost#bla?a=b?c");
       expect(res).toEqual({ a: "b?c" });
     });
   });
 
-  describe("setHashSearch", () => {
-    test("should translate object to queryparams", () => {
-      const params = { id: "1", name: "benchexec" };
-      const res = setHashSearch(params, {
-        returnString: true,
-        baseUrl: "localhost#table",
-      });
-      expect(res).toEqual("localhost#table?id=1&name=benchexec");
+  describe("constructQueryString", () => {
+    test("should return empty string for empty input", () => {
+      const queryString = constructQueryString({});
+      expect(queryString).toBe("");
+    });
+
+    test("should construct query string properly", () => {
+      const params = { key1: "value1", key2: "value2" };
+      const queryString = constructQueryString(params);
+      expect(queryString).toBe("key1=value1&key2=value2");
+    });
+
+    test("should omit undefined and null values", () => {
+      const params = { key1: "value1", key2: undefined, key3: null };
+      const queryString = constructQueryString(params);
+      expect(queryString).toBe("key1=value1");
+    });
+  });
+
+  describe("constructHashURL", () => {
+    test("should construct URL hash with provided parameters", () => {
+      const baseUrl = "http://example.com";
+      const params = { key1: "value1", key2: "value2" };
+
+      expect(constructHashURL(baseUrl, params)).toEqual(
+        "http://example.com?key1=value1&key2=value2",
+      );
+    });
+
+    test("should construct URL hash with provided parameters and keep the exisiting parameters", () => {
+      const baseUrl = "http://example.com?existingKey=existingValue";
+      const params = { key1: "value1", key2: "value2" };
+
+      expect(constructHashURL(baseUrl, params)).toEqual(
+        "http://example.com?existingKey=existingValue&key1=value1&key2=value2",
+      );
+    });
+
+    test("should return the same URL with exisiting params if no parameters are provided", () => {
+      const baseUrl = "http://example.com?exisitingKey=existingValue";
+      const params = {};
+
+      expect(constructHashURL(baseUrl, params)).toEqual(
+        "http://example.com?exisitingKey=existingValue",
+      );
+    });
+
+    test("should override existing parameters with new ones", () => {
+      const baseUrl = "http://example.com?key1=value1&key2=value2";
+      const params = { key2: "newValue" };
+
+      expect(constructHashURL(baseUrl, params)).toEqual(
+        "http://example.com?key1=value1&key2=newValue",
+      );
+    });
+
+    test("should remove exisiting parameters if they are updated to undefined", () => {
+      const baseUrl = "http://example.com?key1=value1&key2=value2";
+      const params = { key2: undefined };
+
+      expect(constructHashURL(baseUrl, params)).toEqual(
+        "http://example.com?key1=value1",
+      );
+    });
+
+    test("should remove exisiting parameters if they are updated to null", () => {
+      const baseUrl = "http://example.com?key1=value1&key2=value2";
+      const params = { key2: null };
+
+      expect(constructHashURL(baseUrl, params)).toEqual(
+        "http://example.com?key1=value1",
+      );
+    });
+
+    test("should not remove exisiting parameters if they are updated to falsy values", () => {
+      const baseUrl = "http://example.com?key1=value1&key2=value2&key3=value3";
+      const params = {
+        key1: "",
+        key2: false,
+        key3: 0,
+      };
+
+      expect(constructHashURL(baseUrl, params)).toEqual(
+        "http://example.com?key1=&key2=false&key3=0",
+      );
     });
   });
 });

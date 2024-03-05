@@ -31,8 +31,8 @@ import {
   emptyStateValue,
   isNil,
   hasSameEntries,
-  setHashSearch,
-  getHashSearch,
+  setURLParameter,
+  getURLParameters,
   getHiddenColIds,
   decodeFilter,
 } from "../utils/utils";
@@ -50,7 +50,7 @@ const pageSizes = [50, 100, 250, 500, 1000, 2500];
 const initialPageSize = 250;
 
 const getSortingSettingsFromURL = () => {
-  const urlParams = getHashSearch();
+  const urlParams = getURLParameters();
   let settings = urlParams.sort
     ? urlParams.sort.split(";").map((sortingEntry) => {
         const sortingParams = sortingEntry.split(",");
@@ -567,9 +567,9 @@ const Table = (props) => {
       defaultColumn,
       initialState: {
         sortBy: getSortingSettingsFromURL(),
-        pageIndex: parseInt(getHashSearch().page) - 1 || 0,
+        pageIndex: parseInt(getURLParameters().page) - 1 || 0,
         hiddenColumns: getHiddenColIds(columns),
-        pageSize: parseInt(getHashSearch().pageSize) || initialPageSize,
+        pageSize: parseInt(getURLParameters().pageSize) || initialPageSize,
       },
     },
     useFilters,
@@ -589,29 +589,20 @@ const Table = (props) => {
       )
       .join(";");
     const value = sort.length ? sort : undefined;
-    const prevParams = getHashSearch();
-    if (prevParams["sort"] !== value) {
-      setHashSearch({ sort: value }, { keepOthers: true });
-    }
+    setURLParameter({ sort: value });
   }, [sortBy]);
 
   // Update the URL page size param when the table page size setting changed
   useEffect(() => {
     const value = pageSize !== initialPageSize ? pageSize : undefined;
-    const prevParams = getHashSearch();
-    if (prevParams["pageSize"] !== value) {
-      setHashSearch({ pageSize: value }, { keepOthers: true });
-    }
+    setURLParameter({ pageSize: value });
   }, [pageSize]);
 
   // Update the URL page param when the table page changed
   useEffect(() => {
     const value =
       pageIndex && pageIndex !== 0 ? Number(pageIndex) + 1 : undefined;
-    const prevParams = getHashSearch();
-    if (prevParams["page"] !== value) {
-      setHashSearch({ page: value }, { keepOthers: true });
-    }
+    setURLParameter({ page: value });
   }, [pageIndex]);
 
   // Store the column resizing values so they can be applied again in case the table rerenders
@@ -675,9 +666,9 @@ const Table = (props) => {
   // Update table relevant parameters after URL change
   useEffect(() => {
     return history.listen((location) => {
-      setPageSize(getHashSearch().pageSize || initialPageSize);
+      setPageSize(getURLParameters().pageSize || initialPageSize);
       setSortBy(getSortingSettingsFromURL());
-      gotoPage(getHashSearch().page - 1 || 0);
+      gotoPage(getURLParameters().page - 1 || 0);
     });
   }, [history, gotoPage, setPageSize, setSortBy]);
 
