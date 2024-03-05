@@ -208,7 +208,7 @@ const EXTENDED_DISCRETE_COLOR_RANGE = [
  * @param {string} - Optional string to parse. If not provided, parses the URL hash of the current document.
  * @returns {Object} - An object containing the parsed search parameters.
  */
-const getHashSearch = (str) => {
+const getURLParameters = (str) => {
   // Split the URL string into parts using "?" as a delimiter
   const urlParts = (str || decodeURI(document.location.href)).split("?");
 
@@ -252,7 +252,7 @@ export const constructQueryString = (params) => {
  * @returns {string} - The constructed URL hash
  */
 export const constructHashURL = (url, params = {}, keepOthers = false) => {
-  const additionalParams = keepOthers ? getHashSearch(url) : {};
+  const additionalParams = keepOthers ? getURLParameters(url) : {};
   const mergedParams = { ...additionalParams, ...params };
 
   const queryString = constructQueryString(mergedParams);
@@ -263,12 +263,13 @@ export const constructHashURL = (url, params = {}, keepOthers = false) => {
 
 /**
  * Sets or updates the search parameters in the URL hash of the current page. All the existing search parameters will not be disturbed. Also accepts a history object to update the URL hash without reloading the page.
+ * It can also be used to remove a parameter from the URL by setting it's value to undefined.
  *
  * @param {Object} params - The parameters to be set or updated in the URL hash
  * @param {Object} [history=null] - The history object to use for updating the URL hash
  * @returns {void}
  */
-const setParam = (params = {}, history = null) => {
+const setURLParameter = (params = {}, history = null) => {
   const keepOthers = true;
   const newUrl = constructHashURL(document.location.href, params, keepOthers);
 
@@ -284,7 +285,7 @@ const setParam = (params = {}, history = null) => {
  * @param {Object} [history=null] - The history object to use for updating the URL hash
  */
 export const removeParam = (param, history = null) => {
-  const params = getHashSearch();
+  const params = getURLParameters();
   delete params[param];
 
   const keepOthers = false;
@@ -299,7 +300,7 @@ export const removeParam = (param, history = null) => {
 const makeUrlFilterDeserializer = (statusValues, categoryValues) => {
   const deserializer = makeFilterDeserializer({ categoryValues, statusValues });
   return (str) => {
-    const params = getHashSearch(str);
+    const params = getURLParameters(str);
     if (params.filter) {
       return deserializer(params.filter);
     }
@@ -693,15 +694,15 @@ const makeUrlFilterSerializer = (statusValues, categoryValues) => {
   const serializer = makeFilterSerializer({ statusValues, categoryValues });
   return (filter, history) => {
     if (!filter) {
-      return setParam({}, history);
+      return setURLParameter({ filter: undefined }, history);
     }
 
     const encoded = serializer(filter);
     if (encoded) {
-      return setParam({ filter: encoded }, history);
+      return setURLParameter({ filter: encoded }, history);
     }
 
-    return removeParam("filter", history);
+    return setURLParameter({ filter: undefined }, history);
   };
 };
 
@@ -995,7 +996,7 @@ class NumberFormatterBuilder {
  * Each property contains an array of integers which represent the indexes of the columns of the corresponding runset that will be hidden.
  */
 const createHiddenColsFromURL = (tools) => {
-  const urlParams = getHashSearch();
+  const urlParams = getURLParameters();
   // Object containing all hidden runsets from the URL (= param "hidden")
   let hiddenTools = [];
   if (urlParams.hidden) {
@@ -1162,9 +1163,9 @@ export {
   isOkStatus,
   isNil,
   EXTENDED_DISCRETE_COLOR_RANGE,
-  getHashSearch,
+  getURLParameters,
   setConstantHashSearch,
-  setParam,
+  setURLParameter,
   createHiddenColsFromURL,
   stringAsBoolean,
   without,

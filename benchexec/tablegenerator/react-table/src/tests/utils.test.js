@@ -9,7 +9,7 @@ import {
   isOkStatus,
   numericSortMethod,
   textSortMethod,
-  getHashSearch,
+  getURLParameters,
   NumberFormatterBuilder,
   constructQueryString,
   decodeFilter,
@@ -73,39 +73,39 @@ describe("numericSortMethod", () => {
 });
 
 describe("hashRouting helpers", () => {
-  describe("getHashSearch", () => {
+  describe("getURLParameters", () => {
     test("should get params as object", () => {
-      const res = getHashSearch("localhost#/bla?id=1&name=benchexec");
+      const res = getURLParameters("localhost#/bla?id=1&name=benchexec");
       expect(res).toEqual({ id: "1", name: "benchexec" });
     });
 
     test("should return empty object if no params are given", () => {
-      const res = getHashSearch("localhost#bla");
+      const res = getURLParameters("localhost#bla");
       expect(res).toEqual({});
     });
 
     test("should return empty object if only ? is given", () => {
-      const res = getHashSearch("localhost#bla?");
+      const res = getURLParameters("localhost#bla?");
       expect(res).toEqual({});
     });
 
     test("should handle missing value", () => {
-      const res = getHashSearch("localhost#bla?id=1&foo");
+      const res = getURLParameters("localhost#bla?id=1&foo");
       expect(res).toEqual({ id: "1", foo: "" });
     });
 
     test("should handle empty value", () => {
-      const res = getHashSearch("localhost#bla?foo=&id=1");
+      const res = getURLParameters("localhost#bla?foo=&id=1");
       expect(res).toEqual({ foo: "", id: "1" });
     });
 
     test("should handle values with =", () => {
-      const res = getHashSearch("localhost#bla?a=b=c");
+      const res = getURLParameters("localhost#bla?a=b=c");
       expect(res).toEqual({ a: "b=c" });
     });
 
     test("should handle values with ?", () => {
-      const res = getHashSearch("localhost#bla?a=b?c");
+      const res = getURLParameters("localhost#bla?a=b?c");
       expect(res).toEqual({ a: "b?c" });
     });
   });

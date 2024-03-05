@@ -9,7 +9,7 @@ import React from "react";
 import ReactModal from "react-modal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faClose } from "@fortawesome/free-solid-svg-icons";
-import { getRunSetName, setParam } from "../utils/utils";
+import { getRunSetName, setURLParameter } from "../utils/utils";
 
 export default class SelectColumn extends React.Component {
   constructor(props) {
@@ -67,7 +67,7 @@ export default class SelectColumn extends React.Component {
       hiddenParams["hidden"] = null;
     }
 
-    setParam(hiddenParams, this.props.history);
+    setURLParameter(hiddenParams, this.props.history);
   }
 
   // -------------------------Rendering-------------------------
