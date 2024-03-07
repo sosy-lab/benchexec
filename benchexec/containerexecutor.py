@@ -266,7 +266,7 @@ def main(argv=None):
     baseexecutor.add_basic_executor_options(parser)
 
     options = parser.parse_args(argv[1:])
-    baseexecutor.handle_basic_executor_options(options, parser)
+    baseexecutor.handle_basic_executor_options(options)
     logging.debug("This is containerexec %s.", __version__)
     container_options = handle_basic_container_args(options, parser)
     container_options["cgroup_access"] = options.cgroup_access
