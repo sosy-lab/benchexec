@@ -254,10 +254,13 @@ export const constructHashURL = (url, params = {}) => {
   const exisitingParams = getURLParameters(url);
   const mergedParams = { ...exisitingParams, ...params };
 
-  const queryString = constructQueryString(mergedParams);
+  const queryString = `?${constructQueryString(mergedParams)}`;
   const baseURL = url.split("?")[0];
 
-  return queryString.length > 0 ? `${baseURL}?${queryString}` : baseURL;
+  return {
+    newUrl: queryString.length > 0 ? `${baseURL}${queryString}` : baseURL,
+    queryString: queryString,
+  };
 };
 
 /**
@@ -269,10 +272,14 @@ export const constructHashURL = (url, params = {}) => {
  * @returns {void}
  */
 const setURLParameter = (params = {}, history = null) => {
-  const newUrl = constructHashURL(document.location.href, params);
-
+  const { newUrl, queryString } = constructHashURL(
+    document.location.href,
+    params,
+  );
+  console.log(history, "s");
   if (history && history.push) {
-    history.push(newUrl);
+    history.push(queryString);
+    return;
   }
   document.location.href = newUrl;
 };
@@ -453,11 +460,17 @@ const makeFilterSerializer =
     const { ids, ...rest } = groupedFilters;
     const runsetFilters = [];
     if (ids) {
-      runsetFilters.push(`id(values(${ids.values.map(escape).join(",")}))`);
+      runsetFilters.push(
+        `id(values(${ids.values
+          .map((val) => encodeURIComponent(val))
+          .join(",")}))`,
+      );
     }
     if (tableTabIdFilters) {
       tableTabIdFilters.forEach((filter) => {
-        runsetFilters.push(`id_any(value(${filter.value}))`);
+        runsetFilters.push(
+          `id_any(value(${encodeURIComponent(filter.value)}))`,
+        );
       });
     }
     for (const [tool, column] of Object.entries(rest)) {
@@ -513,7 +526,7 @@ const tokenizePart = (string) => {
           firstBracket + 1,
           buf.length - 1 - (firstBracket + 1),
         );
-        out[key] = value;
+        out[key] = decodeURIComponent(value);
       }
       continue;
     }
@@ -604,6 +617,7 @@ const makeFilterDeserializer =
         out.push({
           id: "id",
           ...tokenHandlers("values", tokenized["values"])[0],
+          isTableTabFilter: true,
         });
         continue;
       } else if (token === "id_any") {
