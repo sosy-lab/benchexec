@@ -254,12 +254,12 @@ export const constructHashURL = (url, params = {}) => {
   const exisitingParams = getURLParameters(url);
   const mergedParams = { ...exisitingParams, ...params };
 
-  const queryString = `?${constructQueryString(mergedParams)}`;
+  const queryString = constructQueryString(mergedParams);
   const baseURL = url.split("?")[0];
 
   return {
-    newUrl: queryString.length > 0 ? `${baseURL}${queryString}` : baseURL,
-    queryString: queryString,
+    newUrl: queryString.length > 0 ? `${baseURL}?${queryString}` : baseURL,
+    queryString: `?${queryString}`,
   };
 };
 
