@@ -390,13 +390,14 @@ export const decodeFilter = (filterID) => {
   }
   const splitedArray = filterID.split("_");
 
-  if (splitedArray.length > 3) {
+  if (splitedArray.length === 2) {
     throw new Error("Invalid filter ID");
   }
+
   return {
     tool: splitedArray[0],
-    name: splitedArray[1],
-    column: splitedArray[2],
+    name: splitedArray.slice(1, -1).join("_"),
+    column: splitedArray.at(-1),
   };
 };
 
