@@ -276,7 +276,6 @@ const setURLParameter = (params = {}, history = null) => {
     document.location.href,
     params,
   );
-  console.log(history, "s");
   if (history && history.push) {
     history.push(queryString);
     return;
@@ -617,13 +616,13 @@ const makeFilterDeserializer =
         out.push({
           id: "id",
           ...tokenHandlers("values", tokenized["values"])[0],
-          isTableTabFilter: true,
         });
         continue;
       } else if (token === "id_any") {
         out.push({
           id: "id",
           ...tokenizePart(filter),
+          isTableTabFilter: true,
         });
         continue;
       }
