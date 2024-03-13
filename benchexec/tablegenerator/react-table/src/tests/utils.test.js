@@ -259,9 +259,15 @@ describe("decodeFilter", () => {
     expect(decodeFilter(filter)).toEqual(expected);
   });
 
-  test("should throw errors if there are more than two '_' in the filter id", () => {
-    expect(() => decodeFilter("0__cputime_")).toThrow();
-    expect(() => decodeFilter("0_cputime_1_2")).toThrow();
+  test("should throw errors if there are is only one '_' in the filter id", () => {
+    expect(() => decodeFilter("0cputime_")).toThrow();
+    expect(() => decodeFilter("0_cputime2")).toThrow();
+  });
+
+  test("should decode correctly with more than two '_' in the filter id", () => {
+    const filter = "0_cpu_time_1";
+    const expected = { tool: "0", name: "cpu_time", column: "1" };
+    expect(decodeFilter(filter)).toEqual(expected);
   });
 });
 
@@ -294,6 +300,13 @@ describe("serialization", () => {
   test("should serialize id filters", () => {
     const filter = [{ id: "id", values: ["abc", "def"] }];
     const expected = "id(values(abc,def))";
+
+    expect(serializer(filter)).toBe(expected);
+  });
+
+  test("should serialize id filter to escape special characters", () => {
+    const filter = [{ id: "id", value: "?#&=(),*", isTableTabFilter: true }];
+    const expected = "id_any(value(%3F%23%26%3D()%2C*))";
 
     expect(serializer(filter)).toBe(expected);
   });
@@ -614,6 +627,14 @@ describe("Filter deserialization", () => {
     const string = "id(values(abc,def))";
 
     const expected = [{ id: "id", values: ["abc", "def"] }];
+
+    expect(deserializer(string)).toStrictEqual(expected);
+  });
+
+  test("should deserialize Table Tab Id filter with special characters", () => {
+    const string = "id_any(value(%3F%23%26%3D()%2C*))*";
+
+    const expected = [{ id: "id", value: "?#&=(),*", isTableTabFilter: true }];
 
     expect(deserializer(string)).toStrictEqual(expected);
   });

@@ -393,11 +393,11 @@ export const decodeFilter = (filterID) => {
   if (splitedArray.length === 2) {
     throw new Error("Invalid filter ID");
   }
-
   return {
     tool: splitedArray[0],
-    name: splitedArray.slice(1, -1).join("_"),
-    column: splitedArray.at(-1),
+    name:
+      splitedArray.length > 2 ? splitedArray.slice(1, -1).join("_") : undefined,
+    column: splitedArray.length > 2 ? splitedArray.at(-1) : undefined,
   };
 };
 
