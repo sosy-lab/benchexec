@@ -304,9 +304,30 @@ describe("serialization", () => {
     expect(serializer(filter)).toBe(expected);
   });
 
+  test("should serialize id filters with parentheses", () => {
+    const filter = [{ id: "id", values: ["(", ")"] }];
+    const expected = "id(values(%28,%29))";
+
+    expect(serializer(filter)).toBe(expected);
+  });
+
   test("should serialize id filter to escape special characters", () => {
     const filter = [{ id: "id", value: "?#&=(),*", isTableTabFilter: true }];
-    const expected = "id_any(value(%3F%23%26%3D()%2C*))";
+    const expected = "id_any(value(%3F%23%26%3D%28%29%2C*))";
+
+    expect(serializer(filter)).toBe(expected);
+  });
+
+  test("should serialize id filter with one opening parentheses", () => {
+    const filter = [{ id: "id", value: "(", isTableTabFilter: true }];
+    const expected = "id_any(value(%28))";
+
+    expect(serializer(filter)).toBe(expected);
+  });
+
+  test("should serialize id filter with one closing parentheses", () => {
+    const filter = [{ id: "id", value: ")", isTableTabFilter: true }];
+    const expected = "id_any(value(%29))";
 
     expect(serializer(filter)).toBe(expected);
   });
@@ -627,6 +648,30 @@ describe("Filter deserialization", () => {
     const string = "id(values(abc,def))";
 
     const expected = [{ id: "id", values: ["abc", "def"] }];
+
+    expect(deserializer(string)).toStrictEqual(expected);
+  });
+
+  test("should serialize id filters with parentheses", () => {
+    const string = "id(values(%28,%29))";
+
+    const expected = [{ id: "id", values: ["(", ")"] }];
+
+    expect(deserializer(string)).toStrictEqual(expected);
+  });
+
+  test("should deserialize id filter with one opening parentheses", () => {
+    const string = "id_any(value(%28))";
+
+    const expected = [{ id: "id", value: "(", isTableTabFilter: true }];
+
+    expect(deserializer(string)).toStrictEqual(expected);
+  });
+
+  test("should deserialize id filter with one closing parentheses", () => {
+    const string = "id_any(value(%29))";
+
+    const expected = [{ id: "id", value: ")", isTableTabFilter: true }];
 
     expect(deserializer(string)).toStrictEqual(expected);
   });
