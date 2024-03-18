@@ -210,7 +210,7 @@ const EXTENDED_DISCRETE_COLOR_RANGE = [
  */
 const getURLParameters = (str) => {
   // Split the URL string into parts using "?" as a delimiter
-  const urlParts = (str || decodeURI(document.location.href)).split("?");
+  const urlParts = (str || document.location.href).split("?");
 
   // Extract the search part of the URL
   const search = urlParts.length > 1 ? urlParts.slice(1).join("?") : undefined;
@@ -224,7 +224,8 @@ const getURLParameters = (str) => {
   const keyValuePairs = search.split("&").map((pair) => pair.split("="));
   const out = {};
   for (const [key, ...value] of keyValuePairs) {
-    out[key] = value.join("=");
+    out[decodeURI(key)] =
+      key === "filter" ? value.join("=") : decodeURI(value.join("="));
   }
 
   return out;
@@ -369,6 +370,13 @@ function makeStatusColumnFilter(
   return statusColumnFilter.join(",");
 }
 
+function escapeParentheses(value) {
+  if (typeof value !== "string") {
+    throw new Error("Invalid value type");
+  }
+  return value.replaceAll("(", "%28").replaceAll(")", "%29");
+}
+
 export const makeRegExp = (value) => {
   if (typeof value !== "string") {
     throw new Error("Invalid value type for converting to RegExp");
@@ -462,14 +470,16 @@ const makeFilterSerializer =
     if (ids) {
       runsetFilters.push(
         `id(values(${ids.values
-          .map((val) => encodeURIComponent(val))
+          .map((val) => escapeParentheses(encodeURIComponent(val)))
           .join(",")}))`,
       );
     }
     if (tableTabIdFilters) {
       tableTabIdFilters.forEach((filter) => {
         runsetFilters.push(
-          `id_any(value(${encodeURIComponent(filter.value)}))`,
+          `id_any(value(${escapeParentheses(
+            encodeURIComponent(filter.value),
+          )}))`,
         );
       });
     }
@@ -503,7 +513,7 @@ const makeFilterSerializer =
     return filterString;
   };
 
-const tokenizePart = (string) => {
+const tokenizePart = (string, decodeValue = false) => {
   const out = {};
   let openBrackets = 0;
 
@@ -526,7 +536,7 @@ const tokenizePart = (string) => {
           firstBracket + 1,
           buf.length - 1 - (firstBracket + 1),
         );
-        out[key] = decodeURIComponent(value);
+        out[key] = decodeValue ? decodeURIComponent(value) : value;
       }
       continue;
     }
@@ -622,7 +632,7 @@ const makeFilterDeserializer =
       } else if (token === "id_any") {
         out.push({
           id: "id",
-          ...tokenizePart(filter),
+          ...tokenizePart(filter, true),
           isTableTabFilter: true,
         });
         continue;
@@ -633,7 +643,9 @@ const makeFilterDeserializer =
       const parsedColumnFilters = {};
       for (const [key, columnFilter] of Object.entries(columnFilters)) {
         const [columnId, columnTitle] = key.split("*");
-        const name = `${runsetId}_${unescape(columnTitle)}_${columnId}`;
+        const name = `${runsetId}_${decodeURIComponent(
+          columnTitle,
+        )}_${columnId}`;
         const parsedFilters = parsedColumnFilters[name] || [];
         const tokenizedFilter = tokenizePart(columnFilter);
 
