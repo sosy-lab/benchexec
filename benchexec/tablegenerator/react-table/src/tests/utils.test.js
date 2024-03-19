@@ -19,6 +19,7 @@ import {
   makeFilterDeserializer,
   splitUrlPathForMatchingPrefix,
   makeRegExp,
+  tokenizePart,
 } from "../utils/utils";
 
 describe("isStatusOk", () => {
@@ -268,6 +269,20 @@ describe("decodeFilter", () => {
     const filter = "0_cpu_time_1";
     const expected = { tool: "0", name: "cpu_time", column: "1" };
     expect(decodeFilter(filter)).toEqual(expected);
+  });
+});
+
+describe("tokenizePart", () => {
+  test("should tokenizePart to get Filter keys", () => {
+    const string = "id_any(value(%29)),0(1*cputime*(value(2)))";
+    const expected = { 0: "1*cputime*(value(2))", id_any: "value(%29)" };
+    expect(tokenizePart(string)).toEqual(expected);
+  });
+
+  test("should tokenizePart to get Filter values", () => {
+    const string = "value(%29)";
+    const expected = { value: ")" };
+    expect(tokenizePart(string, true)).toEqual(expected);
   });
 });
 

@@ -513,7 +513,7 @@ const makeFilterSerializer =
     return filterString;
   };
 
-const tokenizePart = (string, decodeValue = false) => {
+export const tokenizePart = (string, decodeValue = false) => {
   const out = {};
   let openBrackets = 0;
 
