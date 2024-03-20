@@ -203,7 +203,7 @@ const EXTENDED_DISCRETE_COLOR_RANGE = [
 ];
 
 /**
- * Parses the search parameters from the URL hash or a provided string.
+ * Parses and decodes the search parameters except filter from the URL hash or a provided string.
  *
  * @param {string} - Optional string to parse. If not provided, parses the URL hash of the current document.
  * @returns {Object} - An object containing the parsed search parameters.
@@ -223,6 +223,8 @@ const getURLParameters = (str) => {
   // Split the search string into key-value pairs and generate an object from them
   const keyValuePairs = search.split("&").map((pair) => pair.split("="));
   const out = {};
+
+  // All parameters in the search string are decoded except filter to allow filter handling later on its own
   for (const [key, ...value] of keyValuePairs) {
     out[decodeURI(key)] =
       key === "filter" ? value.join("=") : decodeURI(value.join("="));
@@ -401,6 +403,10 @@ export const decodeFilter = (filterID) => {
   if (splitedArray.length === 2) {
     throw new Error("Invalid filter ID");
   }
+
+  // tool is always the first element value of the splitedArray
+  // column is always the last element value of the splitedArray
+  // name is the concatenation of remaining elements in between first and last element of splitedArray, separated by _
   return {
     tool: splitedArray[0],
     name:
