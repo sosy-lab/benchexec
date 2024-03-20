@@ -204,7 +204,7 @@ class _Worker(threading.Thread):
         return None
 
 
-jobid_pattern = re.compile(r"job (\d*) queued")
+jobid_pattern = re.compile(r"job (\d*) started")
 
 
 def wait_for(func, timeout_sec=None, poll_interval_sec=1):
@@ -288,7 +288,7 @@ def run_slurm(benchmark, args, log_file):
             [
                 "sh",
                 "-c",
-                f"{' '.join(map(util.escape_string_shell, args))}; echo $? > exitcode",
+                f"echo job $SLURM_JOB_ID started; {' '.join(map(util.escape_string_shell, args))}; echo $? > exitcode",
             ]
         )
 
