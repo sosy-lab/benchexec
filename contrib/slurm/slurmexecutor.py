@@ -311,6 +311,7 @@ def run_slurm(benchmark, args, log_file):
                     if jobid_match:
                         jobid = int(jobid_match.group(1))
                         break
+                    logging.debug("Pattern not found in log line: %s", line)
 
         seff_command = ["seff", str(jobid)]
         logging.debug(
