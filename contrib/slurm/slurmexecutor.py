@@ -409,8 +409,8 @@ def run_sacct(jobid):
         parent_job = lines[0].split()   # State is read from here
         child_job = lines[1].split()    # ExitCode, TotalCPU, Elapsed and MaxRSS read from here
         logging.debug("Sacct data: parent: %s; child: %s", parent_job, child_job)
-        if parent_job[0] in ["RUNNING", "PENDING", "REQUEUED", "RESIZING", "SUSPENDED", "R", "PD", "RQ", "RS", "S"]:
-            logging.debug("Sacct output not yet ready due to state: %s", parent_job[0])
+        if parent_job[0].decode() in ["RUNNING", "PENDING", "REQUEUED", "RESIZING", "SUSPENDED", "R", "PD", "RQ", "RS", "S"]:
+            logging.debug("Sacct output not yet ready due to state: %s", parent_job[0].decode())
             return None     # not finished
         return (sacct_result.stdout,
                 parent_job[0].decode(),  # State
