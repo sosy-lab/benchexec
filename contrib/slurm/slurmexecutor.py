@@ -396,7 +396,7 @@ def run_sacct(jobid):
         )
         lines = str(sacct_result.stdout).split("\n")
         if len(lines) < 2:
-            logging.debug("Sacct output not yet ready: %s", sacct_result.stdout)
+            logging.debug("Sacct output not yet ready: %s", lines)
             return None     # jobs not yet ready
         parent_job = lines[0].split()   # State is read from here
         child_job = lines[1].split()    # ExitCode, TotalCPU, Elapsed and MaxRSS read from here
