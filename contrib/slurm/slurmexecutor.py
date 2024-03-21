@@ -388,31 +388,30 @@ def run_sacct(jobid):
         "Command to run: %s", " ".join(map(util.escape_string_shell, sacct_command))
     )
 
-    def get_checked_seff_result():
+    def get_checked_sacct_result():
         sacct_result = subprocess.run(
             sacct_command,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
         )
-        try:
-            lines = str(sacct_result.stdout).split("\n")
-            if len(lines) < 2:
-                return None     # jobs not yet ready
-            parent_job = lines[0].split()   # State is read from here
-            child_job = lines[1].split()    # ExitCode, TotalCPU, Elapsed and MaxRSS read from here
-            if parent_job[0] in ["RUNNING", "PENDING", "REQUEUED", "RESIZING", "SUSPENDED", "R", "PD", "RQ", "RS", "S"]:
-                return None     # not finished
-            return (sacct_result.stdout,
-                    parent_job[0],  # State
-                    child_job[1].split(":")[0], # ExitCode
-                    get_seconds_from_time(child_job[2]), #TotalCPU in seconds
-                    get_seconds_from_time(child_job[3]), #Elapsed in seconds
-                    float(child_job[4][:-1])*1000) # MaxRSS in K * 1000 -> Bytes
-        except ValueError:
-            return None
+        lines = str(sacct_result.stdout).split("\n")
+        if len(lines) < 2:
+            logging.debug("Sacct output not yet ready: %s", sacct_result.stdout)
+            return None     # jobs not yet ready
+        parent_job = lines[0].split()   # State is read from here
+        child_job = lines[1].split()    # ExitCode, TotalCPU, Elapsed and MaxRSS read from here
+        if parent_job[0] in ["RUNNING", "PENDING", "REQUEUED", "RESIZING", "SUSPENDED", "R", "PD", "RQ", "RS", "S"]:
+            logging.debug("Sacct output not yet ready due to state: %s", parent_job[0])
+            return None     # not finished
+        return (sacct_result.stdout,
+                parent_job[0],  # State
+                child_job[1].split(":")[0], # ExitCode
+                get_seconds_from_time(child_job[2]), #TotalCPU in seconds
+                get_seconds_from_time(child_job[3]), #Elapsed in seconds
+                float(child_job[4][:-1])*1000) # MaxRSS in K * 1000 -> Bytes
 
     # sometimes `seff` needs a few extra seconds to realize the task has ended
-    return wait_for(get_checked_seff_result, 30, 2)
+    return wait_for(get_checked_sacct_result, 30, 2)
 
 
 def run_seff(jobid):
