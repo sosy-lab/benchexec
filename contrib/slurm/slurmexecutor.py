@@ -377,6 +377,14 @@ def get_seconds_from_time(time_str):
     time_match = time_pattern.search(time_str)
     if time_match:
         hours, minutes, seconds, millis = time_match.groups()
+        if hours is None:
+            hours = 0
+        if minutes is None:
+            minutes = 0     # realistically never None, but doesn't hurt
+        if seconds is None:
+            seconds = 0     # realistically never None, but doesn't hurt
+        if millis is None:
+            millis = 0
         return int(hours) * 3600 + int(minutes) * 60 + int(seconds) + int(millis) / 1000
 
 
