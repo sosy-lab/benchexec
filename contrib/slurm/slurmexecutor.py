@@ -408,15 +408,16 @@ def run_sacct(jobid):
             return None     # jobs not yet ready
         parent_job = lines[0].split()   # State is read from here
         child_job = lines[1].split()    # ExitCode, TotalCPU, Elapsed and MaxRSS read from here
+        logging.debug("Sacct data: parent: %s; child: %s", parent_job, child_job)
         if parent_job[0] in ["RUNNING", "PENDING", "REQUEUED", "RESIZING", "SUSPENDED", "R", "PD", "RQ", "RS", "S"]:
             logging.debug("Sacct output not yet ready due to state: %s", parent_job[0])
             return None     # not finished
         return (sacct_result.stdout,
                 str(parent_job[0]),  # State
-                str(child_job[1]).split(":")[0], # ExitCode
-                get_seconds_from_time(str(child_job[2])), #TotalCPU in seconds
-                get_seconds_from_time(str(child_job[3])), #Elapsed in seconds
-                float(str(child_job[4])[:-1])*1000) # MaxRSS in K * 1000 -> Bytes
+                str(child_job[1]).split(":")[0],  # ExitCode
+                get_seconds_from_time(str(child_job[2])),  #TotalCPU in seconds
+                get_seconds_from_time(str(child_job[3])),  #Elapsed in seconds
+                float(str(child_job[4])[:-1])*1000)  # MaxRSS in K * 1000 -> Bytes
 
     # sometimes `seff` needs a few extra seconds to realize the task has ended
     return wait_for(get_checked_sacct_result, 30, 2)
