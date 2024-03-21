@@ -434,8 +434,6 @@ def run_seff(jobid):
         "Command to run: %s", " ".join(map(util.escape_string_shell, seff_command))
     )
 
-    time.sleep(10)
-
     def get_checked_seff_result():
         seff_result = subprocess.run(
             seff_command,
