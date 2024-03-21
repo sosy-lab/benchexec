@@ -412,6 +412,9 @@ def run_sacct(jobid):
         if parent_job[0].decode() in ["RUNNING", "PENDING", "REQUEUED", "RESIZING", "SUSPENDED", "R", "PD", "RQ", "RS", "S"]:
             logging.debug("Sacct output not yet ready due to state: %s", parent_job[0].decode())
             return None     # not finished
+        if len(child_job) < 5:
+            logging.debug("Sacct output not yet ready due to memory not available: %s", child_job)
+            return None     # not finished
         return (sacct_result.stdout,
                 parent_job[0].decode(),  # State
                 child_job[1].decode().split(":")[0],  # ExitCode
