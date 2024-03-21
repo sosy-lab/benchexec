@@ -306,7 +306,9 @@ def run_slurm(benchmark, args, log_file):
                     stderr=subprocess.STDOUT,
                 )
 
-            if STOPPED_BY_INTERRUPT: # job cancelled while srun was running, log not necessarily finalized
+            if (
+                STOPPED_BY_INTERRUPT
+            ):  # job cancelled while srun was running, log not necessarily finalized
                 return
 
             # we try to read back the log, in the first three lines, there should be the jobid
@@ -318,10 +320,14 @@ def run_slurm(benchmark, args, log_file):
                         break
                     logging.debug("Pattern not found in log line: %s", line)
 
-        if STOPPED_BY_INTERRUPT: # job was cancelled during log parsing, no job id present
+        if (
+            STOPPED_BY_INTERRUPT
+        ):  # job was cancelled during log parsing, no job id present
             return
 
-        raw_output, slurm_status, exit_code, cpu_time, wall_time, memory_usage = run_seff(jobid) if benchmark.config.seff else run_sacct(jobid)
+        raw_output, slurm_status, exit_code, cpu_time, wall_time, memory_usage = (
+            run_seff(jobid) if benchmark.config.seff else run_sacct(jobid)
+        )
 
         if os.path.exists(exitcode_file):
             with open(exitcode_file, "r") as f:
@@ -380,9 +386,9 @@ def get_seconds_from_time(time_str):
         if hours is None:
             hours = 0
         if minutes is None:
-            minutes = 0     # realistically never None, but doesn't hurt
+            minutes = 0  # realistically never None, but doesn't hurt
         if seconds is None:
-            seconds = 0     # realistically never None, but doesn't hurt
+            seconds = 0  # realistically never None, but doesn't hurt
         if millis is None:
             millis = 0
         return int(hours) * 3600 + int(minutes) * 60 + int(seconds) + int(millis) / 1000
@@ -391,7 +397,13 @@ def get_seconds_from_time(time_str):
 def run_sacct(jobid):
     global STOPPED_BY_INTERRUPT
 
-    sacct_command = ["sacct", "-j", str(jobid), "-n", "--format=State,ExitCode,TotalCpu,Elapsed,MaxRSS"]
+    sacct_command = [
+        "sacct",
+        "-j",
+        str(jobid),
+        "-n",
+        "--format=State,ExitCode,TotalCpu,Elapsed,MaxRSS",
+    ]
     logging.debug(
         "Command to run: %s", " ".join(map(util.escape_string_shell, sacct_command))
     )
@@ -405,22 +417,41 @@ def run_sacct(jobid):
         lines = sacct_result.stdout.splitlines()
         if len(lines) < 2:
             logging.debug("Sacct output not yet ready: %s", lines)
-            return None     # jobs not yet ready
-        parent_job = lines[0].split()   # State is read from here
-        child_job = lines[1].split()    # ExitCode, TotalCPU, Elapsed and MaxRSS read from here
+            return None  # jobs not yet ready
+        parent_job = lines[0].split()  # State is read from here
+        child_job = lines[
+            1
+        ].split()  # ExitCode, TotalCPU, Elapsed and MaxRSS read from here
         logging.debug("Sacct data: parent: %s; child: %s", parent_job, child_job)
-        if parent_job[0].decode() in ["RUNNING", "PENDING", "REQUEUED", "RESIZING", "SUSPENDED", "R", "PD", "RQ", "RS", "S"]:
-            logging.debug("Sacct output not yet ready due to state: %s", parent_job[0].decode())
-            return None     # not finished
+        if parent_job[0].decode() in [
+            "RUNNING",
+            "PENDING",
+            "REQUEUED",
+            "RESIZING",
+            "SUSPENDED",
+            "R",
+            "PD",
+            "RQ",
+            "RS",
+            "S",
+        ]:
+            logging.debug(
+                "Sacct output not yet ready due to state: %s", parent_job[0].decode()
+            )
+            return None  # not finished
         if len(child_job) < 5:
-            logging.debug("Sacct output not yet ready due to memory not available: %s", child_job)
-            return None     # not finished
-        return (sacct_result.stdout,
-                parent_job[0].decode(),  # State
-                child_job[1].decode().split(":")[0],  # ExitCode
-                get_seconds_from_time(child_job[2].decode()),  #TotalCPU in seconds
-                get_seconds_from_time(child_job[3].decode()),  #Elapsed in seconds
-                float(child_job[4].decode()[:-1])*1000)  # MaxRSS in K * 1000 -> Bytes
+            logging.debug(
+                "Sacct output not yet ready due to memory not available: %s", child_job
+            )
+            return None  # not finished
+        return (
+            sacct_result.stdout,
+            parent_job[0].decode(),  # State
+            child_job[1].decode().split(":")[0],  # ExitCode
+            get_seconds_from_time(child_job[2].decode()),  # TotalCPU in seconds
+            get_seconds_from_time(child_job[3].decode()),  # Elapsed in seconds
+            float(child_job[4].decode()[:-1]) * 1000,
+        )  # MaxRSS in K * 1000 -> Bytes
 
     # sometimes `seff` needs a few extra seconds to realize the task has ended
     return wait_for(get_checked_sacct_result, 30, 2)
