@@ -394,7 +394,7 @@ def run_sacct(jobid):
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
         )
-        lines = str(sacct_result.stdout).split("\n")
+        lines = sacct_result.stdout.splitlines()
         if len(lines) < 2:
             logging.debug("Sacct output not yet ready: %s", lines)
             return None     # jobs not yet ready
