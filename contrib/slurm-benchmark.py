@@ -63,6 +63,12 @@ class Benchmark(benchexec.benchexec.BenchExec):
             default="0",
             help="Retry killed jobs this many times. Use -1 for unbounded retry attempts.",
         )
+        slurm_args.add_argument(
+            "--use-seff",
+            dest="seff",
+            action="store_true",
+            help="Use seff instead of sacct for resource measurement data.",
+        )
 
         return parser
 
