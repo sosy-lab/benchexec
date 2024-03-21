@@ -216,7 +216,7 @@ def wait_for(func, timeout_sec=None, poll_interval_sec=1):
     """
     start_time = time.monotonic()
 
-    while True:
+    while not STOPPED_BY_INTERRUPT:
         ret = func()
         if ret is not None:
             return ret
@@ -296,7 +296,7 @@ def run_slurm(benchmark, args, log_file):
             "Command to run: %s", " ".join(map(util.escape_string_shell, srun_command))
         )
         jobid = None
-        while jobid is None:
+        while jobid is None and not STOPPED_BY_INTERRUPT:
             with open(tmp_log, "w") as tmp_log_f:
                 subprocess.run(
                     srun_command,
@@ -304,9 +304,9 @@ def run_slurm(benchmark, args, log_file):
                     stderr=subprocess.STDOUT,
                 )
 
-            # we try to read back the log, in the first two lines there should be the jobid
+            # we try to read back the log, in the first three lines, there should be the jobid
             with open(tmp_log, "r") as tmp_log_f:
-                for line in itertools.islice(tmp_log_f, 2):
+                for line in itertools.islice(tmp_log_f, 3):
                     jobid_match = jobid_pattern.search(line)
                     if jobid_match:
                         jobid = int(jobid_match.group(1))
