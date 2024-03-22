@@ -160,8 +160,11 @@ export default class Overview extends React.Component {
     filters
       .filter((filter) => filter.id !== "id")
       .forEach((filter) => {
-        const [runsetIdx, , columnIdx] = filter.id.split("_");
-        const type = this.state.tools[runsetIdx]["columns"][columnIdx].type;
+        const filterSplitArray = filter.id.split("_");
+        const type =
+          this.state.tools[filterSplitArray[0]]["columns"][
+            filterSplitArray.at(-1)
+          ].type;
         filter.type = type;
       });
 
