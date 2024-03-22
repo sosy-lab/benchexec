@@ -22,7 +22,7 @@ class Tool(BaseTool2):
         return "Coccinelle"
 
     def executable(self, tool_locator):
-        return tool_locator.find_executable("spatch")
+        return tool_locator.find_executable("_spatch")
 
     def version(self, executable):
         return self._version_from_tool(
@@ -30,12 +30,7 @@ class Tool(BaseTool2):
         )
 
     def cmdline(self, executable, options, task, resource_limits):
-        if task.property_file:
-            return (
-                [executable] + options + [task.single_input_file] + [task.property_file]
-            )
-        else:
-            return [executable] + options + [task.single_input_file]
+        return [executable] + options + [task.single_input_file]
 
     def project_url(self):
         return "https://github.com/coccinelle/coccinelle"
