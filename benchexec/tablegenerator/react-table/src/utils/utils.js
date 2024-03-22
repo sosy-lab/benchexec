@@ -203,14 +203,14 @@ const EXTENDED_DISCRETE_COLOR_RANGE = [
 ];
 
 /**
- * Parses the search parameters from the URL hash or a provided string.
+ * Parses and decodes the search parameters except filter from the URL hash or a provided string.
  *
  * @param {string} - Optional string to parse. If not provided, parses the URL hash of the current document.
  * @returns {Object} - An object containing the parsed search parameters.
  */
 const getURLParameters = (str) => {
   // Split the URL string into parts using "?" as a delimiter
-  const urlParts = (str || decodeURI(document.location.href)).split("?");
+  const urlParts = (str || document.location.href).split("?");
 
   // Extract the search part of the URL
   const search = urlParts.length > 1 ? urlParts.slice(1).join("?") : undefined;
@@ -223,8 +223,11 @@ const getURLParameters = (str) => {
   // Split the search string into key-value pairs and generate an object from them
   const keyValuePairs = search.split("&").map((pair) => pair.split("="));
   const out = {};
+
+  // All parameters in the search string are decoded except filter to allow filter handling later on its own
   for (const [key, ...value] of keyValuePairs) {
-    out[key] = value.join("=");
+    out[decodeURI(key)] =
+      key === "filter" ? value.join("=") : decodeURI(value.join("="));
   }
 
   return out;
@@ -257,7 +260,10 @@ export const constructHashURL = (url, params = {}) => {
   const queryString = constructQueryString(mergedParams);
   const baseURL = url.split("?")[0];
 
-  return queryString.length > 0 ? `${baseURL}?${queryString}` : baseURL;
+  return {
+    newUrl: queryString.length > 0 ? `${baseURL}?${queryString}` : baseURL,
+    queryString: `?${queryString}`,
+  };
 };
 
 /**
@@ -269,10 +275,13 @@ export const constructHashURL = (url, params = {}) => {
  * @returns {void}
  */
 const setURLParameter = (params = {}, history = null) => {
-  const newUrl = constructHashURL(document.location.href, params);
-
+  const { newUrl, queryString } = constructHashURL(
+    document.location.href,
+    params,
+  );
   if (history && history.push) {
-    history.push(newUrl);
+    history.push(queryString);
+    return;
   }
   document.location.href = newUrl;
 };
@@ -363,6 +372,13 @@ function makeStatusColumnFilter(
   return statusColumnFilter.join(",");
 }
 
+function escapeParentheses(value) {
+  if (typeof value !== "string") {
+    throw new Error("Invalid value type");
+  }
+  return value.replaceAll("(", "%28").replaceAll(")", "%29");
+}
+
 export const makeRegExp = (value) => {
   if (typeof value !== "string") {
     throw new Error("Invalid value type for converting to RegExp");
@@ -384,13 +400,18 @@ export const decodeFilter = (filterID) => {
   }
   const splitedArray = filterID.split("_");
 
-  if (splitedArray.length > 3) {
+  if (splitedArray.length === 2) {
     throw new Error("Invalid filter ID");
   }
+
+  // tool is always the first element value of the splitedArray
+  // column is always the last element value of the splitedArray
+  // name is the concatenation of remaining elements in between first and last element of splitedArray, separated by _
   return {
     tool: splitedArray[0],
-    name: splitedArray[1],
-    column: splitedArray[2],
+    name:
+      splitedArray.length > 2 ? splitedArray.slice(1, -1).join("_") : undefined,
+    column: splitedArray.length > 2 ? splitedArray.at(-1) : undefined,
   };
 };
 
@@ -453,11 +474,19 @@ const makeFilterSerializer =
     const { ids, ...rest } = groupedFilters;
     const runsetFilters = [];
     if (ids) {
-      runsetFilters.push(`id(values(${ids.values.map(escape).join(",")}))`);
+      runsetFilters.push(
+        `id(values(${ids.values
+          .map((val) => escapeParentheses(encodeURIComponent(val)))
+          .join(",")}))`,
+      );
     }
     if (tableTabIdFilters) {
       tableTabIdFilters.forEach((filter) => {
-        runsetFilters.push(`id_any(value(${filter.value}))`);
+        runsetFilters.push(
+          `id_any(value(${escapeParentheses(
+            encodeURIComponent(filter.value),
+          )}))`,
+        );
       });
     }
     for (const [tool, column] of Object.entries(rest)) {
@@ -490,7 +519,7 @@ const makeFilterSerializer =
     return filterString;
   };
 
-const tokenizePart = (string) => {
+export const tokenizePart = (string, decodeValue = false) => {
   const out = {};
   let openBrackets = 0;
 
@@ -513,7 +542,7 @@ const tokenizePart = (string) => {
           firstBracket + 1,
           buf.length - 1 - (firstBracket + 1),
         );
-        out[key] = value;
+        out[key] = decodeValue ? decodeURIComponent(value) : value;
       }
       continue;
     }
@@ -609,7 +638,8 @@ const makeFilterDeserializer =
       } else if (token === "id_any") {
         out.push({
           id: "id",
-          ...tokenizePart(filter),
+          ...tokenizePart(filter, true),
+          isTableTabFilter: true,
         });
         continue;
       }
@@ -619,7 +649,9 @@ const makeFilterDeserializer =
       const parsedColumnFilters = {};
       for (const [key, columnFilter] of Object.entries(columnFilters)) {
         const [columnId, columnTitle] = key.split("*");
-        const name = `${runsetId}_${unescape(columnTitle)}_${columnId}`;
+        const name = `${runsetId}_${decodeURIComponent(
+          columnTitle,
+        )}_${columnId}`;
         const parsedFilters = parsedColumnFilters[name] || [];
         const tokenizedFilter = tokenizePart(columnFilter);
 

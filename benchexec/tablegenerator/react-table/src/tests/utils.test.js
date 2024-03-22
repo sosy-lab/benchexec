@@ -19,6 +19,7 @@ import {
   makeFilterDeserializer,
   splitUrlPathForMatchingPrefix,
   makeRegExp,
+  tokenizePart,
 } from "../utils/utils";
 
 describe("isStatusOk", () => {
@@ -134,54 +135,71 @@ describe("hashRouting helpers", () => {
       const baseUrl = "http://example.com";
       const params = { key1: "value1", key2: "value2" };
 
-      expect(constructHashURL(baseUrl, params)).toEqual(
-        "http://example.com?key1=value1&key2=value2",
-      );
+      const expected = {
+        newUrl: "http://example.com?key1=value1&key2=value2",
+        queryString: "?key1=value1&key2=value2",
+      };
+      expect(constructHashURL(baseUrl, params)).toEqual(expected);
     });
 
     test("should construct URL hash with provided parameters and keep the exisiting parameters", () => {
       const baseUrl = "http://example.com?existingKey=existingValue";
       const params = { key1: "value1", key2: "value2" };
 
-      expect(constructHashURL(baseUrl, params)).toEqual(
-        "http://example.com?existingKey=existingValue&key1=value1&key2=value2",
-      );
+      const expected = {
+        newUrl:
+          "http://example.com?existingKey=existingValue&key1=value1&key2=value2",
+        queryString: "?existingKey=existingValue&key1=value1&key2=value2",
+      };
+      expect(constructHashURL(baseUrl, params)).toEqual(expected);
     });
 
     test("should return the same URL with exisiting params if no parameters are provided", () => {
       const baseUrl = "http://example.com?exisitingKey=existingValue";
       const params = {};
 
-      expect(constructHashURL(baseUrl, params)).toEqual(
-        "http://example.com?exisitingKey=existingValue",
-      );
+      const expected = {
+        newUrl: "http://example.com?exisitingKey=existingValue",
+        queryString: "?exisitingKey=existingValue",
+      };
+
+      expect(constructHashURL(baseUrl, params)).toEqual(expected);
     });
 
     test("should override existing parameters with new ones", () => {
       const baseUrl = "http://example.com?key1=value1&key2=value2";
       const params = { key2: "newValue" };
 
-      expect(constructHashURL(baseUrl, params)).toEqual(
-        "http://example.com?key1=value1&key2=newValue",
-      );
+      const expected = {
+        newUrl: "http://example.com?key1=value1&key2=newValue",
+        queryString: "?key1=value1&key2=newValue",
+      };
+
+      expect(constructHashURL(baseUrl, params)).toEqual(expected);
     });
 
     test("should remove exisiting parameters if they are updated to undefined", () => {
       const baseUrl = "http://example.com?key1=value1&key2=value2";
       const params = { key2: undefined };
 
-      expect(constructHashURL(baseUrl, params)).toEqual(
-        "http://example.com?key1=value1",
-      );
+      const expected = {
+        newUrl: "http://example.com?key1=value1",
+        queryString: "?key1=value1",
+      };
+
+      expect(constructHashURL(baseUrl, params)).toEqual(expected);
     });
 
     test("should remove exisiting parameters if they are updated to null", () => {
       const baseUrl = "http://example.com?key1=value1&key2=value2";
       const params = { key2: null };
 
-      expect(constructHashURL(baseUrl, params)).toEqual(
-        "http://example.com?key1=value1",
-      );
+      const expected = {
+        newUrl: "http://example.com?key1=value1",
+        queryString: "?key1=value1",
+      };
+
+      expect(constructHashURL(baseUrl, params)).toEqual(expected);
     });
 
     test("should not remove exisiting parameters if they are updated to falsy values", () => {
@@ -192,9 +210,12 @@ describe("hashRouting helpers", () => {
         key3: 0,
       };
 
-      expect(constructHashURL(baseUrl, params)).toEqual(
-        "http://example.com?key1=&key2=false&key3=0",
-      );
+      const expected = {
+        newUrl: "http://example.com?key1=&key2=false&key3=0",
+        queryString: "?key1=&key2=false&key3=0",
+      };
+
+      expect(constructHashURL(baseUrl, params)).toEqual(expected);
     });
   });
 });
@@ -239,9 +260,29 @@ describe("decodeFilter", () => {
     expect(decodeFilter(filter)).toEqual(expected);
   });
 
-  test("should throw errors if there are more than two '_' in the filter id", () => {
-    expect(() => decodeFilter("0__cputime_")).toThrow();
-    expect(() => decodeFilter("0_cputime_1_2")).toThrow();
+  test("should throw errors if there are is only one '_' in the filter id", () => {
+    expect(() => decodeFilter("0cputime_")).toThrow();
+    expect(() => decodeFilter("0_cputime2")).toThrow();
+  });
+
+  test("should decode correctly with more than two '_' in the filter id", () => {
+    const filter = "0_cpu_time_1";
+    const expected = { tool: "0", name: "cpu_time", column: "1" };
+    expect(decodeFilter(filter)).toEqual(expected);
+  });
+});
+
+describe("tokenizePart", () => {
+  test("should tokenizePart to get Filter keys", () => {
+    const string = "id_any(value(%29)),0(1*cputime*(value(2)))";
+    const expected = { 0: "1*cputime*(value(2))", id_any: "value(%29)" };
+    expect(tokenizePart(string)).toEqual(expected);
+  });
+
+  test("should tokenizePart to get Filter values", () => {
+    const string = "value(%29)";
+    const expected = { value: ")" };
+    expect(tokenizePart(string, true)).toEqual(expected);
   });
 });
 
@@ -274,6 +315,34 @@ describe("serialization", () => {
   test("should serialize id filters", () => {
     const filter = [{ id: "id", values: ["abc", "def"] }];
     const expected = "id(values(abc,def))";
+
+    expect(serializer(filter)).toBe(expected);
+  });
+
+  test("should serialize id filters with parentheses", () => {
+    const filter = [{ id: "id", values: ["(", ")"] }];
+    const expected = "id(values(%28,%29))";
+
+    expect(serializer(filter)).toBe(expected);
+  });
+
+  test("should serialize id filter to escape special characters", () => {
+    const filter = [{ id: "id", value: "?#&=(),*", isTableTabFilter: true }];
+    const expected = "id_any(value(%3F%23%26%3D%28%29%2C*))";
+
+    expect(serializer(filter)).toBe(expected);
+  });
+
+  test("should serialize id filter with one opening parentheses", () => {
+    const filter = [{ id: "id", value: "(", isTableTabFilter: true }];
+    const expected = "id_any(value(%28))";
+
+    expect(serializer(filter)).toBe(expected);
+  });
+
+  test("should serialize id filter with one closing parentheses", () => {
+    const filter = [{ id: "id", value: ")", isTableTabFilter: true }];
+    const expected = "id_any(value(%29))";
 
     expect(serializer(filter)).toBe(expected);
   });
@@ -594,6 +663,38 @@ describe("Filter deserialization", () => {
     const string = "id(values(abc,def))";
 
     const expected = [{ id: "id", values: ["abc", "def"] }];
+
+    expect(deserializer(string)).toStrictEqual(expected);
+  });
+
+  test("should serialize id filters with parentheses", () => {
+    const string = "id(values(%28,%29))";
+
+    const expected = [{ id: "id", values: ["(", ")"] }];
+
+    expect(deserializer(string)).toStrictEqual(expected);
+  });
+
+  test("should deserialize id filter with one opening parentheses", () => {
+    const string = "id_any(value(%28))";
+
+    const expected = [{ id: "id", value: "(", isTableTabFilter: true }];
+
+    expect(deserializer(string)).toStrictEqual(expected);
+  });
+
+  test("should deserialize id filter with one closing parentheses", () => {
+    const string = "id_any(value(%29))";
+
+    const expected = [{ id: "id", value: ")", isTableTabFilter: true }];
+
+    expect(deserializer(string)).toStrictEqual(expected);
+  });
+
+  test("should deserialize Table Tab Id filter with special characters", () => {
+    const string = "id_any(value(%3F%23%26%3D()%2C*))*";
+
+    const expected = [{ id: "id", value: "?#&=(),*", isTableTabFilter: true }];
 
     expect(deserializer(string)).toStrictEqual(expected);
   });
