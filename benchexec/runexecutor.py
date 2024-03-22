@@ -177,7 +177,7 @@ def main(argv=None):
     baseexecutor.add_basic_executor_options(parser)
 
     options = parser.parse_args(argv[1:])
-    baseexecutor.handle_basic_executor_options(options, parser)
+    baseexecutor.handle_basic_executor_options(options)
     logging.debug("This is runexec %s.", __version__)
 
     if options.container:

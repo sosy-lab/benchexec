@@ -54,8 +54,6 @@ def get_system_info():
 
 
 def execute_benchmark(benchmark, output_handler):
-    run_sets_executed = 0
-
     logging.debug("I will use %s threads.", benchmark.num_of_threads)
 
     if (
@@ -150,7 +148,6 @@ def execute_benchmark(benchmark, output_handler):
             )
 
         else:
-            run_sets_executed += 1
             _execute_run_set(
                 runSet,
                 benchmark,

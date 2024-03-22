@@ -9,7 +9,7 @@ import React from "react";
 import ScatterPlot from "../components/ScatterPlot.js";
 import Overview from "../components/Overview";
 import renderer from "react-test-renderer";
-import { setParam } from "../utils/utils";
+import { setURLParameter } from "../utils/utils";
 const fs = require("fs");
 
 const content = fs.readFileSync(
@@ -170,6 +170,6 @@ function getSelections(xSelection, ySelection) {
 }
 
 function setUrlParams(params) {
-  setParam(params);
+  setURLParameter(params);
   plotInstance.refreshUrlState();
 }

@@ -31,9 +31,10 @@ import {
   emptyStateValue,
   isNil,
   hasSameEntries,
-  setHashSearch,
-  getHashSearch,
+  setURLParameter,
+  getURLParameters,
   getHiddenColIds,
+  decodeFilter,
 } from "../utils/utils";
 import deepEqual from "deep-equal";
 import { statusForEmptyRows } from "../utils/filters";
@@ -49,7 +50,7 @@ const pageSizes = [50, 100, 250, 500, 1000, 2500];
 const initialPageSize = 250;
 
 const getSortingSettingsFromURL = () => {
-  const urlParams = getHashSearch();
+  const urlParams = getURLParameters();
   let settings = urlParams.sort
     ? urlParams.sort.split(";").map((sortingEntry) => {
         const sortingParams = sortingEntry.split(",");
@@ -100,7 +101,9 @@ const createRelevantFilterLabel = ({
 
 const Table = (props) => {
   const [isFixed, setIsFixed] = useState(true);
-  const [filteredColumnValues, setFilteredColumnValues] = useState({});
+  const [filteredColumnValues, setFilteredColumnValues] = useState(
+    getNewFilteredColumnValues(),
+  );
   const [columnsResizeValues, setColumnsResizeValues] = useState({});
   const [disableTaskText, setDisableTaskText] = useState(false);
   const history = useHistory();
@@ -166,7 +169,7 @@ const Table = (props) => {
     let additionalFilters = [];
 
     if (newFilter.type === "status") {
-      const [tool, name, column] = newFilter.id.split("_");
+      const { tool, name, column } = decodeFilter(newFilter.id);
       const value = newFilter.value;
 
       if (value.trim() === "all") {
@@ -564,9 +567,9 @@ const Table = (props) => {
       defaultColumn,
       initialState: {
         sortBy: getSortingSettingsFromURL(),
-        pageIndex: parseInt(getHashSearch().page) - 1 || 0,
+        pageIndex: parseInt(getURLParameters().page) - 1 || 0,
         hiddenColumns: getHiddenColIds(columns),
-        pageSize: parseInt(getHashSearch().pageSize) || initialPageSize,
+        pageSize: parseInt(getURLParameters().pageSize) || initialPageSize,
       },
     },
     useFilters,
@@ -586,29 +589,20 @@ const Table = (props) => {
       )
       .join(";");
     const value = sort.length ? sort : undefined;
-    const prevParams = getHashSearch();
-    if (prevParams["sort"] !== value) {
-      setHashSearch({ sort: value }, { keepOthers: true });
-    }
+    setURLParameter({ sort: value });
   }, [sortBy]);
 
   // Update the URL page size param when the table page size setting changed
   useEffect(() => {
     const value = pageSize !== initialPageSize ? pageSize : undefined;
-    const prevParams = getHashSearch();
-    if (prevParams["pageSize"] !== value) {
-      setHashSearch({ pageSize: value }, { keepOthers: true });
-    }
+    setURLParameter({ pageSize: value });
   }, [pageSize]);
 
   // Update the URL page param when the table page changed
   useEffect(() => {
     const value =
       pageIndex && pageIndex !== 0 ? Number(pageIndex) + 1 : undefined;
-    const prevParams = getHashSearch();
-    if (prevParams["page"] !== value) {
-      setHashSearch({ page: value }, { keepOthers: true });
-    }
+    setURLParameter({ page: value });
   }, [pageIndex]);
 
   // Store the column resizing values so they can be applied again in case the table rerenders
@@ -619,15 +613,12 @@ const Table = (props) => {
     }
   }, [columnResizing, columnsResizeValues]);
 
-  // get selected status and category values
-  useEffect(() => {
+  // Convert the props.filters array into Filtered Column Values object
+  function getNewFilteredColumnValues() {
     const newFilteredColumnValues = {};
     for (const filter of props.filters) {
-      const { value, values, id } = filter;
-      if (id === "id") {
-        setDisableTaskText(!isNil(values));
-      }
-      const [runset, , column] = id.split("_");
+      const { value, id } = filter;
+      const { tool: runset, column } = decodeFilter(id);
       const currentRunsetFilters = newFilteredColumnValues[runset] || {};
 
       const isCategory =
@@ -645,6 +636,18 @@ const Table = (props) => {
 
       newFilteredColumnValues[runset] = currentRunsetFilters;
     }
+    return newFilteredColumnValues;
+  }
+
+  // get selected status and category values
+  useEffect(() => {
+    for (const filter of props.filters) {
+      const { values, id } = filter;
+      if (id === "id") {
+        setDisableTaskText(!isNil(values));
+      }
+    }
+    let newFilteredColumnValues = getNewFilteredColumnValues();
     if (!deepEqual(newFilteredColumnValues, filteredColumnValues)) {
       setFilteredColumnValues(newFilteredColumnValues);
     }
@@ -652,14 +655,20 @@ const Table = (props) => {
     if (pageIndex >= pageCount) {
       gotoPage(pageCount - 1);
     }
+
+    // react-hooks/exhaustive-deps shows that getNewFilteredColumnValues to be included in the dependency array.
+    // But useEffect functionality is not dependent on getNewFilteredColumnValues as it never changes.
+    // So react-hooks/exhaustive-deps can be ignored here.
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.filters, filteredColumnValues, gotoPage, pageIndex, pageCount]);
 
   // Update table relevant parameters after URL change
   useEffect(() => {
     return history.listen((location) => {
-      setPageSize(getHashSearch().pageSize || initialPageSize);
+      setPageSize(getURLParameters().pageSize || initialPageSize);
       setSortBy(getSortingSettingsFromURL());
-      gotoPage(getHashSearch().page - 1 || 0);
+      gotoPage(getURLParameters().page - 1 || 0);
     });
   }, [history, gotoPage, setPageSize, setSortBy]);
 

@@ -1,0 +1,94 @@
+# This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
+#
+# SPDX-FileCopyrightText: 2023 Dirk Beyer <https://www.sosy-lab.org>
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: JavaScript Pipeline
+
+on: [push, pull_request, workflow_dispatch]
+
+jobs:
+  lint:
+    name: Perform linting
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "lts/iron"
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: npm-${{ hashFiles('benchexec/tablegenerator/react-table/package-lock.json') }}
+          restore-keys: npm-
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: benchexec/tablegenerator/react-table
+
+      - name: Lint
+        run: npm run lint
+        working-directory: benchexec/tablegenerator/react-table
+
+  tests:
+    name: Running tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "lts/iron"
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: npm-${{ hashFiles('benchexec/tablegenerator/react-table/package-lock.json') }}
+          restore-keys: npm-
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: benchexec/tablegenerator/react-table
+
+      - name: Run tests
+        run: npm run test
+        working-directory: benchexec/tablegenerator/react-table
+
+  javascript-build:
+    name: Building the application
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "lts/iron"
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: npm-${{ hashFiles('benchexec/tablegenerator/react-table/package-lock.json') }}
+          restore-keys: npm-
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: benchexec/tablegenerator/react-table
+
+      - name: Build
+        run: |
+          npm run build
+          git diff --stat --exit-code
+        working-directory: benchexec/tablegenerator/react-table

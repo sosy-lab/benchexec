@@ -653,7 +653,7 @@ def parse_results_file(resultFile, run_set_id=None, ignore_errors=False):
 
     if resultElem.tag not in ["result", "test"]:
         handle_error(
-            "XML file with benchmark results seems to be invalid.\n"
+            f"XML file '{resultFile}' with benchmark results seems to be invalid.\n"
             "The root element of the file is not named 'result' or 'test'.\n"
             "If you want to run a table-definition file,\n"
             "you should use the option '-x' or '--xml'."

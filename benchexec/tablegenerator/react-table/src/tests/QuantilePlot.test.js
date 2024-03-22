@@ -9,7 +9,7 @@ import React from "react";
 import QuantilePlot from "../components/QuantilePlot.js";
 import Overview from "../components/Overview";
 import renderer from "react-test-renderer";
-import { setParam } from "../utils/utils";
+import { setURLParameter } from "../utils/utils";
 const fs = require("fs");
 
 const testDir = "../test_integration/expected/";
@@ -65,12 +65,12 @@ files
       );
 
       describe("Quantile Plot should match HTML snapshot", () => {
-        setParam({ plot: plotInstance.plotOptions.quantile });
+        setURLParameter({ plot: plotInstance.plotOptions.quantile });
 
         it.each(selectionResultInput)(
           "with selection of the type %s and %s results",
           (selection, results) => {
-            setParam({ selection: selection.value, results });
+            setURLParameter({ selection: selection.value, results });
             plotInstance.refreshUrlState();
             expect(plot).toMatchSnapshot();
           },
@@ -78,12 +78,12 @@ files
       });
 
       describe("Direct Plot should match HTML snapshot", () => {
-        setParam({ plot: plotInstance.plotOptions.direct });
+        setURLParameter({ plot: plotInstance.plotOptions.direct });
 
         it.each(selectionResultInput)(
           "with selection of the type %s and %s results",
           (selection, results) => {
-            setParam({ selection: selection.value, results });
+            setURLParameter({ selection: selection.value, results });
             plotInstance.refreshUrlState();
             expect(plot).toMatchSnapshot();
           },
@@ -93,7 +93,7 @@ files
       // Score based plot isn't available if the data doesn't support a scoring scheme
       if (plotInstance.plotOptions.scoreBased) {
         describe("Score-based Quantile Plot should match HTML snapshot (if it exists)", () => {
-          setParam({ plot: plotInstance.plotOptions.scoreBased });
+          setURLParameter({ plot: plotInstance.plotOptions.scoreBased });
 
           // Only test with columns as runsets can't be selected for score-based plots
           it.each(
@@ -101,7 +101,7 @@ files
               (selection) => selection.toString() !== "runset",
             ),
           )("with selection of the type %s", (selection) => {
-            setParam({ selection: selection.value });
+            setURLParameter({ selection: selection.value });
             plotInstance.refreshUrlState();
             expect(plot).toMatchSnapshot();
           });

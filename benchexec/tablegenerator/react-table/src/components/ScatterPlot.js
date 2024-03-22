@@ -22,8 +22,8 @@ import {
 } from "react-vis";
 import {
   getRunSetName,
-  setParam,
-  getHashSearch,
+  setURLParameter,
+  getURLParameters,
   isNil,
   getFirstVisibles,
 } from "../utils/utils";
@@ -98,7 +98,7 @@ export default class ScatterPlot extends React.Component {
     let { results, scaling, toolX, toolY, columnX, columnY, line, regression } =
       {
         ...this.defaultValues,
-        ...getHashSearch(),
+        ...getURLParameters(),
       };
 
     let dataX, dataY, areAllColsHidden;
@@ -221,7 +221,7 @@ export default class ScatterPlot extends React.Component {
     const areSelectionsNumerical = this.checkForNumericalSelections();
     if (isRegressionEnabled) {
       if (this.lineCount === 0 || !areSelectionsNumerical) {
-        setParam({ regression: this.regressionOptions.none });
+        setURLParameter({ regression: this.regressionOptions.none });
       } else {
         const regressionDataArray = array.map((data) => [
           parseFloat(data.x),
@@ -333,13 +333,13 @@ export default class ScatterPlot extends React.Component {
             {renderSetting(
               "Scaling",
               this.state.scaling,
-              (ev) => setParam({ scaling: ev.target.value }),
+              (ev) => setURLParameter({ scaling: ev.target.value }),
               this.scalingOptions,
             )}
             {renderSetting(
               "Results",
               this.state.results,
-              (ev) => setParam({ results: ev.target.value }),
+              (ev) => setURLParameter({ results: ev.target.value }),
               this.resultsOptions,
               "In addition to which results are selected here, any filters will still be applied.",
             )}
@@ -347,7 +347,7 @@ export default class ScatterPlot extends React.Component {
               {renderOptgroupsSetting(
                 "Aux. Lines",
                 this.state.line,
-                (ev) => setParam({ line: ev.target.value }),
+                (ev) => setURLParameter({ line: ev.target.value }),
                 this.lineOptgroupOptions,
                 "Adds the two auxiliary lines f(x) = cx and f(x) = x/c to the plot, with c being the chosen factor in the dropdown.",
               )}
@@ -359,7 +359,7 @@ export default class ScatterPlot extends React.Component {
               this.state.regression,
               (ev) => {
                 if (this.checkForNumericalSelections()) {
-                  setParam({ regression: ev.target.value });
+                  setURLParameter({ regression: ev.target.value });
                 } else {
                   alert(
                     "Regressions are only available for numerical selections.",
@@ -494,12 +494,12 @@ export default class ScatterPlot extends React.Component {
     this.array = [];
     let [tool, column] = ev.target.value.split("-");
     column = column.replace("___", "-");
-    setParam({ [`tool${axis}`]: tool, [`column${axis}`]: column });
+    setURLParameter({ [`tool${axis}`]: tool, [`column${axis}`]: column });
   };
 
   swapAxes = () => {
     this.array = [];
-    setParam({
+    setURLParameter({
       toolX: this.state.toolY,
       toolY: this.state.toolX,
       columnX: this.state.columnY,

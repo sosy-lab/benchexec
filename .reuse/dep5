@@ -19,6 +19,16 @@ Files: benchexec/tablegenerator/react-table/build/vendors.min.*
 Copyright: various authors (full list is bundled and shown on Info tab)
 License: BSD-3-Clause AND CC-BY-4.0 AND MIT AND ISC
 
-Files: debian/*
+Files: debian/NEWS
+ debian/README.Debian
+ debian/benchexec.examples
+ debian/changelog
+ debian/compat
+ debian/control
+ debian/copyright
+ debian/docs
+ debian/install
+ debian/source/format
+ debian/watch
 Copyright: 2015-2020 Dirk Beyer <https://www.sosy-lab.org>
 License: Apache-2.0
