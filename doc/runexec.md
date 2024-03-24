@@ -57,6 +57,7 @@ For explanation of the parameters for containers, please see [container mode](co
 Command-line parameters can additionally be read from a file
 as [described for benchexec](benchexec.md#starting-benchexec).
 
+
 ## Integration into other Benchmarking Frameworks
 
 BenchExec can be used inside other benchmarking frameworks
@@ -72,31 +73,4 @@ You can also execute `runexec` directly from the `.whl` file with the following 
 
     PYTHONPATH=path/to/BenchExec.whl python3 -m benchexec.runexecutor ...
 
-From within Python, BenchExec can be used to execute a command as in the following example:
-
-```python
-from benchexec.runexecutor import RunExecutor
-executor = RunExecutor()
-result = executor.execute_run(args=[<TOOL_CMD>], ...)
-```
-
-Further parameters for `execute_run` can be used to specify resource limits
-(c.f. [runexecutor.py](../benchexec/runexecutor.py)).
-The result is a dictionary with the same information about the run
-that is printed to stdout by the `runexec` command-line tool (cf. [Run Results](run-results.md)).
-
-If `RunExecutor` is used on the main thread,
-caution must be taken to avoid `KeyboardInterrupt`, e.g., like this:
-
-```python
-import signal
-from benchexec.runexecutor import RunExecutor
-executor = RunExecutor()
-
-def stop_run(signum, frame):
-  executor.stop()
-
-signal.signal(signal.SIGINT, stop_run)
-
-result = executor.execute_run(args=[<TOOL_CMD>], ...)
-```
+Benchexec also provides a [simple Python API](python-api.md) to ease integration.
