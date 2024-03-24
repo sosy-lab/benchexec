@@ -72,11 +72,9 @@ BenchExec always uses the SI standard units:
   which consists of the options for a tool configuration
   and will be combined with a task to define a run.
 
-- **task**: A combination of a set of input files, a property file, and an expected verdict
-  that defines a problem for a tool to solve.
+- **task**: A complete definition of a problem for a tool to solve, e.g. through one or more input files, with an optional expected result.
   A task corresponds to exactly one row in the result tables.
   Depending on what the tool supports, the set of input files can be empty.
-  Properties and expected verdicts are optional.
 
 - **task definition**: A file in [this format](https://gitlab.com/sosy-lab/benchmarking/task-definition-format)
   that describes a set of tasks
