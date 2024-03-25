@@ -75,8 +75,8 @@ class BaseExecutor(object):
         parent_cleanup_fn,
     ):
         """Actually start the tool and the measurements.
-        @param parent_setup_fn a function without parameters that is called in the parent process
-            immediately before the tool is started
+        @param parent_setup_fn a function that is called in the parent process
+            immediately before the tool is started. The keyword-arguments passed may differ in subclasses.
         @param child_setup_fn a function without parameters that is called in the child process
             before the tool is started
         @param parent_cleanup_fn a function that is called in the parent process
@@ -88,13 +88,20 @@ class BaseExecutor(object):
             and the result of parent_cleanup_fn (do not use os.wait)
         """
 
+        from_child, to_parent = os.pipe()
+
         def pre_subprocess():
+            os.close(from_child)
+
             # Do some other setup the caller wants.
             child_setup_fn()
 
             # put us into the cgroup(s)
             pid = os.getpid()
             cgroups.add_task(pid)
+
+            os.write(to_parent, str(pid).encode())
+            os.close(to_parent)
 
         # Set HOME and TMPDIR to fresh directories.
         tmp_dir = os.path.join(temp_dir, "tmp")
@@ -108,8 +115,6 @@ class BaseExecutor(object):
         env["TEMP"] = tmp_dir
         logging.debug("Executing run with $HOME and $TMPDIR below %s.", temp_dir)
 
-        parent_setup = parent_setup_fn()
-
         p = subprocess.Popen(
             args,
             stdin=stdin,
@@ -118,8 +123,17 @@ class BaseExecutor(object):
             env=env,
             cwd=cwd,
             close_fds=True,
+            pass_fds=(to_parent,),
             preexec_fn=pre_subprocess,
         )
+        print("Continuing")
+
+        os.close(to_parent)
+
+        # read at most 10 bytes because this is enough for 32bit int
+        child_pid = int(os.read(from_child, 10))
+        os.close(from_child)
+        parent_setup = parent_setup_fn(child_pid=child_pid)
 
         def wait_and_get_result():
             exitcode, ru_child = self._wait_for_process(p.pid, args[0])

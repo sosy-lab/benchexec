@@ -976,7 +976,10 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
 
             # start measurements
             cgroups.add_task(grandchild_pid)
-            parent_setup = parent_setup_fn()
+            parent_setup = parent_setup_fn(
+                child_pid=child_pid,
+                grandchild_pid=grandchild_pid,
+            )
 
             # Signal grandchild that setup is finished
             os.write(to_grandchild, MARKER_PARENT_COMPLETED)
