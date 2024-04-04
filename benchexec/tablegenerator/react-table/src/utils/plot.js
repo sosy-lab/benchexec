@@ -55,6 +55,22 @@ const renderSetting = (
 };
 
 /**
+ * Renders a button to reset all modifications applied to plot.
+ *
+ * @param {function} resetHandler handler function triggered by button click to reset plot modifications
+ **/
+const renderResetButton = (resetHandler) => {
+  return (
+    <button
+      onClick={() => resetHandler()}
+      style={{ height: 25, margin: "0.4em 1em" }}
+    >
+      Reset Modifications
+    </button>
+  );
+};
+
+/**
  * Renders a setting (= a dropdown menu with its label) for one of the plots.
  *
  * @param {String} name name of the dropdown that will be used for the label next to it
@@ -198,6 +214,7 @@ function getDataPointsOfRegression(minX, maxX, regF) {
 export {
   renderSetting,
   renderOptgroupsSetting,
+  renderResetButton,
   getConfidenceIntervalBorders,
   getDataPointsOfRegression,
 };

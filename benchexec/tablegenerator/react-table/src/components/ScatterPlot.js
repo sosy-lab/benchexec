@@ -32,6 +32,7 @@ import {
   renderOptgroupsSetting,
   getConfidenceIntervalBorders,
   getDataPointsOfRegression,
+  renderResetButton,
 } from "../utils/plot";
 import calcRegression from "regression";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -371,6 +372,14 @@ export default class ScatterPlot extends React.Component {
                 this.regressionData
                 ? this.regressionData.text
                 : undefined,
+            )}
+            {renderResetButton(() =>
+              setURLParameter(
+                Object.keys(this.state).reduce((res, param) => {
+                  res[param] = null;
+                  return res;
+                }, {}),
+              ),
             )}
           </div>
         </div>
