@@ -8,6 +8,7 @@ SPDX-License-Identifier: Apache-2.0
 -->
 
 # BenchExec
+
 ## A Framework for Reliable Benchmarking and Resource Measurement
 
 [![Build Status](https://gitlab.com/sosy-lab/software/benchexec/badges/main/pipeline.svg)](https://gitlab.com/sosy-lab/software/benchexec/pipelines)
@@ -24,6 +25,8 @@ SPDX-License-Identifier: Apache-2.0
 - An extended version of our paper on BenchExec and its background was published as open access in the journal STTT,
   you can read [Reliable Benchmarking: Requirements and Solutions](https://doi.org/10.1007/s10009-017-0469-y) online.
   We also provide a set of [overview slides](https://www.sosy-lab.org/research/prs/Latest_ReliableBenchmarking.pdf).
+
+## Features
 
 BenchExec provides three major features:
 
@@ -62,11 +65,59 @@ of which the latter provide scatter and quantile plots
 BenchExec works only on Linux and needs a one-time setup of cgroups by the machine's administrator.
 The actual benchmarking can be done by any user and does not need root access.
 
-BenchExec was originally developed for use with the software verification framework
-[CPAchecker](https://cpachecker.sosy-lab.org)
-and is now developed as an independent project
-at the [Software Systems Lab](https://www.sosy-lab.org)
-of the [Ludwig-Maximilians-Universität München (LMU Munich)](https://www.uni-muenchen.de).
+## Usage
+
+BenchExec is more than just the tool `benchexec`:
+For benchmarking, BenchExec offers two command line utilities to execute
+benchmarks, `benchexec` and `runexec`, as well as a Python API, which are
+described in the following.
+
+Before benchmarking, please consider the
+[general guidelines](doc/benchmarking.md) for benchmarking.
+
+### runexec: Benchmark a Single Command
+
+The tool `runexec` allows to run a single command with the isolation and
+resource limitation features provided by benchexec.
+It can be viewed as a (much more powerful) replacement to a combination of
+utilities like `taskset`, `time`, and `timeout`.
+For example,
+```
+  runexec --cores 0 --timelimit 5 --memlimit 1GB -- echo Test
+```
+executes the command `echo Test`, restricted to a single core, 1 GB of memory,
+and 5 seconds of CPU-time, and displays precise measurements related to time,
+memory, I/O, etc.
+Use `runexec` to reliably measure a single to a handful of executions.
+See [`runexec`'s documentation](doc/runexec.md) for further usage instructions.
+
+### benchexec: Run a Benchmark Suite
+
+The tool `benchexec` is an eleborate wrapper around the base functionality of
+`runexec`.
+This tool provides management for defining and executing a large number
+individual invocations as well as checking and aggregating their results.
+We recommend using `benchexec` when executing a concrete benchmark suite,
+especially when multiple different tools are involved.
+See [`benchexec`'s documentation](doc/benchexec.md) for further details, e.g.,
+how to define benchmark sets, run `benchexec`, view results, or integrate
+tools.
+
+### API
+
+Benchexec also provides a
+[python API](doc/runexec.md#integration-into-other-benchmarking-frameworks)
+from which all features of `runexec` can be accessed directly.
+
+### Setup & Requirements
+
+BenchExec only works on Linux and needs a one-time setup of cgroups by the
+machine's administrator.
+The actual benchmarking can be done by any user and does not need root access.
+See the [installation guide](doc/INSTALL.md) for detailed setup steps and
+troubleshooting.
+
+## Useful Resources
 
 ### Links
 
@@ -94,8 +145,19 @@ and third-party code that is bundled in the HTML tables,
 which are available under several other free licenses
 (cf. [folder `LICENSES`](https://github.com/sosy-lab/benchexec/tree/main/LICENSES)).
 
-### Authors
-Maintainer: [Philipp Wendler](https://www.philippwendler.de)
+## Developers
+
+BenchExec was originally developed for use with the software verification
+framework [CPAchecker](https://cpachecker.sosy-lab.org) and is now developed as
+an independent project at the [Software Systems Lab](https://www.sosy-lab.org)
+of the
+[Ludwig-Maximilians-Universität München (LMU Munich)](https://www.uni-muenchen.de).
+
+### Maintainer
+
+[Philipp Wendler](https://www.philippwendler.de)
+
+### Contributors
 
 Contributors:
 - [Aditya Arora](https://github.com/alohamora)
