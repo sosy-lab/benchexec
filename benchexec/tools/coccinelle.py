@@ -22,7 +22,7 @@ class Tool(BaseTool2):
         return "Coccinelle"
 
     def executable(self, tool_locator):
-        return tool_locator.find_executable("_spatch")
+        return tool_locator.find_executable("spatch")
 
     def version(self, executable):
         return self._version_from_tool(
