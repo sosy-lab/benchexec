@@ -223,14 +223,9 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
       </select>
      </div>
      <button
-      style={
-       Object {
-        "height": 25,
-        "margin": "0.4em 1em",
-       }
-      }
+      className="setting-button"
      >
-      Reset Modifications
+      Reset plot
      </button>
     </div>
    </div>
@@ -510,14 +505,9 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
       </select>
      </div>
      <button
-      style={
-       Object {
-        "height": 25,
-        "margin": "0.4em 1em",
-       }
-      }
+      className="setting-button"
      >
-      Reset Modifications
+      Reset plot
      </button>
     </div>
    </div>
@@ -797,14 +787,9 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
       </select>
      </div>
      <button
-      style={
-       Object {
-        "height": 25,
-        "margin": "0.4em 1em",
-       }
-      }
+      className="setting-button"
      >
-      Reset Modifications
+      Reset plot
      </button>
     </div>
    </div>
@@ -3083,14 +3068,9 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
       </select>
      </div>
      <button
-      style={
-       Object {
-        "height": 25,
-        "margin": "0.4em 1em",
-       }
-      }
+      className="setting-button"
      >
-      Reset Modifications
+      Reset plot
      </button>
     </div>
    </div>
@@ -4977,14 +4957,9 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
       </select>
      </div>
      <button
-      style={
-       Object {
-        "height": 25,
-        "margin": "0.4em 1em",
-       }
-      }
+      className="setting-button"
      >
-      Reset Modifications
+      Reset plot
      </button>
     </div>
    </div>
@@ -9093,14 +9068,9 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
       </select>
      </div>
      <button
-      style={
-       Object {
-        "height": 25,
-        "margin": "0.4em 1em",
-       }
-      }
+      className="setting-button"
      >
-      Reset Modifications
+      Reset plot
      </button>
     </div>
    </div>
@@ -11669,14 +11639,9 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
       </select>
      </div>
      <button
-      style={
-       Object {
-        "height": 25,
-        "margin": "0.4em 1em",
-       }
-      }
+      className="setting-button"
      >
-      Reset Modifications
+      Reset plot
      </button>
     </div>
    </div>
@@ -14374,14 +14339,9 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
       </select>
      </div>
      <button
-      style={
-       Object {
-        "height": 25,
-        "margin": "0.4em 1em",
-       }
-      }
+      className="setting-button"
      >
-      Reset Modifications
+      Reset plot
      </button>
     </div>
    </div>
@@ -18724,14 +18684,9 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
       </select>
      </div>
      <button
-      style={
-       Object {
-        "height": 25,
-        "margin": "0.4em 1em",
-       }
-      }
+      className="setting-button"
      >
-      Reset Modifications
+      Reset plot
      </button>
     </div>
    </div>
@@ -20289,14 +20244,9 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
       </select>
      </div>
      <button
-      style={
-       Object {
-        "height": 25,
-        "margin": "0.4em 1em",
-       }
-      }
+      className="setting-button"
      >
-      Reset Modifications
+      Reset plot
      </button>
     </div>
    </div>
@@ -22271,14 +22221,9 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
       </select>
      </div>
      <button
-      style={
-       Object {
-        "height": 25,
-        "margin": "0.4em 1em",
-       }
-      }
+      className="setting-button"
      >
-      Reset Modifications
+      Reset plot
      </button>
     </div>
    </div>
@@ -24503,14 +24448,9 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
       </select>
      </div>
      <button
-      style={
-       Object {
-        "height": 25,
-        "margin": "0.4em 1em",
-       }
-      }
+      className="setting-button"
      >
-      Reset Modifications
+      Reset plot
      </button>
     </div>
    </div>
@@ -26343,14 +26283,9 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
       </select>
      </div>
      <button
-      style={
-       Object {
-        "height": 25,
-        "margin": "0.4em 1em",
-       }
-      }
+      className="setting-button"
      >
-      Reset Modifications
+      Reset plot
      </button>
     </div>
    </div>
@@ -28961,14 +28896,9 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
       </select>
      </div>
      <button
-      style={
-       Object {
-        "height": 25,
-        "margin": "0.4em 1em",
-       }
-      }
+      className="setting-button"
      >
-      Reset Modifications
+      Reset plot
      </button>
     </div>
    </div>
@@ -31335,14 +31265,9 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
       </select>
      </div>
      <button
-      style={
-       Object {
-        "height": 25,
-        "margin": "0.4em 1em",
-       }
-      }
+      className="setting-button"
      >
-      Reset Modifications
+      Reset plot
      </button>
     </div>
    </div>
@@ -31622,14 +31547,9 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
       </select>
      </div>
      <button
-      style={
-       Object {
-        "height": 25,
-        "margin": "0.4em 1em",
-       }
-      }
+      className="setting-button"
      >
-      Reset Modifications
+      Reset plot
      </button>
     </div>
    </div>
@@ -31909,14 +31829,9 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
       </select>
      </div>
      <button
-      style={
-       Object {
-        "height": 25,
-        "margin": "0.4em 1em",
-       }
-      }
+      className="setting-button"
      >
-      Reset Modifications
+      Reset plot
      </button>
     </div>
    </div>
@@ -34195,14 +34110,9 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
       </select>
      </div>
      <button
-      style={
-       Object {
-        "height": 25,
-        "margin": "0.4em 1em",
-       }
-      }
+      className="setting-button"
      >
-      Reset Modifications
+      Reset plot
      </button>
     </div>
    </div>
@@ -36089,14 +35999,9 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
       </select>
      </div>
      <button
-      style={
-       Object {
-        "height": 25,
-        "margin": "0.4em 1em",
-       }
-      }
+      className="setting-button"
      >
-      Reset Modifications
+      Reset plot
      </button>
     </div>
    </div>
@@ -40205,14 +40110,9 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
       </select>
      </div>
      <button
-      style={
-       Object {
-        "height": 25,
-        "margin": "0.4em 1em",
-       }
-      }
+      className="setting-button"
      >
-      Reset Modifications
+      Reset plot
      </button>
     </div>
    </div>
@@ -42781,14 +42681,9 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
       </select>
      </div>
      <button
-      style={
-       Object {
-        "height": 25,
-        "margin": "0.4em 1em",
-       }
-      }
+      className="setting-button"
      >
-      Reset Modifications
+      Reset plot
      </button>
     </div>
    </div>
@@ -45486,14 +45381,9 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
       </select>
      </div>
      <button
-      style={
-       Object {
-        "height": 25,
-        "margin": "0.4em 1em",
-       }
-      }
+      className="setting-button"
      >
-      Reset Modifications
+      Reset plot
      </button>
     </div>
    </div>
@@ -49836,14 +49726,9 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
       </select>
      </div>
      <button
-      style={
-       Object {
-        "height": 25,
-        "margin": "0.4em 1em",
-       }
-      }
+      className="setting-button"
      >
-      Reset Modifications
+      Reset plot
      </button>
     </div>
    </div>
@@ -51401,14 +51286,9 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
       </select>
      </div>
      <button
-      style={
-       Object {
-        "height": 25,
-        "margin": "0.4em 1em",
-       }
-      }
+      className="setting-button"
      >
-      Reset Modifications
+      Reset plot
      </button>
     </div>
    </div>
@@ -53383,14 +53263,9 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
       </select>
      </div>
      <button
-      style={
-       Object {
-        "height": 25,
-        "margin": "0.4em 1em",
-       }
-      }
+      className="setting-button"
      >
-      Reset Modifications
+      Reset plot
      </button>
     </div>
    </div>
@@ -55615,14 +55490,9 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
       </select>
      </div>
      <button
-      style={
-       Object {
-        "height": 25,
-        "margin": "0.4em 1em",
-       }
-      }
+      className="setting-button"
      >
-      Reset Modifications
+      Reset plot
      </button>
     </div>
    </div>
@@ -57455,14 +57325,9 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
       </select>
      </div>
      <button
-      style={
-       Object {
-        "height": 25,
-        "margin": "0.4em 1em",
-       }
-      }
+      className="setting-button"
      >
-      Reset Modifications
+      Reset plot
      </button>
     </div>
    </div>
@@ -60073,14 +59938,9 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
       </select>
      </div>
      <button
-      style={
-       Object {
-        "height": 25,
-        "margin": "0.4em 1em",
-       }
-      }
+      className="setting-button"
      >
-      Reset Modifications
+      Reset plot
      </button>
     </div>
    </div>
@@ -62419,14 +62279,9 @@ exports[`Quantile Plot tests for file rows-with-scores.html Direct Plot should m
       </select>
      </div>
      <button
-      style={
-       Object {
-        "height": 25,
-        "margin": "0.4em 1em",
-       }
-      }
+      className="setting-button"
      >
-      Reset Modifications
+      Reset plot
      </button>
     </div>
    </div>
@@ -63953,14 +63808,9 @@ exports[`Quantile Plot tests for file rows-with-scores.html Direct Plot should m
       </select>
      </div>
      <button
-      style={
-       Object {
-        "height": 25,
-        "margin": "0.4em 1em",
-       }
-      }
+      className="setting-button"
      >
-      Reset Modifications
+      Reset plot
      </button>
     </div>
    </div>
@@ -65487,14 +65337,9 @@ exports[`Quantile Plot tests for file rows-with-scores.html Direct Plot should m
       </select>
      </div>
      <button
-      style={
-       Object {
-        "height": 25,
-        "margin": "0.4em 1em",
-       }
-      }
+      className="setting-button"
      >
-      Reset Modifications
+      Reset plot
      </button>
     </div>
    </div>
@@ -67021,14 +66866,9 @@ exports[`Quantile Plot tests for file rows-with-scores.html Direct Plot should m
       </select>
      </div>
      <button
-      style={
-       Object {
-        "height": 25,
-        "margin": "0.4em 1em",
-       }
-      }
+      className="setting-button"
      >
-      Reset Modifications
+      Reset plot
      </button>
     </div>
    </div>
@@ -68555,14 +68395,9 @@ exports[`Quantile Plot tests for file rows-with-scores.html Direct Plot should m
       </select>
      </div>
      <button
-      style={
-       Object {
-        "height": 25,
-        "margin": "0.4em 1em",
-       }
-      }
+      className="setting-button"
      >
-      Reset Modifications
+      Reset plot
      </button>
     </div>
    </div>
@@ -70089,14 +69924,9 @@ exports[`Quantile Plot tests for file rows-with-scores.html Direct Plot should m
       </select>
      </div>
      <button
-      style={
-       Object {
-        "height": 25,
-        "margin": "0.4em 1em",
-       }
-      }
+      className="setting-button"
      >
-      Reset Modifications
+      Reset plot
      </button>
     </div>
    </div>
@@ -71623,14 +71453,9 @@ exports[`Quantile Plot tests for file rows-with-scores.html Direct Plot should m
       </select>
      </div>
      <button
-      style={
-       Object {
-        "height": 25,
-        "margin": "0.4em 1em",
-       }
-      }
+      className="setting-button"
      >
-      Reset Modifications
+      Reset plot
      </button>
     </div>
    </div>
@@ -72941,14 +72766,9 @@ exports[`Quantile Plot tests for file rows-with-scores.html Direct Plot should m
       </select>
      </div>
      <button
-      style={
-       Object {
-        "height": 25,
-        "margin": "0.4em 1em",
-       }
-      }
+      className="setting-button"
      >
-      Reset Modifications
+      Reset plot
      </button>
     </div>
    </div>
@@ -74259,14 +74079,9 @@ exports[`Quantile Plot tests for file rows-with-scores.html Quantile Plot should
       </select>
      </div>
      <button
-      style={
-       Object {
-        "height": 25,
-        "margin": "0.4em 1em",
-       }
-      }
+      className="setting-button"
      >
-      Reset Modifications
+      Reset plot
      </button>
     </div>
    </div>
@@ -75793,14 +75608,9 @@ exports[`Quantile Plot tests for file rows-with-scores.html Quantile Plot should
       </select>
      </div>
      <button
-      style={
-       Object {
-        "height": 25,
-        "margin": "0.4em 1em",
-       }
-      }
+      className="setting-button"
      >
-      Reset Modifications
+      Reset plot
      </button>
     </div>
    </div>
@@ -77327,14 +77137,9 @@ exports[`Quantile Plot tests for file rows-with-scores.html Quantile Plot should
       </select>
      </div>
      <button
-      style={
-       Object {
-        "height": 25,
-        "margin": "0.4em 1em",
-       }
-      }
+      className="setting-button"
      >
-      Reset Modifications
+      Reset plot
      </button>
     </div>
    </div>
@@ -78861,14 +78666,9 @@ exports[`Quantile Plot tests for file rows-with-scores.html Quantile Plot should
       </select>
      </div>
      <button
-      style={
-       Object {
-        "height": 25,
-        "margin": "0.4em 1em",
-       }
-      }
+      className="setting-button"
      >
-      Reset Modifications
+      Reset plot
      </button>
     </div>
    </div>
@@ -80395,14 +80195,9 @@ exports[`Quantile Plot tests for file rows-with-scores.html Quantile Plot should
       </select>
      </div>
      <button
-      style={
-       Object {
-        "height": 25,
-        "margin": "0.4em 1em",
-       }
-      }
+      className="setting-button"
      >
-      Reset Modifications
+      Reset plot
      </button>
     </div>
    </div>
@@ -81929,14 +81724,9 @@ exports[`Quantile Plot tests for file rows-with-scores.html Quantile Plot should
       </select>
      </div>
      <button
-      style={
-       Object {
-        "height": 25,
-        "margin": "0.4em 1em",
-       }
-      }
+      className="setting-button"
      >
-      Reset Modifications
+      Reset plot
      </button>
     </div>
    </div>
@@ -83463,14 +83253,9 @@ exports[`Quantile Plot tests for file rows-with-scores.html Quantile Plot should
       </select>
      </div>
      <button
-      style={
-       Object {
-        "height": 25,
-        "margin": "0.4em 1em",
-       }
-      }
+      className="setting-button"
      >
-      Reset Modifications
+      Reset plot
      </button>
     </div>
    </div>
@@ -84781,14 +84566,9 @@ exports[`Quantile Plot tests for file rows-with-scores.html Quantile Plot should
       </select>
      </div>
      <button
-      style={
-       Object {
-        "height": 25,
-        "margin": "0.4em 1em",
-       }
-      }
+      className="setting-button"
      >
-      Reset Modifications
+      Reset plot
      </button>
     </div>
    </div>
@@ -86099,14 +85879,9 @@ exports[`Quantile Plot tests for file rows-with-scores.html Score-based Quantile
       </select>
      </div>
      <button
-      style={
-       Object {
-        "height": 25,
-        "margin": "0.4em 1em",
-       }
-      }
+      className="setting-button"
      >
-      Reset Modifications
+      Reset plot
      </button>
     </div>
    </div>
@@ -87633,14 +87408,9 @@ exports[`Quantile Plot tests for file rows-with-scores.html Score-based Quantile
       </select>
      </div>
      <button
-      style={
-       Object {
-        "height": 25,
-        "margin": "0.4em 1em",
-       }
-      }
+      className="setting-button"
      >
-      Reset Modifications
+      Reset plot
      </button>
     </div>
    </div>

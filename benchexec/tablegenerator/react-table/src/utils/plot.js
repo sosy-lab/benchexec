@@ -61,11 +61,8 @@ const renderSetting = (
  **/
 const renderResetButton = (resetHandler) => {
   return (
-    <button
-      onClick={() => resetHandler()}
-      style={{ height: 25, margin: "0.4em 1em" }}
-    >
-      Reset Modifications
+    <button className="setting-button" onClick={() => resetHandler()}>
+      Reset plot
     </button>
   );
 };

@@ -841,6 +841,9 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
   }
 }
 
+//------------------plot------------------
+$plot-select-button-height: 25px;
+
 .quantilePlot {
   margin: 20px;
 
@@ -1001,10 +1004,15 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
     margin: 0.4em 1em;
     margin-left: 0;
     border: 1px solid #c3c3c3;
-    height: 25px;
+    height: $plot-select-button-height;
     padding-left: 10px;
     border-radius: 3px;
     cursor: pointer;
+  }
+
+  &-button {
+    height: $plot-select-button-height;
+    margin: 0.4em 1em;
   }
 
   &.disabled,
