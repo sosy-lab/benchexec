@@ -170,20 +170,23 @@ class _Worker(threading.Thread):
                     args,
                     run.log_file,
                 )
-                if (
-                    "terminationreason" not in run_result
-                    or not run_result["terminationreason"] == "killed"
-                    or (attempts >= self.benchmark.config.retry >= 0)
-                    or STOPPED_BY_INTERRUPT
-                ):
-                    break
-                attempts += 1
-                time.sleep(1)  # as to not overcrowd a failing scheduler
-                logging.debug(
-                    "Retrying after %d attempts, limit: %d",
-                    attempts,
-                    self.benchmark.config.retry,
-                )
+                if run_result is None:
+                    stop()
+                else:
+                    if (
+                        "terminationreason" not in run_result
+                        or not run_result["terminationreason"] == "killed"
+                        or (attempts >= self.benchmark.config.retry >= 0)
+                        or STOPPED_BY_INTERRUPT
+                    ):
+                        break
+                    attempts += 1
+                    time.sleep(1)  # as to not overcrowd a failing scheduler
+                    logging.debug(
+                        "Retrying after %d attempts, limit: %d",
+                        attempts,
+                        self.benchmark.config.retry,
+                    )
 
         except KeyboardInterrupt:
             # If the run was interrupted, we ignore the result and cleanup.
