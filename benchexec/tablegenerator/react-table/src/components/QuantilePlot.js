@@ -566,12 +566,12 @@ export default class QuantilePlot extends React.Component {
                 this.state.isResultSelectionDisabled,
               )}
               {renderResetButton(() =>
-                setURLParameter(
-                  Object.keys(this.state).reduce((res, param) => {
-                    res[param] = null;
-                    return res;
-                  }, {}),
-                ),
+                setURLParameter({
+                  selection: null,
+                  plot: null,
+                  scaling: null,
+                  results: null,
+                }),
               )}
             </div>
           </div>

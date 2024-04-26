@@ -374,12 +374,16 @@ export default class ScatterPlot extends React.Component {
                 : undefined,
             )}
             {renderResetButton(() =>
-              setURLParameter(
-                Object.keys(this.state).reduce((res, param) => {
-                  res[param] = null;
-                  return res;
-                }, {}),
-              ),
+              setURLParameter({
+                columnX: null,
+                columnY: null,
+                line: null,
+                regression: null,
+                results: null,
+                scaling: null,
+                toolX: null,
+                toolY: null,
+              }),
             )}
           </div>
         </div>
