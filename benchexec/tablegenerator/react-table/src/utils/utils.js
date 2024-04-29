@@ -254,8 +254,8 @@ export const constructQueryString = (params) => {
  * @returns {string} - The constructed URL hash
  */
 export const constructHashURL = (url, params = {}) => {
-  const exisitingParams = getURLParameters(url);
-  const mergedParams = { ...exisitingParams, ...params };
+  const existingParams = getURLParameters(url);
+  const mergedParams = { ...existingParams, ...params };
 
   const queryString = constructQueryString(mergedParams);
   const baseURL = url.split("?")[0];
