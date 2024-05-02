@@ -17,7 +17,11 @@ SPDX-License-Identifier: Apache-2.0
 
 
 **News and Updates**:
-- BenchExec is part of [Google Summer of Code](https://summerofcode.withgoogle.com/) again! If you are interested in being paid by Google for contributing to BenchExec, check our [project ideas and instructions](https://www.sosy-lab.org/gsoc/) and [contact us](https://github.com/sosy-lab/benchexec/discussions)!
+- Two projects accepted for BenchExec as part of [Google Summer of Code](https://summerofcode.withgoogle.com/)!
+  We are happy that [Haoran Yang](https://summerofcode.withgoogle.com/programs/2024/projects/UzhlnEel)
+  and [Eshaan Aggarwal](https://summerofcode.withgoogle.com/programs/2024/projects/l7WEa0Gz)
+  will work to improve BenchExec (click on their names for more information about their projects)
+  and are thankful to them and to Google for providing the opportunity.
 - BenchExec 3.18 brings support for systems with cgroups v2!
 - Linux kernel 5.11 finally [makes it possible](https://github.com/sosy-lab/benchexec/blob/main/doc/INSTALL.md#kernel-requirements) to use all BenchExec features on distributions other than Ubuntu!
 - We now provide an [Ubuntu PPA](https://launchpad.net/~sosy-lab/+archive/ubuntu/benchmarking) that makes installing and upgrading BenchExec easier ([docs](https://github.com/sosy-lab/benchexec/blob/main/doc/INSTALL.md#debianubuntu)).
