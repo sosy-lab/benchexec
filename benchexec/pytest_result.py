@@ -21,37 +21,47 @@ from benchexec.result import (
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
 
-class TestExpectedResult:
-    def test_via_string(self):
-        def test(result, subproperty):
-            expected_result = ExpectedResult(result, subproperty)
-            assert ExpectedResult.from_str(str(expected_result)) == expected_result
+@pytest.mark.parametrize(
+    "result, subproperty",
+    [
+        (None, None),
+        (True, None),
+        (False, None),
+        (True, "foo"),
+        (False, "foo"),
+    ],
+)
+def test_expected_result_via_string(result, subproperty):
+    expected_result = ExpectedResult(result, subproperty)
+    assert ExpectedResult.from_str(str(expected_result)) == expected_result
 
-        test(None, None)
-        test(True, None)
-        test(False, None)
-        test(True, "foo")
-        test(False, "foo")
 
-    def test_via_instance(self):
-        def test(s):
-            assert str(ExpectedResult.from_str(s)) == s
+@pytest.mark.parametrize(
+    "s",
+    [
+        (""),
+        ("true"),
+        ("false"),
+        ("true(foo)"),
+        ("false(foo)"),
+    ],
+)
+def test_expected_result_via_instance(s):
+    assert str(ExpectedResult.from_str(s)) == s
 
-        test("")
-        test("true")
-        test("false")
-        test("true(foo)")
-        test("false(foo)")
 
-    def test_invalid_string(self):
-        def test(s):
-            with pytest.raises(ValueError) as exc_info:
-                ExpectedResult.from_str(s)
-            assert str(exc_info.value) == f"Not a valid expected verdict: {s}"
-
-        test("foo")
-        test("unknown")
-        test("true()")
+@pytest.mark.parametrize(
+    "s",
+    [
+        ("foo"),
+        ("unknown"),
+        ("true()"),
+    ],
+)
+def test_expected_result_invalid_string(s):
+    with pytest.raises(ValueError) as exc_info:
+        ExpectedResult.from_str(s)
+    assert str(exc_info.value) == f"Not a valid expected verdict: {s}"
 
 
 @pytest.fixture(scope="class")
