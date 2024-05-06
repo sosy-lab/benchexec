@@ -219,25 +219,27 @@ class TestResult:
             CATEGORY_WRONG, RESULT_TRUE_PROP
         )
 
-    def test_result_classification(self):
-        assert RESULT_CLASS_TRUE == get_result_classification(RESULT_TRUE_PROP)
-
-        assert RESULT_CLASS_FALSE == get_result_classification(RESULT_FALSE_REACH)
-        assert RESULT_CLASS_FALSE == get_result_classification(RESULT_FALSE_DEREF)
-        assert RESULT_CLASS_FALSE == get_result_classification(RESULT_FALSE_FREE)
-        assert RESULT_CLASS_FALSE == get_result_classification(RESULT_FALSE_MEMTRACK)
-        assert RESULT_CLASS_FALSE == get_result_classification(RESULT_FALSE_TERMINATION)
-        assert RESULT_CLASS_FALSE == get_result_classification(RESULT_FALSE_OVERFLOW)
-        assert RESULT_CLASS_FALSE == get_result_classification(RESULT_FALSE_PROP)
-        assert RESULT_CLASS_FALSE == get_result_classification(
-            RESULT_FALSE_PROP + "(test)"
-        )
-
-        assert RESULT_CLASS_OTHER == get_result_classification(RESULT_DONE)
-        assert RESULT_CLASS_OTHER == get_result_classification(RESULT_UNKNOWN)
-        assert RESULT_CLASS_OTHER == get_result_classification("KILLED")
-        assert RESULT_CLASS_OTHER == get_result_classification("TIMEOUT")
-        assert RESULT_CLASS_OTHER == get_result_classification("")
+    @pytest.mark.parametrize(
+        "expected, result",
+        [
+            (RESULT_CLASS_TRUE, RESULT_TRUE_PROP),
+            (RESULT_CLASS_FALSE, RESULT_FALSE_REACH),
+            (RESULT_CLASS_FALSE, RESULT_FALSE_DEREF),
+            (RESULT_CLASS_FALSE, RESULT_FALSE_FREE),
+            (RESULT_CLASS_FALSE, RESULT_FALSE_MEMTRACK),
+            (RESULT_CLASS_FALSE, RESULT_FALSE_TERMINATION),
+            (RESULT_CLASS_FALSE, RESULT_FALSE_OVERFLOW),
+            (RESULT_CLASS_FALSE, RESULT_FALSE_PROP),
+            (RESULT_CLASS_FALSE, RESULT_FALSE_PROP + "(test)"),
+            (RESULT_CLASS_OTHER, RESULT_DONE),
+            (RESULT_CLASS_OTHER, RESULT_UNKNOWN),
+            (RESULT_CLASS_OTHER, "KILLED"),
+            (RESULT_CLASS_OTHER, "TIMEOUT"),
+            (RESULT_CLASS_OTHER, ""),
+        ],
+    )
+    def test_result_classification(self, expected, result):
+        assert expected == get_result_classification(result)
 
     def test_result_category_true(self):
         assert CATEGORY_CORRECT == get_result_category(
