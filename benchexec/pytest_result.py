@@ -1,14 +1,14 @@
 # This file is part of BenchExec, a framework for reliable benchmarking:
 # https://github.com/sosy-lab/benchexec
 #
-# SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
+# SPDX-FileCopyrightText: 2007-2024 Dirk Beyer <https://www.sosy-lab.org>
 #
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
 import sys
 import tempfile
-import unittest
+import pytest
 
 from benchexec.result import *  # noqa: F403 @UnusedWildImport everything is tested
 from benchexec.result import (
@@ -21,13 +21,11 @@ from benchexec.result import (
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
 
-class TestExpectedResult(unittest.TestCase):
+class TestExpectedResult:
     def test_via_string(self):
         def test(result, subproperty):
             expected_result = ExpectedResult(result, subproperty)
-            self.assertEqual(
-                ExpectedResult.from_str(str(expected_result)), expected_result
-            )
+            assert ExpectedResult.from_str(str(expected_result)) == expected_result
 
         test(None, None)
         test(True, None)
@@ -37,7 +35,7 @@ class TestExpectedResult(unittest.TestCase):
 
     def test_via_instance(self):
         def test(s):
-            self.assertEqual(str(ExpectedResult.from_str(s)), s)
+            assert str(ExpectedResult.from_str(s)) == s
 
         test("")
         test("true")
@@ -47,20 +45,22 @@ class TestExpectedResult(unittest.TestCase):
 
     def test_invalid_string(self):
         def test(s):
-            with self.assertRaises(ValueError, msg=f"for '{s}'"):
+            with pytest.raises(ValueError) as exc_info:
                 ExpectedResult.from_str(s)
+            assert str(exc_info.value) == f"Not a valid expected verdict: {s}"
 
         test("foo")
         test("unknown")
         test("true()")
 
 
-class TestResult(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.longMessage = True
-        logging.disable(logging.CRITICAL)
+@pytest.fixture(scope="class")
+def disable_critical_logging():
+    logging.disable(logging.CRITICAL)
 
+
+@pytest.mark.usefixtures("disable_critical_logging")
+class TestResult:
     def expected_result(self, result, subcategory=None):
         return {"dummy.prp": ExpectedResult(result, subcategory)}
 
@@ -80,15 +80,13 @@ class TestResult(unittest.TestCase):
             temp_file.flush()
             filename = temp_file.name
 
-            self.assertEqual(
-                Property(
-                    filename=filename,
-                    is_svcomp=is_svcomp,
-                    name=os.path.splitext(os.path.basename(filename))[0],
-                ),
-                Property.create(filename),
-                msg="different result for property file with content\n" + content,
-            )
+            assert Property(
+                filename=filename,
+                is_svcomp=is_svcomp,
+                name=os.path.splitext(os.path.basename(filename))[0],
+            ) == Property.create(
+                filename
+            ), f"different result for property file with content\n{ content }"
 
     def test_Property_from_non_standard_file(self):
         self._test_Property_from_file("", False)
@@ -111,842 +109,505 @@ class TestResult(unittest.TestCase):
         )
 
     def test_Property_max_score_not_available(self):
-        self.assertEqual(0, self.prop_call.max_score(ExpectedResult(None, None)))
-        self.assertEqual(None, self.prop_call.max_score(None))
+        assert 0 == self.prop_call.max_score(ExpectedResult(None, None))
+        assert None is self.prop_call.max_score(None)
 
     def test_Property_max_score_smt(self):
-        self.assertEqual(None, self.prop_sat.max_score(ExpectedResult(True, None)))
-        self.assertEqual(None, self.prop_sat.max_score(ExpectedResult(False, None)))
+        assert None is self.prop_sat.max_score(ExpectedResult(True, None))
+        assert None is self.prop_sat.max_score(ExpectedResult(False, None))
 
     def test_Property_max_score_svcomp(self):
-        self.assertEqual(
-            _SCORE_CORRECT_TRUE, self.prop_call.max_score(ExpectedResult(True, None))
+        assert _SCORE_CORRECT_TRUE == self.prop_call.max_score(
+            ExpectedResult(True, None)
         )
-        self.assertEqual(
-            _SCORE_CORRECT_FALSE, self.prop_call.max_score(ExpectedResult(False, None))
+        assert _SCORE_CORRECT_FALSE == self.prop_call.max_score(
+            ExpectedResult(False, None)
         )
 
-        self.assertEqual(
-            _SCORE_CORRECT_TRUE,
-            self.prop_memsafety.max_score(ExpectedResult(True, None)),
+        assert _SCORE_CORRECT_TRUE == self.prop_memsafety.max_score(
+            ExpectedResult(True, None)
         )
-        self.assertEqual(
-            _SCORE_CORRECT_FALSE,
-            self.prop_memsafety.max_score(ExpectedResult(False, None)),
+        assert _SCORE_CORRECT_FALSE == self.prop_memsafety.max_score(
+            ExpectedResult(False, None)
         )
-        self.assertEqual(
-            _SCORE_CORRECT_FALSE,
-            self.prop_memsafety.max_score(ExpectedResult(False, "valid-free")),
+        assert _SCORE_CORRECT_FALSE == self.prop_memsafety.max_score(
+            ExpectedResult(False, "valid-free")
         )
 
     def test_Property_compute_score_not_available(self):
-        self.assertEqual(
-            0, self.prop_call.compute_score(CATEGORY_MISSING, RESULT_TRUE_PROP)
-        )
-        self.assertEqual(
-            0, self.prop_call.compute_score(CATEGORY_ERROR, RESULT_TRUE_PROP)
-        )
-        self.assertEqual(
-            0, self.prop_call.compute_score(CATEGORY_UNKNOWN, RESULT_TRUE_PROP)
-        )
+        assert 0 == self.prop_call.compute_score(CATEGORY_MISSING, RESULT_TRUE_PROP)
+        assert 0 == self.prop_call.compute_score(CATEGORY_ERROR, RESULT_TRUE_PROP)
+        assert 0 == self.prop_call.compute_score(CATEGORY_UNKNOWN, RESULT_TRUE_PROP)
 
     def test_Property_compute_score_smt(self):
-        self.assertIsNone(
-            self.prop_sat.compute_score(CATEGORY_CORRECT, RESULT_TRUE_PROP)
-        )
-        self.assertIsNone(self.prop_sat.compute_score(CATEGORY_WRONG, RESULT_TRUE_PROP))
+        assert None is self.prop_sat.compute_score(CATEGORY_CORRECT, RESULT_TRUE_PROP)
+        assert None is self.prop_sat.compute_score(CATEGORY_WRONG, RESULT_TRUE_PROP)
 
     def test_Property_compute_score_svcomp(self):
-        self.assertEqual(
-            _SCORE_CORRECT_TRUE,
-            self.prop_call.compute_score(CATEGORY_CORRECT, RESULT_TRUE_PROP),
+        assert _SCORE_CORRECT_TRUE == self.prop_call.compute_score(
+            CATEGORY_CORRECT, RESULT_TRUE_PROP
         )
-        self.assertEqual(
-            _SCORE_CORRECT_FALSE,
-            self.prop_call.compute_score(CATEGORY_CORRECT, RESULT_FALSE_REACH),
+        assert _SCORE_CORRECT_FALSE == self.prop_call.compute_score(
+            CATEGORY_CORRECT, RESULT_FALSE_REACH
         )
-        self.assertEqual(
-            _SCORE_CORRECT_TRUE,
-            self.prop_memsafety.compute_score(CATEGORY_CORRECT, RESULT_TRUE_PROP),
+        assert _SCORE_CORRECT_TRUE == self.prop_memsafety.compute_score(
+            CATEGORY_CORRECT, RESULT_TRUE_PROP
         )
-        self.assertEqual(
-            _SCORE_CORRECT_FALSE,
-            self.prop_memsafety.compute_score(CATEGORY_CORRECT, RESULT_FALSE_MEMTRACK),
+        assert _SCORE_CORRECT_FALSE == self.prop_memsafety.compute_score(
+            CATEGORY_CORRECT, RESULT_FALSE_MEMTRACK
         )
-        self.assertEqual(
-            _SCORE_CORRECT_TRUE,
-            self.prop_termination.compute_score(CATEGORY_CORRECT, RESULT_TRUE_PROP),
+        assert _SCORE_CORRECT_TRUE == self.prop_termination.compute_score(
+            CATEGORY_CORRECT, RESULT_TRUE_PROP
         )
-        self.assertEqual(
-            _SCORE_CORRECT_FALSE,
-            self.prop_termination.compute_score(
-                CATEGORY_CORRECT, RESULT_FALSE_TERMINATION
-            ),
+        assert _SCORE_CORRECT_FALSE == self.prop_termination.compute_score(
+            CATEGORY_CORRECT, RESULT_FALSE_TERMINATION
         )
-        self.assertEqual(
-            _SCORE_CORRECT_TRUE,
-            self.prop_overflow.compute_score(CATEGORY_CORRECT, RESULT_TRUE_PROP),
+        assert _SCORE_CORRECT_TRUE == self.prop_overflow.compute_score(
+            CATEGORY_CORRECT, RESULT_TRUE_PROP
         )
-        self.assertEqual(
-            _SCORE_CORRECT_FALSE,
-            self.prop_overflow.compute_score(CATEGORY_CORRECT, RESULT_FALSE_OVERFLOW),
+        assert _SCORE_CORRECT_FALSE == self.prop_overflow.compute_score(
+            CATEGORY_CORRECT, RESULT_FALSE_OVERFLOW
         )
-        self.assertEqual(
-            _SCORE_CORRECT_TRUE,
-            self.prop_deadlock.compute_score(CATEGORY_CORRECT, RESULT_TRUE_PROP),
+        assert _SCORE_CORRECT_TRUE == self.prop_deadlock.compute_score(
+            CATEGORY_CORRECT, RESULT_TRUE_PROP
         )
-        self.assertEqual(
-            _SCORE_CORRECT_FALSE,
-            self.prop_deadlock.compute_score(CATEGORY_CORRECT, RESULT_FALSE_DEADLOCK),
+        assert _SCORE_CORRECT_FALSE == self.prop_deadlock.compute_score(
+            CATEGORY_CORRECT, RESULT_FALSE_DEADLOCK
         )
 
-        self.assertEqual(
-            _SCORE_WRONG_FALSE,
-            self.prop_call.compute_score(CATEGORY_WRONG, RESULT_FALSE_REACH),
+        assert _SCORE_WRONG_FALSE == self.prop_call.compute_score(
+            CATEGORY_WRONG, RESULT_FALSE_REACH
         )
-        self.assertEqual(
-            _SCORE_WRONG_TRUE,
-            self.prop_call.compute_score(CATEGORY_WRONG, RESULT_TRUE_PROP),
+        assert _SCORE_WRONG_TRUE == self.prop_call.compute_score(
+            CATEGORY_WRONG, RESULT_TRUE_PROP
         )
-        self.assertEqual(
-            _SCORE_WRONG_FALSE,
-            self.prop_memsafety.compute_score(CATEGORY_WRONG, RESULT_FALSE_MEMTRACK),
+        assert _SCORE_WRONG_FALSE == self.prop_memsafety.compute_score(
+            CATEGORY_WRONG, RESULT_FALSE_MEMTRACK
         )
-        self.assertEqual(
-            _SCORE_WRONG_TRUE,
-            self.prop_memsafety.compute_score(CATEGORY_WRONG, RESULT_TRUE_PROP),
+        assert _SCORE_WRONG_TRUE == self.prop_memsafety.compute_score(
+            CATEGORY_WRONG, RESULT_TRUE_PROP
         )
-        self.assertEqual(
-            _SCORE_WRONG_FALSE,
-            self.prop_memsafety.compute_score(CATEGORY_WRONG, RESULT_FALSE_DEREF),
+        assert _SCORE_WRONG_FALSE == self.prop_memsafety.compute_score(
+            CATEGORY_WRONG, RESULT_FALSE_DEREF
         )
-        self.assertEqual(
-            _SCORE_WRONG_FALSE,
-            self.prop_termination.compute_score(
-                CATEGORY_WRONG, RESULT_FALSE_TERMINATION
-            ),
+        assert _SCORE_WRONG_FALSE == self.prop_termination.compute_score(
+            CATEGORY_WRONG, RESULT_FALSE_TERMINATION
         )
-        self.assertEqual(
-            _SCORE_WRONG_TRUE,
-            self.prop_termination.compute_score(CATEGORY_WRONG, RESULT_TRUE_PROP),
+        assert _SCORE_WRONG_TRUE == self.prop_termination.compute_score(
+            CATEGORY_WRONG, RESULT_TRUE_PROP
         )
-        self.assertEqual(
-            _SCORE_WRONG_FALSE,
-            self.prop_overflow.compute_score(CATEGORY_WRONG, RESULT_FALSE_OVERFLOW),
+        assert _SCORE_WRONG_FALSE == self.prop_overflow.compute_score(
+            CATEGORY_WRONG, RESULT_FALSE_OVERFLOW
         )
-        self.assertEqual(
-            _SCORE_WRONG_TRUE,
-            self.prop_overflow.compute_score(CATEGORY_WRONG, RESULT_TRUE_PROP),
+        assert _SCORE_WRONG_TRUE == self.prop_overflow.compute_score(
+            CATEGORY_WRONG, RESULT_TRUE_PROP
         )
-        self.assertEqual(
-            _SCORE_WRONG_FALSE,
-            self.prop_deadlock.compute_score(CATEGORY_WRONG, RESULT_FALSE_OVERFLOW),
+        assert _SCORE_WRONG_FALSE == self.prop_deadlock.compute_score(
+            CATEGORY_WRONG, RESULT_FALSE_OVERFLOW
         )
-        self.assertEqual(
-            _SCORE_WRONG_TRUE,
-            self.prop_deadlock.compute_score(CATEGORY_WRONG, RESULT_TRUE_PROP),
+        assert _SCORE_WRONG_TRUE == self.prop_deadlock.compute_score(
+            CATEGORY_WRONG, RESULT_TRUE_PROP
         )
 
     def test_result_classification(self):
-        self.assertEqual(RESULT_CLASS_TRUE, get_result_classification(RESULT_TRUE_PROP))
+        assert RESULT_CLASS_TRUE == get_result_classification(RESULT_TRUE_PROP)
 
-        self.assertEqual(
-            RESULT_CLASS_FALSE, get_result_classification(RESULT_FALSE_REACH)
-        )
-        self.assertEqual(
-            RESULT_CLASS_FALSE, get_result_classification(RESULT_FALSE_DEREF)
-        )
-        self.assertEqual(
-            RESULT_CLASS_FALSE, get_result_classification(RESULT_FALSE_FREE)
-        )
-        self.assertEqual(
-            RESULT_CLASS_FALSE, get_result_classification(RESULT_FALSE_MEMTRACK)
-        )
-        self.assertEqual(
-            RESULT_CLASS_FALSE, get_result_classification(RESULT_FALSE_TERMINATION)
-        )
-        self.assertEqual(
-            RESULT_CLASS_FALSE, get_result_classification(RESULT_FALSE_OVERFLOW)
-        )
-        self.assertEqual(
-            RESULT_CLASS_FALSE, get_result_classification(RESULT_FALSE_PROP)
-        )
-        self.assertEqual(
-            RESULT_CLASS_FALSE, get_result_classification(RESULT_FALSE_PROP + "(test)")
+        assert RESULT_CLASS_FALSE == get_result_classification(RESULT_FALSE_REACH)
+        assert RESULT_CLASS_FALSE == get_result_classification(RESULT_FALSE_DEREF)
+        assert RESULT_CLASS_FALSE == get_result_classification(RESULT_FALSE_FREE)
+        assert RESULT_CLASS_FALSE == get_result_classification(RESULT_FALSE_MEMTRACK)
+        assert RESULT_CLASS_FALSE == get_result_classification(RESULT_FALSE_TERMINATION)
+        assert RESULT_CLASS_FALSE == get_result_classification(RESULT_FALSE_OVERFLOW)
+        assert RESULT_CLASS_FALSE == get_result_classification(RESULT_FALSE_PROP)
+        assert RESULT_CLASS_FALSE == get_result_classification(
+            RESULT_FALSE_PROP + "(test)"
         )
 
-        self.assertEqual(RESULT_CLASS_OTHER, get_result_classification(RESULT_DONE))
-        self.assertEqual(RESULT_CLASS_OTHER, get_result_classification(RESULT_UNKNOWN))
-        self.assertEqual(RESULT_CLASS_OTHER, get_result_classification("KILLED"))
-        self.assertEqual(RESULT_CLASS_OTHER, get_result_classification("TIMEOUT"))
-        self.assertEqual(RESULT_CLASS_OTHER, get_result_classification(""))
+        assert RESULT_CLASS_OTHER == get_result_classification(RESULT_DONE)
+        assert RESULT_CLASS_OTHER == get_result_classification(RESULT_UNKNOWN)
+        assert RESULT_CLASS_OTHER == get_result_classification("KILLED")
+        assert RESULT_CLASS_OTHER == get_result_classification("TIMEOUT")
+        assert RESULT_CLASS_OTHER == get_result_classification("")
 
     def test_result_category_true(self):
-        self.assertEqual(
-            CATEGORY_CORRECT,
-            get_result_category(
-                self.expected_result(True), RESULT_TRUE_PROP, [self.prop_call]
-            ),
+        assert CATEGORY_CORRECT == get_result_category(
+            self.expected_result(True), RESULT_TRUE_PROP, [self.prop_call]
         )
-        self.assertEqual(
-            CATEGORY_WRONG,
-            get_result_category(
-                self.expected_result(False), RESULT_TRUE_PROP, [self.prop_call]
-            ),
+        assert CATEGORY_WRONG == get_result_category(
+            self.expected_result(False), RESULT_TRUE_PROP, [self.prop_call]
         )
-        self.assertEqual(
-            CATEGORY_CORRECT,
-            get_result_category(
-                self.expected_result(True), RESULT_TRUE_PROP, [self.prop_memsafety]
-            ),
+        assert CATEGORY_CORRECT == get_result_category(
+            self.expected_result(True), RESULT_TRUE_PROP, [self.prop_memsafety]
         )
-        self.assertEqual(
-            CATEGORY_WRONG,
-            get_result_category(
-                self.expected_result(False, "valid-memtrack"),
-                RESULT_TRUE_PROP,
-                [self.prop_memsafety],
-            ),
+        assert CATEGORY_WRONG == get_result_category(
+            self.expected_result(False, "valid-memtrack"),
+            RESULT_TRUE_PROP,
+            [self.prop_memsafety],
         )
-        self.assertEqual(
-            CATEGORY_CORRECT,
-            get_result_category(
-                self.expected_result(True), RESULT_TRUE_PROP, [self.prop_memcleanup]
-            ),
+        assert CATEGORY_CORRECT == get_result_category(
+            self.expected_result(True), RESULT_TRUE_PROP, [self.prop_memcleanup]
         )
-        self.assertEqual(
-            CATEGORY_WRONG,
-            get_result_category(
-                self.expected_result(False), RESULT_TRUE_PROP, [self.prop_memcleanup]
-            ),
+        assert CATEGORY_WRONG == get_result_category(
+            self.expected_result(False), RESULT_TRUE_PROP, [self.prop_memcleanup]
         )
-        self.assertEqual(
-            CATEGORY_CORRECT,
-            get_result_category(
-                self.expected_result(True), RESULT_TRUE_PROP, [self.prop_termination]
-            ),
+        assert CATEGORY_CORRECT == get_result_category(
+            self.expected_result(True), RESULT_TRUE_PROP, [self.prop_termination]
         )
-        self.assertEqual(
-            CATEGORY_WRONG,
-            get_result_category(
-                self.expected_result(False), RESULT_TRUE_PROP, [self.prop_termination]
-            ),
+        assert CATEGORY_WRONG == get_result_category(
+            self.expected_result(False), RESULT_TRUE_PROP, [self.prop_termination]
         )
-        self.assertEqual(
-            CATEGORY_CORRECT,
-            get_result_category(
-                self.expected_result(True), RESULT_TRUE_PROP, [self.prop_overflow]
-            ),
+        assert CATEGORY_CORRECT == get_result_category(
+            self.expected_result(True), RESULT_TRUE_PROP, [self.prop_overflow]
         )
-        self.assertEqual(
-            CATEGORY_WRONG,
-            get_result_category(
-                self.expected_result(False), RESULT_TRUE_PROP, [self.prop_overflow]
-            ),
+        assert CATEGORY_WRONG == get_result_category(
+            self.expected_result(False), RESULT_TRUE_PROP, [self.prop_overflow]
         )
-        self.assertEqual(
-            CATEGORY_CORRECT,
-            get_result_category(
-                self.expected_result(True), RESULT_TRUE_PROP, [self.prop_deadlock]
-            ),
+        assert CATEGORY_CORRECT == get_result_category(
+            self.expected_result(True), RESULT_TRUE_PROP, [self.prop_deadlock]
         )
-        self.assertEqual(
-            CATEGORY_WRONG,
-            get_result_category(
-                self.expected_result(False), RESULT_TRUE_PROP, [self.prop_deadlock]
-            ),
+        assert CATEGORY_WRONG == get_result_category(
+            self.expected_result(False), RESULT_TRUE_PROP, [self.prop_deadlock]
         )
 
         test_prop = Property("dummy.prp", True, "test prop")
-        self.assertEqual(
-            CATEGORY_CORRECT,
-            get_result_category(
-                self.expected_result(True), RESULT_TRUE_PROP, [test_prop]
-            ),
+        assert CATEGORY_CORRECT == get_result_category(
+            self.expected_result(True), RESULT_TRUE_PROP, [test_prop]
         )
-        self.assertEqual(
-            CATEGORY_WRONG,
-            get_result_category(
-                self.expected_result(False), RESULT_TRUE_PROP, [test_prop]
-            ),
+        assert CATEGORY_WRONG == get_result_category(
+            self.expected_result(False), RESULT_TRUE_PROP, [test_prop]
         )
 
         test_prop = Property("dummy.prp", True, "test prop")
-        self.assertEqual(
-            CATEGORY_CORRECT,
-            get_result_category(
-                self.expected_result(True), RESULT_TRUE_PROP, [test_prop]
-            ),
+        assert CATEGORY_CORRECT == get_result_category(
+            self.expected_result(True), RESULT_TRUE_PROP, [test_prop]
         )
-        self.assertEqual(
-            CATEGORY_WRONG,
-            get_result_category(
-                self.expected_result(False, "a"), RESULT_TRUE_PROP, [test_prop]
-            ),
+        assert CATEGORY_WRONG == get_result_category(
+            self.expected_result(False, "a"), RESULT_TRUE_PROP, [test_prop]
         )
 
     def test_result_category_false(self):
-        self.assertEqual(
-            CATEGORY_WRONG,
-            get_result_category(
-                self.expected_result(True), RESULT_FALSE_REACH, [self.prop_call]
-            ),
+        assert CATEGORY_WRONG == get_result_category(
+            self.expected_result(True), RESULT_FALSE_REACH, [self.prop_call]
         )
-        self.assertEqual(
-            CATEGORY_CORRECT,
-            get_result_category(
-                self.expected_result(False), RESULT_FALSE_REACH, [self.prop_call]
-            ),
+        assert CATEGORY_CORRECT == get_result_category(
+            self.expected_result(False), RESULT_FALSE_REACH, [self.prop_call]
         )
-        self.assertEqual(
-            CATEGORY_WRONG,
-            get_result_category(
-                self.expected_result(True), RESULT_FALSE_DEREF, [self.prop_memsafety]
-            ),
+        assert CATEGORY_WRONG == get_result_category(
+            self.expected_result(True), RESULT_FALSE_DEREF, [self.prop_memsafety]
         )
-        self.assertEqual(
-            CATEGORY_WRONG,
-            get_result_category(
-                self.expected_result(True), RESULT_FALSE_FREE, [self.prop_memsafety]
-            ),
+        assert CATEGORY_WRONG == get_result_category(
+            self.expected_result(True), RESULT_FALSE_FREE, [self.prop_memsafety]
         )
-        self.assertEqual(
-            CATEGORY_WRONG,
-            get_result_category(
-                self.expected_result(True), RESULT_FALSE_MEMTRACK, [self.prop_memsafety]
-            ),
+        assert CATEGORY_WRONG == get_result_category(
+            self.expected_result(True), RESULT_FALSE_MEMTRACK, [self.prop_memsafety]
         )
-        self.assertEqual(
-            CATEGORY_CORRECT,
-            get_result_category(
-                self.expected_result(False, "valid-deref"),
-                RESULT_FALSE_DEREF,
-                [self.prop_memsafety],
-            ),
+        assert CATEGORY_CORRECT == get_result_category(
+            self.expected_result(False, "valid-deref"),
+            RESULT_FALSE_DEREF,
+            [self.prop_memsafety],
         )
-        self.assertEqual(
-            CATEGORY_CORRECT,
-            get_result_category(
-                self.expected_result(False, "valid-free"),
-                RESULT_FALSE_FREE,
-                [self.prop_memsafety],
-            ),
+        assert CATEGORY_CORRECT == get_result_category(
+            self.expected_result(False, "valid-free"),
+            RESULT_FALSE_FREE,
+            [self.prop_memsafety],
         )
-        self.assertEqual(
-            CATEGORY_CORRECT,
-            get_result_category(
-                self.expected_result(False, "valid-memtrack"),
-                RESULT_FALSE_MEMTRACK,
-                [self.prop_memsafety],
-            ),
+        assert CATEGORY_CORRECT == get_result_category(
+            self.expected_result(False, "valid-memtrack"),
+            RESULT_FALSE_MEMTRACK,
+            [self.prop_memsafety],
         )
-        self.assertEqual(
-            CATEGORY_UNKNOWN,
-            get_result_category(
-                self.expected_result(False, "valid-deref"),
-                RESULT_FALSE_FREE,
-                [self.prop_memsafety],
-            ),
+        assert CATEGORY_UNKNOWN == get_result_category(
+            self.expected_result(False, "valid-deref"),
+            RESULT_FALSE_FREE,
+            [self.prop_memsafety],
         )
-        self.assertEqual(
-            CATEGORY_UNKNOWN,
-            get_result_category(
-                self.expected_result(False, "valid-free"),
-                RESULT_FALSE_MEMTRACK,
-                [self.prop_memsafety],
-            ),
+        assert CATEGORY_UNKNOWN == get_result_category(
+            self.expected_result(False, "valid-free"),
+            RESULT_FALSE_MEMTRACK,
+            [self.prop_memsafety],
         )
-        self.assertEqual(
-            CATEGORY_UNKNOWN,
-            get_result_category(
-                self.expected_result(False, "valid-memtrack"),
-                RESULT_FALSE_DEREF,
-                [self.prop_memsafety],
-            ),
+        assert CATEGORY_UNKNOWN == get_result_category(
+            self.expected_result(False, "valid-memtrack"),
+            RESULT_FALSE_DEREF,
+            [self.prop_memsafety],
         )
-        self.assertEqual(
-            CATEGORY_WRONG,
-            get_result_category(
-                self.expected_result(True),
-                RESULT_FALSE_TERMINATION,
-                [self.prop_termination],
-            ),
+        assert CATEGORY_WRONG == get_result_category(
+            self.expected_result(True),
+            RESULT_FALSE_TERMINATION,
+            [self.prop_termination],
         )
-        self.assertEqual(
-            CATEGORY_CORRECT,
-            get_result_category(
-                self.expected_result(False),
-                RESULT_FALSE_TERMINATION,
-                [self.prop_termination],
-            ),
+        assert CATEGORY_CORRECT == get_result_category(
+            self.expected_result(False),
+            RESULT_FALSE_TERMINATION,
+            [self.prop_termination],
         )
-        self.assertEqual(
-            CATEGORY_WRONG,
-            get_result_category(
-                self.expected_result(True), RESULT_FALSE_OVERFLOW, [self.prop_overflow]
-            ),
+        assert CATEGORY_WRONG == get_result_category(
+            self.expected_result(True), RESULT_FALSE_OVERFLOW, [self.prop_overflow]
         )
-        self.assertEqual(
-            CATEGORY_CORRECT,
-            get_result_category(
-                self.expected_result(False), RESULT_FALSE_OVERFLOW, [self.prop_overflow]
-            ),
+        assert CATEGORY_CORRECT == get_result_category(
+            self.expected_result(False), RESULT_FALSE_OVERFLOW, [self.prop_overflow]
         )
-        self.assertEqual(
-            CATEGORY_WRONG,
-            get_result_category(
-                self.expected_result(True), RESULT_FALSE_DEADLOCK, [self.prop_deadlock]
-            ),
+        assert CATEGORY_WRONG == get_result_category(
+            self.expected_result(True), RESULT_FALSE_DEADLOCK, [self.prop_deadlock]
         )
-        self.assertEqual(
-            CATEGORY_CORRECT,
-            get_result_category(
-                self.expected_result(False), RESULT_FALSE_DEADLOCK, [self.prop_deadlock]
-            ),
+        assert CATEGORY_CORRECT == get_result_category(
+            self.expected_result(False), RESULT_FALSE_DEADLOCK, [self.prop_deadlock]
         )
 
-        self.assertEqual(
-            CATEGORY_WRONG,
-            get_result_category(
-                self.expected_result(True), RESULT_FALSE_PROP, [self.prop_call]
-            ),
+        assert CATEGORY_WRONG == get_result_category(
+            self.expected_result(True), RESULT_FALSE_PROP, [self.prop_call]
         )
-        self.assertEqual(
-            CATEGORY_CORRECT,
-            get_result_category(
-                self.expected_result(False), RESULT_FALSE_PROP, [self.prop_call]
-            ),
+        assert CATEGORY_CORRECT == get_result_category(
+            self.expected_result(False), RESULT_FALSE_PROP, [self.prop_call]
         )
-        self.assertEqual(
-            CATEGORY_WRONG,
-            get_result_category(
-                self.expected_result(True), RESULT_FALSE_PROP, [self.prop_termination]
-            ),
+        assert CATEGORY_WRONG == get_result_category(
+            self.expected_result(True), RESULT_FALSE_PROP, [self.prop_termination]
         )
-        self.assertEqual(
-            CATEGORY_CORRECT,
-            get_result_category(
-                self.expected_result(False), RESULT_FALSE_PROP, [self.prop_termination]
-            ),
+        assert CATEGORY_CORRECT == get_result_category(
+            self.expected_result(False), RESULT_FALSE_PROP, [self.prop_termination]
         )
-        self.assertEqual(
-            CATEGORY_WRONG,
-            get_result_category(
-                self.expected_result(True), RESULT_FALSE_PROP, [self.prop_overflow]
-            ),
+        assert CATEGORY_WRONG == get_result_category(
+            self.expected_result(True), RESULT_FALSE_PROP, [self.prop_overflow]
         )
-        self.assertEqual(
-            CATEGORY_CORRECT,
-            get_result_category(
-                self.expected_result(False), RESULT_FALSE_PROP, [self.prop_overflow]
-            ),
+        assert CATEGORY_CORRECT == get_result_category(
+            self.expected_result(False), RESULT_FALSE_PROP, [self.prop_overflow]
         )
-        self.assertEqual(
-            CATEGORY_WRONG,
-            get_result_category(
-                self.expected_result(True), RESULT_FALSE_PROP, [self.prop_deadlock]
-            ),
+        assert CATEGORY_WRONG == get_result_category(
+            self.expected_result(True), RESULT_FALSE_PROP, [self.prop_deadlock]
         )
-        self.assertEqual(
-            CATEGORY_CORRECT,
-            get_result_category(
-                self.expected_result(False), RESULT_FALSE_PROP, [self.prop_deadlock]
-            ),
+        assert CATEGORY_CORRECT == get_result_category(
+            self.expected_result(False), RESULT_FALSE_PROP, [self.prop_deadlock]
         )
 
         test_prop = Property("dummy.prp", True, "test prop")
-        self.assertEqual(
-            CATEGORY_WRONG,
-            get_result_category(
-                self.expected_result(True), RESULT_FALSE_PROP, [test_prop]
-            ),
+        assert CATEGORY_WRONG == get_result_category(
+            self.expected_result(True), RESULT_FALSE_PROP, [test_prop]
         )
-        self.assertEqual(
-            CATEGORY_CORRECT,
-            get_result_category(
-                self.expected_result(False), RESULT_FALSE_PROP, [test_prop]
-            ),
+        assert CATEGORY_CORRECT == get_result_category(
+            self.expected_result(False), RESULT_FALSE_PROP, [test_prop]
         )
         # arbitrary subproperties allowed if property does not specify one
-        self.assertEqual(
-            CATEGORY_CORRECT,
-            get_result_category(
-                self.expected_result(False), RESULT_FALSE_PROP + "(a)", [test_prop]
-            ),
+        assert CATEGORY_CORRECT == get_result_category(
+            self.expected_result(False), RESULT_FALSE_PROP + "(a)", [test_prop]
         )
 
         test_prop = Property("dummy.prp", True, "test prop")
-        self.assertEqual(
-            CATEGORY_WRONG,
-            get_result_category(
-                self.expected_result(True), RESULT_FALSE_PROP, [test_prop]
-            ),
+        assert CATEGORY_WRONG == get_result_category(
+            self.expected_result(True), RESULT_FALSE_PROP, [test_prop]
         )
-        self.assertEqual(
-            CATEGORY_WRONG,
-            get_result_category(
-                self.expected_result(True), RESULT_FALSE_PROP + "(a)", [test_prop]
-            ),
+        assert CATEGORY_WRONG == get_result_category(
+            self.expected_result(True), RESULT_FALSE_PROP + "(a)", [test_prop]
         )
-        self.assertEqual(
-            CATEGORY_CORRECT,
-            get_result_category(
-                self.expected_result(False, "a"), RESULT_FALSE_PROP + "(a)", [test_prop]
-            ),
+        assert CATEGORY_CORRECT == get_result_category(
+            self.expected_result(False, "a"), RESULT_FALSE_PROP + "(a)", [test_prop]
         )
 
     def test_result_category_different_false_result(self):
         expected_result_false = self.expected_result(False)
-        self.assertEqual(
-            CATEGORY_CORRECT,
-            get_result_category(
-                expected_result_false, RESULT_FALSE_DEREF, [self.prop_call]
-            ),
+        assert CATEGORY_CORRECT == get_result_category(
+            expected_result_false, RESULT_FALSE_DEREF, [self.prop_call]
         )
-        self.assertEqual(
-            CATEGORY_CORRECT,
-            get_result_category(
-                expected_result_false, RESULT_FALSE_TERMINATION, [self.prop_call]
-            ),
+        assert CATEGORY_CORRECT == get_result_category(
+            expected_result_false, RESULT_FALSE_TERMINATION, [self.prop_call]
         )
-        self.assertEqual(
-            CATEGORY_CORRECT,
-            get_result_category(
-                expected_result_false, RESULT_FALSE_OVERFLOW, [self.prop_call]
-            ),
+        assert CATEGORY_CORRECT == get_result_category(
+            expected_result_false, RESULT_FALSE_OVERFLOW, [self.prop_call]
         )
 
-        self.assertEqual(
-            CATEGORY_CORRECT,
-            get_result_category(
-                expected_result_false, RESULT_FALSE_REACH, [self.prop_termination]
-            ),
+        assert CATEGORY_CORRECT == get_result_category(
+            expected_result_false, RESULT_FALSE_REACH, [self.prop_termination]
         )
-        self.assertEqual(
-            CATEGORY_CORRECT,
-            get_result_category(
-                expected_result_false, RESULT_FALSE_DEREF, [self.prop_termination]
-            ),
+        assert CATEGORY_CORRECT == get_result_category(
+            expected_result_false, RESULT_FALSE_DEREF, [self.prop_termination]
         )
-        self.assertEqual(
-            CATEGORY_CORRECT,
-            get_result_category(
-                expected_result_false, RESULT_FALSE_OVERFLOW, [self.prop_termination]
-            ),
+        assert CATEGORY_CORRECT == get_result_category(
+            expected_result_false, RESULT_FALSE_OVERFLOW, [self.prop_termination]
         )
 
-        self.assertEqual(
-            CATEGORY_CORRECT,
-            get_result_category(
-                expected_result_false, RESULT_FALSE_REACH, [self.prop_sat]
-            ),
+        assert CATEGORY_CORRECT == get_result_category(
+            expected_result_false, RESULT_FALSE_REACH, [self.prop_sat]
         )
-        self.assertEqual(
-            CATEGORY_CORRECT,
-            get_result_category(
-                expected_result_false, RESULT_FALSE_DEREF, [self.prop_sat]
-            ),
+        assert CATEGORY_CORRECT == get_result_category(
+            expected_result_false, RESULT_FALSE_DEREF, [self.prop_sat]
         )
-        self.assertEqual(
-            CATEGORY_CORRECT,
-            get_result_category(
-                expected_result_false, RESULT_FALSE_TERMINATION, [self.prop_sat]
-            ),
+        assert CATEGORY_CORRECT == get_result_category(
+            expected_result_false, RESULT_FALSE_TERMINATION, [self.prop_sat]
         )
-        self.assertEqual(
-            CATEGORY_CORRECT,
-            get_result_category(
-                expected_result_false, RESULT_FALSE_OVERFLOW, [self.prop_sat]
-            ),
+        assert CATEGORY_CORRECT == get_result_category(
+            expected_result_false, RESULT_FALSE_OVERFLOW, [self.prop_sat]
         )
-        self.assertEqual(
-            CATEGORY_WRONG,
-            get_result_category(
-                self.expected_result(True), RESULT_FALSE_PROP, [self.prop_sat]
-            ),
+        assert CATEGORY_WRONG == get_result_category(
+            self.expected_result(True), RESULT_FALSE_PROP, [self.prop_sat]
         )
-        self.assertEqual(
-            CATEGORY_CORRECT,
-            get_result_category(
-                expected_result_false, RESULT_FALSE_PROP, [self.prop_sat]
-            ),
+        assert CATEGORY_CORRECT == get_result_category(
+            expected_result_false, RESULT_FALSE_PROP, [self.prop_sat]
         )
 
-        self.assertEqual(
-            CATEGORY_CORRECT,
-            get_result_category(
-                expected_result_false, RESULT_FALSE_REACH, [self.prop_overflow]
-            ),
+        assert CATEGORY_CORRECT == get_result_category(
+            expected_result_false, RESULT_FALSE_REACH, [self.prop_overflow]
         )
-        self.assertEqual(
-            CATEGORY_CORRECT,
-            get_result_category(
-                expected_result_false, RESULT_FALSE_DEREF, [self.prop_overflow]
-            ),
+        assert CATEGORY_CORRECT == get_result_category(
+            expected_result_false, RESULT_FALSE_DEREF, [self.prop_overflow]
         )
-        self.assertEqual(
-            CATEGORY_CORRECT,
-            get_result_category(
-                expected_result_false, RESULT_FALSE_TERMINATION, [self.prop_overflow]
-            ),
+        assert CATEGORY_CORRECT == get_result_category(
+            expected_result_false, RESULT_FALSE_TERMINATION, [self.prop_overflow]
         )
 
-        self.assertEqual(
-            CATEGORY_CORRECT,
-            get_result_category(
-                expected_result_false, RESULT_FALSE_REACH, [self.prop_deadlock]
-            ),
+        assert CATEGORY_CORRECT == get_result_category(
+            expected_result_false, RESULT_FALSE_REACH, [self.prop_deadlock]
         )
-        self.assertEqual(
-            CATEGORY_CORRECT,
-            get_result_category(
-                expected_result_false, RESULT_FALSE_DEREF, [self.prop_deadlock]
-            ),
+        assert CATEGORY_CORRECT == get_result_category(
+            expected_result_false, RESULT_FALSE_DEREF, [self.prop_deadlock]
         )
-        self.assertEqual(
-            CATEGORY_CORRECT,
-            get_result_category(
-                expected_result_false, RESULT_FALSE_TERMINATION, [self.prop_deadlock]
-            ),
+        assert CATEGORY_CORRECT == get_result_category(
+            expected_result_false, RESULT_FALSE_TERMINATION, [self.prop_deadlock]
         )
 
-        self.assertEqual(
-            CATEGORY_WRONG,
-            get_result_category(
-                self.expected_result(True), RESULT_FALSE_OVERFLOW, [self.prop_call]
-            ),
+        assert CATEGORY_WRONG == get_result_category(
+            self.expected_result(True), RESULT_FALSE_OVERFLOW, [self.prop_call]
         )
-        self.assertEqual(
-            CATEGORY_WRONG,
-            get_result_category(
-                self.expected_result(True), RESULT_FALSE_REACH, [self.prop_termination]
-            ),
+        assert CATEGORY_WRONG == get_result_category(
+            self.expected_result(True), RESULT_FALSE_REACH, [self.prop_termination]
         )
-        self.assertEqual(
-            CATEGORY_WRONG,
-            get_result_category(
-                self.expected_result(True), RESULT_FALSE_PROP, [self.prop_memsafety]
-            ),
+        assert CATEGORY_WRONG == get_result_category(
+            self.expected_result(True), RESULT_FALSE_PROP, [self.prop_memsafety]
         )
-        self.assertEqual(
-            CATEGORY_UNKNOWN,
-            get_result_category(
-                self.expected_result(False, "valid-deref"),
-                RESULT_FALSE_PROP,
-                [self.prop_memsafety],
-            ),
+        assert CATEGORY_UNKNOWN == get_result_category(
+            self.expected_result(False, "valid-deref"),
+            RESULT_FALSE_PROP,
+            [self.prop_memsafety],
         )
-        self.assertEqual(
-            CATEGORY_UNKNOWN,
-            get_result_category(
-                self.expected_result(False, "valid-free"),
-                RESULT_FALSE_PROP,
-                [self.prop_memsafety],
-            ),
+        assert CATEGORY_UNKNOWN == get_result_category(
+            self.expected_result(False, "valid-free"),
+            RESULT_FALSE_PROP,
+            [self.prop_memsafety],
         )
-        self.assertEqual(
-            CATEGORY_UNKNOWN,
-            get_result_category(
-                self.expected_result(False, "valid-memtrack"),
-                RESULT_FALSE_PROP,
-                [self.prop_memsafety],
-            ),
+        assert CATEGORY_UNKNOWN == get_result_category(
+            self.expected_result(False, "valid-memtrack"),
+            RESULT_FALSE_PROP,
+            [self.prop_memsafety],
         )
 
         test_prop = Property("dummy.prp", True, "test prop")
-        self.assertEqual(
-            CATEGORY_UNKNOWN,
-            get_result_category(
-                self.expected_result(False, "a"), RESULT_FALSE_PROP, [test_prop]
-            ),
+        assert CATEGORY_UNKNOWN == get_result_category(
+            self.expected_result(False, "a"), RESULT_FALSE_PROP, [test_prop]
         )
 
     def test_result_category_no_property(self):
-        self.assertEqual(
-            CATEGORY_MISSING,
-            get_result_category(self.expected_result(True), RESULT_TRUE_PROP, []),
+        assert CATEGORY_MISSING == get_result_category(
+            self.expected_result(True), RESULT_TRUE_PROP, []
         )
-        self.assertEqual(
-            CATEGORY_MISSING,
-            get_result_category(self.expected_result(False), RESULT_TRUE_PROP, []),
+        assert CATEGORY_MISSING == get_result_category(
+            self.expected_result(False), RESULT_TRUE_PROP, []
         )
-        self.assertEqual(
-            CATEGORY_MISSING,
-            get_result_category(self.expected_result(True), RESULT_TRUE_PROP, []),
+        assert CATEGORY_MISSING == get_result_category(
+            self.expected_result(True), RESULT_TRUE_PROP, []
         )
-        self.assertEqual(
-            CATEGORY_MISSING,
-            get_result_category(
-                self.expected_result(False, "valid-memtrack.c"), RESULT_TRUE_PROP, []
-            ),
+        assert CATEGORY_MISSING == get_result_category(
+            self.expected_result(False, "valid-memtrack.c"), RESULT_TRUE_PROP, []
         )
-        self.assertEqual(
-            CATEGORY_MISSING,
-            get_result_category(self.expected_result(True), RESULT_TRUE_PROP, []),
+        assert CATEGORY_MISSING == get_result_category(
+            self.expected_result(True), RESULT_TRUE_PROP, []
         )
-        self.assertEqual(
-            CATEGORY_MISSING,
-            get_result_category(self.expected_result(False), RESULT_TRUE_PROP, []),
+        assert CATEGORY_MISSING == get_result_category(
+            self.expected_result(False), RESULT_TRUE_PROP, []
         )
-        self.assertEqual(
-            CATEGORY_MISSING,
-            get_result_category(self.expected_result(True), RESULT_TRUE_PROP, []),
+        assert CATEGORY_MISSING == get_result_category(
+            self.expected_result(True), RESULT_TRUE_PROP, []
         )
-        self.assertEqual(
-            CATEGORY_MISSING,
-            get_result_category(self.expected_result(False), RESULT_TRUE_PROP, []),
+        assert CATEGORY_MISSING == get_result_category(
+            self.expected_result(False), RESULT_TRUE_PROP, []
         )
 
     def test_result_category_no_expected_result(self):
-        self.assertEqual(
-            CATEGORY_MISSING,
-            get_result_category(
-                self.expected_result(None), RESULT_TRUE_PROP, [self.prop_call]
-            ),
+        assert CATEGORY_MISSING == get_result_category(
+            self.expected_result(None), RESULT_TRUE_PROP, [self.prop_call]
         )
-        self.assertEqual(
-            CATEGORY_MISSING,
-            get_result_category(
-                self.expected_result(None), RESULT_FALSE_PROP, [self.prop_call]
-            ),
+        assert CATEGORY_MISSING == get_result_category(
+            self.expected_result(None), RESULT_FALSE_PROP, [self.prop_call]
         )
-        self.assertEqual(
-            CATEGORY_MISSING,
-            get_result_category(
-                self.expected_result(None), RESULT_TRUE_PROP, [self.prop_memsafety]
-            ),
+        assert CATEGORY_MISSING == get_result_category(
+            self.expected_result(None), RESULT_TRUE_PROP, [self.prop_memsafety]
         )
-        self.assertEqual(
-            CATEGORY_MISSING,
-            get_result_category(
-                self.expected_result(None), RESULT_FALSE_FREE, [self.prop_memsafety]
-            ),
+        assert CATEGORY_MISSING == get_result_category(
+            self.expected_result(None), RESULT_FALSE_FREE, [self.prop_memsafety]
         )
-        self.assertEqual(
-            CATEGORY_MISSING,
-            get_result_category(
-                self.expected_result(None), RESULT_TRUE_PROP, [self.prop_termination]
-            ),
+        assert CATEGORY_MISSING == get_result_category(
+            self.expected_result(None), RESULT_TRUE_PROP, [self.prop_termination]
         )
-        self.assertEqual(
-            CATEGORY_MISSING,
-            get_result_category(
-                self.expected_result(None), RESULT_FALSE_PROP, [self.prop_termination]
-            ),
+        assert CATEGORY_MISSING == get_result_category(
+            self.expected_result(None), RESULT_FALSE_PROP, [self.prop_termination]
         )
 
-        self.assertEqual(
-            CATEGORY_MISSING,
-            get_result_category({}, RESULT_TRUE_PROP, [self.prop_call]),
+        assert CATEGORY_MISSING == get_result_category(
+            {}, RESULT_TRUE_PROP, [self.prop_call]
         )
-        self.assertEqual(
-            CATEGORY_MISSING,
-            get_result_category({}, RESULT_FALSE_PROP, [self.prop_call]),
+        assert CATEGORY_MISSING == get_result_category(
+            {}, RESULT_FALSE_PROP, [self.prop_call]
         )
-        self.assertEqual(
-            CATEGORY_MISSING,
-            get_result_category({}, RESULT_TRUE_PROP, [self.prop_memsafety]),
+        assert CATEGORY_MISSING == get_result_category(
+            {}, RESULT_TRUE_PROP, [self.prop_memsafety]
         )
-        self.assertEqual(
-            CATEGORY_MISSING,
-            get_result_category({}, RESULT_FALSE_FREE, [self.prop_memsafety]),
+        assert CATEGORY_MISSING == get_result_category(
+            {}, RESULT_FALSE_FREE, [self.prop_memsafety]
         )
-        self.assertEqual(
-            CATEGORY_MISSING,
-            get_result_category({}, RESULT_TRUE_PROP, [self.prop_termination]),
+        assert CATEGORY_MISSING == get_result_category(
+            {}, RESULT_TRUE_PROP, [self.prop_termination]
         )
-        self.assertEqual(
-            CATEGORY_MISSING,
-            get_result_category({}, RESULT_FALSE_PROP, [self.prop_termination]),
+        assert CATEGORY_MISSING == get_result_category(
+            {}, RESULT_FALSE_PROP, [self.prop_termination]
         )
 
     def test_result_category_different_property(self):
         def other_expected_result(result, subcategory=None):
             return {"different-file.prp": ExpectedResult(result, subcategory)}
 
-        self.assertEqual(
-            CATEGORY_MISSING,
-            get_result_category(
-                other_expected_result(True), RESULT_TRUE_PROP, [self.prop_termination]
-            ),
+        assert CATEGORY_MISSING == get_result_category(
+            other_expected_result(True), RESULT_TRUE_PROP, [self.prop_termination]
         )
-        self.assertEqual(
-            CATEGORY_MISSING,
-            get_result_category(
-                other_expected_result(False), RESULT_TRUE_PROP, [self.prop_termination]
-            ),
+        assert CATEGORY_MISSING == get_result_category(
+            other_expected_result(False), RESULT_TRUE_PROP, [self.prop_termination]
         )
-        self.assertEqual(
-            CATEGORY_MISSING,
-            get_result_category(
-                other_expected_result(True), RESULT_TRUE_PROP, [self.prop_call]
-            ),
+        assert CATEGORY_MISSING == get_result_category(
+            other_expected_result(True), RESULT_TRUE_PROP, [self.prop_call]
         )
-        self.assertEqual(
-            CATEGORY_MISSING,
-            get_result_category(
-                other_expected_result(False, "valid-memtrack"),
-                RESULT_TRUE_PROP,
-                [self.prop_call],
-            ),
+        assert CATEGORY_MISSING == get_result_category(
+            other_expected_result(False, "valid-memtrack"),
+            RESULT_TRUE_PROP,
+            [self.prop_call],
         )
-        self.assertEqual(
-            CATEGORY_MISSING,
-            get_result_category(
-                other_expected_result(True), RESULT_TRUE_PROP, [self.prop_call]
-            ),
+        assert CATEGORY_MISSING == get_result_category(
+            other_expected_result(True), RESULT_TRUE_PROP, [self.prop_call]
         )
-        self.assertEqual(
-            CATEGORY_MISSING,
-            get_result_category(
-                other_expected_result(False), RESULT_TRUE_PROP, [self.prop_call]
-            ),
+        assert CATEGORY_MISSING == get_result_category(
+            other_expected_result(False), RESULT_TRUE_PROP, [self.prop_call]
         )
 
     def test_result_category_other(self):
-        self.assertEqual(
-            CATEGORY_MISSING,
-            get_result_category(
-                self.expected_result(True), RESULT_DONE, [self.prop_call]
-            ),
+        assert CATEGORY_MISSING == get_result_category(
+            self.expected_result(True), RESULT_DONE, [self.prop_call]
         )
-        self.assertEqual(
-            CATEGORY_MISSING,
-            get_result_category(self.expected_result(True), RESULT_DONE, []),
+        assert CATEGORY_MISSING == get_result_category(
+            self.expected_result(True), RESULT_DONE, []
         )
-        self.assertEqual(
-            CATEGORY_MISSING,
-            get_result_category(
-                self.expected_result(None), RESULT_DONE, [self.prop_call]
-            ),
+        assert CATEGORY_MISSING == get_result_category(
+            self.expected_result(None), RESULT_DONE, [self.prop_call]
         )
-        self.assertEqual(
-            CATEGORY_UNKNOWN,
-            get_result_category(
-                self.expected_result(True), RESULT_UNKNOWN, [self.prop_call]
-            ),
+        assert CATEGORY_UNKNOWN == get_result_category(
+            self.expected_result(True), RESULT_UNKNOWN, [self.prop_call]
         )
-        self.assertEqual(
-            CATEGORY_UNKNOWN,
-            get_result_category(self.expected_result(True), RESULT_UNKNOWN, []),
+        assert CATEGORY_UNKNOWN == get_result_category(
+            self.expected_result(True), RESULT_UNKNOWN, []
         )
-        self.assertEqual(
-            CATEGORY_UNKNOWN,
-            get_result_category(
-                self.expected_result(None), RESULT_UNKNOWN, [self.prop_call]
-            ),
+        assert CATEGORY_UNKNOWN == get_result_category(
+            self.expected_result(None), RESULT_UNKNOWN, [self.prop_call]
         )
-        self.assertEqual(
-            CATEGORY_ERROR,
-            get_result_category(self.expected_result(True), "KILLED", [self.prop_call]),
+        assert CATEGORY_ERROR == get_result_category(
+            self.expected_result(True), "KILLED", [self.prop_call]
         )
-        self.assertEqual(
-            CATEGORY_ERROR,
-            get_result_category(
-                self.expected_result(True), "TIMEOUT", [self.prop_call]
-            ),
+        assert CATEGORY_ERROR == get_result_category(
+            self.expected_result(True), "TIMEOUT", [self.prop_call]
         )
-        self.assertEqual(
-            CATEGORY_ERROR,
-            get_result_category(self.expected_result(True), "", [self.prop_call]),
+        assert CATEGORY_ERROR == get_result_category(
+            self.expected_result(True), "", [self.prop_call]
         )
