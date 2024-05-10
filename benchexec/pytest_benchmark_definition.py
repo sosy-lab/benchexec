@@ -8,8 +8,7 @@
 import collections
 import os
 import tempfile
-import unittest
-from unittest.mock import patch
+import pytest
 import yaml
 
 from benchexec.model import Benchmark
@@ -63,20 +62,25 @@ def mock_property_create(property_file):
     return benchexec.result.Property("test.prp", False, "test")
 
 
-class TestBenchmarkDefinition(unittest.TestCase):
+@pytest.fixture()
+def apply_mocks(mocker):
+    mocker.patch(
+        "benchexec.model.load_task_definition_file", new=mock_load_task_def_file
+    )
+    mocker.patch("benchexec.result.Property.create", new=mock_property_create)
+    mocker.patch(
+        "benchexec.util.expand_filename_pattern", new=mock_expand_filename_pattern
+    )
+    mocker.patch("os.path.samefile", new=lambda a, b: a == b)
+
+
+class TestBenchmarkDefinition:
     """
     Unit tests for reading benchmark definitions,
     testing mostly the classes from benchexec.model.
     """
 
-    @classmethod
-    def setUpClass(cls):
-        cls.longMessage = True
-
-    @patch("benchexec.model.load_task_definition_file", new=mock_load_task_def_file)
-    @patch("benchexec.result.Property.create", new=mock_property_create)
-    @patch("benchexec.util.expand_filename_pattern", new=mock_expand_filename_pattern)
-    @patch("os.path.samefile", new=lambda a, b: a == b)
+    @pytest.mark.usefixtures("apply_mocks")
     def parse_benchmark_definition(self, content):
         with tempfile.NamedTemporaryFile(
             prefix="BenchExec_test_benchmark_definition_", suffix=".xml", mode="w+"
@@ -88,6 +92,7 @@ class TestBenchmarkDefinition(unittest.TestCase):
             # we can parse the benchmark definition although task files do not exist.
             return Benchmark(temp.name, DummyConfig, util.read_local_time())
 
+    @pytest.mark.usefixtures("apply_mocks")
     def check_task_filter(self, filter_attr, expected):
         # The following three benchmark definitions are equivalent, we check each.
         benchmark_definitions = [
@@ -122,24 +127,30 @@ class TestBenchmarkDefinition(unittest.TestCase):
         for bench_def in benchmark_definitions:
             benchmark = self.parse_benchmark_definition(bench_def.format(filter_attr))
             run_ids = [run.identifier for run in benchmark.run_sets[0].runs]
-            self.assertListEqual(run_ids, sorted(expected))
+            assert run_ids == sorted(expected)
 
+    @pytest.mark.usefixtures("apply_mocks")
     def test_expected_verdict_no_filter(self):
         self.check_task_filter("", ALL_TEST_TASKS.keys())
 
+    @pytest.mark.usefixtures("apply_mocks")
     def test_expected_verdict_true_filter(self):
         self.check_task_filter('expectedverdict="true"', ["true_task.yml"])
 
+    @pytest.mark.usefixtures("apply_mocks")
     def test_expected_verdict_false_filter(self):
         false_tasks = [f for f in ALL_TEST_TASKS.keys() if f.startswith("false")]
         self.check_task_filter('expectedverdict="false"', false_tasks)
 
+    @pytest.mark.usefixtures("apply_mocks")
     def test_expected_verdict_false_subproperty_filter(self):
         self.check_task_filter('expectedverdict="false(sub)"', ["false_sub_task.yml"])
 
+    @pytest.mark.usefixtures("apply_mocks")
     def test_expected_verdict_unknown_filter(self):
         self.check_task_filter('expectedverdict="unknown"', ["unknown_task.yml"])
 
+    @pytest.mark.usefixtures("apply_mocks")
     def test_expected_verdict_false_subproperties_filter(self):
         benchmark_definition = """
             <benchmark tool="dummy">
@@ -156,4 +167,4 @@ class TestBenchmarkDefinition(unittest.TestCase):
             """
         benchmark = self.parse_benchmark_definition(benchmark_definition)
         run_ids = [run.identifier for run in benchmark.run_sets[0].runs]
-        self.assertListEqual(run_ids, ["false_sub_task.yml", "false_sub2_task.yml"])
+        assert run_ids == ["false_sub_task.yml", "false_sub2_task.yml"]
