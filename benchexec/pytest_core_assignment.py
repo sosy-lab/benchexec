@@ -8,7 +8,7 @@
 import itertools
 import logging
 import sys
-import unittest
+import pytest
 import math
 
 from benchexec.resources import _get_cpu_cores_per_run0
@@ -20,32 +20,28 @@ def lrange(start, end):
     return list(range(start, end))
 
 
-class TestCpuCoresPerRun(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.longMessage = True
-        logging.disable(logging.CRITICAL)
+@pytest.fixture(scope="class")
+def disable_non_critical_logging():
+    logging.disable(logging.CRITICAL)
+
+
+@pytest.mark.usefixtures("disable_non_critical_logging")
+class TestCpuCoresPerRun:
 
     def assertValid(self, coreLimit, num_of_threads, expectedResult=None):
         result = _get_cpu_cores_per_run0(
             coreLimit, num_of_threads, self.use_ht, *self.machine()
         )
         if expectedResult:
-            self.assertEqual(
-                expectedResult,
-                result,
-                f"Incorrect result for {coreLimit} cores and {num_of_threads} threads.",
-            )
+            assert (
+                expectedResult == result
+            ), f"Incorrect result for {coreLimit} cores and {num_of_threads} threads."
 
     def assertInvalid(self, coreLimit, num_of_threads):
-        self.assertRaises(
-            SystemExit,
-            _get_cpu_cores_per_run0,
-            coreLimit,
-            num_of_threads,
-            self.use_ht,
-            *self.machine(),
-        )
+        with pytest.raises(SystemExit):
+            _get_cpu_cores_per_run0(
+                coreLimit, num_of_threads, self.use_ht, *self.machine()
+            )
 
     def machine(self):
         """Create the necessary parameters of _get_cpu_cores_per_run0 for a specific machine."""
@@ -109,7 +105,7 @@ class TestCpuCoresPerRun(unittest.TestCase):
             maxThreads = (self.cpus * self.cores) // 2
         self.assertInvalid(1, maxThreads + 1)
         if not self.oneCore_assignment:
-            self.skipTest("Need result specified")
+            pytest.skip("Need result specified")
         for num_of_threads in range(1, maxThreads + 1):
             self.assertValid(
                 1, num_of_threads, self.oneCore_assignment[:num_of_threads]
@@ -126,7 +122,7 @@ class TestCpuCoresPerRun(unittest.TestCase):
                 maxThreads = self.cpus // cpus_per_run
         self.assertInvalid(2, maxThreads + 1)
         if not self.twoCore_assignment:
-            self.skipTest("Need result specified")
+            pytest.skip("Need result specified")
         for num_of_threads in range(1, maxThreads + 1):
             self.assertValid(
                 2, num_of_threads, self.twoCore_assignment[:num_of_threads]
@@ -144,7 +140,7 @@ class TestCpuCoresPerRun(unittest.TestCase):
 
         self.assertInvalid(3, maxThreads + 1)
         if not self.threeCore_assignment:
-            self.skipTest("Need result specified")
+            pytest.skip("Need result specified")
         for num_of_threads in range(1, maxThreads + 1):
             self.assertValid(
                 3, num_of_threads, self.threeCore_assignment[:num_of_threads]
@@ -162,7 +158,7 @@ class TestCpuCoresPerRun(unittest.TestCase):
 
         self.assertInvalid(4, maxThreads + 1)
         if not self.fourCore_assignment:
-            self.skipTest("Need result specified")
+            pytest.skip("Need result specified")
         for num_of_threads in range(1, maxThreads + 1):
             self.assertValid(
                 4, num_of_threads, self.fourCore_assignment[:num_of_threads]
@@ -178,12 +174,12 @@ class TestCpuCoresPerRun(unittest.TestCase):
                 cpus_per_run = int(math.ceil(8 / (self.cores // 2)))
                 maxThreads = self.cpus // cpus_per_run
         if not maxThreads:
-            self.skipTest(
+            pytest.skip(
                 "Testing for runs that need to be split across CPUs is not implemented"
             )
         self.assertInvalid(8, maxThreads + 1)
         if not self.eightCore_assignment:
-            self.skipTest("Need result specified")
+            pytest.skip("Need result specified")
         for num_of_threads in range(1, maxThreads + 1):
             self.assertValid(
                 8, num_of_threads, self.eightCore_assignment[:num_of_threads]
@@ -216,16 +212,8 @@ class TestCpuCoresPerRun_singleCPU_HT(TestCpuCoresPerRun_singleCPU):
 
     def test_halfPhysicalCore(self):
         # Cannot run if we have only half of one physical core
-        self.assertRaises(
-            SystemExit,
-            _get_cpu_cores_per_run0,
-            1,
-            1,
-            True,
-            [0],
-            {0: [0, 1]},
-            {0: [0, 1]},
-        )
+        with pytest.raises(SystemExit):
+            _get_cpu_cores_per_run0(1, 1, True, [0], {0: [0, 1]}, {0: [0, 1]})
 
 
 class TestCpuCoresPerRun_dualCPU_HT(TestCpuCoresPerRun):
@@ -451,11 +439,11 @@ class TestCpuCoresPerRun_threeCPU_HT(TestCpuCoresPerRun):
             {0: [0, 1], 2: [2, 3], 3: [6, 7]},
             {0: [0, 1], 1: [0, 1], 2: [2, 3], 3: [2, 3], 6: [6, 7], 7: [6, 7]},
         )
-        self.assertEqual(
-            [[0, 1], [2, 3], [6, 7]],
-            result,
-            "Incorrect result for 2 cores and 3 threads.",
-        )
+        assert [
+            [0, 1],
+            [2, 3],
+            [6, 7],
+        ] == result, "Incorrect result for 2 cores and 3 threads."
 
 
 class TestCpuCoresPerRun_quadCPU_HT(TestCpuCoresPerRun):
@@ -500,11 +488,16 @@ class TestCpuCoresPerRun_quadCPU_HT(TestCpuCoresPerRun):
                 49: [48, 49],
             },
         )
-        self.assertEqual(
-            [[0], [32], [48], [16], [8], [40], [56], [24]],
-            result,
-            "Incorrect result for 1 core and 8 threads.",
-        )
+        assert [
+            [0],
+            [32],
+            [48],
+            [16],
+            [8],
+            [40],
+            [56],
+            [24],
+        ] == result, "Incorrect result for 1 core and 8 threads."
 
     def test_quadCPU_HT(self):
         self.assertValid(
@@ -633,11 +626,11 @@ class TestCpuCoresPerRun_dualCPU_no_ht(TestCpuCoresPerRun):
                 20: [1, 20],
             },
         )
-        self.assertEqual(
-            results,
-            [[0, 9], [8, 10], [15, 21]],
-            "Incorrect result for 2 cores and 3 threads.",
-        )
+        assert results == [
+            [0, 9],
+            [8, 10],
+            [15, 21],
+        ], "Incorrect result for 2 cores and 3 threads."
 
 
 class TestCpuCoresPerRun_threeCPU_no_ht(TestCpuCoresPerRun):
