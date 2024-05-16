@@ -8,19 +8,20 @@
 import logging
 import subprocess
 import sys
-import unittest
+import pytest
 
 from benchexec import check_cgroups
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
 
-class TestCheckCgroups(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.longMessage = True
-        cls.maxDiff = None
-        logging.disable(logging.CRITICAL)
+@pytest.fixture(scope="class")
+def disable_non_critical_logging():
+    logging.disable(logging.CRITICAL)
+
+
+@pytest.mark.usefixtures("disable_non_critical_logging")
+class TestCheckCgroups:
 
     def execute_run_extern(self, *args, **kwargs):
         try:
@@ -43,14 +44,14 @@ class TestCheckCgroups(unittest.TestCase):
             check_cgroups.main(["--no-thread"])
         except SystemExit as e:
             # expected if cgroups are not available
-            self.skipTest(e)
+            pytest.skip(str(e))
 
     def test_threaded(self):
         try:
             check_cgroups.main([])
         except SystemExit as e:
             # expected if cgroups are not available
-            self.skipTest(e)
+            pytest.skip(str(e))
 
     def test_thread_result_is_returned(self):
         """
@@ -61,7 +62,7 @@ class TestCheckCgroups(unittest.TestCase):
         try:
             check_cgroups.check_cgroup_availability = lambda wait: exit(1)
 
-            with self.assertRaises(SystemExit):
+            with pytest.raises(SystemExit):
                 check_cgroups.main([])
 
         finally:
