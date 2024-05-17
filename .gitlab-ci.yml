@@ -114,6 +114,31 @@ unit-tests:python-3.11:
   variables:
     PYTHON_VERSION: '3.11'
 
+unit-tests-pytest:python-3.7:
+  <<: *unit-tests-pytest
+  variables:
+    PYTHON_VERSION: '3.7'
+
+unit-tests-pytest:python-3.8:
+  <<: *unit-tests-pytest
+  variables:
+    PYTHON_VERSION: '3.8'
+
+unit-tests-pytest:python-3.9:
+  <<: *unit-tests-pytest
+  variables:
+    PYTHON_VERSION: '3.9'
+
+unit-tests-pytest:python-3.10:
+  <<: *unit-tests-pytest
+  variables:
+    PYTHON_VERSION: '3.10'
+
+unit-tests-pytest:python-3.11:
+  <<: *unit-tests-pytest
+  variables:
+    PYTHON_VERSION: '3.11'
+
 # Static checks
 check-format:
   stage: test
