@@ -30,9 +30,9 @@ The following packages are optional but recommended dependencies:
 
 Note that the `table-generator` utility requires only Python and works on all platforms.
 
-### Ubuntu
+### Debian/Ubuntu
 
-For installing BenchExec on Ubuntu we recommend installing from our [PPA](https://launchpad.net/~sosy-lab/+archive/ubuntu/benchmarking):
+For installing BenchExec on Debian or Ubuntu we recommend installing from our [PPA](https://launchpad.net/~sosy-lab/+archive/ubuntu/benchmarking):
 
     sudo add-apt-repository ppa:sosy-lab/benchmarking
     sudo apt install benchexec
@@ -56,13 +56,6 @@ or whether additional settings are necessary as [described below](#testing-cgrou
 
 Note that [pqos_wrapper] is currently not available as a Debian package
 and needs to be installed manually according to its documentation.
-
-### Debian
-
-For Debian, please follow the instructions for Ubuntu,
-but please note that the PPA currently does not work for Debian
-due to a [compression mechanism not supported by Debian](https://github.com/sosy-lab/benchexec/issues/880),
-so you have to install the `.deb` package manually from GitHub.
 
 ### NixOS
 

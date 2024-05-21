@@ -728,7 +728,7 @@ def should_color_output():
     return sys.stdout.isatty() and "NO_COLOR" not in os.environ
 
 
-def setup_logging(fmt="%(asctime)s - %(levelname)s - %(message)s", level="INFO"):
+def setup_logging(fmt="%(asctime)s - %(levelname)s - %(message)s", level=logging.INFO):
     """Setup the logging framework with a basic configuration"""
     if should_color_output():
         try:
