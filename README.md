@@ -51,6 +51,12 @@ Linux [user namespaces](http://man7.org/linux/man-pages/man7/namespaces.7.html)
 and an [overlay filesystem](https://www.kernel.org/doc/Documentation/filesystems/overlayfs.txt)
 to create a [container](https://github.com/sosy-lab/benchexec/blob/main/doc/container.md)
 that restricts interference of the executed tool with the benchmarking host.
+More information on why this is necessary and the problems with other tools
+can be found in our paper
+[Reliable Benchmarking: Requirements and Solutions](https://doi.org/10.1007/s10009-017-0469-y) (open access)
+and our [slides](https://www.sosy-lab.org/research/prs/Latest_ReliableBenchmarking.pdf)
+(starting with slide "Checklist").
+
 BenchExec is intended for benchmarking non-interactive tools on Linux systems.
 It measures CPU time, wall time, and memory usage of a tool,
 and allows to specify limits for these resources.
