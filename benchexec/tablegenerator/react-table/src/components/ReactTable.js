@@ -641,21 +641,10 @@ const Table = (props) => {
 
   // get selected status and category values
   useEffect(() => {
-    // To check if any task filter is applied
-    let taskFilterExists = false;
-
-    for (const filter of props.filters) {
-      const { values, id } = filter;
-      if (id === "id" && !isNil(values)) {
-        taskFilterExists = true;
-        setDisableTaskText(true);
-      }
-    }
-
-    // Enable task text when task filter is not applied
-    if (!taskFilterExists) {
-      setDisableTaskText(false);
-    }
+    // To disable task text if any task filter is applied
+    setDisableTaskText(
+      props.filters.some(({ id, values }) => id === "id" && !isNil(values)),
+    );
 
     let newFilteredColumnValues = getNewFilteredColumnValues();
     if (!deepEqual(newFilteredColumnValues, filteredColumnValues)) {
