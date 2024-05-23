@@ -13,7 +13,8 @@ BenchExec consists of three programs:
 
 - `benchexec`: main benchmarking utility, especially for large sets of benchmark runs
 - `table-generator`: for generating result tables from `benchexec` results
-- `runexec`: for benchmarking a single tool execution as a simple replacement for `time`,
+- `runexec`: for benchmarking a single tool execution as a simple replacement for `time`
+  with better measurement accuracy and more features,
   or for integrating into other benchmarking frameworks and scripts
 
 The documentation for BenchExec is available in the following files:
