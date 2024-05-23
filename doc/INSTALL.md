@@ -332,12 +332,15 @@ or whether additional settings are necessary as [described below](#testing-cgrou
 
 If you want to run BenchExec inside a container,
 we recommend Podman and systems with cgroups v2.
-Then pass `--security-opt unmask=/sys/fs/cgroup` to `podman run`.
+Then use the following command-line arguments:
+
+    podman run --security-opt unmask=/sys/fs/cgroup --cgroups=split ...
+
 This will work if BenchExec is the main process inside the container,
 otherwise you need to create an appropriate cgroup hierarchy inside the container,
 i.e., one where BenchExec has its own separate cgroup.
 
-For other cases, if the cgroups file system is not available within the container,
+For other cases, e.g., with cgroups v1,
 please use the following command line argument
 to mount the cgroup hierarchy within the container when starting it
 (same for Podman):
