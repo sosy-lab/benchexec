@@ -115,6 +115,14 @@ NATIVE_CLONE_CALLBACK_SUPPORTED = (
 )
 """Whether we use generated native code for clone or an unsafe Python fallback"""
 
+_ERROR_MSG_USER_NS_RESTRICTION = (
+    "Unprivileged user namespaces forbidden on this system, please "
+    "enable them with 'sysctl -w kernel.apparmor_restrict_unprivileged_userns=0'. "
+    "Ubuntu disables them by default since 24.04, refer to "
+    "https://ubuntu.com/blog/ubuntu-23-10-restricted-unprivileged-user-namespaces "
+    "for more information."
+)
+
 
 @contextlib.contextmanager
 def allocate_stack(size=DEFAULT_STACK_SIZE):

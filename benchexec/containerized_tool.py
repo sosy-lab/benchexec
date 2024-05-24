@@ -124,6 +124,14 @@ def _init_container_and_load_tool(tool_module, *args, **kwargs):
     try:
         _init_container(*args, **kwargs)
     except OSError as e:
+        if (
+            util.try_read_file("/proc/sys/kernel/apparmor_restrict_unprivileged_userns")
+            == "1"
+        ) and e.errno in [
+            errno.EPERM,
+            errno.EACCES,
+        ]:
+            raise BenchExecException(container._ERROR_MSG_USER_NS_RESTRICTION)
         raise BenchExecException(f"Failed to configure container: {e}")
     return _load_tool(tool_module)
 

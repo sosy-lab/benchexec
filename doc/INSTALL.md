@@ -169,6 +169,10 @@ that are not usable on all distributions by default:
   On CentOS it can be necessary to enable this feature with
   `sudo sysctl -w user.max_user_namespaces=10000` or a respective entry
   in `/etc/sysctl.conf` (the exact value is not important).
+  On Ubuntu 24.04 (or newer versions) it can be necessary to enable this feature with
+  `sysctl -w kernel.apparmor_restrict_unprivileged_userns=0` or a respective entry
+  in `/etc/sysctl.conf`.
+  
 
 - **Unprivileged Overlay Filesystem**: This is only available since Linux 5.11
   (kernel option `CONFIG_OVERLAY_FS`),
