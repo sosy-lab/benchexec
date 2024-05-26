@@ -19,10 +19,8 @@ BenchExec consists of three programs:
 
 The documentation for BenchExec is available in the following files:
 
-- [General installation instructions](INSTALL.md)
-- [benchexec](benchexec.md)
-- [table-generator](table-generator.md)
-- [runexec](runexec.md)
+- [General installation instructions](INSTALL.md) and [setup in containerized environments](benchexec-in-container.md)
+- The tools [benchexec](benchexec.md), [table-generator](table-generator.md), and [runexec](runexec.md)
 - [Benchmarking guidelines](benchmarking.md) with advice for how to get reliable benchmarks
 - [Container mode](container.md) for isolating applications
 - [Resource handling](resources.md) for measuring and limiting resources like time and memory
