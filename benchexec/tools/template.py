@@ -137,6 +137,7 @@ class BaseTool2(object, metaclass=ABCMeta):
     def _version_from_tool(
         executable,
         arg="--version",
+        stdin=None,
         use_stderr=False,
         ignore_stderr=False,
         line_prefix=None,
@@ -146,6 +147,7 @@ class BaseTool2(object, metaclass=ABCMeta):
         and returning stdout.
         @param executable: the path to the executable of the tool (typically the result of executable())
         @param arg: an argument to pass to the tool to let it print its version
+        @param stdin: this argument is passed to the tool's stdin (default: None)
         @param use_stderr: True if the tool prints version on stderr, False for stdout
         @param line_prefix: if given, search line with this prefix and return only the rest of this line
         @return a (possibly empty) string of output of the tool
@@ -153,6 +155,7 @@ class BaseTool2(object, metaclass=ABCMeta):
         try:
             process = subprocess.run(
                 [executable, arg],
+                input=stdin,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 universal_newlines=True,
