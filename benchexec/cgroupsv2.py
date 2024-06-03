@@ -102,7 +102,7 @@ def initialize():
 
         cgroup = CgroupsV2.from_system()
 
-        if list(cgroup.get_all_tasks()) == [os.getpid()]:
+        if cgroup.path and list(cgroup.get_all_tasks()) == [os.getpid()]:
             # If we are the only process, somebody prepared a cgroup for us. Use it.
             # We might be able to relax this check and for example allow child processes,
             # but then we would also have to move them to another cgroup,
@@ -229,6 +229,12 @@ def _parse_proc_pid_cgroup(cgroup_file):
     mountpoint = _find_cgroup_mount()
     for line in cgroup_file:
         own_cgroup = line.strip().split(":")[2][1:]
+        if own_cgroup.startswith("../"):
+            # Our cgroup is outside the root cgroup!
+            # Happens inside containers with a cgroup namespace
+            # and an inappropriate cgroup config, such as bind-mounting the host cgroup.
+            logging.debug("Process is in unusable out-of-tree cgroup '%s'", own_cgroup)
+            return None
         path = mountpoint / own_cgroup
 
     return path
@@ -307,6 +313,9 @@ class CgroupsV2(Cgroups):
             cgroup_path = _find_own_cgroups()
         else:
             cgroup_path = _parse_proc_pid_cgroup(cgroup_procinfo)
+
+        if not cgroup_path:
+            return cls({})
 
         try:
             with open(cgroup_path / "cgroup.controllers") as subsystems_file:
