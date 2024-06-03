@@ -306,10 +306,10 @@ class CgroupsV2(Cgroups):
 
     @classmethod
     def from_system(cls, cgroup_procinfo=None):
-        logging.debug(
-            "Analyzing /proc/mounts and /proc/self/cgroup to determine cgroups."
-        )
         if cgroup_procinfo is None:
+            logging.debug(
+                "Analyzing /proc/mounts and /proc/self/cgroup to determine cgroups."
+            )
             cgroup_path = _find_own_cgroups()
         else:
             cgroup_path = _parse_proc_pid_cgroup(cgroup_procinfo)
