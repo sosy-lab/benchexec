@@ -35,6 +35,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         """
         for line in run.output[::-1]:
             # BtorMC's option `--trace-gen` must be set to 1
+            # (which is already the default setting of BtorMC)
             # such that "sat/unsat" is printed to the output
             if line.startswith("unsat"):
                 return result.RESULT_TRUE_PROP
