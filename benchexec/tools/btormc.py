@@ -35,8 +35,6 @@ class Tool(benchexec.tools.template.BaseTool2):
         """
         @return: status of BtorMC after executing a run
         """
-        if run.was_timeout:
-            return result.RESULT_TIMEOUT
         for line in run.output[::-1]:
             # BtorMC's option `--trace-gen` must be set to 1
             # such that "sat/unsat" is printed to the output
