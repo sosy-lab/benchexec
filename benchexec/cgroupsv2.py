@@ -109,9 +109,9 @@ def initialize():
             # which might not be a good idea.
             logging.debug("BenchExec was started in its own cgroup: %s", cgroup)
 
-        elif _create_systemd_scope_for_us():
-            # If we can create a systemd scope for us and move ourselves in it,
-            # we have a usable cgroup afterwards.
+        elif _create_systemd_scope_for_us() or _try_fallback_cgroup():
+            # If we can create a systemd scope for us or find a usable fallback cgroup
+            # and move ourselves in it, we have a usable cgroup afterwards.
             cgroup = CgroupsV2.from_system()
 
         else:
@@ -188,6 +188,32 @@ def _create_systemd_scope_for_us():
         logging.debug("pystemd could not be imported.")
     except DBusFileNotFoundError as e:  # pytype: disable=name-error
         logging.debug("No user DBus found, not using pystemd: %s", e)
+
+    return False
+
+
+def _try_fallback_cgroup():
+    """
+    Attempt to locate a usable fallback cgroup.
+    If it is found this process is moved into it.
+
+    @return: a boolean indicating whether this succeeded
+    """
+    # Attempt to use /benchexec cgroup.
+    # If it exists, some deliberately created it for us to use.
+    # The following does this by just faking a /proc/self/cgroup for this case.
+    cgroup = CgroupsV2.from_system(["0::/benchexec"])
+    if cgroup.path and not list(cgroup.get_all_tasks()):
+        logging.debug("Found existing cgroup /benchexec, using it as fallback.")
+
+        # Create cgroup for this execution of BenchExec.
+        cgroup = cgroup.create_fresh_child_cgroup(
+            cgroup.subsystems.keys(), prefix="benchexec_"
+        )
+        # Move ourselves to it such that for the rest of the code this looks as usual.
+        cgroup.add_task(os.getpid())
+
+        return True
 
     return False
 

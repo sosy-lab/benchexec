@@ -351,6 +351,23 @@ For both Podman and Docker this will work
 if BenchExec is the main process inside the container,
 otherwise you need to manually create an appropriate cgroup hierarchy inside the container,
 i.e., one where BenchExec has its own separate cgroup.
+You can either start BenchExec as the only process in a fresh cgroup
+or create an empty cgroup named `/benchexec`,
+which BenchExec will then automatically use.
+This cgroup should have as many controllers enabled and delegated to sub-cgroups as possible,
+for example like this:
+```
+mkdir -p /sys/fs/cgroup/benchexec
+for controller in $(cat /sys/fs/cgroup/cgroup.controllers); do
+  echo "+$controller" > /sys/fs/cgroup/cgroup.subtree_control
+done
+for controller in $(cat /sys/fs/cgroup/benchexec/cgroup.controllers); do
+  echo "+$controller" > /sys/fs/cgroup/benchexec/cgroup.subtree_control
+done
+```
+Note that if no other cgroups exist,
+you first need to create a different child cgroup
+for all existing processes in the container.
 
 For systems with cgroups v1,
 please use the following command line argument
