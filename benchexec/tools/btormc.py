@@ -14,8 +14,6 @@ class Tool(benchexec.tools.template.BaseTool2):
     Tool info for BtorMC -- A Bounded Model Checker for Btor2
     """
 
-    REQUIRED_PATHS = ["build/"]
-
     def executable(self, tool_locator):
         return tool_locator.find_executable("btormc", subdir="build/bin")
 
