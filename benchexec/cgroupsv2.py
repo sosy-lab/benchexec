@@ -203,7 +203,7 @@ def _try_fallback_cgroup():
     # If it exists, some deliberately created it for us to use.
     # The following does this by just faking a /proc/self/cgroup for this case.
     cgroup = CgroupsV2.from_system(["0::/benchexec"])
-    if cgroup.path and not list(cgroup.get_all_tasks()):
+    if cgroup.path and os.path.isdir(cgroup.path) and not list(cgroup.get_all_tasks()):
         logging.debug("Found existing cgroup /benchexec, using it as fallback.")
 
         # Create cgroup for this execution of BenchExec.
