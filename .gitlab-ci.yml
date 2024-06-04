@@ -61,34 +61,6 @@ stages:
     paths:
       - coverage.xml
 
-.unit-tests-pytest: &unit-tests-pytest
-  stage: test
-  before_script:
-    # Create user, we do not want to test as root
-    - adduser --disabled-login --gecos "" $PRIMARY_USER
-    # Activate coverage for subprocesses
-    - printf 'import coverage\ncoverage.process_startup()\n' > "/usr/local/lib/python${PYTHON_VERSION}/site-packages/sitecustomize.py"
-    # Give $PRIMARY_USER permission to create cgroups
-    - test/for_each_of_my_cgroups.sh chgrp $PRIMARY_USER
-    - test/for_each_of_my_cgroups.sh chmod g+w $PRIMARY_USER
-    # Install BenchExec with `dev` dependencies
-    - sudo -u $PRIMARY_USER pip install --user ".[dev]"
-    # Start lxcfs
-    - lxcfs /var/lib/lxcfs &
-  script:
-    - sudo -u $PRIMARY_USER
-        COVERAGE_PROCESS_START=.coveragerc
-        coverage run -m pytest
-  after_script:
-    - sudo -u $PRIMARY_USER coverage combine
-    - sudo -u $PRIMARY_USER coverage report
-    - sudo -u $PRIMARY_USER coverage xml -o coverage-pytest.xml
-  tags:
-    - privileged
-  artifacts:
-    paths:
-      - coverage-pytest.xml
-
 unit-tests:python-3.7:
   <<: *unit-tests
   variables:
@@ -111,31 +83,6 @@ unit-tests:python-3.10:
 
 unit-tests:python-3.11:
   <<: *unit-tests
-  variables:
-    PYTHON_VERSION: '3.11'
-
-unit-tests-pytest:python-3.7:
-  <<: *unit-tests-pytest
-  variables:
-    PYTHON_VERSION: '3.7'
-
-unit-tests-pytest:python-3.8:
-  <<: *unit-tests-pytest
-  variables:
-    PYTHON_VERSION: '3.8'
-
-unit-tests-pytest:python-3.9:
-  <<: *unit-tests-pytest
-  variables:
-    PYTHON_VERSION: '3.9'
-
-unit-tests-pytest:python-3.10:
-  <<: *unit-tests-pytest
-  variables:
-    PYTHON_VERSION: '3.10'
-
-unit-tests-pytest:python-3.11:
-  <<: *unit-tests-pytest
   variables:
     PYTHON_VERSION: '3.11'
 
