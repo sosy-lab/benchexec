@@ -15,7 +15,7 @@ class Tool(benchexec.tools.template.BaseTool2):
     """
 
     def executable(self, tool_locator):
-        return tool_locator.find_executable("btormc", subdir="build/bin")
+        return tool_locator.find_executable("btormc")
 
     def name(self):
         return "BtorMC"
