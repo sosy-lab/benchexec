@@ -5,6 +5,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import logging
+import subprocess
+
 import benchexec.result as result
 import benchexec.tools.template
 
@@ -24,7 +27,19 @@ class Tool(benchexec.tools.template.BaseTool2):
         return "https://github.com/Boolector/boolector"
 
     def version(self, executable):
-        return self._version_from_tool(executable, stdin="")
+        try:
+            process = subprocess.run(
+                [executable, "--version"],
+                stdout=subprocess.PIPE,
+                universal_newlines=True,
+                input="",
+            )
+        except OSError as e:
+            logging.warning(
+                "Cannot run %s to determine version: %s", executable, e.strerror
+            )
+            return ""
+        return process.stdout.strip()
 
     def cmdline(self, executable, options, task, rlimits):
         return [executable] + options + [task.single_input_file]
