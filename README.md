@@ -8,13 +8,13 @@ SPDX-License-Identifier: Apache-2.0
 -->
 
 # BenchExec
+
 ## A Framework for Reliable Benchmarking and Resource Measurement
 
 [![Build Status](https://gitlab.com/sosy-lab/software/benchexec/badges/main/pipeline.svg)](https://gitlab.com/sosy-lab/software/benchexec/pipelines)
 [![Apache 2.0 License](https://img.shields.io/badge/license-Apache--2-brightgreen.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 [![PyPI version](https://img.shields.io/pypi/v/BenchExec.svg)](https://pypi.python.org/pypi/BenchExec)
 [![DOI](https://zenodo.org/badge/30758422.svg)](https://zenodo.org/badge/latestdoi/30758422)
-
 
 **News and Updates**:
 - Two projects accepted for BenchExec as part of [Google Summer of Code](https://summerofcode.withgoogle.com/)!
@@ -28,6 +28,11 @@ SPDX-License-Identifier: Apache-2.0
 - An extended version of our paper on BenchExec and its background was published as open access in the journal STTT,
   you can read [Reliable Benchmarking: Requirements and Solutions](https://doi.org/10.1007/s10009-017-0469-y) online.
   We also provide a set of [overview slides](https://www.sosy-lab.org/research/prs/Latest_ReliableBenchmarking.pdf).
+
+> To help new or inexperienced users get started with reliable benchmarking
+> right away, we offer a [quickstart guide](doc/quickstart.md) that contains
+> a brief explanation of the issues of common setups as well as the (few)
+> steps necessary to setup and use BenchExec instead.
 
 BenchExec is a framework for reliable benchmarking and resource measurement
 and provides a standalone solution for benchmarking

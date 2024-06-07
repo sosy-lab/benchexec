@@ -8,6 +8,7 @@ SPDX-License-Identifier: Apache-2.0
 -->
 
 # BenchExec: runexec
+
 ## Benchmarking a Single Run
 
 BenchExec provides a program called `runexec` that can be used to
