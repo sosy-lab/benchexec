@@ -102,16 +102,16 @@ def initialize():
 
         cgroup = CgroupsV2.from_system()
 
-        if list(cgroup.get_all_tasks()) == [os.getpid()]:
+        if cgroup.path and list(cgroup.get_all_tasks()) == [os.getpid()]:
             # If we are the only process, somebody prepared a cgroup for us. Use it.
             # We might be able to relax this check and for example allow child processes,
             # but then we would also have to move them to another cgroup,
             # which might not be a good idea.
             logging.debug("BenchExec was started in its own cgroup: %s", cgroup)
 
-        elif _create_systemd_scope_for_us():
-            # If we can create a systemd scope for us and move ourselves in it,
-            # we have a usable cgroup afterwards.
+        elif _create_systemd_scope_for_us() or _try_fallback_cgroup():
+            # If we can create a systemd scope for us or find a usable fallback cgroup
+            # and move ourselves in it, we have a usable cgroup afterwards.
             cgroup = CgroupsV2.from_system()
 
         else:
@@ -192,6 +192,32 @@ def _create_systemd_scope_for_us():
     return False
 
 
+def _try_fallback_cgroup():
+    """
+    Attempt to locate a usable fallback cgroup.
+    If it is found this process is moved into it.
+
+    @return: a boolean indicating whether this succeeded
+    """
+    # Attempt to use /benchexec cgroup.
+    # If it exists, some deliberately created it for us to use.
+    # The following does this by just faking a /proc/self/cgroup for this case.
+    cgroup = CgroupsV2.from_system(["0::/benchexec"])
+    if cgroup.path and os.path.isdir(cgroup.path) and not list(cgroup.get_all_tasks()):
+        logging.debug("Found existing cgroup /benchexec, using it as fallback.")
+
+        # Create cgroup for this execution of BenchExec.
+        cgroup = cgroup.create_fresh_child_cgroup(
+            cgroup.subsystems.keys(), prefix="benchexec_"
+        )
+        # Move ourselves to it such that for the rest of the code this looks as usual.
+        cgroup.add_task(os.getpid())
+
+        return True
+
+    return False
+
+
 def _find_cgroup_mount():
     """
     Return the mountpoint of the cgroupv2 unified hierarchy.
@@ -229,6 +255,12 @@ def _parse_proc_pid_cgroup(cgroup_file):
     mountpoint = _find_cgroup_mount()
     for line in cgroup_file:
         own_cgroup = line.strip().split(":")[2][1:]
+        if own_cgroup.startswith("../"):
+            # Our cgroup is outside the root cgroup!
+            # Happens inside containers with a cgroup namespace
+            # and an inappropriate cgroup config, such as bind-mounting the host cgroup.
+            logging.debug("Process is in unusable out-of-tree cgroup '%s'", own_cgroup)
+            return None
         path = mountpoint / own_cgroup
 
     return path
@@ -300,13 +332,16 @@ class CgroupsV2(Cgroups):
 
     @classmethod
     def from_system(cls, cgroup_procinfo=None):
-        logging.debug(
-            "Analyzing /proc/mounts and /proc/self/cgroup to determine cgroups."
-        )
         if cgroup_procinfo is None:
+            logging.debug(
+                "Analyzing /proc/mounts and /proc/self/cgroup to determine cgroups."
+            )
             cgroup_path = _find_own_cgroups()
         else:
             cgroup_path = _parse_proc_pid_cgroup(cgroup_procinfo)
+
+        if not cgroup_path:
+            return cls({})
 
         try:
             with open(cgroup_path / "cgroup.controllers") as subsystems_file:

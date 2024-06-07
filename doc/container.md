@@ -178,6 +178,7 @@ For `benchexec`, the patterns are given within `<resultfiles>` tags
 in the benchmark-definition XML file,
 and the result files are placed in a directory besides the result XML file.
 
+
 ## Common Problems
 
 Note that for investigating container-related problems, it can be easier to start an interactive shell

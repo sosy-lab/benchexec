@@ -239,11 +239,29 @@ There are many ways to achieve the required setup and users familiar with
 Docker may choose to adapt the above procedure. There are a few peculiarities
 to be aware of.
 
-The goal is to create a cgroup called `/benchexec` with relevant controllers
-enabled. Note that it is important that the cgroup has exactly this path, as
-BenchExec uses this as a "fallback" on non-systemd setups.
 
-Additionally, you should be aware of the implications of the "no internal
+As explained above, the goal is to give BenchExec its own cgroup to use. So,
+you need to start BenchExec processes inside an otherwise empty cgroup (with
+appropriate controllers available). If that is not the case, BenchExec will
+check if the cgroup `/benchexec` exists (and is empty) and try to use that as a
+fallback. The `init.sh` above takes the latter approach. In case you want to do
+a different setup, you need to manually create an appropriate cgroup hierarchy
+inside the container, i.e., one where BenchExec has its own separate cgroup.
+
+In any case, the cgroup which BenchExec then uses should have as many
+controllers enabled and delegated to sub-cgroups as possible, for example like
+this:
+```
+mkdir -p /sys/fs/cgroup/benchexec
+for controller in $(cat /sys/fs/cgroup/cgroup.controllers); do
+  echo "+$controller" > /sys/fs/cgroup/cgroup.subtree_control
+done
+for controller in $(cat /sys/fs/cgroup/benchexec/cgroup.controllers); do
+  echo "+$controller" > /sys/fs/cgroup/benchexec/cgroup.subtree_control
+done
+```
+
+For this, you should be aware of the implications of the "no internal
 process"-rule. Effectively, this means that there cannot be any processes in
 the root cgroup of the container (which, notably, is *not* the root cgroup of
 the system). So, for the provided `init.sh` to work, it needs to be directly
