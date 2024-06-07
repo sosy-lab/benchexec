@@ -16,7 +16,7 @@ import benchexec.result as result
 import os
 
 
-class Tool(benchexec.tools.template.BaseTool):
+class Tool(benchexec.tools.template.BaseTool2):
     REQUIRED_PATHS = ["bin", "crab", "include", "lib", "share"]
 
     def executable(self, tool_locator):
@@ -33,11 +33,8 @@ class Tool(benchexec.tools.template.BaseTool):
     def project_url(self):
         return "https://github.com/seahorn/seahorn"
 
-    def cmdline(self, executable, options, tasks, propertyfile, rlimits):
-        assert len(tasks) == 1
-        assert propertyfile is not None
-        spec = ["--spec=" + propertyfile]
-        return [executable] + options + spec + tasks
+    def cmdline(self, executable, options, task, rlimits):
+        return [executable] + options + [task.single_input_file]
 
     def version(self, executable):
         return self._version_from_tool(
