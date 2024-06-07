@@ -239,7 +239,6 @@ There are many ways to achieve the required setup and users familiar with
 Docker may choose to adapt the above procedure. There are a few peculiarities
 to be aware of.
 
-
 As explained above, the goal is to give BenchExec its own cgroup to use. So,
 you need to start BenchExec processes inside an otherwise empty cgroup (with
 appropriate controllers available). If that is not the case, BenchExec will
@@ -251,7 +250,7 @@ inside the container, i.e., one where BenchExec has its own separate cgroup.
 In any case, the cgroup which BenchExec then uses should have as many
 controllers enabled and delegated to sub-cgroups as possible, for example like
 this:
-```
+```bash
 mkdir -p /sys/fs/cgroup/benchexec
 for controller in $(cat /sys/fs/cgroup/cgroup.controllers); do
   echo "+$controller" > /sys/fs/cgroup/cgroup.subtree_control
