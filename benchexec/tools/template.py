@@ -155,6 +155,7 @@ class BaseTool2(object, metaclass=ABCMeta):
                 [executable, arg],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
+                stdin=subprocess.DEVNULL,
                 universal_newlines=True,
             )
         except OSError as e:
