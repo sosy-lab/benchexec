@@ -5,6 +5,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import errno
 import logging
 import os
 import pathlib
@@ -156,7 +157,7 @@ def _create_systemd_scope_for_us():
     """
     try:
         from pystemd.dbuslib import DBus
-        from pystemd.dbusexc import DBusFileNotFoundError
+        from pystemd.dbusexc import DBusBaseError
         from pystemd.systemd1 import Manager, Unit
 
         with DBus(user_mode=True) as bus, Manager(bus=bus) as manager:
@@ -186,8 +187,11 @@ def _create_systemd_scope_for_us():
 
     except ImportError:
         logging.debug("pystemd could not be imported.")
-    except DBusFileNotFoundError as e:  # pytype: disable=name-error
-        logging.debug("No user DBus found, not using pystemd: %s", e)
+    except DBusBaseError as e:  # pytype: disable=name-error
+        if -e.errno in [errno.ENOENT, errno.ENOMEDIUM]:
+            logging.debug("No user DBus found, not using pystemd: %s", e)
+        else:
+            raise
 
     return False
 
