@@ -334,20 +334,49 @@ If you want to run BenchExec inside a container,
 we recommend Podman and systems with cgroups v2.
 Then use the following command-line arguments:
 
-    podman run --security-opt unmask=/sys/fs/cgroup --cgroups=split ...
+    podman run --security-opt unmask=/sys/fs/cgroup --cgroups=split --security-opt unmask=/proc/* --security-opt seccomp=unconfined ...
 
-This will work if BenchExec is the main process inside the container,
-otherwise you need to create an appropriate cgroup hierarchy inside the container,
+This allows BenchExec to use cgroups and create its own containers inside the Podman container.
+
+Using Docker is also possible, but only using the `--privileged` argument.
+However, this gives your Docker container *full root access* to the host,
+so please also add the `--cap-drop=all` flag,
+make sure to use this only with trusted images,
+and configure your Docker container such that everything in it
+is executed under a different user account, not as root.
+BenchExec is not designed to run as root and does not provide
+any safety guarantees regarding its container under this circumstances.
+
+For both Podman and Docker this will work
+if BenchExec is the main process inside the container,
+otherwise you need to manually create an appropriate cgroup hierarchy inside the container,
 i.e., one where BenchExec has its own separate cgroup.
+You can either start BenchExec as the only process in a fresh cgroup
+or create an empty cgroup named `/benchexec`,
+which BenchExec will then automatically use.
+This cgroup should have as many controllers enabled and delegated to sub-cgroups as possible,
+for example like this:
+```
+mkdir -p /sys/fs/cgroup/benchexec
+for controller in $(cat /sys/fs/cgroup/cgroup.controllers); do
+  echo "+$controller" > /sys/fs/cgroup/cgroup.subtree_control
+done
+for controller in $(cat /sys/fs/cgroup/benchexec/cgroup.controllers); do
+  echo "+$controller" > /sys/fs/cgroup/benchexec/cgroup.subtree_control
+done
+```
+Note that if no other cgroups exist,
+you first need to create a different child cgroup
+for all existing processes in the container.
 
-For other cases, e.g., with cgroups v1,
+For systems with cgroups v1,
 please use the following command line argument
 to mount the cgroup hierarchy within the container when starting it
 (same for Podman):
 
     docker run -v /sys/fs/cgroup:/sys/fs/cgroup:rw ...
 
-Note that you additionally need some flags for container mode,
+Note that you need some additional flags for container mode,
 which are explained in the [container documentation](container.md#using-benchexec-in-a-dockerpodman-container).
 
 ### Testing Cgroups Setup and Known Problems
