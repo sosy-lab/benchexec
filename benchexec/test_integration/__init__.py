@@ -202,6 +202,10 @@ class BenchExecIntegrationTests(unittest.TestCase):
         )
         actual_runs = actual_result.findall("run")
         expected_runs = expected_result.findall("run")
+        self.assertListEqual(
+            [run.get("name") for run in actual_runs],
+            [run.get("name") for run in expected_runs],
+        )
         for actual, expected in zip(actual_runs, expected_runs):
             self.assertEqual(actual.get("files"), expected.get("files"))
             self.assertEqual(actual.get("name"), expected.get("name"))
