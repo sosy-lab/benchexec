@@ -5,9 +5,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import logging
-import subprocess
-
 import benchexec.result as result
 import benchexec.tools.template
 
