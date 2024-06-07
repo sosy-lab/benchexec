@@ -17,10 +17,10 @@ import os
 
 
 class Tool(benchexec.tools.template.BaseTool):
-    REQUIRED_PATHS = ["bin", "include", "lib", "share"]
+    REQUIRED_PATHS = ["bin", "crab", "include", "lib", "share"]
 
-    def executable(self):
-        return util.find_executable("sea_svcomp", os.path.join("bin", "sea_svcomp"))
+    def executable(self, tool_locator):
+        return tool_locator.find_executable("sea", subdir="bin")
 
     def program_files(self, executable):
         return self._program_files_from_executable(
