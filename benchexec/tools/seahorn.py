@@ -28,7 +28,10 @@ class Tool(benchexec.tools.template.BaseTool):
         )
 
     def name(self):
-        return "SeaHorn-F16"
+        return "SeaHorn"
+
+    def project_url(self):
+        return "https://github.com/seahorn/seahorn"
 
     def cmdline(self, executable, options, tasks, propertyfile, rlimits):
         assert len(tasks) == 1
