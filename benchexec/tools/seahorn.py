@@ -41,23 +41,9 @@ class Tool(benchexec.tools.template.BaseTool2):
             f"{str(executable)}horn", line_prefix="  SeaHorn version"
         )
 
-    def determine_result(self, returncode, returnsignal, output, isTimeout):
-        output = "\n".join(output)
-        if "BRUNCH_STAT Result TRUE" in output:
-            status = result.RESULT_TRUE_PROP
-        elif "BRUNCH_STAT Result FALSE" in output:
-            if "BRUNCH_STAT Termination" in output:
-                status = result.RESULT_FALSE_TERMINATION
-            else:
-                status = result.RESULT_FALSE_REACH
-        elif returnsignal == 9 or returnsignal == (128 + 9):
-            if isTimeout:
-                status = result.RESULT_TIMEOUT
-            else:
-                status = "KILLED BY SIGNAL 9"
-        elif returncode != 0:
-            status = f"ERROR ({returncode})"
-        else:
-            status = "FAILURE"
-
-        return status
+    def determine_result(self, run):
+        if run.output[-1].startswith("sat"):
+            return result.RESULT_FALSE_PROP
+        if run.output[-1].startswith("unsat"):
+            return result.RESULT_TRUE_PROP
+        return result.RESULT_ERROR
