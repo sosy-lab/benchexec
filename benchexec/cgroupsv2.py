@@ -103,11 +103,11 @@ def initialize():
 
         cgroup = CgroupsV2.from_system()
 
-        if cgroup.path and list(cgroup.get_all_tasks()) == [os.getpid()]:
-            # If we are the only process, somebody prepared a cgroup for us. Use it.
-            # We might be able to relax this check and for example allow child processes,
-            # but then we would also have to move them to another cgroup,
-            # which might not be a good idea.
+        if cgroup.path and all(
+            util.is_child_process_of_us(pid) for pid in cgroup.get_all_tasks()
+        ):
+            # If we (and our subprocesses) are the only processes,
+            # somebody prepared a cgroup for us. Use it.
             logging.debug("BenchExec was started in its own cgroup: %s", cgroup)
 
         elif _create_systemd_scope_for_us() or _try_fallback_cgroup():
@@ -133,6 +133,8 @@ def initialize():
             logging.debug("Cgroup found, but cannot create child cgroups: %s", e)
             return CgroupsV2({})
 
+        # TODO: This moves our subprocesses if they are in the same cgroup.
+        # We should probably make this consistent and always move them.
         for pid in cgroup.get_all_tasks():
             child_cgroup.add_task(pid)
         assert child_cgroup.has_tasks()

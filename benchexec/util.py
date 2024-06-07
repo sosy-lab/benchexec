@@ -819,3 +819,24 @@ def check_msr():
         if all(os.access(f"/dev/cpu/{cpu}/msr", os.W_OK) for cpu in cpu_dirs):
             res["write"] = True
     return res
+
+
+def is_child_process_of_us(pid: int) -> bool:
+    """
+    Return if the given PID is a (transitive) child process of the current process.
+    Also returns true if the given PID is ours.
+    """
+    if pid == os.getpid():
+        return True
+
+    ppid = None
+    with open(f"/proc/{pid}/status") as status_file:
+        for line in status_file:
+            if line.startswith("PPid:"):
+                ppid = int(line.split(":", maxsplit=1)[1].strip())
+                break
+
+    if ppid:
+        return is_child_process_of_us(ppid)
+    else:
+        return False
