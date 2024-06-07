@@ -27,19 +27,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         return "https://github.com/Boolector/boolector"
 
     def version(self, executable):
-        try:
-            process = subprocess.run(
-                [executable, "--version"],
-                stdout=subprocess.PIPE,
-                universal_newlines=True,
-                input="",
-            )
-        except OSError as e:
-            logging.warning(
-                "Cannot run %s to determine version: %s", executable, e.strerror
-            )
-            return ""
-        return process.stdout.strip()
+        return self._version_from_tool(executable)
 
     def cmdline(self, executable, options, task, rlimits):
         return [executable] + options + [task.single_input_file]
