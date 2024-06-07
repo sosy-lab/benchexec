@@ -9,11 +9,8 @@
 # SeaHorn Verification Framework
 # DM-0002198
 
-import benchexec.util as util
 import benchexec.tools.template
 import benchexec.result as result
-
-import os
 
 
 class Tool(benchexec.tools.template.BaseTool2):
