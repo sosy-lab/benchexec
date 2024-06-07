@@ -40,7 +40,9 @@ class Tool(benchexec.tools.template.BaseTool):
         return [executable] + options + spec + tasks
 
     def version(self, executable):
-        return self._version_from_tool(executable)
+        return self._version_from_tool(
+            f"{str(executable)}horn", line_prefix="  SeaHorn version"
+        )
 
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         output = "\n".join(output)
