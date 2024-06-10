@@ -18,8 +18,6 @@ from benchexec.result import (
     _SCORE_WRONG_FALSE,
 )
 
-sys.dont_write_bytecode = True  # prevent creation of .pyc files
-
 
 class TestExpectedResult(unittest.TestCase):
     def test_via_string(self):
@@ -56,10 +54,6 @@ class TestExpectedResult(unittest.TestCase):
 
 
 class TestResult(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.longMessage = True
-        logging.disable(logging.CRITICAL)
 
     def expected_result(self, result, subcategory=None):
         return {"dummy.prp": ExpectedResult(result, subcategory)}
