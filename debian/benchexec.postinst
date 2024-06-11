@@ -12,7 +12,7 @@ set -e
 GROUP=benchexec
 
 add_group() {
-  addgroup --system "${GROUP}"
+  groupadd --force --system "${GROUP}"
   if [ ! -f /sys/fs/cgroup/cgroup.controllers ]; then
     echo
     echo "Please add those user accounts that should be able to use BenchExec to the group ${GROUP}."
