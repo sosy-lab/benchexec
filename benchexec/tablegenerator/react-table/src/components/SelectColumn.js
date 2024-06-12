@@ -67,7 +67,7 @@ export default class SelectColumn extends React.Component {
       hiddenParams["hidden"] = null;
     }
 
-    setURLParameter(hiddenParams, this.props.history);
+    setURLParameter(hiddenParams);
   }
 
   // -------------------------Rendering-------------------------
