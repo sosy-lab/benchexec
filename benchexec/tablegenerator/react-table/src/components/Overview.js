@@ -14,6 +14,7 @@ import SelectColumn from "./SelectColumn.js";
 import ScatterPlot from "./ScatterPlot.js";
 import QuantilePlot from "./QuantilePlot.js";
 import FilterBox from "./FilterBox/FilterBox.js";
+import NavSync from "./NavSync.js";
 import LinkOverlay from "./LinkOverlay.js";
 import classNames from "classnames";
 import FilterInfoButton from "./FilterInfoButton.js";
@@ -360,6 +361,11 @@ export default class Overview extends React.Component {
               })}
             </div>
             <div className="route-container">
+              {/* Component to sync the navigation state. Does not render anything. */}
+              <NavSync
+                updateState={this.updateState}
+                updateFiltersFromUrl={this.updateFiltersFromUrl}
+              />
               <Routes>
                 <Route
                   path="/"
