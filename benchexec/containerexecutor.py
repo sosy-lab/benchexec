@@ -754,12 +754,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                         traceback.extract_tb(e.__traceback__, limit=-1)[0].line,
                         e,
                     )
-                    if util.try_read_file(
-                        "/proc/sys/kernel/apparmor_restrict_unprivileged_userns"
-                    ) == "1" and e.errno in [
-                        errno.EPERM,
-                        errno.EACCES,
-                    ]:
+                    if container.check_apparmor_userns_restriction(e):
                         logging.critical(container._ERROR_MSG_USER_NS_RESTRICTION)
                     return CHILD_OSERROR
 
