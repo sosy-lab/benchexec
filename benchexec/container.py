@@ -44,6 +44,7 @@ __all__ = [
     "CONTAINER_GID",
     "CONTAINER_HOME",
     "CONTAINER_HOSTNAME",
+    "check_apparmor_userns_restriction",
 ]
 
 
@@ -122,6 +123,20 @@ _ERROR_MSG_USER_NS_RESTRICTION = (
     "https://ubuntu.com/blog/ubuntu-23-10-restricted-unprivileged-user-namespaces "
     "for more information."
 )
+
+
+def check_apparmor_userns_restriction(error: OSError):
+    """Check whether the passed OSError was likely caused by Ubuntu's AppArmor-based
+    restriction of user namespaces."""
+    return (
+        error.errno
+        in [
+            errno.EPERM,
+            errno.EACCES,
+        ]
+        and util.try_read_file("/proc/sys/kernel/apparmor_restrict_unprivileged_userns")
+        == "1"
+    )
 
 
 @contextlib.contextmanager
