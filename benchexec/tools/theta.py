@@ -34,10 +34,18 @@ class Tool(benchexec.tools.template.BaseTool2):
         # Theta supports data race and unreach call
         if task.property_file:
             options += ["--property", task.property_file]
+        if isinstance(task.options, dict) and task.options.get("language") == "C":
+            data_model = task.options.get("data_model")
+            if data_model:
+                options += ["--architecture", data_model]
+
         return [executable, task.single_input_file] + options
 
     def determine_result(self, run):
+        if run.was_timeout:
+            return result.RESULT_TIMEOUT
         status = result.RESULT_UNKNOWN
+        
         for line in run.output:
             if "SafetyResult Unsafe" in line:
                 status = result.RESULT_FALSE_REACH
