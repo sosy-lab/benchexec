@@ -142,19 +142,23 @@ class Tool(benchexec.tools.template.BaseTool2):
         return "https://cpachecker.sosy-lab.org/"
 
     def _get_additional_options(self, existing_options, task, rlimits):
+        # If at least one option uses "--" style, we use that for options added here.
+        # Otherwise use "-" to be safe for old versions of CPAchecker.
+        new_option_style = any(option.startswith("--") for option in existing_options)
+        prefix = "--" if new_option_style else "-"
 
         def option_present(option):
-            return f"-{option}" in existing_options
+            return f"-{option}" in existing_options or f"--{option}" in existing_options
 
         options = []
         if rlimits.cputime and not option_present("timelimit"):
-            options += ["-timelimit", f"{rlimits.cputime}s"]
+            options += [f"{prefix}timelimit", f"{rlimits.cputime}s"]
 
         if not option_present("stats"):
-            options += ["-stats"]
+            options += [f"{prefix}stats"]
 
         if task.property_file:
-            options += ["-spec", task.property_file]
+            options += [f"{prefix}spec", task.property_file]
 
         if isinstance(task.options, dict) and task.options.get("language") == "C":
             data_model = task.options.get("data_model")
@@ -162,7 +166,7 @@ class Tool(benchexec.tools.template.BaseTool2):
                 data_model_option = {"ILP32": "32", "LP64": "64"}.get(data_model)
                 if data_model_option:
                     if not option_present(data_model_option):
-                        options += [f"-{data_model_option}"]
+                        options += [f"{prefix}{data_model_option}"]
                 else:
                     raise benchexec.tools.template.UnsupportedFeatureException(
                         f"Unsupported data_model '{data_model}' defined for task '{task}'"
