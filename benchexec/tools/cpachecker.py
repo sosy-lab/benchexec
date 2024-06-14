@@ -142,11 +142,15 @@ class Tool(benchexec.tools.template.BaseTool2):
         return "https://cpachecker.sosy-lab.org/"
 
     def _get_additional_options(self, existing_options, task, rlimits):
+
+        def option_present(option):
+            return f"-{option}" in existing_options
+
         options = []
-        if rlimits.cputime and "-timelimit" not in existing_options:
+        if rlimits.cputime and not option_present("timelimit"):
             options += ["-timelimit", f"{rlimits.cputime}s"]
 
-        if "-stats" not in existing_options:
+        if not option_present("stats"):
             options += ["-stats"]
 
         if task.property_file:
@@ -155,10 +159,10 @@ class Tool(benchexec.tools.template.BaseTool2):
         if isinstance(task.options, dict) and task.options.get("language") == "C":
             data_model = task.options.get("data_model")
             if data_model:
-                data_model_option = {"ILP32": "-32", "LP64": "-64"}.get(data_model)
+                data_model_option = {"ILP32": "32", "LP64": "64"}.get(data_model)
                 if data_model_option:
-                    if data_model_option not in existing_options:
-                        options += [data_model_option]
+                    if not option_present(data_model_option):
+                        options += [f"-{data_model_option}"]
                 else:
                     raise benchexec.tools.template.UnsupportedFeatureException(
                         f"Unsupported data_model '{data_model}' defined for task '{task}'"
