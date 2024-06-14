@@ -13,6 +13,8 @@ import re
 import benchexec.result as result
 import benchexec.tools.template
 
+from benchexec.tools.template import ToolNotFoundException
+
 
 class Tool(benchexec.tools.template.BaseTool2):
     """
@@ -31,6 +33,7 @@ class Tool(benchexec.tools.template.BaseTool2):
     """
 
     REQUIRED_PATHS = [
+        "bin/cpachecker",
         "lib/java/runtime",
         "lib/*.jar",
         "lib/native/x86_64-linux",
@@ -40,10 +43,28 @@ class Tool(benchexec.tools.template.BaseTool2):
     ]
 
     def executable(self, tool_locator):
-        executable = tool_locator.find_executable("cpa.sh", subdir="scripts")
+        # The following will perform these lookups (if --tool-directory is not given)
+        # and pick the first one that is found:
+        # 1. cpachecker in PATH
+        # 2. cpachecker in ./ and bin/
+        # 3. cpa.sh in PATH
+        # 4. cpa.sh in ./ and scripts/
+        # This follows the BenchExec logic of "look up first in PATH, then ./"
+        # except for the case of "cpa.sh in PATH and cpachecker in bin/",
+        # which should be ok.
+        try:
+            executable = tool_locator.find_executable("cpachecker", subdir="bin")
+        except ToolNotFoundException as e1:
+            try:
+                executable = tool_locator.find_executable("cpa.sh", subdir="scripts")
+            except ToolNotFoundException:
+                raise e1
+
         base_dir = os.path.join(os.path.dirname(executable), os.path.pardir)
         jar_file = os.path.join(base_dir, "cpachecker.jar")
-        bin_dir = os.path.join(base_dir, "bin")
+        cls_dir = os.path.join(
+            base_dir, "bin" if executable.endswith("cpa.sh") else "classes"
+        )
         src_dir = os.path.join(base_dir, "src")
 
         # If this is a source checkout of CPAchecker, we heuristically check that
@@ -55,8 +76,8 @@ class Tool(benchexec.tools.template.BaseTool2):
                 if src_mtime > os.stat(jar_file).st_mtime:
                     sys.exit("CPAchecker JAR is not uptodate, run 'ant jar'!")
 
-            elif os.path.isdir(bin_dir):
-                if src_mtime > self._find_newest_mtime(bin_dir):
+            elif os.path.isdir(cls_dir):
+                if src_mtime > self._find_newest_mtime(cls_dir):
                     sys.exit("CPAchecker build is not uptodate, run 'ant'!")
 
         return executable
