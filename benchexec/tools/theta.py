@@ -45,7 +45,6 @@ class Tool(benchexec.tools.template.BaseTool2):
         if run.was_timeout:
             return result.RESULT_TIMEOUT
         status = result.RESULT_UNKNOWN
-        
         for line in run.output:
             if "SafetyResult Unsafe" in line:
                 status = result.RESULT_FALSE_REACH
