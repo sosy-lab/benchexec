@@ -53,6 +53,7 @@ exclude = [
     # TODO
     'benchexec/tools',
     '**/test_*.py',
+    '**/pytest_*.py',
     '**/test_*/**.py',
 ]
 
@@ -67,5 +68,8 @@ ignore = [
 [tool.ruff.per-file-ignores]
 'benchexec/test*.py' = [
     # wildcard imports significantly shorten test code,
+    'F405',
+]
+'benchexec/pytest*.py' = [
     'F405',
 ]
