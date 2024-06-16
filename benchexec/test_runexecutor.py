@@ -31,6 +31,7 @@ runexec = os.path.join(bin_dir, "runexec")
 
 trivial_run_grace_time = 0.2
 
+
 class TestRunExecutor(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
