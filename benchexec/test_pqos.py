@@ -16,7 +16,6 @@ from subprocess import CalledProcessError
 from unittest.mock import patch, MagicMock
 from benchexec.pqos import Pqos
 
-
 mock_pqos_wrapper_output = {
     "load_pqos": {
         "function_output": {},
@@ -146,10 +145,6 @@ class TestPqos(unittest.TestCase):
     """
     Unit tests for pqos module
     """
-
-    @classmethod
-    def setUpClass(cls):
-        logging.disable(logging.CRITICAL)
 
     @patch("benchexec.pqos.find_executable2", return_value="/path/to/pqos_wrapper/lib")
     def test_pqos_init(self, mock_find_executable):
