@@ -12,10 +12,15 @@ import renderer from "react-test-renderer";
 import { constructHashURL } from "../utils/utils";
 const fs = require("fs");
 
-// A testing utility function to set the URL parameters for the test
-// This is used instead of the setURLParameter function from the utils.js file
-// because the latter doesn't work well with the react-test-renderer
-const setURLParams = (params) => {
+/*
+ * A testing utility function to set the URL parameters for the test.
+ * This is used instead of the setURLParameter function from the utils.js file
+ * because the latter doesn't work well with the react-test-renderer.
+ *
+ * @param {Object} params - The parameters to set in the URL
+ * @returns {void}
+ */
+const updateURLParams = (params) => {
   window.history.pushState(
     {},
     "Quantile Plot Test",
@@ -76,12 +81,12 @@ files
       );
 
       describe("Quantile Plot should match HTML snapshot", () => {
-        setURLParams({ plot: plotInstance.plotOptions.quantile });
+        updateURLParams({ plot: plotInstance.plotOptions.quantile });
 
         it.each(selectionResultInput)(
           "with selection of the type %s and %s results",
           (selection, results) => {
-            setURLParams({ selection: selection.value, results });
+            updateURLParams({ selection: selection.value, results });
 
             plotInstance.refreshUrlState();
             expect(plot).toMatchSnapshot();
@@ -90,12 +95,12 @@ files
       });
 
       describe("Direct Plot should match HTML snapshot", () => {
-        setURLParams({ plot: plotInstance.plotOptions.direct });
+        updateURLParams({ plot: plotInstance.plotOptions.direct });
 
         it.each(selectionResultInput)(
           "with selection of the type %s and %s results",
           (selection, results) => {
-            setURLParams({ selection: selection.value, results });
+            updateURLParams({ selection: selection.value, results });
 
             plotInstance.refreshUrlState();
             expect(plot).toMatchSnapshot();
@@ -106,7 +111,7 @@ files
       // Score based plot isn't available if the data doesn't support a scoring scheme
       if (plotInstance.plotOptions.scoreBased) {
         describe("Score-based Quantile Plot should match HTML snapshot (if it exists)", () => {
-          setURLParams({ plot: plotInstance.plotOptions.scoreBased });
+          updateURLParams({ plot: plotInstance.plotOptions.scoreBased });
 
           // Only test with columns as runsets can't be selected for score-based plots
           it.each(
@@ -114,7 +119,7 @@ files
               (selection) => selection.toString() !== "runset",
             ),
           )("with selection of the type %s", (selection) => {
-            setURLParams({ selection: selection.value });
+            updateURLParams({ selection: selection.value });
 
             plotInstance.refreshUrlState();
             expect(plot).toMatchSnapshot();
