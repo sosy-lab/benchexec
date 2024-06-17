@@ -104,6 +104,7 @@ export default class Overview extends React.Component {
       active: getActiveTab(),
       quantilePreSelection: tools[0].columns[1],
       hiddenCols: createHiddenColsFromURL(tools),
+      mounted: false,
     };
     // Collect all status and category values for filter drop-down
     this.statusValues = this.findAllValuesOfColumn(
@@ -170,6 +171,9 @@ export default class Overview extends React.Component {
 
   componentDidMount() {
     this.updateState();
+    this.setState({
+      mounted: true,
+    });
   }
 
   getFiltersFromUrl = () => {
@@ -362,10 +366,12 @@ export default class Overview extends React.Component {
             </div>
             <div className="route-container">
               {/* Component to sync the navigation state. Does not render anything. */}
-              <NavSync
-                updateState={this.updateState}
-                updateFiltersFromUrl={this.updateFiltersFromUrl}
-              />
+              {this.state.mounted && (
+                <NavSync
+                  updateState={this.updateState}
+                  updateFiltersFromUrl={this.updateFiltersFromUrl}
+                />
+              )}
               <Routes>
                 <Route
                   path="/"

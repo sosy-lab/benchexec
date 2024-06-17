@@ -210,7 +210,7 @@ const EXTENDED_DISCRETE_COLOR_RANGE = [
  */
 const getURLParameters = (str) => {
   // Split the URL string into parts using "?" as a delimiter
-  const urlParts = (str || document.location.href).split("?");
+  const urlParts = (str || window.location.href).split("?");
 
   // Extract the search part of the URL
   const search = urlParts.length > 1 ? urlParts.slice(1).join("?") : undefined;
@@ -283,7 +283,8 @@ const setURLParameter = (params = {}, history = null) => {
     history.push(queryString);
     return;
   }
-  document.location.href = newUrl;
+  document.location.assign(newUrl);
+  // document.location.href = newUrl;
 };
 
 const makeUrlFilterDeserializer = (statusValues, categoryValues) => {
