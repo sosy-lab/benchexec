@@ -21,11 +21,8 @@ const fs = require("fs");
  * @returns {void}
  */
 const updateURLParams = (params) => {
-  window.history.pushState(
-    {},
-    "Quantile Plot Test",
-    constructHashURL(window.location.href, params),
-  );
+  const { newUrl } = constructHashURL(window.location.href, params);
+  window.history.pushState({}, "Quantile Plot Test", newUrl);
 };
 
 const testDir = "../test_integration/expected/";
@@ -95,7 +92,9 @@ files
       });
 
       describe("Direct Plot should match HTML snapshot", () => {
+        console.log(window.location.href);
         updateURLParams({ plot: plotInstance.plotOptions.direct });
+        console.log(window.location.href);
 
         it.each(selectionResultInput)(
           "with selection of the type %s and %s results",

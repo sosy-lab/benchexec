@@ -271,20 +271,16 @@ export const constructHashURL = (url, params = {}) => {
  * It can also be used to remove a parameter from the URL by setting it's value to undefined.
  *
  * @param {Object} params - The parameters to be set or updated in the URL hash
- * @param {Object} [history=null] - The history object to use for updating the URL hash
+ * @param {Object} [history=undefined] - The history object to update the URL hash without reloading the page
  * @returns {void}
  */
-const setURLParameter = (params = {}, history = null) => {
-  const { newUrl, queryString } = constructHashURL(
-    document.location.href,
-    params,
-  );
-  if (history && history.push) {
-    history.push(queryString);
+const setURLParameter = (params = {}, history = undefined) => {
+  const { newUrl } = constructHashURL(window.location.href, params);
+  if (history && history.pushState) {
+    history.pushState({}, "", newUrl);
     return;
   }
-  document.location.assign(newUrl);
-  // document.location.href = newUrl;
+  window.location.href = newUrl;
 };
 
 const makeUrlFilterDeserializer = (statusValues, categoryValues) => {
