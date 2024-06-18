@@ -1,0 +1,27 @@
+#!/bin/sh
+
+# This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
+#
+# SPDX-FileCopyrightText: 2024 Dirk Beyer <https://www.sosy-lab.org>
+#
+# SPDX-License-Identifier: Apache-2.0
+
+set -e
+
+# Only relevant for Ubuntu 24.04+, but works safely everywhere.
+# Based on what dh_ucf/13.6ubuntu1 would produce.
+if [ "$1" = "purge" ]; then
+  for ext in .ucf-new .ucf-old .ucf-dist ""; do
+    rm -f "/etc/apparmor.d/benchexec$ext"
+  done
+
+  if [ -x "`command -v ucf`" ]; then
+    ucf --purge "/etc/apparmor.d/benchexec"
+  fi
+  if [ -x "`command -v ucfr`" ]; then
+    ucfr --purge benchexec "/etc/apparmor.d/benchexec"
+  fi
+fi
+
+#DEBHELPER#

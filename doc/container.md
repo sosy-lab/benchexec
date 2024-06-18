@@ -186,7 +186,7 @@ in a container with `containerexec` than using `benchexec` or `runexec`.
 
 #### `Cannot execute ...: Unprivileged user namespaces forbidden on this system...`
 Unprivileged user namespaces are forbidden on your system
-(this is the default on some distributions like Debian, Arch Linux, and CentOS).
+(this is the default on some distributions like Debian, Arch Linux, CentOS, and Ubuntu since 24.04).
 Please check the [system requirements](INSTALL.md#kernel-requirements)
 how to enable them.
 

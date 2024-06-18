@@ -3,6 +3,7 @@ Section: utils
 Priority: optional
 Maintainer: Philipp Wendler <debian@philippwendler.de>
 Build-Depends: debhelper (>= 11),
+               dh-apparmor,
                dh-python,
                python3 (>= 3.7),
                python3-setuptools,
@@ -17,7 +18,7 @@ Vcs-Browser: https://github.com/sosy-lab/benchexec
 
 Package: benchexec
 Architecture: all
-Depends: ${python3:Depends}, python3-pkg-resources, ${misc:Depends}
+Depends: ${python3:Depends}, python3-pkg-resources, ${misc:Depends}, ucf
 Recommends: cpu-energy-meter, libseccomp2, lxcfs, python3-coloredlogs, python3-pystemd
 Description: Framework for Reliable Benchmarking and Resource Measurement
  BenchExec allows benchmarking non-interactive tools on Linux systems.
