@@ -44,6 +44,8 @@ class Tool(benchexec.tools.template.BaseTool2):
     def determine_result(self, run):
         if run.was_timeout:
             return result.RESULT_TIMEOUT
+        if run.was_terminated:
+            return result.RESULT_ERROR
         status = result.RESULT_UNKNOWN
         for line in run.output:
             if "SafetyResult Unsafe" in line:
