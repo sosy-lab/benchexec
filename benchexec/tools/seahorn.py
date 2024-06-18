@@ -16,7 +16,7 @@ import benchexec.result as result
 
 
 class Tool(benchexec.tools.template.BaseTool2):
-    REQUIRED_PATHS = ["bin", "crab", "include", "lib", "share"]
+    REQUIRED_PATHS = ["bin", "include", "lib", "share"]
 
     def executable(self, tool_locator):
         self.use_svcomp_wrapper = False
