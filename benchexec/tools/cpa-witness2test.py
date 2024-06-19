@@ -45,6 +45,9 @@ class Tool(cpachecker.Tool):
     def name(self):
         return "CPA-witness2test"
 
+    def program_files(self, executable):
+        return [executable] + super().program_files(executable)
+
     def cmdline(self, executable, options, task, rlimits):
         additional_options = self._get_additional_options(options, task, rlimits)
         # Add additional options in front of existing ones, since -gcc-args ... must be last argument in front of task
