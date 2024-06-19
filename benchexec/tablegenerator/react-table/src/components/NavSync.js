@@ -19,6 +19,7 @@ import { useLocation } from "react-router-dom";
  */
 const NavSync = (props) => {
   const location = useLocation();
+
   useMemo(() => {
     props.updateState();
     props.updateFiltersFromUrl();

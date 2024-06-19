@@ -92,9 +92,7 @@ files
       });
 
       describe("Direct Plot should match HTML snapshot", () => {
-        console.log(window.location.href);
         updateURLParams({ plot: plotInstance.plotOptions.direct });
-        console.log(window.location.href);
 
         it.each(selectionResultInput)(
           "with selection of the type %s and %s results",

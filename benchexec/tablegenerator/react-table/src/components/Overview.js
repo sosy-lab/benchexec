@@ -247,7 +247,7 @@ export default class Overview extends React.Component {
       clearImmediate(this.lastImmediate);
     }
     this.lastImmediate = setImmediate(() => {
-      this.filterUrlSetter(filter, window.history);
+      this.filterUrlSetter(filter);
       this.lastFiltered = filter.filter(
         (item) => (item.values && item.values.length > 0) || item.value,
       );

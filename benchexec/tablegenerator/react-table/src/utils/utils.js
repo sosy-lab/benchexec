@@ -267,19 +267,15 @@ export const constructHashURL = (url, params = {}) => {
 };
 
 /**
- * Sets or updates the search parameters in the URL hash of the current page. All the existing search parameters will not be disturbed. Also accepts a history object to update the URL hash without reloading the page.
+ * Sets or updates the search parameters in the URL hash of the current page. All the existing search parameters will not be disturbed.
  * It can also be used to remove a parameter from the URL by setting it's value to undefined.
  *
  * @param {Object} params - The parameters to be set or updated in the URL hash
- * @param {Object} [history=undefined] - The history object to update the URL hash without reloading the page
  * @returns {void}
  */
 const setURLParameter = (params = {}, history = undefined) => {
   const { newUrl } = constructHashURL(window.location.href, params);
-  if (history && history.pushState) {
-    history.pushState({}, "", newUrl);
-    return;
-  }
+  window.history.pushState({}, "", newUrl);
   window.location.href = newUrl;
 };
 
@@ -701,17 +697,17 @@ const makeFilterDeserializer =
 
 const makeUrlFilterSerializer = (statusValues, categoryValues) => {
   const serializer = makeFilterSerializer({ statusValues, categoryValues });
-  return (filter, history) => {
+  return (filter) => {
     if (!filter) {
-      return setURLParameter({ filter: undefined }, history);
+      return setURLParameter({ filter: undefined });
     }
 
     const encoded = serializer(filter);
     if (encoded) {
-      return setURLParameter({ filter: encoded }, history);
+      return setURLParameter({ filter: encoded });
     }
 
-    return setURLParameter({ filter: undefined }, history);
+    return setURLParameter({ filter: undefined });
   };
 };
 
