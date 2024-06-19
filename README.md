@@ -129,6 +129,7 @@ which are available under several other free licenses
 Maintainer: [Philipp Wendler](https://www.philippwendler.de)
 
 Contributors:
+- [Eshaan Aggarwal](https://github.com/EshaanAgg)
 - [Aditya Arora](https://github.com/alohamora)
 - [Levente Bajczi](https://github.com/leventeBajczi)
 - [Dirk Beyer](https://www.sosy-lab.org/people/beyer/)
@@ -138,22 +139,26 @@ Contributors:
 - [Andreas Donig](https://github.com/adonig)
 - [Karlheinz Friedberger](https://www.sosy-lab.org/people/friedberger)
 - [Robin Gloster](https://github.com/globin)
+- [Sam Grayson](https://github.com/charmoniumQ)
 - Peter Häring
 - [Florian Heck](https://github.com/fheck)
-- [Hugo](https://github.com/hugovk)
 - [George Karpenkov](http://metaworld.me/)
 - [Mike Kazantsev](http://fraggod.net/)
+- [Hugo van Kemenade](https://github.com/hugovk)
 - [Michael Lachner](https://github.com/lachnerm)
 - [Thomas Lemberger](https://www.sosy-lab.org/people/lemberger/)
+- [Lorenz Leutgeb](https://github.com/lorenzleutgeb)
 - [Sebastian Ott](https://github.com/ottseb)
 - Stefan Löwe
 - [Stephan Lukasczyk](https://github.com/stephanlukasczyk)
+- [Tobias Meggendorfer](https://github.com/incaseoftrouble)
 - [Alexander von Rhein](http://www.infosun.fim.uni-passau.de/se/people-rhein.php)
 - [Alexander Schremmer](https://www.xing.com/profile/Alexander_Schremmer)
 - [Dennis Simon](https://github.com/DennisSimon)
 - [Andreas Stahlbauer](http://stahlbauer.net/)
 - [Thomas Stieglmaier](https://stieglmaier.me/)
 - [Martin Yankov](https://github.com/marto97)
+- [Hojan Young](https://github.com/younghojan)
 - [Ilja Zakharov](https://github.com/IljaZakharov)
 - and [lots of more people who integrated tools into BenchExec](https://github.com/sosy-lab/benchexec/graphs/contributors)
 
