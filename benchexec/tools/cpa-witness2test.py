@@ -7,6 +7,8 @@
 
 import benchexec.tools.cpachecker as cpachecker
 
+from benchexec.tools.template import ToolNotFoundException
+
 
 class Tool(cpachecker.Tool):
     """
@@ -16,7 +18,24 @@ class Tool(cpachecker.Tool):
     def executable(self, tool_locator):
         # Makes sure that CPAchecker can be called, shows a warning otherwise
         super(Tool, self).executable(tool_locator)
-        return tool_locator.find_executable("cpa_witness2test.py", subdir="scripts")
+        # The following will perform these lookups (if --tool-directory is not given)
+        # and pick the first one that is found:
+        # 1. cpa-witness2test in PATH
+        # 2. cpa-witness2test in ./ and bin/
+        # 3. cpa_witness2test.py in PATH
+        # 4. cpa_witness2test.py in ./ and scripts/
+        # This follows the BenchExec logic of "look up first in PATH, then ./"
+        # except for the case "cpa_witness2test.py in PATH and cpa-witness2test in bin/",
+        # which should be ok.
+        try:
+            return tool_locator.find_executable("cpa-witness2test", subdir="bin")
+        except ToolNotFoundException as e1:
+            try:
+                return tool_locator.find_executable(
+                    "cpa_witness2test.py", subdir="scripts"
+                )
+            except ToolNotFoundException:
+                raise e1
 
     def version(self, executable):
         stdout = self._version_from_tool(executable, "-version")
@@ -25,6 +44,9 @@ class Tool(cpachecker.Tool):
 
     def name(self):
         return "CPA-witness2test"
+
+    def program_files(self, executable):
+        return [executable] + super().program_files(executable)
 
     def cmdline(self, executable, options, task, rlimits):
         additional_options = self._get_additional_options(options, task, rlimits)
