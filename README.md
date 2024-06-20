@@ -164,11 +164,16 @@ Contributors:
 
 ### Users of BenchExec
 
-BenchExec was successfully used for benchmarking in all instances
-of the international competitions on [Software Verification](https://sv-comp.sosy-lab.org)
-and [Software Testing](https://test-comp.sosy-lab.org)
-with a wide variety of benchmarked tools and hundreds of thousands benchmark runs.
-It is integrated into the cluster-based logic-solving service
+Several well-known international competitions use BenchExec,
+such as [SMT-COMP](https://smt-comp.github.io/),
+[SV-COMP](https://sv-comp.sosy-lab.org) (software verification),
+the [Termination Competition](https://termination-portal.org/wiki/Termination_Competition),
+and
+[Test-Comp](https://test-comp.sosy-lab.org).
+In particular in SV-COMP
+BenchExec was used successfully for benchmarking in all instances of the competition
+and with a wide variety of benchmarked tools and millions of benchmark runs per year.
+BenchExec is also integrated into the cluster-based logic-solving service
 [StarExec](https://www.starexec.org/starexec/public/about.jsp) ([GitHub](https://github.com/StarExec/StarExec)).
 
 The developers of the following tools use BenchExec:
