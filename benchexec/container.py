@@ -859,11 +859,7 @@ def setup_seccomp_filter():
         logging.info("Could not enable seccomp filter for container isolation: %s", e)
 
 
-try:
-    _ALL_SIGNALS = signal.valid_signals()  # pytype: disable=module-attr
-except AttributeError:
-    # Only exists on Python 3.8+
-    _ALL_SIGNALS = range(1, signal.NSIG)
+_ALL_SIGNALS = signal.valid_signals()
 
 
 def block_all_signals():
