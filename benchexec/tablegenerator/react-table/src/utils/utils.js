@@ -273,7 +273,7 @@ export const constructHashURL = (url, params = {}) => {
  * @param {Object} params - The parameters to be set or updated in the URL hash
  * @returns {void}
  */
-const setURLParameter = (params = {}, history = undefined) => {
+const setURLParameter = (params = {}) => {
   const { newUrl } = constructHashURL(window.location.href, params);
   window.history.pushState({}, "", newUrl);
   window.location.href = newUrl;
