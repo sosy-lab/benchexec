@@ -271,11 +271,19 @@ export const constructHashURL = (url, params = {}) => {
  * It can also be used to remove a parameter from the URL by setting it's value to undefined.
  *
  * @param {Object} params - The parameters to be set or updated in the URL hash
+ * @param {Array} callbacks - An array of callback functions to be executed after the URL has been updated.
+ * Each callback function will be called without any arguments. The callbacks will be called in the order they are provided, and
+ * are used to signal the components that the URL has been updated.
  * @returns {void}
  */
-const setURLParameter = (params = {}) => {
+const setURLParameter = (params = {}, callbacks = []) => {
   const { newUrl } = constructHashURL(window.location.href, params);
   window.history.pushState({}, "", newUrl);
+  if (callbacks && callbacks.length > 0) {
+    for (const callback of callbacks) {
+      callback();
+    }
+  }
   window.location.href = newUrl;
 };
 
@@ -697,17 +705,17 @@ const makeFilterDeserializer =
 
 const makeUrlFilterSerializer = (statusValues, categoryValues) => {
   const serializer = makeFilterSerializer({ statusValues, categoryValues });
-  return (filter) => {
+  return (filter, callbacks) => {
     if (!filter) {
-      return setURLParameter({ filter: undefined });
+      return setURLParameter({ filter: undefined }, callbacks);
     }
 
     const encoded = serializer(filter);
     if (encoded) {
-      return setURLParameter({ filter: encoded });
+      return setURLParameter({ filter: encoded }, callbacks);
     }
 
-    return setURLParameter({ filter: undefined });
+    return setURLParameter({ filter: undefined }, callbacks);
   };
 };
 

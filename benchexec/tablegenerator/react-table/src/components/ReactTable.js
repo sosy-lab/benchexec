@@ -669,7 +669,10 @@ const Table = (props) => {
       setSortBy(getSortingSettingsFromURL());
       gotoPage(getURLParameters().page - 1 || 0);
     },
-    [location, setPageSize, setSortBy, gotoPage],
+    // We have also added window.location.href to the dependency array to ensure that
+    // the table is updated when the URL changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [location, setPageSize, setSortBy, gotoPage, window.location.href],
   );
 
   const renderHeaderGroup = (headerGroup) => (

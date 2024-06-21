@@ -68,6 +68,7 @@ export default class SelectColumn extends React.Component {
     }
 
     setURLParameter(hiddenParams);
+    this.props.updateParentStateOnClose();
   }
 
   // -------------------------Rendering-------------------------

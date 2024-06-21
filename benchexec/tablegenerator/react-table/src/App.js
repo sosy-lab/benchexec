@@ -16,6 +16,13 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 const App = (props) => {
+  // If we visit this page without a hash, like www.domain.com/ or www.domain.com/subpage, we
+  // append a hash to the URL to ensure that the page is loaded correctly. This is necessary
+  // to ensure correct routing in the app.
+  if (window.location.hash === "") {
+    window.location.hash = "#/";
+  }
+
   return (
     <div className="App">
       <main>
@@ -24,8 +31,11 @@ const App = (props) => {
           renderPlotsFlexible={true}
           onStatsReady={props.onStatsReady}
         />
-        {/* imports the component Overview with all subcomponents.
-              The renderPlotsFlexible prop should always be true in development and production, but will be set to false in the tests to make them work.*/}
+        {/*
+         * Imports the component Overview with all subcomponents.
+         * The renderPlotsFlexible prop should always be true in development and production,
+         * but will be set to false in the tests to make them work.
+         */}
       </main>
     </div>
   );

@@ -175,6 +175,11 @@ export default class Overview extends React.Component {
       mounted: true,
     });
     this.updateState();
+
+    // window.history.onpushstate = () => {
+    //   this.updateState();
+    //   this.updateFiltersFromUrl();
+    // };
   }
 
   getFiltersFromUrl = () => {
@@ -247,7 +252,10 @@ export default class Overview extends React.Component {
       clearImmediate(this.lastImmediate);
     }
     this.lastImmediate = setImmediate(() => {
-      this.filterUrlSetter(filter);
+      this.filterUrlSetter(filter, [
+        this.updateFiltersFromUrl,
+        this.updateState,
+      ]);
       this.lastFiltered = filter.filter(
         (item) => (item.values && item.values.length > 0) || item.value,
       );
@@ -454,6 +462,10 @@ export default class Overview extends React.Component {
                 tableHeader={this.tableHeader}
                 tools={this.state.tools}
                 hiddenCols={this.state.hiddenCols}
+                updateParentStateOnClose={() => {
+                  this.updateState();
+                  this.updateFiltersFromUrl();
+                }}
               />
             )}
             {this.state.showLinkOverlay && (
