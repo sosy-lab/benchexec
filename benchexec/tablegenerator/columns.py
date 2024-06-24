@@ -18,12 +18,15 @@ from benchexec.tablegenerator import util
 
 __all__ = ["Column", "ColumnType", "ColumnMeasureType"]
 
-# This sets the rounding mode for all Decimal operations in the process.
-# It is actually used only as default context for new contexts, but because we set this
-# at import time and before any threads are started, it should work according to its
-# documentation. We double check with the context of the current thread.
+# This sets the rounding mode for all Decimal operations in the process and explicitly for the current context
+# As asserting the rounding mode for the current context is almost a tautology, we also assert in the methods
+# which are called in their own process, i.e. we additionally assert that each process has the correct rounding
+# individually.
 decimal.DefaultContext.rounding = decimal.ROUND_HALF_UP
-assert decimal.getcontext().rounding == decimal.ROUND_HALF_UP
+decimal.setcontext(decimal.DefaultContext)
+assert (
+    decimal.getcontext().rounding == decimal.ROUND_HALF_UP
+), f"rounding of context is {decimal.getcontext().rounding}, expected ROUND_HALF_UP"
 
 DEFAULT_TIME_PRECISION = 3
 DEFAULT_TOOLTIP_PRECISION = 2
@@ -132,6 +135,10 @@ class Column(object):
         relevant_for_diff=None,
         display_title=None,
     ):
+        assert (
+            decimal.getcontext().rounding == decimal.ROUND_HALF_UP
+        ), f"rounding of context is {decimal.getcontext().rounding}, expected ROUND_HALF_UP"
+
         # If scaling on the variables is performed, a display unit must be defined, explicitly
         if scale_factor is not None and scale_factor != 1 and unit is None:
             raise util.TableDefinitionError(
@@ -315,6 +322,10 @@ def _format_number_align(formattedValue, max_number_of_dec_digits):
 
 
 def _get_significant_digits(value):
+    assert (
+        decimal.getcontext().rounding == decimal.ROUND_HALF_UP
+    ), f"rounding of context is {decimal.getcontext().rounding}, expected ROUND_HALF_UP"
+
     if not Decimal(value).is_finite():
         return 0
 
@@ -360,6 +371,10 @@ def _format_number(
     with the specified number of significant digits,
     optionally aligned at the decimal point.
     """
+    assert (
+        decimal.getcontext().rounding == decimal.ROUND_HALF_UP
+    ), f"rounding of context is {decimal.getcontext().rounding}, expected ROUND_HALF_UP"
+
     assert format_target in POSSIBLE_FORMAT_TARGETS, "Invalid format " + format_target
 
     if number == 0:
@@ -580,6 +595,10 @@ def _get_decimal_digits(decimal_number_match, number_of_significant_digits):
     @return: the number of decimal digits of the given decimal number match's representation, after expanding
         the number to the required amount of significant digits
     """
+    assert (
+        decimal.getcontext().rounding == decimal.ROUND_HALF_UP
+    ), f"rounding of context is {decimal.getcontext().rounding}, expected ROUND_HALF_UP"
+
     # check that only decimal notation is used
     assert "e" not in decimal_number_match.group()
 
