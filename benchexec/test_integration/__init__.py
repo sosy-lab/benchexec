@@ -17,8 +17,6 @@ import zipfile
 
 from xml.etree import ElementTree
 
-sys.dont_write_bytecode = True  # prevent creation of .pyc files
-
 here = os.path.dirname(__file__)
 base_dir = os.path.join(here, "..", "..")
 bin_dir = os.path.join(base_dir, "bin")
@@ -45,10 +43,6 @@ OVERWRITE_MODE = False
 
 
 class BenchExecIntegrationTests(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.longMessage = True
-        cls.maxDiff = None
 
     def _build_tmp_dir(self):
         """
