@@ -11,15 +11,8 @@ import unittest
 
 from benchexec.tablegenerator.statistics import StatValue
 
-sys.dont_write_bytecode = True  # prevent creation of .pyc files
-
 
 class TestStatValue(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.longMessage = True
-        cls.maxDiff = None
-
     def test_empty(self):
         self.assertIsNone(StatValue.from_list([]))
 

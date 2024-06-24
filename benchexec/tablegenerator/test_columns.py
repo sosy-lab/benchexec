@@ -7,6 +7,7 @@
 
 from decimal import Decimal
 import unittest
+import pytest
 
 from benchexec.tablegenerator.columns import (
     Column,
@@ -181,6 +182,21 @@ class ColumnsTest(unittest.TestCase):
         )
         formatted_value_aligned = small_value_column.format_value("2", "html_cell")
         self.assertEqual(formatted_value_aligned, ".0000000002&#x2007;&#x2007;")
+
+    def test_invalid_rounding_mode(self):
+        import decimal
+
+        decimal.getcontext().rounding = decimal.ROUND_HALF_EVEN
+        with pytest.raises(AssertionError):
+            Column(
+                "CpuTime",
+                None,
+                3,
+                None,
+                ColumnMeasureType(12),
+                unit="dummy",
+                scale_factor=1e-10,
+            )
 
     def test_format_value_align_int(self):
         formatted_value_int_aligned = self.measure_column.format_value(
