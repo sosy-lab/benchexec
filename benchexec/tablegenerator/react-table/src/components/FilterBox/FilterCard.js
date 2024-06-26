@@ -90,6 +90,7 @@ export default class FilterCard extends React.PureComponent {
     if (!this.props.filter) {
       return;
     }
+
     if (
       !prevProps.filter ||
       prevProps.filter.values !== this.props.filter.values

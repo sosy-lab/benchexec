@@ -338,21 +338,14 @@ function makeStatusColumnFilter(
   const toolCategoryValues = allCategoryValues[tool][columnId];
 
   const hasStatusFilter = !!statusValues;
-  const hasStatusUnchecked =
-    hasStatusFilter && statusValues.length !== toolStatusValues.length;
-
   const hasCategoryFilter = !!categoryValues;
-  const hasCategoryUnchecked =
-    hasCategoryFilter && categoryValues.length !== toolCategoryValues.length;
 
   if (hasStatusFilter) {
-    if (hasStatusUnchecked) {
-      const encodedFilter = createDistinctValueFilters(
-        statusValues,
-        toolStatusValues,
-      );
-      statusColumnFilter.push(`status(${encodedFilter})`);
-    }
+    const encodedFilter = createDistinctValueFilters(
+      statusValues,
+      toolStatusValues,
+    );
+    statusColumnFilter.push(`status(${encodedFilter})`);
     if (!hasCategoryFilter) {
       statusColumnFilter.push("category(empty())");
     }
@@ -361,14 +354,12 @@ function makeStatusColumnFilter(
     if (!hasStatusFilter) {
       statusColumnFilter.push("status(empty())");
     }
-    if (hasCategoryUnchecked) {
-      const encodedFilter = createDistinctValueFilters(
-        categoryValues,
-        toolCategoryValues,
-        true,
-      );
-      statusColumnFilter.push(`category(${encodedFilter})`);
-    }
+    const encodedFilter = createDistinctValueFilters(
+      categoryValues,
+      toolCategoryValues,
+      true,
+    );
+    statusColumnFilter.push(`category(${encodedFilter})`);
   }
   return statusColumnFilter.join(",");
 }

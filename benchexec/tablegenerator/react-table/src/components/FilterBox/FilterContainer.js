@@ -22,7 +22,12 @@ export default class FilterContainer extends React.PureComponent {
       };
     }
     this.props.resetFilterHook(() => this.resetAllFilters());
-    this.state = { filters, toolName, addingFilter: false, numCards: 0 };
+    this.state = {
+      filters,
+      toolName,
+      addingFilter: false,
+      numCards: 0,
+    };
   }
 
   getActiveFilters() {
@@ -42,6 +47,7 @@ export default class FilterContainer extends React.PureComponent {
 
   addFilter(idx) {
     const { filters: newFilterState, numCards } = this.state;
+
     const newFilter = { filtering: true, numCards, touched: 0 };
     if (newFilterState[idx].type === "status") {
       newFilter.values = [
@@ -80,12 +86,16 @@ export default class FilterContainer extends React.PureComponent {
     const newFilterState = this.state.filters;
     newFilterState[idx].filtering = false;
     newFilterState[idx].values = [];
-    this.setState({ filters: [...newFilterState] });
+    this.setState({
+      filters: [...newFilterState],
+    });
     this.props.updateFilters({ title, values: [] }, idx);
   }
 
-  componentDidUpdate({ currentFilters: prevFilters }) {
+  componentDidUpdate(prevProps, prevState) {
+    const prevFilters = prevProps.currentFilters;
     const { currentFilters } = this.props;
+
     if (!equals(prevFilters, currentFilters)) {
       // update set filters
       let { filters } = this.state;

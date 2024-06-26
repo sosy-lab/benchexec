@@ -14,7 +14,6 @@ import SelectColumn from "./SelectColumn.js";
 import ScatterPlot from "./ScatterPlot.js";
 import QuantilePlot from "./QuantilePlot.js";
 import FilterBox from "./FilterBox/FilterBox.js";
-import NavSync from "./NavSync.js";
 import LinkOverlay from "./LinkOverlay.js";
 import classNames from "classnames";
 import FilterInfoButton from "./FilterInfoButton.js";
@@ -104,7 +103,6 @@ export default class Overview extends React.Component {
       active: getActiveTab(),
       quantilePreSelection: tools[0].columns[1],
       hiddenCols: createHiddenColsFromURL(tools),
-      mounted: false,
     };
     // Collect all status and category values for filter drop-down
     this.statusValues = this.findAllValuesOfColumn(
@@ -157,8 +155,8 @@ export default class Overview extends React.Component {
     }
   }
 
-  addTypeToFilter = (filters) =>
-    filters
+  addTypeToFilter = (filters) => {
+    return filters
       .filter((filter) => filter.id !== "id")
       .forEach((filter) => {
         const filterSplitArray = filter.id.split("_");
@@ -168,6 +166,7 @@ export default class Overview extends React.Component {
           ].type;
         filter.type = type;
       });
+  };
 
   componentDidMount() {
     this.updateFiltersFromUrl();
@@ -175,11 +174,6 @@ export default class Overview extends React.Component {
       mounted: true,
     });
     this.updateState();
-
-    // window.history.onpushstate = () => {
-    //   this.updateState();
-    //   this.updateFiltersFromUrl();
-    // };
   }
 
   getFiltersFromUrl = () => {
@@ -375,12 +369,6 @@ export default class Overview extends React.Component {
             </div>
             <div className="route-container">
               {/* Component to sync the navigation state. Does not render anything. */}
-              {this.state.mounted && (
-                <NavSync
-                  updateState={this.updateState}
-                  updateFiltersFromUrl={this.updateFiltersFromUrl}
-                />
-              )}
               <Routes>
                 <Route
                   path="/"
