@@ -70,14 +70,17 @@ class Tool(benchexec.tools.template.BaseTool2):
         # If this is a source checkout of CPAchecker, we heuristically check that
         # sources are not newer than binaries (cpachecker.jar or files in bin/).
         try:
-            if os.path.isdir(src_dir):
+            has_jar = os.path.isfile(jar_file)
+            has_cls = os.path.isdir(cls_dir)
+
+            if os.path.isdir(src_dir) and (has_jar or has_cls):
                 src_mtime = self._find_newest_mtime(src_dir)
 
-                if os.path.isfile(jar_file):
+                if has_jar:
                     if src_mtime > os.stat(jar_file).st_mtime:
                         sys.exit("CPAchecker JAR is not uptodate, run 'ant jar'!")
 
-                elif os.path.isdir(cls_dir):
+                elif has_cls:
                     if src_mtime > self._find_newest_mtime(cls_dir):
                         sys.exit("CPAchecker build is not uptodate, run 'ant'!")
         except OSError as e:
