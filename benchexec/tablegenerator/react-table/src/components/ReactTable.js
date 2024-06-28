@@ -15,7 +15,7 @@ import {
   useFlexLayout,
 } from "react-table";
 import { useSticky } from "react-table-sticky";
-import { useHistory } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import {
   createRunSetColumns,
   StandardCell,
@@ -62,6 +62,87 @@ const getSortingSettingsFromURL = () => {
   return settings;
 };
 
+// General filter input field for numeric columns
+function MinMaxFilterInputField({
+  column: { id },
+  currFilters,
+  setCustomFilters,
+}) {
+  const elementId = id + "_filter";
+  const setFilter = currFilters.find((filter) => filter.id === id);
+  const initFilterValue = setFilter ? setFilter.value : "";
+  let [typingTimer, setTypingTimer] = useState("");
+  let [value, setValue] = useState(initFilterValue);
+
+  const onChange = (event) => {
+    const newValue = event.target.value;
+    setValue(newValue);
+    clearTimeout(typingTimer);
+    setTypingTimer(
+      setTimeout(() => {
+        setCustomFilters({ id, value: newValue });
+        document.getElementById(elementId).focus();
+      }, 500),
+    );
+  };
+
+  return (
+    <input
+      id={elementId}
+      className="filter-field"
+      placeholder="Min:Max"
+      defaultValue={value}
+      onChange={onChange}
+      type="search"
+      pattern={numericPattern}
+    />
+  );
+}
+
+// General filter input field for text columns
+function FilterInputField({
+  column: { id },
+  currFilters,
+  setCustomFilters,
+  disableTaskText,
+}) {
+  const elementId = id + "_filter";
+  const setFilter = currFilters.find((filter) => filter.id === id);
+  const initFilterValue = setFilter ? setFilter.value : "";
+  let [typingTimer, setTypingTimer] = useState("");
+  let [value, setValue] = useState(initFilterValue);
+
+  const textPlaceholder =
+    id === "id" && disableTaskText
+      ? "To edit, please clear task filter in the sidebar"
+      : "text";
+
+  const onChange = (event) => {
+    const newValue = event.target.value;
+    setValue(newValue);
+    clearTimeout(typingTimer);
+    setTypingTimer(
+      setTimeout(() => {
+        setCustomFilters({ id, value: newValue });
+        document.getElementById(elementId).focus();
+      }, 500),
+    );
+  };
+
+  return (
+    <input
+      key={elementId}
+      id={elementId}
+      className="filter-field"
+      placeholder={textPlaceholder}
+      defaultValue={value}
+      onChange={onChange}
+      disabled={id === "id" ? disableTaskText : false}
+      type="search"
+    />
+  );
+}
+
 /**
  * @typedef {Object} RelevantFilterParam
  * @property {string[]} categoryFilters - The category filters that are currently selected
@@ -106,7 +187,6 @@ const Table = (props) => {
   );
   const [columnsResizeValues, setColumnsResizeValues] = useState({});
   const [disableTaskText, setDisableTaskText] = useState(false);
-  const history = useHistory();
 
   /**
    * This function automatically creates additional filters for status or category filters.
@@ -195,44 +275,6 @@ const Table = (props) => {
     props.filterPlotData([...filters, ...additionalFilters], true);
   };
 
-  // General filter input field
-  function FilterInputField({ column: { id, filter }, currFilters }) {
-    const elementId = id + "_filter";
-    const setFilter = currFilters.find((filter) => filter.id === id);
-    const initFilterValue = setFilter ? setFilter.value : "";
-    let [typingTimer, setTypingTimer] = useState("");
-    let [value, setValue] = useState(initFilterValue);
-
-    const textPlaceholder =
-      id === "id" && disableTaskText
-        ? "To edit, please clear task filter in the sidebar"
-        : "text";
-
-    const onChange = (event) => {
-      const newValue = event.target.value;
-      setValue(newValue);
-      clearTimeout(typingTimer);
-      setTypingTimer(
-        setTimeout(() => {
-          setCustomFilters({ id, value: newValue });
-          document.getElementById(elementId).focus();
-        }, 500),
-      );
-    };
-
-    return (
-      <input
-        id={elementId}
-        className="filter-field"
-        placeholder={textPlaceholder}
-        defaultValue={value}
-        onChange={onChange}
-        disabled={id === "id" ? disableTaskText : false}
-        type="search"
-      />
-    );
-  }
-
   // Filter dropdown menu used for status columns
   function StatusFilter({ column: { id, filter }, runSetIdx, columnIdx }) {
     const categoryValues = props.categoryValues[runSetIdx][columnIdx];
@@ -316,55 +358,33 @@ const Table = (props) => {
     );
   }
 
-  // Filter input field used for columns with numerical values
-  function MinMaxFilterInputField({ column: { id, filter }, currFilters }) {
-    const elementId = id + "_filter";
-    const setFilter = currFilters.find((filter) => filter.id === id);
-    const initFilterValue = setFilter ? setFilter.value : "";
-    let [typingTimer, setTypingTimer] = useState("");
-    let [value, setValue] = useState(initFilterValue);
-
-    const onChange = (event) => {
-      const newValue = event.target.value;
-      setValue(newValue);
-      clearTimeout(typingTimer);
-      setTypingTimer(
-        setTimeout(() => {
-          setCustomFilters({ id, value: newValue });
-          document.getElementById(elementId).focus();
-        }, 500),
-      );
-    };
-
-    return (
-      <input
-        id={elementId}
-        className="filter-field"
-        placeholder="Min:Max"
-        defaultValue={value}
-        onChange={onChange}
-        type="search"
-        pattern={numericPattern}
-      />
-    );
-  }
-
   const textFilterInputField = useCallback(
     (filterProps) => (
       <FilterInputField
-        disableTaskText={disableTaskText}
         {...filterProps}
+        disableTaskText={disableTaskText}
         currFilters={props.filters}
+        setCustomFilters={setCustomFilters}
       />
     ),
-    [disableTaskText, props.filters],
+    // We do not need to include props.filters, setCustomFilters or disableTaskText in the dependency array
+    // as they are not responsible for causing re-renders.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [disableTaskText],
   );
 
   const minMaxFilterInputField = useCallback(
     (filterProps) => (
-      <MinMaxFilterInputField {...filterProps} currFilters={props.filters} />
+      <MinMaxFilterInputField
+        {...filterProps}
+        currFilters={props.filters}
+        setCustomFilters={setCustomFilters}
+      />
     ),
-    [props.filters],
+    // We do not need to include props.filters or setCustomFilters in the dependency array
+    // as they are not responsible for causing re-renders.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
   );
 
   const columns = useMemo(() => {
@@ -663,13 +683,18 @@ const Table = (props) => {
   }, [props.filters, filteredColumnValues, gotoPage, pageIndex, pageCount]);
 
   // Update table relevant parameters after URL change
-  useEffect(() => {
-    return history.listen((location) => {
+  const location = useLocation();
+  useEffect(
+    (_location) => {
       setPageSize(getURLParameters().pageSize || initialPageSize);
       setSortBy(getSortingSettingsFromURL());
       gotoPage(getURLParameters().page - 1 || 0);
-    });
-  }, [history, gotoPage, setPageSize, setSortBy]);
+    },
+    // We have also added window.location.href to the dependency array to ensure that
+    // the table is updated when the URL changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [location, setPageSize, setSortBy, gotoPage, window.location.href],
+  );
 
   const renderHeaderGroup = (headerGroup) => (
     <div className="tr headergroup" {...headerGroup.getHeaderGroupProps()}>
