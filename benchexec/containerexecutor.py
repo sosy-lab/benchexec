@@ -300,7 +300,7 @@ def main(argv=None):
     except (BenchExecException, OSError) as e:
         if options.debug:
             logging.exception(e)
-        sys.exit(f"Cannot execute {util.escape_string_shell(options.args[0])}: {e}.")
+        sys.exit(f"Cannot execute {shlex.quote(options.args[0])}: {e}.")
     return result.signal or result.value
 
 

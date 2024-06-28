@@ -15,6 +15,7 @@ import fcntl
 import logging
 import os
 import resource  # noqa: F401 @UnusedImport necessary to eagerly import this module
+import shlex
 import signal
 import socket
 import struct
@@ -543,7 +544,7 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
                     e.errno,
                     f"Creating overlay mount for '{mp}' failed: {os.strerror(e.errno)}. "
                     f"Please use other directory modes, "
-                    f"for example '--read-only-dir {util.escape_string_shell(mp)}'.",
+                    f"for example '--read-only-dir {shlex.quote(mp)}'.",
                 )
 
         elif mode == DIR_HIDDEN:

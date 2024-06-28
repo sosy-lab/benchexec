@@ -26,7 +26,6 @@ import sys
 from ctypes.util import find_library
 import ctypes
 from xml.etree import ElementTree
-from shlex import quote as escape_string_shell  # noqa: F401 @UnusedImport
 
 
 _BYTE_FACTOR = 1000  # byte in kilobyte

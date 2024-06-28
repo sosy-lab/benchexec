@@ -246,11 +246,11 @@ def main(argv=None):
     if options.container and options.output_directory and options.result_files:
         logging.info(
             "Writing output to %s and result files to %s",
-            util.escape_string_shell(options.output),
-            util.escape_string_shell(options.output_directory),
+            shlex.quote(options.output),
+            shlex.quote(options.output_directory),
         )
     else:
-        logging.info("Writing output to %s", util.escape_string_shell(options.output))
+        logging.info("Writing output to %s", shlex.quote(options.output))
 
     # actual run execution
     try:
@@ -763,14 +763,12 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             )
 
         except BenchExecException as e:
-            logging.critical(
-                "Cannot execute '%s': %s.", util.escape_string_shell(args[0]), e
-            )
+            logging.critical("Cannot execute '%s': %s.", shlex.quote(args[0]), e)
             return {"terminationreason": "failed"}
         except OSError as e:
             logging.critical(
                 "Error while starting '%s' in '%s': %s.",
-                util.escape_string_shell(args[0]),
+                shlex.quote(args[0]),
                 workingDir or ".",
                 e,
             )

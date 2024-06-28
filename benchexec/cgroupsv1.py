@@ -337,7 +337,7 @@ class CgroupsV1(Cgroups):
                         name = grp.getgrgid(gid).gr_name
                     except KeyError:
                         name = None
-                    return util.escape_string_shell(name or str(gid))
+                    return shlex.quote(name or str(gid))
 
                 groups = " ".join(sorted(set(map(get_group_name, groups))))
                 permission_hint = _PERMISSION_HINT_GROUPS.format(groups)
