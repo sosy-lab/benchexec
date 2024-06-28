@@ -9,6 +9,12 @@ SPDX-License-Identifier: Apache-2.0
 
 # BenchExec Changelog
 
+## BenchExec 3.23
+
+As announced previously, this release works only on Python 3.8 and newer!
+
+- Fix a potential crash for CPAchecker when using `/usr/bin/cpachecker`.
+
 ## BenchExec 3.22
 
 **This will be the last release of BenchExec to support Python 3.7.**
