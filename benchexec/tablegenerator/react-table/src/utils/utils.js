@@ -210,7 +210,7 @@ const EXTENDED_DISCRETE_COLOR_RANGE = [
  */
 const getURLParameters = (str) => {
   // Split the URL string into parts using "?" as a delimiter
-  const urlParts = (str || document.location.href).split("?");
+  const urlParts = (str || window.location.href).split("?");
 
   // Extract the search part of the URL
   const search = urlParts.length > 1 ? urlParts.slice(1).join("?") : undefined;
@@ -267,23 +267,24 @@ export const constructHashURL = (url, params = {}) => {
 };
 
 /**
- * Sets or updates the search parameters in the URL hash of the current page. All the existing search parameters will not be disturbed. Also accepts a history object to update the URL hash without reloading the page.
+ * Sets or updates the search parameters in the URL hash of the current page. All the existing search parameters will not be disturbed.
  * It can also be used to remove a parameter from the URL by setting it's value to undefined.
  *
  * @param {Object} params - The parameters to be set or updated in the URL hash
- * @param {Object} [history=null] - The history object to use for updating the URL hash
+ * @param {Array} callbacks - An array of callback functions to be executed after the URL has been updated.
+ * Each callback function will be called without any arguments. The callbacks will be called in the order they are provided, and
+ * are used to signal the components that the URL has been updated.
  * @returns {void}
  */
-const setURLParameter = (params = {}, history = null) => {
-  const { newUrl, queryString } = constructHashURL(
-    document.location.href,
-    params,
-  );
-  if (history && history.push) {
-    history.push(queryString);
-    return;
+const setURLParameter = (params = {}, callbacks = []) => {
+  const { newUrl } = constructHashURL(window.location.href, params);
+  window.history.pushState({}, "", newUrl);
+  if (callbacks && callbacks.length > 0) {
+    for (const callback of callbacks) {
+      callback();
+    }
   }
-  document.location.href = newUrl;
+  window.location.href = newUrl;
 };
 
 const makeUrlFilterDeserializer = (statusValues, categoryValues) => {
@@ -337,21 +338,14 @@ function makeStatusColumnFilter(
   const toolCategoryValues = allCategoryValues[tool][columnId];
 
   const hasStatusFilter = !!statusValues;
-  const hasStatusUnchecked =
-    hasStatusFilter && statusValues.length !== toolStatusValues.length;
-
   const hasCategoryFilter = !!categoryValues;
-  const hasCategoryUnchecked =
-    hasCategoryFilter && categoryValues.length !== toolCategoryValues.length;
 
   if (hasStatusFilter) {
-    if (hasStatusUnchecked) {
-      const encodedFilter = createDistinctValueFilters(
-        statusValues,
-        toolStatusValues,
-      );
-      statusColumnFilter.push(`status(${encodedFilter})`);
-    }
+    const encodedFilter = createDistinctValueFilters(
+      statusValues,
+      toolStatusValues,
+    );
+    statusColumnFilter.push(`status(${encodedFilter})`);
     if (!hasCategoryFilter) {
       statusColumnFilter.push("category(empty())");
     }
@@ -360,14 +354,12 @@ function makeStatusColumnFilter(
     if (!hasStatusFilter) {
       statusColumnFilter.push("status(empty())");
     }
-    if (hasCategoryUnchecked) {
-      const encodedFilter = createDistinctValueFilters(
-        categoryValues,
-        toolCategoryValues,
-        true,
-      );
-      statusColumnFilter.push(`category(${encodedFilter})`);
-    }
+    const encodedFilter = createDistinctValueFilters(
+      categoryValues,
+      toolCategoryValues,
+      true,
+    );
+    statusColumnFilter.push(`category(${encodedFilter})`);
   }
   return statusColumnFilter.join(",");
 }
@@ -704,17 +696,17 @@ const makeFilterDeserializer =
 
 const makeUrlFilterSerializer = (statusValues, categoryValues) => {
   const serializer = makeFilterSerializer({ statusValues, categoryValues });
-  return (filter, history) => {
+  return (filter, callbacks) => {
     if (!filter) {
-      return setURLParameter({ filter: undefined }, history);
+      return setURLParameter({ filter: undefined }, callbacks);
     }
 
     const encoded = serializer(filter);
     if (encoded) {
-      return setURLParameter({ filter: encoded }, history);
+      return setURLParameter({ filter: encoded }, callbacks);
     }
 
-    return setURLParameter({ filter: undefined }, history);
+    return setURLParameter({ filter: undefined }, callbacks);
   };
 };
 

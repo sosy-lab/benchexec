@@ -15,7 +15,7 @@ import {
   useFlexLayout,
 } from "react-table";
 import { useSticky } from "react-table-sticky";
-import { useHistory } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import {
   createRunSetColumns,
   StandardCell,
@@ -106,7 +106,6 @@ const Table = (props) => {
   );
   const [columnsResizeValues, setColumnsResizeValues] = useState({});
   const [disableTaskText, setDisableTaskText] = useState(false);
-  const history = useHistory();
 
   /**
    * This function automatically creates additional filters for status or category filters.
@@ -663,13 +662,18 @@ const Table = (props) => {
   }, [props.filters, filteredColumnValues, gotoPage, pageIndex, pageCount]);
 
   // Update table relevant parameters after URL change
-  useEffect(() => {
-    return history.listen((location) => {
+  const location = useLocation();
+  useEffect(
+    (_location) => {
       setPageSize(getURLParameters().pageSize || initialPageSize);
       setSortBy(getSortingSettingsFromURL());
       gotoPage(getURLParameters().page - 1 || 0);
-    });
-  }, [history, gotoPage, setPageSize, setSortBy]);
+    },
+    // We have also added window.location.href to the dependency array to ensure that
+    // the table is updated when the URL changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [location, setPageSize, setSortBy, gotoPage, window.location.href],
+  );
 
   const renderHeaderGroup = (headerGroup) => (
     <div className="tr headergroup" {...headerGroup.getHeaderGroupProps()}>

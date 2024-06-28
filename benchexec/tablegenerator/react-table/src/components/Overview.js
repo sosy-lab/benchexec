@@ -6,7 +6,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from "react";
-import { HashRouter as Router, Switch, Route, Link } from "react-router-dom";
+import { HashRouter as Router, Routes, Route, Link } from "react-router-dom";
 import Table from "./ReactTable.js";
 import Summary from "./Summary.js";
 import Info from "./Info.js";
@@ -62,7 +62,8 @@ const getActiveTab = () =>
 export default class Overview extends React.Component {
   constructor(props) {
     super(props);
-    //imported data
+
+    // imported data
     const {
       tableHeader,
       taskIdNames,
@@ -89,10 +90,8 @@ export default class Overview extends React.Component {
 
     this.filteredData = [];
 
-    this.routerRef = React.createRef();
-
-    //data is handled and changed here; To use it in other components hand it over with component
-    //To change data in component (e.g. filter): function to change has to be in overview
+    // data is handled and changed here; To use it in other components hand it over with component
+    // To change data in component (e.g. filter): function to change has to be in overview
     this.state = {
       tools,
       tableData,
@@ -156,8 +155,8 @@ export default class Overview extends React.Component {
     }
   }
 
-  addTypeToFilter = (filters) =>
-    filters
+  addTypeToFilter = (filters) => {
+    return filters
       .filter((filter) => filter.id !== "id")
       .forEach((filter) => {
         const filterSplitArray = filter.id.split("_");
@@ -167,20 +166,11 @@ export default class Overview extends React.Component {
           ].type;
         filter.type = type;
       });
+  };
 
   componentDidMount() {
-    this.removeHistoryListener = this.routerRef.current.history.listen(
-      (_, action) => {
-        this.updateState();
-        if (action === "POP") {
-          this.updateFiltersFromUrl();
-        }
-      },
-    );
-  }
-
-  componentWillUnmount() {
-    this.removeHistoryListener();
+    this.updateFiltersFromUrl();
+    this.updateState();
   }
 
   getFiltersFromUrl = () => {
@@ -253,7 +243,10 @@ export default class Overview extends React.Component {
       clearImmediate(this.lastImmediate);
     }
     this.lastImmediate = setImmediate(() => {
-      this.filterUrlSetter(filter, this.routerRef.current.history);
+      this.filterUrlSetter(filter, [
+        this.updateFiltersFromUrl,
+        this.updateState,
+      ]);
       this.lastFiltered = filter.filter(
         (item) => (item.values && item.values.length > 0) || item.value,
       );
@@ -322,9 +315,11 @@ export default class Overview extends React.Component {
         totalCount={this.originalTable.length}
       />
     );
+
     const urlParams = this.getRelevantUrlParams();
+
     return (
-      <Router ref={this.routerRef}>
+      <Router>
         <div className="overview">
           <div className="overview-container">
             <FilterBox
@@ -370,62 +365,78 @@ export default class Overview extends React.Component {
               })}
             </div>
             <div className="route-container">
-              <Switch>
-                <Route exact path="/">
-                  <Summary
-                    tools={this.state.tools}
-                    tableHeader={this.tableHeader}
-                    version={this.props.data.version}
-                    selectColumn={this.toggleSelectColumns}
-                    stats={this.stats}
-                    onStatsReady={this.props.onStatsReady}
-                    switchToQuantile={this.switchToQuantile}
-                    tableData={this.state.tableData}
-                    hiddenCols={this.state.hiddenCols}
-                    filtered={this.state.filtered.length > 0}
-                  />
-                </Route>
-                <Route path="/table">
-                  <Table
-                    tableData={this.state.tableData}
-                    tools={this.state.tools}
-                    selectColumn={this.toggleSelectColumns}
-                    filterPlotData={this.filterPlotData}
-                    filters={this.state.filtered}
-                    toggleLinkOverlay={this.toggleLinkOverlay}
-                    statusValues={this.statusValues}
-                    categoryValues={this.categoryValues}
-                    hiddenCols={this.state.hiddenCols}
-                    addTypeToFilter={this.addTypeToFilter}
-                  />
-                </Route>
-                <Route path="/quantile">
-                  <QuantilePlot
-                    table={this.state.tableData}
-                    tools={this.state.tools}
-                    preSelection={this.state.quantilePreSelection}
-                    getRowName={this.getRowName}
-                    hiddenCols={this.state.hiddenCols}
-                    isFlexible={this.props.renderPlotsFlexible}
-                  />
-                </Route>
-                <Route path="/scatter">
-                  <ScatterPlot
-                    table={this.state.tableData}
-                    columns={this.columns}
-                    tools={this.state.tools}
-                    getRowName={this.getRowName}
-                    hiddenCols={this.state.hiddenCols}
-                    isFlexible={this.props.renderPlotsFlexible}
-                  />
-                </Route>
-                <Route path="/info">
-                  <Info
-                    version={this.props.data.version}
-                    selectColumn={this.toggleSelectColumns}
-                  />
-                </Route>
-              </Switch>
+              {/* Component to sync the navigation state. Does not render anything. */}
+              <Routes>
+                <Route
+                  path="/"
+                  element={
+                    <Summary
+                      tools={this.state.tools}
+                      tableHeader={this.tableHeader}
+                      version={this.props.data.version}
+                      selectColumn={this.toggleSelectColumns}
+                      stats={this.stats}
+                      onStatsReady={this.props.onStatsReady}
+                      switchToQuantile={this.switchToQuantile}
+                      tableData={this.state.tableData}
+                      hiddenCols={this.state.hiddenCols}
+                      filtered={this.state.filtered.length > 0}
+                    />
+                  }
+                />
+                <Route
+                  path="/table"
+                  element={
+                    <Table
+                      tableData={this.state.tableData}
+                      tools={this.state.tools}
+                      selectColumn={this.toggleSelectColumns}
+                      filterPlotData={this.filterPlotData}
+                      filters={this.state.filtered}
+                      toggleLinkOverlay={this.toggleLinkOverlay}
+                      statusValues={this.statusValues}
+                      categoryValues={this.categoryValues}
+                      hiddenCols={this.state.hiddenCols}
+                      addTypeToFilter={this.addTypeToFilter}
+                    />
+                  }
+                />
+                <Route
+                  path="/quantile"
+                  element={
+                    <QuantilePlot
+                      table={this.state.tableData}
+                      tools={this.state.tools}
+                      preSelection={this.state.quantilePreSelection}
+                      getRowName={this.getRowName}
+                      hiddenCols={this.state.hiddenCols}
+                      isFlexible={this.props.renderPlotsFlexible}
+                    />
+                  }
+                />
+                <Route
+                  path="/scatter"
+                  element={
+                    <ScatterPlot
+                      table={this.state.tableData}
+                      columns={this.columns}
+                      tools={this.state.tools}
+                      getRowName={this.getRowName}
+                      hiddenCols={this.state.hiddenCols}
+                      isFlexible={this.props.renderPlotsFlexible}
+                    />
+                  }
+                />
+                <Route
+                  path="/info"
+                  element={
+                    <Info
+                      version={this.props.data.version}
+                      selectColumn={this.toggleSelectColumns}
+                    />
+                  }
+                />
+              </Routes>
             </div>
           </div>
           <div>
@@ -436,7 +447,10 @@ export default class Overview extends React.Component {
                 tableHeader={this.tableHeader}
                 tools={this.state.tools}
                 hiddenCols={this.state.hiddenCols}
-                history={this.routerRef.current.history}
+                updateParentStateOnClose={() => {
+                  this.updateState();
+                  this.updateFiltersFromUrl();
+                }}
               />
             )}
             {this.state.showLinkOverlay && (
