@@ -62,6 +62,87 @@ const getSortingSettingsFromURL = () => {
   return settings;
 };
 
+// General filter input field for numeric columns
+function MinMaxFilterInputField({
+  column: { id },
+  currFilters,
+  setCustomFilters,
+}) {
+  const elementId = id + "_filter";
+  const setFilter = currFilters.find((filter) => filter.id === id);
+  const initFilterValue = setFilter ? setFilter.value : "";
+  let [typingTimer, setTypingTimer] = useState("");
+  let [value, setValue] = useState(initFilterValue);
+
+  const onChange = (event) => {
+    const newValue = event.target.value;
+    setValue(newValue);
+    clearTimeout(typingTimer);
+    setTypingTimer(
+      setTimeout(() => {
+        setCustomFilters({ id, value: newValue });
+        document.getElementById(elementId).focus();
+      }, 500),
+    );
+  };
+
+  return (
+    <input
+      id={elementId}
+      className="filter-field"
+      placeholder="Min:Max"
+      defaultValue={value}
+      onChange={onChange}
+      type="search"
+      pattern={numericPattern}
+    />
+  );
+}
+
+// General filter input field for text columns
+function FilterInputField({
+  column: { id },
+  currFilters,
+  setCustomFilters,
+  disableTaskText,
+}) {
+  const elementId = id + "_filter";
+  const setFilter = currFilters.find((filter) => filter.id === id);
+  const initFilterValue = setFilter ? setFilter.value : "";
+  let [typingTimer, setTypingTimer] = useState("");
+  let [value, setValue] = useState(initFilterValue);
+
+  const textPlaceholder =
+    id === "id" && disableTaskText
+      ? "To edit, please clear task filter in the sidebar"
+      : "text";
+
+  const onChange = (event) => {
+    const newValue = event.target.value;
+    setValue(newValue);
+    clearTimeout(typingTimer);
+    setTypingTimer(
+      setTimeout(() => {
+        setCustomFilters({ id, value: newValue });
+        document.getElementById(elementId).focus();
+      }, 500),
+    );
+  };
+
+  return (
+    <input
+      key={elementId}
+      id={elementId}
+      className="filter-field"
+      placeholder={textPlaceholder}
+      defaultValue={value}
+      onChange={onChange}
+      disabled={id === "id" ? disableTaskText : false}
+      type="search"
+    />
+  );
+}
+
 /**
  * @typedef {Object} RelevantFilterParam
  * @property {string[]} categoryFilters - The category filters that are currently selected
@@ -194,44 +275,6 @@ const Table = (props) => {
     props.filterPlotData([...filters, ...additionalFilters], true);
   };
 
-  // General filter input field
-  function FilterInputField({ column: { id, filter }, currFilters }) {
-    const elementId = id + "_filter";
-    const setFilter = currFilters.find((filter) => filter.id === id);
-    const initFilterValue = setFilter ? setFilter.value : "";
-    let [typingTimer, setTypingTimer] = useState("");
-    let [value, setValue] = useState(initFilterValue);
-
-    const textPlaceholder =
-      id === "id" && disableTaskText
-        ? "To edit, please clear task filter in the sidebar"
-        : "text";
-
-    const onChange = (event) => {
-      const newValue = event.target.value;
-      setValue(newValue);
-      clearTimeout(typingTimer);
-      setTypingTimer(
-        setTimeout(() => {
-          setCustomFilters({ id, value: newValue });
-          document.getElementById(elementId).focus();
-        }, 500),
-      );
-    };
-
-    return (
-      <input
-        id={elementId}
-        className="filter-field"
-        placeholder={textPlaceholder}
-        defaultValue={value}
-        onChange={onChange}
-        disabled={id === "id" ? disableTaskText : false}
-        type="search"
-      />
-    );
-  }
-
   // Filter dropdown menu used for status columns
   function StatusFilter({ column: { id, filter }, runSetIdx, columnIdx }) {
     const categoryValues = props.categoryValues[runSetIdx][columnIdx];
@@ -315,55 +358,33 @@ const Table = (props) => {
     );
   }
 
-  // Filter input field used for columns with numerical values
-  function MinMaxFilterInputField({ column: { id, filter }, currFilters }) {
-    const elementId = id + "_filter";
-    const setFilter = currFilters.find((filter) => filter.id === id);
-    const initFilterValue = setFilter ? setFilter.value : "";
-    let [typingTimer, setTypingTimer] = useState("");
-    let [value, setValue] = useState(initFilterValue);
-
-    const onChange = (event) => {
-      const newValue = event.target.value;
-      setValue(newValue);
-      clearTimeout(typingTimer);
-      setTypingTimer(
-        setTimeout(() => {
-          setCustomFilters({ id, value: newValue });
-          document.getElementById(elementId).focus();
-        }, 500),
-      );
-    };
-
-    return (
-      <input
-        id={elementId}
-        className="filter-field"
-        placeholder="Min:Max"
-        defaultValue={value}
-        onChange={onChange}
-        type="search"
-        pattern={numericPattern}
-      />
-    );
-  }
-
   const textFilterInputField = useCallback(
     (filterProps) => (
       <FilterInputField
-        disableTaskText={disableTaskText}
         {...filterProps}
+        disableTaskText={disableTaskText}
         currFilters={props.filters}
+        setCustomFilters={setCustomFilters}
       />
     ),
-    [disableTaskText, props.filters],
+    // We do not need to include props.filters, setCustomFilters or disableTaskText in the dependency array
+    // as they are not responsible for causing re-renders.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [disableTaskText],
   );
 
   const minMaxFilterInputField = useCallback(
     (filterProps) => (
-      <MinMaxFilterInputField {...filterProps} currFilters={props.filters} />
+      <MinMaxFilterInputField
+        {...filterProps}
+        currFilters={props.filters}
+        setCustomFilters={setCustomFilters}
+      />
     ),
-    [props.filters],
+    // We do not need to include props.filters or setCustomFilters in the dependency array
+    // as they are not responsible for causing re-renders.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
   );
 
   const columns = useMemo(() => {
