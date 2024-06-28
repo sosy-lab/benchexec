@@ -271,19 +271,28 @@ export const constructHashURL = (url, params = {}) => {
  * It can also be used to remove a parameter from the URL by setting it's value to undefined.
  *
  * @param {Object} params - The parameters to be set or updated in the URL hash
- * @param {Array} callbacks - An array of callback functions to be executed after the URL has been updated.
- * Each callback function will be called without any arguments. The callbacks will be called in the order they are provided, and
- * are used to signal the components that the URL has been updated.
+ * @param {Object} options - The options object to configure the behavior of the function
+ * @param {Array<Function>} options.callbacks - An array of callback functions to be executed after the URL hash is updated. Default is an empty array.
+ * @param {boolean} options.pushState - A boolean value to determine whether to push the state to the history or not. Default is false.
  * @returns {void}
  */
-const setURLParameter = (params = {}, callbacks = []) => {
+const setURLParameter = (
+  params = {},
+  options = { callbacks: [], pushState: false },
+) => {
   const { newUrl } = constructHashURL(window.location.href, params);
-  window.history.pushState({}, "", newUrl);
+
+  if (options.pushState) {
+    window.history.pushState({}, "", newUrl);
+  }
+
+  const callbacks = options.callbacks;
   if (callbacks && callbacks.length > 0) {
     for (const callback of callbacks) {
       callback();
     }
   }
+
   window.location.href = newUrl;
 };
 
@@ -696,17 +705,17 @@ const makeFilterDeserializer =
 
 const makeUrlFilterSerializer = (statusValues, categoryValues) => {
   const serializer = makeFilterSerializer({ statusValues, categoryValues });
-  return (filter, callbacks) => {
+  return (filter, options) => {
     if (!filter) {
-      return setURLParameter({ filter: undefined }, callbacks);
+      return setURLParameter({ filter: undefined }, options);
     }
 
     const encoded = serializer(filter);
     if (encoded) {
-      return setURLParameter({ filter: encoded }, callbacks);
+      return setURLParameter({ filter: encoded }, options);
     }
 
-    return setURLParameter({ filter: undefined }, callbacks);
+    return setURLParameter({ filter: undefined }, options);
   };
 };
 

@@ -37,6 +37,7 @@ import {
   setConstantHashSearch,
 } from "../utils/utils";
 import deepEqual from "deep-equal";
+
 require("setimmediate"); // provides setImmediate and clearImmediate
 
 const menuItems = [
@@ -243,10 +244,10 @@ export default class Overview extends React.Component {
       clearImmediate(this.lastImmediate);
     }
     this.lastImmediate = setImmediate(() => {
-      this.filterUrlSetter(filter, [
-        this.updateFiltersFromUrl,
-        this.updateState,
-      ]);
+      this.filterUrlSetter(filter, {
+        pushState: true,
+        callbacks: [this.updateFiltersFromUrl, this.updateState],
+      });
       this.lastFiltered = filter.filter(
         (item) => (item.values && item.values.length > 0) || item.value,
       );
@@ -365,7 +366,6 @@ export default class Overview extends React.Component {
               })}
             </div>
             <div className="route-container">
-              {/* Component to sync the navigation state. Does not render anything. */}
               <Routes>
                 <Route
                   path="/"
