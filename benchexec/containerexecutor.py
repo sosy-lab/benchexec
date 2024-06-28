@@ -14,6 +14,7 @@ import collections
 import shutil
 import pickle
 import select
+import shlex
 import signal
 import socket
 import subprocess
@@ -278,8 +279,7 @@ def main(argv=None):
         options.uid = 0
         options.gid = 0
 
-    formatted_args = " ".join(map(util.escape_string_shell, options.args))
-    logging.info("Starting command %s", formatted_args)
+    logging.info("Starting command %s", shlex.join(options.args))
 
     executor = ContainerExecutor(uid=options.uid, gid=options.gid, **container_options)
 

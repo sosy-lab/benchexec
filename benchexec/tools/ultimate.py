@@ -11,13 +11,13 @@ import glob
 import logging
 import os
 import re
+import shlex
 import shutil
 import subprocess
 from typing import List
 
 import benchexec.result as result
 import benchexec.tools.template
-import benchexec.util as util
 from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, LP64
 from benchexec.tools.template import ToolNotFoundException
 from benchexec.tools.template import UnsupportedFeatureException
@@ -143,7 +143,7 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
                 "Exit code:       %s\n"
                 "Error output:    %s\n"
                 "Standard output: %s",
-                " ".join(map(util.escape_string_shell, cmd)),
+                shlex.join(cmd),
                 process.returncode,
                 process.stderr,
                 stdout,
