@@ -5,7 +5,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback, useMemo, memo } from "react";
 import {
   useTable,
   useFilters,
@@ -63,13 +63,8 @@ const getSortingSettingsFromURL = () => {
 };
 
 // General filter input field for numeric columns
-function MinMaxFilterInputField({
-  column: { id },
-  currFilters,
-  setCustomFilters,
-}) {
+function MinMaxFilterInputFieldComponent({ id, setFilter, setCustomFilters }) {
   const elementId = id + "_filter";
-  const setFilter = currFilters.find((filter) => filter.id === id);
   const initFilterValue = setFilter ? setFilter.value : "";
   let [typingTimer, setTypingTimer] = useState("");
   let [value, setValue] = useState(initFilterValue);
@@ -89,6 +84,7 @@ function MinMaxFilterInputField({
   return (
     <input
       id={elementId}
+      key={elementId}
       className="filter-field"
       placeholder="Min:Max"
       defaultValue={value}
@@ -98,17 +94,18 @@ function MinMaxFilterInputField({
     />
   );
 }
+const MinMaxFilterInputField = memo(MinMaxFilterInputFieldComponent);
 
 // General filter input field for text columns
-function FilterInputField({
-  column: { id },
-  currFilters,
+function FilterInputFieldComponent({
+  id,
+  setFilter,
   setCustomFilters,
   disableTaskText,
 }) {
   const elementId = id + "_filter";
-  const setFilter = currFilters.find((filter) => filter.id === id);
   const initFilterValue = setFilter ? setFilter.value : "";
+
   let [typingTimer, setTypingTimer] = useState("");
   let [value, setValue] = useState(initFilterValue);
 
@@ -142,6 +139,7 @@ function FilterInputField({
     />
   );
 }
+const FilterInputField = memo(FilterInputFieldComponent);
 
 /**
  * @typedef {Object} RelevantFilterParam
@@ -200,80 +198,89 @@ const Table = (props) => {
    * which would always result in an empty result set.
    *
    */
-  const createAdditionalFilters = ({ tool, name, column, isCategory }) => {
-    const fill = isCategory ? props.statusValues : props.categoryValues;
-    const out = [];
+  const createAdditionalFilters = useCallback(
+    ({ tool, name, column, isCategory }) => {
+      const fill = isCategory ? props.statusValues : props.categoryValues;
+      const out = [];
 
-    for (const val of fill[tool][column]) {
-      out.push({
-        id: `${tool}_${name}_${column}`,
-        value: `${val}${isCategory ? "" : " "}`,
-      });
-    }
-    return out;
-  };
-
-  const selectAllStatusFields = ({ tool, name, column }) => {
-    const out = [];
-
-    for (const val of props.statusValues[tool][column]) {
-      const value = val;
-      out.push({
-        id: `${tool}_${name}_${column}`,
-        value,
-      });
-    }
-    for (const val of props.categoryValues[tool][column]) {
-      const value = `${val} `;
-      out.push({
-        id: `${tool}_${name}_${column}`,
-        value, // categories are identified by the trailing space
-      });
-    }
-    return out;
-  };
-
-  // Updates the filters that were set by React-Table in our backend
-  const setCustomFilters = (newFilter) => {
-    if (newFilter.id === "id") {
-      newFilter.isTableTabFilter = true;
-    }
-    let filters = [
-      ...props.filters.filter((propFilter) => propFilter.id !== newFilter.id),
-      newFilter,
-    ];
-    // Filters with empty values represent filters that should be removed
-    filters = filters.filter((filter) => filter.value !== "");
-    props.addTypeToFilter(filters);
-
-    let additionalFilters = [];
-
-    if (newFilter.type === "status") {
-      const { tool, name, column } = decodeFilter(newFilter.id);
-      const value = newFilter.value;
-
-      if (value.trim() === "all") {
-        additionalFilters = selectAllStatusFields({
-          tool,
-          name,
-          column,
-        });
-        filters = filters.filter(
-          ({ id, value }) => !(id === newFilter.id && value.trim() === "all"),
-        );
-      } else {
-        const isCategory = value[value.length - 1] === " ";
-        additionalFilters = createAdditionalFilters({
-          tool,
-          name,
-          column,
-          isCategory,
+      for (const val of fill[tool][column]) {
+        out.push({
+          id: `${tool}_${name}_${column}`,
+          value: `${val}${isCategory ? "" : " "}`,
         });
       }
-    }
-    props.addTypeToFilter(additionalFilters);
-    props.filterPlotData([...filters, ...additionalFilters], true);
-  };
+      return out;
+    },
+    [props.categoryValues, props.statusValues],
+  );
+
+  const selectAllStatusFields = useCallback(
+    ({ tool, name, column }) => {
+      const out = [];
+
+      for (const val of props.statusValues[tool][column]) {
+        const value = val;
+        out.push({
+          id: `${tool}_${name}_${column}`,
+          value,
+        });
+      }
+      for (const val of props.categoryValues[tool][column]) {
+        const value = `${val} `;
+        out.push({
+          id: `${tool}_${name}_${column}`,
+          value, // categories are identified by the trailing space
+        });
+      }
+      return out;
+    },
+    [props.categoryValues, props.statusValues],
+  );
+
+  // Updates the filters that were set by React-Table in our backend
+  const setCustomFilters = useCallback(
+    (newFilter) => {
+      if (newFilter.id === "id") {
+        newFilter.isTableTabFilter = true;
+      }
+      let filters = [
+        ...props.filters.filter((propFilter) => propFilter.id !== newFilter.id),
+        newFilter,
+      ];
+      // Filters with empty values represent filters that should be removed
+      filters = filters.filter((filter) => filter.value !== "");
+      props.addTypeToFilter(filters);
+
+      let additionalFilters = [];
+
+      if (newFilter.type === "status") {
+        const { tool, name, column } = decodeFilter(newFilter.id);
+        const value = newFilter.value;
+
+        if (value.trim() === "all") {
+          additionalFilters = selectAllStatusFields({
+            tool,
+            name,
+            column,
+          });
+          filters = filters.filter(
+            ({ id, value }) => !(id === newFilter.id && value.trim() === "all"),
+          );
+        } else {
+          const isCategory = value[value.length - 1] === " ";
+          additionalFilters = createAdditionalFilters({
+            tool,
+            name,
+            column,
+            isCategory,
+          });
+        }
+      }
+      props.addTypeToFilter(additionalFilters);
+      props.filterPlotData([...filters, ...additionalFilters], true);
+    },
+    [props, createAdditionalFilters, selectAllStatusFields],
+  );
 
   // Filter dropdown menu used for status columns
   function StatusFilter({ column: { id, filter }, runSetIdx, columnIdx }) {
@@ -359,32 +366,35 @@ const Table = (props) => {
   }
 
   const textFilterInputField = useCallback(
-    (filterProps) => (
-      <FilterInputField
-        {...filterProps}
-        disableTaskText={disableTaskText}
-        currFilters={props.filters}
-        setCustomFilters={setCustomFilters}
-      />
-    ),
-    // We do not need to include props.filters, setCustomFilters or disableTaskText in the dependency array
-    // as they are not responsible for causing re-renders.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [disableTaskText],
+    (filterProps) => {
+      const id = filterProps.column.id;
+      const setFilter = props.filters.find((filter) => filter.id === id);
+
+      return (
+        <FilterInputField
+          id={id}
+          setFilter={setFilter}
+          disableTaskText={disableTaskText}
+          setCustomFilters={setCustomFilters}
+        />
+      );
+    },
+    [disableTaskText, props.filters],
   );
 
   const minMaxFilterInputField = useCallback(
-    (filterProps) => (
-      <MinMaxFilterInputField
-        {...filterProps}
-        currFilters={props.filters}
-        setCustomFilters={setCustomFilters}
-      />
-    ),
-    // We do not need to include props.filters or setCustomFilters in the dependency array
-    // as they are not responsible for causing re-renders.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
+    (filterProps) => {
+      const id = filterProps.column.id;
+      const setFilter = props.filters.find((filter) => filter.id === id);
+      return (
+        <MinMaxFilterInputField
+          id={id}
+          setFilter={setFilter}
+          setCustomFilters={setCustomFilters}
+        />
+      );
+    },
+    [props.filters],
   );
 
   const columns = useMemo(() => {
