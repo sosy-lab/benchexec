@@ -19,6 +19,7 @@ import signal
 import socket
 import struct
 import sys
+import subprocess
 
 from benchexec import libc
 from benchexec import seccomp
@@ -33,6 +34,7 @@ __all__ = [
     "get_mount_points",
     "remount_with_additional_flags",
     "make_overlay_mount",
+    "make_fuse_overlay_mount",
     "mount_proc",
     "make_bind_mount",
     "get_my_pid_from_procfs",
@@ -507,13 +509,16 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
             work_path = work_base + b"/" + str(overlay_count).encode()
             os.makedirs(temp_path, exist_ok=True)
             os.makedirs(work_path, exist_ok=True)
+            if os.path.ismount(mount_path):
+                try:
+                    # Previous mount in this place not needed if replaced with overlay dir.
+                    # libc.umount(mount_path)
+                    libc.umount2(mount_path, libc.MNT_DETACH)  # lazy umount
+                except OSError as e:
+                    logging.debug(e)
             try:
-                # Previous mount in this place not needed if replaced with overlay dir.
-                libc.umount(mount_path)
-            except OSError as e:
-                logging.debug(e)
-            try:
-                make_overlay_mount(mount_path, mountpoint, temp_path, work_path)
+                # make_overlay_mount(mount_path, mountpoint, temp_path, work_path)
+                make_fuse_overlay_mount(mount_path, mountpoint, temp_path, work_path)
             except OSError as e:
                 mp = mountpoint.decode()
                 raise OSError(
@@ -525,11 +530,12 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
 
         elif mode == DIR_HIDDEN:
             os.makedirs(temp_path, exist_ok=True)
-            try:
-                # Previous mount in this place not needed if replaced with hidden dir.
-                libc.umount(mount_path)
-            except OSError as e:
-                logging.debug(e)
+            if os.path.ismount(mount_path):
+                try:
+                    # Previous mount in this place not needed if replaced with hidden dir.
+                    libc.umount(mount_path)
+                except OSError as e:
+                    logging.debug(e)
             make_bind_mount(temp_path, mount_path)
 
         elif mode == DIR_READ_ONLY:
@@ -722,6 +728,37 @@ def make_overlay_mount(mount, lower, upper, work):
     )
 
 
+def make_fuse_overlay_mount(mount, lower, upper, work):
+    logging.debug(
+        "Creating overlay mount: target=%s, lower=%s, upper=%s, work=%s",
+        mount,
+        lower,
+        upper,
+        work,
+    )
+
+    def escape(s):
+        return s.replace(b"\\", rb"\\").replace(b":", rb"\:").replace(b",", rb"\,")
+
+    cmd = (
+        b"/usr/bin/fuse-overlayfs",
+        b"-o",
+        b"lowerdir="
+        + escape(lower)
+        + b",upperdir="
+        + escape(upper)
+        + b",workdir="
+        + escape(work),
+        escape(mount),
+    )
+
+    try:
+        subprocess.run(args=cmd, check=True)
+    except subprocess.CalledProcessError as e:
+        logging.error("Error executing command: %s", e)
+        sys.exit(1)
+
+
 def mount_proc(container_system_config):
     """Mount the /proc filesystem.
     @param container_system_config: Whether to mount container-specific files in /proc
@@ -810,6 +847,32 @@ def drop_capabilities(keep=[]):
         ctypes.byref(libc.CapHeader(version=libc.LINUX_CAPABILITY_VERSION_3, pid=0)),
         ctypes.byref(capdata),
     )
+
+
+def cap_permitted_to_ambient():
+    """
+    Python version of util-linux/lib/caputils.c: cap_permitted_to_ambient()
+    """
+
+    header = libc.CapHeader(libc.LINUX_CAPABILITY_VERSION_3, 0)
+    data = (libc.CapData * libc.LINUX_CAPABILITY_U32S_3)()
+
+    libc.capget(header, data)
+
+    data[0].inheritable = data[0].permitted
+    data[1].inheritable = data[1].permitted
+
+    libc.capset(header, data)
+
+    effective = (data[1].effective << 32) | data[0].effective
+    for cap in range(64):
+        if cap > int(util.try_read_file("/proc/sys/kernel/cap_last_cap")):
+            continue
+
+        if effective & (1 << cap):
+            libc.prctl(
+                47, 2, cap, 0, 0
+            )  # 47 = PR_CAP_AMBIENT, 2 = PR_CAP_AMBIENT_RAISE
 
 
 _FORBIDDEN_SYSCALLS = [

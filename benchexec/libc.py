@@ -184,13 +184,23 @@ capset.argtypes = [
     _ctypes.POINTER(CapData * 2),
 ]
 
+capget = _libc.capget
+"""Get the capabilities of the current thread."""
+capget.errcheck = _check_errno
+capget.argtypes = [
+    _ctypes.POINTER(CapHeader),
+    _ctypes.POINTER(CapData * 2),
+]
+
 LINUX_CAPABILITY_VERSION_3 = 0x20080522  # /usr/include/linux/capability.h
+LINUX_CAPABILITY_U32S_3 = 2  # /usr/include/linux/capability.h
 CAP_SYS_ADMIN = 21  # /usr/include/linux/capability.h
 
 prctl = _libc.prctl
 """Modify options of processes: http://man7.org/linux/man-pages/man2/prctl.2.html"""
 prctl.errcheck = _check_errno
 prctl.argtypes = [c_int, c_ulong, c_ulong, c_ulong, c_ulong]
+
 
 # /usr/include/linux/prctl.h
 PR_SET_DUMPABLE = 4

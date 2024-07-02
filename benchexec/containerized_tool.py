@@ -198,6 +198,7 @@ def _init_container(
 
     # Container config
     container.setup_user_mapping(os.getpid(), uid, gid)
+    container.cap_permitted_to_ambient()
     _setup_container_filesystem(temp_dir, dir_modes, container_system_config)
     if container_system_config:
         socket.sethostname(container.CONTAINER_HOSTNAME)
