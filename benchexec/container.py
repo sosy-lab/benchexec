@@ -512,12 +512,12 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
             if os.path.ismount(mount_path):
                 try:
                     # Previous mount in this place not needed if replaced with overlay dir.
-                    # libc.umount(mount_path)
-                    libc.umount2(mount_path, libc.MNT_DETACH)  # lazy umount
+                    libc.umount(mount_path)
                 except OSError as e:
                     logging.debug(e)
             try:
-                # make_overlay_mount(mount_path, mountpoint, temp_path, work_path)
+                # In this prototype, we don't attempt to use kernel overlayfs at all.
+                # make_overlay_mount(mount_path, mountpoint, temp_path, work_path)  # noqa: E800
                 make_fuse_overlay_mount(mount_path, mountpoint, temp_path, work_path)
             except OSError as e:
                 mp = mountpoint.decode()

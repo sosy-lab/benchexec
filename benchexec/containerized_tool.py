@@ -198,8 +198,6 @@ def _init_container(
 
     # Container config
     container.setup_user_mapping(os.getpid(), uid, gid)
-    container.cap_permitted_to_ambient()
-    _setup_container_filesystem(temp_dir, dir_modes, container_system_config)
     if container_system_config:
         socket.sethostname(container.CONTAINER_HOSTNAME)
     if not network_access:
@@ -217,6 +215,11 @@ def _init_container(
         # block parent such that it does nothing
         os.waitpid(pid, 0)
         os._exit(0)
+
+    # We setup the container's filesystem in the child process.
+    # Delaying this until after the fork can avoid "Transport endpoint not connected" issue.
+    container.cap_permitted_to_ambient()
+    _setup_container_filesystem(temp_dir, dir_modes, container_system_config)
 
     # Finalize container setup in child
     container.mount_proc(container_system_config)  # only possible in child
