@@ -5,7 +5,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { useState, useEffect, useCallback, useMemo, memo } from "react";
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+  memo,
+  useRef,
+} from "react";
 import {
   useTable,
   useFilters,
@@ -63,11 +70,25 @@ const getSortingSettingsFromURL = () => {
 };
 
 // General filter input field for numeric columns
-function MinMaxFilterInputFieldComponent({ id, setFilter, setCustomFilters }) {
+function MinMaxFilterInputFieldComponent({
+  id,
+  setFilter,
+  setCustomFilters,
+  focusedFilter,
+  setFocusedFilter,
+}) {
   const elementId = id + "_filter";
   const initFilterValue = setFilter ? setFilter.value : "";
+
+  const ref = useRef(null);
   let [typingTimer, setTypingTimer] = useState("");
   let [value, setValue] = useState(initFilterValue);
+
+  useEffect(() => {
+    if (focusedFilter === elementId) {
+      ref.current.focus();
+    }
+  }, [focusedFilter, elementId]);
 
   const onChange = (event) => {
     const newValue = event.target.value;
@@ -91,6 +112,8 @@ function MinMaxFilterInputFieldComponent({ id, setFilter, setCustomFilters }) {
       onChange={onChange}
       type="search"
       pattern={numericPattern}
+      onFocus={() => setFocusedFilter(elementId)}
+      ref={ref}
     />
   );
 }
@@ -102,12 +125,21 @@ function FilterInputFieldComponent({
   setFilter,
   setCustomFilters,
   disableTaskText,
+  focusedFilter,
+  setFocusedFilter,
 }) {
   const elementId = id + "_filter";
   const initFilterValue = setFilter ? setFilter.value : "";
 
+  const ref = useRef(null);
   let [typingTimer, setTypingTimer] = useState("");
   let [value, setValue] = useState(initFilterValue);
+
+  useEffect(() => {
+    if (focusedFilter === elementId) {
+      ref.current.focus();
+    }
+  }, [focusedFilter, elementId]);
 
   const textPlaceholder =
     id === "id" && disableTaskText
@@ -136,6 +168,8 @@ function FilterInputFieldComponent({
       onChange={onChange}
       disabled={id === "id" ? disableTaskText : false}
       type="search"
+      onFocus={() => setFocusedFilter(elementId)}
+      ref={ref}
     />
   );
 }
@@ -185,6 +219,7 @@ const Table = (props) => {
   );
   const [columnsResizeValues, setColumnsResizeValues] = useState({});
   const [disableTaskText, setDisableTaskText] = useState(false);
+  const [focusedFilter, setFocusedFilter] = useState(null);
 
   /**
    * This function automatically creates additional filters for status or category filters.
@@ -376,10 +411,12 @@ const Table = (props) => {
           setFilter={setFilter}
           disableTaskText={disableTaskText}
           setCustomFilters={setCustomFilters}
+          focusedFilter={focusedFilter}
+          setFocusedFilter={setFocusedFilter}
         />
       );
     },
-    [disableTaskText, props.filters],
+    [disableTaskText, props.filters, setCustomFilters, focusedFilter],
   );
 
   const minMaxFilterInputField = useCallback(
@@ -391,10 +428,12 @@ const Table = (props) => {
           id={id}
           setFilter={setFilter}
           setCustomFilters={setCustomFilters}
+          focusedFilter={focusedFilter}
+          setFocusedFilter={setFocusedFilter}
         />
       );
     },
-    [props.filters],
+    [props.filters, setCustomFilters, focusedFilter],
   );
 
   const columns = useMemo(() => {
