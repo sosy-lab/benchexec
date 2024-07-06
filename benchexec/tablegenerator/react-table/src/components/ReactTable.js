@@ -234,7 +234,7 @@ const Table = (props) => {
             />
           );
         },
-        sortType: (rowA, rowB, columnID) =>
+        sortType: (rowA, rowB, columnID, _desc) =>
           textSortMethod(rowA.values[columnID], rowB.values[columnID]),
         // Don't let React-Table filter anything, we do it ourselves
         filter: (rows) => rows,
@@ -280,7 +280,7 @@ const Table = (props) => {
         // Don't let React-Table actually filter anything, we do it ourselves
         filter: (rows) => rows,
         Filter: filterType,
-        sortType: (rowA, rowB, columnID, desc) =>
+        sortType: (rowA, rowB, columnID, _desc) =>
           isNumericColumn(column)
             ? numericSortMethod(rowA.values[columnID], rowB.values[columnID])
             : textSortMethod(rowA.values[columnID], rowB.values[columnID]),
@@ -341,7 +341,7 @@ const Table = (props) => {
             );
           },
           Filter: textFilterInputField,
-          sortType: (rowA, rowB, columnID, desc) => {
+          sortType: (rowA, rowB, columnID, _desc) => {
             const aValue = Array.isArray(rowA.values[columnID])
               ? rowA.values[columnID].join()
               : rowA.values[columnID];
