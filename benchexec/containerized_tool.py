@@ -218,7 +218,6 @@ def _init_container(
 
     # We setup the container's filesystem in the child process.
     # Delaying this until after the fork can avoid "Transport endpoint not connected" issue.
-    container.cap_permitted_to_ambient()
     _setup_container_filesystem(temp_dir, dir_modes, container_system_config)
 
     # Finalize container setup in child

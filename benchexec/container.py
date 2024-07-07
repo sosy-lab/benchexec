@@ -516,17 +516,29 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
                 except OSError as e:
                     logging.debug(e)
             try:
-                # In this prototype, we don't attempt to use kernel overlayfs at all.
-                # make_overlay_mount(mount_path, mountpoint, temp_path, work_path)  # noqa: E800
-                make_fuse_overlay_mount(mount_path, mountpoint, temp_path, work_path)
+                make_overlay_mount(mount_path, mountpoint, temp_path, work_path)
             except OSError as e:
-                mp = mountpoint.decode()
-                raise OSError(
-                    e.errno,
-                    f"Creating overlay mount for '{mp}' failed: {os.strerror(e.errno)}. "
-                    f"Please use other directory modes, "
-                    f"for example '--read-only-dir {util.escape_string_shell(mp)}'.",
-                )
+                # Resort to fuse-overlayfs if kernel overlayfs is not available.
+                fuse = util.find_executable2("fuse-overlayfs")
+                if fuse:
+                    logging.debug(
+                        "Cannot use kernel overlay for %s: %s. "
+                        "Trying to use fuse-overlayfs instead.",
+                        mountpoint.decode(),
+                        e,
+                    )
+                    cap_permitted_to_ambient()
+                    make_fuse_overlay_mount(
+                        fuse, mount_path, mountpoint, temp_path, work_path
+                    )
+                else:
+                    mp = mountpoint.decode()
+                    raise OSError(
+                        e.errno,
+                        f"Creating overlay mount for '{mp}' failed: {os.strerror(e.errno)}. "
+                        f"Please use other directory modes, "
+                        f"for example '--read-only-dir {util.escape_string_shell(mp)}'.",
+                    )
 
         elif mode == DIR_HIDDEN:
             os.makedirs(temp_path, exist_ok=True)
@@ -728,7 +740,7 @@ def make_overlay_mount(mount, lower, upper, work):
     )
 
 
-def make_fuse_overlay_mount(mount, lower, upper, work):
+def make_fuse_overlay_mount(exe, mount, lower, upper, work):
     logging.debug(
         "Creating overlay mount: target=%s, lower=%s, upper=%s, work=%s",
         mount,
@@ -741,7 +753,7 @@ def make_fuse_overlay_mount(mount, lower, upper, work):
         return s.replace(b"\\", rb"\\").replace(b":", rb"\:").replace(b",", rb"\,")
 
     cmd = (
-        b"/usr/bin/fuse-overlayfs",
+        exe,
         b"-o",
         b"lowerdir="
         + escape(lower)
