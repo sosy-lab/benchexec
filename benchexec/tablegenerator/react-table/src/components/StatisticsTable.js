@@ -46,6 +46,7 @@ const StatisticsTable = ({
   onStatsReady,
   stats: defaultStats,
   filtered = false,
+  benchmarkSetupData,
 }) => {
   // We want to skip stat calculation in a test environment if not
   // specifically wanted (signaled by a passed onStatsReady callback function)
@@ -78,35 +79,46 @@ const StatisticsTable = ({
     }
   }, [tools, tableData, onStatsReady, skipStats, defaultStats, filtered]);
 
-  const renderTableHeaders = (headerGroups) => (
+  /**
+   * Render the table header. It can display two kinds of header groups:
+   * 1. Toolset Header Group: Contains the toolset names. It has the type "toolset".
+   * 2. Columns Header Group: Contains the column names. It has the type "columns".
+   * @param {*} headerGroup The header group to render
+   * @param {string} type The type of the header group. Can be "toolset" or "columns".
+   * @returns {JSX.Element}
+   */
+  const renderTableHeader = (headerGroup, type) => (
     <div className="table-header">
-      {headerGroups.map((headerGroup) => (
-        <div className="tr headergroup" {...headerGroup.getHeaderGroupProps()}>
-          {headerGroup.headers.map((header) => (
-            <div
-              {...header.getHeaderProps({
-                className: `th header ${header.headers ? "outer " : ""}${
-                  header.className || ""
-                }`,
-              })}
-            >
-              {header.render("Header")}
-
-              {(!header.className ||
-                !header.className.includes("separator")) && (
-                <div
-                  {...header.getResizerProps()}
-                  className={`resizer ${header.isResizing ? "isResizing" : ""}`}
-                />
-              )}
-            </div>
-          ))}
-        </div>
-      ))}
+      <div className="tr headergroup" {...headerGroup.getHeaderGroupProps()}>
+        {headerGroup.headers.map((header) => (
+          <div
+            {...header.getHeaderProps({
+              className: `th header ${header.headers ? "outer " : ""}${
+                header.className || ""
+              }`,
+            })}
+          >
+            {header.render("Header")}
+            {console.log(header)}
+            {(!header.className || !header.className.includes("separator")) && (
+              <div
+                {...header.getResizerProps()}
+                className={`resizer ${header.isResizing ? "isResizing" : ""}`}
+              />
+            )}
+          </div>
+        ))}
+      </div>
     </div>
   );
 
-  const renderTableData = (rows) => (
+  /**
+   * Render the table data rows.
+   * These rows contain the statistics data that is the bottom part of the table.
+   * @param {*} rows The rows to render
+   * @returns {JSX.Element}
+   */
+  const renderTableDataRows = (rows) => (
     <div {...getTableBodyProps()} className="table-body body">
       {rows.map((row) => {
         prepareRow(row);
@@ -127,6 +139,13 @@ const StatisticsTable = ({
     </div>
   );
 
+  /**
+   * Render the benchmark setup row.
+   * @param {*} row The row to render
+   * @returns {JSX.Element}
+   */
+  const renderBenchmarkSetupRow = (row) => {};
+
   const renderTable = (headerGroups, rows) => {
     if (filtered && stats.length === 0) {
       return (
@@ -135,13 +154,27 @@ const StatisticsTable = ({
         </p>
       );
     }
+
+    if (headerGroups.length !== 2)
+      throw new Error(
+        `Unexpected number of header groups. Expected 2 (1 for toolset, 1 for statistics columns). Got ${headerGroups.length}.`,
+      );
+
+    const [toolsetNameHeaderGroup, columnsHeaderGroup] = headerGroups;
+    const benchmarkSetupData = rows.filter(
+      (row) => row.original.type === "benchmark_setup",
+    );
+    const statsData = rows.filter((row) => row.original.type === "statistics");
+
     return (
       <div id="statistics-table">
         <div className="table sticky">
           <div className="table-content">
             <div className="table-container" {...getTableProps()}>
-              {renderTableHeaders(headerGroups)}
-              {renderTableData(rows)}
+              {renderTableHeader(toolsetNameHeaderGroup, "toolset")}
+              {renderTableDataRows(benchmarkSetupData)}
+              {renderTableHeader(columnsHeaderGroup, "columns")}
+              {renderTableDataRows(statsData)}
             </div>
           </div>
         </div>
@@ -159,7 +192,7 @@ const StatisticsTable = ({
             column={column}
             className="header-data clickable"
             title="Show Quantile Plot of this column"
-            onClick={(e) => switchToQuantile(column)}
+            onClick={(_) => switchToQuantile(column)}
           />
         ),
         hidden:
@@ -171,7 +204,10 @@ const StatisticsTable = ({
           column.type === "status" ? 6 : null,
         ),
         minWidth: 30,
-        accessor: (row) => row.content[runSetIdx][columnIdx],
+        accessor: (row) =>
+          row.type === "statistics"
+            ? row.content[runSetIdx][columnIdx]
+            : row.content,
         Cell: (cell) => {
           let valueToRender = cell.value?.sum;
           // We handle status differently as the main aggregation (denoted "sum")
@@ -235,23 +271,26 @@ const StatisticsTable = ({
           width: titleColWidth,
           minWidth: 100,
           Header: <SelectColumnsButton handler={selectColumn} />,
-          Cell: (cell) => (
-            <div
-              dangerouslySetInnerHTML={{
-                __html:
-                  (cell.row.original.title ||
-                    "&nbsp;".repeat(
-                      4 * statisticsRows[cell.row.original.id].indent,
-                    ) + statisticsRows[cell.row.original.id].title) +
-                  (filtered ? " of selected rows" : ""),
-              }}
-              title={
-                cell.row.original.description ||
-                statisticsRows[cell.row.original.id].description
-              }
-              className="row-title"
-            />
-          ),
+          Cell: (cell) =>
+            cell.row.original.type === "benchmark_setup" ? (
+              <>{cell.row.original.name}</>
+            ) : (
+              <div
+                dangerouslySetInnerHTML={{
+                  __html:
+                    (cell.row.original.title ||
+                      "&nbsp;".repeat(
+                        4 * statisticsRows[cell.row.original.id].indent,
+                      ) + statisticsRows[cell.row.original.id].title) +
+                    (filtered ? " of selected rows" : ""),
+                }}
+                title={
+                  cell.row.original.description ||
+                  statisticsRows[cell.row.original.id].description
+                }
+                className="row-title"
+              />
+            ),
         },
       ],
     });
@@ -276,7 +315,23 @@ const StatisticsTable = ({
     tools,
   ]);
 
-  const data = useMemo(() => stats, [stats]);
+  /** The data for the table is a combination of the benchmark setup data and the statistics data
+   * Each row is tagged with a type to distinguish between the two.
+   * type: "benchmark_setup" | "statistics"
+   * The benchmark rows are displayed first followed by the statistics rows.
+   * */
+  const data = useMemo(() => {
+    return [
+      ...benchmarkSetupData.map((b) => ({
+        type: "benchmark_setup",
+        ...b,
+      })),
+      ...stats.map((s) => ({
+        type: "statistics",
+        ...s,
+      })),
+    ];
+  }, [stats, benchmarkSetupData]);
 
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
     useTable(

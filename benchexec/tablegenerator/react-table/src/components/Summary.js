@@ -22,84 +22,114 @@ const infos = [
   "property",
 ];
 
+/**
+ * JSX component for rendering the options of a tool.
+ * @prop {string} text - The string containing the options.
+ * @returns {JSX.Element}
+ */
+const ToolOptions = ({ text }) => {
+  return text.split(/[\s]+-/).map((option, i) => (
+    <li key={option}>
+      <code>{i === 0 ? option : `-${option}`}</code>
+    </li>
+  ));
+};
+
+/**
+ * JSX component for rendering an external link.
+ * @prop {string} text - The string to display for the link.
+ * @prop {string} url - The URL to link to.
+ * @returns {JSX.Element}
+ */
+const ExternalLink = ({ url, text }) => {
+  if (url) {
+    return (
+      <a href={url} target="_blank" rel="noopener noreferrer">
+        {text}
+      </a>
+    );
+  }
+
+  return <>{text}</>;
+};
+
+/**
+ * JSX component for rendering the name and version of a tool.
+ * @prop {string} tool - The name of the tool.
+ * @prop {string} version - The version of the tool.
+ * @prop {string} project_url - The URL of the project.
+ * @prop {string} version_url - The URL of the version.
+ * @returns {JSX.Element}
+ */
+const ToolNameAndVersion = ({ tool, version, project_url, version_url }) => {
+  return (
+    <>
+      <ExternalLink url={project_url} text={tool} />{" "}
+      <ExternalLink url={version_url} text={version} />
+    </>
+  );
+};
+
+/**
+ * JSX component for rendering the benchmark setup row.
+ * @prop {string} row - The row type.
+ * @prop {string|Array} data - The data to display.
+ * @prop {number} colSpan - The column span of the cell.
+ * @prop {number} index - The index of the cell.
+ * @returns {JSX.Element}
+ */
+export const BenchmarkSetupRow = ({ row, data, colSpan, index }) => {
+  const isOptionRow = row === "options";
+  const isToolRow = row === "tool";
+
+  return (
+    <td
+      colSpan={colSpan}
+      key={data + index}
+      className={`header__tool-row${isOptionRow && " options"}`}
+    >
+      {isOptionRow ? (
+        <ul>
+          <ToolOptions text={data} />
+        </ul>
+      ) : isToolRow ? (
+        <ToolNameAndVersion {...data} />
+      ) : (
+        data
+      )}
+    </td>
+  );
+};
+
 const Summary = (props) => {
-  /* ++++++++++++++ Helper functions ++++++++++++++ */
-
-  const renderOptions = (text) => {
-    return text.split(/[\s]+-/).map((option, i) => (
-      <li key={option}>
-        <code>{i === 0 ? option : `-${option}`}</code>
-      </li>
-    ));
-  };
-
-  const externalLink = (url, text) => {
-    if (url) {
-      return (
-        <a href={url} target="_blank" rel="noopener noreferrer">
-          {text}
-        </a>
-      );
-    } else {
-      return text;
-    }
-  };
-
-  const renderToolNameAndVersion = ({
-    tool,
-    version,
-    project_url,
-    version_url,
-  }) => {
-    return (
-      <>
-        {externalLink(project_url, tool)} {externalLink(version_url, version)}
-      </>
-    );
-  };
-
-  /* ++++++++++++++ Table render functions ++++++++++++++ */
-
-  const renderRow = (row, text, colSpan, j) => {
-    const isOptionRow = row === "options";
-    const isToolRow = row === "tool";
-    return (
-      <td
-        colSpan={colSpan}
-        key={text + j}
-        className={`header__tool-row${isOptionRow && " options"}`}
-      >
-        {isOptionRow ? (
-          <ul>{renderOptions(text)}</ul>
-        ) : isToolRow ? (
-          renderToolNameAndVersion(text)
-        ) : (
-          text
-        )}
-      </td>
-    );
-  };
+  const benchmarkSetupData = infos
+    .map((row) => props.tableHeader[row])
+    .filter((row) => row !== null);
 
   return (
     <div id="summary">
-      <div id="benchmark_setup">
+      {/* <div id="benchmark_setup">
         <h2>Benchmark Setup</h2>
         <table>
           <tbody>
-            {infos
-              .map((row) => props.tableHeader[row])
-              .filter((row) => row !== null)
-              .map((row) => (
-                <tr key={"tr-" + row.id} className={row.id}>
-                  <th key={"td-" + row.id}>{row.name}</th>
-                  {row.content.map((tool, j) =>
-                    renderRow(row.id, tool[0], tool[1], j),
-                  )}
-                </tr>
-              ))}
+            {benchmarkSetupData.map((row) => (
+              <tr key={"tr-" + row.id} className={row.id}>
+                <th key={"td-" + row.id}>{row.name}</th>
+                {row.content.map((tool, j) => (
+                  <BenchmarkSetupRow
+                    key={"td-" + row.id + "-" + j}
+                    row={row.id}
+                    data={tool[0]}
+                    colSpan={tool[1]}
+                    index={j}
+                  />
+                ))}
+              </tr>
+            ))}
           </tbody>
         </table>
-      </div>
+      </div> */}
+
       <StatisticsTable
         selectColumn={props.selectColumn}
         tools={props.tools}
@@ -109,16 +139,16 @@ const Summary = (props) => {
         onStatsReady={props.onStatsReady}
         stats={props.stats}
         filtered={props.filtered}
+        benchmarkSetupData={benchmarkSetupData}
       />
       <p>
-        Generated by{" "}
+        Generated by {""}
         <a
           className="link"
           href="https://github.com/sosy-lab/benchexec"
           target="_blank"
           rel="noopener noreferrer"
         >
-          {" "}
           BenchExec {props.version}
         </a>
       </p>
