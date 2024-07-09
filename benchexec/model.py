@@ -673,7 +673,16 @@ class RunSet(object):
         """Get the task-definition files from the XML definition. Task-definition files are files
         for which we create a run (typically an input file or a YAML task definition).
         """
-        sourcefiles = []
+        # Use dict as convenient set with insertion order, values are always None.
+        taskdefs = {}
+
+        def add_to_taskdefs(keys):
+            for key in keys:
+                taskdefs[key] = None
+
+        def remove_from_taskdefs(keys):
+            for key in keys:
+                taskdefs.pop(key, None)
 
         def _read_set_file(filename):
             dirname = os.path.dirname(filename)
@@ -684,11 +693,11 @@ class RunSet(object):
                     if not util.is_comment(line):
                         yield from self.expand_filename_pattern(line, dirname)
 
-        # get included sourcefiles
+        # get included taskdefs
         for includedFiles in sourcefilesTag.findall("include"):
-            sourcefiles += self.expand_filename_pattern(includedFiles.text, base_dir)
+            add_to_taskdefs(self.expand_filename_pattern(includedFiles.text, base_dir))
 
-        # get sourcefiles from list in file
+        # get taskdefs from list in file
         for includesFilesFile in sourcefilesTag.findall("includesfile"):
             for file in self.expand_filename_pattern(includesFilesFile.text, base_dir):
                 input_files_in_set = list(_read_set_file(file))
@@ -697,16 +706,15 @@ class RunSet(object):
                         f"Error: Nothing in includes file '{file}' "
                         f"matches existing files."
                     )
-                sourcefiles += input_files_in_set
+                add_to_taskdefs(input_files_in_set)
 
-        # remove excluded sourcefiles
+        # remove excluded taskdefs
         for excludedFiles in sourcefilesTag.findall("exclude"):
-            excluded_files = set(
+            old_size = len(taskdefs)
+            remove_from_taskdefs(
                 self.expand_filename_pattern(excludedFiles.text, base_dir)
             )
-            if excluded_files.intersection(sourcefiles):
-                sourcefiles = [f for f in sourcefiles if f not in excluded_files]
-            else:
+            if old_size == len(taskdefs):
                 logging.warning(
                     "The exclude pattern '%s' did not match any of the included tasks.",
                     excludedFiles.text,
@@ -714,16 +722,15 @@ class RunSet(object):
 
         for excludesFilesFile in sourcefilesTag.findall("excludesfile"):
             for file in self.expand_filename_pattern(excludesFilesFile.text, base_dir):
-                excluded_files = set(_read_set_file(file))
-                if excluded_files.intersection(sourcefiles):
-                    sourcefiles = [f for f in sourcefiles if f not in excluded_files]
-                else:
+                old_size = len(taskdefs)
+                remove_from_taskdefs(_read_set_file(file))
+                if old_size == len(taskdefs):
                     logging.warning(
                         "The exclude file '%s' did not match any of the included tasks.",
                         file,
                     )
 
-        return sourcefiles
+        return list(taskdefs)
 
     def create_run_for_input_file(
         self,
