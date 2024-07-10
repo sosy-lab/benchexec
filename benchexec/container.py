@@ -519,12 +519,13 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
                 make_overlay_mount(mount_path, mountpoint, temp_path, work_path)
             except OSError as e:
                 # Resort to fuse-overlayfs if kernel overlayfs is not available.
+                mp = mountpoint.decode()
                 fuse = util.find_executable2("fuse-overlayfs")
                 if fuse:
                     logging.debug(
                         "Cannot use kernel overlay for %s: %s. "
                         "Trying to use fuse-overlayfs instead.",
-                        mountpoint.decode(),
+                        mp,
                         e,
                     )
                     cap_permitted_to_ambient()
@@ -532,7 +533,6 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
                         fuse, mount_path, mountpoint, temp_path, work_path
                     )
                 else:
-                    mp = mountpoint.decode()
                     raise OSError(
                         e.errno,
                         f"Creating overlay mount for '{mp}' failed: {os.strerror(e.errno)}. "
@@ -742,7 +742,7 @@ def make_overlay_mount(mount, lower, upper, work):
 
 def make_fuse_overlay_mount(exe, mount, lower, upper, work):
     logging.debug(
-        "Creating overlay mount: target=%s, lower=%s, upper=%s, work=%s",
+        "Creating overlay mount with fuse-overlayfs: target=%s, lower=%s, upper=%s, work=%s",
         mount,
         lower,
         upper,
@@ -765,9 +765,13 @@ def make_fuse_overlay_mount(exe, mount, lower, upper, work):
     )
 
     try:
-        subprocess.run(args=cmd, check=True)
+        result = subprocess.run(
+            args=cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+        )
+        if result.stdout:
+            logging.debug("fuse-overlayfs: %s", result.stdout.decode())
     except subprocess.CalledProcessError as e:
-        logging.error("Error executing command: %s", e)
+        logging.error("Error executing command: %s\n, %s", e, e.stderr.decode())
         sys.exit(1)
 
 
@@ -877,14 +881,13 @@ def cap_permitted_to_ambient():
     libc.capset(header, data)
 
     effective = (data[1].effective << 32) | data[0].effective
-    for cap in range(64):
-        if cap > int(util.try_read_file("/proc/sys/kernel/cap_last_cap")):
+    cap_last_cap = int(util.try_read_file("/proc/sys/kernel/cap_last_cap"))
+    for cap in range(cap_last_cap + 1):
+        if cap > cap_last_cap:
             continue
 
         if effective & (1 << cap):
-            libc.prctl(
-                47, 2, cap, 0, 0
-            )  # 47 = PR_CAP_AMBIENT, 2 = PR_CAP_AMBIENT_RAISE
+            libc.prctl(libc.PR_CAP_AMBIENT, libc.PR_CAP_AMBIENT_RAISE, cap, 0, 0)
 
 
 _FORBIDDEN_SYSCALLS = [
