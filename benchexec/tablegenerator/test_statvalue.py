@@ -6,7 +6,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from decimal import Decimal
-import sys
 import unittest
 
 from benchexec.tablegenerator.statistics import StatValue

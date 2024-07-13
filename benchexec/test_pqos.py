@@ -10,7 +10,6 @@
 """
 import json
 import copy
-import logging
 import unittest
 from subprocess import CalledProcessError
 from unittest.mock import patch, MagicMock
