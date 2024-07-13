@@ -412,7 +412,8 @@ describe("serialization", () => {
       })),
     );
 
-    const expected = "0(0*status*(status(notIn(true,false))))";
+    const expected =
+      "0(0*status*(status(notIn(true,false)),category(notIn())))";
 
     expect(serializer(filter)).toBe(expected);
   });
@@ -435,7 +436,7 @@ describe("serialization", () => {
 
     const encoded = escape("false(reach)");
 
-    const expected = `0(0*status*(status(in(OOM,${encoded}))))`;
+    const expected = `0(0*status*(status(in(OOM,${encoded})),category(notIn())))`;
 
     expect(serializer(filter)).toBe(expected);
   });
@@ -471,8 +472,8 @@ describe("serialization", () => {
 
     const encoded = escape("false(reach)");
 
-    const expected1 = `0(0*status*(status(in(OOM,${encoded}))))`;
-    const expected2 = `1(0*status*(status(notIn(true,false))))`;
+    const expected1 = `0(0*status*(status(in(OOM,${encoded})),category(notIn())))`;
+    const expected2 = `1(0*status*(status(notIn(true,false)),category(notIn())))`;
 
     expect(serializer(filter)).toBe(`${expected1},${expected2}`);
   });
@@ -495,7 +496,7 @@ describe("serialization", () => {
       })),
     );
 
-    const expected = "0(0*status*(category(notIn(unknown))))";
+    const expected = "0(0*status*(status(notIn()),category(notIn(unknown))))";
 
     expect(serializer(filter)).toBe(expected);
   });
@@ -518,7 +519,7 @@ describe("serialization", () => {
       })),
     );
 
-    const expected = `0(0*status*(category(in(missing,unknown))))`;
+    const expected = `0(0*status*(status(notIn()),category(in(missing,unknown))))`;
 
     expect(serializer(filter)).toBe(expected);
   });
@@ -553,8 +554,8 @@ describe("serialization", () => {
       })),
     );
 
-    const expected1 = `0(0*status*(category(in(missing,unknown))))`;
-    const expected2 = `1(0*status*(category(notIn(unknown))))`;
+    const expected1 = `0(0*status*(status(notIn()),category(in(missing,unknown))))`;
+    const expected2 = `1(0*status*(status(notIn()),category(notIn(unknown))))`;
 
     expect(serializer(filter)).toBe(`${expected1},${expected2}`);
   });
@@ -613,7 +614,7 @@ describe("serialization", () => {
     expect(testSerializer(inp)).toBe(expected);
   });
 
-  test("Should not produce a status filter if all fields are selected", () => {
+  test("Should produce an empty status filter if all fields are selected", () => {
     const testStatusValues = [[["true", "false"]]];
     const testCategoryValues = [[["correct ", "wrong ", "missing "]]];
 
@@ -632,7 +633,8 @@ describe("serialization", () => {
       categoryValues: testCategoryValues,
     });
 
-    const expected = "0(1*cputime*(value(1234)))";
+    const expected =
+      "0(0*status*(status(notIn()),category(notIn())),1*cputime*(value(1234)))";
 
     expect(testSerializer(inp)).toEqual(expected);
   });

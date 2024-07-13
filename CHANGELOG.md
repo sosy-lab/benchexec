@@ -9,6 +9,72 @@ SPDX-License-Identifier: Apache-2.0
 
 # BenchExec Changelog
 
+## BenchExec 3.23
+
+As announced previously, this release works only on Python 3.8 and newer!
+
+- Fix a potential crash for CPAchecker when using `/usr/bin/cpachecker`.
+
+## BenchExec 3.22
+
+**This will be the last release of BenchExec to support Python 3.7.**
+Future versions will require Python 3.8,
+and in 2025 we are planning to drop support for Python 3.8 and 3.9.
+Please [comment here](https://github.com/sosy-lab/benchexec/issues/986)
+if these plans would create problems for you.
+
+BenchExec is now available as an
+[official package in the NixOS distribution](https://github.com/sosy-lab/benchexec/blob/main/doc/INSTALL.md#nixos).
+Thank you [@lorenzleutgeb](https://github.com/lorenzleutgeb)!
+
+- BenchExec now handles new restrictions imposed by Ubuntu 24.04.  
+  Our Ubuntu package is recommended for installation
+  because it automatically does everything for making BenchExec work out of the box.
+  Users of other installation methods need to tweak their system config,
+  and both our documentation and the error message of BenchExec
+  now inform about what is necessary. Thank you [@younghojan](https://github.com/younghojan)!
+- BenchExec is now easier to use on systems without systemd but with cgroups v2.  
+  This is a common situation in containers,
+  and BenchExec will now automatically use the `/benchexec` cgroup
+  if it exists and has no running processes.
+  This makes it unnecessary to manually start BenchExec in a fresh cgroup,
+  but the `/benchexec` cgroup still needs to be created upfront.
+  We give examples how to do this in our
+  [documentation](https://github.com/sosy-lab/benchexec/blob/main/doc/benchexec-in-container.md).
+- Several robustness improvements to BenchExec's container mode for non-standard environments.  
+  This covers for example containers with invalid cgroup mounts,
+  systems with procfs mounts in several places, missing DBus, and Docker Desktop.
+- Several fixes and improvements for the HTML tables produced by `table-generator`.  
+  Thank you [@EshaanAgg](https://github.com/EshaanAgg) and [@JawHawk](https://github.com/JawHawk)!
+  - Filters for text columns are now case insensitive.
+  - Plots now have a reset button for clearing configuration changes.
+  - Text filters now work even if special characters like `_` or parentheses are used.
+  - Changes to the plot configuration no longer break the application
+    if it was opened from paths with spaces and other special characters.
+  - The drop-down area for status filters now immediately shows the correct value
+    when opening a table via a link with preconfigured filters.
+  - The filter for the left-most column is now correctly usable again
+    after a task-id filter in the filter sidebar was set and cleared.
+- Fix handling of tools that read from stdin when asked to print their version.  
+  In such a case, the tool (and thus BenchExec) would previously hang
+  but now stdin of the tool is connected to `/dev/null`
+  (just like during the actual execution) and the tool immediately gets EOF.
+- Improvements to our documentation.  
+  We now have a [quickstart tutorial for `runexec`](https://github.com/sosy-lab/benchexec/blob/main/doc/quickstart.md)
+  and a [guide specifically for executing BenchExec in containers](https://github.com/sosy-lab/benchexec/blob/main/doc/benchexec-in-container.md).
+  Thank you [@incaseoftrouble](https://github.com/incaseoftrouble)!
+- Improvements for several tool-info modules.
+- Integration of BenchExec and the cluster management tool SLURM.  
+  It is not officially part of BenchExec and we do not provide any guarantees related to it,
+  but our repository now contains an
+  [integration of BenchExec and SLURM](https://github.com/sosy-lab/benchexec/tree/main/contrib/slurm)
+  that users of SLURM might find helpful. Thank you [@leventeBajczi](https://github.com/leventeBajczi)!
+  Further contributions in this area are also welcome.
+
+We celebrate that this release
+sets a new record for contributions from non-maintainers
+and thank all contributors!
+
 ## BenchExec 3.21
 
 - `table-generator` computes scores according to SV-COMP'24 scoring scheme.  

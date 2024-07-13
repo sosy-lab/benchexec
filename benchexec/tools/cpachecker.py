@@ -13,6 +13,8 @@ import re
 import benchexec.result as result
 import benchexec.tools.template
 
+from benchexec.tools.template import ToolNotFoundException
+
 
 class Tool(benchexec.tools.template.BaseTool2):
     """
@@ -31,6 +33,7 @@ class Tool(benchexec.tools.template.BaseTool2):
     """
 
     REQUIRED_PATHS = [
+        "bin/cpachecker",
         "lib/java/runtime",
         "lib/*.jar",
         "lib/native/x86_64-linux",
@@ -40,24 +43,50 @@ class Tool(benchexec.tools.template.BaseTool2):
     ]
 
     def executable(self, tool_locator):
-        executable = tool_locator.find_executable("cpa.sh", subdir="scripts")
+        # The following will perform these lookups (if --tool-directory is not given)
+        # and pick the first one that is found:
+        # 1. cpachecker in PATH
+        # 2. cpachecker in ./ and bin/
+        # 3. cpa.sh in PATH
+        # 4. cpa.sh in ./ and scripts/
+        # This follows the BenchExec logic of "look up first in PATH, then ./"
+        # except for the case of "cpa.sh in PATH and cpachecker in bin/",
+        # which should be ok.
+        try:
+            executable = tool_locator.find_executable("cpachecker", subdir="bin")
+        except ToolNotFoundException as e1:
+            try:
+                executable = tool_locator.find_executable("cpa.sh", subdir="scripts")
+            except ToolNotFoundException:
+                raise e1
+
         base_dir = os.path.join(os.path.dirname(executable), os.path.pardir)
         jar_file = os.path.join(base_dir, "cpachecker.jar")
-        bin_dir = os.path.join(base_dir, "bin")
+        cls_dir = os.path.join(
+            base_dir, "bin" if executable.endswith("cpa.sh") else "classes"
+        )
         src_dir = os.path.join(base_dir, "src")
 
         # If this is a source checkout of CPAchecker, we heuristically check that
         # sources are not newer than binaries (cpachecker.jar or files in bin/).
-        if os.path.isdir(src_dir):
-            src_mtime = self._find_newest_mtime(src_dir)
+        try:
+            has_jar = os.path.isfile(jar_file)
+            has_cls = os.path.isdir(cls_dir)
 
-            if os.path.isfile(jar_file):
-                if src_mtime > os.stat(jar_file).st_mtime:
-                    sys.exit("CPAchecker JAR is not uptodate, run 'ant jar'!")
+            if os.path.isdir(src_dir) and (has_jar or has_cls):
+                src_mtime = self._find_newest_mtime(src_dir)
 
-            elif os.path.isdir(bin_dir):
-                if src_mtime > self._find_newest_mtime(bin_dir):
-                    sys.exit("CPAchecker build is not uptodate, run 'ant'!")
+                if has_jar:
+                    if src_mtime > os.stat(jar_file).st_mtime:
+                        sys.exit("CPAchecker JAR is not uptodate, run 'ant jar'!")
+
+                elif has_cls:
+                    if src_mtime > self._find_newest_mtime(cls_dir):
+                        sys.exit("CPAchecker build is not uptodate, run 'ant'!")
+        except OSError as e:
+            logging.warning(
+                "Could not determine whether CPAchecker needs to be rebuilt: %s", e
+            )
 
         return executable
 
@@ -121,23 +150,31 @@ class Tool(benchexec.tools.template.BaseTool2):
         return "https://cpachecker.sosy-lab.org/"
 
     def _get_additional_options(self, existing_options, task, rlimits):
-        options = []
-        if rlimits.cputime and "-timelimit" not in existing_options:
-            options += ["-timelimit", f"{rlimits.cputime}s"]
+        # If at least one option uses "--" style, we use that for options added here.
+        # Otherwise use "-" to be safe for old versions of CPAchecker.
+        new_option_style = any(option.startswith("--") for option in existing_options)
+        prefix = "--" if new_option_style else "-"
 
-        if "-stats" not in existing_options:
-            options += ["-stats"]
+        def option_present(option):
+            return f"-{option}" in existing_options or f"--{option}" in existing_options
+
+        options = []
+        if rlimits.cputime and not option_present("timelimit"):
+            options += [f"{prefix}timelimit", f"{rlimits.cputime}s"]
+
+        if not option_present("stats"):
+            options += [f"{prefix}stats"]
 
         if task.property_file:
-            options += ["-spec", task.property_file]
+            options += [f"{prefix}spec", task.property_file]
 
         if isinstance(task.options, dict) and task.options.get("language") == "C":
             data_model = task.options.get("data_model")
             if data_model:
-                data_model_option = {"ILP32": "-32", "LP64": "-64"}.get(data_model)
+                data_model_option = {"ILP32": "32", "LP64": "64"}.get(data_model)
                 if data_model_option:
-                    if data_model_option not in existing_options:
-                        options += [data_model_option]
+                    if not option_present(data_model_option):
+                        options += [f"{prefix}{data_model_option}"]
                 else:
                     raise benchexec.tools.template.UnsupportedFeatureException(
                         f"Unsupported data_model '{data_model}' defined for task '{task}'"

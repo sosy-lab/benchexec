@@ -9,6 +9,7 @@ import errno
 import grp
 import logging
 import os
+import shlex
 import shutil
 import signal
 import stat
@@ -336,7 +337,7 @@ class CgroupsV1(Cgroups):
                         name = grp.getgrgid(gid).gr_name
                     except KeyError:
                         name = None
-                    return util.escape_string_shell(name or str(gid))
+                    return shlex.quote(name or str(gid))
 
                 groups = " ".join(sorted(set(map(get_group_name, groups))))
                 permission_hint = _PERMISSION_HINT_GROUPS.format(groups)
@@ -350,7 +351,7 @@ class CgroupsV1(Cgroups):
             else:
                 permission_hint = _PERMISSION_HINT_OTHER
 
-            paths = " ".join([util.escape_string_shell(str(p)) for p in paths])
+            paths = shlex.join(str(p) for p in paths)
             sys.exit(_ERROR_MSG_PERMISSIONS.format(permission_hint, paths))
 
         else:

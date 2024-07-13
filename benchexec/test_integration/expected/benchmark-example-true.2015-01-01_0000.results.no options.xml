@@ -186,6 +186,20 @@
     <column hidden="true" title="exitcode" value="0"/>
     <column hidden="true" title="returnvalue" value="0"/>
   </run>
+  <run name="../../../doc/benchexec-in-container.md" files="[../../../doc/benchexec-in-container.md]">
+    <column title="cputime" value="0.004896s"/>
+    <column title="memory" value="327680B"/>
+    <column title="status" value="true"/>
+    <column title="walltime" value="0.005419832014013082s"/>
+    <column title="blkio-read" value="0B" hidden="true"/>
+    <column title="blkio-write" value="0B" hidden="true"/>
+    <column title="category" value="missing" hidden="true"/>
+    <column title="pressure-cpu-some" value="0.000022" hidden="true"/>
+    <column title="pressure-io-some" value="0" hidden="true"/>
+    <column title="pressure-memory-some" value="0" hidden="true"/>
+    <column title="returnvalue" value="0" hidden="true"/>
+    <column title="starttime" value="2024-06-07T15:08:47.634189+02:00" hidden="true"/>
+  </run>
   <run files="[../../../doc/benchexec.md]" name="../../../doc/benchexec.md">
     <column title="cpuenergy" value="0.004517J"/>
     <column title="cputime" value="0.004010876s"/>
@@ -250,6 +264,20 @@
     <column hidden="true" title="cputime-cpu3" value="7.8929e-05s"/>
     <column hidden="true" title="returnvalue" value="0"/>
     <column hidden="true" title="starttime" value="2020-06-12T13:03:05.487583+02:00"/>
+  </run>
+  <run name="../../../doc/quickstart.md" files="[../../../doc/quickstart.md]">
+    <column title="cputime" value="0.004709s"/>
+    <column title="memory" value="327680B"/>
+    <column title="status" value="true"/>
+    <column title="walltime" value="0.005279437988065183s"/>
+    <column title="blkio-read" value="0B" hidden="true"/>
+    <column title="blkio-write" value="0B" hidden="true"/>
+    <column title="category" value="missing" hidden="true"/>
+    <column title="pressure-cpu-some" value="0.000038" hidden="true"/>
+    <column title="pressure-io-some" value="0" hidden="true"/>
+    <column title="pressure-memory-some" value="0" hidden="true"/>
+    <column title="returnvalue" value="0" hidden="true"/>
+    <column title="starttime" value="2024-06-07T15:08:48.510218+02:00" hidden="true"/>
   </run>
   <run files="[../../../doc/resources.md]" name="../../../doc/resources.md">
     <column title="cpuenergy" value="0.004456J"/>
@@ -454,7 +482,7 @@
     <column hidden="true" title="exitcode" value="0"/>
     <column hidden="true" title="returnvalue" value="0"/>
   </run>
-  <run files="[../../../doc/DEVELOPMENT.md, ../../../doc/INDEX.md, ../../../doc/INSTALL.md, ../../../doc/benchexec.md, ../../../doc/benchmarking.md, ../../../doc/container.md, ../../../doc/properties.md, ../../../doc/resources.md, ../../../doc/run-results.md, ../../../doc/runexec.md, ../../../doc/table-generator.md, ../../../doc/tool-integration.md, ../../../README.md]" name="../../../doc/task-definition-example.yml">
+  <run name="../../../doc/task-definition-example.yml" files="[../../../doc/DEVELOPMENT.md, ../../../doc/INDEX.md, ../../../doc/INSTALL.md, ../../../doc/benchexec-in-container.md, ../../../doc/benchexec.md, ../../../doc/benchmarking.md, ../../../doc/container.md, ../../../doc/properties.md, ../../../doc/quickstart.md, ../../../doc/resources.md, ../../../doc/run-results.md, ../../../doc/runexec.md, ../../../doc/table-generator.md, ../../../doc/tool-integration.md, ../../../README.md]">
     <column title="cpuenergy" value="0.011597J"/>
     <column title="cputime" value="0.004660596s"/>
     <column title="memUsage" value="385024"/>

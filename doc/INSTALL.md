@@ -13,7 +13,7 @@ SPDX-License-Identifier: Apache-2.0
 
 ### Requirements
 
-- Python 3.7 or newer
+- Python 3.8 or newer
 - Linux (cf. [Kernel Requirements](#kernel-requirements) below for details)
 - Access to cgroups (cf. [Setting up Cgroups](#setting-up-cgroups) below for details)
 - x86 or ARM machine (please [contact us](https://github.com/sosy-lab/benchexec/issues/new) for other architectures)
@@ -30,9 +30,9 @@ The following packages are optional but recommended dependencies:
 
 Note that the `table-generator` utility requires only Python and works on all platforms.
 
-### Ubuntu
+### Debian/Ubuntu
 
-For installing BenchExec on Ubuntu we recommend installing from our [PPA](https://launchpad.net/~sosy-lab/+archive/ubuntu/benchmarking):
+For installing BenchExec on Debian or Ubuntu we recommend installing from our [PPA](https://launchpad.net/~sosy-lab/+archive/ubuntu/benchmarking):
 
     sudo add-apt-repository ppa:sosy-lab/benchmarking
     sudo apt install benchexec
@@ -57,12 +57,40 @@ or whether additional settings are necessary as [described below](#testing-cgrou
 Note that [pqos_wrapper] is currently not available as a Debian package
 and needs to be installed manually according to its documentation.
 
-### Debian
+### NixOS
 
-For Debian, please follow the instructions for Ubuntu,
-but please note that the PPA currently does not work for Debian
-due to a [compression mechanism not supported by Debian](https://github.com/sosy-lab/benchexec/issues/880),
-so you have to install the `.deb` package manually from GitHub.
+For NixOS 24.05 and later, refer to the options:
+ - [`programs.benchexec.*`](https://search.nixos.org/options?query=programs.benchexec)
+   to configure BenchExec. The optional dependencies
+   [cpu-energy-meter], [pqos_wrapper], and [LXCFS] as well as
+   kernel module loading for access to MSR registers
+   will all be enabled with BenchExec by default.
+   To opt out, set the respective `*.enable` option to `false` explicitly.
+ - [`programs.cpu-energy-meter.*`](https://search.nixos.org/options?query=programs.cpu-energy-meter)
+   to configure the optional dependency [cpu-energy-meter].
+ - [`programs.pqos-wrapper.*`](https://search.nixos.org/options?query=programs.pqos-wrapper)
+   to configure the optional dependency [pqos_wrapper].
+ - [`virtualisation.lxc.lxcfs.*`](https://search.nixos.org/options?query=virtualisation.lxc.lxcfs)
+   to configure the optional dependency [LXCFS].
+ - [`hardware.cpu.x86.msr`](https://search.nixos.org/options?query=hardware.cpu.x86.msr)
+   to configure access to MSR registers, by default for members of the group `msr`.
+ - [`users.users.<name>.extraGroups`](https://search.nixos.org/options?show=users.users.<name>.extraGroups)
+   to add user accounts extra groups such as `msr`
+   (required for both [cpu-energy-meter] and [pqos_wrapper]).
+   Note that users are *NOT* added to `msr` by default.
+   This decision is opt-in for your security.
+
+For example:
+```nix
+{
+  programs.benchexec = {
+    enable = true;
+    users = [ "<USER>" ];
+  };
+  
+  users.users."<USER>".extraGroups = [ "msr" ];
+}
+```
 
 ### Other Distributions
 
@@ -88,6 +116,14 @@ On systems without systemd you can omit the `[systemd]` part.
 
 Please make sure to configure cgroups as [described below](#setting-up-cgroups)
 and install [cpu-energy-meter], [libseccomp2], [LXCFS], and [pqos_wrapper] if desired.
+
+### Containerized Environments
+
+Please refer to the [dedicated guide](doc/benchexec-in-container.md) for the
+necessary steps to install BenchExec inside a container.
+
+**IMPORTANT**: In any case, cgroups with all relevant controllers need to be
+available on the host system.
 
 ### Development version
 
@@ -134,13 +170,18 @@ that are not usable on all distributions by default:
 
 - **User Namespaces**: This is available on most distros
   (the kernel option is `CONFIG_USER_NS`),
-  but Debian and Arch Linux disable this feature for regular users,
-  so the system administrator needs to enable it
-  with `sudo sysctl -w kernel.unprivileged_userns_clone=1` or a respective entry
+  but many distributions disable this feature for regular users,
+  so the system administrator needs to enable it.
+  On *Debian* or *Arch* it can be necessary to enable this feature with
+  `sudo sysctl -w kernel.unprivileged_userns_clone=1` or a respective entry
   in `/etc/sysctl.conf`.
-  On CentOS it can be necessary to enable this feature with
+  On *CentOS* it can be necessary to enable this feature with
   `sudo sysctl -w user.max_user_namespaces=10000` or a respective entry
   in `/etc/sysctl.conf` (the exact value is not important).
+  On *Ubuntu*, we recommend to use our Ubuntu package, which takes care of this.
+  Alternatively, on 24.04 or newer one can enable this feature with
+  `sysctl -w kernel.apparmor_restrict_unprivileged_userns=0` or a respective entry
+  in `/etc/sysctl.conf`.
 
 - **Unprivileged Overlay Filesystem**: This is only available since Linux 5.11
   (kernel option `CONFIG_OVERLAY_FS`),
@@ -299,25 +340,6 @@ listed in this file for these controllers.
 
 In any case, please check whether everything works
 or whether additional settings are necessary as [described below](#testing-cgroups-setup-and-known-problems).
-
-### Setting up Cgroups in a Docker/Podman Container
-
-If you want to run BenchExec inside a container,
-we recommend Podman and systems with cgroups v2.
-Then pass `--security-opt unmask=/sys/fs/cgroup` to `podman run`.
-This will work if BenchExec is the main process inside the container,
-otherwise you need to create an appropriate cgroup hierarchy inside the container,
-i.e., one where BenchExec has its own separate cgroup.
-
-For other cases, if the cgroups file system is not available within the container,
-please use the following command line argument
-to mount the cgroup hierarchy within the container when starting it
-(same for Podman):
-
-    docker run -v /sys/fs/cgroup:/sys/fs/cgroup:rw ...
-
-Note that you additionally need some flags for container mode,
-which are explained in the [container documentation](container.md#using-benchexec-in-a-dockerpodman-container).
 
 ### Testing Cgroups Setup and Known Problems
 

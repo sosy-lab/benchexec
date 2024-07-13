@@ -10,7 +10,8 @@ SPDX-License-Identifier: Apache-2.0
 # BenchExec: table-generator
 ## Generating Tables of Results
 
-The program `table-generator` allows to generate HTML and CSV tables.
+The program `table-generator` allows to generate HTML and CSV tables
+from results produced with [`benchexec`](benchexec.md).
 You can have a look at a
 [demo table](https://sosy-lab.github.io/benchexec/example-table/svcomp-simple-cbmc-cpachecker.table.html)
 to see how the result looks like.

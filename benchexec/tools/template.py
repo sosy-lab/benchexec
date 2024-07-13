@@ -155,6 +155,7 @@ class BaseTool2(object, metaclass=ABCMeta):
                 [executable, arg],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
+                stdin=subprocess.DEVNULL,
                 universal_newlines=True,
             )
         except OSError as e:
@@ -428,8 +429,7 @@ class BaseTool2(object, metaclass=ABCMeta):
         def __new__(cls, input_files, identifier, property_file, options):
             input_files = tuple(input_files)  # make input_files immutable
             assert bool(input_files) != bool(identifier), (
-                f"exactly one is required: "
-                f"input_files={input_files!r} identifier={identifier!r}"
+                f"exactly one is required: " f"{input_files=!r} {identifier=!r}"
             )
             options = copy.deepcopy(options)  # defensive copy because not immutable
             return super().__new__(cls, input_files, identifier, property_file, options)

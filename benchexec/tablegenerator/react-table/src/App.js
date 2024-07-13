@@ -6,31 +6,39 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import "./App.scss";
-import React, { Component } from "react";
+import React from "react";
 import Overview from "./components/Overview";
 
 if (process.env.NODE_ENV !== "production") {
-  // load example data for development
+  // Load example data for development
   window.data = require("@data");
   window.data.version = "(development build)";
 }
 
-class App extends Component {
-  render() {
-    return (
-      <div className="App">
-        <main>
-          <Overview
-            data={window.data}
-            renderPlotsFlexible={true}
-            onStatsReady={this.props.onStatsReady}
-          />
-          {/* imports the component Overview with all subcomponents.
-              The renderPlotsFlexible prop should always be true in development and production, but will be set to false in the tests to make them work.*/}
-        </main>
-      </div>
-    );
+const App = (props) => {
+  // If we visit this page without a hash, like www.domain.com/ or www.domain.com/subpage, we
+  // append a hash to the URL to ensure that the page is loaded correctly. This is necessary
+  // to ensure correct routing in the app.
+  if (window.location.hash === "") {
+    window.location.hash = "#/";
   }
-}
+
+  return (
+    <div className="App">
+      <main>
+        <Overview
+          data={window.data}
+          renderPlotsFlexible={true}
+          onStatsReady={props.onStatsReady}
+        />
+        {/*
+         * Imports the component Overview with all subcomponents.
+         * The renderPlotsFlexible prop should always be true in development and production,
+         * but will be set to false in the tests to make them work.
+         */}
+      </main>
+    </div>
+  );
+};
 
 export default App;
