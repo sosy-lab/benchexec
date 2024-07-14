@@ -37,7 +37,7 @@ class Tool(benchexec.tools.template.BaseTool2):
     def cmdline(self, executable, options, task, rlimits):
         if rlimits.cputime and "--timeout" not in options:
             options += ["--timeout", str(rlimits.cputime)]
-        return ["python3", executable, *options, task.single_input_file]
+        return ["python3", executable, task.single_input_file, *options]
 
     def determine_result(self, run):
         """
