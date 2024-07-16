@@ -7,6 +7,7 @@
 
 import benchexec.result as result
 import benchexec.tools.template
+from math import ceil
 
 
 class Tool(benchexec.tools.template.BaseTool2):
@@ -36,7 +37,7 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def cmdline(self, executable, options, task, rlimits):
         if rlimits.cputime and "--timeout" not in options:
-            options += ["--timeout", str(rlimits.cputime)]
+            options += ["--timeout", str(ceil(rlimits.cputime * 1.05))]
         return ["python3", executable, task.single_input_file, *options]
 
     def determine_result(self, run):
