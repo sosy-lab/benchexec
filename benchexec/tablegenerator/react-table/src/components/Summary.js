@@ -78,14 +78,13 @@ const ToolNameAndVersion = ({ tool, version, project_url, version_url }) => {
  * @prop {number} index - The index of the cell.
  * @returns {JSX.Element}
  */
-export const BenchmarkSetupRow = ({ row, data, colSpan, index }) => {
+export const BenchmarkSetupRow = ({ row, data, colSpan }) => {
   const isOptionRow = row === "options";
   const isToolRow = row === "tool";
 
   return (
     <td
       colSpan={colSpan}
-      key={data + index}
       className={`header__tool-row${isOptionRow && " options"}`}
     >
       {isOptionRow ? (

@@ -26,6 +26,7 @@ import {
   isNil,
   getHiddenColIds,
 } from "../utils/utils";
+import { BenchmarkSetupRow } from "./Summary.js";
 
 const isTestEnv = process.env.NODE_ENV === "test";
 
@@ -81,8 +82,8 @@ const StatisticsTable = ({
 
   /**
    * Render the table header. It can display two kinds of header groups:
-   * 1. Toolset Header Group: Contains the toolset names. It has the type "toolset".
-   * 2. Columns Header Group: Contains the column names. It has the type "columns".
+   * 1. Toolset Header Group: includes the toolset names. It has the type "toolset".
+   * 2. Columns Header Group: includes the column names. It has the type "columns".
    * @param {*} headerGroup The header group to render
    * @param {string} type The type of the header group. Can be "toolset" or "columns".
    * @returns {JSX.Element}
@@ -99,7 +100,6 @@ const StatisticsTable = ({
             })}
           >
             {header.render("Header")}
-            {console.log(header)}
             {(!header.className || !header.className.includes("separator")) && (
               <div
                 {...header.getResizerProps()}
@@ -122,6 +122,7 @@ const StatisticsTable = ({
     <div {...getTableBodyProps()} className="table-body body">
       {rows.map((row) => {
         prepareRow(row);
+        console.log("Row Values: ", row.values);
         return (
           <div {...row.getRowProps()} className="tr">
             {row.cells.map((cell) => (
@@ -144,7 +145,46 @@ const StatisticsTable = ({
    * @param {*} row The row to render
    * @returns {JSX.Element}
    */
-  const renderBenchmarkSetupRow = (row) => {};
+  const renderBenchmarkSetupRows = (rows) => {
+    // return rows.map((row) => (
+    //   <div key={"tr-" + row.id} className="tr" {...row.getRowProps()}>
+    //     <th key={"td-" + row.id}>{row.name}</th>
+    //     {row.content.map((tool, j) => (
+    //       <BenchmarkSetupRow
+    //         key={"td-" + row.id + "-" + j}
+    //         row={row.id}
+    //         data={tool[0]}
+    //         colSpan={tool[1]}
+    //         index={j}
+    //       />
+    //     ))}
+    //   </div>
+    // ));
+
+    return rows.map((row) => {
+      prepareRow(row);
+      console.log("Benchmark Setup Row : ", row);
+      console.log("Benchmark Setup Row Original: ", row.original.content);
+      return (
+        <div {...row.getRowProps()} className="tr">
+          {row.cells.map((cell) => (
+            <div
+              {...cell.getCellProps({
+                className: "td " + (cell.column.className || ""),
+              })}
+            >
+              {cell.column.id.includes("summary") ||
+              cell.column.id.includes("summary") ? (
+                cell.render("Cell")
+              ) : (
+                <div className="cell">Testing</div>
+              )}
+            </div>
+          ))}
+        </div>
+      );
+    });
+  };
 
   const renderTable = (headerGroups, rows) => {
     if (filtered && stats.length === 0) {
@@ -172,7 +212,7 @@ const StatisticsTable = ({
           <div className="table-content">
             <div className="table-container" {...getTableProps()}>
               {renderTableHeader(toolsetNameHeaderGroup, "toolset")}
-              {renderTableDataRows(benchmarkSetupData)}
+              {renderBenchmarkSetupRows(benchmarkSetupData)}
               {renderTableHeader(columnsHeaderGroup, "columns")}
               {renderTableDataRows(statsData)}
             </div>
@@ -210,17 +250,17 @@ const StatisticsTable = ({
             : row.content,
         Cell: (cell) => {
           let valueToRender = cell.value?.sum;
-          // We handle status differently as the main aggregation (denoted "sum")
-          // is of type "count" for this column type.
-          // This means that the default value if no data is available is 0
           if (column.type === "status") {
+            // We handle status differently as the main aggregation (denoted "sum")
+            // is of type "count" for this column type.
+            // This means that the default value if no data is available is 0
             if (cell.value === undefined) {
               // No data is available, default to 0
               valueToRender = 0;
             } else if (cell.value === null) {
               // We receive a null value directly from the stats object of the dataset.
               // Will be rendered as "-"
-              // This edge case only applies to the local summary as it contains static values
+              // This edge case only applies to the local summary as it includes static values
               // that we can not calculate and therefore directly take them from the stats object.
 
               valueToRender = null;
@@ -271,6 +311,7 @@ const StatisticsTable = ({
           width: titleColWidth,
           minWidth: 100,
           Header: <SelectColumnsButton handler={selectColumn} />,
+          enableColSpan: true,
           Cell: (cell) =>
             cell.row.original.type === "benchmark_setup" ? (
               <>{cell.row.original.name}</>
@@ -332,6 +373,8 @@ const StatisticsTable = ({
       })),
     ];
   }, [stats, benchmarkSetupData]);
+
+  console.log("Data", data);
 
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
     useTable(
