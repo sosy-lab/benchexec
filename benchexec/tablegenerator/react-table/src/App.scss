@@ -460,8 +460,21 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
         font-weight: bold;
       }
 
+      th {
+        background-color: white;
+
+        &.sticky {
+          position: sticky !important;
+          left: 0;
+          z-index: 11;
+        }
+      }
+
       tr:nth-child(even) {
         background-color: mix($hover-color, white, 33%);
+        th {
+          background-color: mix($hover-color, white, 33%);
+        }
       }
 
       tr:hover {
@@ -516,7 +529,6 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
                 text-overflow: ellipsis;
                 overflow: hidden;
                 border: #555;
-                border-radius: 5px;
               }
             }
           }
