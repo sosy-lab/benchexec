@@ -136,7 +136,17 @@ const Summary = ({
     });
 
     colArray.push({
-      Header: <SelectColumnsButton handler={selectColumn} />,
+      Header: (
+        <SelectColumnsButton
+          handler={selectColumn}
+          style={{
+            border: "1px solid #DDD",
+            borderRadius: "5px",
+            width: "100%",
+            padding: "2px",
+          }}
+        />
+      ),
       id: "columnselect",
       accessor: "columnselect",
       statisticTable: true,
@@ -155,7 +165,7 @@ const Summary = ({
             statisticsRows[stats[stat].id].title +
             (filtered ? " of selected rows" : ""),
           stats: true,
-          width: 250,
+          minWidth: 300,
         });
       }
     }
