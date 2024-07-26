@@ -29,7 +29,7 @@ class Tool(template.BaseTool2):
             if match:
                 return match.group(1)
 
-        return "unknown"
+        return ""
 
     def program_files(self, executable):
         return self._program_files_from_executable(
