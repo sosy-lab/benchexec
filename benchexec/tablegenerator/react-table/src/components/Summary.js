@@ -10,6 +10,7 @@ import { useFlexLayout, useResizeColumns, useTable } from "react-table";
 import { statisticsRows, computeStats } from "../utils/stats";
 import { SelectColumnsButton } from "./TableComponents";
 import StatisticsTable from "./StatisticsTable";
+import { getCompletelyHiddenRunsetIndices } from "../utils/utils";
 
 const infos = [
   "displayName",
@@ -89,6 +90,12 @@ const Summary = ({
   // are available in order to prevent briefly showing the wrong statistics.
   const [stats, setStats] = useState(filtered ? [] : defaultStats);
 
+  // Get the indexes of the runsets that have all their columns
+  const hiddenRunsetIdx = useMemo(
+    () => getCompletelyHiddenRunsetIndices(tools, hiddenCols),
+    [tools, hiddenCols],
+  );
+
   // We want to trigger a re-calculation of our stats whenever data changes.
   useEffect(() => {
     const updateStats = async () => {
@@ -121,7 +128,7 @@ const Summary = ({
     defaultStats,
   ]);
 
-  const BenchmarkCols = useMemo(() => {
+  const benchmarkColumns = useMemo(() => {
     let colArray = [];
 
     infos.forEach((row) => {
@@ -173,7 +180,7 @@ const Summary = ({
     return colArray;
   }, [tableHeader, stats, selectColumn, filtered]);
 
-  const BenchmarkData = useMemo(() => {
+  const benchmarkData = useMemo(() => {
     let dataArray = [];
 
     tools.forEach((runSet, runSetIndex) => {
@@ -197,18 +204,22 @@ const Summary = ({
           dataArray[index] = {
             ...dataElement,
             [tableHeaderRow.id]: cont[0],
-            colspan: { ...dataElement.colspan, [tableHeaderRow.id]: cont[1] },
+            colspan: {
+              ...dataElement.colspan,
+              [tableHeaderRow.id]: cont[1],
+            },
           };
         });
       }
     });
 
-    return dataArray;
-  }, [tableHeader, tools, stats]);
+    console.log(dataArray);
+    return dataArray.filter((_, index) => !hiddenRunsetIdx.includes(index));
+  }, [tableHeader, tools, stats, hiddenRunsetIdx]);
 
   const { getTableProps, getTableBodyProps, headers, rows, prepareRow } =
     useTable(
-      { columns: BenchmarkCols, data: BenchmarkData },
+      { columns: benchmarkColumns, data: benchmarkData },
       useFlexLayout,
       useResizeColumns,
     );
@@ -302,6 +313,18 @@ const Summary = ({
             })}
           </tbody>
         </table>
+        {/* Add a message to show to the user if some tools are hidden */}
+        {hiddenRunsetIdx.length ? (
+          <p>
+            Runset(s){" "}
+            {tools
+              .filter((_, index) => hiddenRunsetIdx.includes(index))
+              .map((t) => `"${t.benchmarkname}"`)
+              .join(",")}{" "}
+            has(ve) been hidden as you have no selected no statistics columns
+            for them. Select atleast one to view them as well.
+          </p>
+        ) : null}
       </div>
 
       <p>

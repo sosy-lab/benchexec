@@ -1157,6 +1157,23 @@ const getHiddenColIds = (columns) => {
   return columns.filter((c) => c.hidden).map((c) => c.id);
 };
 
+/**
+ * Returns a list of tool indexes that have been completely hidden by the user
+ * @param {*} tools
+ * @param {*} hiddenCols
+ * @returns Array<number>
+ */
+const getCompletelyHiddenRunsetIndices = (tools, hiddenCols) => {
+  return tools
+    .map((tool, toolIndex) => {
+      const columnsLength = tool.columns.length;
+      if (hiddenCols[toolIndex].length === columnsLength) {
+        return toolIndex;
+      } else return -1;
+    })
+    .filter((i) => i !== -1);
+};
+
 export {
   prepareTableData,
   getRawOrDefault,
@@ -1193,4 +1210,5 @@ export {
   makeFilterDeserializer,
   safeAdd,
   getHiddenColIds,
+  getCompletelyHiddenRunsetIndices,
 };
