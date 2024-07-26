@@ -6,8 +6,7 @@ from benchexec.tools import template
 
 class Tool(template.BaseTool2):
     """
-    This tool-info module runs Cheetah, a parallel portfolio
-    of natively compiled CPAchecker instances.
+    This tool-info module runs KeY CLI, a cli version of the KeY deductive verifier.
     """
 
     REQUIRED_PATHS = ["bin", "lib"]
