@@ -39,5 +39,8 @@ class Tool(template.BaseTool2):
     def name(self):
         return "KeY"
 
+    def project_url(self):
+        return "https://www.key-project.org/"
+
     def cmdline(self, executable, options, task, rlimits):
-        return super().cmdline(executable, options, task, rlimits)
+        return [executable, *options, task.single_input_file]
