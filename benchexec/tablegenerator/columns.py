@@ -18,15 +18,14 @@ from benchexec.tablegenerator import util
 
 __all__ = ["Column", "ColumnType", "ColumnMeasureType"]
 
-# This sets the rounding mode for all Decimal operations in the process and explicitly for the current context
-# As asserting the rounding mode for the current context is almost a tautology, we also assert in the methods
-# which are called in their own process, i.e. we additionally assert that each process has the correct rounding
-# individually.
+# Important: If the context is set before we can change the default, we are "locked in" the wrong
+#            (default) rounding
+#            Thus, it's important to make sure on *all* entry points that the correct rounding / context
+#            is used.
+# See https://github.com/sosy-lab/benchexec/issues/991
 decimal.DefaultContext.rounding = decimal.ROUND_HALF_UP
 decimal.setcontext(decimal.DefaultContext)
-assert (
-    decimal.getcontext().rounding == decimal.ROUND_HALF_UP
-), f"rounding of context is {decimal.getcontext().rounding}, expected ROUND_HALF_UP"
+# These two lines should be removed after issue 991 has been resolved
 
 DEFAULT_TIME_PRECISION = 3
 DEFAULT_TOOLTIP_PRECISION = 2
