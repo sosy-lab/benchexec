@@ -206,7 +206,9 @@ const Summary = ({
     tools.forEach((runSet, runSetIndex) => {
       dataArray.push({
         colspan: {
-          columnselect: tableHeader.tool.content[runSetIndex][1],
+          columnselect: tableHeader.tool.content[runSetIndex]
+            ? tableHeader.tool.content[runSetIndex][1]
+            : 1,
         },
         columnselect: {
           runSet,
