@@ -11,6 +11,7 @@ import { statisticsRows, computeStats } from "../utils/stats";
 import { SelectColumnsButton } from "./TableComponents";
 import StatisticsTable from "./StatisticsTable";
 import { getCompletelyHiddenRunsetIndices } from "../utils/utils";
+import IconWithTooltip from "./Tooltip";
 
 const infos = [
   "displayName",
@@ -136,7 +137,26 @@ const Summary = ({
       if (tableHeaderRow) {
         colArray.push({
           accessor: tableHeaderRow.id,
-          Header: tableHeaderRow.name,
+          // If the header is "Tool" and there are hidden runsets, add a hint
+          Header:
+            hiddenRunsetIdx.length !== 0 && tableHeaderRow.name === "Tool" ? (
+              <span
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                }}
+              >
+                {tableHeaderRow.name}
+                <IconWithTooltip
+                  message={
+                    "Some runsets are hidden because as all their columns have been deselected. Click 'Select columns' to show them."
+                  }
+                />
+              </span>
+            ) : (
+              tableHeaderRow.name
+            ),
           sticky: "left",
         });
       }
@@ -178,7 +198,7 @@ const Summary = ({
     }
 
     return colArray;
-  }, [tableHeader, stats, selectColumn, filtered]);
+  }, [tableHeader, stats, selectColumn, filtered, hiddenRunsetIdx]);
 
   const benchmarkData = useMemo(() => {
     let dataArray = [];
@@ -213,8 +233,10 @@ const Summary = ({
       }
     });
 
-    console.log(dataArray);
-    return dataArray.filter((_, index) => !hiddenRunsetIdx.includes(index));
+    return dataArray.map((d, index) => ({
+      hidden: hiddenRunsetIdx.includes(index),
+      ...d,
+    }));
   }, [tableHeader, tools, stats, hiddenRunsetIdx]);
 
   const { getTableProps, getTableBodyProps, headers, rows, prepareRow } =
@@ -287,6 +309,7 @@ const Summary = ({
                           style={{
                             padding: col.id === "columnselect" && 0,
                             margin: 0,
+                            ...(row.original.hidden && { display: "none" }),
                           }}
                         >
                           {col.id === "columnselect" ? (
@@ -313,18 +336,6 @@ const Summary = ({
             })}
           </tbody>
         </table>
-        {/* Add a message to show to the user if some tools are hidden */}
-        {hiddenRunsetIdx.length ? (
-          <p>
-            Runset(s){" "}
-            {tools
-              .filter((_, index) => hiddenRunsetIdx.includes(index))
-              .map((t) => `"${t.benchmarkname}"`)
-              .join(",")}{" "}
-            has(ve) been hidden as you have no selected no statistics columns
-            for them. Select atleast one to view them as well.
-          </p>
-        ) : null}
       </div>
 
       <p>
