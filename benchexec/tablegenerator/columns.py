@@ -18,14 +18,10 @@ from benchexec.tablegenerator import util
 
 __all__ = ["Column", "ColumnType", "ColumnMeasureType"]
 
-# Important: If the context is set before we can change the default, we are "locked in" the wrong
-#            (default) rounding
-#            Thus, it's important to make sure on *all* entry points that the correct rounding / context
-#            is used.
-# See https://github.com/sosy-lab/benchexec/issues/991
-decimal.DefaultContext.rounding = decimal.ROUND_HALF_UP
-decimal.setcontext(decimal.DefaultContext)
-# These two lines should be removed after issue 991 has been resolved
+# Important: It's important to make sure on *all* entry points / methods which perform arithmetics that the correct
+#            rounding / context is used.
+local_context = decimal.getcontext()
+local_context.rounding = decimal.ROUND_HALF_UP
 
 DEFAULT_TIME_PRECISION = 3
 DEFAULT_TOOLTIP_PRECISION = 2
@@ -134,36 +130,37 @@ class Column(object):
         relevant_for_diff=None,
         display_title=None,
     ):
-        assert (
-            decimal.getcontext().rounding == decimal.ROUND_HALF_UP
-        ), f"rounding of context is {decimal.getcontext().rounding}, expected ROUND_HALF_UP"
+        with decimal.localcontext(local_context):
+            assert (
+                decimal.getcontext().rounding == decimal.ROUND_HALF_UP
+            ), f"rounding of context is {decimal.getcontext().rounding}, expected ROUND_HALF_UP"
 
-        # If scaling on the variables is performed, a display unit must be defined, explicitly
-        if scale_factor is not None and scale_factor != 1 and unit is None:
-            raise util.TableDefinitionError(
-                f"Scale factor is defined, but display unit is not (in column {title})"
+            # If scaling on the variables is performed, a display unit must be defined, explicitly
+            if scale_factor is not None and scale_factor != 1 and unit is None:
+                raise util.TableDefinitionError(
+                    f"Scale factor is defined, but display unit is not (in column {title})"
+                )
+
+            self.title = title
+            self.pattern = pattern
+            self.number_of_significant_digits = (
+                int(num_of_digits) if num_of_digits else None
             )
+            self.type = col_type
+            self.unit = unit
+            self.source_unit = source_unit
+            self.scale_factor = Decimal(scale_factor) if scale_factor else scale_factor
+            self.href = href
+            if relevant_for_diff is None:
+                self.relevant_for_diff = False
+            else:
+                self.relevant_for_diff = (
+                    True if relevant_for_diff.lower() == "true" else False
+                )
+            self.display_title = display_title
 
-        self.title = title
-        self.pattern = pattern
-        self.number_of_significant_digits = (
-            int(num_of_digits) if num_of_digits else None
-        )
-        self.type = col_type
-        self.unit = unit
-        self.source_unit = source_unit
-        self.scale_factor = Decimal(scale_factor) if scale_factor else scale_factor
-        self.href = href
-        if relevant_for_diff is None:
-            self.relevant_for_diff = False
-        else:
-            self.relevant_for_diff = (
-                True if relevant_for_diff.lower() == "true" else False
-            )
-        self.display_title = display_title
-
-        # expected maximum width (in characters)
-        self.max_width = None
+            # expected maximum width (in characters)
+            self.max_width = None
 
     def is_numeric(self):
         return (
@@ -196,68 +193,76 @@ class Column(object):
         @param format_target the target the value should be formatted for
         @return: a formatted String representation of the given value.
         """
-        # Only format counts and measures
-        if self.type.type != ColumnType.count and self.type.type != ColumnType.measure:
-            return value
+        with decimal.localcontext(local_context):
+            assert (
+                decimal.getcontext().rounding == decimal.ROUND_HALF_UP
+            ), f"rounding of context is {decimal.getcontext().rounding}, expected ROUND_HALF_UP"
 
-        if format_target not in POSSIBLE_FORMAT_TARGETS:
-            raise ValueError("Unknown format target")
+            # Only format counts and measures
+            if (
+                self.type.type != ColumnType.count
+                and self.type.type != ColumnType.measure
+            ):
+                return value
 
-        if value is None or value == "":
-            return ""
+            if format_target not in POSSIBLE_FORMAT_TARGETS:
+                raise ValueError("Unknown format target")
 
-        if isinstance(value, str):
-            # If the number ends with "s" or another unit, remove it.
-            # Units should not occur in table cells, but in the table head.
-            number_str = util.remove_unit(value.strip())
-            number = Decimal(number_str)
-        elif isinstance(value, Decimal):
-            number = value
-            number_str = print_decimal(number)
-        else:
-            raise TypeError(f"Unexpected number type {type(value)}")
+            if value is None or value == "":
+                return ""
 
-        if number.is_nan():
-            return "NaN"
-        elif number == inf:
-            return "Inf"
-        elif number == -inf:
-            return "-Inf"
+            if isinstance(value, str):
+                # If the number ends with "s" or another unit, remove it.
+                # Units should not occur in table cells, but in the table head.
+                number_str = util.remove_unit(value.strip())
+                number = Decimal(number_str)
+            elif isinstance(value, Decimal):
+                number = value
+                number_str = print_decimal(number)
+            else:
+                raise TypeError(f"Unexpected number type {type(value)}")
 
-        # Apply the scale factor to the value
-        if self.scale_factor is not None:
-            number *= self.scale_factor
-        assert number.is_finite()
+            if number.is_nan():
+                return "NaN"
+            elif number == inf:
+                return "Inf"
+            elif number == -inf:
+                return "-Inf"
 
-        if (
-            self.number_of_significant_digits is None
-            and self.type.type != ColumnType.measure
-            and format_target == "tooltip_stochastic"
-        ):
-            # Column of type count (integral values) without specified sig. digits.
-            # However, we need to round values like stdev, so we just round somehow.
-            return print_decimal(round(number, DEFAULT_TOOLTIP_PRECISION))
+            # Apply the scale factor to the value
+            if self.scale_factor is not None:
+                number *= self.scale_factor
+            assert number.is_finite()
 
-        number_of_significant_digits = self.get_number_of_significant_digits(
-            format_target
-        )
-        max_dec_digits = (
-            self.type.max_decimal_digits
-            if isinstance(self.type, ColumnMeasureType)
-            else 0
-        )
+            if (
+                self.number_of_significant_digits is None
+                and self.type.type != ColumnType.measure
+                and format_target == "tooltip_stochastic"
+            ):
+                # Column of type count (integral values) without specified sig. digits.
+                # However, we need to round values like stdev, so we just round somehow.
+                return print_decimal(round(number, DEFAULT_TOOLTIP_PRECISION))
 
-        if number_of_significant_digits is not None:
-            current_significant_digits = _get_significant_digits(number_str)
-            return _format_number(
-                number,
-                current_significant_digits,
-                number_of_significant_digits,
-                max_dec_digits,
-                format_target,
+            number_of_significant_digits = self.get_number_of_significant_digits(
+                format_target
             )
-        else:
-            return print_decimal(number)
+            max_dec_digits = (
+                self.type.max_decimal_digits
+                if isinstance(self.type, ColumnMeasureType)
+                else 0
+            )
+
+            if number_of_significant_digits is not None:
+                current_significant_digits = _get_significant_digits(number_str)
+                return _format_number(
+                    number,
+                    current_significant_digits,
+                    number_of_significant_digits,
+                    max_dec_digits,
+                    format_target,
+                )
+            else:
+                return print_decimal(number)
 
     def set_column_type_from(self, column_values):
         """
@@ -321,40 +326,43 @@ def _format_number_align(formattedValue, max_number_of_dec_digits):
 
 
 def _get_significant_digits(value):
-    assert (
-        decimal.getcontext().rounding == decimal.ROUND_HALF_UP
-    ), f"rounding of context is {decimal.getcontext().rounding}, expected ROUND_HALF_UP"
+    with decimal.localcontext(local_context):
+        assert (
+            decimal.getcontext().rounding == decimal.ROUND_HALF_UP
+        ), f"rounding of context is {decimal.getcontext().rounding}, expected ROUND_HALF_UP"
 
-    if not Decimal(value).is_finite():
-        return 0
+        if not Decimal(value).is_finite():
+            return 0
 
-    # Regular expression returns multiple groups:
-    #
-    # Group GROUP_SIGN: Optional sign of value
-    # Group GROUP_INT_PART: Digits in front of decimal point
-    # Group GROUP_DEC_PART: Optional decimal point and digits after it
-    # Group GROUP_SIG_DEC_DIGITS: Digits after decimal point, starting at the first value not 0
-    # Group GROUP_EXP: Optional exponent part (e.g. 'e-5')
-    # Group GROUP_EXP_SIGN: Optional sign of exponent part
-    # Group GROUP_EXP_VALUE: Value of exponent part (e.g. '5' for 'e-5')
-    # Use these groups to compute the number of zeros that have to be added to the current number's
-    # decimal positions.
-    match = REGEX_MEASURE.match(value)
-    assert match, "unexpected output format for number formatting"
+        # Regular expression returns multiple groups:
+        #
+        # Group GROUP_SIGN: Optional sign of value
+        # Group GROUP_INT_PART: Digits in front of decimal point
+        # Group GROUP_DEC_PART: Optional decimal point and digits after it
+        # Group GROUP_SIG_DEC_DIGITS: Digits after decimal point, starting at the first value not 0
+        # Group GROUP_EXP: Optional exponent part (e.g. 'e-5')
+        # Group GROUP_EXP_SIGN: Optional sign of exponent part
+        # Group GROUP_EXP_VALUE: Value of exponent part (e.g. '5' for 'e-5')
+        # Use these groups to compute the number of zeros that have to be added to the current number's
+        # decimal positions.
+        match = REGEX_MEASURE.match(value)
+        assert match, "unexpected output format for number formatting"
 
-    if int(match.group(GROUP_INT_PART)) == 0 and Decimal(value) != 0:
-        sig_digits = len(match.group(GROUP_SIG_DEC_PART))
+        if int(match.group(GROUP_INT_PART)) == 0 and Decimal(value) != 0:
+            sig_digits = len(match.group(GROUP_SIG_DEC_PART))
 
-    else:
-        if Decimal(value) != 0:
-            sig_digits = len(match.group(GROUP_INT_PART))
         else:
-            # If the value consists of only zeros, do not count the 0 in front of the decimal
-            sig_digits = 0
-        if match.group(GROUP_DEC_PART):
-            sig_digits += len(match.group(GROUP_DEC_PART)) - 1  # -1 for decimal point
+            if Decimal(value) != 0:
+                sig_digits = len(match.group(GROUP_INT_PART))
+            else:
+                # If the value consists of only zeros, do not count the 0 in front of the decimal
+                sig_digits = 0
+            if match.group(GROUP_DEC_PART):
+                sig_digits += (
+                    len(match.group(GROUP_DEC_PART)) - 1
+                )  # -1 for decimal point
 
-    return sig_digits
+        return sig_digits
 
 
 def _format_number(
@@ -370,59 +378,66 @@ def _format_number(
     with the specified number of significant digits,
     optionally aligned at the decimal point.
     """
-    assert (
-        decimal.getcontext().rounding == decimal.ROUND_HALF_UP
-    ), f"rounding of context is {decimal.getcontext().rounding}, expected ROUND_HALF_UP"
+    with decimal.localcontext(local_context):
+        assert (
+            decimal.getcontext().rounding == decimal.ROUND_HALF_UP
+        ), f"rounding of context is {decimal.getcontext().rounding}, expected ROUND_HALF_UP"
 
-    assert format_target in POSSIBLE_FORMAT_TARGETS, "Invalid format " + format_target
-
-    if number == 0:
-        intended_digits = min(number_of_significant_digits, initial_value_sig_digits)
-        # Add as many trailing zeros as desired
-        rounded_value = Decimal(0).scaleb(-intended_digits)
-
-    else:
-        # Round to the given amount of significant digits
-        intended_digits = min(initial_value_sig_digits, number_of_significant_digits)
-
-        assert number.adjusted() == int(floor(abs(number).log10()))
-        rounding_point = -number.adjusted() + (intended_digits - 1)
-        # Contrary to its documentation, round() seems to be affected by the rounding
-        # mode of decimal's context (which is good for us) when rounding Decimals.
-        # We add an assertion to double check (calling round() is easier to understand).
-        rounded_value = round(number, rounding_point)
-        assert rounded_value == number.quantize(Decimal(1).scaleb(-rounding_point))
-
-    formatted_value = print_decimal(rounded_value)
-
-    # Get the number of resulting significant digits.
-    current_sig_digits = _get_significant_digits(formatted_value)
-
-    if current_sig_digits > intended_digits:
-        if "." in formatted_value:
-            # Happens when rounding 9.99 to 10 with 2 significant digits,
-            # the formatted_value will be 10.0 and we need to cut one trailing zero.
-            assert current_sig_digits == intended_digits + 1
-            assert formatted_value.endswith("0")
-            formatted_value = formatted_value[:-1].rstrip(".")
-        else:
-            # happens for cases like 12300 with 3 significant digits
-            assert formatted_value == str(round(rounded_value))
-    else:
-        assert current_sig_digits == intended_digits
-
-    # Cut the 0 in front of the decimal point for values < 1.
-    # Example: 0.002 => .002
-    if _is_to_cut(formatted_value, format_target):
-        assert formatted_value.startswith("0.")
-        formatted_value = formatted_value[1:]
-
-    # Alignment
-    if format_target == "html_cell":
-        formatted_value = _format_number_align(
-            formatted_value, max_digits_after_decimal
+        assert format_target in POSSIBLE_FORMAT_TARGETS, (
+            "Invalid format " + format_target
         )
-    return formatted_value
+
+        if number == 0:
+            intended_digits = min(
+                number_of_significant_digits, initial_value_sig_digits
+            )
+            # Add as many trailing zeros as desired
+            rounded_value = Decimal(0).scaleb(-intended_digits)
+
+        else:
+            # Round to the given amount of significant digits
+            intended_digits = min(
+                initial_value_sig_digits, number_of_significant_digits
+            )
+
+            assert number.adjusted() == int(floor(abs(number).log10()))
+            rounding_point = -number.adjusted() + (intended_digits - 1)
+            # Contrary to its documentation, round() seems to be affected by the rounding
+            # mode of decimal's context (which is good for us) when rounding Decimals.
+            # We add an assertion to double check (calling round() is easier to understand).
+            rounded_value = round(number, rounding_point)
+            assert rounded_value == number.quantize(Decimal(1).scaleb(-rounding_point))
+
+        formatted_value = print_decimal(rounded_value)
+
+        # Get the number of resulting significant digits.
+        current_sig_digits = _get_significant_digits(formatted_value)
+
+        if current_sig_digits > intended_digits:
+            if "." in formatted_value:
+                # Happens when rounding 9.99 to 10 with 2 significant digits,
+                # the formatted_value will be 10.0 and we need to cut one trailing zero.
+                assert current_sig_digits == intended_digits + 1
+                assert formatted_value.endswith("0")
+                formatted_value = formatted_value[:-1].rstrip(".")
+            else:
+                # happens for cases like 12300 with 3 significant digits
+                assert formatted_value == str(round(rounded_value))
+        else:
+            assert current_sig_digits == intended_digits
+
+        # Cut the 0 in front of the decimal point for values < 1.
+        # Example: 0.002 => .002
+        if _is_to_cut(formatted_value, format_target):
+            assert formatted_value.startswith("0.")
+            formatted_value = formatted_value[1:]
+
+        # Alignment
+        if format_target == "html_cell":
+            formatted_value = _format_number_align(
+                formatted_value, max_digits_after_decimal
+            )
+        return formatted_value
 
 
 def _is_to_cut(value, format_target):
@@ -594,48 +609,49 @@ def _get_decimal_digits(decimal_number_match, number_of_significant_digits):
     @return: the number of decimal digits of the given decimal number match's representation, after expanding
         the number to the required amount of significant digits
     """
-    assert (
-        decimal.getcontext().rounding == decimal.ROUND_HALF_UP
-    ), f"rounding of context is {decimal.getcontext().rounding}, expected ROUND_HALF_UP"
+    with decimal.localcontext(local_context):
+        assert (
+            decimal.getcontext().rounding == decimal.ROUND_HALF_UP
+        ), f"rounding of context is {decimal.getcontext().rounding}, expected ROUND_HALF_UP"
 
-    # check that only decimal notation is used
-    assert "e" not in decimal_number_match.group()
+        # check that only decimal notation is used
+        assert "e" not in decimal_number_match.group()
 
-    try:
-        num_of_digits = int(number_of_significant_digits)
-    except TypeError:
-        num_of_digits = DEFAULT_NUMBER_OF_SIGNIFICANT_DIGITS
+        try:
+            num_of_digits = int(number_of_significant_digits)
+        except TypeError:
+            num_of_digits = DEFAULT_NUMBER_OF_SIGNIFICANT_DIGITS
 
-    if not decimal_number_match.group(GROUP_DEC_PART):
-        return 0
+        if not decimal_number_match.group(GROUP_DEC_PART):
+            return 0
 
-    # If 1 > value > 0, only look at the decimal digits.
-    # In the second condition, we have to remove the first character from the decimal part group because the
-    # first character always is '.'
-    if (
-        int(decimal_number_match.group(GROUP_INT_PART)) == 0
-        and int(decimal_number_match.group(GROUP_DEC_PART)[1:]) != 0
-    ):
-        max_num_of_digits = len(decimal_number_match.group(GROUP_SIG_DEC_PART))
-        num_of_digits = min(num_of_digits, max_num_of_digits)
-        # number of needed decimal digits = number of zeroes after decimal point + significant digits
-        curr_dec_digits = len(decimal_number_match.group(GROUP_ZEROES)) + int(
-            num_of_digits
-        )
+        # If 1 > value > 0, only look at the decimal digits.
+        # In the second condition, we have to remove the first character from the decimal part group because the
+        # first character always is '.'
+        if (
+            int(decimal_number_match.group(GROUP_INT_PART)) == 0
+            and int(decimal_number_match.group(GROUP_DEC_PART)[1:]) != 0
+        ):
+            max_num_of_digits = len(decimal_number_match.group(GROUP_SIG_DEC_PART))
+            num_of_digits = min(num_of_digits, max_num_of_digits)
+            # number of needed decimal digits = number of zeroes after decimal point + significant digits
+            curr_dec_digits = len(decimal_number_match.group(GROUP_ZEROES)) + int(
+                num_of_digits
+            )
 
-    else:
-        max_num_of_digits = (
-            len(decimal_number_match.group(GROUP_INT_PART))
-            + len(decimal_number_match.group(GROUP_DEC_PART))
-            - 1  # for decimal point, which is guaranteed to exist at this point
-        )
-        num_of_digits = min(num_of_digits, max_num_of_digits)
-        # number of needed decimal digits = significant digits - number of digits in front of decimal point
-        curr_dec_digits = int(num_of_digits) - len(
-            decimal_number_match.group(GROUP_INT_PART)
-        )
+        else:
+            max_num_of_digits = (
+                len(decimal_number_match.group(GROUP_INT_PART))
+                + len(decimal_number_match.group(GROUP_DEC_PART))
+                - 1  # for decimal point, which is guaranteed to exist at this point
+            )
+            num_of_digits = min(num_of_digits, max_num_of_digits)
+            # number of needed decimal digits = significant digits - number of digits in front of decimal point
+            curr_dec_digits = int(num_of_digits) - len(
+                decimal_number_match.group(GROUP_INT_PART)
+            )
 
-    return curr_dec_digits
+        return curr_dec_digits
 
 
 def _get_int_digits(decimal_number_match):
