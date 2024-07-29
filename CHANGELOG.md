@@ -9,6 +9,24 @@ SPDX-License-Identifier: Apache-2.0
 
 # BenchExec Changelog
 
+## BenchExec 3.24
+
+- Duplicate tasks in benchmark definitions ignored.  
+  Inside a single `<tasks>` tag in a benchmark definition it can happen
+  that a specific task is included more than once.
+  These copies of the task would be exactly identical and thus redundant,
+  but they also create problems for benchmarking because they violate
+  the assumption that tasks have unique identifiers.
+  So now `benchexec` simply ignores such duplicates of tasks.
+  This makes it easier to write benchmark definitions with broad wildcards,
+  for example if you want to include both `foo*.yml` and `*foo.yml`
+  but some tasks match both wildcards.
+- Two new tool-info modules for KeY CLI and Pono.
+
+The HTML tables produced by `table-generator` also contain a major
+technical improvement thanks to our GSoC participant [@EshaanAgg](https://github.com/EshaanAgg),
+but no user-visible changes.
+
 ## BenchExec 3.23
 
 As announced previously, this release works only on Python 3.8 and newer!
