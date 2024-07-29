@@ -1,3 +1,9 @@
+benchexec (3.24-1) jammy; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Mon, 29 Jul 2024 09:53:54 +0200
+
 benchexec (3.23-1) jammy; urgency=medium
 
   * New upstream version.
