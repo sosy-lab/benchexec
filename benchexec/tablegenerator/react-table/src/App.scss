@@ -11,6 +11,36 @@ body {
   overflow-x: hidden;
 }
 
+// Tooltip styles
+.infoTooltip {
+  visibility: hidden;
+  width: 250px;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px;
+  position: absolute;
+  z-index: 200;
+  left: 150%;
+  top: 50%;
+  transform: translateY(-50%);
+  margin-left: 10px;
+  opacity: 0;
+  transition: opacity 0.3s;
+  background-color: #f9f9f9;
+  color: white;
+  font-size: 12px;
+  font-weight: lighter;
+}
+
+.infoTooltipContainer {
+  position: relative;
+  display: inline-block;
+}
+
+.infoTooltipIcon {
+  cursor: pointer;
+}
+
 .App {
   // text-align: center;
   font-family: "Droid Sans", "Liberation Sans", Ubuntu, "Trebuchet MS", Tahoma,
@@ -430,7 +460,18 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
   #benchmark_setup {
     width: 100%;
     overflow-x: scroll;
-    margin: 40px 0;
+
+    .fixedRowTitle {
+      text-align: left;
+      display: flex;
+      align-items: center;
+      padding-left: 8px;
+    }
+
+    .stickCheckbox {
+      position: sticky;
+      left: 0;
+    }
 
     table {
       border-collapse: collapse;
@@ -489,6 +530,7 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
       }
     }
   }
+
   #statistics {
     #statistics-placeholder {
       padding: 1em;

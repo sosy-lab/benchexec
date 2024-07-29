@@ -41,7 +41,7 @@ import deepEqual from "deep-equal";
 require("setimmediate"); // provides setImmediate and clearImmediate
 
 const menuItems = [
-  { key: "summary", title: "Summary", path: "/" },
+  { key: "summary", title: "Setup & Statistics", path: "/" },
   { key: "table", title: "Table", path: "/table" },
   { key: "quantile", title: "Quantile Plot", path: "/quantile" },
   { key: "scatter", title: "Scatter Plot", path: "/scatter" },

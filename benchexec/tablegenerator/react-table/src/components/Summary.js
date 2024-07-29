@@ -137,8 +137,8 @@ const Summary = ({
       if (tableHeaderRow) {
         colArray.push({
           accessor: tableHeaderRow.id,
-          // If the header is "Tool" and there are hidden runsets, add a hint
           Header:
+            // If the header is "Tool" and there are hidden runsets, add a hint
             hiddenRunsetIdx.length !== 0 && tableHeaderRow.name === "Tool" ? (
               <span
                 style={{
@@ -163,17 +163,7 @@ const Summary = ({
     });
 
     colArray.push({
-      Header: (
-        <SelectColumnsButton
-          handler={selectColumn}
-          style={{
-            border: "1px solid #DDD",
-            borderRadius: "5px",
-            width: "100%",
-            padding: "2px",
-          }}
-        />
-      ),
+      Header: <SelectColumnsButton handler={selectColumn} />,
       id: "columnselect",
       accessor: "columnselect",
       statisticTable: true,
@@ -248,12 +238,19 @@ const Summary = ({
       useResizeColumns,
     );
 
+  const selectColumnHeaderStyles = {
+    height: "48px",
+    borderTop: "2px solid grey",
+    borderBottom: "2px solid grey",
+  };
+
   return (
     <div id="summary">
-      <h2>Benchmark Setup</h2>
-
       <div id="benchmark_setup">
-        <form id="stickyform">
+        <form
+          id="stickyform"
+          className={`fixedRowTitle ${isTitleColSticky ? "stickCheckbox" : ""}`}
+        >
           <label title="Fix the first column" htmlFor="fixed-row-title">
             Fixed row title:
           </label>
@@ -274,7 +271,10 @@ const Summary = ({
                 <tr key={index}>
                   <th
                     className={`${isTitleColSticky && "sticky"}`}
-                    {...col.getHeaderProps()}
+                    {...col.getHeaderProps({
+                      style:
+                        col.id === "columnselect" && selectColumnHeaderStyles,
+                    })}
                   >
                     {col.render("Header")}
                   </th>

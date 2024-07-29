@@ -9,54 +9,23 @@ import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faInfoCircle } from "@fortawesome/free-solid-svg-icons";
 
-const tooltipStyles = {
-  visibility: "hidden",
-  width: "250px",
-  textAlign: "center",
-  borderRadius: "6px",
-  padding: "5px",
-  position: "absolute",
-  zIndex: 200,
-  left: "150%", // Position the tooltip to the right of the icon
-  top: "50%",
-  transform: "translateY(-50%)", // Center the tooltip vertically
-  marginLeft: "10px",
-  opacity: 0,
-  transition: "opacity 0.3s",
-  backgroundColor: "#f9f9f9",
-  color: "#000",
-  fontSize: "12px", // Smaller font size
-  fontWeight: "lighter",
-};
-
-const iconContainerStyles = {
-  position: "relative",
-  display: "inline-block",
-};
-
-const iconStyles = {
-  cursor: "pointer",
-};
-
 const IconWithTooltip = ({ message }) => {
   return (
     <div
-      style={iconContainerStyles}
+      className="infoTooltipContainer"
       onMouseEnter={(e) => {
-        const tooltip = e.currentTarget.querySelector(".tooltip");
+        const tooltip = e.currentTarget.querySelector(".infoTooltip");
         tooltip.style.visibility = "visible";
         tooltip.style.opacity = 1;
       }}
       onMouseLeave={(e) => {
-        const tooltip = e.currentTarget.querySelector(".tooltip");
+        const tooltip = e.currentTarget.querySelector(".infoTooltip");
         tooltip.style.visibility = "hidden";
         tooltip.style.opacity = 0;
       }}
     >
-      <FontAwesomeIcon icon={faInfoCircle} style={iconStyles} />
-      <span className="tooltip" style={tooltipStyles}>
-        {message}
-      </span>
+      <FontAwesomeIcon icon={faInfoCircle} className="infoTooltipIcon" />
+      <span className="infoTooltip">{message}</span>
     </div>
   );
 };

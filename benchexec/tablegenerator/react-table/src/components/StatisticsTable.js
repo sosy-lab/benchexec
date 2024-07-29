@@ -47,7 +47,6 @@ const StatisticsTable = ({ switchToQuantile, tableData, hiddenCols }) => {
               alignContent: "center",
               alignItems: "center",
               backgroundColor: "#EEEEEE",
-              fontWeight: "bold",
             }}
             onClick={(_) => switchToQuantile(column)}
           />
@@ -130,6 +129,9 @@ const StatisticsTable = ({ switchToQuantile, tableData, hiddenCols }) => {
                     index !== headerGroup.headers.length - 1
                       ? "1px solid grey"
                       : "none",
+                  borderTop: "2px solid grey",
+                  borderBottom: "2px solid grey",
+                  height: "48px",
                 },
               })}
             >
