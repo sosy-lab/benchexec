@@ -311,7 +311,17 @@ const Summary = ({
                           style={{
                             padding: col.id === "columnselect" && 0,
                             margin: 0,
-                            ...(row.original.hidden && { display: "none" }),
+                            ...(row.original.hidden && {
+                              maxWidth: "0px",
+                              margin: "0px",
+                              padding: "0px",
+                              // If the colspan of the column is equal to the colspan of the tool column
+                              // (garanteed to be the reference for colspan = 1), hide the row
+                              ...(row.original.colspan[col.id] ===
+                                row.original.colspan["tool"] && {
+                                display: "none",
+                              }),
+                            }),
                           }}
                         >
                           {col.id === "columnselect" ? (
