@@ -73,4 +73,4 @@ ignore = [
 
 [tool.pytest.ini_options]
 python_files = ["test_*.py", "test_integration/__init__.py", "test.py"]
-norecursedirs = ["docker_files"] # otherwise we execute files which are intended to be executed inside a docker container
+norecursedirs = ["contrib/p4/docker_files", "build"]
