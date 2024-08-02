@@ -186,17 +186,11 @@ class ColumnsTest(unittest.TestCase):
     def test_invalid_rounding_mode(self):
         import decimal
 
-        decimal.getcontext().rounding = decimal.ROUND_HALF_EVEN
-        with pytest.raises(AssertionError):
-            Column(
-                "CpuTime",
-                None,
-                3,
-                None,
-                ColumnMeasureType(12),
-                unit="dummy",
-                scale_factor=1e-10,
-            )
+        decimal.getcontext().rounding = decimal.ROUND_HALF_DOWN
+        formatted_value_no_align_zeros_cut = self.measure_column.format_value(
+            "5.7715", *self.default_optionals
+        )
+        self.assertEqual(formatted_value_no_align_zeros_cut, "5.772")
 
     def test_format_value_align_int(self):
         formatted_value_int_aligned = self.measure_column.format_value(
