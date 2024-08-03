@@ -18,10 +18,9 @@ from benchexec.tablegenerator import util
 
 __all__ = ["Column", "ColumnType", "ColumnMeasureType"]
 
-# Important: It's important to make sure on *all* entry points / methods which perform arithmetics that the correct
-#            rounding / context is used.
-local_context = decimal.getcontext()
-local_context.rounding = decimal.ROUND_HALF_UP
+# It's important to make sure on *all* entry points / methods which perform arithmetics that the correct
+# rounding / context is used by using a local context.
+DECIMAL_CONTEXT = decimal.Context(rounding=decimal.ROUND_HALF_UP)
 
 DEFAULT_TIME_PRECISION = 3
 DEFAULT_TOOLTIP_PRECISION = 2
@@ -130,10 +129,7 @@ class Column(object):
         relevant_for_diff=None,
         display_title=None,
     ):
-        with decimal.localcontext(local_context):
-            assert (
-                decimal.getcontext().rounding == decimal.ROUND_HALF_UP
-            ), f"rounding of context is {decimal.getcontext().rounding}, expected ROUND_HALF_UP"
+        with decimal.localcontext(DECIMAL_CONTEXT):
 
             # If scaling on the variables is performed, a display unit must be defined, explicitly
             if scale_factor is not None and scale_factor != 1 and unit is None:
@@ -193,10 +189,7 @@ class Column(object):
         @param format_target the target the value should be formatted for
         @return: a formatted String representation of the given value.
         """
-        with decimal.localcontext(local_context):
-            assert (
-                decimal.getcontext().rounding == decimal.ROUND_HALF_UP
-            ), f"rounding of context is {decimal.getcontext().rounding}, expected ROUND_HALF_UP"
+        with decimal.localcontext(DECIMAL_CONTEXT):
 
             # Only format counts and measures
             if (
@@ -313,23 +306,21 @@ class Column(object):
 
 
 def _format_number_align(formattedValue, max_number_of_dec_digits):
-    alignment = max_number_of_dec_digits
+    with decimal.localcontext(DECIMAL_CONTEXT):
+        alignment = max_number_of_dec_digits
 
-    if formattedValue.find(".") >= 0:
-        # Subtract spaces for digits after the decimal point.
-        alignment -= len(formattedValue) - formattedValue.find(".") - 1
-    elif max_number_of_dec_digits > 0:
-        # Add punctuation space.
-        formattedValue += "&#x2008;"
+        if formattedValue.find(".") >= 0:
+            # Subtract spaces for digits after the decimal point.
+            alignment -= len(formattedValue) - formattedValue.find(".") - 1
+        elif max_number_of_dec_digits > 0:
+            # Add punctuation space.
+            formattedValue += "&#x2008;"
 
-    return formattedValue + ("&#x2007;" * alignment)
+        return formattedValue + ("&#x2007;" * alignment)
 
 
 def _get_significant_digits(value):
-    with decimal.localcontext(local_context):
-        assert (
-            decimal.getcontext().rounding == decimal.ROUND_HALF_UP
-        ), f"rounding of context is {decimal.getcontext().rounding}, expected ROUND_HALF_UP"
+    with decimal.localcontext(DECIMAL_CONTEXT):
 
         if not Decimal(value).is_finite():
             return 0
@@ -378,10 +369,7 @@ def _format_number(
     with the specified number of significant digits,
     optionally aligned at the decimal point.
     """
-    with decimal.localcontext(local_context):
-        assert (
-            decimal.getcontext().rounding == decimal.ROUND_HALF_UP
-        ), f"rounding of context is {decimal.getcontext().rounding}, expected ROUND_HALF_UP"
+    with decimal.localcontext(DECIMAL_CONTEXT):
 
         assert format_target in POSSIBLE_FORMAT_TARGETS, (
             "Invalid format " + format_target
@@ -441,8 +429,9 @@ def _format_number(
 
 
 def _is_to_cut(value, format_target):
-    correct_target = format_target == "html_cell"
-    return correct_target and "." in value and 1 > Decimal(value) >= 0
+    with decimal.localcontext(DECIMAL_CONTEXT):
+        correct_target = format_target == "html_cell"
+        return correct_target and "." in value and 1 > Decimal(value) >= 0
 
 
 def _get_column_type_heur(
@@ -451,132 +440,139 @@ def _get_column_type_heur(
     ColumnType,
     Tuple[Union[ColumnType, ColumnMeasureType], str, str, Union[int, Decimal], int],
 ]:
-    if column.title == "status":
-        return ColumnType.status
+    with decimal.localcontext(DECIMAL_CONTEXT):
+        if column.title == "status":
+            return ColumnType.status
 
-    column_type = column.type or None
-    if column_type and column_type.type == ColumnType.measure:
-        column_type = ColumnMeasureType(0)
-    column_unit = column.unit  # May be None
-    column_source_unit = column.source_unit  # May be None
-    column_scale_factor = column.scale_factor  # May be None
+        column_type = column.type or None
+        if column_type and column_type.type == ColumnType.measure:
+            column_type = ColumnMeasureType(0)
+        column_unit = column.unit  # May be None
+        column_source_unit = column.source_unit  # May be None
+        column_scale_factor = column.scale_factor  # May be None
 
-    column_max_int_digits = 0
-    column_max_dec_digits = 0
-    column_has_numbers = False
-    column_has_decimal_numbers = False
+        column_max_int_digits = 0
+        column_max_dec_digits = 0
+        column_has_numbers = False
+        column_has_decimal_numbers = False
 
-    if column_unit:
-        explicit_unit_defined = True
-    else:
-        explicit_unit_defined = False
-
-    if column_scale_factor is None:
-        explicit_scale_defined = False
-    else:
-        explicit_scale_defined = True
-
-    for value in column_values:
-        if value is None or value == "":
-            continue
-
-        value_match = REGEX_MEASURE.match(str(value))
-
-        # As soon as one row's value is no number, the column type is 'text'
-        if value_match is None:
-            return ColumnType.text
+        if column_unit:
+            explicit_unit_defined = True
         else:
-            column_has_numbers = True
-            curr_column_unit = value_match.group(GROUP_UNIT)
+            explicit_unit_defined = False
 
-            # If the units in two different rows of the same column differ,
-            # 1. Raise an error if an explicit unit is defined by the displayUnit attribute
-            #    and the unit in the column cell differs from the defined sourceUnit, or
-            # 2. Handle the column as 'text' type, if no displayUnit was defined for the column's values.
-            #    In that case, a unit different from the definition of sourceUnit does not lead to an error.
-            if curr_column_unit:
-                if column_source_unit is None and not explicit_scale_defined:
-                    column_source_unit = curr_column_unit
-                elif column_source_unit != curr_column_unit:
-                    raise util.TableDefinitionError(
-                        f"Attribute sourceUnit different from real source unit: "
-                        f"{column_source_unit} and {curr_column_unit} (in column {column.title})"
-                    )
-                if column_unit and curr_column_unit != column_unit:
-                    if explicit_unit_defined:
-                        _check_unit_consistency(
-                            curr_column_unit, column_source_unit, column
+        if column_scale_factor is None:
+            explicit_scale_defined = False
+        else:
+            explicit_scale_defined = True
+
+        for value in column_values:
+            if value is None or value == "":
+                continue
+
+            value_match = REGEX_MEASURE.match(str(value))
+
+            # As soon as one row's value is no number, the column type is 'text'
+            if value_match is None:
+                return ColumnType.text
+            else:
+                column_has_numbers = True
+                curr_column_unit = value_match.group(GROUP_UNIT)
+
+                # If the units in two different rows of the same column differ,
+                # 1. Raise an error if an explicit unit is defined by the displayUnit attribute
+                #    and the unit in the column cell differs from the defined sourceUnit, or
+                # 2. Handle the column as 'text' type, if no displayUnit was defined for the column's values.
+                #    In that case, a unit different from the definition of sourceUnit does not lead to an error.
+                if curr_column_unit:
+                    if column_source_unit is None and not explicit_scale_defined:
+                        column_source_unit = curr_column_unit
+                    elif column_source_unit != curr_column_unit:
+                        raise util.TableDefinitionError(
+                            f"Attribute sourceUnit different from real source unit: "
+                            f"{column_source_unit} and {curr_column_unit} (in column {column.title})"
                         )
+                    if column_unit and curr_column_unit != column_unit:
+                        if explicit_unit_defined:
+                            _check_unit_consistency(
+                                curr_column_unit, column_source_unit, column
+                            )
+                        else:
+                            return ColumnType.text
                     else:
-                        return ColumnType.text
-                else:
-                    column_unit = curr_column_unit
+                        column_unit = curr_column_unit
 
-            if column_scale_factor is None:
-                column_scale_factor = _get_scale_factor(
-                    column_unit, column_source_unit, column
+                if column_scale_factor is None:
+                    column_scale_factor = _get_scale_factor(
+                        column_unit, column_source_unit, column
+                    )
+
+                # Compute the number of decimal digits of the current value, considering the number of significant
+                # digits for this column.
+                # Use the column's scale factor for computing the decimal digits of the current value.
+                # Otherwise, they might be different from output.
+                scaled_value = (
+                    Decimal(util.remove_unit(str(value))) * column_scale_factor
                 )
 
-            # Compute the number of decimal digits of the current value, considering the number of significant
-            # digits for this column.
-            # Use the column's scale factor for computing the decimal digits of the current value.
-            # Otherwise, they might be different from output.
-            scaled_value = Decimal(util.remove_unit(str(value))) * column_scale_factor
+                # Due to the scaling operation above, floats in the exponent notation may be created. Since this creates
+                # special cases, immediately convert the value back to decimal notation.
+                if value_match.group(GROUP_DEC_PART):
+                    # -1 since GROUP_DEC_PART includes the decimal point
+                    dec_digits_before_scale = len(value_match.group(GROUP_DEC_PART)) - 1
+                else:
+                    dec_digits_before_scale = 0
+                max_number_of_dec_digits_after_scale = max(
+                    0, dec_digits_before_scale - ceil(log10(column_scale_factor))
+                )
 
-            # Due to the scaling operation above, floats in the exponent notation may be created. Since this creates
-            # special cases, immediately convert the value back to decimal notation.
-            if value_match.group(GROUP_DEC_PART):
-                # -1 since GROUP_DEC_PART includes the decimal point
-                dec_digits_before_scale = len(value_match.group(GROUP_DEC_PART)) - 1
-            else:
-                dec_digits_before_scale = 0
-            max_number_of_dec_digits_after_scale = max(
-                0, dec_digits_before_scale - ceil(log10(column_scale_factor))
-            )
+                scaled_value = (
+                    f"{scaled_value:.{max_number_of_dec_digits_after_scale}f}"
+                )
+                scaled_value_match = REGEX_MEASURE.match(scaled_value)
+                assert (
+                    scaled_value_match
+                ), "unexpected output format for number formatting"
 
-            scaled_value = f"{scaled_value:.{max_number_of_dec_digits_after_scale}f}"
-            scaled_value_match = REGEX_MEASURE.match(scaled_value)
-            assert scaled_value_match, "unexpected output format for number formatting"
+                curr_dec_digits = _get_decimal_digits(
+                    scaled_value_match, column.number_of_significant_digits
+                )
+                column_max_dec_digits = max(column_max_dec_digits, curr_dec_digits)
 
-            curr_dec_digits = _get_decimal_digits(
-                scaled_value_match, column.number_of_significant_digits
-            )
-            column_max_dec_digits = max(column_max_dec_digits, curr_dec_digits)
+                curr_int_digits = _get_int_digits(scaled_value_match)
+                column_max_int_digits = max(column_max_int_digits, curr_int_digits)
 
-            curr_int_digits = _get_int_digits(scaled_value_match)
-            column_max_int_digits = max(column_max_int_digits, curr_int_digits)
+                if (
+                    scaled_value_match.group(GROUP_DEC_PART) is not None
+                    or value_match.group(GROUP_DEC_PART) is not None
+                    or scaled_value_match.group(GROUP_SPECIAL_FLOATS_PART) is not None
+                ):
+                    column_has_decimal_numbers = True
 
-            if (
-                scaled_value_match.group(GROUP_DEC_PART) is not None
-                or value_match.group(GROUP_DEC_PART) is not None
-                or scaled_value_match.group(GROUP_SPECIAL_FLOATS_PART) is not None
-            ):
-                column_has_decimal_numbers = True
+        if not column_has_numbers:
+            # only empty values
+            return ColumnType.text
 
-    if not column_has_numbers:
-        # only empty values
-        return ColumnType.text
+        if (
+            column_has_decimal_numbers
+            or column_max_dec_digits
+            or int(column_scale_factor) != column_scale_factor  # non-int scaling factor
+        ):
+            column_type = ColumnMeasureType(column_max_dec_digits)
+        else:
+            column_type = ColumnType.count
 
-    if (
-        column_has_decimal_numbers
-        or column_max_dec_digits
-        or int(column_scale_factor) != column_scale_factor  # non-int scaling factor
-    ):
-        column_type = ColumnMeasureType(column_max_dec_digits)
-    else:
-        column_type = ColumnType.count
+        column_width = column_max_int_digits
+        if column_max_dec_digits:
+            column_width += column_max_dec_digits + 1
 
-    column_width = column_max_int_digits
-    if column_max_dec_digits:
-        column_width += column_max_dec_digits + 1
-
-    return (
-        column_type,
-        column_unit,
-        column_source_unit,
-        column_scale_factor,
-        column_width,
-    )
+        return (
+            column_type,
+            column_unit,
+            column_source_unit,
+            column_scale_factor,
+            column_width,
+        )
 
 
 # This function assumes that scale_factor is not defined.
@@ -609,10 +605,7 @@ def _get_decimal_digits(decimal_number_match, number_of_significant_digits):
     @return: the number of decimal digits of the given decimal number match's representation, after expanding
         the number to the required amount of significant digits
     """
-    with decimal.localcontext(local_context):
-        assert (
-            decimal.getcontext().rounding == decimal.ROUND_HALF_UP
-        ), f"rounding of context is {decimal.getcontext().rounding}, expected ROUND_HALF_UP"
+    with decimal.localcontext(DECIMAL_CONTEXT):
 
         # check that only decimal notation is used
         assert "e" not in decimal_number_match.group()
@@ -659,11 +652,12 @@ def _get_int_digits(decimal_number_match):
     Returns the amount of integer digits of the given regex match.
     @param number_of_significant_digits: the number of significant digits required
     """
-    int_part = decimal_number_match.group(GROUP_INT_PART) or ""
-    if int_part == "0":
-        # we skip leading zeros of numbers < 1
-        int_part = ""
-    return len(int_part)
+    with decimal.localcontext(DECIMAL_CONTEXT):
+        int_part = decimal_number_match.group(GROUP_INT_PART) or ""
+        if int_part == "0":
+            # we skip leading zeros of numbers < 1
+            int_part = ""
+        return len(int_part)
 
 
 def _check_unit_consistency(actual_unit, wanted_unit, column):
