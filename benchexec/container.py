@@ -863,6 +863,7 @@ def drop_capabilities(keep=[]):
         ctypes.byref(libc.CapHeader(version=libc.LINUX_CAPABILITY_VERSION_3, pid=0)),
         ctypes.byref(capdata),
     )
+    libc.prctl(libc.PR_CAP_AMBIENT, libc.PR_CAP_AMBIENT_CLEAR_ALL, 0, 0, 0)
 
 
 def cap_permitted_to_ambient():
