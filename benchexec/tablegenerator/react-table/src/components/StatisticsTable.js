@@ -46,7 +46,7 @@ const StatisticsTable = ({ switchToQuantile, tableData, hiddenCols }) => {
               margin: 0,
               alignContent: "center",
               alignItems: "center",
-              backgroundColor: "#EEEEEE",
+              backgroundColor: "#EEE",
             }}
             onClick={(_) => switchToQuantile(column)}
           />
@@ -94,7 +94,7 @@ const StatisticsTable = ({ switchToQuantile, tableData, hiddenCols }) => {
               title={
                 column.type !== "status" ? renderTooltip(cell.value) : undefined
               }
-            ></div>
+            />
           ) : (
             <div className="cell">-</div>
           );
@@ -131,7 +131,7 @@ const StatisticsTable = ({ switchToQuantile, tableData, hiddenCols }) => {
                       : "none",
                   borderTop: "2px solid grey",
                   borderBottom: "2px solid grey",
-                  height: "48px",
+                  height: "3rem",
                 },
               })}
             >
@@ -153,7 +153,7 @@ const StatisticsTable = ({ switchToQuantile, tableData, hiddenCols }) => {
 
   const renderTableData = (rows) => (
     <div {...getTableBodyProps()} className="table-body body">
-      {rows.map((row, index) => {
+      {rows.map((row) => {
         prepareRow(row);
         return (
           <div {...row.getRowProps()} className="tr">
@@ -162,7 +162,8 @@ const StatisticsTable = ({ switchToQuantile, tableData, hiddenCols }) => {
                 {...cell.getCellProps({
                   className: "td " + (cell.column.className || ""),
                   style: {
-                    backgroundColor: index % 2 === 0 ? "white" : "#EEEEEE",
+                    height: "2.3rem",
+                    borderTop: "1px solid #DDD",
                   },
                 })}
               >

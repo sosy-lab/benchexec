@@ -9,8 +9,8 @@ import React from "react";
 import { formatColumnTitle, getRunSetName } from "../utils/utils.js";
 
 export const SelectColumnsButton = ({ handler, ...other }) => (
-  <button onClick={handler} className="selectColumns" {...other}>
-    Click here to select columns
+  <button onClick={handler} {...other}>
+    Select Columns
   </button>
 );
 

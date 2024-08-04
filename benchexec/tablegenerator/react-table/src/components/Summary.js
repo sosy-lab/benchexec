@@ -238,12 +238,6 @@ const Summary = ({
       useResizeColumns,
     );
 
-  const selectColumnHeaderStyles = {
-    height: "48px",
-    borderTop: "2px solid grey",
-    borderBottom: "2px solid grey",
-  };
-
   return (
     <div id="summary">
       <div id="benchmark_setup">
@@ -264,7 +258,15 @@ const Summary = ({
           />
         </form>
 
-        <table {...getTableProps()} style={{ border: "1px solid black" }}>
+        <table
+          {...getTableProps()}
+          style={{
+            // Ensures that when the column header is sticky, the table header border
+            // is not cutoff when scrolling horizontally
+            borderCollapse: "separate",
+            borderSpacing: 0,
+          }}
+        >
           <tbody {...getTableBodyProps()}>
             {headers.map((col, index) => {
               return (
@@ -272,23 +274,23 @@ const Summary = ({
                   <th
                     className={`${isTitleColSticky && "sticky"}`}
                     {...col.getHeaderProps({
-                      style:
-                        col.id === "columnselect" && selectColumnHeaderStyles,
+                      style: {
+                        borderRight: "3px solid #DDD",
+                        ...(col.id === "columnselect" && {
+                          height: "3rem",
+                          backgroundColor: "#EEE",
+                          borderTop: "2px solid grey",
+                          borderBottom: "2px solid grey",
+                        }),
+                        ...(col.stats && {
+                          height: "2.3rem",
+                          backgroundColor: "white",
+                        }),
+                      },
                     })}
                   >
                     {col.render("Header")}
                   </th>
-
-                  {/* Resizer */}
-                  <td
-                    {...col.getResizerProps()}
-                    style={{
-                      margin: "0px",
-                      padding: "0px",
-                      cursor: "col-resize",
-                      background: "rgba(0, 0, 0, 0.1)",
-                    }}
-                  />
 
                   {!col.stats &&
                     rows.map((row, index) => {
@@ -309,6 +311,7 @@ const Summary = ({
                           rowSpan={col.id === "columnselect" ? infos.length : 1}
                           {...row.cells[index].getCellProps()}
                           style={{
+                            borderRight: "3px solid #DDD",
                             padding: col.id === "columnselect" && 0,
                             margin: 0,
                             ...(row.original.hidden && {
@@ -316,7 +319,7 @@ const Summary = ({
                               margin: "0px",
                               padding: "0px",
                               // If the colspan of the column is equal to the colspan of the tool column
-                              // (garanteed to be the reference for colspan = 1), hide the row
+                              // (gauranteed to be the reference for colspan = 1), hide the row
                               ...(row.original.colspan[col.id] ===
                                 row.original.colspan["tool"] && {
                                 display: "none",
