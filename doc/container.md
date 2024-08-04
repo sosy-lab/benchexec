@@ -49,6 +49,9 @@ The features of container mode are:
 Note that while BenchExec containers rely on the same kernel features as similar solutions,
 they are not meant as a secure solution for restricting potentially malicious applications.
 **Execution of untrusted applications in a BenchExec container is at your own risk.**
+In particular, while the code in the tool-info modules of BenchExec
+is also executed within a container,
+there are known ways how a malicious tool-info module would be able to execute code outside of the container.
 
 
 ## Container Configuration
@@ -186,7 +189,7 @@ in a container with `containerexec` than using `benchexec` or `runexec`.
 
 #### `Cannot execute ...: Unprivileged user namespaces forbidden on this system...`
 Unprivileged user namespaces are forbidden on your system
-(this is the default on some distributions like Debian, Arch Linux, and CentOS).
+(this is the default on some distributions like Debian, Arch Linux, CentOS, and Ubuntu since 24.04).
 Please check the [system requirements](INSTALL.md#kernel-requirements)
 how to enable them.
 

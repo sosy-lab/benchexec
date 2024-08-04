@@ -1,0 +1,22 @@
+#!/bin/sh
+
+# This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
+#
+# SPDX-FileCopyrightText: 2024 Dirk Beyer <https://www.sosy-lab.org>
+#
+# SPDX-License-Identifier: Apache-2.0
+
+# based on example in
+# https://ubuntu.com/blog/ubuntu-23-10-restricted-unprivileged-user-namespaces
+
+abi <abi/4.0>,
+
+include <tunables/global>
+
+profile benchexec /usr/bin/{bench,container,run}exec flags=(default_allow) {
+  userns,
+
+  # Site-specific additions and overrides. See local/README for details.
+  include if exists <local/benchexec>
+}

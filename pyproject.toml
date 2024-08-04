@@ -8,7 +8,8 @@
 [build-system]
 requires = [
     # Require versions that support our license files
-    'setuptools >= 42.0.0',
+    # but produce the same names for artifacts as we always had.
+    'setuptools == 69.2.0',
     'wheel >= 0.32.0',
 ]
 build-backend = 'setuptools.build_meta'
@@ -16,7 +17,7 @@ build-backend = 'setuptools.build_meta'
 [tool.black]
 include = 'bin|\.py$'
 exclude = 'node_modules|\.eggs'
-target-version = ['py37']
+target-version = ['py38']
 
 [tool.coverage.run]
 branch = true

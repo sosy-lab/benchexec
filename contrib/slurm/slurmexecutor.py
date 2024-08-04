@@ -12,13 +12,14 @@ import logging
 import os
 import queue
 import re
+import shlex
 import subprocess
 import sys
 import tempfile
 import threading
 import time
 
-from benchexec import BenchExecException, tooladapter, util
+from benchexec import BenchExecException, tooladapter
 from benchexec.util import ProcessExitCode
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
@@ -288,13 +289,11 @@ def run_slurm(benchmark, args, log_file):
             [
                 "sh",
                 "-c",
-                f"{' '.join(map(util.escape_string_shell, args))}; echo $? > exitcode",
+                f"{shlex.join(args)}; echo $? > exitcode",
             ]
         )
 
-        logging.debug(
-            "Command to run: %s", " ".join(map(util.escape_string_shell, srun_command))
-        )
+        logging.debug("Command to run: %s", shlex.join(srun_command))
         jobid = None
         while jobid is None:
             with open(tmp_log, "w") as tmp_log_f:
@@ -313,9 +312,7 @@ def run_slurm(benchmark, args, log_file):
                         break
 
         seff_command = ["seff", str(jobid)]
-        logging.debug(
-            "Command to run: %s", " ".join(map(util.escape_string_shell, seff_command))
-        )
+        logging.debug("Command to run: %s", shlex.join(seff_command))
 
         def get_checked_seff_result():
             seff_result = subprocess.run(
@@ -367,7 +364,7 @@ def run_slurm(benchmark, args, log_file):
         with open(log_file, "w+") as file:
             with open(tmp_log, "r") as log_source:
                 content = log_source.read()
-                file.write(f"{' '.join(map(util.escape_string_shell, args))}")
+                file.write(shlex.join(args))
                 file.write("\n\n\n" + "-" * 80 + "\n\n\n")
                 file.write(content)
                 if content == "":

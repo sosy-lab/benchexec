@@ -129,6 +129,7 @@ which are available under several other free licenses
 Maintainer: [Philipp Wendler](https://www.philippwendler.de)
 
 Contributors:
+- [Eshaan Aggarwal](https://github.com/EshaanAgg)
 - [Aditya Arora](https://github.com/alohamora)
 - [Levente Bajczi](https://github.com/leventeBajczi)
 - [Dirk Beyer](https://www.sosy-lab.org/people/beyer/)
@@ -138,32 +139,41 @@ Contributors:
 - [Andreas Donig](https://github.com/adonig)
 - [Karlheinz Friedberger](https://www.sosy-lab.org/people/friedberger)
 - [Robin Gloster](https://github.com/globin)
+- [Sam Grayson](https://github.com/charmoniumQ)
 - Peter Häring
 - [Florian Heck](https://github.com/fheck)
-- [Hugo](https://github.com/hugovk)
 - [George Karpenkov](http://metaworld.me/)
 - [Mike Kazantsev](http://fraggod.net/)
+- [Hugo van Kemenade](https://github.com/hugovk)
 - [Michael Lachner](https://github.com/lachnerm)
 - [Thomas Lemberger](https://www.sosy-lab.org/people/lemberger/)
+- [Lorenz Leutgeb](https://github.com/lorenzleutgeb)
 - [Sebastian Ott](https://github.com/ottseb)
 - Stefan Löwe
 - [Stephan Lukasczyk](https://github.com/stephanlukasczyk)
+- [Tobias Meggendorfer](https://github.com/incaseoftrouble)
 - [Alexander von Rhein](http://www.infosun.fim.uni-passau.de/se/people-rhein.php)
 - [Alexander Schremmer](https://www.xing.com/profile/Alexander_Schremmer)
 - [Dennis Simon](https://github.com/DennisSimon)
 - [Andreas Stahlbauer](http://stahlbauer.net/)
 - [Thomas Stieglmaier](https://stieglmaier.me/)
 - [Martin Yankov](https://github.com/marto97)
+- [Hojan Young](https://github.com/younghojan)
 - [Ilja Zakharov](https://github.com/IljaZakharov)
 - and [lots of more people who integrated tools into BenchExec](https://github.com/sosy-lab/benchexec/graphs/contributors)
 
 ### Users of BenchExec
 
-BenchExec was successfully used for benchmarking in all instances
-of the international competitions on [Software Verification](https://sv-comp.sosy-lab.org)
-and [Software Testing](https://test-comp.sosy-lab.org)
-with a wide variety of benchmarked tools and hundreds of thousands benchmark runs.
-It is integrated into the cluster-based logic-solving service
+Several well-known international competitions use BenchExec,
+such as [SMT-COMP](https://smt-comp.github.io/),
+[SV-COMP](https://sv-comp.sosy-lab.org) (software verification),
+the [Termination Competition](https://termination-portal.org/wiki/Termination_Competition),
+and
+[Test-Comp](https://test-comp.sosy-lab.org).
+In particular in SV-COMP
+BenchExec was used successfully for benchmarking in all instances of the competition
+and with a wide variety of benchmarked tools and millions of benchmark runs per year.
+BenchExec is also integrated into the cluster-based logic-solving service
 [StarExec](https://www.starexec.org/starexec/public/about.jsp) ([GitHub](https://github.com/StarExec/StarExec)).
 
 The developers of the following tools use BenchExec:

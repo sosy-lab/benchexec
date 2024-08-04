@@ -26,7 +26,6 @@ import sys
 from ctypes.util import find_library
 import ctypes
 from xml.etree import ElementTree
-from shlex import quote as escape_string_shell  # noqa: F401 @UnusedImport
 
 
 _BYTE_FACTOR = 1000  # byte in kilobyte
@@ -830,11 +829,14 @@ def is_child_process_of_us(pid: int) -> bool:
         return True
 
     ppid = None
-    with open(f"/proc/{pid}/status") as status_file:
-        for line in status_file:
-            if line.startswith("PPid:"):
-                ppid = int(line.split(":", maxsplit=1)[1].strip())
-                break
+    try:
+        with open(f"/proc/{pid}/status") as status_file:
+            for line in status_file:
+                if line.startswith("PPid:"):
+                    ppid = int(line.split(":", maxsplit=1)[1].strip())
+                    break
+    except FileNotFoundError:
+        pass  # Process terminated in the meantime.
 
     if ppid:
         return is_child_process_of_us(ppid)

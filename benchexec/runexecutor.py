@@ -12,6 +12,7 @@ import decimal
 import logging
 import multiprocessing
 import os
+import shlex
 import signal
 import subprocess
 import sys
@@ -241,16 +242,15 @@ def main(argv=None):
     signal.signal(signal.SIGQUIT, signal_handler_kill)
     signal.signal(signal.SIGINT, signal_handler_kill)
 
-    formatted_args = " ".join(map(util.escape_string_shell, options.args))
-    logging.info("Starting command %s", formatted_args)
+    logging.info("Starting command %s", shlex.join(options.args))
     if options.container and options.output_directory and options.result_files:
         logging.info(
             "Writing output to %s and result files to %s",
-            util.escape_string_shell(options.output),
-            util.escape_string_shell(options.output_directory),
+            shlex.quote(options.output),
+            shlex.quote(options.output_directory),
         )
     else:
-        logging.info("Writing output to %s", util.escape_string_shell(options.output))
+        logging.info("Writing output to %s", shlex.quote(options.output))
 
     # actual run execution
     try:
@@ -529,12 +529,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             sys.exit("Could not write to output file: " + str(e))
 
         if write_header:
-            output_file.write(
-                " ".join(map(util.escape_string_shell, args))
-                + "\n\n\n"
-                + "-" * 80
-                + "\n\n\n"
-            )
+            output_file.write(shlex.join(args) + "\n\n\n" + "-" * 80 + "\n\n\n")
             output_file.flush()
 
         return output_file
@@ -768,14 +763,12 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             )
 
         except BenchExecException as e:
-            logging.critical(
-                "Cannot execute '%s': %s.", util.escape_string_shell(args[0]), e
-            )
+            logging.critical("Cannot execute '%s': %s.", shlex.quote(args[0]), e)
             return {"terminationreason": "failed"}
         except OSError as e:
             logging.critical(
                 "Error while starting '%s' in '%s': %s.",
-                util.escape_string_shell(args[0]),
+                shlex.quote(args[0]),
                 workingDir or ".",
                 e,
             )

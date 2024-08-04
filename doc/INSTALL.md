@@ -13,7 +13,7 @@ SPDX-License-Identifier: Apache-2.0
 
 ### Requirements
 
-- Python 3.7 or newer
+- Python 3.8 or newer
 - Linux (cf. [Kernel Requirements](#kernel-requirements) below for details)
 - Access to cgroups (cf. [Setting up Cgroups](#setting-up-cgroups) below for details)
 - x86 or ARM machine (please [contact us](https://github.com/sosy-lab/benchexec/issues/new) for other architectures)
@@ -170,13 +170,18 @@ that are not usable on all distributions by default:
 
 - **User Namespaces**: This is available on most distros
   (the kernel option is `CONFIG_USER_NS`),
-  but Debian and Arch Linux disable this feature for regular users,
-  so the system administrator needs to enable it
-  with `sudo sysctl -w kernel.unprivileged_userns_clone=1` or a respective entry
+  but many distributions disable this feature for regular users,
+  so the system administrator needs to enable it.
+  On *Debian* or *Arch* it can be necessary to enable this feature with
+  `sudo sysctl -w kernel.unprivileged_userns_clone=1` or a respective entry
   in `/etc/sysctl.conf`.
-  On CentOS it can be necessary to enable this feature with
+  On *CentOS* it can be necessary to enable this feature with
   `sudo sysctl -w user.max_user_namespaces=10000` or a respective entry
   in `/etc/sysctl.conf` (the exact value is not important).
+  On *Ubuntu*, we recommend to use our Ubuntu package, which takes care of this.
+  Alternatively, on 24.04 or newer one can enable this feature with
+  `sysctl -w kernel.apparmor_restrict_unprivileged_userns=0` or a respective entry
+  in `/etc/sysctl.conf`.
 
 - **Unprivileged Overlay Filesystem**: This is only available since Linux 5.11
   (kernel option `CONFIG_OVERLAY_FS`),

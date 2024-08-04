@@ -14,6 +14,7 @@ import collections
 import shutil
 import pickle
 import select
+import shlex
 import signal
 import socket
 import subprocess
@@ -278,8 +279,7 @@ def main(argv=None):
         options.uid = 0
         options.gid = 0
 
-    formatted_args = " ".join(map(util.escape_string_shell, options.args))
-    logging.info("Starting command %s", formatted_args)
+    logging.info("Starting command %s", shlex.join(options.args))
 
     executor = ContainerExecutor(uid=options.uid, gid=options.gid, **container_options)
 
@@ -300,7 +300,7 @@ def main(argv=None):
     except (BenchExecException, OSError) as e:
         if options.debug:
             logging.exception(e)
-        sys.exit(f"Cannot execute {util.escape_string_shell(options.args[0])}: {e}.")
+        sys.exit(f"Cannot execute {shlex.quote(options.args[0])}: {e}.")
     return result.signal or result.value
 
 
@@ -761,6 +761,8 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                         traceback.extract_tb(e.__traceback__, limit=-1)[0].line,
                         e,
                     )
+                    if container.check_apparmor_userns_restriction(e):
+                        logging.critical(container._ERROR_MSG_USER_NS_RESTRICTION)
                     return CHILD_OSERROR
 
                 try:

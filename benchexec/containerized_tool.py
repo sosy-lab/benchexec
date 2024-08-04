@@ -37,6 +37,12 @@ class ContainerizedTool(object):
     The module and the subclass instance will be loaded in a subprocess that has been
     put into a container. This means, for example, that the code of this module cannot
     make network connections and that any changes made to files on disk have no effect.
+
+    Because we use the multiprocessing module and thus communication is done
+    via serialization with pickle, this is not a secure solution:
+    Code from the tool-info module can use pickle to execute arbitary code
+    in the main BenchExec process.
+    But the use of containers in BenchExec is for safety and robustness, not security.
     """
 
     def __init__(self, tool_module, config):
@@ -124,6 +130,8 @@ def _init_container_and_load_tool(tool_module, *args, **kwargs):
     try:
         _init_container(*args, **kwargs)
     except OSError as e:
+        if container.check_apparmor_userns_restriction(e):
+            raise BenchExecException(container._ERROR_MSG_USER_NS_RESTRICTION)
         raise BenchExecException(f"Failed to configure container: {e}")
     return _load_tool(tool_module)
 
