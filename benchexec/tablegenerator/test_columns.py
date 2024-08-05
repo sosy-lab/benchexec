@@ -7,7 +7,6 @@
 
 from decimal import Decimal
 import unittest
-import pytest
 
 from benchexec.tablegenerator.columns import (
     Column,
