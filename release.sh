@@ -74,16 +74,16 @@ mkdir "$DIST_DIR"
 export SOURCE_DATE_EPOCH="$(dpkg-parsechangelog -STimestamp)"
 
 
-# Test and build under Python 3
+# Test and build wheel in a fresh directory and environment
 TEMP3="$(mktemp -d)"
 python3 -m venv "$TEMP3"
 . "$TEMP3/bin/activate"
 git clone "file://$DIR" "$TEMP3/benchexec"
 pushd "$TEMP3/benchexec"
-pip install "pip >= 10.0" "setuptools >= 42.0.0, < 58" "wheel >= 0.32.0"
-# avoid the wheel on PyPi for nose, it does not work on Python 3.10
+# Avoid the wheel on PyPi for nose, it does not work on Python 3.10.
+# Local building from source works, but only with setuptools<58.
+pip install "setuptools < 58"
 pip install nose --no-binary :all:
-# install build if it is not installed by default (it usually is)
 pip install build
 pip install -e ".[dev]"
 python -m nose
