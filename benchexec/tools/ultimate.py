@@ -11,13 +11,13 @@ import glob
 import logging
 import os
 import re
+import shlex
 import shutil
 import subprocess
 from typing import List
 
 import benchexec.result as result
 import benchexec.tools.template
-import benchexec.util as util
 from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, LP64
 from benchexec.tools.template import ToolNotFoundException
 from benchexec.tools.template import UnsupportedFeatureException
@@ -143,7 +143,7 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
                 "Exit code:       %s\n"
                 "Error output:    %s\n"
                 "Standard output: %s",
-                " ".join(map(util.escape_string_shell, cmd)),
+                shlex.join(cmd),
                 process.returncode,
                 process.stderr,
                 stdout,
@@ -160,7 +160,7 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
             return ""
         return version_ultimate_match.group(1)
 
-    @functools.lru_cache()
+    @functools.lru_cache
     def _get_current_launcher_jar(self, executable):
         ultimate_dir = os.path.dirname(executable)
         for jar in _LAUNCHER_JARS:
@@ -169,7 +169,7 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
                 return launcher_jar
         raise FileNotFoundError(f"No suitable launcher jar found in {ultimate_dir}")
 
-    @functools.lru_cache()
+    @functools.lru_cache
     def version(self, executable):
         wrapper_version = self._version_from_tool(executable)
         if wrapper_version in _SVCOMP17_VERSIONS:
@@ -179,11 +179,11 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
         ultimate_version = self._ultimate_version(executable)
         return f"{ultimate_version}-{wrapper_version}"
 
-    @functools.lru_cache()
+    @functools.lru_cache
     def _is_svcomp17_version(self, executable):
         return self.version(executable) in _SVCOMP17_VERSIONS
 
-    @functools.lru_cache()
+    @functools.lru_cache
     def _requires_ultimate_data(self, executable):
         if self._is_svcomp17_version(executable):
             return False

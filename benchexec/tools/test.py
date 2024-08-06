@@ -8,11 +8,8 @@
 import logging
 import os
 import unittest
-import sys
 
 import benchexec.model
-
-sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
 here = os.path.dirname(__file__)
 

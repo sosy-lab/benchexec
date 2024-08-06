@@ -15,7 +15,7 @@ import {
   useFlexLayout,
 } from "react-table";
 import { useSticky } from "react-table-sticky";
-import { useHistory } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import {
   createRunSetColumns,
   StandardCell,
@@ -27,29 +27,24 @@ import {
   numericSortMethod,
   textSortMethod,
   determineColumnWidth,
-  pathOr,
-  emptyStateValue,
   isNil,
-  hasSameEntries,
-  setHashSearch,
-  getHashSearch,
+  setURLParameter,
+  getURLParameters,
   getHiddenColIds,
+  decodeFilter,
 } from "../utils/utils";
 import deepEqual from "deep-equal";
-import { statusForEmptyRows } from "../utils/filters";
-
-const numericPattern = "([+-]?[0-9]*(\\.[0-9]*)?)(:[+-]?[0-9]*(\\.[0-9]*)?)?";
-
-// Special markers we use as category for empty run results
-const RUN_ABORTED = "aborted"; // result tag was present but empty (failure)
-const RUN_EMPTY = "empty"; // result tag was not present in results XML
-const SPECIAL_CATEGORIES = { [RUN_EMPTY]: "Empty rows", [RUN_ABORTED]: "—" };
+import {
+  StatusFilter,
+  MinMaxFilterInputField,
+  FilterInputField,
+} from "./Table";
 
 const pageSizes = [50, 100, 250, 500, 1000, 2500];
 const initialPageSize = 250;
 
 const getSortingSettingsFromURL = () => {
-  const urlParams = getHashSearch();
+  const urlParams = getURLParameters();
   let settings = urlParams.sort
     ? urlParams.sort.split(";").map((sortingEntry) => {
         const sortingParams = sortingEntry.split(",");
@@ -61,49 +56,14 @@ const getSortingSettingsFromURL = () => {
   return settings;
 };
 
-/**
- * @typedef {Object} RelevantFilterParam
- * @property {string[]} categoryFilters - The category filters that are currently selected
- * @property {string[]} statusFilters - The status filters that are currently selected
- * @property {string[]} categoryFilterValues - All selectable category filter values
- * @property {string[]} statusFilterValues - All selectable status filter values
- */
-
-/**
- * Function to extract the label of relevant filters to display.
- * If, for example, all category values are set and selected status values are "true" and "pass",
- * then only these status values will be displayed to the user as the category values have no
- * impact on filtering.
- *
- * @param {RelevantFilterParam} options
- * @returns {string[]} The labels to display to the user
- */
-const createRelevantFilterLabel = ({
-  categoryFilters,
-  statusFilters,
-  categoryFilterValues,
-  statusFilterValues,
-}) => {
-  let out = [];
-
-  if (!hasSameEntries(categoryFilters, categoryFilterValues)) {
-    //if categoryFilters is a superset of categoryFilterValues, we know that all categories are selected
-    out = categoryFilters;
-  }
-  if (!hasSameEntries(statusFilters, statusFilterValues)) {
-    //if statusFilters is a superset of statusFilterValues, we know that all statuses are selected
-    out = [...out, ...statusFilters];
-  }
-
-  return out;
-};
-
 const Table = (props) => {
   const [isFixed, setIsFixed] = useState(true);
-  const [filteredColumnValues, setFilteredColumnValues] = useState({});
+  const [filteredColumnValues, setFilteredColumnValues] = useState(
+    getNewFilteredColumnValues(),
+  );
   const [columnsResizeValues, setColumnsResizeValues] = useState({});
   const [disableTaskText, setDisableTaskText] = useState(false);
-  const history = useHistory();
+  const [focusedFilter, setFocusedFilter] = useState(null);
 
   /**
    * This function automatically creates additional filters for status or category filters.
@@ -117,251 +77,124 @@ const Table = (props) => {
    * which would always result in an empty result set.
    *
    */
-  const createAdditionalFilters = ({ tool, name, column, isCategory }) => {
-    const fill = isCategory ? props.statusValues : props.categoryValues;
-    const out = [];
+  const createAdditionalFilters = useCallback(
+    ({ tool, name, column, isCategory }) => {
+      const fill = isCategory ? props.statusValues : props.categoryValues;
+      const out = [];
 
-    for (const val of fill[tool][column]) {
-      out.push({
-        id: `${tool}_${name}_${column}`,
-        value: `${val}${isCategory ? "" : " "}`,
-      });
-    }
-    return out;
-  };
-
-  const selectAllStatusFields = ({ tool, name, column }) => {
-    const out = [];
-
-    for (const val of props.statusValues[tool][column]) {
-      const value = val;
-      out.push({
-        id: `${tool}_${name}_${column}`,
-        value,
-      });
-    }
-    for (const val of props.categoryValues[tool][column]) {
-      const value = `${val} `;
-      out.push({
-        id: `${tool}_${name}_${column}`,
-        value, // categories are identified by the trailing space
-      });
-    }
-    return out;
-  };
-
-  // Updates the filters that were set by React-Table in our backend
-  const setCustomFilters = (newFilter) => {
-    if (newFilter.id === "id") {
-      newFilter.isTableTabFilter = true;
-    }
-    let filters = [
-      ...props.filters.filter((propFilter) => propFilter.id !== newFilter.id),
-      newFilter,
-    ];
-    // Filters with empty values represent filters that should be removed
-    filters = filters.filter((filter) => filter.value !== "");
-    props.addTypeToFilter(filters);
-
-    let additionalFilters = [];
-
-    if (newFilter.type === "status") {
-      const [tool, name, column] = newFilter.id.split("_");
-      const value = newFilter.value;
-
-      if (value.trim() === "all") {
-        additionalFilters = selectAllStatusFields({
-          tool,
-          name,
-          column,
-        });
-        filters = filters.filter(
-          ({ id, value }) => !(id === newFilter.id && value.trim() === "all"),
-        );
-      } else {
-        const isCategory = value[value.length - 1] === " ";
-        additionalFilters = createAdditionalFilters({
-          tool,
-          name,
-          column,
-          isCategory,
+      for (const val of fill[tool][column]) {
+        out.push({
+          id: `${tool}_${name}_${column}`,
+          value: `${val}${isCategory ? "" : " "}`,
         });
       }
-    }
-    props.addTypeToFilter(additionalFilters);
-    props.filterPlotData([...filters, ...additionalFilters], true);
-  };
+      return out;
+    },
+    [props.categoryValues, props.statusValues],
+  );
 
-  // General filter input field
-  function FilterInputField({ column: { id, filter }, currFilters }) {
-    const elementId = id + "_filter";
-    const setFilter = currFilters.find((filter) => filter.id === id);
-    const initFilterValue = setFilter ? setFilter.value : "";
-    let [typingTimer, setTypingTimer] = useState("");
-    let [value, setValue] = useState(initFilterValue);
+  const selectAllStatusFields = useCallback(
+    ({ tool, name, column }) => {
+      const out = [];
 
-    const textPlaceholder =
-      id === "id" && disableTaskText
-        ? "To edit, please clear task filter in the sidebar"
-        : "text";
+      for (const val of props.statusValues[tool][column]) {
+        const value = val;
+        out.push({
+          id: `${tool}_${name}_${column}`,
+          value,
+        });
+      }
+      for (const val of props.categoryValues[tool][column]) {
+        const value = `${val} `;
+        out.push({
+          id: `${tool}_${name}_${column}`,
+          value, // categories are identified by the trailing space
+        });
+      }
+      return out;
+    },
+    [props.categoryValues, props.statusValues],
+  );
 
-    const onChange = (event) => {
-      const newValue = event.target.value;
-      setValue(newValue);
-      clearTimeout(typingTimer);
-      setTypingTimer(
-        setTimeout(() => {
-          setCustomFilters({ id, value: newValue });
-          document.getElementById(elementId).focus();
-        }, 500),
-      );
-    };
+  // Updates the filters that were set by React-Table in our backend
+  const setCustomFilters = useCallback(
+    (newFilter) => {
+      if (newFilter.id === "id") {
+        newFilter.isTableTabFilter = true;
+      }
+      let filters = [
+        ...props.filters.filter((propFilter) => propFilter.id !== newFilter.id),
+        newFilter,
+      ];
+      // Filters with empty values represent filters that should be removed
+      filters = filters.filter((filter) => filter.value !== "");
+      props.addTypeToFilter(filters);
 
-    return (
-      <input
-        id={elementId}
-        className="filter-field"
-        placeholder={textPlaceholder}
-        defaultValue={value}
-        onChange={onChange}
-        disabled={id === "id" ? disableTaskText : false}
-        type="search"
-      />
-    );
-  }
+      let additionalFilters = [];
 
-  // Filter dropdown menu used for status columns
-  function StatusFilter({ column: { id, filter }, runSetIdx, columnIdx }) {
-    const categoryValues = props.categoryValues[runSetIdx][columnIdx];
-    const selectedCategoryFilters = pathOr(
-      [runSetIdx, "categories"],
-      [],
-      filteredColumnValues,
-    );
-    const selectedStatusValues = pathOr(
-      [runSetIdx, columnIdx],
-      [],
-      filteredColumnValues,
-    );
-    const selectedFilters = createRelevantFilterLabel({
-      categoryFilters: selectedCategoryFilters,
-      statusFilters: selectedStatusValues,
-      categoryFilterValues: categoryValues.map((item) => `${item} `),
-      statusFilterValues: props.statusValues[runSetIdx][columnIdx],
-    });
+      if (newFilter.type === "status") {
+        const { tool, name, column } = decodeFilter(newFilter.id);
+        const value = newFilter.value;
 
-    const allSelected = selectedFilters.length === 0;
-    const multipleSelected =
-      selectedFilters.length > 1 || selectedFilters[0] === emptyStateValue;
-    const singleFilterValue = selectedFilters && selectedFilters[0];
-    const selectValue =
-      (allSelected && "all ") ||
-      (multipleSelected && "multiple") ||
-      singleFilterValue;
-
-    return (
-      <select
-        className="filter-field"
-        onChange={(event) =>
-          setCustomFilters({ id, value: event.target.value })
+        if (value.trim() === "all") {
+          additionalFilters = selectAllStatusFields({
+            tool,
+            name,
+            column,
+          });
+          filters = filters.filter(
+            ({ id, value }) => !(id === newFilter.id && value.trim() === "all"),
+          );
+        } else {
+          const isCategory = value[value.length - 1] === " ";
+          additionalFilters = createAdditionalFilters({
+            tool,
+            name,
+            column,
+            isCategory,
+          });
         }
-        value={selectValue}
-      >
-        {multipleSelected && (
-          <option value="multiple" disabled>
-            {selectedFilters
-              .map((x) => x.trim())
-              .filter((x) => x !== "all" && x !== emptyStateValue)
-              .join(", ") || "No filters selected"}
-          </option>
-        )}
-        <option value="all ">Show all</option>
-        {categoryValues
-          .filter((category) => category in SPECIAL_CATEGORIES)
-          .map((category) => (
-            // category filters are marked with space at end
-            <option value={category + " "} key={category}>
-              {SPECIAL_CATEGORIES[category]}
-            </option>
-          ))}
-        <optgroup label="Category">
-          {categoryValues
-            .filter((category) => !(category in SPECIAL_CATEGORIES))
-            .sort()
-            .map((category) => (
-              // category filters are marked with space at end
-              <option
-                value={category + " "}
-                key={category}
-                className={category}
-              >
-                {category}
-              </option>
-            ))}
-        </optgroup>
-        <optgroup label="Status">
-          {props.statusValues[runSetIdx][columnIdx]
-            .filter((status) => status !== statusForEmptyRows)
-            .sort()
-            .map((status) => (
-              <option value={status} key={status}>
-                {status}
-              </option>
-            ))}
-        </optgroup>
-      </select>
-    );
-  }
-
-  // Filter input field used for columns with numerical values
-  function MinMaxFilterInputField({ column: { id, filter }, currFilters }) {
-    const elementId = id + "_filter";
-    const setFilter = currFilters.find((filter) => filter.id === id);
-    const initFilterValue = setFilter ? setFilter.value : "";
-    let [typingTimer, setTypingTimer] = useState("");
-    let [value, setValue] = useState(initFilterValue);
-
-    const onChange = (event) => {
-      const newValue = event.target.value;
-      setValue(newValue);
-      clearTimeout(typingTimer);
-      setTypingTimer(
-        setTimeout(() => {
-          setCustomFilters({ id, value: newValue });
-          document.getElementById(elementId).focus();
-        }, 500),
-      );
-    };
-
-    return (
-      <input
-        id={elementId}
-        className="filter-field"
-        placeholder="Min:Max"
-        defaultValue={value}
-        onChange={onChange}
-        type="search"
-        pattern={numericPattern}
-      />
-    );
-  }
+      }
+      props.addTypeToFilter(additionalFilters);
+      props.filterPlotData([...filters, ...additionalFilters], true);
+    },
+    [props, createAdditionalFilters, selectAllStatusFields],
+  );
 
   const textFilterInputField = useCallback(
-    (filterProps) => (
-      <FilterInputField
-        disableTaskText={disableTaskText}
-        {...filterProps}
-        currFilters={props.filters}
-      />
-    ),
-    [disableTaskText, props.filters],
+    (filterProps) => {
+      const id = filterProps.column.id;
+      const setFilter = props.filters.find((filter) => filter.id === id);
+
+      return (
+        <FilterInputField
+          id={id}
+          setFilter={setFilter}
+          disableTaskText={disableTaskText}
+          setCustomFilters={setCustomFilters}
+          focusedFilter={focusedFilter}
+          setFocusedFilter={setFocusedFilter}
+        />
+      );
+    },
+    [disableTaskText, props.filters, setCustomFilters, focusedFilter],
   );
 
   const minMaxFilterInputField = useCallback(
-    (filterProps) => (
-      <MinMaxFilterInputField {...filterProps} currFilters={props.filters} />
-    ),
-    [props.filters],
+    (filterProps) => {
+      const id = filterProps.column.id;
+      const setFilter = props.filters.find((filter) => filter.id === id);
+      return (
+        <MinMaxFilterInputField
+          id={id}
+          setFilter={setFilter}
+          setCustomFilters={setCustomFilters}
+          focusedFilter={focusedFilter}
+          setFocusedFilter={setFocusedFilter}
+        />
+      );
+    },
+    [props.filters, setCustomFilters, focusedFilter],
   );
 
   const columns = useMemo(() => {
@@ -401,7 +234,7 @@ const Table = (props) => {
             />
           );
         },
-        sortType: (rowA, rowB, columnID, desc) =>
+        sortType: (rowA, rowB, columnID, _desc) =>
           textSortMethod(rowA.values[columnID], rowB.values[columnID]),
         // Don't let React-Table filter anything, we do it ourselves
         filter: (rows) => rows,
@@ -410,6 +243,10 @@ const Table = (props) => {
             {...filter}
             runSetIdx={runSetIdx}
             columnIdx={columnIdx}
+            allCategoryValues={props.categoryValues}
+            allStatusValues={props.statusValues}
+            filteredColumnValues={filteredColumnValues}
+            setCustomFilters={setCustomFilters}
           />
         ),
       };
@@ -443,7 +280,7 @@ const Table = (props) => {
         // Don't let React-Table actually filter anything, we do it ourselves
         filter: (rows) => rows,
         Filter: filterType,
-        sortType: (rowA, rowB, columnID, desc) =>
+        sortType: (rowA, rowB, columnID, _desc) =>
           isNumericColumn(column)
             ? numericSortMethod(rowA.values[columnID], rowB.values[columnID])
             : textSortMethod(rowA.values[columnID], rowB.values[columnID]),
@@ -504,7 +341,7 @@ const Table = (props) => {
             );
           },
           Filter: textFilterInputField,
-          sortType: (rowA, rowB, columnID, desc) => {
+          sortType: (rowA, rowB, columnID, _desc) => {
             const aValue = Array.isArray(rowA.values[columnID])
               ? rowA.values[columnID].join()
               : rowA.values[columnID];
@@ -530,6 +367,8 @@ const Table = (props) => {
     props,
     textFilterInputField,
     minMaxFilterInputField,
+    filteredColumnValues,
+    setCustomFilters,
   ]);
 
   const data = useMemo(() => props.tableData, [props.tableData]);
@@ -564,9 +403,9 @@ const Table = (props) => {
       defaultColumn,
       initialState: {
         sortBy: getSortingSettingsFromURL(),
-        pageIndex: parseInt(getHashSearch().page) - 1 || 0,
+        pageIndex: parseInt(getURLParameters().page) - 1 || 0,
         hiddenColumns: getHiddenColIds(columns),
-        pageSize: parseInt(getHashSearch().pageSize) || initialPageSize,
+        pageSize: parseInt(getURLParameters().pageSize) || initialPageSize,
       },
     },
     useFilters,
@@ -586,29 +425,20 @@ const Table = (props) => {
       )
       .join(";");
     const value = sort.length ? sort : undefined;
-    const prevParams = getHashSearch();
-    if (prevParams["sort"] !== value) {
-      setHashSearch({ sort: value }, { keepOthers: true });
-    }
+    setURLParameter({ sort: value });
   }, [sortBy]);
 
   // Update the URL page size param when the table page size setting changed
   useEffect(() => {
     const value = pageSize !== initialPageSize ? pageSize : undefined;
-    const prevParams = getHashSearch();
-    if (prevParams["pageSize"] !== value) {
-      setHashSearch({ pageSize: value }, { keepOthers: true });
-    }
+    setURLParameter({ pageSize: value });
   }, [pageSize]);
 
   // Update the URL page param when the table page changed
   useEffect(() => {
     const value =
       pageIndex && pageIndex !== 0 ? Number(pageIndex) + 1 : undefined;
-    const prevParams = getHashSearch();
-    if (prevParams["page"] !== value) {
-      setHashSearch({ page: value }, { keepOthers: true });
-    }
+    setURLParameter({ page: value });
   }, [pageIndex]);
 
   // Store the column resizing values so they can be applied again in case the table rerenders
@@ -619,15 +449,12 @@ const Table = (props) => {
     }
   }, [columnResizing, columnsResizeValues]);
 
-  // get selected status and category values
-  useEffect(() => {
+  // Convert the props.filters array into Filtered Column Values object
+  function getNewFilteredColumnValues() {
     const newFilteredColumnValues = {};
     for (const filter of props.filters) {
-      const { value, values, id } = filter;
-      if (id === "id") {
-        setDisableTaskText(!isNil(values));
-      }
-      const [runset, , column] = id.split("_");
+      const { value, id } = filter;
+      const { tool: runset, column } = decodeFilter(id);
       const currentRunsetFilters = newFilteredColumnValues[runset] || {};
 
       const isCategory =
@@ -645,6 +472,17 @@ const Table = (props) => {
 
       newFilteredColumnValues[runset] = currentRunsetFilters;
     }
+    return newFilteredColumnValues;
+  }
+
+  // get selected status and category values
+  useEffect(() => {
+    // To disable task text if any task filter is applied
+    setDisableTaskText(
+      props.filters.some(({ id, values }) => id === "id" && !isNil(values)),
+    );
+
+    let newFilteredColumnValues = getNewFilteredColumnValues();
     if (!deepEqual(newFilteredColumnValues, filteredColumnValues)) {
       setFilteredColumnValues(newFilteredColumnValues);
     }
@@ -652,16 +490,27 @@ const Table = (props) => {
     if (pageIndex >= pageCount) {
       gotoPage(pageCount - 1);
     }
+
+    // react-hooks/exhaustive-deps shows that getNewFilteredColumnValues to be included in the dependency array.
+    // But useEffect functionality is not dependent on getNewFilteredColumnValues as it never changes.
+    // So react-hooks/exhaustive-deps can be ignored here.
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.filters, filteredColumnValues, gotoPage, pageIndex, pageCount]);
 
   // Update table relevant parameters after URL change
-  useEffect(() => {
-    return history.listen((location) => {
-      setPageSize(getHashSearch().pageSize || initialPageSize);
+  const location = useLocation();
+  useEffect(
+    (_location) => {
+      setPageSize(getURLParameters().pageSize || initialPageSize);
       setSortBy(getSortingSettingsFromURL());
-      gotoPage(getHashSearch().page - 1 || 0);
-    });
-  }, [history, gotoPage, setPageSize, setSortBy]);
+      gotoPage(getURLParameters().page - 1 || 0);
+    },
+    // We have also added window.location.href to the dependency array to ensure that
+    // the table is updated when the URL changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [location, setPageSize, setSortBy, gotoPage, window.location.href],
+  );
 
   const renderHeaderGroup = (headerGroup) => (
     <div className="tr headergroup" {...headerGroup.getHeaderGroupProps()}>

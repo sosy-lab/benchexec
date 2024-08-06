@@ -15,6 +15,7 @@ import fcntl
 import logging
 import os
 import resource  # noqa: F401 @UnusedImport necessary to eagerly import this module
+import shlex
 import signal
 import socket
 import struct
@@ -44,6 +45,7 @@ __all__ = [
     "CONTAINER_GID",
     "CONTAINER_HOME",
     "CONTAINER_HOSTNAME",
+    "check_apparmor_userns_restriction",
 ]
 
 
@@ -114,6 +116,28 @@ NATIVE_CLONE_CALLBACK_SUPPORTED = (
     os.uname().sysname == "Linux" and os.uname().machine == "x86_64"
 )
 """Whether we use generated native code for clone or an unsafe Python fallback"""
+
+_ERROR_MSG_USER_NS_RESTRICTION = (
+    "Unprivileged user namespaces forbidden on this system, please "
+    "enable them with 'sysctl -w kernel.apparmor_restrict_unprivileged_userns=0'. "
+    "Ubuntu disables them by default since 24.04, refer to "
+    "https://ubuntu.com/blog/ubuntu-23-10-restricted-unprivileged-user-namespaces "
+    "for more information."
+)
+
+
+def check_apparmor_userns_restriction(error: OSError):
+    """Check whether the passed OSError was likely caused by Ubuntu's AppArmor-based
+    restriction of user namespaces."""
+    return (
+        error.errno
+        in [
+            errno.EPERM,
+            errno.EACCES,
+        ]
+        and util.try_read_file("/proc/sys/kernel/apparmor_restrict_unprivileged_userns")
+        == "1"
+    )
 
 
 @contextlib.contextmanager
@@ -470,7 +494,7 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
             if os.access(parent, os.X_OK):
                 # Not a permission problem, missing_dir really does not exist.
                 logging.debug(
-                    "Ignoring hiden mount '%s' because '%s' does not exist.",
+                    "Ignoring hidden mount '%s' because '%s' does not exist.",
                     mountpoint.decode(),
                     missing_dir.decode(),
                 )
@@ -520,7 +544,7 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
                     e.errno,
                     f"Creating overlay mount for '{mp}' failed: {os.strerror(e.errno)}. "
                     f"Please use other directory modes, "
-                    f"for example '--read-only-dir {util.escape_string_shell(mp)}'.",
+                    f"for example '--read-only-dir {shlex.quote(mp)}'.",
                 )
 
         elif mode == DIR_HIDDEN:
@@ -582,7 +606,7 @@ def determine_directory_mode(dir_modes, path, fstype=None):
     From a high-level mapping of desired directory modes, determine the actual mode
     for a given directory.
     """
-    if fstype == b"proc":
+    if path == b"/proc" and fstype == b"proc":
         # proc is necessary for the grandchild to read PID, will be replaced later.
         return DIR_READ_ONLY
     if util.path_is_below(path, b"/proc"):
@@ -836,11 +860,7 @@ def setup_seccomp_filter():
         logging.info("Could not enable seccomp filter for container isolation: %s", e)
 
 
-try:
-    _ALL_SIGNALS = signal.valid_signals()  # pytype: disable=module-attr
-except AttributeError:
-    # Only exists on Python 3.8+
-    _ALL_SIGNALS = range(1, signal.NSIG)
+_ALL_SIGNALS = signal.valid_signals()
 
 
 def block_all_signals():

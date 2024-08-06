@@ -8,6 +8,7 @@ SPDX-License-Identifier: Apache-2.0
 -->
 
 # BenchExec
+
 ## A Framework for Reliable Benchmarking and Resource Measurement
 
 [![Build Status](https://gitlab.com/sosy-lab/software/benchexec/badges/main/pipeline.svg)](https://gitlab.com/sosy-lab/software/benchexec/pipelines)
@@ -15,8 +16,12 @@ SPDX-License-Identifier: Apache-2.0
 [![PyPI version](https://img.shields.io/pypi/v/BenchExec.svg)](https://pypi.python.org/pypi/BenchExec)
 [![DOI](https://zenodo.org/badge/30758422.svg)](https://zenodo.org/badge/latestdoi/30758422)
 
-
 **News and Updates**:
+- Two projects accepted for BenchExec as part of [Google Summer of Code](https://summerofcode.withgoogle.com/)!
+  We are happy that [Haoran Yang](https://summerofcode.withgoogle.com/programs/2024/projects/UzhlnEel)
+  and [Eshaan Aggarwal](https://summerofcode.withgoogle.com/programs/2024/projects/l7WEa0Gz)
+  will work to improve BenchExec (click on their names for more information about their projects)
+  and are thankful to them and to Google for providing the opportunity.
 - BenchExec 3.18 brings support for systems with cgroups v2!
 - Linux kernel 5.11 finally [makes it possible](https://github.com/sosy-lab/benchexec/blob/main/doc/INSTALL.md#kernel-requirements) to use all BenchExec features on distributions other than Ubuntu!
 - We now provide an [Ubuntu PPA](https://launchpad.net/~sosy-lab/+archive/ubuntu/benchmarking) that makes installing and upgrading BenchExec easier ([docs](https://github.com/sosy-lab/benchexec/blob/main/doc/INSTALL.md#debianubuntu)).
@@ -24,15 +29,36 @@ SPDX-License-Identifier: Apache-2.0
   you can read [Reliable Benchmarking: Requirements and Solutions](https://doi.org/10.1007/s10009-017-0469-y) online.
   We also provide a set of [overview slides](https://www.sosy-lab.org/research/prs/Latest_ReliableBenchmarking.pdf).
 
-BenchExec provides three major features:
+> To help new or inexperienced users get started with reliable benchmarking
+> right away, we offer a [quickstart guide](doc/quickstart.md) that contains
+> a brief explanation of the issues of common setups as well as the (few)
+> steps necessary to setup and use BenchExec instead.
+
+BenchExec is a framework for reliable benchmarking and resource measurement
+and provides a standalone solution for benchmarking
+that takes care of important low-level details for accurate, precise, and reproducible measurements
+as well as result handling and analysis for large sets of benchmark runs.
+However, even users of other benchmarking frameworks or scripts
+can benefit from BenchExec
+by letting it perform the resource measurements and limits
+instead of less reliable tools and techniques like `time` or `ulimit`,
+and results produced by BenchExec can easily be exported for use with other tools.
+
+In particular, BenchExec provides three major features:
 
 - execution of arbitrary commands with precise and reliable measurement
   and limitation of resource usage (e.g., CPU time and memory),
-  and isolation against other running processes
+  and isolation against other running processes  
+  (provided by [`runexec`](https://github.com/sosy-lab/benchexec/blob/main/doc/runexec.md),
+  a replacement for `time` and similar tools)
 - an easy way to define benchmarks with specific tool configurations
   and resource limits,
-  and automatically executing them on large sets of input files
-- generation of interactive tables and plots for the results
+  and automatically executing them on large sets of input files  
+  (provided by [`benchexec`](https://github.com/sosy-lab/benchexec/blob/main/doc/benchexec.md)
+  on top of `runexec`)
+- generation of interactive tables and plots for the results  
+  (provided by [`table-generator`](https://github.com/sosy-lab/benchexec/blob/main/doc/table-generator.md)
+  for results produced with `benchexec`)
 
 
 Unlike other benchmarking frameworks,
@@ -46,13 +72,19 @@ Linux [user namespaces](http://man7.org/linux/man-pages/man7/namespaces.7.html)
 and an [overlay filesystem](https://www.kernel.org/doc/Documentation/filesystems/overlayfs.txt)
 to create a [container](https://github.com/sosy-lab/benchexec/blob/main/doc/container.md)
 that restricts interference of the executed tool with the benchmarking host.
+More information on why this is necessary and the problems with other tools
+can be found in our paper
+[Reliable Benchmarking: Requirements and Solutions](https://doi.org/10.1007/s10009-017-0469-y) (open access)
+and our [slides](https://www.sosy-lab.org/research/prs/Latest_ReliableBenchmarking.pdf)
+(starting with slide "Checklist").
+
 BenchExec is intended for benchmarking non-interactive tools on Linux systems.
 It measures CPU time, wall time, and memory usage of a tool,
 and allows to specify limits for these resources.
 It also allows to limit the CPU cores and (on NUMA systems) memory regions,
 and the container mode allows to restrict filesystem and network access.
 In addition to measuring resource usage,
-BenchExec can verify that the result of the tool was as expected,
+BenchExec can optionally verify that the result of the tool was as expected
 and extract further statistical data from the output.
 Results from multiple runs can be combined into CSV and interactive HTML tables,
 of which the latter provide scatter and quantile plots
@@ -97,7 +129,9 @@ which are available under several other free licenses
 Maintainer: [Philipp Wendler](https://www.philippwendler.de)
 
 Contributors:
+- [Eshaan Aggarwal](https://github.com/EshaanAgg)
 - [Aditya Arora](https://github.com/alohamora)
+- [Levente Bajczi](https://github.com/leventeBajczi)
 - [Dirk Beyer](https://www.sosy-lab.org/people/beyer/)
 - [Laura Bschor](https://github.com/laurabschor)
 - [Thomas Bunk](https://github.com/TBunk)
@@ -105,32 +139,41 @@ Contributors:
 - [Andreas Donig](https://github.com/adonig)
 - [Karlheinz Friedberger](https://www.sosy-lab.org/people/friedberger)
 - [Robin Gloster](https://github.com/globin)
+- [Sam Grayson](https://github.com/charmoniumQ)
 - Peter Häring
 - [Florian Heck](https://github.com/fheck)
-- [Hugo](https://github.com/hugovk)
 - [George Karpenkov](http://metaworld.me/)
 - [Mike Kazantsev](http://fraggod.net/)
+- [Hugo van Kemenade](https://github.com/hugovk)
 - [Michael Lachner](https://github.com/lachnerm)
 - [Thomas Lemberger](https://www.sosy-lab.org/people/lemberger/)
+- [Lorenz Leutgeb](https://github.com/lorenzleutgeb)
 - [Sebastian Ott](https://github.com/ottseb)
 - Stefan Löwe
 - [Stephan Lukasczyk](https://github.com/stephanlukasczyk)
+- [Tobias Meggendorfer](https://github.com/incaseoftrouble)
 - [Alexander von Rhein](http://www.infosun.fim.uni-passau.de/se/people-rhein.php)
 - [Alexander Schremmer](https://www.xing.com/profile/Alexander_Schremmer)
 - [Dennis Simon](https://github.com/DennisSimon)
 - [Andreas Stahlbauer](http://stahlbauer.net/)
 - [Thomas Stieglmaier](https://stieglmaier.me/)
 - [Martin Yankov](https://github.com/marto97)
+- [Hojan Young](https://github.com/younghojan)
 - [Ilja Zakharov](https://github.com/IljaZakharov)
 - and [lots of more people who integrated tools into BenchExec](https://github.com/sosy-lab/benchexec/graphs/contributors)
 
 ### Users of BenchExec
 
-BenchExec was successfully used for benchmarking in all instances
-of the international competitions on [Software Verification](https://sv-comp.sosy-lab.org)
-and [Software Testing](https://test-comp.sosy-lab.org)
-with a wide variety of benchmarked tools and hundreds of thousands benchmark runs.
-It is integrated into the cluster-based logic-solving service
+Several well-known international competitions use BenchExec,
+such as [SMT-COMP](https://smt-comp.github.io/),
+[SV-COMP](https://sv-comp.sosy-lab.org) (software verification),
+the [Termination Competition](https://termination-portal.org/wiki/Termination_Competition),
+and
+[Test-Comp](https://test-comp.sosy-lab.org).
+In particular in SV-COMP
+BenchExec was used successfully for benchmarking in all instances of the competition
+and with a wide variety of benchmarked tools and millions of benchmark runs per year.
+BenchExec is also integrated into the cluster-based logic-solving service
 [StarExec](https://www.starexec.org/starexec/public/about.jsp) ([GitHub](https://github.com/StarExec/StarExec)).
 
 The developers of the following tools use BenchExec:

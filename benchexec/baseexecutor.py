@@ -35,7 +35,7 @@ def add_basic_executor_options(argument_parser):
     verbosity.add_argument("--quiet", action="store_true", help="show only warnings")
 
 
-def handle_basic_executor_options(options, parser):
+def handle_basic_executor_options(options):
     """Handle the options specified by add_basic_executor_options()."""
     # setup logging
     logLevel = logging.INFO

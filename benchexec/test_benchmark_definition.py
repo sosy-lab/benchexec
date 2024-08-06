@@ -69,10 +69,6 @@ class TestBenchmarkDefinition(unittest.TestCase):
     testing mostly the classes from benchexec.model.
     """
 
-    @classmethod
-    def setUpClass(cls):
-        cls.longMessage = True
-
     @patch("benchexec.model.load_task_definition_file", new=mock_load_task_def_file)
     @patch("benchexec.result.Property.create", new=mock_property_create)
     @patch("benchexec.util.expand_filename_pattern", new=mock_expand_filename_pattern)

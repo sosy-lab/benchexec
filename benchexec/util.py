@@ -26,7 +26,6 @@ import sys
 from ctypes.util import find_library
 import ctypes
 from xml.etree import ElementTree
-from shlex import quote as escape_string_shell  # noqa: F401 @UnusedImport
 
 
 _BYTE_FACTOR = 1000  # byte in kilobyte
@@ -728,7 +727,7 @@ def should_color_output():
     return sys.stdout.isatty() and "NO_COLOR" not in os.environ
 
 
-def setup_logging(fmt="%(asctime)s - %(levelname)s - %(message)s", level="INFO"):
+def setup_logging(fmt="%(asctime)s - %(levelname)s - %(message)s", level=logging.INFO):
     """Setup the logging framework with a basic configuration"""
     if should_color_output():
         try:
@@ -819,3 +818,27 @@ def check_msr():
         if all(os.access(f"/dev/cpu/{cpu}/msr", os.W_OK) for cpu in cpu_dirs):
             res["write"] = True
     return res
+
+
+def is_child_process_of_us(pid: int) -> bool:
+    """
+    Return if the given PID is a (transitive) child process of the current process.
+    Also returns true if the given PID is ours.
+    """
+    if pid == os.getpid():
+        return True
+
+    ppid = None
+    try:
+        with open(f"/proc/{pid}/status") as status_file:
+            for line in status_file:
+                if line.startswith("PPid:"):
+                    ppid = int(line.split(":", maxsplit=1)[1].strip())
+                    break
+    except FileNotFoundError:
+        pass  # Process terminated in the meantime.
+
+    if ppid:
+        return is_child_process_of_us(ppid)
+    else:
+        return False

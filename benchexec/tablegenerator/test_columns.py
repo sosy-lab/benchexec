@@ -182,6 +182,15 @@ class ColumnsTest(unittest.TestCase):
         formatted_value_aligned = small_value_column.format_value("2", "html_cell")
         self.assertEqual(formatted_value_aligned, ".0000000002&#x2007;&#x2007;")
 
+    def test_invalid_rounding_mode(self):
+        import decimal
+
+        decimal.getcontext().rounding = decimal.ROUND_HALF_DOWN
+        formatted_value_no_align_zeros_cut = self.measure_column.format_value(
+            "5.7715", *self.default_optionals
+        )
+        self.assertEqual(formatted_value_no_align_zeros_cut, "5.772")
+
     def test_format_value_align_int(self):
         formatted_value_int_aligned = self.measure_column.format_value(
             "20", "html_cell"

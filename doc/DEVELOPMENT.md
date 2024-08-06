@@ -51,9 +51,22 @@ Please format all code using `black .`.
 Apart from what is formatted automatically,
 we try to follow the official Python style guide [PEP8](https://www.python.org/dev/peps/pep-0008/).
 
-We also check our code using the static-analysis tool [flake8](http://flake8.pycqa.org).
+
+## Tests and CI
+
+To run the test suite of BenchExec, use the following command:
+
+    python3 -m pytest
+
+We also check our code using the static-analysis tools
+[flake8](http://flake8.pycqa.org) and [ruff](https://github.com/astral-sh/ruff/).
 If you find a rule that should not be enforced in your opinion,
 please raise an issue.
+
+As main CI we use GitLab, which runs all tests and checks,
+but only on branches from our repository (not on PRs from forks).
+GitHub Actions and AppVeyor also run a subset of checks
+(mostly for the JavaScript part of BenchExec) on all PRs.
 
 
 ## Releasing a new Version

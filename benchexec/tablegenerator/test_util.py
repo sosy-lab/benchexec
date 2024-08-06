@@ -6,19 +6,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from decimal import Decimal
-import sys
 import unittest
 
 from benchexec.tablegenerator import util
 
-sys.dont_write_bytecode = True  # prevent creation of .pyc files
-
 
 class TestUnit(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.longMessage = True
-        cls.maxDiff = None
 
     def assertEqualNumberAndUnit(self, value, number, unit):
         self.assertEqual(util.split_number_and_unit(value), (number, unit))

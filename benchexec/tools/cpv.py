@@ -29,7 +29,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         return "CPV"
 
     def project_url(self):
-        return "https://doi.org/10.5281/zenodo.10063681"
+        return "https://gitlab.com/sosy-lab/software/cpv"
 
     def version(self, executable):
         return self._version_from_tool(executable)

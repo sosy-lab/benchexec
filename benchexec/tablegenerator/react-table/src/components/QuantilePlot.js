@@ -21,11 +21,11 @@ import {
 import {
   getRunSetName,
   EXTENDED_DISCRETE_COLOR_RANGE,
-  setParam,
-  getHashSearch,
+  setURLParameter,
+  getURLParameters,
   getFirstVisibles,
 } from "../utils/utils";
-import { renderSetting } from "../utils/plot";
+import { renderResetButton, renderSetting } from "../utils/plot";
 
 export default class QuantilePlot extends React.Component {
   constructor(props) {
@@ -61,7 +61,7 @@ export default class QuantilePlot extends React.Component {
   }
 
   setPlotData() {
-    const queryProps = getHashSearch();
+    const queryProps = getURLParameters();
 
     let { selection, plot, scaling, results } = {
       ...this.defaultValues,
@@ -110,7 +110,7 @@ export default class QuantilePlot extends React.Component {
      they differ, then the initial selection was a hidden column/runset and therefore another column/runset was selected
      to be shown. In this case, update the URL parameter to correctly define the selection that is actually being shown now. */
     if (initialSelection && selection && initialSelection !== selection) {
-      setParam({ selection });
+      setURLParameter({ selection });
     }
 
     return {
@@ -519,7 +519,9 @@ export default class QuantilePlot extends React.Component {
                   className="setting-select"
                   name="setting-Selection"
                   value={this.state.selection}
-                  onChange={(ev) => setParam({ selection: ev.target.value })}
+                  onChange={(ev) =>
+                    setURLParameter({ selection: ev.target.value })
+                  }
                 >
                   <optgroup label="Runsets">
                     {this.props.tools.map((tool, i) => {
@@ -544,7 +546,7 @@ export default class QuantilePlot extends React.Component {
               {renderSetting(
                 "Plot",
                 this.state.plot,
-                (ev) => setParam({ plot: ev.target.value }),
+                (ev) => setURLParameter({ plot: ev.target.value }),
                 this.plotOptions,
               )}
             </div>
@@ -552,16 +554,24 @@ export default class QuantilePlot extends React.Component {
               {renderSetting(
                 "Scaling",
                 this.state.scaling,
-                (ev) => setParam({ scaling: ev.target.value }),
+                (ev) => setURLParameter({ scaling: ev.target.value }),
                 this.scalingOptions,
               )}
               {renderSetting(
                 "Results",
                 this.state.results,
-                (ev) => setParam({ results: ev.target.value }),
+                (ev) => setURLParameter({ results: ev.target.value }),
                 this.resultsOptions,
                 resultsTooltip,
                 this.state.isResultSelectionDisabled,
+              )}
+              {renderResetButton(() =>
+                setURLParameter({
+                  selection: null,
+                  plot: null,
+                  scaling: null,
+                  results: null,
+                }),
               )}
             </div>
           </div>

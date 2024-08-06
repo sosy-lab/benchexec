@@ -6,14 +6,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import itertools
-import logging
-import sys
 import unittest
 import math
 
 from benchexec.resources import get_cpu_distribution
-
-sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
 
 def lrange(start, end):
@@ -21,10 +17,6 @@ def lrange(start, end):
 
 
 class TestCpuCoresPerRun(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.longMessage = True
-        logging.disable(logging.CRITICAL)
 
     def assertValid(self, coreLimit, num_of_threads, expectedResult=None):
         cores = self.cpus * self.cores

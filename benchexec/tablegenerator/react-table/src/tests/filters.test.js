@@ -56,12 +56,13 @@ const numericRows = [
   },
 ];
 
-// Example data for tests on status and category filtering
+// Example data for tests on id, status and category filtering
 const generalRows = [
   {
+    id: ["task_definition.yml", "unreach-label"],
     results: [
       {
-        category: "correct",
+        category: "wrong",
         values: [
           {
             raw: "true",
@@ -71,6 +72,7 @@ const generalRows = [
     ],
   },
   {
+    id: ["test/programs/simple/switch-unreach-labelss.c", "unreach-label"],
     results: [
       {
         category: "correct",
@@ -83,6 +85,20 @@ const generalRows = [
     ],
   },
   {
+    id: ["ſſ-label.c", "unreach-label"],
+    results: [
+      {
+        category: "correct",
+        values: [
+          {
+            raw: "false(reach)",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: ["doc/examples/example.c"],
     results: [
       {
         category: "missing",
@@ -95,12 +111,8 @@ const generalRows = [
     ],
   },
   {
-    results: [
-      {
-        category: "empty",
-        values: [{}],
-      },
-    ],
+    id: ["test/koko.c", "unreach-label"],
+    results: [{ category: "empty", values: [{}] }],
   },
 ];
 
@@ -180,7 +192,7 @@ test("applyMatcher for category", () => {
 test("applyMatcher for status", () => {
   const filters = [
     { id: "0_test_0", value: "true", type: "status" },
-    { id: "0_test_0", value: "correct ", type: "status" },
+    { id: "0_test_0", value: "wrong ", type: "status" },
   ];
   expect(getFilteredDataWithMatcher(filters).length).toBe(1);
 });
@@ -199,4 +211,29 @@ test("applyMatcher for empty row", () => {
     { id: "0_test_0", value: statusForEmptyRows, type: "status" },
   ];
   expect(getFilteredDataWithMatcher(filters).length).toBe(1);
+});
+
+test("applyMatcher for textual id filter", () => {
+  const filters = [{ id: "id", value: "DefInItion.YmL" }];
+  expect(getFilteredDataWithMatcher(filters).length).toBe(1);
+});
+
+test("applyMatcher for textual id filter with case mapping", () => {
+  const filters = [{ id: "id", value: "ſs" }];
+  expect(getFilteredDataWithMatcher(filters).length).toBe(2);
+});
+
+test("applyMatcher for textual id filter with special RegExp character", () => {
+  const filters = [{ id: "id", value: "..." }];
+  expect(getFilteredDataWithMatcher(filters).length).toBe(0);
+});
+
+test("applyMatcher for no results", () => {
+  const filters = [{ id: "id", value: "nomatch" }];
+  expect(getFilteredDataWithMatcher(filters).length).toBe(0);
+});
+
+test("applyMatcher for all results", () => {
+  const filters = [];
+  expect(getFilteredDataWithMatcher(filters).length).toBe(5);
 });

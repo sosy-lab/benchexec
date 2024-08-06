@@ -50,7 +50,7 @@ stages:
   script:
     - sudo -u $PRIMARY_USER
         COVERAGE_PROCESS_START=.coveragerc
-        coverage run -m nose
+        coverage run -m pytest
   after_script:
     - sudo -u $PRIMARY_USER coverage combine
     - sudo -u $PRIMARY_USER coverage report
@@ -60,11 +60,6 @@ stages:
   artifacts:
     paths:
       - coverage.xml
-
-unit-tests:python-3.7:
-  <<: *unit-tests
-  variables:
-    PYTHON_VERSION: '3.7'
 
 unit-tests:python-3.8:
   <<: *unit-tests
@@ -189,7 +184,7 @@ javascript-eslint:
 reuse:
   stage: test
   image:
-    name: fsfe/reuse:1
+    name: fsfe/reuse:3
     entrypoint: [""]
   script:
     - reuse lint
@@ -209,12 +204,6 @@ reuse:
   only:
     - schedules
     - web
-
-build-docker:test:python-3.7:
-  extends: .build-docker
-  variables:
-    DOCKERFILE: test/Dockerfile.python-3.7
-    IMAGE: test:python-3.7
 
 build-docker:test:python-3.8:
   extends: .build-docker

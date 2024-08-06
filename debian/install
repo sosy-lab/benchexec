@@ -1,1 +1,2 @@
 debian/additional_files/lib/* lib/
+debian/additional_files/usr/* usr/

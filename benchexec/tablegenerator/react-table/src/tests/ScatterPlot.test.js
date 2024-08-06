@@ -9,7 +9,7 @@ import React from "react";
 import ScatterPlot from "../components/ScatterPlot.js";
 import Overview from "../components/Overview";
 import renderer from "react-test-renderer";
-import { setParam } from "../utils/utils";
+import { constructHashURL } from "../utils/utils";
 const fs = require("fs");
 
 const content = fs.readFileSync(
@@ -170,6 +170,7 @@ function getSelections(xSelection, ySelection) {
 }
 
 function setUrlParams(params) {
-  setParam(params);
+  const { newUrl } = constructHashURL(window.location.href, params);
+  window.history.pushState({}, "Quantile Plot Test", newUrl);
   plotInstance.refreshUrlState();
 }

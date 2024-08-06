@@ -9,18 +9,26 @@
 # SeaHorn Verification Framework
 # DM-0002198
 
-import benchexec.util as util
+import logging
+import os
 import benchexec.tools.template
 import benchexec.result as result
 
-import os
 
-
-class Tool(benchexec.tools.template.BaseTool):
+class Tool(benchexec.tools.template.BaseTool2):
     REQUIRED_PATHS = ["bin", "include", "lib", "share"]
 
-    def executable(self):
-        return util.find_executable("sea_svcomp", os.path.join("bin", "sea_svcomp"))
+    def executable(self, tool_locator):
+        self.use_svcomp_wrapper = False
+        try:
+            # try to find the SV-COMP wrapper script
+            ret = tool_locator.find_executable("sea_svcomp", subdir="bin")
+            self.use_svcomp_wrapper = True
+            logging.debug("Using SeaHorn's SV-COMP wrapper")
+            return ret
+        except benchexec.tools.template.ToolNotFoundException:
+            # find the default wrapper script
+            return tool_locator.find_executable("sea", subdir="bin")
 
     def program_files(self, executable):
         return self._program_files_from_executable(
@@ -28,34 +36,41 @@ class Tool(benchexec.tools.template.BaseTool):
         )
 
     def name(self):
-        return "SeaHorn-F16"
+        return "SeaHorn"
 
-    def cmdline(self, executable, options, tasks, propertyfile, rlimits):
-        assert len(tasks) == 1
-        assert propertyfile is not None
-        spec = ["--spec=" + propertyfile]
-        return [executable] + options + spec + tasks
+    def project_url(self):
+        return "https://github.com/seahorn/seahorn"
+
+    def cmdline(self, executable, options, task, rlimits):
+        if self.use_svcomp_wrapper and task.property_file:
+            options += [f"--spec={task.property_file}"]
+        return [executable] + options + [task.single_input_file]
 
     def version(self, executable):
-        return self._version_from_tool(executable)
+        seahorn_exe = os.path.join(os.path.dirname(executable), "seahorn")
+        return self._version_from_tool(seahorn_exe, line_prefix="  SeaHorn version")
 
-    def determine_result(self, returncode, returnsignal, output, isTimeout):
-        output = "\n".join(output)
-        if "BRUNCH_STAT Result TRUE" in output:
-            status = result.RESULT_TRUE_PROP
-        elif "BRUNCH_STAT Result FALSE" in output:
-            if "BRUNCH_STAT Termination" in output:
-                status = result.RESULT_FALSE_TERMINATION
+    def determine_result(self, run):
+        if self.use_svcomp_wrapper:
+            if run.output.any_line_contains("BRUNCH_STAT Result TRUE"):
+                return result.RESULT_TRUE_PROP
+            elif run.output.any_line_contains("BRUNCH_STAT Result FALSE"):
+                if run.output.any_line_contains("BRUNCH_STAT Termination"):
+                    return result.RESULT_FALSE_TERMINATION
+                else:
+                    return result.RESULT_FALSE_REACH
+            elif run.exit_code.signal == 9 or run.exit_code.signal == (128 + 9):
+                if run.was_timeout:
+                    return result.RESULT_TIMEOUT
+                else:
+                    return "KILLED BY SIGNAL 9"
+            elif run.exit_code.value != 0:
+                return f"ERROR ({run.exit_code.value})"
             else:
-                status = result.RESULT_FALSE_REACH
-        elif returnsignal == 9 or returnsignal == (128 + 9):
-            if isTimeout:
-                status = result.RESULT_TIMEOUT
-            else:
-                status = "KILLED BY SIGNAL 9"
-        elif returncode != 0:
-            status = f"ERROR ({returncode})"
+                return "FAILURE"
         else:
-            status = "FAILURE"
-
-        return status
+            if run.output[-1].startswith("sat"):
+                return result.RESULT_FALSE_PROP
+            if run.output[-1].startswith("unsat"):
+                return result.RESULT_TRUE_PROP
+            return result.RESULT_ERROR
