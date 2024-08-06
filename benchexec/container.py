@@ -494,7 +494,7 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
             if os.access(parent, os.X_OK):
                 # Not a permission problem, missing_dir really does not exist.
                 logging.debug(
-                    "Ignoring hiden mount '%s' because '%s' does not exist.",
+                    "Ignoring hidden mount '%s' because '%s' does not exist.",
                     mountpoint.decode(),
                     missing_dir.decode(),
                 )
