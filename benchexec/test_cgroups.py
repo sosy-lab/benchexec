@@ -5,23 +5,13 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import logging
 import subprocess
-import sys
 import unittest
 
 from benchexec import check_cgroups
 
-sys.dont_write_bytecode = True  # prevent creation of .pyc files
-
 
 class TestCheckCgroups(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.longMessage = True
-        cls.maxDiff = None
-        logging.disable(logging.CRITICAL)
-
     def execute_run_extern(self, *args, **kwargs):
         try:
             return subprocess.check_output(

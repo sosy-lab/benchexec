@@ -9,7 +9,7 @@ Build-Depends: debhelper-compat (= 12),
                python3-setuptools,
                python3-lxml,
                python3-yaml (>= 3.12),
-               python3-nose
+               python3-pytest
 Standards-Version: 3.9.6.1
 X-Python3-Version: >= 3.8
 Homepage: https://github.com/sosy-lab/benchexec

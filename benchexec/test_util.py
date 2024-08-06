@@ -6,7 +6,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from decimal import Decimal
-import sys
 import unittest
 from benchexec.util import ProcessExitCode
 import tempfile
@@ -15,14 +14,8 @@ import stat
 
 from benchexec import util
 
-sys.dont_write_bytecode = True  # prevent creation of .pyc files
-
 
 class TestParse(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.longMessage = True
-        cls.maxDiff = None
 
     def assertEqualNumberAndUnit(self, value, number, unit):
         self.assertEqual(util.split_number_and_unit(value), (number, unit))
@@ -103,10 +96,6 @@ class TestParse(unittest.TestCase):
 
 
 class TestProcessExitCode(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.longMessage = True
-        cls.maxDiff = None
 
     def ProcessExitCode_with_value(self, value):
         return ProcessExitCode(raw=value << 8, value=value, signal=None)
@@ -137,11 +126,6 @@ class TestProcessExitCode(unittest.TestCase):
 
 
 class TestRmtree(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.longMessage = True
-        cls.maxDiff = None
-
     def setUp(self):
         self.base_dir = tempfile.mkdtemp(prefix="BenchExec_test_util_rmtree")
 

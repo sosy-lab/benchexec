@@ -10,7 +10,6 @@ import logging
 import os
 import re
 import subprocess
-import sys
 import tempfile
 import threading
 import time
@@ -25,8 +24,6 @@ from benchexec.cgroups import Cgroups
 from benchexec import runexecutor
 from benchexec import util
 
-sys.dont_write_bytecode = True  # prevent creation of .pyc files
-
 here = os.path.dirname(__file__)
 base_dir = os.path.join(here, "..")
 bin_dir = os.path.join(base_dir, "bin")
@@ -38,9 +35,6 @@ trivial_run_grace_time = 0.2
 class TestRunExecutor(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.longMessage = True
-        cls.maxDiff = None
-        logging.disable(logging.NOTSET)  # need to make sure to get all messages
         if not hasattr(cls, "assertRegex"):
             cls.assertRegex = cls.assertRegexpMatches
 

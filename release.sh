@@ -80,13 +80,9 @@ python3 -m venv "$TEMP3"
 . "$TEMP3/bin/activate"
 git clone "file://$DIR" "$TEMP3/benchexec"
 pushd "$TEMP3/benchexec"
-# Avoid the wheel on PyPi for nose, it does not work on Python 3.10.
-# Local building from source works, but only with setuptools<58.
-pip install "setuptools < 58"
-pip install nose --no-binary :all:
 pip install build
 pip install -e ".[dev]"
-python -m nose
+python -m pytest
 python -m build
 popd
 deactivate
