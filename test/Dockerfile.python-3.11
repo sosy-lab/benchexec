@@ -29,4 +29,5 @@ RUN pip install \
   "coverage[toml] >= 5.0" \
   lxml \
   pystemd \
+  pytest \
   pyyaml
