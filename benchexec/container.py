@@ -20,6 +20,7 @@ import signal
 import socket
 import struct
 import sys
+import subprocess
 
 from benchexec import libc
 from benchexec import seccomp
@@ -34,6 +35,7 @@ __all__ = [
     "get_mount_points",
     "remount_with_additional_flags",
     "make_overlay_mount",
+    "make_fuse_overlay_mount",
     "mount_proc",
     "make_bind_mount",
     "get_my_pid_from_procfs",
@@ -531,29 +533,45 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
             work_path = work_base + b"/" + str(overlay_count).encode()
             os.makedirs(temp_path, exist_ok=True)
             os.makedirs(work_path, exist_ok=True)
-            try:
-                # Previous mount in this place not needed if replaced with overlay dir.
-                libc.umount(mount_path)
-            except OSError as e:
-                logging.debug(e)
+            if os.path.ismount(mount_path):
+                try:
+                    # Previous mount in this place not needed if replaced with overlay dir.
+                    libc.umount(mount_path)
+                except OSError as e:
+                    logging.debug(e)
             try:
                 make_overlay_mount(mount_path, mountpoint, temp_path, work_path)
             except OSError as e:
+                # Resort to fuse-overlayfs if kernel overlayfs is not available.
                 mp = mountpoint.decode()
-                raise OSError(
-                    e.errno,
-                    f"Creating overlay mount for '{mp}' failed: {os.strerror(e.errno)}. "
-                    f"Please use other directory modes, "
-                    f"for example '--read-only-dir {shlex.quote(mp)}'.",
-                )
+                fuse = util.find_executable2("fuse-overlayfs")
+                if fuse:
+                    logging.debug(
+                        "Cannot use kernel overlay for %s: %s. "
+                        "Trying to use fuse-overlayfs instead.",
+                        mp,
+                        e,
+                    )
+                    cap_permitted_to_ambient()
+                    make_fuse_overlay_mount(
+                        fuse, mount_path, mountpoint, temp_path, work_path
+                    )
+                else:
+                    raise OSError(
+                        e.errno,
+                        f"Creating overlay mount for '{mp}' failed: {os.strerror(e.errno)}. "
+                        f"Please use other directory modes, "
+                        f"for example '--read-only-dir {shlex.quote(mp)}'.",
+                    )
 
         elif mode == DIR_HIDDEN:
             os.makedirs(temp_path, exist_ok=True)
-            try:
-                # Previous mount in this place not needed if replaced with hidden dir.
-                libc.umount(mount_path)
-            except OSError as e:
-                logging.debug(e)
+            if os.path.ismount(mount_path):
+                try:
+                    # Previous mount in this place not needed if replaced with hidden dir.
+                    libc.umount(mount_path)
+                except OSError as e:
+                    logging.debug(e)
             make_bind_mount(temp_path, mount_path)
 
         elif mode == DIR_READ_ONLY:
@@ -746,6 +764,41 @@ def make_overlay_mount(mount, lower, upper, work):
     )
 
 
+def make_fuse_overlay_mount(exe, mount, lower, upper, work):
+    logging.debug(
+        "Creating overlay mount with fuse-overlayfs: target=%s, lower=%s, upper=%s, work=%s",
+        mount,
+        lower,
+        upper,
+        work,
+    )
+
+    def escape(s):
+        return s.replace(b"\\", rb"\\").replace(b":", rb"\:").replace(b",", rb"\,")
+
+    cmd = (
+        exe,
+        b"-o",
+        b"lowerdir="
+        + escape(lower)
+        + b",upperdir="
+        + escape(upper)
+        + b",workdir="
+        + escape(work),
+        escape(mount),
+    )
+
+    try:
+        result = subprocess.run(
+            args=cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+        )
+        if result.stdout:
+            logging.debug("fuse-overlayfs: %s", result.stdout.decode())
+    except subprocess.CalledProcessError as e:
+        logging.error("Error executing command: %s\n, %s", e, e.stderr.decode())
+        sys.exit(1)
+
+
 def mount_proc(container_system_config):
     """Mount the /proc filesystem.
     @param container_system_config: Whether to mount container-specific files in /proc
@@ -834,6 +887,32 @@ def drop_capabilities(keep=[]):
         ctypes.byref(libc.CapHeader(version=libc.LINUX_CAPABILITY_VERSION_3, pid=0)),
         ctypes.byref(capdata),
     )
+    libc.prctl(libc.PR_CAP_AMBIENT, libc.PR_CAP_AMBIENT_CLEAR_ALL, 0, 0, 0)
+
+
+def cap_permitted_to_ambient():
+    """
+    Python version of util-linux/lib/caputils.c: cap_permitted_to_ambient()
+    """
+
+    header = libc.CapHeader(libc.LINUX_CAPABILITY_VERSION_3, 0)
+    data = (libc.CapData * libc.LINUX_CAPABILITY_U32S_3)()
+
+    libc.capget(header, data)
+
+    data[0].inheritable = data[0].permitted
+    data[1].inheritable = data[1].permitted
+
+    libc.capset(header, data)
+
+    effective = (data[1].effective << 32) | data[0].effective
+    cap_last_cap = int(util.try_read_file("/proc/sys/kernel/cap_last_cap"))
+    for cap in range(cap_last_cap + 1):
+        if cap > cap_last_cap:
+            continue
+
+        if effective & (1 << cap):
+            libc.prctl(libc.PR_CAP_AMBIENT, libc.PR_CAP_AMBIENT_RAISE, cap, 0, 0)
 
 
 _FORBIDDEN_SYSCALLS = [
