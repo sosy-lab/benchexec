@@ -457,13 +457,13 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         cgroups = self._cgroups.create_fresh_child_cgroup(
             self._cgroups.subsystems.keys()
         )
-        pid = None
+        tool_pid = None
         returnvalue = 0
 
         logging.debug("Starting process.")
 
         try:
-            pid, result_fn = self._start_execution(
+            tool_pid, result_fn = self._start_execution(
                 args=args,
                 stdin=None,
                 stdout=None,
@@ -481,7 +481,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             )
 
             with self.SUB_PROCESS_PIDS_LOCK:
-                self.SUB_PROCESS_PIDS.add(pid)
+                self.SUB_PROCESS_PIDS.add(tool_pid)
 
             # wait until process has terminated
             returnvalue, unused_ru_child, unused = result_fn()
@@ -491,7 +491,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             logging.debug("Process terminated, exit code %s.", returnvalue)
 
             with self.SUB_PROCESS_PIDS_LOCK:
-                self.SUB_PROCESS_PIDS.discard(pid)
+                self.SUB_PROCESS_PIDS.discard(tool_pid)
 
             if temp_dir is not None:
                 logging.debug("Cleaning up temporary directory.")

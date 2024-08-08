@@ -882,7 +882,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 error_filename, args, write_header=write_header
             )
 
-        pid = None
+        tool_pid = None
         returnvalue = 0
         ru_child = None
         self._termination_reason = None
@@ -894,7 +894,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         logging.debug("Starting process.")
 
         try:
-            pid, result_fn = self._start_execution(
+            tool_pid, result_fn = self._start_execution(
                 args=args,
                 stdin=stdin,
                 stdout=outputFile,
@@ -912,14 +912,16 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             )
 
             with self.SUB_PROCESS_PIDS_LOCK:
-                self.SUB_PROCESS_PIDS.add(pid)
+                self.SUB_PROCESS_PIDS.add(tool_pid)
 
             timelimitThread = self._setup_cgroup_time_limit(
-                hardtimelimit, softtimelimit, walltimelimit, cgroups, cores, pid
+                hardtimelimit, softtimelimit, walltimelimit, cgroups, cores, tool_pid
             )
-            oomThread = self._setup_cgroup_memory_limit_thread(memlimit, cgroups, pid)
+            oomThread = self._setup_cgroup_memory_limit_thread(
+                memlimit, cgroups, tool_pid
+            )
             file_hierarchy_limit_thread = self._setup_file_hierarchy_limit(
-                files_count_limit, files_size_limit, temp_dir, cgroups, pid
+                files_count_limit, files_size_limit, temp_dir, cgroups, tool_pid
             )
 
             # wait until process has terminated
@@ -932,7 +934,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             logging.debug("Process terminated, exit code %s.", returnvalue)
 
             with self.SUB_PROCESS_PIDS_LOCK:
-                self.SUB_PROCESS_PIDS.discard(pid)
+                self.SUB_PROCESS_PIDS.discard(tool_pid)
 
             if timelimitThread:
                 timelimitThread.cancel()
