@@ -831,7 +831,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             walltime_before = time.monotonic()
             return starttime, walltime_before
 
-        def postParent(preParent_result, exit_code, base_path):
+        def postParent(preParent_result, exit_code, base_path, tool_cgroups):
             """Cleanup that is executed in the parent process immediately after the actual tool terminated."""
             # finish measurements
             starttime, walltime_before = preParent_result
@@ -846,8 +846,8 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             # process existed, and killing via cgroups prevents this.
             # But if we do not have freezer, it is safer to just let all processes run
             # until the container is killed.
-            if cgroups.FREEZE in cgroups:
-                cgroups.kill_all_tasks()
+            if tool_cgroups.FREEZE in tool_cgroups:
+                tool_cgroups.kill_all_tasks()
 
             # For a similar reason, we cancel all limits. Otherwise a run could have
             # terminationreason=walltime because copying output files took a long time.
@@ -883,6 +883,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             )
 
         tool_pid = None
+        tool_cgroups = None
         returnvalue = 0
         ru_child = None
         self._termination_reason = None
@@ -894,7 +895,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         logging.debug("Starting process.")
 
         try:
-            tool_pid, result_fn = self._start_execution(
+            tool_pid, tool_cgroups, result_fn = self._start_execution(
                 args=args,
                 stdin=stdin,
                 stdout=outputFile,
@@ -910,18 +911,24 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 parent_cleanup_fn=postParent,
                 **kwargs,
             )
+            assert cgroups == tool_cgroups  # temporarily
 
             with self.SUB_PROCESS_PIDS_LOCK:
                 self.SUB_PROCESS_PIDS.add(tool_pid)
 
             timelimitThread = self._setup_cgroup_time_limit(
-                hardtimelimit, softtimelimit, walltimelimit, cgroups, cores, tool_pid
+                hardtimelimit,
+                softtimelimit,
+                walltimelimit,
+                tool_cgroups,
+                cores,
+                tool_pid,
             )
             oomThread = self._setup_cgroup_memory_limit_thread(
-                memlimit, cgroups, tool_pid
+                memlimit, tool_cgroups, tool_pid
             )
             file_hierarchy_limit_thread = self._setup_file_hierarchy_limit(
-                files_count_limit, files_size_limit, temp_dir, cgroups, tool_pid
+                files_count_limit, files_size_limit, temp_dir, tool_cgroups, tool_pid
             )
 
             # wait until process has terminated
@@ -947,7 +954,8 @@ class RunExecutor(containerexecutor.ContainerExecutor):
 
             # Make sure to kill all processes if there are still some
             # (needs to come early to avoid accumulating more CPU time)
-            cgroups.kill_all_tasks()
+            if tool_cgroups:
+                tool_cgroups.kill_all_tasks()
 
             # normally subprocess closes file, we do this again after all tasks terminated
             outputFile.close()
@@ -955,8 +963,10 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 errorFile.close()
 
             # measurements are not relevant in case of failure, but need to come before cgroup cleanup
-            self._get_cgroup_measurements(cgroups, ru_child, result)
+            if tool_cgroups:
+                self._get_cgroup_measurements(tool_cgroups, ru_child, result)
             logging.debug("Cleaning up cgroups.")
+            cgroups.kill_all_tasks()  # currently necessary for removing child cgroups
             cgroups.remove()
 
             self._cleanup_temp_dir(temp_dir)

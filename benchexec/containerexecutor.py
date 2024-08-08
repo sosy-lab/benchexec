@@ -458,12 +458,13 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             self._cgroups.subsystems.keys()
         )
         tool_pid = None
+        tool_cgroups = None
         returnvalue = 0
 
         logging.debug("Starting process.")
 
         try:
-            tool_pid, result_fn = self._start_execution(
+            tool_pid, tool_cgroups, result_fn = self._start_execution(
                 args=args,
                 stdin=None,
                 stdout=None,
@@ -974,10 +975,12 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             # of the cgroup ns, such that the limit settings are not accessible in the
             # container and cannot be changed.
             if use_cgroup_ns:
-                cgroups = cgroups.create_fresh_child_cgroup_for_delegation()
+                grandchild_cgroups = cgroups.create_fresh_child_cgroup_for_delegation()
+            else:
+                grandchild_cgroups = cgroups
 
             # start measurements
-            cgroups.add_task(grandchild_pid)
+            grandchild_cgroups.add_task(grandchild_pid)
             parent_setup = parent_setup_fn()
 
             # Signal grandchild that setup is finished
@@ -1015,7 +1018,10 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
 
             base_path = f"/proc/{child_pid}/root"
             parent_cleanup = parent_cleanup_fn(
-                parent_setup, util.ProcessExitCode.from_raw(exitcode), base_path
+                parent_setup,
+                util.ProcessExitCode.from_raw(exitcode),
+                base_path,
+                cgroups,
             )
 
             if result_files_patterns:
@@ -1032,7 +1038,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
 
             return exitcode, ru_child, parent_cleanup
 
-        return grandchild_pid, wait_for_grandchild
+        return grandchild_pid, cgroups, wait_for_grandchild
 
     def _setup_container_filesystem(self, temp_dir, output_dir, memlimit, memory_nodes):
         """Setup the filesystem layout in the container.
