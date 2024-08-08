@@ -1019,7 +1019,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 parent_setup,
                 util.ProcessExitCode.from_raw(exitcode),
                 base_path,
-                cgroups,
+                grandchild_cgroups,
             )
 
             if result_files_patterns:
@@ -1036,7 +1036,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
 
             return exitcode, ru_child, parent_cleanup
 
-        return grandchild_pid, cgroups, wait_for_grandchild
+        return grandchild_pid, grandchild_cgroups, wait_for_grandchild
 
     def _setup_container_filesystem(self, temp_dir, output_dir, memlimit, memory_nodes):
         """Setup the filesystem layout in the container.

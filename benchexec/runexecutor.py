@@ -911,7 +911,6 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 parent_cleanup_fn=postParent,
                 **kwargs,
             )
-            assert cgroups == tool_cgroups  # temporarily
 
             with self.SUB_PROCESS_PIDS_LOCK:
                 self.SUB_PROCESS_PIDS.add(tool_pid)
