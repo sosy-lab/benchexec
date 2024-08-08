@@ -388,8 +388,8 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         # container, but we do not want a warning per run.
         if not is_accessible(container.LXCFS_PROC_DIR):
             logging.info(
-                "LXCFS is not available,"
-                " some host information like the uptime leaks into the container."
+                "LXCFS is not available, some host information like the uptime"
+                " and the total number of CPU cores leaks into the container."
             )
 
         if not NATIVE_CLONE_CALLBACK_SUPPORTED:
@@ -970,11 +970,20 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 child_pid,
             )
 
-            # cgroups is the cgroups where we configure limits.
-            # So for isolation, we need to create a child cgroup that becomes the root
-            # of the cgroup ns, such that the limit settings are not accessible in the
-            # container and cannot be changed.
-            # We also do this for cgroups v1 for consistency.
+            # cgroups is the cgroup where we configure limits.
+            # We add another layer of cgroups below it, for two reasons:
+            # - We want to move our child process (the init process of the container)
+            #   into a cgroups where the limits apply because LXCFS reports the limits
+            #   of the init process of the container.
+            # - On cgroupsv2 we want to move the grandchild process (the started tool)
+            #   into a cgroup that becomes the root of the cgroup ns,
+            #   such that no other cgroup (in particular the one with the limits)
+            #   is accessible in the container and the limits cannot be changed
+            #   from within the container.
+            child_cgroup = cgroups.create_fresh_child_cgroup(
+                cgroups.subsystems.keys(), prefix="init_"
+            )
+            child_cgroup.add_task(child_pid)
             grandchild_cgroups = cgroups.create_fresh_child_cgroup_for_delegation()
 
             # start measurements
