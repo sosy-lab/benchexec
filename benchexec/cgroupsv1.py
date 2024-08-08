@@ -357,7 +357,7 @@ class CgroupsV1(Cgroups):
         else:
             sys.exit(_ERROR_MSG_OTHER)  # e.g., subsystem not mounted
 
-    def create_fresh_child_cgroup(self, subsystems):
+    def create_fresh_child_cgroup(self, subsystems, prefix=CGROUP_NAME_PREFIX):
         """
         Create child cgroups of the current cgroup for at least the given subsystems.
         @return: A Cgroup instance representing the new child cgroup(s).
@@ -374,7 +374,7 @@ class CgroupsV1(Cgroups):
                 ]
                 continue
 
-            cgroup = tempfile.mkdtemp(prefix=CGROUP_NAME_PREFIX, dir=parentCgroup)
+            cgroup = tempfile.mkdtemp(prefix=prefix, dir=parentCgroup)
             createdCgroupsPerSubsystem[subsystem] = cgroup
             createdCgroupsPerParent[parentCgroup] = cgroup
 
@@ -394,6 +394,18 @@ class CgroupsV1(Cgroups):
                 pass
 
         return CgroupsV1(createdCgroupsPerSubsystem)
+
+    def create_fresh_child_cgroup_for_delegation(self, prefix="delegate_"):
+        """
+        Create a child cgroup with all controllers.
+        On cgroupsv1 there is no difference to a regular child cgroup.
+        """
+        child_cgroup = self.create_fresh_child_cgroup(self.subsystems.keys(), prefix)
+        assert (
+            self.subsystems.keys() == child_cgroup.subsystems.keys()
+        ), "delegation failed for at least one controller"
+
+        return child_cgroup
 
     def add_task(self, pid):
         """

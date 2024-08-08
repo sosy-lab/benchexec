@@ -974,10 +974,8 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             # So for isolation, we need to create a child cgroup that becomes the root
             # of the cgroup ns, such that the limit settings are not accessible in the
             # container and cannot be changed.
-            if use_cgroup_ns:
-                grandchild_cgroups = cgroups.create_fresh_child_cgroup_for_delegation()
-            else:
-                grandchild_cgroups = cgroups
+            # We also do this for cgroups v1 for consistency.
+            grandchild_cgroups = cgroups.create_fresh_child_cgroup_for_delegation()
 
             # start measurements
             grandchild_cgroups.add_task(grandchild_pid)
