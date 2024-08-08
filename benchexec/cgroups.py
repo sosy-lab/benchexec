@@ -171,6 +171,10 @@ class Cgroups(ABC):
         pass
 
     @abstractmethod
+    def create_fresh_child_cgroup_for_delegation(self):
+        pass
+
+    @abstractmethod
     def add_task(self, pid):
         pass
 
