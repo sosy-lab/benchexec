@@ -1163,6 +1163,17 @@ class TestRunExecutorWithContainer(TestRunExecutor):
         cpus = [int(line.split()[2]) for line in output if line.startswith("processor")]
         self.assertListEqual(cpus, [0], "Unexpected CPU cores visible in container")
 
+    def test_sys_cpu_with_lxcfs(self):
+        if not os.path.exists("/var/lib/lxcfs/proc"):
+            self.skipTest("missing lxcfs")
+        result, output = self.execute_run(
+            self.cat, "/sys/devices/system/cpu/online", cores=[0]
+        )
+        self.check_result_keys(result)
+        self.check_exitcode(result, 0, "exit code for reading online CPUs is not zero")
+        cpus = util.parse_int_list(output[-1])
+        self.assertListEqual(cpus, [0], "Unexpected CPU cores online in container")
+
     def test_uptime_with_lxcfs(self):
         if not os.path.exists("/var/lib/lxcfs/proc"):
             self.skipTest("missing lxcfs")
