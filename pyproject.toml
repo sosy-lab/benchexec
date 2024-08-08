@@ -73,4 +73,4 @@ ignore = [
 
 [tool.pytest.ini_options]
 python_files = ["test_*.py", "test_integration/__init__.py", "test.py"]
-norecursedirs = ["contrib/p4/docker_files", "build"]
+norecursedirs = ["contrib/p4/docker_files", "build", "benchexec/tablegenerator/react-table"]
