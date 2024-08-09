@@ -124,13 +124,11 @@ const StatisticsTable = ({ switchToQuantile, tableData, hiddenCols }) => {
                 style: {
                   margin: 0,
                   padding: 0,
-                  borderLeft: index !== 0 ? "1px solid grey" : "none",
+                  borderLeft: index !== 0 ? "1px solid #CCC" : "none",
                   borderRight:
                     index !== headerGroup.headers.length - 1
-                      ? "1px solid grey"
+                      ? "1px solid #CCC"
                       : "none",
-                  borderTop: "2px solid grey",
-                  borderBottom: "2px solid grey",
                   height: "3rem",
                 },
               })}

@@ -52,6 +52,12 @@ $border-color: rgb(173, 173, 173);
 $hover-color: darken(white, 20%);
 
 //------------------common------------------
+.footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .correct {
   color: green;
 }
@@ -449,7 +455,6 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
 
   #benchmark_setup {
     width: 100%;
-    overflow-x: scroll;
 
     .fixedRowTitle {
       text-align: left;
@@ -460,7 +465,9 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
 
     .stickCheckbox {
       position: sticky;
+      top: 0;
       left: 0;
+      width: max-content;
     }
 
     table {
@@ -509,7 +516,7 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
       }
 
       tr:hover {
-        background-color: mix($hover-color, white, 66%);
+        background-color: mix($hover-color, white, 50%);
       }
 
       th {
