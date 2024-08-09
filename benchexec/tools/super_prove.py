@@ -49,7 +49,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         """
         @return: status of super_prove after executing a run
         """
-        if len(run.output) > 0:
+        if run.output:
             if run.output[0] == "0":
                 return result.RESULT_TRUE_PROP
             elif run.output[0] == "1":
