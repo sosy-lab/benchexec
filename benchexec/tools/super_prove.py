@@ -15,7 +15,6 @@ class Tool(benchexec.tools.template.BaseTool2):
     Tool info for super_prove: A portfolio model checker based on ABC
     - project URL: https://github.com/berkeley-abc/super_prove
     - build repository: https://github.com/sterin/super-prove-build
-    - tool archive: https://gitlab.com/sosy-lab/benchmarking/coveriteam-archives/hardware-verifiers/-/blob/main/super_prove.zip
     """
 
     REQUIRED_PATHS = ["bin/", "lib/"]
