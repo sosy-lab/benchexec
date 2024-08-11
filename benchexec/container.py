@@ -906,7 +906,7 @@ def cap_permitted_to_ambient():
     libc.capset(header, data)
 
     effective = (data[1].effective << 32) | data[0].effective
-    cap_last_cap = int(util.try_read_file("/proc/sys/kernel/cap_last_cap"))
+    cap_last_cap = int(util.try_read_file("/proc/sys/kernel/cap_last_cap") or "0")
     for cap in range(cap_last_cap + 1):
         if cap > cap_last_cap:
             continue
