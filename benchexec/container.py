@@ -36,7 +36,6 @@ __all__ = [
     "get_mount_points",
     "remount_with_additional_flags",
     "make_overlay_mount",
-    "make_fuse_overlay_mount",
     "mount_proc",
     "make_bind_mount",
     "get_my_pid_from_procfs",
@@ -483,7 +482,7 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
     if use_fuse:
         fuse_overlay_mount_path = setup_fuse_overlay(temp_base, work_base)
     else:
-        use_fuse = False
+        fuse_overlay_mount_path = None
 
     for _unused_source, full_mountpoint, fstype, options in list(get_mount_points()):
         if not util.path_is_below(full_mountpoint, mount_base):
@@ -549,7 +548,8 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
                     libc.umount(mount_path)
                 except OSError as e:
                     logging.debug(e)
-            if use_fuse:
+
+            if use_fuse and fuse_overlay_mount_path:
                 fuse_mount_path = fuse_overlay_mount_path + mountpoint
                 make_bind_mount(fuse_mount_path, mount_path)
             else:
@@ -810,10 +810,42 @@ def check_use_fuse_overlayfs(mount_base, dir_modes):
 @contextlib.contextmanager
 def permitted_cap_as_ambient():
     try:
-        original_inheritable = cap_permitted_to_ambient()
+        """
+        Transfer all permitted capabilities to the inheritable set
+        and raise them in the ambient set if effective.
+        """
+        header = libc.CapHeader(libc.LINUX_CAPABILITY_VERSION_3, 0)
+        data = (libc.CapData * libc.LINUX_CAPABILITY_U32S_3)()
+
+        libc.capget(header, data)
+
+        original_inheritable = [data[0].inheritable, data[1].inheritable]
+        data[0].inheritable = data[0].permitted
+        data[1].inheritable = data[1].permitted
+
+        libc.capset(header, data)
+
+        effective = (data[1].effective << 32) | data[0].effective
+        cap_last_cap = int(util.try_read_file("/proc/sys/kernel/cap_last_cap") or "0")
+        for cap in range(cap_last_cap + 1):
+            if effective & (1 << cap):
+                libc.prctl(libc.PR_CAP_AMBIENT, libc.PR_CAP_AMBIENT_RAISE, cap, 0, 0)
         yield
     finally:
-        drop_ambient_cap(original_inheritable)
+        """
+        Drop all ambient capabilities by removing them from the ambient set,
+        and undo changes made to inheritable set.
+        """
+        cap_last_cap = int(util.try_read_file("/proc/sys/kernel/cap_last_cap") or "0")
+        for cap in range(cap_last_cap + 1):
+            libc.prctl(libc.PR_CAP_AMBIENT, libc.PR_CAP_AMBIENT_LOWER, cap, 0, 0)
+
+        header = libc.CapHeader(libc.LINUX_CAPABILITY_VERSION_3, 0)
+        data = (libc.CapData * libc.LINUX_CAPABILITY_U32S_3)()
+
+        libc.capget(header, data)
+        data[0].inheritable, data[1].inheritable = original_inheritable
+        libc.capset(header, data)
 
 
 def setup_fuse_overlay(temp_base, work_base):
@@ -944,50 +976,6 @@ def drop_capabilities(keep=[]):
         ctypes.byref(libc.CapHeader(version=libc.LINUX_CAPABILITY_VERSION_3, pid=0)),
         ctypes.byref(capdata),
     )
-
-
-def cap_permitted_to_ambient():
-    """
-    Python version of util-linux/lib/caputils.c: cap_permitted_to_ambient()
-
-    Transfer all permitted capabilities to the inheritable set
-    and raise them in the ambient set if effective.
-    """
-    header = libc.CapHeader(libc.LINUX_CAPABILITY_VERSION_3, 0)
-    data = (libc.CapData * libc.LINUX_CAPABILITY_U32S_3)()
-
-    libc.capget(header, data)
-
-    original_inheritable = [data[0].inheritable, data[1].inheritable]
-    data[0].inheritable = data[0].permitted
-    data[1].inheritable = data[1].permitted
-
-    libc.capset(header, data)
-
-    effective = (data[1].effective << 32) | data[0].effective
-    cap_last_cap = int(util.try_read_file("/proc/sys/kernel/cap_last_cap") or "0")
-    for cap in range(cap_last_cap + 1):
-        if effective & (1 << cap):
-            libc.prctl(libc.PR_CAP_AMBIENT, libc.PR_CAP_AMBIENT_RAISE, cap, 0, 0)
-
-    return original_inheritable
-
-
-def drop_ambient_cap(original_inheritable):
-    """
-    Drop all ambient capabilities by removing them from the ambient set.
-    Corresponds to the opposite of cap_permitted_to_ambient.
-    """
-    cap_last_cap = int(util.try_read_file("/proc/sys/kernel/cap_last_cap") or "0")
-    for cap in range(cap_last_cap + 1):
-        libc.prctl(libc.PR_CAP_AMBIENT, libc.PR_CAP_AMBIENT_LOWER, cap, 0, 0)
-
-    header = libc.CapHeader(libc.LINUX_CAPABILITY_VERSION_3, 0)
-    data = (libc.CapData * libc.LINUX_CAPABILITY_U32S_3)()
-
-    libc.capget(header, data)
-    data[0].inheritable, data[1].inheritable = original_inheritable
-    libc.capset(header, data)
 
 
 _FORBIDDEN_SYSCALLS = [
