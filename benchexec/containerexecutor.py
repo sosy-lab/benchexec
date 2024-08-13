@@ -684,13 +684,6 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                     container.get_my_pid_from_procfs(),
                 )
 
-                # Ensure that capabilities granted in the user namespace are
-                # preserved in the child process.
-                #
-                # TODO: We still don't know which capabilities are necessary,
-                # and the rest could be dropped.
-                container.cap_permitted_to_ambient()
-
                 # Put all received signals on hold until we handle them later.
                 container.block_all_signals()
 

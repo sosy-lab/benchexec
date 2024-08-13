@@ -16,6 +16,7 @@ import logging
 import os
 import resource  # noqa: F401 @UnusedImport necessary to eagerly import this module
 import shlex
+import shutil
 import signal
 import socket
 import struct
@@ -476,39 +477,14 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
     overlay_count = 0
 
     # Check if we need to use fuse-overlayfs for all overlay mounts.
-    use_fuse = False
-    for _unused_source, full_mountpoint, fstype, options in list(get_mount_points()):
-        if not util.path_is_below(full_mountpoint, mount_base):
-            continue
-        mountpoint = full_mountpoint[len(mount_base) :] or b"/"
-        mode = determine_directory_mode(dir_modes, mountpoint, fstype)
-        if not mode or not os.path.exists(mountpoint):
-            continue
-
-        if mode == DIR_OVERLAY:
-            for _unused_source, sub_mountpoint, _unused_fstype, _unused_opts in list(
-                get_mount_points()
-            ):
-                if (
-                    util.path_is_below(sub_mountpoint, mountpoint)
-                    and sub_mountpoint != mountpoint
-                ):
-                    use_fuse = True
-                    break
-
+    use_fuse = check_use_fuse_overlayfs(mount_base, dir_modes)
     # Mount "/" once with fuse-overlayfs once, use it for all overlay mounts.
     if use_fuse:
-        fuse = util.find_executable2("fuse-overlayfs")
-        if not fuse:
-            logging.warning("fuse-overlayfs is not available.")
-            use_fuse = False
+        fuse = shutil.which("fuse-overlayfs")
+        if fuse:
+            fuse_overlay_mount_root(fuse, temp_base, work_base)
         else:
-            temp_fuse = temp_base + b"/fuse"
-            work_fuse = work_base + b"/0"
-            os.makedirs(temp_fuse, exist_ok=True)
-            os.makedirs(work_fuse, exist_ok=True)
-            cap_permitted_to_ambient()
-            make_fuse_overlay_mount(fuse, temp_fuse, b"/", temp_base, work_fuse)
+            use_fuse = False
 
     for _unused_source, full_mountpoint, fstype, options in list(get_mount_points()):
         if not util.path_is_below(full_mountpoint, mount_base):
@@ -575,7 +551,7 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
                 except OSError as e:
                     logging.debug(e)
             if use_fuse:
-                fuse_mount_path = temp_fuse + mountpoint
+                fuse_mount_path = temp_base + b"/fuse" + mountpoint
                 make_bind_mount(fuse_mount_path, mount_path)
             else:
                 try:
@@ -584,26 +560,23 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
                     # Resort to fuse-overlayfs if kernel overlayfs is not available.
                     # This part of the code (using fuse-overlayfs as a fallback) is intentionally
                     # kept as a workaround for triple-nested execution with kernel overlayfs.
-                    mp = mountpoint.decode()
-                    fuse = util.find_executable2("fuse-overlayfs")
-                    if fuse:
-                        logging.debug(
-                            "Cannot use kernel overlay for %s: %s. "
-                            "Trying to use fuse-overlayfs instead.",
-                            mp,
-                            e,
-                        )
-                        cap_permitted_to_ambient()
-                        make_fuse_overlay_mount(
-                            fuse, mount_path, mountpoint, temp_path, work_path
-                        )
-                    else:
-                        raise OSError(
-                            e.errno,
-                            f"Creating overlay mount for '{mp}' failed: {os.strerror(e.errno)}. "
-                            f"Please use other directory modes, "
-                            f"for example '--read-only-dir {shlex.quote(mp)}'.",
-                        )
+                    if not use_fuse:
+                        fuse = shutil.which("fuse-overlayfs")
+                        if fuse:
+                            fuse_overlay_mount_root(fuse, temp_base, work_base)
+                            use_fuse = True
+                        else:
+                            mp = mountpoint.decode()
+                            logging.warning("fuse-overlayfs is not available.")
+                            raise OSError(
+                                e.errno,
+                                f"Creating overlay mount for '{mp}' failed: {os.strerror(e.errno)}. "
+                                f"Please use other directory modes, "
+                                f"for example '--read-only-dir {shlex.quote(mp)}'.",
+                            )
+
+                    fuse_mount_path = temp_base + b"/fuse" + mountpoint
+                    make_bind_mount(fuse_mount_path, mount_path)
 
         elif mode == DIR_HIDDEN:
             os.makedirs(temp_path, exist_ok=True)
@@ -773,6 +746,16 @@ def remount_with_additional_flags(mountpoint, fstype, existing_options, mountfla
     libc.mount(None, mountpoint, None, mountflags, None)
 
 
+def escape(s):
+    """
+    Safely encode a string for being used as a path for overlayfs.
+    In addition to escaping ",", which separates mount options,
+    we need to escape ":", which overlayfs uses to separate multiple lower dirs
+    (cf. https://www.kernel.org/doc/Documentation/filesystems/overlayfs.txt).
+    """
+    return s.replace(b"\\", rb"\\").replace(b":", rb"\:").replace(b",", rb"\,")
+
+
 def make_overlay_mount(mount, lower, upper, work):
     logging.debug(
         "Creating overlay mount: target=%s, lower=%s, upper=%s, work=%s",
@@ -781,15 +764,6 @@ def make_overlay_mount(mount, lower, upper, work):
         upper,
         work,
     )
-
-    def escape(s):
-        """
-        Safely encode a string for being used as a path for overlayfs.
-        In addition to escaping ",", which separates mount options,
-        we need to escape ":", which overlayfs uses to separate multiple lower dirs
-        (cf. https://www.kernel.org/doc/Documentation/filesystems/overlayfs.txt).
-        """
-        return s.replace(b"\\", rb"\\").replace(b":", rb"\:").replace(b",", rb"\,")
 
     libc.mount(
         b"none",
@@ -805,6 +779,43 @@ def make_overlay_mount(mount, lower, upper, work):
     )
 
 
+def check_use_fuse_overlayfs(mount_base, dir_modes):
+    mount_points = [
+        (full_mountpoint, fstype)
+        for _unused_source, full_mountpoint, fstype, _options in get_mount_points()
+        if util.path_is_below(full_mountpoint, mount_base)
+    ]
+
+    for full_mountpoint, fstype in mount_points:
+        mountpoint = full_mountpoint[len(mount_base) :] or b"/"
+        mode = determine_directory_mode(dir_modes, mountpoint, fstype)
+
+        if not mode or not os.path.exists(mountpoint):
+            continue
+
+        if mode == DIR_OVERLAY:
+            # Check if there are any sub-mounts within the current overlay mount point
+            for sub_mountpoint, _unused_fstype in mount_points:
+                if (
+                    util.path_is_below(sub_mountpoint, mountpoint)
+                    and sub_mountpoint != mountpoint
+                ):
+                    return True
+
+    return False
+
+
+def fuse_overlay_mount_root(fuse, temp_base, work_base):
+    """
+    Mount "/" once with fuse-overlayfs once, use it for all overlay mounts.
+    """
+    temp_fuse = temp_base + b"/fuse"
+    work_fuse = work_base + b"/0"
+    os.makedirs(temp_fuse, exist_ok=True)
+    os.makedirs(work_fuse, exist_ok=True)
+    make_fuse_overlay_mount(fuse, temp_fuse, b"/", temp_base, work_fuse)
+
+
 def make_fuse_overlay_mount(exe, mount, lower, upper, work):
     logging.debug(
         "Creating overlay mount with fuse-overlayfs: target=%s, lower=%s, upper=%s, work=%s",
@@ -813,9 +824,6 @@ def make_fuse_overlay_mount(exe, mount, lower, upper, work):
         upper,
         work,
     )
-
-    def escape(s):
-        return s.replace(b"\\", rb"\\").replace(b":", rb"\:").replace(b",", rb"\,")
 
     cmd = (
         exe,
@@ -830,14 +838,16 @@ def make_fuse_overlay_mount(exe, mount, lower, upper, work):
     )
 
     try:
+        cap_permitted_to_ambient()
         result = subprocess.run(
             args=cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
         )
         if result.stdout:
             logging.debug("fuse-overlayfs: %s", result.stdout.decode())
     except subprocess.CalledProcessError as e:
-        logging.error("Error executing command: %s\n, %s", e, e.stderr.decode())
-        sys.exit(1)
+        sys.exit(f"Error executing command: {e}\n{e.stdout.decode()}")
+    finally:
+        drop_ambient_cap()
 
 
 def mount_proc(container_system_config):
@@ -934,8 +944,10 @@ def drop_capabilities(keep=[]):
 def cap_permitted_to_ambient():
     """
     Python version of util-linux/lib/caputils.c: cap_permitted_to_ambient()
-    """
 
+    Transfer all permitted capabilities to the inheritable set
+    and raise them in the ambient set if effective.
+    """
     header = libc.CapHeader(libc.LINUX_CAPABILITY_VERSION_3, 0)
     data = (libc.CapData * libc.LINUX_CAPABILITY_U32S_3)()
 
@@ -949,11 +961,18 @@ def cap_permitted_to_ambient():
     effective = (data[1].effective << 32) | data[0].effective
     cap_last_cap = int(util.try_read_file("/proc/sys/kernel/cap_last_cap") or "0")
     for cap in range(cap_last_cap + 1):
-        if cap > cap_last_cap:
-            continue
-
         if effective & (1 << cap):
             libc.prctl(libc.PR_CAP_AMBIENT, libc.PR_CAP_AMBIENT_RAISE, cap, 0, 0)
+
+
+def drop_ambient_cap():
+    """
+    Drop all ambient capabilities by removing them from the ambient set.
+    Corresponds to the opposite of cap_permitted_to_ambient.
+    """
+    cap_last_cap = int(util.try_read_file("/proc/sys/kernel/cap_last_cap") or "0")
+    for cap in range(cap_last_cap + 1):
+        libc.prctl(libc.PR_CAP_AMBIENT, libc.PR_CAP_AMBIENT_LOWER, cap, 0, 0)
 
 
 _FORBIDDEN_SYSCALLS = [
