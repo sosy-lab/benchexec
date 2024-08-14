@@ -559,12 +559,12 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
                     # Resort to fuse-overlayfs if kernel overlayfs is not available.
                     # This part of the code (using fuse-overlayfs as a fallback) is intentionally
                     # kept as a workaround for triple-nested execution with kernel overlayfs.
-                    if fuse_overlay_mount_path is None:
+                    mp = mountpoint.decode()
+                    if not fuse_overlay_mount_path:
                         fuse_overlay_mount_path = setup_fuse_overlay(
                             temp_base, work_base
                         )
-                    if fuse_overlay_mount_path is None:
-                        mp = mountpoint.decode()
+                    if not fuse_overlay_mount_path:
                         logging.warning("fuse-overlayfs is not available.")
                         raise OSError(
                             e.errno,
@@ -572,7 +572,9 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
                             f"Consider using alternative directory modes, such as '--read-only-dir {shlex.quote(mp)}'.",
                         ) from e
 
-                    logging.debug("Fallback to fuse-overlayfs for overlay mount.")
+                    logging.debug(
+                        f"Fallback to fuse-overlayfs for overlay mount at '{mp}'."
+                    )
                     fuse_mount_path = fuse_overlay_mount_path + mountpoint
                     make_bind_mount(fuse_mount_path, mount_path)
 
@@ -809,46 +811,47 @@ def check_use_fuse_overlayfs(mount_base, dir_modes):
 
 @contextlib.contextmanager
 def permitted_cap_as_ambient():
+    """
+    Transfer all permitted capabilities to the inheritable set
+    and raise them in the ambient set if effective.
+    Finanlly drop all ambient capabilities by removing them from the ambient set,
+    and undo changes made to inheritable set.
+
+    Used by fuse-based overlay mounts needing temporary capability elevation.
+    """
+    header = libc.CapHeader(libc.LINUX_CAPABILITY_VERSION_3, 0)
+    data = (libc.CapData * libc.LINUX_CAPABILITY_U32S_3)()
+
+    libc.capget(header, data)
+    original_inheritable = [data[0].inheritable, data[1].inheritable]
+    cap_last_cap = int(util.try_read_file("/proc/sys/kernel/cap_last_cap") or "0")
+
     try:
-        """
-        Transfer all permitted capabilities to the inheritable set
-        and raise them in the ambient set if effective.
-        """
-        header = libc.CapHeader(libc.LINUX_CAPABILITY_VERSION_3, 0)
-        data = (libc.CapData * libc.LINUX_CAPABILITY_U32S_3)()
-
-        libc.capget(header, data)
-
-        original_inheritable = [data[0].inheritable, data[1].inheritable]
         data[0].inheritable = data[0].permitted
         data[1].inheritable = data[1].permitted
-
         libc.capset(header, data)
 
         effective = (data[1].effective << 32) | data[0].effective
-        cap_last_cap = int(util.try_read_file("/proc/sys/kernel/cap_last_cap") or "0")
         for cap in range(cap_last_cap + 1):
             if effective & (1 << cap):
                 libc.prctl(libc.PR_CAP_AMBIENT, libc.PR_CAP_AMBIENT_RAISE, cap, 0, 0)
+
         yield
     finally:
-        """
-        Drop all ambient capabilities by removing them from the ambient set,
-        and undo changes made to inheritable set.
-        """
-        cap_last_cap = int(util.try_read_file("/proc/sys/kernel/cap_last_cap") or "0")
-        for cap in range(cap_last_cap + 1):
-            libc.prctl(libc.PR_CAP_AMBIENT, libc.PR_CAP_AMBIENT_LOWER, cap, 0, 0)
+        libc.prctl(libc.PR_CAP_AMBIENT, libc.PR_CAP_AMBIENT_CLEAR_ALL, 0, 0, 0)
 
-        header = libc.CapHeader(libc.LINUX_CAPABILITY_VERSION_3, 0)
-        data = (libc.CapData * libc.LINUX_CAPABILITY_U32S_3)()
-
-        libc.capget(header, data)
         data[0].inheritable, data[1].inheritable = original_inheritable
         libc.capset(header, data)
 
 
 def setup_fuse_overlay(temp_base, work_base):
+    """
+    Check if fuse-overlayfs is available on the system and,
+    if so, creates a temporary overlay filesystem by stacking the root directory
+    with a specified temporary directory.
+
+    @return: The path to the mounted overlay filesystem if successful, None otherwise.
+    """
     fuse = shutil.which("fuse-overlayfs")
     if fuse is None:
         return None
@@ -878,6 +881,8 @@ def setup_fuse_overlay(temp_base, work_base):
 
     try:
         with permitted_cap_as_ambient():
+            # Temporarily elevate permitted capabilities to the inheritable set
+            # and raise them in the ambient set.
             result = subprocess.run(
                 args=cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
             )

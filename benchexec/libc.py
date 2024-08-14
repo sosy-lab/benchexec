@@ -197,7 +197,6 @@ LINUX_CAPABILITY_U32S_3 = 2  # /usr/include/linux/capability.h
 CAP_SYS_ADMIN = 21  # /usr/include/linux/capability.h
 PR_CAP_AMBIENT = 47  # /usr/include/linux/prctl.h
 PR_CAP_AMBIENT_RAISE = 2  # /usr/include/linux/prctl.h
-PR_CAP_AMBIENT_LOWER = 3  # /usr/include/linux/prctl.h
 PR_CAP_AMBIENT_CLEAR_ALL = 4  # /usr/include/linux/prctl.h
 
 prctl = _libc.prctl
