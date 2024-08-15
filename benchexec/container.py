@@ -573,7 +573,7 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
                         ) from e
 
                     logging.debug(
-                        f"Fallback to fuse-overlayfs for overlay mount at '{mp}'."
+                        "Fallback to fuse-overlayfs for overlay mount at '%s'.", mp
                     )
                     fuse_mount_path = fuse_overlay_mount_path + mountpoint
                     make_bind_mount(fuse_mount_path, mount_path)
