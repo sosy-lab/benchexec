@@ -20,7 +20,7 @@ Package: benchexec
 Architecture: all
 Pre-Depends: ${misc:Pre-Depends}
 Depends: ${python3:Depends}, python3-pkg-resources, ${misc:Depends}, ucf
-Recommends: cpu-energy-meter, libseccomp2, lxcfs, python3-coloredlogs, python3-pystemd
+Recommends: cpu-energy-meter, fuse-overlayfs (>= 1.10), libseccomp2, lxcfs, python3-coloredlogs, python3-pystemd
 Description: Framework for Reliable Benchmarking and Resource Measurement
  BenchExec allows benchmarking non-interactive tools on Linux systems.
  It measures CPU time, wall time, and memory usage of a tool,

@@ -20,6 +20,7 @@ SPDX-License-Identifier: Apache-2.0
 
 The following packages are optional but recommended dependencies:
 - [cpu-energy-meter] will let BenchExec measure energy consumption on Intel CPUs.
+- [fuse-overlayfs] (version 1.10 or newer) allows to use the overlay directory mode for containers in cases where the kernel-based overlayfs does not work.
 - [libseccomp2] provides better container isolation.
 - [LXCFS] provides better container isolation.
 - [coloredlogs] provides nicer log output.
@@ -115,7 +116,7 @@ Of course you can also install BenchExec in a virtualenv if you are familiar wit
 On systems without systemd you can omit the `[systemd]` part.
 
 Please make sure to configure cgroups as [described below](#setting-up-cgroups)
-and install [cpu-energy-meter], [libseccomp2], [LXCFS], and [pqos_wrapper] if desired.
+and install [cpu-energy-meter], [fuse-overlayfs], [libseccomp2], [LXCFS], and [pqos_wrapper] if desired.
 
 ### Containerized Environments
 
@@ -137,7 +138,7 @@ otherwise pip will try to download and build this module,
 which needs a compiler and several development header packages.
 
 Please make sure to configure cgroups as [described below](#setting-up-cgroups)
-and install [cpu-energy-meter], [libseccomp2], [LXCFS], and [pqos_wrapper] if desired.
+and install [cpu-energy-meter], [fuse-overlayfs], [libseccomp2], [LXCFS], and [pqos_wrapper] if desired.
 
 
 ## Kernel Requirements
@@ -377,6 +378,7 @@ Please refer to the [development instructions](DEVELOPMENT.md).
 
 [coloredlogs]: https://pypi.org/project/coloredlogs/
 [cpu-energy-meter]: https://github.com/sosy-lab/cpu-energy-meter
+[fuse-overlayfs]: https://github.com/containers/fuse-overlayfs
 [libseccomp2]: https://github.com/seccomp/libseccomp
 [LXCFS]: https://github.com/lxc/lxcfs
 [pqos]: https://github.com/intel/intel-cmt-cat/tree/master/pqos
