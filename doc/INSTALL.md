@@ -119,7 +119,7 @@ and install [cpu-energy-meter], [libseccomp2], [LXCFS], and [pqos_wrapper] if de
 
 ### Containerized Environments
 
-Please refer to the [dedicated guide](doc/benchexec-in-container.md) for the
+Please refer to the [dedicated guide](benchexec-in-container.md) for the
 necessary steps to install BenchExec inside a container.
 
 **IMPORTANT**: In any case, cgroups with all relevant controllers need to be
