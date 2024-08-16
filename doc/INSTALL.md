@@ -154,7 +154,7 @@ For other distributions, please read the following detailed requirements.
 Except on Ubuntu, the full feature set of BenchExec is only usable
 on **Linux 5.11 or newer**, so we suggest at least this kernel version.
 
-On older kernels, you need to avoid using the overlay filesystem (cf. below),
+On older kernels, you need to avoid using the kernel-based overlay filesystem (cf. below),
 all other features are supported.
 However, we strongly recommend to use at least **Linux 4.14 or newer**
 because it reduces the overhead of BenchExec's memory measurements and limits.
@@ -187,8 +187,13 @@ that are not usable on all distributions by default:
 - **Unprivileged Overlay Filesystem**: This is only available since Linux 5.11
   (kernel option `CONFIG_OVERLAY_FS`),
   but also present in all Ubuntu kernels, even older ones.
-  Users of older kernels on other distributions can still use container mode, but have to choose a different mode
-  of mounting the file systems in the container, e.g., with `--read-only-dir /` (see below).
+  Users of older kernels on other distributions can still use container mode,
+  but have to install [fuse-overlayfs] or choose a different mode
+  of mounting the file systems in the container, e.g., with `--read-only-dir /`
+  (cf. [container configuration](container.md#directory-access-modes)).
+  Note that the kernel-based overlayfs does not support some specific configurations
+  (such as the default mode of overlay for `/`),
+  so [fuse-overlayfs] is often useful or required anyway.
 
 If container mode does not work, please check the [common problems](container.md#common-problems).
 
