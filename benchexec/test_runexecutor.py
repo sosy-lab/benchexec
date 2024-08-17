@@ -1176,6 +1176,107 @@ class TestRunExecutorWithContainer(TestRunExecutor):
             uptime, 10, f"Uptime {uptime}s unexpectedly low in container"
         )
 
+    def test_fuse_overlay(self):
+        if not shutil.which("fuse-overlayfs"):
+            self.skipTest("fuse-overlayfs not available")
+
+        with tempfile.NamedTemporaryFile() as test_file:
+            test_file.write(b"TEST_TOKEN")
+            test_file.seek(0)
+            self.setUp(
+                dir_modes={
+                    "/": containerexecutor.DIR_OVERLAY,
+                },
+            )
+            result, output = self.execute_run(
+                "/bin/sh", "-c", f"{self.echo} TOKEN_CHANGED >{test_file.name}"
+            )
+            self.check_result_keys(result, "returnvalue")
+            self.check_exitcode(result, 0, "exit code of inner runexec is not zero")
+            self.assertTrue(
+                os.path.exists(test_file.name),
+                f"File '{test_file.name}' removed, output was:\n" + "\n".join(output),
+            )
+            test_token = test_file.read()
+            self.assertEqual(
+                test_token.strip(),
+                b"TEST_TOKEN",
+                f"File '{test_file.name}' content is incorrect. Expected 'TEST_TOKEN', but got:\n{test_token}",
+            )
+
+    def test_triple_nested_runexec(self):
+        if not shutil.which("fuse-overlayfs"):
+            self.skipTest("missing fuse-overlayfs")
+
+        with tempfile.TemporaryDirectory(prefix="BenchExec_test_") as temp_dir:
+            overlay_dir = os.path.join(temp_dir, "overlay")
+            os.makedirs(overlay_dir)
+            test_file = os.path.join(overlay_dir, "TEST_FILE")
+            output_dir = os.path.join(temp_dir, "output")
+            os.makedirs(output_dir)
+            mid_output_file = os.path.join(output_dir, "mid_output.log")
+            inner_output_file = os.path.join(output_dir, "inner_output.log")
+            with open(test_file, "w") as f:
+                f.write("TEST_TOKEN")
+                f.seek(0)
+
+            outer_cmd = [
+                "python3",
+                runexec,
+                "--container",
+                "--read-only-dir",
+                "/",
+                "--overlay-dir",
+                overlay_dir,
+                "--full-access-dir",
+                "/tmp",
+                "--output",
+                mid_output_file,
+                "--",
+            ]
+            mid_cmd = [
+                "python3",
+                runexec,
+                "--container",
+                "--read-only-dir",
+                "/",
+                "--overlay-dir",
+                overlay_dir,
+                "--output",
+                inner_output_file,
+                "--",
+            ]
+            inner_cmd = ["/bin/sh", "-c", f"{self.echo} TOKEN_CHANGED >{test_file}"]
+            combined_cmd = outer_cmd + mid_cmd + inner_cmd
+
+            self.setUp(
+                dir_modes={
+                    "/": containerexecutor.DIR_READ_ONLY,
+                    overlay_dir: containerexecutor.DIR_OVERLAY,
+                    "/tmp": containerexecutor.DIR_FULL_ACCESS,
+                },
+            )
+            outer_result, outer_output = self.execute_run(*combined_cmd)
+            self.check_result_keys(outer_result, "returnvalue")
+            self.check_exitcode(
+                outer_result, 0, "exit code of inner runexec is not zero"
+            )
+            self.assertTrue(
+                os.path.exists(test_file),
+                f"File '{test_file}' removed, output was:\n" + "\n".join(outer_output),
+            )
+            self.assertTrue(
+                os.path.exists(test_file),
+                f"File '{test_file}' removed, output was:\n" + "\n".join(outer_output),
+            )
+            with open(test_file, "r") as f:
+                test_token = f.read()
+                self.assertEqual(
+                    test_token.strip(),
+                    "TEST_TOKEN",
+                    f"File '{test_file}' content is incorrect. Expected 'TEST_TOKEN', but got:\n{test_token}",
+                )
+
 
 class _StopRunThread(threading.Thread):
     def __init__(self, delay, runexecutor):
