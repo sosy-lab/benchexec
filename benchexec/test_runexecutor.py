@@ -1186,6 +1186,8 @@ class TestRunExecutorWithContainer(TestRunExecutor):
             self.setUp(
                 dir_modes={
                     "/": containerexecutor.DIR_OVERLAY,
+                    "/home": containerexecutor.DIR_HIDDEN,
+                    "/tmp": containerexecutor.DIR_HIDDEN,
                 },
             )
             result, output = self.execute_run(

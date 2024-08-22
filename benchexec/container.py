@@ -539,9 +539,6 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
 
         if mode == DIR_OVERLAY:
             overlay_count += 1
-            work_path = work_base + b"/" + str(overlay_count).encode()
-            os.makedirs(temp_path, exist_ok=True)
-            os.makedirs(work_path, exist_ok=True)
             if os.path.ismount(mount_path):
                 try:
                     # Previous mount in this place not needed if replaced with overlay dir.
@@ -553,6 +550,9 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
                 fuse_mount_path = fuse_overlay_mount_path + mountpoint
                 make_bind_mount(fuse_mount_path, mount_path)
             else:
+                os.makedirs(temp_path, exist_ok=True)
+                work_path = work_base + b"/" + str(overlay_count).encode()
+                os.makedirs(work_path, exist_ok=True)
                 try:
                     make_overlay_mount(mount_path, mountpoint, temp_path, work_path)
                 except OSError as e:
@@ -856,12 +856,13 @@ def setup_fuse_overlay(temp_base, work_base):
     if fuse is None:
         return None
     temp_fuse = temp_base + b"/fuse"
-    work_fuse = work_base + b"/0"
+    work_fuse = work_base + b"/fuse"
     os.makedirs(temp_fuse, exist_ok=True)
     os.makedirs(work_fuse, exist_ok=True)
 
     logging.debug(
-        "Creating overlay mount with fuse-overlayfs: target=%s, lower=%s, upper=%s, work=%s",
+        "Creating overlay mount with %s: target=%s, lower=%s, upper=%s, work=%s",
+        fuse,
         temp_fuse,
         b"/",
         temp_base,
@@ -884,7 +885,11 @@ def setup_fuse_overlay(temp_base, work_base):
             # Temporarily elevate permitted capabilities to the inheritable set
             # and raise them in the ambient set.
             result = subprocess.run(
-                args=cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+                args=cmd,
+                check=True,
+                stdin=subprocess.DEVNULL,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
             )
             if result.stdout:
                 logging.debug("fuse-overlayfs: %s", result.stdout.decode())
