@@ -33,7 +33,7 @@ stages:
   - images
   - test
 
-.unit-tests: &unit-tests
+.tests:cgroupsv1: &tests-cgroupsv1
   stage: test
   before_script:
     # Create user, we do not want to test as root
@@ -61,28 +61,28 @@ stages:
     paths:
       - coverage.xml
 
-unit-tests:python-3.8:
-  <<: *unit-tests
+tests:cgroups1:python-3.8:
+  <<: *tests-cgroupsv1
   variables:
     PYTHON_VERSION: '3.8'
 
-unit-tests:python-3.9:
-  <<: *unit-tests
+tests:cgroupsv1:python-3.9:
+  <<: *tests-cgroupsv1
   variables:
     PYTHON_VERSION: '3.9'
 
-unit-tests:python-3.10:
-  <<: *unit-tests
+tests:cgroupsv1:python-3.10:
+  <<: *tests-cgroupsv1
   variables:
     PYTHON_VERSION: '3.10'
 
-unit-tests:python-3.11:
-  <<: *unit-tests
+tests:cgroupsv1:python-3.11:
+  <<: *tests-cgroupsv1
   variables:
     PYTHON_VERSION: '3.11'
 
-unit-tests:python-3.12:
-  <<: *unit-tests
+tests:cgroupsv1:python-3.12:
+  <<: *tests-cgroupsv1
   variables:
     PYTHON_VERSION: '3.12'
 
