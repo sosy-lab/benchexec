@@ -50,7 +50,7 @@ stages:
   script:
     - sudo -u $PRIMARY_USER
         COVERAGE_PROCESS_START=.coveragerc
-        coverage run -m pytest
+        coverage run -m pytest -ra
   after_script:
     - sudo -u $PRIMARY_USER coverage combine
     - sudo -u $PRIMARY_USER coverage report
@@ -96,7 +96,7 @@ tests:cgroupsv1:python-3.12:
     # Install BenchExec with `dev` dependencies
     - pip install --user ".[dev]"
   script:
-    - COVERAGE_PROCESS_START=.coveragerc coverage run -m pytest
+    - COVERAGE_PROCESS_START=.coveragerc coverage run -m pytest -ra
   after_script:
     - coverage combine
     - coverage report
