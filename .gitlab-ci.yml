@@ -52,7 +52,7 @@ stages:
         COVERAGE_PROCESS_START=pyproject.toml
         coverage run -m pytest -ra
   after_script:
-    - sudo -u $PRIMARY_USER coverage combine
+    - sudo -u $PRIMARY_USER coverage combine -q
     - sudo -u $PRIMARY_USER coverage report
     - sudo -u $PRIMARY_USER coverage xml
   tags:
@@ -98,7 +98,7 @@ tests:cgroupsv1:python-3.12:
   script:
     - COVERAGE_PROCESS_START=pyproject.toml coverage run -m pytest -ra
   after_script:
-    - coverage combine
+    - coverage combine -q
     - coverage report
     - coverage xml
   tags:
