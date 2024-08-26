@@ -19,6 +19,7 @@ FROM python:3.8
 # because these images do not use the Python installed via apt.
 
 RUN apt-get update && apt-get install -y \
+  fuse-overlayfs \
   libsystemd-dev \
   lxcfs \
   sudo \
