@@ -53,9 +53,12 @@ stages:
     - sudo -u $PRIMARY_USER coverage xml
   tags:
     - privileged
+  coverage: '/TOTAL.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
   artifacts:
-    paths:
-      - coverage.xml
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.xml
 
 tests:cgroups1:python-3.8:
   <<: *tests-cgroupsv1
@@ -97,9 +100,12 @@ tests:cgroupsv1:python-3.12:
     - coverage xml
   tags:
     - cgroupsv2
+  coverage: '/TOTAL.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
   artifacts:
-    paths:
-      - coverage.xml
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.xml
 
 tests:cgroupsv2:python-3.8:
   <<: *tests-cgroupsv2
