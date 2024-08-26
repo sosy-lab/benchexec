@@ -91,6 +91,8 @@ tests:cgroupsv1:python-3.12:
   before_script:
     # Activate coverage for subprocesses
     - printf 'import coverage\ncoverage.process_startup()\n' > "/usr/local/lib/python${PYTHON_VERSION}/site-packages/sitecustomize.py"
+    # Prepare cgroups
+    - test/setup_cgroupsv2_in_container.sh
     # Install BenchExec with `dev` dependencies
     - pip install --user ".[dev]"
   script:
