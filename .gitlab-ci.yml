@@ -38,22 +38,18 @@ stages:
   before_script:
     # Create user, we do not want to test as root
     - adduser --disabled-login --gecos "" $PRIMARY_USER
-    # Activate coverage for subprocesses
-    - printf 'import coverage\ncoverage.process_startup()\n' > "/usr/local/lib/python${PYTHON_VERSION}/site-packages/sitecustomize.py"
     # Give $PRIMARY_USER permission to create cgroups
     - test/for_each_of_my_cgroups.sh chgrp $PRIMARY_USER
     - test/for_each_of_my_cgroups.sh chmod g+w $PRIMARY_USER
+    # Install pytest-cov (does not work with --user)
+    - pip install pytest-cov
     # Install BenchExec with `dev` dependencies
     - sudo -u $PRIMARY_USER pip install --user ".[dev]"
     # Start lxcfs
     - lxcfs /var/lib/lxcfs &
   script:
-    - sudo -u $PRIMARY_USER
-        COVERAGE_PROCESS_START=pyproject.toml
-        coverage run -m pytest -ra
+    - sudo -u $PRIMARY_USER python -m pytest -ra --cov
   after_script:
-    - sudo -u $PRIMARY_USER coverage combine -q
-    - sudo -u $PRIMARY_USER coverage report
     - sudo -u $PRIMARY_USER coverage xml
   tags:
     - privileged
@@ -89,17 +85,15 @@ tests:cgroupsv1:python-3.12:
 .tests:cgroupsv2: &tests-cgroupsv2
   stage: test
   before_script:
-    # Activate coverage for subprocesses
-    - printf 'import coverage\ncoverage.process_startup()\n' > "/usr/local/lib/python${PYTHON_VERSION}/site-packages/sitecustomize.py"
     # Prepare cgroups
     - test/setup_cgroupsv2_in_container.sh
+    # Install pytest-cov (does not work with --user)
+    - pip install pytest-cov
     # Install BenchExec with `dev` dependencies
     - pip install --user ".[dev]"
   script:
-    - COVERAGE_PROCESS_START=pyproject.toml coverage run -m pytest -ra
+    - python -m pytest -ra --cov
   after_script:
-    - coverage combine -q
-    - coverage report
     - coverage xml
   tags:
     - cgroupsv2
