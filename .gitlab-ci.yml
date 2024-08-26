@@ -86,6 +86,50 @@ tests:cgroupsv1:python-3.12:
   variables:
     PYTHON_VERSION: '3.12'
 
+.tests:cgroupsv2: &tests-cgroupsv2
+  stage: test
+  before_script:
+    # Activate coverage for subprocesses
+    - printf 'import coverage\ncoverage.process_startup()\n' > "/usr/local/lib/python${PYTHON_VERSION}/site-packages/sitecustomize.py"
+    # Install BenchExec with `dev` dependencies
+    - pip install --user ".[dev]"
+  script:
+    - COVERAGE_PROCESS_START=.coveragerc coverage run -m pytest
+  after_script:
+    - coverage combine
+    - coverage report
+    - coverage xml
+  tags:
+    - cgroupsv2
+  artifacts:
+    paths:
+      - coverage.xml
+
+tests:cgroupsv2:python-3.8:
+  <<: *tests-cgroupsv2
+  variables:
+    PYTHON_VERSION: '3.8'
+
+tests:cgroupsv2:python-3.9:
+  <<: *tests-cgroupsv2
+  variables:
+    PYTHON_VERSION: '3.9'
+
+tests:cgroupsv2:python-3.10:
+  <<: *tests-cgroupsv2
+  variables:
+    PYTHON_VERSION: '3.10'
+
+tests:cgroupsv2:python-3.11:
+  <<: *tests-cgroupsv2
+  variables:
+    PYTHON_VERSION: '3.11'
+
+tests:cgroupsv2:python-3.12:
+  <<: *tests-cgroupsv2
+  variables:
+    PYTHON_VERSION: '3.12'
+
 # Static checks
 check-format:
   stage: test
