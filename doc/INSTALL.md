@@ -120,7 +120,7 @@ and install [cpu-energy-meter], [fuse-overlayfs], [libseccomp2], [LXCFS], and [p
 
 ### Containerized Environments
 
-Please refer to the [dedicated guide](doc/benchexec-in-container.md) for the
+Please refer to the [dedicated guide](benchexec-in-container.md) for the
 necessary steps to install BenchExec inside a container.
 
 **IMPORTANT**: In any case, cgroups with all relevant controllers need to be

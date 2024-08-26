@@ -110,7 +110,9 @@ DIR_FULL_ACCESS = "full-access"
 DIR_MODES = [DIR_HIDDEN, DIR_READ_ONLY, DIR_OVERLAY, DIR_FULL_ACCESS]
 """modes how a directory can be mounted in the container"""
 
-LXCFS_PROC_DIR = b"/var/lib/lxcfs/proc"
+LXCFS_BASE_DIR = b"/var/lib/lxcfs"
+LXCFS_PROC_DIR = LXCFS_BASE_DIR + b"/proc"
+SYS_CPU_DIR = b"/sys/devices/system/cpu"
 
 _CLONE_NESTED_CALLBACK = ctypes.CFUNCTYPE(ctypes.c_int)
 """Type for callback of execute_in_namespace, nested in our primary callback."""
@@ -1182,6 +1184,15 @@ def setup_container_system_config(basedir, mountdir, dir_modes):
             "It is recommended to use '--overlay-dir %(p)s' or '--hidden-dir %(p)s' "
             "and overwrite directory modes for subdirectories where necessary.",
             {"h": CONTAINER_HOME, "p": os.path.dirname(CONTAINER_HOME)},
+        )
+
+    # Virtualize CPU info with LXCFS if directory is not hidden nor full-access
+    if (
+        os.access(LXCFS_BASE_DIR + SYS_CPU_DIR, os.R_OK)
+        and determine_directory_mode(dir_modes, SYS_CPU_DIR) == DIR_READ_ONLY
+    ):
+        make_bind_mount(
+            LXCFS_BASE_DIR + SYS_CPU_DIR, mountdir + SYS_CPU_DIR, private=True
         )
 
 
