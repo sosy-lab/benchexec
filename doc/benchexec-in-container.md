@@ -121,7 +121,7 @@ Dockerfile is located to build the container.
 
 Start the image with
 ```
-podman run --cgroups=split \
+podman run --security-opt unmask=/sys/fs/cgroup --cgroups=split \
   --security-opt unmask=/proc/* \
   --security-opt seccomp=unconfined \
   -it <tag>
