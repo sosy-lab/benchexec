@@ -60,7 +60,7 @@ stages:
         coverage_format: cobertura
         path: coverage.xml
 
-tests:cgroups1:python-3.8:
+tests:cgroupsv1:python-3.8:
   <<: *tests-cgroupsv1
   variables:
     PYTHON_VERSION: '3.8'
