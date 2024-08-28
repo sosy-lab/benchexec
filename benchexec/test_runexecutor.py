@@ -1203,31 +1203,43 @@ class TestRunExecutorWithContainer(TestRunExecutor):
         if not shutil.which("fuse-overlayfs"):
             self.skipTest("fuse-overlayfs not available")
 
-        with tempfile.NamedTemporaryFile() as test_file:
-            test_file.write(b"TEST_TOKEN")
-            test_file.seek(0)
+        test_dir = "/tmp/fuse_test/"
+        os.makedirs(test_dir, exist_ok=True)
+        test_file_path = os.path.join(test_dir, "test_file")
+
+        try:
+            with open(test_file_path, "wb") as test_file:
+                test_file.write(b"TEST_TOKEN")
+
             self.setUp(
                 dir_modes={
-                    "/": containerexecutor.DIR_OVERLAY,
+                    "/": containerexecutor.DIR_READ_ONLY,
                     "/home": containerexecutor.DIR_HIDDEN,
                     "/tmp": containerexecutor.DIR_HIDDEN,
+                    test_dir: containerexecutor.DIR_OVERLAY,
                 },
             )
             result, output = self.execute_run(
-                "/bin/sh", "-c", f"{self.echo} TOKEN_CHANGED >{test_file.name}"
+                "/bin/sh",
+                "-c",
+                f"if [ $({self.cat} {test_file_path}) != TEST_TOKEN ]; then exit 1; fi; \
+                {self.echo} TOKEN_CHANGED >{test_file_path}",
             )
             self.check_result_keys(result, "returnvalue")
             self.check_exitcode(result, 0, "exit code of inner runexec is not zero")
             self.assertTrue(
-                os.path.exists(test_file.name),
-                f"File '{test_file.name}' removed, output was:\n" + "\n".join(output),
+                os.path.exists(test_file_path),
+                f"File '{test_file_path}' removed, output was:\n" + "\n".join(output),
             )
-            test_token = test_file.read()
+            with open(test_file_path, "rb") as test_file:
+                test_token = test_file.read()
             self.assertEqual(
                 test_token.strip(),
                 b"TEST_TOKEN",
-                f"File '{test_file.name}' content is incorrect. Expected 'TEST_TOKEN', but got:\n{test_token}",
+                f"File '{test_file_path}' content is incorrect. Expected 'TEST_TOKEN', but got:\n{test_token}",
             )
+        finally:
+            shutil.rmtree(test_dir)
 
     def test_triple_nested_runexec(self):
         if not shutil.which("fuse-overlayfs"):
