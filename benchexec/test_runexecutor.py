@@ -1293,6 +1293,7 @@ class TestRunExecutorWithContainer(TestRunExecutor):
             self.setUp(
                 dir_modes={
                     "/": containerexecutor.DIR_READ_ONLY,
+                    "/home": containerexecutor.DIR_OVERLAY,
                     overlay_dir: containerexecutor.DIR_OVERLAY,
                     "/tmp": containerexecutor.DIR_FULL_ACCESS,
                 },
@@ -1300,10 +1301,12 @@ class TestRunExecutorWithContainer(TestRunExecutor):
             outer_result, outer_output = self.execute_run(*combined_cmd)
             self.check_result_keys(outer_result, "returnvalue")
             self.check_exitcode(
-                outer_result, 0, "exit code of inner runexec is not zero"
+                outer_result, 0, "exit code of outer runexec is not zero"
             )
-            with open(mid_output_file, "r") as mid_output_file:
-                self.assertIn("returnvalue=0", mid_output_file.read())
+            with open(mid_output_file, "rb") as mid_output_file:
+                self.assertIn(
+                    b"returnvalue=0", mid_output_file.read().strip().splitlines()
+                )
             self.assertTrue(
                 os.path.exists(test_file),
                 f"File '{test_file}' removed, output was:\n" + "\n".join(outer_output),
