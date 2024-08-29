@@ -1200,7 +1200,7 @@ class TestRunExecutorWithContainer(TestRunExecutor):
         )
 
     def test_fuse_overlay(self):
-        if not shutil.which("fuse-overlayfs"):
+        if not container.get_fuse_overlayfs_executable():
             self.skipTest("fuse-overlayfs not available")
 
         test_dir = "/tmp/fuse_test/"
@@ -1242,7 +1242,7 @@ class TestRunExecutorWithContainer(TestRunExecutor):
             shutil.rmtree(test_dir)
 
     def test_triple_nested_runexec(self):
-        if not shutil.which("fuse-overlayfs"):
+        if not container.get_fuse_overlayfs_executable():
             self.skipTest("missing fuse-overlayfs")
 
         with tempfile.TemporaryDirectory(prefix="BenchExec_test_") as temp_dir:
@@ -1260,13 +1260,12 @@ class TestRunExecutorWithContainer(TestRunExecutor):
             outer_cmd = [
                 "python3",
                 runexec,
-                "--container",
                 "--read-only-dir",
                 "/",
                 "--overlay-dir",
                 overlay_dir,
                 "--full-access-dir",
-                "/tmp",
+                output_dir,
                 "--output",
                 mid_output_file,
                 "--",
@@ -1274,16 +1273,21 @@ class TestRunExecutorWithContainer(TestRunExecutor):
             mid_cmd = [
                 "python3",
                 runexec,
-                "--container",
                 "--read-only-dir",
                 "/",
                 "--overlay-dir",
                 overlay_dir,
+                "--full-access-dir",
+                output_dir,
                 "--output",
                 inner_output_file,
                 "--",
             ]
-            inner_cmd = ["/bin/sh", "-c", f"{self.echo} TOKEN_CHANGED >{test_file}"]
+            inner_cmd = [
+                "/bin/sh",
+                "-c",
+                f"if [ $({self.cat} {test_file}) != TEST_TOKEN ]; then exit 1; fi; {self.echo} TOKEN_CHANGED >{test_file}",
+            ]
             combined_cmd = outer_cmd + mid_cmd + inner_cmd
 
             self.setUp(
@@ -1298,19 +1302,17 @@ class TestRunExecutorWithContainer(TestRunExecutor):
             self.check_exitcode(
                 outer_result, 0, "exit code of inner runexec is not zero"
             )
+            with open(mid_output_file, "r") as mid_output_file:
+                self.assertIn("returnvalue=0", mid_output_file.read())
             self.assertTrue(
                 os.path.exists(test_file),
                 f"File '{test_file}' removed, output was:\n" + "\n".join(outer_output),
             )
-            self.assertTrue(
-                os.path.exists(test_file),
-                f"File '{test_file}' removed, output was:\n" + "\n".join(outer_output),
-            )
-            with open(test_file, "r") as f:
-                test_token = f.read()
+            with open(test_file, "rb") as test_file:
+                test_token = test_file.read()
                 self.assertEqual(
                     test_token.strip(),
-                    "TEST_TOKEN",
+                    b"TEST_TOKEN",
                     f"File '{test_file}' content is incorrect. Expected 'TEST_TOKEN', but got:\n{test_token}",
                 )
 
