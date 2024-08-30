@@ -593,12 +593,13 @@ class CgroupsV2(Cgroups):
         return None
 
     def _read_pressure_stall_information(self, subsystem):
-        for line in open(self.path / (subsystem + ".pressure")):
-            if line.startswith("some "):
-                for item in line.split(" ")[1:]:
-                    k, v = item.split("=")
-                    if k == "total":
-                        return Decimal(v) / 1_000_000
+        with open(self.path / (subsystem + ".pressure")) as pressure_file:
+            for line in pressure_file:
+                if line.startswith("some "):
+                    for item in line.split(" ")[1:]:
+                        k, v = item.split("=")
+                        if k == "total":
+                            return Decimal(v) / 1_000_000
         return None
 
     def read_mem_pressure(self):
