@@ -238,14 +238,14 @@ that BenchExec will soon stop supporting Python 3.6.
   ([documentation](https://github.com/sosy-lab/benchexec/blob/main/doc/table-generator.md#latex-export)).
   The script `contrib/statistics-tex.py` that provided a subset of this functionality so far
   is removed.
-  Thanks to @Sowasvonbot for implementing this!
+  Thanks to [@Sowasvonbot](https://github.com/Sowasvonbot) for implementing this!
 - Slight improvements for mounting overlayfs:
   - Avoid redundant mount points that could prevent certain nested mounts.
   - Avoid a warning in the kernel log.
 - Fix handling of non-printable characters in environment variables.
 - Slight improvements for the HTML tables:
   - Use of color for categories in filters
-  - More informative tooltip in quantile plots (thanks @leventeBajczi)
+  - More informative tooltip in quantile plots (thanks [@leventeBajczi](https://github.com/leventeBajczi))
 - Added and improved tool-info modules
 
 ## BenchExec 3.11 - 2022-02-09
@@ -259,7 +259,7 @@ but still be aware of it if you are accustomed to the previous behavior!
 This was also the last place in the HTML tables where filters were not respected,
 so now filters are taking into account consistently
 wherever data are shown or used.
-Thanks to @DennisSimon for implementing this!
+Thanks to [@DennisSimon](https://github.com/DennisSimon) for implementing this!
 
 There are also a few other improvements and fixes:
 
@@ -475,7 +475,7 @@ Bug fixes:
 - Improve handling of inaccessible mountpoints in containers.
   This should make it possible to use nested containers on most systems
   using the default arguments (e.g., no need for `--hidden-dir /sys`).
-- Improved row filters of HTML tables (thanks to @DennisSimon).
+- Improved row filters of HTML tables (thanks to [@DennisSimon](https://github.com/DennisSimon)).
   In addition to filtering via drop-down fields in the table header,
   it is now also possible to define filters on a separate overlay,
   which can be opened from all tabs via a button in the top-right corner
@@ -488,7 +488,7 @@ Bug fixes:
   (left-most column) individually and makes it easier to define filters
   with numeric ranges.
 - Redesigned UI for changing the plot settings of quantile and scatter plots
-  in the HTML tables (thanks to @lachnerm).
+  in the HTML tables (thanks to [@lachnerm](https://github.com/lachnerm)).
 - Hiding columns in HTML tables is now reflected in the URL.
   This makes it possible to create links to tables that hide columns.
 
@@ -573,12 +573,12 @@ produced by `table-generator`, in particular:
   While navigating through the application, the URL automatically adjusts.
   This also means that it is possible to use the "Back" button of the browser
   for going back to previously opened tabs or for closing an overlay window.
-  Thanks @DennisSimon for this!
+  Thanks [@DennisSimon](https://github.com/DennisSimon) for this!
 - Make references to files in task-definition files clickable.
   When clicking on a cell in the first column of table,
   it shows the task-definition file in an overlay.
   Now the file's YAML content is parsed and links to input files are added.
-  Thanks @lachnerm for this!
+  Thanks [@lachnerm](https://github.com/lachnerm) for this!
 - Fix filtering of negative values in half-open intervals.
 - More tooltips and hover effects on table headers to improve usability.
 - The table tab now appropriately adjusts if the browser window is resized.
@@ -626,7 +626,7 @@ This release contains only a small improvement of one tool-info module.
   The tables are now based on [React](https://reactjs.org/), load much faster,
   and provide features like pagination, sorting, and more intuitive filters.
   More information can be found in [PR #477](https://github.com/sosy-lab/benchexec/pull/477).
-  Thanks @bschor for this!
+  Thanks [@bschor](https://github.com/bschor) for this!
   Note that the tables are not usable without JavaScript anymore.
   The old kind of HTML tables can still be produced with the command-line flag
   `--static-table`, but this is deprecated and will be removed in BenchExec 3.0
@@ -801,7 +801,8 @@ This release contains only a few bug fixes:
   that exists since BenchExec 1.19.
 - Change how CPUs with several NUMA nodes per CPU are handled:
   BenchExec will now treat each NUMA node like a separate CPU package
-  and avoid creating runs that span several NUMA nodes. Thanks @alohamora!
+  and avoid creating runs that span several NUMA nodes.
+  Thanks [@alohamora](https://github.com/alohamora)!
 
 
 ## BenchExec 1.19 - 2019-06-06
@@ -823,7 +824,8 @@ This release contains only a few bug fixes:
   (e.g., host name in container is no longer the real host name).
 - Add `benchexec --no-hyperthreading`, which restricts core assignments
   to a single virtual core per physical CPU core
-  (all other sibling cores will stay unused). Thanks @alohamora!
+  (all other sibling cores will stay unused).
+  Thanks [@alohamora](https://github.com/alohamora)!
 
 
 ## BenchExec 1.18 - 2019-02-11

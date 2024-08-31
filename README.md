@@ -136,15 +136,19 @@ Contributors:
 - [Laura Bschor](https://github.com/laurabschor)
 - [Thomas Bunk](https://github.com/TBunk)
 - [Montgomery Carter](https://github.com/MontyCarter)
+- [Po-Chun Chien](https://github.com/Po-Chun-Chien)
 - [Andreas Donig](https://github.com/adonig)
+- [Florian Eder](https://github.com/schroeding)
 - [Karlheinz Friedberger](https://www.sosy-lab.org/people/friedberger)
 - [Robin Gloster](https://github.com/globin)
 - [Sam Grayson](https://github.com/charmoniumQ)
 - Peter Häring
 - [Florian Heck](https://github.com/fheck)
+- [Chinmay Joshi](https://github.com/JawHawk)
 - [George Karpenkov](http://metaworld.me/)
 - [Mike Kazantsev](http://fraggod.net/)
 - [Hugo van Kemenade](https://github.com/hugovk)
+- [Tobias Kleinert](https://github.com/Sowasvonbot)
 - [Michael Lachner](https://github.com/lachnerm)
 - [Thomas Lemberger](https://www.sosy-lab.org/people/lemberger/)
 - [Lorenz Leutgeb](https://github.com/lorenzleutgeb)
@@ -152,7 +156,7 @@ Contributors:
 - Stefan Löwe
 - [Stephan Lukasczyk](https://github.com/stephanlukasczyk)
 - [Tobias Meggendorfer](https://github.com/incaseoftrouble)
-- [Alexander von Rhein](http://www.infosun.fim.uni-passau.de/se/people-rhein.php)
+- Alexander von Rhein
 - [Alexander Schremmer](https://www.xing.com/profile/Alexander_Schremmer)
 - [Dennis Simon](https://github.com/DennisSimon)
 - [Andreas Stahlbauer](http://stahlbauer.net/)
