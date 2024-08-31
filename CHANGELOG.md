@@ -9,7 +9,7 @@ SPDX-License-Identifier: Apache-2.0
 
 # BenchExec Changelog
 
-## BenchExec 3.24
+## BenchExec 3.24 - 2024-07-29
 
 - Duplicate tasks in benchmark definitions ignored.  
   Inside a single `<tasks>` tag in a benchmark definition it can happen
@@ -27,13 +27,13 @@ The HTML tables produced by `table-generator` also contain a major
 technical improvement thanks to our GSoC participant [@EshaanAgg](https://github.com/EshaanAgg),
 but no user-visible changes.
 
-## BenchExec 3.23
+## BenchExec 3.23 - 2024-06-28
 
 As announced previously, this release works only on Python 3.8 and newer!
 
 - Fix a potential crash for CPAchecker when using `/usr/bin/cpachecker`.
 
-## BenchExec 3.22
+## BenchExec 3.22 - 2024-06-19
 
 **This will be the last release of BenchExec to support Python 3.7.**
 Future versions will require Python 3.8,
@@ -93,7 +93,7 @@ We celebrate that this release
 sets a new record for contributions from non-maintainers
 and thank all contributors!
 
-## BenchExec 3.21
+## BenchExec 3.21 - 2024-02-16
 
 - `table-generator` computes scores according to SV-COMP'24 scoring scheme.  
   This changes only the scoring for witness-validation results.
@@ -103,11 +103,11 @@ and thank all contributors!
   Now this also works for results with property files.
 - Fix for tool-info module `witnesslint`.
 
-## BenchExec 3.20
+## BenchExec 3.20 - 2023-11-27
 
 - Two tool-info modules improved.
 
-## BenchExec 3.19
+## BenchExec 3.19 - 2023-11-24
 
 - Tool-info modules can now provide URLs that will be used for links in HTML tables.  
   There are two new methods, `project_url()` and `url_for_version()`
@@ -116,7 +116,7 @@ and thank all contributors!
   Most existing tool-info modules were extended with `project_url()`.
 - Many new and improved tool-info modules.
 
-## BenchExec 3.18
+## BenchExec 3.18 - 2023-10-20
 
 The big change in this release is the long-awaited support for cgroups v2!
 Please refer to the [installation instructions](https://github.com/sosy-lab/benchexec/blob/master/doc/INSTALL.md)
@@ -135,7 +135,7 @@ There are also some other minor improvements:
   but were not produced by `benchexec`.
 - A few minor improvements for better integration with Podman containers.
 
-## BenchExec 3.17
+## BenchExec 3.17 - 2023-07-11
 
 - Even more robust handling of child cgroups created within a run  
   Despite the improvements from BenchExec 3.13 there could be crashes
@@ -146,7 +146,7 @@ There are also some other minor improvements:
   The fix that was part of BenchExec 3.12 only worked if a non-printable character
   was the first character of the value of the environment variable.
 
-## BenchExec 3.16
+## BenchExec 3.16 - 2023-02-06
 
 This release works only on Python 3.7 and newer!
 
@@ -170,7 +170,7 @@ This release works only on Python 3.7 and newer!
   Instead, some numbers about the size of the resulting tables
   and the number of missing results will be logged.
 
-## BenchExec 3.15
+## BenchExec 3.15 - 2022-11-23
 
 - Updated installation instructions for Debian.  
   Manual installation of the package is needed
@@ -181,7 +181,7 @@ This release does not change the minimum supported Python version,
 but we would like to remind you
 that BenchExec will soon stop supporting Python 3.6.
 
-## BenchExec 3.14
+## BenchExec 3.14 - 2022-11-07
 
 - Added a workaround for the known glibc deadlock described in [#656](https://github.com/sosy-lab/benchexec/issues/656).  
   In most cases BenchExec should detect the deadlock
@@ -202,7 +202,7 @@ This release does not change the minimum supported Python version,
 but we would like to remind you
 that BenchExec will soon stop supporting Python 3.6.
 
-## BenchExec 3.13
+## BenchExec 3.13 - 2022-09-07
 
 - More robust handling of child cgroups created within a run  
   Note that it is not safe to execute an untrusted tool inside a BenchExec run
@@ -225,7 +225,7 @@ This release does not change the minimum supported Python version,
 but we would like to remind you
 that BenchExec will soon stop supporting Python 3.6.
 
-## BenchExec 3.12
+## BenchExec 3.12 - 2022-07-21
 
 - Compatibility with Python 3.10  
   **Note that it is expected that this is one of the last releases
@@ -248,7 +248,7 @@ that BenchExec will soon stop supporting Python 3.6.
   - More informative tooltip in quantile plots (thanks @leventeBajczi)
 - Added and improved tool-info modules
 
-## BenchExec 3.11
+## BenchExec 3.11 - 2022-02-09
 
 This release brings one major feature for the HTML tables:
 The **statistics on the summary tab are now updated on-the-fly**
@@ -278,7 +278,7 @@ There are also a few other improvements and fixes:
   when defining filters for numeric columns.
 - Some tool-info modules were improved.
 
-## BenchExec 3.10
+## BenchExec 3.10 - 2021-11-23
 
 - Fix bug in HTML tables where content of a cell could be visible
   through another cell when scrolling horizontally.
@@ -292,7 +292,7 @@ There are also a few other improvements and fixes:
 - The default branch of the git repository has been renamed to `main`.
   Please adjust forks and checkouts if required.
 
-## BenchExec 3.9
+## BenchExec 3.9 - 2021-09-28
 
 - Improved container mode to make it work more easily inside LXC containers.
 - The scatter plot in HTML tables produced by table-generator
@@ -309,7 +309,7 @@ Immediately after the release of BenchExec 3.9,
 the default branch of the repository will be renamed to `main`.
 Please adjust forks and checkouts if required.
 
-## BenchExec 3.8
+## BenchExec 3.8 - 2021-05-19
 
 This release works only on Python 3.6 and newer!
 
@@ -338,7 +338,7 @@ This release works only on Python 3.6 and newer!
 - Text selection now works as expected while an overlay window is open
   in the HTML tables (only text in the overlay will be selected).
 
-## BenchExec 3.7
+## BenchExec 3.7 - 2021-04-21
 
 This is expected to be the last BenchExec release that supports Python 3.5,
 newer releases will require Python 3.6 or newer.
@@ -376,15 +376,15 @@ Changes in this release:
 - Some improvements to tool-info modules.
 - Several updates of JS libraries, but this should not bring user-visible changes.
 
-## BenchExec 3.6
+## BenchExec 3.6 - 2020-12-11
 
 - One tool-info module improved.
 
-## BenchExec 3.5
+## BenchExec 3.5 - 2020-12-03
 
 - One tool-info module improved.
 
-## BenchExec 3.4
+## BenchExec 3.4 - 2020-12-03
 
 - BenchExec is now available in a PPA for easy installation on Ubuntu.
   Just run the following commands
@@ -413,7 +413,7 @@ Changes in this release:
   and also a loading message.
 - Several smaller bug fixes like avoiding crashes in corner cases.
 
-## BenchExec 3.3
+## BenchExec 3.3 - 2020-09-26
 
 - New API for tool-info modules (needed by `benchexec` for getting information
   about the benchmarked tool). The new API is defined by class
@@ -447,7 +447,7 @@ Changes in this release:
 - Fix a crash in `benchexec` for task with property
   but without task-definition file.
 
-## BenchExec 3.2
+## BenchExec 3.2 - 2020-08-26
 
 - The HTML tables produced by `table-generator` now provide a score-based
   quantile plot in addition to the regular quantile plot if scores are used.
@@ -468,7 +468,7 @@ Bug fixes:
 - Small fix for the new filter overlay in the HTML tables
   when the first run set has no filter.
 
-## BenchExec 3.1
+## BenchExec 3.1 - 2020-08-06
 
 - Fix our `benchexec.check_cgroups` installation check,
   which showed invalid warnings since BenchExec 2.7.
@@ -492,7 +492,7 @@ Bug fixes:
 - Hiding columns in HTML tables is now reflected in the URL.
   This makes it possible to create links to tables that hide columns.
 
-## BenchExec 3.0
+## BenchExec 3.0 - 2020-07-03
 
 This release contains only one new feature compared to BenchExec 2.7:
 
@@ -551,7 +551,7 @@ This simplification implies several more changes:
   the property files that were used during benchmarking.
 
 
-## BenchExec 2.7
+## BenchExec 2.7 - 2020-06-05
 
 - The supplied file `benchexec-cgroup.service` for cgroup configuration
   on systems with systemd now works with systemd 240 or newer
@@ -562,7 +562,7 @@ This simplification implies several more changes:
 - Directly opening the quantile tab of HTML tables via the URL works now.
 - First line of logs shown in overlay of HTML tables is selectable again.
 
-## BenchExec 2.6
+## BenchExec 2.6 - 2020-05-07
 
 This release brings several improvements for the new kind of HTML tables
 produced by `table-generator`, in particular:
@@ -608,20 +608,19 @@ There are also a few changes in other parts of BenchExec:
   task-definition files in YAML format for old-style tasks.
 
 
-## BenchExec 2.5.1
+## BenchExec 2.5.1 - 2019-12-13
 
 This release does not contain any changes to BenchExec itself,
 just for a script in the `contrib` directory.
 
-## BenchExec 2.5
+## BenchExec 2.5 - 2019-11-28
 
 This release contains only a small improvement of one tool-info module.
 
-## BenchExec 2.4
+## BenchExec 2.4 (skipped)
 
-(not released)
 
-## BenchExec 2.3
+## BenchExec 2.3 - 2019-11-28
 
 - A complete rewrite of the HTML tables produced by `table-generator`.
   The tables are now based on [React](https://reactjs.org/), load much faster,
@@ -650,7 +649,7 @@ This release contains only a small improvement of one tool-info module.
 - New tool-info modules and updates for SV-COMP'20 and Test-Comp'20.
 
 
-## BenchExec 2.2
+## BenchExec 2.2 - 2019-09-27
 
 This release fixes two security issues, all users are encouraged to update:
 
@@ -672,7 +671,7 @@ This release fixes two security issues, all users are encouraged to update:
   In such a case please file a [bug report](https://github.com/sosy-lab/benchexec/issues/new).
 
 
-## BenchExec 2.1
+## BenchExec 2.1 - 2019-09-17
 
 `benchexec` can now partition the Level 3 cache of the CPU for parallel runs
 and measure cache usage and memory bandwidth,
@@ -683,7 +682,7 @@ More information is in the [documentation](https://gitlab.com/sosy-lab/software/
 Furthermore, some error messages for systems without container support were improved.
 
 
-## BenchExec 2.0
+## BenchExec 2.0 - 2019-07-17
 
 This release does not add new features compared to BenchExec 1.22,
 but removes several deprecated features and brings several other backwards-incompatible changes
@@ -747,7 +746,7 @@ Please respond in the respective issue if one of these deprecations
 is a problem for you.
 
 
-## BenchExec 1.22
+## BenchExec 1.22 - 2019-07-11
 
 - More robust handling of Ctrl+C in `benchexec`.
   For example, output files are now always fully written, whereas previously
@@ -763,7 +762,7 @@ is a problem for you.
 - Decreased overhead of `benchexec` while runs are executing.
 
 
-## BenchExec 1.21
+## BenchExec 1.21 - 2019-06-25
 
 This release contains only a few bug fixes:
 
@@ -779,7 +778,7 @@ This release contains only a few bug fixes:
   if the freezer cgroup is not available (cf. #433).
 
 
-## BenchExec 1.20
+## BenchExec 1.20 - 2019-06-13
 
 - If `benchexec --container` is used, all code that is part of the tool-info
   module (as well as all processes started by it) are now run in a separate
@@ -805,7 +804,7 @@ This release contains only a few bug fixes:
   and avoid creating runs that span several NUMA nodes. Thanks @alohamora!
 
 
-## BenchExec 1.19
+## BenchExec 1.19 - 2019-06-06
 
 - In container mode, all temp directories are now on a `tmpfs` "RAM disk".
   This affects everything written to directories in the hidden or overlay modes.
@@ -827,7 +826,7 @@ This release contains only a few bug fixes:
   (all other sibling cores will stay unused). Thanks @alohamora!
 
 
-## BenchExec 1.18
+## BenchExec 1.18 - 2019-02-11
 
 - Add result `done` that tools can output if the standard results `true`/`false`/`unknown`
   are not applicable (for example because no property was checked),
@@ -843,7 +842,7 @@ This release contains only a few bug fixes:
 - Several small bug fixes and improvements
 
 
-## BenchExec 1.17
+## BenchExec 1.17 - 2018-11-28
 
 - Tasks can now be defined in a YAML-based format,
   cf. [the documentation](https://github.com/sosy-lab/benchexec/blob/master/doc/benchexec.md#task-definition-files)
@@ -862,7 +861,7 @@ This release contains only a few bug fixes:
 - New tool-info modules and updates for SV-COMP'19.
 
 
-## BenchExec 1.16
+## BenchExec 1.16 - 2018-01-31
 
 - Support for [energy measurements](https://github.com/sosy-lab/benchexec/blob/master/doc/resources.md#energy)
   if [cpu-energy-meter](https://github.com/sosy-lab/cpu-energy-meter) is installed.
@@ -872,14 +871,14 @@ This release contains only a few bug fixes:
 ## BenchExec 1.15 (skipped)
 
 
-## BenchExec 1.14
+## BenchExec 1.14 - 2017-12-04
 
 - Updated tool-info modules for all participants of [SV-COMP'18](https://sv-comp.sosy-lab.org/2018/).
 - Extended support for variable replacements in table-definitions
   of table-generator.
 
 
-## BenchExec 1.13
+## BenchExec 1.13 - 2017-11-07
 
 - For Debian/Ubuntu, the `.deb` package is now the recommended way
   of [installation](https://github.com/sosy-lab/benchexec/blob/master/doc/INSTALL.md),
@@ -903,13 +902,13 @@ This release contains only a few bug fixes:
 - Some new tool-info modules and updates for SV-COMP'18.
 
 
-## BenchExec 1.12
+## BenchExec 1.12 - 2017-10-02
 
 - Fix execution of runs specified with `<withoutfile>` tags
   in the benchmark definition: the name of the run was missing
   from the command-line in BenchExec 1.11.
 
-## BenchExec 1.11
+## BenchExec 1.11 - 2017-10-02
 
 - `table-generator` can now be given result XML files as arguments
   in addition to a table-definition XML file (with parameter `-x`).
@@ -935,7 +934,7 @@ is also deprecated.
 All deprecated features will be removed in BenchExec 2.0.
 
 
-## BenchExec 1.10
+## BenchExec 1.10 - 2017-01-25
 
 This release brings several smaller and medium-sized features:
 
@@ -967,7 +966,7 @@ and maybe 3.3 in BenchExec 2.0 (to be released in a few weeks).
 If this is a problem for you, please tell us in [issue #207](https://github.com/sosy-lab/benchexec/issues/207).
 
 
-## BenchExec 1.9
+## BenchExec 1.9 - 2016-05-20
 
 The main feature of this release is the addition of a [container mode](https://github.com/sosy-lab/benchexec/blob/master/doc/container.md)
 that allows to isolate runs from each other and from the host,
@@ -987,7 +986,7 @@ Further changes:
 - The default font for HTML tables has changed,
   it is now a font that supports correctly aligned digits.
 
-## BenchExec 1.8
+## BenchExec 1.8 - 2016-02-05
 
 - `benchexec` now compresses results by default: XML result files
   are compressed with BZip2, and log files are stored within a ZIP archive.
@@ -1005,7 +1004,7 @@ Further changes:
   and using results that were manually compressed or decompressed
   is also supported.
 
-## BenchExec 1.7
+## BenchExec 1.7 - 2016-01-20
 
 - Fix `table-generator` behavior for columns where different cells have different units:
   The release notes for 1.6 claimed that these columns are treated as text column,
@@ -1024,7 +1023,7 @@ Further changes:
 - Fix escaping of links in HTML tables, e.g., to log files with special characters in their name.
   This was broken in 1.6.
 
-## BenchExec 1.6
+## BenchExec 1.6 - 2016-01-19
 
 This release brings several improvements to `table-generator`:
 - `table-generator` now rounds measurement values in a scientifically correct way,
@@ -1064,7 +1063,7 @@ Other changes:
 - Simplified cgroups setup for systemd systems.
 - Improved documentation.
 
-## BenchExec 1.5
+## BenchExec 1.5 - 2015-12-18
 
 - Improved definition of time and memory limits:
   Both can now be specified including units such as "s", "min" / "MB", "GB".
@@ -1080,7 +1079,7 @@ Other changes:
   they are not consistently stored as bytes
   (this only affects extensions of BenchExec, not regular input and output for users).
 
-## BenchExec 1.4
+## BenchExec 1.4 - 2015-12-07
 
 - BenchExec moved to https://github.com/sosy-lab/benchexec
 - Fix several bugs in table-generator introduced in version 1.3.
@@ -1100,7 +1099,7 @@ Other changes:
   This is mostly an internal and documentation change, but the utility
   `benchexec.test_tool_wrapper` is now named `benchexec.test_tool_info`.
 
-## BenchExec 1.3
+## BenchExec 1.3 - 2015-11-25
 
 - Fix core assignment on AMD Bulldozer/Piledriver Opterons.
 - Measure and report CPU time usage per core
@@ -1117,7 +1116,7 @@ Other changes:
   for new tools.
 - Several new modules for integration of various software verifiers.
 
-## BenchExec 1.2
+## BenchExec 1.2 - 2015-10-19
 
 - BenchExec now records whether TurboBoost was enabled during benchmarking.
 - Updated SV-COMP scoring scheme to SV-COMP 2016.
@@ -1125,14 +1124,14 @@ Other changes:
 - Several new modules for integration of various software verifiers.
 - Some improvements to CPU-core assignment.
 
-## BenchExec 1.1
+## BenchExec 1.1 - 2015-09-11
 
 - HTML tables produced by table-generator now have a header that stays
   always visible, even when scrolling through the table.
 - A Debian package is now created for releases and made available on GitHub.
 - Small bug fixes.
 
-## BenchExec 1.0
+## BenchExec 1.0 - 2015-07-13
 
 - Multiple runs for the same file can now be shown in the table in different rows
   if they have different properties or ids.
@@ -1140,7 +1139,7 @@ Other changes:
 - Doctype declarations are now used in all XML files.
 - Statistics output at end of benchexec run was wrong.
 
-## BenchExec 0.5
+## BenchExec 0.5 - 2015-06-22
 
 - Allow to redirect stdin of the benchmarked tool in runexec / RunExecutor
 - Fix bug in measurement of CPU time
@@ -1148,7 +1147,7 @@ Other changes:
 - Improve utility command for checking cgroups to work around a problem
   with cgrulesngd not handlings threads correctly.
 
-## BenchExec 0.4
+## BenchExec 0.4 - 2015-06-03
 
 - Support for integrating SMTLib 2 compliant SMT solvers and checking the expected output.
 - runexec now supports Python 2 again.
@@ -1158,7 +1157,7 @@ Other changes:
 - Command-line arguments to all tools can be read from a file given with prefix "@".
 - Bug fixes and performance improvements.
 
-## BenchExec 0.3
+## BenchExec 0.3 - 2015-03-10
 
 - HTML tables now have header with direct access to plots.
 - Maximum score of table is generated again.
@@ -1172,12 +1171,12 @@ Other changes:
 - Added more tests.
 
 
-## BenchExec 0.2
+## BenchExec 0.2 - 2015-02-13
 
 - bug fixes
 - switch to Python 3 completely
 
 
-## BenchExec 0.1
+## BenchExec 0.1 - 2015-02-13
 
 Initial version of BenchExec as taken from the repository of CPAchecker.
