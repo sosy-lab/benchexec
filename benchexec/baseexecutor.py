@@ -124,6 +124,7 @@ class BaseExecutor(object):
 
         def wait_and_get_result():
             exitcode, ru_child = self._wait_for_process(p.pid, args[0])
+            p.poll()
 
             parent_cleanup = parent_cleanup_fn(
                 parent_setup, util.ProcessExitCode.from_raw(exitcode), "", cgroups
