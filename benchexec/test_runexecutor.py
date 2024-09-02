@@ -1202,12 +1202,8 @@ class TestRunExecutorWithContainer(TestRunExecutor):
     def test_fuse_overlay(self):
         if not container.get_fuse_overlayfs_executable():
             self.skipTest("fuse-overlayfs not available")
-
-        test_dir = "/tmp/fuse_test/"
-        os.makedirs(test_dir, exist_ok=True)
-        test_file_path = os.path.join(test_dir, "test_file")
-
-        try:
+        with tempfile.TemporaryDirectory(prefix="BenchExec_test_") as temp_dir:
+            test_file_path = os.path.join(temp_dir, "test_file")
             with open(test_file_path, "wb") as test_file:
                 test_file.write(b"TEST_TOKEN")
 
@@ -1216,7 +1212,7 @@ class TestRunExecutorWithContainer(TestRunExecutor):
                     "/": containerexecutor.DIR_READ_ONLY,
                     "/home": containerexecutor.DIR_HIDDEN,
                     "/tmp": containerexecutor.DIR_HIDDEN,
-                    test_dir: containerexecutor.DIR_OVERLAY,
+                    temp_dir: containerexecutor.DIR_OVERLAY,
                 },
             )
             result, output = self.execute_run(
@@ -1238,8 +1234,6 @@ class TestRunExecutorWithContainer(TestRunExecutor):
                 b"TEST_TOKEN",
                 f"File '{test_file_path}' content is incorrect. Expected 'TEST_TOKEN', but got:\n{test_token}",
             )
-        finally:
-            shutil.rmtree(test_dir)
 
     def test_triple_nested_runexec(self):
         if not container.get_fuse_overlayfs_executable():
@@ -1260,12 +1254,14 @@ class TestRunExecutorWithContainer(TestRunExecutor):
             outer_cmd = [
                 "python3",
                 runexec,
-                "--read-only-dir",
+                "--full-access-dir",
                 "/",
                 "--overlay-dir",
                 overlay_dir,
                 "--full-access-dir",
                 output_dir,
+                "--hidden-dir",
+                "/tmp",
                 "--output",
                 mid_output_file,
                 "--",
@@ -1273,12 +1269,14 @@ class TestRunExecutorWithContainer(TestRunExecutor):
             mid_cmd = [
                 "python3",
                 runexec,
-                "--read-only-dir",
+                "--full-access-dir",
                 "/",
                 "--overlay-dir",
                 overlay_dir,
                 "--full-access-dir",
                 output_dir,
+                "--hidden-dir",
+                "/tmp",
                 "--output",
                 inner_output_file,
                 "--",
@@ -1292,10 +1290,10 @@ class TestRunExecutorWithContainer(TestRunExecutor):
 
             self.setUp(
                 dir_modes={
-                    "/": containerexecutor.DIR_READ_ONLY,
-                    "/home": containerexecutor.DIR_OVERLAY,
+                    "/": containerexecutor.DIR_FULL_ACCESS,
+                    "/tmp": containerexecutor.DIR_HIDDEN,
                     overlay_dir: containerexecutor.DIR_OVERLAY,
-                    "/tmp": containerexecutor.DIR_FULL_ACCESS,
+                    output_dir: containerexecutor.DIR_FULL_ACCESS,
                 },
             )
             outer_result, outer_output = self.execute_run(*combined_cmd)
