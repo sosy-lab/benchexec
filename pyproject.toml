@@ -72,5 +72,11 @@ ignore = [
 ]
 
 [tool.pytest.ini_options]
+filterwarnings = [
+    "error",
+    # TODO cf. https://github.com/sosy-lab/benchexec/issues/1073
+    # To make warning visible change "ignore" to "default".
+    "ignore:subprocess .* is still running:ResourceWarning",
+]
 python_files = ["test_*.py", "test_integration/__init__.py", "test.py"]
 norecursedirs = ["contrib/p4/docker_files", "build", "benchexec/tablegenerator/react-table"]

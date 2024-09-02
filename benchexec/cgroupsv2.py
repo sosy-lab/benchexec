@@ -118,7 +118,7 @@ def initialize():
         else:
             # No usable cgroup. We might still be able to continue if we actually
             # do not require cgroups for benchmarking. So we do not fail here
-            # but return an instance that will on produce an error later.
+            # but return an instance that will only produce an error later.
             return CgroupsV2({})
 
         # Now we are the only process in this cgroup. In order to make it usable for
@@ -562,6 +562,12 @@ class CgroupsV2(Cgroups):
         # On cgroupsv2, frozen processes can still be killed, so this is all we need to
         # do.
         util.write_file("1", self.path, "cgroup.freeze", force=True)
+        # According to Lennart Poettering, this is not enough:
+        # https://lwn.net/Articles/855312/
+        # But we never encountered any problems, and new kernels have cgroup.kill
+        # anyway (since 5.14). So it is probably not worth to fix it and instead
+        # we just eventually require kernel 5.14 for cgroupsv2
+        # (before 5.19 memory measurements are missing as well).
         keep_child = self._delegated_to.path if self._delegated_to else None
         for child_cgroup in recursive_child_cgroups(self.path):
             kill_all_tasks_in_cgroup(child_cgroup)
@@ -587,12 +593,13 @@ class CgroupsV2(Cgroups):
         return None
 
     def _read_pressure_stall_information(self, subsystem):
-        for line in open(self.path / (subsystem + ".pressure")):
-            if line.startswith("some "):
-                for item in line.split(" ")[1:]:
-                    k, v = item.split("=")
-                    if k == "total":
-                        return Decimal(v) / 1_000_000
+        with open(self.path / (subsystem + ".pressure")) as pressure_file:
+            for line in pressure_file:
+                if line.startswith("some "):
+                    for item in line.split(" ")[1:]:
+                        k, v = item.split("=")
+                        if k == "total":
+                            return Decimal(v) / 1_000_000
         return None
 
     def read_mem_pressure(self):
