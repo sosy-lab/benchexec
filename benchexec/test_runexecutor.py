@@ -6,6 +6,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import contextlib
+from difflib import restore
 import logging
 import os
 import re
@@ -1239,6 +1240,13 @@ class TestRunExecutorWithContainer(TestRunExecutor):
         if not container.get_fuse_overlayfs_executable():
             self.skipTest("missing fuse-overlayfs")
 
+        # Check if COV_CORE_SOURCE environment variable is set and remove it.
+        # This is necessary because the coverage tool will not work in the nested runexec.
+        restore_env = False
+        if "COV_CORE_SOURCE" in os.environ:
+            restore_env = True
+            del os.environ["COV_CORE_SOURCE"]
+
         with tempfile.TemporaryDirectory(prefix="BenchExec_test_") as temp_dir:
             overlay_dir = os.path.join(temp_dir, "overlay")
             os.makedirs(overlay_dir)
@@ -1316,6 +1324,10 @@ class TestRunExecutorWithContainer(TestRunExecutor):
                     b"TEST_TOKEN",
                     f"File '{test_file}' content is incorrect. Expected 'TEST_TOKEN', but got:\n{test_token}",
                 )
+
+        # Restore COV_CORE_SOURCE environment variable
+        if restore_env:
+            os.environ["COV_CORE_SOURCE"] = "1"
 
 
 class _StopRunThread(threading.Thread):
