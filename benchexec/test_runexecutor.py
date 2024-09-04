@@ -6,7 +6,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import contextlib
-from difflib import restore
 import logging
 import os
 import re
