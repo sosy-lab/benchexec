@@ -572,35 +572,46 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
                     else:
                         if use_fuse:
                             # We tried to use overlayfs before, but it failed.
-                            # No need to try again, just log the error.
-                            raise OSError(
-                                e.errno,
-                                f"Failed to create overlay mount for '{mp}': {os.strerror(e.errno)}, "
-                                f"Please either install fuse-overlayfs in at least version 1.10, "
-                                f"or use a different directory mode such as '--read-only-dir {shlex.quote(mp)}'.",
-                            ) from e
-                        fuse_overlay_mount_path = setup_fuse_overlay(
-                            temp_base, work_base
-                        )
-                        if fuse_overlay_mount_path:
-                            logging.debug(
-                                "Fallback to fuse-overlayfs for overlay mount at '%s'.",
-                                mp,
+                            # No need to try again, just log the error accordingly.
+                            if os.getenv("container") == "podman" or os.path.exists(
+                                "/run/.containerenv"
+                            ):
+                                # benchexec running in a container without /dev/fuse
+                                raise OSError(
+                                    e.errno,
+                                    f"Failed to create overlay mount for '{mp}': {os.strerror(e.errno)}. "
+                                    f"Looks like benchexec is running in a container, "
+                                    f"please either launch the container with '--device /dev/fuse' "
+                                    f"or use a different directory mode, "
+                                    f"such as '--read-only-dir {shlex.quote(mp)}'.",
+                                ) from e
+                            else:
+                                raise OSError(
+                                    e.errno,
+                                    f"Failed to create overlay mount for '{mp}': {os.strerror(e.errno)}. "
+                                    f"Please either install version 1.10 or higher of fuse-overlayfs, "
+                                    f"or use a different directory mode such as '--read-only-dir {shlex.quote(mp)}'.",
+                                ) from e
+                        else:
+                            # We should try fuse-overlayfs here, this could handle triple-nested benchexec.
+                            # (cf. https://github.com/sosy-lab/benchexec/issues/1067
+                            fuse_overlay_mount_path = setup_fuse_overlay(
+                                temp_base, work_base
                             )
-                            fuse_mount_path = fuse_overlay_mount_path + mountpoint
-                            make_bind_mount(fuse_mount_path, mount_path)
-                        elif os.getenv("container") == "podman" or os.path.exists(
-                            "/run/.containerenv"
-                        ):
-                            # benchexec running in a container without /dev/fuse
-                            raise OSError(
-                                e.errno,
-                                f"Failed to create overlay mount for '{mp}': {os.strerror(e.errno)}. "
-                                f"Looks like you are running in a container, "
-                                f"please either launch the container with --device /dev/fuse "
-                                f"or use a different directory mode, "
-                                f"such as '--read-only-dir {shlex.quote(mp)}'.",
-                            ) from e
+                            if fuse_overlay_mount_path:
+                                logging.debug(
+                                    "Fallback to fuse-overlayfs for overlay mount at '%s'.",
+                                    mp,
+                                )
+                                fuse_mount_path = fuse_overlay_mount_path + mountpoint
+                                make_bind_mount(fuse_mount_path, mount_path)
+                            else:
+                                raise OSError(
+                                    e.errno,
+                                    f"Failed to create overlay mount for '{mp}': {os.strerror(e.errno)}. "
+                                    f"Please either install version 1.10 or higher of fuse-overlayfs, "
+                                    f"or use a different directory mode such as '--read-only-dir {shlex.quote(mp)}'.",
+                                ) from e
 
         elif mode == DIR_HIDDEN:
             os.makedirs(temp_path, exist_ok=True)
@@ -976,7 +987,7 @@ def setup_fuse_overlay(temp_base, work_base):
                 logging.debug("fuse-overlayfs: %s", result.stdout.decode())
         return temp_fuse
     except subprocess.CalledProcessError as e:
-        logging.critical("Failed to create overlay mount with %s: %s", fuse, e)
+        logging.debug("Failed to create overlay mount with %s: %s", fuse, e)
         return None
 
 
