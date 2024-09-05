@@ -772,12 +772,21 @@ def remount_with_additional_flags(mountpoint, fstype, existing_options, mountfla
 
 def escape_overlayfs_parameters(s):
     """
-    Safely encode a string for being used as a path for overlayfs.
+    Safely encode a string for being used as a path for both kernel overlayfs
+    and fuse-overlayfs.
     In addition to escaping ",", which separates mount options,
     we need to escape ":", which overlayfs uses to separate multiple lower dirs
     (cf. https://www.kernel.org/doc/Documentation/filesystems/overlayfs.txt).
+    Also, the path shall be nomalized to avoid issues with "//" in the beginning
+    (cf. https://github.com/sosy-lab/benchexec/pull/1062).
     """
-    return s.replace(b"\\", rb"\\").replace(b":", rb"\:").replace(b",", rb"\,")
+    assert s[0] == ord(b"/"), "Path must be absolute"
+    normalized_path = b"/" + s.lstrip(b"/")
+    return (
+        normalized_path.replace(b"\\", rb"\\")
+        .replace(b":", rb"\:")
+        .replace(b",", rb"\,")
+    )
 
 
 def make_overlay_mount(mount, lower, upper, work):
