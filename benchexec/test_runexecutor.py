@@ -1308,19 +1308,17 @@ class TestRunExecutorWithContainer(TestRunExecutor):
             self.check_exitcode(
                 outer_result, 0, "exit code of outer runexec is not zero"
             )
-            with open(mid_output_file, "rb") as mid_output_file:
-                self.assertIn(
-                    b"returnvalue=0", mid_output_file.read().strip().splitlines()
-                )
+            with open(mid_output_file, "r") as f:
+                self.assertIn("returnvalue=0", f.read().strip().splitlines())
             self.assertTrue(
                 os.path.exists(test_file),
                 f"File '{test_file}' removed, output was:\n" + "\n".join(outer_output),
             )
-            with open(test_file, "rb") as test_file:
-                test_token = test_file.read()
+            with open(test_file, "r") as f:
+                test_token = f.read()
                 self.assertEqual(
                     test_token.strip(),
-                    b"TEST_TOKEN",
+                    "TEST_TOKEN",
                     f"File '{test_file}' content is incorrect. Expected 'TEST_TOKEN', but got:\n{test_token}",
                 )
 
