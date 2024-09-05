@@ -692,7 +692,7 @@ def determine_directory_mode(dir_modes, path, fstype=None):
         result_mode == DIR_OVERLAY
         and fstype
         and (
-            fstype.startswith(b"fuse.")
+            (fstype.startswith(b"fuse.") and fstype != b"fuse.fuse-overlayfs")
             or fstype == b"autofs"
             or fstype == b"vfat"
             or fstype == b"ntfs"
