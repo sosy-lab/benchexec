@@ -1241,10 +1241,7 @@ class TestRunExecutorWithContainer(TestRunExecutor):
 
         # Check if COV_CORE_SOURCE environment variable is set and remove it.
         # This is necessary because the coverage tool will not work in the nested runexec.
-        restore_env = False
-        if "COV_CORE_SOURCE" in os.environ:
-            restore_env = True
-            del os.environ["COV_CORE_SOURCE"]
+        coverage_env_var = os.environ.pop("COV_CORE_SOURCE", None)
 
         with tempfile.TemporaryDirectory(prefix="BenchExec_test_") as temp_dir:
             overlay_dir = os.path.join(temp_dir, "overlay")
@@ -1323,8 +1320,8 @@ class TestRunExecutorWithContainer(TestRunExecutor):
                 )
 
         # Restore COV_CORE_SOURCE environment variable
-        if restore_env:
-            os.environ["COV_CORE_SOURCE"] = "1"
+        if coverage_env_var is not None:
+            os.environ["COV_CORE_SOURCE"] = coverage_env_var
 
 
 class _StopRunThread(threading.Thread):
