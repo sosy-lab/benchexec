@@ -580,7 +580,7 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
                                 raise OSError(
                                     e.errno,
                                     f"Failed to create overlay mount for '{mp}': {os.strerror(e.errno)}. "
-                                    f"Looks like benchexec is running in a container, "
+                                    f"Looks like BenchExec is running in a container, "
                                     f"please either launch the container with '--device /dev/fuse' "
                                     f"or use a different directory mode, "
                                     f"such as '--read-only-dir {shlex.quote(mp)}'.",
