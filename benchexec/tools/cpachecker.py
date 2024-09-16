@@ -194,8 +194,8 @@ class Tool(benchexec.tools.template.BaseTool2):
                 options += [f"{prefix}witness", possible_witness_files[0]]
             else:
                 raise benchexec.tools.template.UnsupportedFeatureException(
-                    f"You are passing a witness as both an option and through the task definition. "
-                    f"Please remove one of them."
+                    "You are passing a witness as both an option and through the task definition. "
+                    "Please remove one of them."
                 )
 
         return options
