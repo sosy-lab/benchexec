@@ -180,16 +180,40 @@ class Tool(benchexec.tools.template.BaseTool2):
                         f"Unsupported data_model '{data_model}' defined for task '{task}'"
                     )
 
+        if isinstance(task.options, dict) and "witness" in task.options.keys():
+            if not option_present("witness"):
+                possible_witness_files = list(
+                    filter(
+                        lambda x: x.endswith(task.options.get("witness")),
+                        task.input_files_or_empty,
+                    )
+                )
+                assert (
+                    len(possible_witness_files) == 1
+                ), f"Expected exactly one witness file, but found {len(possible_witness_files)}: {possible_witness_files}"
+                options += [f"{prefix}witness", possible_witness_files[0]]
+            else:
+                raise benchexec.tools.template.UnsupportedFeatureException(
+                    f"You are passing a witness as both an option and through the task definition. "
+                    f"Please remove one of them."
+                )
+
         return options
+
+    def _get_input_files(self, task):
+        if "witness" in task.options.keys():
+            return list(
+                filter(
+                    lambda x: not x.endswith(task.options.get("witness")),
+                    task.input_files_or_identifier,
+                )
+            )
+        return list(task.input_files_or_identifier)
 
     def cmdline(self, executable, options, task, rlimits):
         additional_options = self._get_additional_options(options, task, rlimits)
-        return (
-            [executable]
-            + options
-            + additional_options
-            + list(task.input_files_or_identifier)
-        )
+        input_files = self._get_input_files(task)
+        return [executable] + options + additional_options + input_files
 
     def determine_result(self, run):
         """
