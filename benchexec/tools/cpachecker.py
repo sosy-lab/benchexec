@@ -188,9 +188,11 @@ class Tool(benchexec.tools.template.BaseTool2):
                         task.input_files_or_empty,
                     )
                 )
-                assert (
-                    len(possible_witness_files) == 1
-                ), f"Expected exactly one witness file, but found {len(possible_witness_files)}: {possible_witness_files}"
+                if len(possible_witness_files) != 1:
+                    raise benchexec.tools.template.UnsupportedFeatureException(
+                        f"Expected exactly one witness file, but found {len(possible_witness_files)}: {possible_witness_files}"
+                    )
+
                 options += [f"{prefix}witness", possible_witness_files[0]]
             else:
                 raise benchexec.tools.template.UnsupportedFeatureException(
