@@ -6,6 +6,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
+from pathlib import Path
 import sys
 import os
 import re
@@ -182,12 +183,8 @@ class Tool(benchexec.tools.template.BaseTool2):
 
         if isinstance(task.options, dict) and "witness" in task.options.keys():
             if not option_present("witness"):
-                possible_witness_files = list(
-                    filter(
-                        lambda x: x.endswith(task.options.get("witness")),
-                        task.input_files_or_empty,
-                    )
-                )
+                possible_witness_files = self._get_witness_input_files(task)
+
                 if len(possible_witness_files) != 1:
                     raise benchexec.tools.template.UnsupportedFeatureException(
                         f"Expected exactly one witness file, but found {len(possible_witness_files)}: {possible_witness_files}"
@@ -202,19 +199,28 @@ class Tool(benchexec.tools.template.BaseTool2):
 
         return options
 
-    def _get_input_files(self, task):
-        if "witness" in task.options.keys():
-            return list(
-                filter(
-                    lambda x: not x.endswith(task.options.get("witness")),
-                    task.input_files_or_identifier,
-                )
-            )
-        return list(task.input_files_or_identifier)
+    def __partition_input_files(self, task):
+        input_files = task.input_files_or_empty
+        witness_files = []
+        other_files = []
+        for file in input_files:
+            if Path(file).name == task.options.get("witness"):
+                witness_files.append(file)
+            else:
+                other_files.append(file)
+        return witness_files, other_files
+
+    def _get_witness_input_files(self, task):
+        witness_files, _ = self.__partition_input_files(task)
+        return witness_files
+
+    def _get_non_witness_input_files(self, task):
+        _, other_files = self.__partition_input_files(task)
+        return other_files
 
     def cmdline(self, executable, options, task, rlimits):
         additional_options = self._get_additional_options(options, task, rlimits)
-        input_files = self._get_input_files(task)
+        input_files = self._get_non_witness_input_files(task)
         return [executable] + options + additional_options + input_files
 
     def determine_result(self, run):
