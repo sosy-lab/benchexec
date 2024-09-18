@@ -200,7 +200,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         return options
 
     def __partition_input_files(self, task):
-        input_files = task.input_files_or_empty
+        input_files = task.input_files_or_identifier
         witness_files = []
         other_files = []
         for file in input_files:
