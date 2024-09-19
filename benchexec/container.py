@@ -486,6 +486,20 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
         setup_fuse_overlay(temp_base, work_base) if use_fuse else None
     )
 
+    # For some reason there is a deadlock if our temp dir is not hidden,
+    # and we did not manage to solve this by forcing the mode to hidden here.
+    # The whole temp directory of the system needs to be hidden to have this working.
+    # cf. https://github.com/sosy-lab/benchexec/pull/1062#discussion_r1732494331
+    if fuse_overlay_mount_path and (
+        (temp_dir_mode := determine_directory_mode(dir_modes, temp_base))
+        not in [None, DIR_HIDDEN]
+    ):
+        raise OSError(
+            "BenchExec needs to use fuse-overlayfs but the directory mode of "
+            f'the temp directory is "{temp_dir_mode}", which would lead to a deadlock. '
+            'Please use the default "hidden" directory mode for the temp directory.'
+        )
+
     for _unused_source, full_mountpoint, fstype, options in list(get_mount_points()):
         if not util.path_is_below(full_mountpoint, mount_base):
             continue
