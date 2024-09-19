@@ -848,6 +848,10 @@ def check_use_fuse_overlayfs(mount_base, dir_modes):
                     util.path_is_below(sub_mountpoint, mountpoint)
                     and sub_mountpoint != mountpoint
                 ):
+                    logging.debug(
+                        "Using fuse-overlayfs because of mount on '%s'",
+                        mountpoint.decode(),
+                    )
                     return True
 
     return False
