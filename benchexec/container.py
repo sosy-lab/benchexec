@@ -947,8 +947,8 @@ def setup_fuse_overlay(temp_base, work_base):
     fuse = get_fuse_overlayfs_executable()
     if fuse is None:
         return None
-    temp_fuse = temp_base + b"/fuse"
-    work_fuse = work_base + b"/fuse"
+    temp_fuse = work_base + b"/fuse_mount"
+    work_fuse = work_base + b"/fuse_work"
     os.makedirs(temp_fuse, exist_ok=True)
     os.makedirs(work_fuse, exist_ok=True)
 
