@@ -47,7 +47,8 @@ or
 ```
 docker run --privileged --cap-drop=all -t my-container benchexec <arguments>
 ```
-
+If you want BenchExec to use `fuse-overlayfs` in the container,
+also specify `--device /dev/fuse`.
 
 ## BenchExec in Interactive Containers
 

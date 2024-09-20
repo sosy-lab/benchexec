@@ -69,7 +69,9 @@ For each directory in the container one of the following four access modes can b
   Writes to this directory will not be visible on the host.
 - **read-only**: This directory is visible in the container, but read-only.
 - **overlay**: This directory is visible in the container and
-  an [overlay filesystem](https://www.kernel.org/doc/Documentation/filesystems/overlayfs.txt)
+  an overlay filesystem (either from the
+  [kernel](https://www.kernel.org/doc/Documentation/filesystems/overlayfs.txt)
+  or [fuse-overlayfs])
   is layered on top of it that redirects all write accesses.
   This means that write accesses are possible in the container, but the effect of any write
   is not visible on the host, only inside the container, and not written to disk.
@@ -205,13 +207,13 @@ You can still use BenchExec if you completely disable the container mode with `-
 #### `Failed to configure container: [Errno 19] Creating overlay mount for '...' failed: No such device`
 Your kernel does not support the overlay filesystem,
 please check the [system requirements](INSTALL.md#kernel-requirements).
-You can use a different access mode for directories, e.g., with `--read-only-dir /`.
+You can use [fuse-overlayfs] or a different access mode for directories, e.g., with `--read-only-dir /`.
 If some directories need to be writable, specify other directory modes for these directories as described above.
 
 #### `Failed to configure container: [Errno 1] Creating overlay mount for '...' failed: Operation not permitted`
 Your kernel does not allow mounting the overlay filesystem inside a container.
-For this you need either Ubuntu or kernel version 5.11 or newer.
-Alternatively, if you cannot use either,
+For this you need either Ubuntu, [fuse-overlayfs], or kernel version 5.11 or newer.
+Alternatively, if you cannot use any of these,
 you can use a different access mode for directories, e.g., with `--read-only-dir /`.
 If some directories need to be writable, specify other directory modes for these directories as described above.
 
@@ -225,6 +227,9 @@ which prevents overlays from being used if there is another mountpoint somewhere
 Another limitation of the kernel is that one can only nest overlays twice,
 so if you want to run a container inside a container inside a container,
 at least one of these needs to use a non-overlay mode for this path.
+
+We recommend the installation of [fuse-overlayfs] in version 1.10 or newer,
+which supports all of these use cases.
 
 #### `Cannot change into working directory inside container: [Errno 2] No such file or directory`
 Either you have specified an invalid directory as working directory with `--dir`,
@@ -253,3 +258,5 @@ If it still occurs, please attach to all child process of BenchExec
 with `sudo gdb -p <PID>`, get a stack trace with `bt`,
 and [report an issue](https://github.com/sosy-lab/benchexec/issues/new) with as much information as possible.
 BenchExec will usually be able to continue if the hanging child process is killed.
+
+[fuse-overlayfs]: https://github.com/containers/fuse-overlayfs

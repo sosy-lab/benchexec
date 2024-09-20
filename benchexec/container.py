@@ -14,12 +14,15 @@ import errno
 import fcntl
 import logging
 import os
+import re
 import resource  # noqa: F401 @UnusedImport necessary to eagerly import this module
 import shlex
+import shutil
 import signal
 import socket
 import struct
 import sys
+import subprocess
 
 from benchexec import libc
 from benchexec import seccomp
@@ -475,6 +478,28 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
 
     overlay_count = 0
 
+    # Check if we need to use fuse-overlayfs for all overlay mounts.
+    use_fuse = check_use_fuse_overlayfs(mount_base, dir_modes)
+
+    # Create overlay mounts for all mount points.
+    fuse_overlay_mount_path = (
+        setup_fuse_overlay(temp_base, work_base) if use_fuse else None
+    )
+
+    # For some reason there is a deadlock if our temp dir is not hidden,
+    # and we did not manage to solve this by forcing the mode to hidden here.
+    # The whole temp directory of the system needs to be hidden to have this working.
+    # cf. https://github.com/sosy-lab/benchexec/pull/1062#discussion_r1732494331
+    if fuse_overlay_mount_path and (
+        (temp_dir_mode := determine_directory_mode(dir_modes, temp_base))
+        not in [None, DIR_HIDDEN]
+    ):
+        raise OSError(
+            "BenchExec needs to use fuse-overlayfs but the directory mode of "
+            f'the temp directory is "{temp_dir_mode}", which would lead to a deadlock. '
+            'Please use the default "hidden" directory mode for the temp directory.'
+        )
+
     for _unused_source, full_mountpoint, fstype, options in list(get_mount_points()):
         if not util.path_is_below(full_mountpoint, mount_base):
             continue
@@ -529,33 +554,87 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
         temp_path = temp_base + mountpoint
 
         if mode == DIR_OVERLAY:
-            overlay_count += 1
-            work_path = work_base + b"/" + str(overlay_count).encode()
-            os.makedirs(temp_path, exist_ok=True)
-            os.makedirs(work_path, exist_ok=True)
-            try:
-                # Previous mount in this place not needed if replaced with overlay dir.
-                libc.umount(mount_path)
-            except OSError as e:
-                logging.debug(e)
-            try:
-                make_overlay_mount(mount_path, mountpoint, temp_path, work_path)
-            except OSError as e:
-                mp = mountpoint.decode()
-                raise OSError(
-                    e.errno,
-                    f"Creating overlay mount for '{mp}' failed: {os.strerror(e.errno)}. "
-                    f"Please use other directory modes, "
-                    f"for example '--read-only-dir {shlex.quote(mp)}'.",
-                )
+            if os.path.ismount(mount_path):
+                try:
+                    # Previous mount in this place not needed if replaced with overlay dir.
+                    libc.umount(mount_path)
+                except OSError as e:
+                    logging.debug(e)
+
+            if use_fuse and fuse_overlay_mount_path:
+                fuse_mount_path = fuse_overlay_mount_path + mountpoint
+                make_bind_mount(fuse_mount_path, mount_path)
+            else:
+                overlay_count += 1
+                os.makedirs(temp_path, exist_ok=True)
+                work_path = work_base + b"/" + str(overlay_count).encode()
+                os.makedirs(work_path, exist_ok=True)
+                try:
+                    make_overlay_mount(mount_path, mountpoint, temp_path, work_path)
+                except OSError as e:
+                    # Resort to fuse-overlayfs if kernel overlayfs is not available.
+                    # This part of the code (using fuse-overlayfs as a fallback) is intentionally
+                    # kept as a workaround for triple-nested execution with kernel overlayfs.
+                    mp = mountpoint.decode()
+                    if fuse_overlay_mount_path:
+                        logging.debug(
+                            "Fallback to fuse-overlayfs for overlay mount at '%s'.",
+                            mp,
+                        )
+                        fuse_mount_path = fuse_overlay_mount_path + mountpoint
+                        make_bind_mount(fuse_mount_path, mount_path)
+                    else:
+                        if use_fuse:
+                            # We tried to use overlayfs before, but it failed.
+                            # No need to try again, just log the error accordingly.
+                            if os.getenv("container") == "podman" or os.path.exists(
+                                "/run/.containerenv"
+                            ):
+                                # benchexec running in a container without /dev/fuse
+                                raise OSError(
+                                    e.errno,
+                                    f"Failed to create overlay mount for '{mp}': {os.strerror(e.errno)}. "
+                                    f"Looks like BenchExec is running in a container, "
+                                    f"please either launch the container with '--device /dev/fuse' "
+                                    f"or use a different directory mode, "
+                                    f"such as '--read-only-dir {shlex.quote(mp)}'.",
+                                ) from e
+                            else:
+                                raise OSError(
+                                    e.errno,
+                                    f"Failed to create overlay mount for '{mp}': {os.strerror(e.errno)}. "
+                                    f"Please either install version 1.10 or higher of fuse-overlayfs, "
+                                    f"or use a different directory mode such as '--read-only-dir {shlex.quote(mp)}'.",
+                                ) from e
+                        else:
+                            # We should try fuse-overlayfs here, this could handle triple-nested benchexec.
+                            # (cf. https://github.com/sosy-lab/benchexec/issues/1067
+                            fuse_overlay_mount_path = setup_fuse_overlay(
+                                temp_base, work_base
+                            )
+                            if fuse_overlay_mount_path:
+                                logging.debug(
+                                    "Fallback to fuse-overlayfs for overlay mount at '%s'.",
+                                    mp,
+                                )
+                                fuse_mount_path = fuse_overlay_mount_path + mountpoint
+                                make_bind_mount(fuse_mount_path, mount_path)
+                            else:
+                                raise OSError(
+                                    e.errno,
+                                    f"Failed to create overlay mount for '{mp}': {os.strerror(e.errno)}. "
+                                    f"Please either install version 1.10 or higher of fuse-overlayfs, "
+                                    f"or use a different directory mode such as '--read-only-dir {shlex.quote(mp)}'.",
+                                ) from e
 
         elif mode == DIR_HIDDEN:
             os.makedirs(temp_path, exist_ok=True)
-            try:
-                # Previous mount in this place not needed if replaced with hidden dir.
-                libc.umount(mount_path)
-            except OSError as e:
-                logging.debug(e)
+            if os.path.ismount(mount_path):
+                try:
+                    # Previous mount in this place not needed if replaced with hidden dir.
+                    libc.umount(mount_path)
+                except OSError as e:
+                    logging.debug(e)
             make_bind_mount(temp_path, mount_path)
 
         elif mode == DIR_READ_ONLY:
@@ -638,7 +717,7 @@ def determine_directory_mode(dir_modes, path, fstype=None):
         result_mode == DIR_OVERLAY
         and fstype
         and (
-            fstype.startswith(b"fuse.")
+            (fstype.startswith(b"fuse.") and fstype != b"fuse.fuse-overlayfs")
             or fstype == b"autofs"
             or fstype == b"vfat"
             or fstype == b"ntfs"
@@ -716,6 +795,25 @@ def remount_with_additional_flags(mountpoint, fstype, existing_options, mountfla
     libc.mount(None, mountpoint, None, mountflags, None)
 
 
+def escape_overlayfs_parameters(s):
+    """
+    Safely encode a string for being used as a path for both kernel overlayfs
+    and fuse-overlayfs.
+    In addition to escaping ",", which separates mount options,
+    we need to escape ":", which overlayfs uses to separate multiple lower dirs
+    (cf. https://www.kernel.org/doc/Documentation/filesystems/overlayfs.txt).
+    Also, the path shall be nomalized to avoid issues with "//" in the beginning
+    (cf. https://github.com/sosy-lab/benchexec/pull/1062).
+    """
+    assert s[0] == ord(b"/"), "Path must be absolute"
+    normalized_path = b"/" + s.lstrip(b"/")
+    return (
+        normalized_path.replace(b"\\", rb"\\")
+        .replace(b":", rb"\:")
+        .replace(b",", rb"\,")
+    )
+
+
 def make_overlay_mount(mount, lower, upper, work):
     logging.debug(
         "Creating overlay mount: target=%s, lower=%s, upper=%s, work=%s",
@@ -725,27 +823,190 @@ def make_overlay_mount(mount, lower, upper, work):
         work,
     )
 
-    def escape(s):
-        """
-        Safely encode a string for being used as a path for overlayfs.
-        In addition to escaping ",", which separates mount options,
-        we need to escape ":", which overlayfs uses to separate multiple lower dirs
-        (cf. https://www.kernel.org/doc/Documentation/filesystems/overlayfs.txt).
-        """
-        return s.replace(b"\\", rb"\\").replace(b":", rb"\:").replace(b",", rb"\,")
-
     libc.mount(
         b"none",
         mount,
         b"overlay",
         0,
         b"lowerdir="
-        + escape(lower)
+        + escape_overlayfs_parameters(lower)
         + b",upperdir="
-        + escape(upper)
+        + escape_overlayfs_parameters(upper)
         + b",workdir="
-        + escape(work),
+        + escape_overlayfs_parameters(work),
     )
+
+
+def check_use_fuse_overlayfs(mount_base, dir_modes):
+    """
+    Check whether an overlay mountpoint requires the use of fuse-overlayfs
+    by determining if there are any sub-mounts below it.
+    """
+    mount_points = [
+        (full_mountpoint, fstype)
+        for _unused_source, full_mountpoint, fstype, _options in get_mount_points()
+        if util.path_is_below(full_mountpoint, mount_base)
+    ]
+
+    for full_mountpoint, fstype in mount_points:
+        mountpoint = full_mountpoint[len(mount_base) :] or b"/"
+        mode = determine_directory_mode(dir_modes, mountpoint, fstype)
+
+        if not mode or not os.path.exists(mountpoint):
+            continue
+
+        if mode == DIR_OVERLAY:
+            # Check if there are any sub-mounts within the current overlay mount point
+            for sub_mountpoint, _unused_fstype in mount_points:
+                if (
+                    util.path_is_below(sub_mountpoint, mountpoint)
+                    and sub_mountpoint != mountpoint
+                ):
+                    logging.debug(
+                        "Using fuse-overlayfs because of mount on '%s'",
+                        mountpoint.decode(),
+                    )
+                    return True
+
+    return False
+
+
+@contextlib.contextmanager
+def permitted_cap_as_ambient():
+    """
+    Transfer all permitted capabilities to the inheritable set
+    and raise them in the ambient set if effective.
+    Finanlly drop all ambient capabilities by removing them from the ambient set,
+    and undo changes made to inheritable set.
+
+    Used by fuse-based overlay mounts needing temporary capability elevation.
+    """
+    header = libc.CapHeader(libc.LINUX_CAPABILITY_VERSION_3, 0)
+    data = (libc.CapData * libc.LINUX_CAPABILITY_U32S_3)()
+
+    libc.capget(header, data)
+    original_inheritable = [data[0].inheritable, data[1].inheritable]
+    cap_last_cap = int(util.try_read_file("/proc/sys/kernel/cap_last_cap") or "0")
+
+    try:
+        data[0].inheritable = data[0].permitted
+        data[1].inheritable = data[1].permitted
+        libc.capset(header, data)
+
+        effective = (data[1].effective << 32) | data[0].effective
+        for cap in range(cap_last_cap + 1):
+            if effective & (1 << cap):
+                libc.prctl(libc.PR_CAP_AMBIENT, libc.PR_CAP_AMBIENT_RAISE, cap, 0, 0)
+
+        yield
+    finally:
+        libc.prctl(libc.PR_CAP_AMBIENT, libc.PR_CAP_AMBIENT_CLEAR_ALL, 0, 0, 0)
+
+        data[0].inheritable, data[1].inheritable = original_inheritable
+        libc.capset(header, data)
+
+
+def get_fuse_overlayfs_executable():
+    """
+    Retrieve the path to the fuse-overlayfs executable
+    if it is available and meets the version requirement.
+
+    @return: The path to fuse-overlayfs executable if found and valid, None otherwise.
+    """
+    fuse = shutil.which("fuse-overlayfs")
+    if fuse is None:
+        return None
+
+    try:
+        result = subprocess.run(
+            args=(fuse, "--version"),
+            check=True,
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+        )
+        output = result.stdout
+    except subprocess.CalledProcessError as e:
+        logging.warning("%s not available: %s", fuse, e)
+        return None
+
+    if match := re.search(
+        r"^fuse-overlayfs:.*?(\d+\.\d+(\.\d+)?)", output, re.MULTILINE
+    ):
+        version = [int(part) for part in match[1].split(".")]
+        if version >= [1, 10]:
+            logging.debug("%s version: %s", fuse, match[1])
+            return fuse
+        else:
+            logging.warning(
+                "Ignoring %s because its version %s is broken. "
+                "Please install version 1.10 or newer.",
+                fuse,
+                match[1],
+            )
+            return None
+    else:
+        logging.warning(
+            "Could not find version information of %s in output, but still attempt to use it.",
+            fuse,
+        )
+        return fuse
+
+
+def setup_fuse_overlay(temp_base, work_base):
+    """
+    Check if fuse-overlayfs is available on the system and,
+    if so, creates a temporary overlay filesystem by stacking the root directory
+    with a specified temporary directory.
+
+    @return: The path to the mounted overlay filesystem if successful, None otherwise.
+    """
+    fuse = get_fuse_overlayfs_executable()
+    if fuse is None:
+        return None
+    temp_fuse = work_base + b"/fuse_mount"
+    work_fuse = work_base + b"/fuse_work"
+    os.makedirs(temp_fuse, exist_ok=True)
+    os.makedirs(work_fuse, exist_ok=True)
+
+    logging.debug(
+        "Creating overlay mount with %s: target=%s, lower=%s, upper=%s, work=%s",
+        fuse,
+        temp_fuse,
+        b"/",
+        temp_base,
+        work_fuse,
+    )
+
+    cmd = (
+        fuse,
+        b"-o",
+        b"lowerdir=/"
+        + b",upperdir="
+        + escape_overlayfs_parameters(temp_base)
+        + b",workdir="
+        + escape_overlayfs_parameters(work_fuse),
+        escape_overlayfs_parameters(temp_fuse),
+    )
+
+    try:
+        with permitted_cap_as_ambient():
+            # Temporarily elevate permitted capabilities to the inheritable set
+            # and raise them in the ambient set.
+            result = subprocess.run(
+                args=cmd,
+                check=True,
+                stdin=subprocess.DEVNULL,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+            )
+            if result.stdout:
+                logging.debug("fuse-overlayfs: %s", result.stdout.decode())
+        return temp_fuse
+    except subprocess.CalledProcessError as e:
+        logging.debug("Failed to create overlay mount with %s: %s", fuse, e)
+        return None
 
 
 def mount_proc(container_system_config):
