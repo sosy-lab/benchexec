@@ -9,6 +9,33 @@ SPDX-License-Identifier: Apache-2.0
 
 # BenchExec Changelog
 
+## BenchExec 3.25 - 2024-09-17
+
+- Support for fuse-overlayfs as alternative to kernel-based overlayfs  
+  BenchExec uses overlayfs for providing a virtualized file-system
+  in its containers (unless configured otherwise by the user).
+  Unfortunately, the overlayfs implementation in the Linux kernel
+  does not support all use cases such as overlayfs for the root directory
+  or triple-nested containers (cf. #776 and #1067).
+  Now BenchExec makes use of the alternative implementation
+  [fuse-overlayfs](https://github.com/containers/fuse-overlayfs/)
+  if installed in version 1.10 or newer as an automatic fallback when necessary.
+  This makes BenchExec work again in its default configuration
+  without requiring parameters like `--read-only-dir /`.
+  We are glad about this long-awaited feature
+  being contributed by [GSoC participant](https://summerofcode.withgoogle.com/programs/2024/projects/UzhlnEel)
+  [@younghojan](https://github.com/younghojan)! Thanks!
+- Improve LXCFS integration  
+  If installed, BenchExec uses [LXCFS](https://github.com/lxc/lxcfs)
+  to provide a better virtualization of the environment visible inside the container,
+  for example by virtualizing the uptime.
+  Now we use LXCFS also to virtualize CPU information in `/proc/cpuinfo`
+  and `/sys/devices/system/cpu`.
+  This allows the benchmarked process to see more easily
+  how many CPU cores they are allowed to use.
+- New tool-info module for `super_prove`.
+
+
 ## BenchExec 3.24 - 2024-07-29
 
 - Duplicate tasks in benchmark definitions ignored.  
