@@ -103,7 +103,10 @@ cd "BenchExec-$VERSION"
 dh_make -p "benchexec_$VERSION" --createorig -f "../$TAR" -i -c apache || true
 
 dpkg-buildpackage --build=source -sa "--sign-key=$DEBKEY"
-podman run --rm -w "$(pwd)" -v "$TEMP_DEB:$TEMP_DEB:rw" ubuntu:20.04 bash -c '
+podman run --security-opt unmask=/sys/fs/cgroup --cgroups=split \
+  --security-opt unmask=/proc/* --security-opt seccomp=unconfined --device /dev/fuse \
+  --rm -w "$(pwd)" -v "$TEMP_DEB:$TEMP_DEB:rw" --rm ubuntu:20.04 \
+  "$TEMP_DEB/BenchExec-$VERSION/test/setup_cgroupsv2_in_container.sh" bash -c '
   apt-get update
   apt-get install -y --no-install-recommends dpkg-dev
   TZ=UTC DEBIAN_FRONTEND=noninteractive apt-get install -y $(dpkg-checkbuilddeps 2>&1 | grep -o "Unmet build dependencies:.*" | cut -d: -f2- | sed "s/([^)]*)//g")

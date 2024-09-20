@@ -7,6 +7,7 @@
 
 include pyproject.toml
 include *.md
+include test/*.sh
 recursive-include benchexec/tablegenerator/react-table/build *.min.js
 recursive-include benchexec/tablegenerator/react-table/build *.min.css
 recursive-include bin *
