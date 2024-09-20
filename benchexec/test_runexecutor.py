@@ -1266,6 +1266,8 @@ class TestRunExecutorWithContainer(TestRunExecutor):
                 output_dir,
                 "--hidden-dir",
                 "/tmp",
+                "--full-access-dir",
+                os.getcwd(),
                 "--output",
                 mid_output_file,
                 "--",
@@ -1281,6 +1283,8 @@ class TestRunExecutorWithContainer(TestRunExecutor):
                 output_dir,
                 "--hidden-dir",
                 "/tmp",
+                "--full-access-dir",
+                os.getcwd(),
                 "--output",
                 inner_output_file,
                 "--",
@@ -1298,6 +1302,7 @@ class TestRunExecutorWithContainer(TestRunExecutor):
                     "/tmp": containerexecutor.DIR_HIDDEN,
                     overlay_dir: containerexecutor.DIR_OVERLAY,
                     output_dir: containerexecutor.DIR_FULL_ACCESS,
+                    os.getcwd(): containerexecutor.DIR_FULL_ACCESS,
                 },
             )
             outer_result, outer_output = self.execute_run(*combined_cmd)
