@@ -60,12 +60,61 @@ class TestCpuCoresPerRun(unittest.TestCase):
     def machine(self):
         """Create the necessary parameters of get_cpu_distribution for a specific machine."""
 
+        # temporary translation of previous definition to dynamic layers to create smooth transition from
+        # old-new testsuite to new testsuite - will be removed at some point in the future, as we can
+        # define any layers we want with a simple list, simplifying the function significantly
+        # kinda horrible atm, but we can rewrite this later, it's just there to allow continuity between the tests
+        layer_definition = []
+        if self.num_of_hyperthreading_siblings:
+            layer_definition.append(
+                math.trunc(self.num_of_cores / self.num_of_hyperthreading_siblings)
+            )
+        if self.num_of_L3_regions:
+            layer_definition.append(self.num_of_L3_regions)
+        if self.num_of_NUMAs:
+            layer_definition.append(self.num_of_NUMAs)
+        if self.num_of_groups:
+            layer_definition.append(self.num_of_groups)
+        if self.num_of_packages:
+            layer_definition.append(self.num_of_packages)
+
+        # deduplication => remove all entries with 1, as this is a pointless layer
+        layer_definition = [_item for _item in layer_definition if _item > 1]
+
+        layers = []
+        print(f"{ len(layer_definition) } layers, { str(layer_definition) }")
+        print(
+            f"cores: { self.num_of_cores }, num_of_packages: { self.num_of_packages }, num_of_groups: { self.num_of_groups }, num_of_NUMAs: { self.num_of_NUMAs }, num_of_L3_regions: { self.num_of_L3_regions }, num_of_hyperthreading_siblings: { self.num_of_hyperthreading_siblings }"
+        )
+
         siblings_of_core = defaultdict(list)
         cores_of_L3cache = defaultdict(list)
         cores_of_NUMA_Region = defaultdict(list)
         cores_of_group = defaultdict(list)
         cores_of_package = defaultdict(list)
         hierarchy_levels = []
+
+        for _i in range(len(layer_definition)):
+            _layer = defaultdict(list)
+            for cpu_nr in range(self.num_of_cores):
+                print("doing: " + str(_i) + " for " + str(cpu_nr))
+                layer_number = math.trunc(
+                    cpu_nr / (self.num_of_cores / layer_definition[_i])
+                )
+                # v again, it shouldn't matter in the end, but let's keep consistent with the current implementation to keep the
+                # tests consistent: hyperthreading "cores" get the id of their real core
+                if _i == 0:
+                    _hyperthread_siblings = math.trunc(
+                        self.num_of_cores / layer_definition[_i]
+                    )
+                    layer_number = layer_number * _hyperthread_siblings
+                    layer_number -= layer_number % _hyperthread_siblings
+                # ^ we can probably get rid of this piece of code in the end, TODO
+                _layer[layer_number] = _layer.get(layer_number, [])
+                _layer[layer_number].append(cpu_nr)
+            layers.append(_layer)
+
+        layers.append({0: list(range(self.num_of_cores))})
 
         for cpu_nr in range(self.num_of_cores):
             # package
@@ -126,10 +175,16 @@ class TestCpuCoresPerRun(unittest.TestCase):
 
         # sort hierarchy_levels (list of dicts) according to the dicts' corresponding unit sizes
         hierarchy_levels.sort(key=compare_hierarchy_by_dict_length, reverse=False)
+        layers.sort(key=compare_hierarchy_by_dict_length, reverse=False)
 
         hierarchy_levels.append(get_root_level(hierarchy_levels))
 
         hierarchy_levels = filter_duplicate_hierarchy_levels(hierarchy_levels)
+        layers = filter_duplicate_hierarchy_levels(layers)
+
+        print("old: " + str(hierarchy_levels))
+        print("new: " + str(layers))
+        self.assertEqual(layers, hierarchy_levels)
 
         return (hierarchy_levels,)
 
