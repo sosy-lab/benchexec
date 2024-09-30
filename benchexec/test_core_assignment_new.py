@@ -78,9 +78,6 @@ class TestCpuCoresPerRun(unittest.TestCase):
         if self.num_of_packages:
             layer_definition.append(self.num_of_packages)
 
-        # deduplication => remove all entries with 1, as this is a pointless layer
-        layer_definition = [_item for _item in layer_definition if _item > 1]
-
         layers = []
         print(f"{ len(layer_definition) } layers, { str(layer_definition) }")
         print(
@@ -114,6 +111,7 @@ class TestCpuCoresPerRun(unittest.TestCase):
                 _layer[layer_number].append(cpu_nr)
             layers.append(_layer)
 
+        # all cores as the final layer
         layers.append({0: list(range(self.num_of_cores))})
 
         for cpu_nr in range(self.num_of_cores):
@@ -175,8 +173,6 @@ class TestCpuCoresPerRun(unittest.TestCase):
 
         # sort hierarchy_levels (list of dicts) according to the dicts' corresponding unit sizes
         hierarchy_levels.sort(key=compare_hierarchy_by_dict_length, reverse=False)
-        layers.sort(key=compare_hierarchy_by_dict_length, reverse=False)
-
         hierarchy_levels.append(get_root_level(hierarchy_levels))
 
         hierarchy_levels = filter_duplicate_hierarchy_levels(hierarchy_levels)
