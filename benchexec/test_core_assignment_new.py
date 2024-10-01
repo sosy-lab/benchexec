@@ -84,13 +84,6 @@ class TestCpuCoresPerRun(unittest.TestCase):
             f"cores: { self.num_of_cores }, num_of_packages: { self.num_of_packages }, num_of_groups: { self.num_of_groups }, num_of_NUMAs: { self.num_of_NUMAs }, num_of_L3_regions: { self.num_of_L3_regions }, num_of_hyperthreading_siblings: { self.num_of_hyperthreading_siblings }"
         )
 
-        siblings_of_core = defaultdict(list)
-        cores_of_L3cache = defaultdict(list)
-        cores_of_NUMA_Region = defaultdict(list)
-        cores_of_group = defaultdict(list)
-        cores_of_package = defaultdict(list)
-        hierarchy_levels = []
-
         for _i in range(len(layer_definition)):
             _layer = defaultdict(list)
             for cpu_nr in range(self.num_of_cores):
@@ -114,75 +107,9 @@ class TestCpuCoresPerRun(unittest.TestCase):
         # all cores as the final layer
         layers.append({0: list(range(self.num_of_cores))})
 
-        for cpu_nr in range(self.num_of_cores):
-            # package
-            if self.num_of_packages:
-                packageNr = math.trunc(
-                    cpu_nr / (self.num_of_cores / self.num_of_packages)
-                )
-                cores_of_package[packageNr].append(cpu_nr)
-
-            # groups
-            if self.num_of_groups:
-                groupNr = math.trunc(cpu_nr / (self.num_of_cores / self.num_of_groups))
-                cores_of_group[groupNr].append(cpu_nr)
-
-            # numa
-            if self.num_of_NUMAs:
-                numaNr = math.trunc(cpu_nr / (self.num_of_cores / self.num_of_NUMAs))
-                cores_of_NUMA_Region[numaNr].append(cpu_nr)
-
-            # L3
-            if self.num_of_L3_regions:
-                l3Nr = math.trunc(cpu_nr / (self.num_of_cores / self.num_of_L3_regions))
-                cores_of_L3cache[l3Nr].append(cpu_nr)
-
-            # hyper-threading siblings
-            siblings = list(
-                range(
-                    (math.trunc(cpu_nr / self.num_of_hyperthreading_siblings))
-                    * self.num_of_hyperthreading_siblings,
-                    (math.trunc(cpu_nr / self.num_of_hyperthreading_siblings) + 1)
-                    * self.num_of_hyperthreading_siblings,
-                )
-            )
-            siblings_of_core.update({cpu_nr: siblings})
-
-        cleanList = []
-        for core in siblings_of_core:
-            if core not in cleanList:
-                for sibling in siblings_of_core[core]:
-                    if sibling != core:
-                        cleanList.append(sibling)
-        for element in cleanList:
-            siblings_of_core.pop(element)
-
-        for item in [
-            siblings_of_core,
-            cores_of_L3cache,
-            cores_of_NUMA_Region,
-            cores_of_package,
-            cores_of_group,
-        ]:
-            if item:
-                hierarchy_levels.append(item)
-
-        # comparator function for number of elements in dictionary
-        def compare_hierarchy_by_dict_length(level):
-            return len(next(iter(level.values())))
-
-        # sort hierarchy_levels (list of dicts) according to the dicts' corresponding unit sizes
-        hierarchy_levels.sort(key=compare_hierarchy_by_dict_length, reverse=False)
-        hierarchy_levels.append(get_root_level(hierarchy_levels))
-
-        hierarchy_levels = filter_duplicate_hierarchy_levels(hierarchy_levels)
         layers = filter_duplicate_hierarchy_levels(layers)
 
-        print("old: " + str(hierarchy_levels))
-        print("new: " + str(layers))
-        self.assertEqual(layers, hierarchy_levels)
-
-        return (hierarchy_levels,)
+        return (layers,)
 
     def mainAssertValid(self, coreLimit, expectedResult, maxThreads=None):
         self.coreLimit = coreLimit
