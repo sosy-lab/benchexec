@@ -12,7 +12,6 @@ import math
 from collections import defaultdict
 from benchexec.resources import (
     get_cpu_distribution,
-    get_root_level,
     filter_duplicate_hierarchy_levels,
 )
 
