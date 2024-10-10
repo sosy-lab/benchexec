@@ -85,6 +85,11 @@ tests:cgroupsv1:python-3.12:
   variables:
     PYTHON_VERSION: '3.12'
 
+tests:cgroupsv1:python-3.13:
+  <<: *tests-cgroupsv1
+  variables:
+    PYTHON_VERSION: '3.13'
+
 .tests:cgroupsv2: &tests-cgroupsv2
   stage: test
   before_script:
@@ -131,6 +136,11 @@ tests:cgroupsv2:python-3.12:
   <<: *tests-cgroupsv2
   variables:
     PYTHON_VERSION: '3.12'
+
+tests:cgroupsv2:python-3.13:
+  <<: *tests-cgroupsv2
+  variables:
+    PYTHON_VERSION: '3.13'
 
 # Static checks
 check-format:
@@ -285,3 +295,9 @@ build-docker:test:python-3.12:
   variables:
     DOCKERFILE: test/Dockerfile.python-3.12
     IMAGE: test:python-3.12
+
+build-docker:test:python-3.13:
+  extends: .build-docker
+  variables:
+    DOCKERFILE: test/Dockerfile.python-3.13
+    IMAGE: test:python-3.13
