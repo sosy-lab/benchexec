@@ -65,26 +65,6 @@ tests:cgroupsv1:python-3.8:
   variables:
     PYTHON_VERSION: '3.8'
 
-tests:cgroupsv1:python-3.9:
-  <<: *tests-cgroupsv1
-  variables:
-    PYTHON_VERSION: '3.9'
-
-tests:cgroupsv1:python-3.10:
-  <<: *tests-cgroupsv1
-  variables:
-    PYTHON_VERSION: '3.10'
-
-tests:cgroupsv1:python-3.11:
-  <<: *tests-cgroupsv1
-  variables:
-    PYTHON_VERSION: '3.11'
-
-tests:cgroupsv1:python-3.12:
-  <<: *tests-cgroupsv1
-  variables:
-    PYTHON_VERSION: '3.12'
-
 tests:cgroupsv1:python-3.13:
   <<: *tests-cgroupsv1
   variables:
