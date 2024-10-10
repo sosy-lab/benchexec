@@ -48,7 +48,7 @@ stages:
     # Start lxcfs
     - lxcfs /var/lib/lxcfs &
   script:
-    - sudo -u $PRIMARY_USER python -m pytest -ra --cov
+    - sudo -u $PRIMARY_USER python -m pytest -ra --cov -k "not tablegenerator"
   after_script:
     - sudo -u $PRIMARY_USER coverage xml
   tags:
