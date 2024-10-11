@@ -25,8 +25,6 @@ class Tool(benchexec.tools.template.BaseTool2):
         "afl-2.35b",
         "verifuzz",
         "afl-2.35b_v1",
-        "frama-c-Chlorine-20180502",
-        "UAutomizer-linux",
         "scripts",
         "supportFiles",
     ]
@@ -46,7 +44,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         return "VeriAbs"
 
     def project_url(self):
-        return "https://www.tcs.com/designing-complex-intelligent-systems"
+        return "https://www.tcs.com"
 
     def cmdline(self, executable, options, task, rlimits):
         if task.property_file:
