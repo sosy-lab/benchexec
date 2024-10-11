@@ -48,7 +48,7 @@ stages:
     # Start lxcfs
     - lxcfs /var/lib/lxcfs &
   script:
-    - sudo -u $PRIMARY_USER python -m pytest -ra --cov
+    - sudo -u $PRIMARY_USER python -m pytest -ra --cov -k "not tablegenerator"
   after_script:
     - sudo -u $PRIMARY_USER coverage xml
   tags:
@@ -65,25 +65,10 @@ tests:cgroupsv1:python-3.8:
   variables:
     PYTHON_VERSION: '3.8'
 
-tests:cgroupsv1:python-3.9:
+tests:cgroupsv1:python-3.13:
   <<: *tests-cgroupsv1
   variables:
-    PYTHON_VERSION: '3.9'
-
-tests:cgroupsv1:python-3.10:
-  <<: *tests-cgroupsv1
-  variables:
-    PYTHON_VERSION: '3.10'
-
-tests:cgroupsv1:python-3.11:
-  <<: *tests-cgroupsv1
-  variables:
-    PYTHON_VERSION: '3.11'
-
-tests:cgroupsv1:python-3.12:
-  <<: *tests-cgroupsv1
-  variables:
-    PYTHON_VERSION: '3.12'
+    PYTHON_VERSION: '3.13'
 
 .tests:cgroupsv2: &tests-cgroupsv2
   stage: test
@@ -131,6 +116,11 @@ tests:cgroupsv2:python-3.12:
   <<: *tests-cgroupsv2
   variables:
     PYTHON_VERSION: '3.12'
+
+tests:cgroupsv2:python-3.13:
+  <<: *tests-cgroupsv2
+  variables:
+    PYTHON_VERSION: '3.13'
 
 # Static checks
 check-format:
@@ -285,3 +275,9 @@ build-docker:test:python-3.12:
   variables:
     DOCKERFILE: test/Dockerfile.python-3.12
     IMAGE: test:python-3.12
+
+build-docker:test:python-3.13:
+  extends: .build-docker
+  variables:
+    DOCKERFILE: test/Dockerfile.python-3.13
+    IMAGE: test:python-3.13
