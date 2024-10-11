@@ -26,6 +26,8 @@ class Tool(benchexec.tools.template.BaseTool2):
         "verifuzz",
         "afl-2.35b_v1",
         "scripts",
+        "frama-c-Chlorine-20180502",
+        "UAutomizer-linux",
         "supportFiles",
     ]
 
