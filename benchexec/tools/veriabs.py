@@ -46,7 +46,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         return "VeriAbs"
 
     def project_url(self):
-        return "https://www.tcs.com"
+        return "https://zenodo.org/records/10243500"
 
     def cmdline(self, executable, options, task, rlimits):
         if task.property_file:
