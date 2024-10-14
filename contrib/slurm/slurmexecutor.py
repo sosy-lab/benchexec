@@ -30,7 +30,11 @@ STOPPED_BY_INTERRUPT = False
 def init(config, benchmark):
     tool_locator = tooladapter.create_tool_locator(config)
     benchmark.executable = benchmark.tool.executable(tool_locator)
-    benchmark.tool_version = benchmark.tool.version(benchmark.executable)
+    try:
+        benchmark.tool_version = benchmark.tool.version(benchmark.executable)
+    except Exception as e:
+        logging.warning("could not determine version due to error: %s", e)
+        benchmark.tool_version = None
 
 
 def get_system_info():
@@ -70,142 +74,75 @@ def _execute_run_set(
     benchmark,
     output_handler,
 ):
+    global STOPPED_BY_INTERRUPT
+
     # get times before runSet
     walltime_before = time.monotonic()
 
     output_handler.output_before_run_set(runSet)
 
-    # put all runs into a queue
-    for run in runSet.runs:
-        _Worker.working_queue.put(run)
+    if not benchmark.config.scratchdir:
+        sys.exit("No scratchdir present. Please specify using --scratchdir <path>.")
+    elif not os.path.exists(benchmark.config.scratchdir):
+        os.makedirs(benchmark.config.scratchdir)
+        logging.debug(f"Created scratchdir: {benchmark.config.scratchdir}")
+    elif not os.path.isdir(benchmark.config.scratchdir):
+        sys.exit(
+            f"Scratchdir {benchmark.config.scratchdir} not a directory. Please specify using --scratchdir <path>."
+        )
 
-    # keep a counter of unfinished runs for the below assertion
-    unfinished_runs = len(runSet.runs)
-    unfinished_runs_lock = threading.Lock()
+    os.makedirs("tmp")
 
-    def run_finished():
-        nonlocal unfinished_runs
-        with unfinished_runs_lock:
-            unfinished_runs -= 1
+    with tempfile.TemporaryDirectory(dir=benchmark.config.scratchdir) as tempdir:
+        tempdir = "tmp"
+        batch_lines = ["#!/bin/sh"]
 
-    # create some workers
-    for _ in range(min(benchmark.num_of_threads, unfinished_runs)):
-        if STOPPED_BY_INTERRUPT:
-            break
-        WORKER_THREADS.append(_Worker(benchmark, output_handler, run_finished))
+        for setting in get_resource_limits(benchmark, tempdir):
+            batch_lines.extend(["\n#SBATCH " + str(setting)])
 
-    # wait until workers are finished (all tasks done or STOPPED_BY_INTERRUPT)
-    for worker in WORKER_THREADS:
-        worker.join()
-    assert unfinished_runs == 0 or STOPPED_BY_INTERRUPT
+        batch_lines.extend([f"\n#SBATCH --array=0-{len(runSet.runs) - 1}%{benchmark.num_of_threads}"])
+        batch_lines.extend(["\n\ncase $SLURM_ARRAY_TASK_ID in"])
 
-    # get times after runSet
-    walltime_after = time.monotonic()
-    usedWallTime = walltime_after - walltime_before
+        # put all runs into a queue
+        for i, run in enumerate(runSet.runs):
+            batch_lines.extend(["\n" + str(i) + ") " + str(get_run_cli(benchmark, run.cmdline(), os.path.join(tempdir, str(i)))) + ";;"])
 
-    if STOPPED_BY_INTERRUPT:
-        output_handler.set_error("interrupted", runSet)
-    output_handler.output_after_run_set(
-        runSet,
-        walltime=usedWallTime,
-    )
+        batch_lines.extend(["\nesac"])
 
-
-def stop():
-    global STOPPED_BY_INTERRUPT
-    STOPPED_BY_INTERRUPT = True
-
-
-class _Worker(threading.Thread):
-    """
-    A Worker is a deamonic thread, that takes jobs from the working_queue and runs them.
-    """
-
-    working_queue = queue.Queue()
-
-    def __init__(self, benchmark, output_handler, run_finished_callback):
-        threading.Thread.__init__(self)  # constuctor of superclass
-        self.run_finished_callback = run_finished_callback
-        self.benchmark = benchmark
-        self.output_handler = output_handler
-        self.setDaemon(True)
-
-        self.start()
-
-    def run(self):
-        while not STOPPED_BY_INTERRUPT:
-            try:
-                currentRun = _Worker.working_queue.get_nowait()
-            except queue.Empty:
-                return
-
-            try:
-                logging.debug('Executing run "%s"', currentRun.identifier)
-                self.execute(currentRun)
-                logging.debug('Finished run "%s"', currentRun.identifier)
-            except SystemExit as e:
-                logging.critical(e)
-            except BenchExecException as e:
-                logging.critical(e)
-            except BaseException:
-                logging.exception("Exception during run execution")
-            self.run_finished_callback()
-            _Worker.working_queue.task_done()
-
-    def execute(self, run):
-        """
-        This function executes the tool with a sourcefile with options.
-        It also calls functions for output before and after the run.
-        """
-        self.output_handler.output_before_run(run)
-
-        args = run.cmdline()
-        logging.debug("Command line of run is %s", args)
+        batchfile = os.path.join(tempdir, "array.sbatch")
+        with open(batchfile, "w") as f:
+            f.writelines(batch_lines)
 
         try:
-            attempts = 0
-            while True:
-                run_result = run_slurm(
-                    self.benchmark,
-                    args,
-                    run.log_file,
-                )
-                if run_result is None:
-                    stop()
-                else:
-                    if (
-                        "terminationreason" not in run_result
-                        or not run_result["terminationreason"] == "killed"
-                        or (attempts >= self.benchmark.config.retry >= 0)
-                        or STOPPED_BY_INTERRUPT
-                    ):
-                        break
-                    attempts += 1
-                    time.sleep(1)  # as to not overcrowd a failing scheduler
-                    logging.debug(
-                        "Retrying after %d attempts, limit: %d",
-                        attempts,
-                        self.benchmark.config.retry,
-                    )
-
+            sbatch_cmd = ["sbatch", "--wait", str(batchfile)]
+            logging.debug(
+                "Command to run: %s", " ".join(map(util.escape_string_shell, sbatch_cmd))
+            )
+            sbatch_result = subprocess.run(
+                sbatch_cmd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+            )
         except KeyboardInterrupt:
             # If the run was interrupted, we ignore the result and cleanup.
-            stop()
+            STOPPED_BY_INTERRUPT = True
+
+
+
+        for i, run in enumerate(runSet.runs):
+            run.set_result(get_run_result(benchmark, os.path.join(tempdir, str(i)), run))
+            output_handler.output_after_run(run)
+
+        # get times after runSet
+        walltime_after = time.monotonic()
+        usedWallTime = walltime_after - walltime_before
 
         if STOPPED_BY_INTERRUPT:
-            try:
-                if self.benchmark.config.debug:
-                    os.rename(run.log_file, run.log_file + ".killed")
-                else:
-                    os.remove(run.log_file)
-            except OSError:
-                pass
-            return 1
-
-        run.set_result(run_result)
-        self.output_handler.output_after_run(run)
-        return None
-
+            output_handler.set_error("interrupted", runSet)
+        output_handler.output_after_run_set(
+            runSet,
+            walltime=usedWallTime,
+        )
 
 jobid_pattern = re.compile(r"job (\d*) started")
 
@@ -232,151 +169,125 @@ def wait_for(func, timeout_sec=None, poll_interval_sec=1):
         time.sleep(poll_interval_sec)
 
 
-def run_slurm(benchmark, args, log_file):
-    global STOPPED_BY_INTERRUPT
-
+def get_resource_limits(benchmark, tempdir):
     timelimit = benchmark.rlimits.cputime
     cpus = benchmark.rlimits.cpu_cores
     memory = benchmark.rlimits.memory
+    os.makedirs(os.path.join(tempdir, "logs"), exist_ok=True)
 
     srun_timelimit_h = int(timelimit / 3600)
     srun_timelimit_m = int((timelimit % 3600) / 60)
     srun_timelimit_s = int(timelimit % 60)
-    srun_timelimit = f"{srun_timelimit_h}:{srun_timelimit_m}:{srun_timelimit_s}"
+    srun_timelimit = f"{srun_timelimit_h:02d}:{srun_timelimit_m:02d}:{srun_timelimit_s:02d}"
 
-    if not benchmark.config.scratchdir:
-        sys.exit("No scratchdir present. Please specify using --scratchdir <path>.")
-    elif not os.path.exists(benchmark.config.scratchdir):
-        os.makedirs(benchmark.config.scratchdir)
-        logging.debug(f"Created scratchdir: {benchmark.config.scratchdir}")
-    elif not os.path.isdir(benchmark.config.scratchdir):
-        sys.exit(
-            f"Scratchdir {benchmark.config.scratchdir} not a directory. Please specify using --scratchdir <path>."
-        )
+    ret = [f"--output={tempdir}/logs/%A_%a.out",
+           "--time=" + str(srun_timelimit),
+           "--cpus-per-task=" + str(cpus),
+           "--mem=" + str(int(memory / 1000000)) + "M",
+           "--threads-per-core=1",  # --use_hyperthreading=False is always given here
+           "--mincpus=" + str(cpus),
+           "--ntasks=1"]
+    return ret
 
-    with tempfile.TemporaryDirectory(dir=benchmark.config.scratchdir) as tempdir:
-        tmp_log = os.path.join(tempdir, "log")
 
-        os.makedirs(os.path.join(tempdir, "upper"))
-        os.makedirs(os.path.join(tempdir, "work"))
+def get_run_cli(benchmark, args, tempdir):
+    os.makedirs(os.path.join(tempdir, "upper"))
+    os.makedirs(os.path.join(tempdir, "work"))
+    cli = []
 
-        exitcode_file = f"{tempdir}/upper/exitcode"
-
-        srun_command = [
-            "srun",
-            "--quit-on-interrupt",
-            "-t",
-            str(srun_timelimit),
-            "-c",
-            str(cpus),
-            "--mem",
-            str(int(memory / 1000000)) + "M",
-            "--threads-per-core=1",  # --use_hyperthreading=False is always given here
-            "--ntasks=1",
-        ]
-        if benchmark.config.singularity:
-            srun_command.extend(
-                [
-                    "singularity",
-                    "exec",
-                    "-B",
-                    "./:/lower",
-                    "--no-home",
-                    "-B",
-                    f"{tempdir}:/overlay",
-                    "--fusemount",
-                    f"container:fuse-overlayfs -o lowerdir=/lower -o upperdir=/overlay/upper -o workdir=/overlay/work /home/{os.getlogin()}",
-                    benchmark.config.singularity,
-                ]
-            )
-        srun_command.extend(
+    if benchmark.config.singularity:
+        cli.extend(
             [
-                "sh",
-                "-c",
-                f"echo job $SLURM_JOB_ID started; {' '.join(map(util.escape_string_shell, args))}; echo $? > exitcode",
+                "singularity",
+                "exec",
+                "-B",
+                "./:/lower",
+                "--no-home",
+                "-B",
+                f"{tempdir}:/overlay",
+                "--fusemount",
+                f"container:fuse-overlayfs -o lowerdir=/lower -o upperdir=/overlay/upper -o workdir=/overlay/work /home/{os.getlogin()}",
+                benchmark.config.singularity,
             ]
         )
+    cli.extend(
+        [
+            "sh",
+            "-c",
+            f"echo $SLURM_JOB_ID > jobid; {' '.join(map(util.escape_string_shell, args))} > log 2>&1; echo $? > exitcode",
+        ]
+    )
 
-        logging.debug(
-            "Command to run: %s", " ".join(map(util.escape_string_shell, srun_command))
-        )
-        jobid = None
-        while jobid is None and not STOPPED_BY_INTERRUPT:
-            with open(tmp_log, "w") as tmp_log_f:
-                subprocess.run(
-                    srun_command,
-                    stdout=tmp_log_f,
-                    stderr=subprocess.STDOUT,
-                )
+    logging.debug(
+        "Command to run: %s", " ".join(map(util.escape_string_shell, cli))
+    )
+    return " ".join(map(util.escape_string_shell, cli))
 
-            if (
-                STOPPED_BY_INTERRUPT
-            ):  # job cancelled while srun was running, log not necessarily finalized
-                return
+def get_run_result(benchmark, tempdir, run):
+    exitcode_file = f"{tempdir}/upper/exitcode"
+    jobid_file = f"{tempdir}/upper/jobid"
+    tmp_log = f"{tempdir}/upper/log"
 
-            # we try to read back the log, in the first three lines, there should be the jobid
-            with open(tmp_log, "r") as tmp_log_f:
-                for line in itertools.islice(tmp_log_f, 3):
-                    jobid_match = jobid_pattern.search(line)
-                    if jobid_match:
-                        jobid = int(jobid_match.group(1))
-                        break
-                    logging.debug("Pattern not found in log line: %s", line)
+    with open(jobid_file, "r") as f:
+        jobid = int(f.read())
 
-        if (
-            STOPPED_BY_INTERRUPT
-        ):  # job was cancelled during log parsing, no job id present
-            return
+    raw_output, slurm_status, exit_code, cpu_time, wall_time, memory_usage = (
+        run_seff(jobid) if benchmark.config.seff else run_sacct(jobid)
+    )
 
-        raw_output, slurm_status, exit_code, cpu_time, wall_time, memory_usage = (
-            run_seff(jobid) if benchmark.config.seff else run_sacct(jobid)
-        )
-
+    def get_returncode():
         if os.path.exists(exitcode_file):
             with open(exitcode_file, "r") as f:
                 returncode = int(f.read())
                 logging.debug("Exit code in file %s: %d", exitcode_file, returncode)
+                return returncode
         else:
-            assert (
-                slurm_status != "COMPLETED"
-            ), "Should never happen: exit code not found, but task was reported COMPLETED."
-            logging.debug("Exit code not found in file: %s", exitcode_file)
-            returncode = 0
+            return None
 
-        ret = {
-            "walltime": wall_time,
-            "cputime": cpu_time,
-            "memory": memory_usage,
-            "exitcode": ProcessExitCode.create(value=returncode),
-        }
 
-        if slurm_status != "COMPLETED":
-            ret["terminationreason"] = {
-                "OUT_OF_MEMORY": "memory",
-                "OUT_OF_ME+": "memory",
-                "TIMEOUT": "cputime",
-                "ERROR": "failed",
-                "FAILED": "killed",
-                "CANCELLED": "killed",
-            }.get(slurm_status, slurm_status)
+    if slurm_status == "COMPLETED":
+        try:
+            returncode = wait_for(get_returncode, 30, 2)
+        except Exception as e:
+            print(tempdir)
+            raise e
+    else:
+        returncode = 0
 
-        # Runexec would populate the first 6 lines with metadata
-        with open(log_file, "w+") as file:
-            with open(tmp_log, "r") as log_source:
-                content = log_source.read()
-                file.write(f"{' '.join(map(util.escape_string_shell, args))}")
-                file.write("\n\n\n" + "-" * 80 + "\n\n\n")
-                file.write(content)
-                if content == "":
-                    file.write("Original log file did not contain anything.")
+    ret = {
+        "walltime": wall_time,
+        "cputime": cpu_time,
+        "memory": memory_usage,
+        "exitcode": ProcessExitCode.create(value=returncode),
+    }
 
-        if benchmark.config.debug:
-            with open(log_file + ".debug_info", "w+") as file:
-                file.write(f"jobid: {jobid}\n")
-                file.write(f"seff output: {str(raw_output)}\n")
-                file.write(f"Parsed data: {str(ret)}\n")
+    if slurm_status != "COMPLETED":
+        ret["terminationreason"] = {
+            "OUT_OF_MEMORY": "memory",
+            "OUT_OF_ME+": "memory",
+            "TIMEOUT": "cputime",
+            "ERROR": "failed",
+            "FAILED": "killed",
+            "CANCELLED": "killed",
+        }.get(slurm_status, slurm_status)
 
-        return ret
+    # Runexec would populate the first 6 lines with metadata
+    with open(run.log_file, "w+") as file:
+        with open(tmp_log, "r") as log_source:
+            content = log_source.read()
+            file.write(f"{' '.join(map(util.escape_string_shell, run.cmdline()))}")
+            file.write("\n\n\n" + "-" * 80 + "\n\n\n")
+            file.write(content)
+            if content == "":
+                file.write("Original log file did not contain anything.")
+
+    if benchmark.config.debug:
+        with open(run.log_file + ".debug_info", "w+") as file:
+            file.write(f"jobid: {jobid}\n")
+            file.write(f"seff output: {str(raw_output)}\n")
+            file.write(f"Parsed data: {str(ret)}\n")
+
+    return ret
 
 
 time_pattern = re.compile(r"(?:(\d+):)?(\d+):(\d+)(?:\.(\d+))?")
@@ -405,7 +316,7 @@ def run_sacct(jobid):
         "-j",
         str(jobid),
         "-n",
-        "--format=State,ExitCode,TotalCpu,Elapsed,MaxRSS",
+        "--format=State,ExitCode,TotalCpu,Elapsed,MaxVMSize",
     ]
     logging.debug(
         "Command to run: %s", " ".join(map(util.escape_string_shell, sacct_command))
@@ -421,9 +332,9 @@ def run_sacct(jobid):
         if len(lines) < 2:
             logging.debug("Sacct output not yet ready: %s", lines)
             return None  # jobs not yet ready
-        parent_job = lines[0].split()  # State is read from here
+        parent_job = lines[-2].split()  # State is read from here
         child_job = lines[
-            1
+            -1
         ].split()  # ExitCode, TotalCPU, Elapsed and MaxRSS read from here
         logging.debug("Sacct data: parent: %s; child: %s", parent_job, child_job)
         if parent_job[0].decode() in [
@@ -447,14 +358,56 @@ def run_sacct(jobid):
                 "Sacct output not yet ready due to memory not available: %s", child_job
             )
             return None  # not finished
+
+        stdout = sacct_result.stdout
+        try:
+            state = parent_job[0].decode()
+        except Exception as e:
+            logging.warning(
+                "Could not get state due to error: %s", e
+            )
+            state = ""
+
+        try:
+            exitcode = child_job[1].decode().split(":")[0]
+        except Exception as e:
+            logging.warning(
+                "Could not get exitcode due to error: %s", e
+            )
+            exitcode = "-1"
+
+        try:
+            totalcpu = get_seconds_from_time(child_job[2].decode())
+        except Exception as e:
+            logging.warning(
+                "Could not get TotalCPU due to error: %s", e
+            )
+            totalcpu = 0
+
+        try:
+            elapsed = get_seconds_from_time(child_job[3].decode())
+        except Exception as e:
+            logging.warning(
+                "Could not get Elapsed due to error: %s", e
+            )
+            elapsed = 0
+
+        try:
+            maxvmsize = float(child_job[4].decode()[:-1]) * 1000
+        except Exception as e:
+            logging.warning(
+                "Could not get MaxVMSize due to error: %s", e
+            )
+            maxvmsize = 0
+
         return (
-            sacct_result.stdout,
-            parent_job[0].decode(),  # State
-            child_job[1].decode().split(":")[0],  # ExitCode
-            get_seconds_from_time(child_job[2].decode()),  # TotalCPU in seconds
-            get_seconds_from_time(child_job[3].decode()),  # Elapsed in seconds
-            float(child_job[4].decode()[:-1]) * 1000,
-        )  # MaxRSS in K * 1000 -> Bytes
+            stdout,
+            state,
+            exitcode,
+            totalcpu,
+            elapsed,
+            maxvmsize
+        )
 
     # sometimes `seff` needs a few extra seconds to realize the task has ended
     return wait_for(get_checked_sacct_result, 30, 2)
