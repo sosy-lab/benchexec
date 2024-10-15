@@ -5,6 +5,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, LP64
 import benchexec.tools.template
 import benchexec.result as result
 
@@ -12,6 +13,7 @@ import benchexec.result as result
 class Tool(benchexec.tools.template.BaseTool2):
     """
     Tool info for SVF: a framework for static value-flow analysis.
+    Specifically this tool is a wrapper around SVF to make it work with SV-COMP.
     - Project URL: https://github.com/Lasagnenator/svf-svc-comp
     - SVF: https://github.com/SVF-tools/SVF
     """
@@ -19,7 +21,7 @@ class Tool(benchexec.tools.template.BaseTool2):
     REQUIRED_PATHS = ["bin/", "z3"]
 
     def executable(self, tool_locator):
-        return tool_locator.find_executable("svf_run.py", subdir="bin")
+        return tool_locator.find_executable("svf_run.py")
 
     def name(self):
         return "SVF"
@@ -28,16 +30,16 @@ class Tool(benchexec.tools.template.BaseTool2):
         return "https://github.com/Lasagnenator/svf-svc-comp"
     
     def version(self, executable):
-        return "1"
+        return self._version_from_tool(executable, "--version")
 
     def cmdline(self, executable, options, task, rlimits):
-        return (
-            [executable]
-            + [f"{f}" for f in task.input_files_or_empty]
-        )
+        return [executable] + options + [task.single_input_file]
 
     def determine_result(self, run):
+        #TODO: Figure this out.
         for line in run.output:
-            if result.get_result_classification(line) != result.RESULT_CLASS_OTHER:
-                return line
+            if line.startswith("correct"):
+                return result.RESULT_TRUE_PROP
+            elif line.startswith("incorrect"):
+                return result.RESULT_FALSE_PROP
         return result.RESULT_UNKNOWN
