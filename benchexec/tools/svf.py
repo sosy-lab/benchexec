@@ -45,8 +45,8 @@ class Tool(benchexec.tools.template.BaseTool2):
     def determine_result(self, run):
         #TODO: Figure this out.
         for line in run.output:
-            if line.startswith("correct"):
+            if line.startswith("The assertion is successfully verified!!"):
                 return result.RESULT_TRUE_PROP
-            elif line.startswith("incorrect"):
+            elif line.startswith("svf_assert Fail."):
                 return result.RESULT_FALSE_PROP
         return result.RESULT_UNKNOWN
