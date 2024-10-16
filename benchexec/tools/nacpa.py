@@ -11,7 +11,7 @@ from benchexec.tools import template
 
 class Tool(template.BaseTool2):
     """
-    This tool-info module runs nacpa, a parallel portfolio
+    Tool-info module for nacpa, a parallel portfolio
     of natively compiled CPAchecker instances.
     """
 
