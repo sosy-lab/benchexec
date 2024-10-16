@@ -33,6 +33,9 @@ class Tool(template.BaseTool2):
     def name(self):
         return "nacpa"
 
+    def project_url(self):
+        return "https://gitlab.com/sosy-lab/software/nacpa"
+
     def cmdline(self, executable, options, task, rlimits):
         if "--spec" not in options and task.property_file:
             options = options + ["--spec", task.property_file]
