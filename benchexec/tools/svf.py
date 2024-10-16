@@ -19,7 +19,7 @@ class Tool(benchexec.tools.template.BaseTool2):
     - SVF version used: SVF-3.0
     """
 
-    REQUIRED_PATHS = ["svf_run.py", "svf/bin", "svf/lib/extapi.bc", "include_replace.c"]
+    REQUIRED_PATHS = ["svf", "include_replace.c"]
 
     def executable(self, tool_locator):
         return tool_locator.find_executable("svf_run.py")
@@ -44,9 +44,20 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def determine_result(self, run):
         #TODO: Figure this out.
+        good_exit = False
+        verified = True
+
         for line in run.output:
             if line.startswith("The assertion is successfully verified!!"):
-                return result.RESULT_TRUE_PROP
+                good_exit |= True
+                verified &= True
             elif line.startswith("svf_assert Fail."):
-                return result.RESULT_FALSE_PROP
-        return result.RESULT_UNKNOWN
+                good_exit |= True
+                verified &= False
+
+        if not good_exit:
+            return result.RESULT_UNKNOWN
+        elif verified:
+            return result.RESULT_TRUE_PROP
+        else:
+            return result.RESULT_FALSE_PROP
