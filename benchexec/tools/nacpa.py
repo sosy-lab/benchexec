@@ -49,7 +49,7 @@ class Tool(template.BaseTool2):
             if data_model:
                 options = options + ["--data-model", data_model]
 
-        return super().cmdline(executable, options, task, rlimits)
+        return [executable, *options, task.single_input_file]
 
     def determine_result(self, run):
         for line in reversed(run.output):
