@@ -16,19 +16,20 @@ class Tool(benchexec.tools.template.BaseTool2):
     Specifically this tool is a wrapper around SVF to make it work with SV-COMP.
     - Project URL: https://github.com/Lasagnenator/svf-svc-comp
     - SVF: https://github.com/SVF-tools/SVF
+    - SVF version used: SVF-3.0
     """
-    
-    REQUIRED_PATHS = ["bin/", "z3"]
+
+    REQUIRED_PATHS = ["svf_run.py", "svf/bin", "svf/lib/extapi.bc", "include_replace.c"]
 
     def executable(self, tool_locator):
         return tool_locator.find_executable("svf_run.py")
 
     def name(self):
         return "SVF"
-    
+
     def project_url(self):
         return "https://github.com/Lasagnenator/svf-svc-comp"
-    
+
     def version(self, executable):
         return self._version_from_tool(executable, "--version")
 
@@ -36,7 +37,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         data_model_param = get_data_model_from_task(task, {ILP32: "32", LP64: "64"})
         if data_model_param and data_model_param not in options:
             options += ["--bits", data_model_param]
-        
+
         if task.property_file:
             options += ["--prop", task.property_file]
         return [executable] + options + [task.single_input_file]
