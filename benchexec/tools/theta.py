@@ -51,7 +51,7 @@ class Tool(benchexec.tools.template.BaseTool2):
             elif "SafetyResult Safe" in line:
                 status = result.RESULT_TRUE_PROP
             elif "ParsingResult Success" in line:
-                status = "Parsing OK"
+                status = "DNF (Parsing OK)"
 
         if (
             not run.was_timeout
@@ -68,6 +68,8 @@ class Tool(benchexec.tools.template.BaseTool2):
                 status = "ERROR (server error)"
             elif run.exit_code.value == 203:
                 status = "ERROR (portfolio error)"
+            elif run.exit_code.value == 209:
+                status = "ERROR (Unsupported source element)"
             elif run.exit_code.value == 210:
                 status = "ERROR (frontend failed)"
             elif run.exit_code.value == 211:
