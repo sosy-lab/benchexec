@@ -14,9 +14,7 @@ class Tool(benchexec.tools.template.BaseTool2):
     """
     Tool info for SVF: a framework for static value-flow analysis.
     Specifically this tool is a wrapper around SVF to make it work with SV-COMP.
-    - Project URL: https://github.com/Lasagnenator/svf-svc-comp
     - SVF: https://github.com/SVF-tools/SVF
-    - SVF version used: SVF-3.0
     """
 
     REQUIRED_PATHS = ["svf", "include_replace.c"]
