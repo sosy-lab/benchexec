@@ -12,7 +12,7 @@ import benchexec.result as result
 
 class Tool(benchexec.tools.template.BaseTool2):
     """
-    Tool info for SVF: a framework for static value-flow analysis.
+    Tool info for SVF-SVC: a framework for static value-flow analysis.
     Specifically this tool is a wrapper around SVF to make it work with SV-COMP.
     - SVF: https://github.com/SVF-tools/SVF
     """
@@ -23,7 +23,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         return tool_locator.find_executable("svf_run.py")
 
     def name(self):
-        return "SVF"
+        return "SVF-SVC"
 
     def project_url(self):
         return "https://github.com/Lasagnenator/svf-svc-comp"
