@@ -43,15 +43,14 @@ class Tool(benchexec.tools.template.BaseTool2):
         return [executable] + options + [task.single_input_file]
 
     def determine_result(self, run):
-        #TODO: Figure this out.
         good_exit = False
         verified = True
 
         for line in run.output:
-            if line.startswith("The assertion is successfully verified!!"):
+            if line.startswith("Correct"):
                 good_exit |= True
                 verified &= True
-            elif line.startswith("svf_assert Fail."):
+            elif line.startswith("Incorrect"):
                 good_exit |= True
                 verified &= False
 
