@@ -54,7 +54,7 @@ class Tool(benchexec.tools.template.BaseTool2):
             elif "ParsingResult Success" in line:
                 parsing_status = "after"
 
-        if run.was_timeout and parsing_ok:
+        if run.was_timeout:
             status = result.RESULT_TIMEOUT + f" ({parsing_status} parsing finished)"
         elif (
             not run.was_timeout
@@ -84,6 +84,6 @@ class Tool(benchexec.tools.template.BaseTool2):
             elif run.exit_code.value == 221:
                 status = f"ERROR (solver error, {parsing_status} parsing finished)"
             else:
-                status = result.RESULT_ERROR
+                status = result.RESULT_ERROR + f" ({parsing_status} parsing finished)"
 
         return status
