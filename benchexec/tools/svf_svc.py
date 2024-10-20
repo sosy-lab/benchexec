@@ -38,6 +38,10 @@ class Tool(benchexec.tools.template.BaseTool2):
 
         if task.property_file:
             options += ["--prop", task.property_file]
+
+        if rlimits.cputime:
+            options += ["--time-limit", str(rlimits.cputime)]
+
         return [executable] + options + [task.single_input_file]
 
     def determine_result(self, run):
