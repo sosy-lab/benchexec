@@ -45,39 +45,44 @@ class Tool(benchexec.tools.template.BaseTool2):
         if run.was_terminated:
             return result.RESULT_ERROR
         status = result.RESULT_UNKNOWN
+        parsing_status = "before"
         for line in run.output:
             if "SafetyResult Unsafe" in line:
                 status = result.RESULT_FALSE_REACH
             elif "SafetyResult Safe" in line:
                 status = result.RESULT_TRUE_PROP
             elif "ParsingResult Success" in line:
-                status = "DNF (Parsing OK)"
+                parsing_status = "after"
 
-        if (
+        if run.was_timeout and parsing_ok:
+            status = result.RESULT_TIMEOUT + f" ({parsing_status} parsing finished)"
+        elif (
             not run.was_timeout
             and status == result.RESULT_UNKNOWN
             and run.exit_code.value != 0
         ):
             if run.exit_code.value == 1:
-                status = "ERROR (generic error)"
+                status = f"ERROR (generic error, {parsing_status} parsing finished)"
             elif run.exit_code.value == 200:
-                status = "ERROR (out of memory)"
+                status = f"ERROR (out of memory, {parsing_status} parsing finished)"
             elif run.exit_code.value == 201:
-                status = "ERROR (inner timeout)"
+                status = f"ERROR (inner timeout, {parsing_status} parsing finished)"
             elif run.exit_code.value == 202:
-                status = "ERROR (server error)"
+                status = f"ERROR (server error, {parsing_status} parsing finished)"
             elif run.exit_code.value == 203:
-                status = "ERROR (portfolio error)"
+                status = f"ERROR (portfolio error, {parsing_status} parsing finished)"
             elif run.exit_code.value == 209:
-                status = "ERROR (Unsupported source element)"
+                status = f"ERROR (Unsupported source element, {parsing_status} parsing finished)"
             elif run.exit_code.value == 210:
-                status = "ERROR (frontend failed)"
+                status = f"ERROR (frontend failed, {parsing_status} parsing finished)"
             elif run.exit_code.value == 211:
-                status = "ERROR (invalid parameter)"
+                status = f"ERROR (invalid parameter, {parsing_status} parsing finished)"
             elif run.exit_code.value == 220:
-                status = "ERROR (verification stuck)"
+                status = (
+                    f"ERROR (verification stuck, {parsing_status} parsing finished)"
+                )
             elif run.exit_code.value == 221:
-                status = "ERROR (solver error)"
+                status = f"ERROR (solver error, {parsing_status} parsing finished)"
             else:
                 status = result.RESULT_ERROR
 
