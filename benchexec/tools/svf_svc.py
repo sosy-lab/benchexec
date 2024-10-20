@@ -41,20 +41,13 @@ class Tool(benchexec.tools.template.BaseTool2):
         return [executable] + options + [task.single_input_file]
 
     def determine_result(self, run):
-        good_exit = False
-        verified = True
-
         for line in run.output:
             if line.startswith("Correct"):
-                good_exit |= True
-                verified &= True
+                return result.RESULT_TRUE_PROP
             elif line.startswith("Incorrect"):
-                good_exit |= True
-                verified &= False
+                return result.RESULT_FALSE_PROP
+            elif line.startswith("Error"):
+                # The line should contain the error message with details.
+                return line
 
-        if not good_exit:
-            return result.RESULT_UNKNOWN
-        elif verified:
-            return result.RESULT_TRUE_PROP
-        else:
-            return result.RESULT_FALSE_PROP
+        return result.RESULT_UNKNOWN
