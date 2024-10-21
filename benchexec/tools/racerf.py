@@ -30,18 +30,14 @@ class Tool(BaseTool2):
         return tool_locator.find_executable("racerf-sv.py")
 
     def cmdline(self, executable, options, task, rlimits):
-        input_files = list(task.input_files_or_identifier)
         machdep = get_data_model_from_task(
             task, {ILP32: "gcc_x86_32", LP64: "gcc_x86_64"}
         )
         machdep_opt = ["-machdep", machdep] if machdep is not None else []
 
-        return [executable] + machdep_opt + options + input_files
+        return [executable] + machdep_opt + options + list(task.input_files)
 
     def determine_result(self, run):
-        if run.was_terminated:
-            return result.RESULT_UNKNOWN
-
         if run.exit_code:
             return result.RESULT_ERROR
 
@@ -51,7 +47,10 @@ class Tool(BaseTool2):
         if run.output.any_line_contains("Data race (must)"):
             return result.RESULT_FALSE_PROP
 
-        if not run.output.any_line_contains("Data race (may)"):
+        if run.output.any_line_contains("Data race (may)"):
+            return result.RESULT_UNKNOWN
+
+        if run.output.any_line_contains("No data races found"):
             return result.RESULT_TRUE_PROP
 
-        return result.RESULT_UNKNOWN
+        return result.RESULT_ERROR
