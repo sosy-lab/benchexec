@@ -58,4 +58,4 @@ class Tool(benchexec.tools.template.BaseTool2):
             elif line.startswith("Unknown"):
                 return result.RESULT_UNKNOWN
 
-        return result.RESULT_ERROR + "(Unknown error)"
+        return result.RESULT_ERROR
