@@ -68,12 +68,14 @@ def execute_benchmark(benchmark, output_handler):
 
     output_handler.output_after_benchmark(STOPPED_BY_INTERRUPT)
 
+
 sbatch_pattern = re.compile(r"Submitted batch job (\d+)")
 
+
 def _execute_run_set(
-    runSet,
-    benchmark,
-    output_handler,
+        runSet,
+        benchmark,
+        output_handler,
 ):
     global STOPPED_BY_INTERRUPT
 
@@ -98,48 +100,94 @@ def _execute_run_set(
 
     for i in range(0, len(runSet.runs), benchmark.config.batch_size):
         if not STOPPED_BY_INTERRUPT:
-            chunk = runSet.runs[i:min(i+benchmark.config.batch_size, len(runSet.runs))]
+            chunk = runSet.runs[i:min(i + benchmark.config.batch_size, len(runSet.runs))]
             execute_batch(chunk, benchmark, output_handler)
-
 
     if STOPPED_BY_INTERRUPT:
         output_handler.set_error("interrupted", runSet)
-
 
     output_handler.output_after_run_set(
         runSet,
         walltime=usedWallTime,
     )
 
+
+def get_cpu_cmd(concurrency_factor, cores):
+    get_cpus = ("cpus=($(scontrol show job -d \"$SLURM_JOB_ID\" | grep -o 'CPU_IDs=[^ ]*' | "
+                "awk -F= ' { print $2 } ' | head -n1 | "
+                "awk -F, ' { for (i = 1; i <= NF; i++ ) { if ($i ~ /-/) "
+                "{ split($i, range, \"-\"); for (j = range[1]; j <= range[2]; j++  ) { print j } } "
+                "else { print $i } } }'))")
+    for i in range(concurrency_factor):
+        get_cpus = get_cpus + f"\nexport cpuset{i}=$(IFS=,; echo \"${{cpus[*]:{i * cores}:{cores}}}\")"
+    return get_cpus
+
+
+def lock_cpu_cmds(concurrency_factor, tempdir, bin):
+    lock_cpus = "CPUSET=\"\"; while ! {"
+    for i in range(concurrency_factor):
+        lock_cpus = lock_cpus + f" {{ mkdir {tempdir}/cpuset_{bin}_{i} 2>/dev/null && cpuset={i} && CPUSET=\"$cpuset{i}\"; }}"
+        if (i == concurrency_factor - 1):
+            lock_cpus = lock_cpus + "; }; do sleep 1; done"
+        else:
+            lock_cpus = lock_cpus + " ||"
+    unlock_cpus = f"rm -r {tempdir}/cpuset_{bin}_$cpuset"
+    return lock_cpus, unlock_cpus
+
+
 def execute_batch(
-    runs,
-    benchmark,
-    output_handler,
+        runs,
+        benchmark,
+        output_handler,
 ):
     global STOPPED_BY_INTERRUPT
     number_of_bins = int(len(runs) / benchmark.config.aggregation_factor) + 1
 
+    use_concurrency = benchmark.config.concurrency_factor != 1
+    if use_concurrency:
+        get_cpus = get_cpu_cmd(benchmark.config.concurrency_factor, benchmark.rlimits.cpu_cores)
+
     with tempfile.TemporaryDirectory(dir=benchmark.config.scratchdir) as tempdir:
-        batch_lines = ["#!/bin/sh"]
+        batch_lines = ["#!/bin/bash"]
 
         for setting in get_resource_limits(benchmark, tempdir):
             batch_lines.extend(["\n#SBATCH " + str(setting)])
 
         batch_lines.extend([f"\n#SBATCH --array=0-{number_of_bins - 1}%{benchmark.num_of_threads}"])
-        batch_lines.extend(["\n\ncase $SLURM_ARRAY_TASK_ID in"])
+        batch_lines.extend(["\n\nTMPDIR=$(mktemp -d)"])
 
-        bins={}
+        bins = {}
         # put all runs into a queue
         for i, run in enumerate(runs):
             if i % number_of_bins not in bins:
                 bins[i % number_of_bins] = []
             bins[i % number_of_bins].append((i, run))
 
-        for bin in bins:
-            batch_lines.extend(["\n" + str(bin) + ") "])
-            for (i, run) in bins[bin]:
-                batch_lines.extend(["\n  " + str(get_run_cli(benchmark, run.cmdline(), os.path.join(tempdir, str(i))))])
-            batch_lines.extend(["\n;;"])
+        if use_concurrency:
+            batch_lines.extend(["\n\n" + get_cpus])
+            batch_lines.extend(["\n\ncase $SLURM_ARRAY_TASK_ID in"])
+            for bin in bins:
+                lock_cpus, unlock_cpus = lock_cpu_cmds(benchmark.config.concurrency_factor, tempdir, bin)
+                batch_lines.extend(["\n" + str(bin) + ") "])
+                taskfile_name = f"bin{str(bin)}.tasks"
+                taskfile = os.path.join(tempdir, taskfile_name)
+                with open(taskfile, "w") as f:
+                    task_lines = []
+                    for (i, run) in bins[bin]:
+                        task_lines.extend(
+                            [lock_cpus + " && " + str(get_run_cli(benchmark, run.cmdline(), os.path.join("$TMPDIR", str(i)), os.path.join(tempdir, str(i)))) + "; " + unlock_cpus + "\n"])
+                    f.writelines(task_lines)
+                batch_lines.extend(f"\n while read -r x; do /bin/sh -c \"$x\" & done < {taskfile}")
+                batch_lines.extend("\n wait")
+                batch_lines.extend(["\n;;"])
+        else:
+            batch_lines.extend(["\n\ncase $SLURM_ARRAY_TASK_ID in"])
+            for bin in bins:
+                batch_lines.extend(["\n" + str(bin) + ") "])
+                for (i, run) in bins[bin]:
+                    batch_lines.extend(
+                        ["\n  " + str(get_run_cli(benchmark, run.cmdline(), os.path.join("$TMPDIR", str(i)), os.path.join(tempdir, str(i))))])
+                batch_lines.extend(["\n;;"])
 
         batch_lines.extend(["\nesac"])
 
@@ -183,10 +231,11 @@ def stop():
     global STOPPED_BY_INTERRUPT
     STOPPED_BY_INTERRUPT = True
 
+
 def get_resource_limits(benchmark, tempdir):
-    timelimit = benchmark.rlimits.cputime*benchmark.config.aggregation_factor*2 # safe overapprox
-    cpus = benchmark.rlimits.cpu_cores
-    memory = benchmark.rlimits.memory*1.5 # so that runexec catches the OOM, not SLURM
+    timelimit = benchmark.rlimits.cputime * benchmark.config.aggregation_factor * 2  # safe overapprox
+    cpus = benchmark.rlimits.cpu_cores * benchmark.config.concurrency_factor
+    memory = benchmark.rlimits.memory * benchmark.config.concurrency_factor * 1.5  # so that runexec catches the OOM, not SLURM
     os.makedirs(os.path.join(tempdir, "logs"), exist_ok=True)
 
     srun_timelimit_h = int(timelimit / 3600)
@@ -204,19 +253,18 @@ def get_resource_limits(benchmark, tempdir):
     return ret
 
 
-def get_run_cli(benchmark, args, tempdir):
-    os.makedirs(os.path.join(tempdir, "upper"))
-    os.makedirs(os.path.join(tempdir, "work"))
+def get_run_cli(benchmark, args, tempdir, resultdir):
+    os.makedirs(resultdir)
     cli = []
-    runexec = ["python3", "benchexec/bin/runexec", "--no-container"]
+    runexec = ["python3", "benchexec/bin/runexec", "--no-container", "--debug"]
     if benchmark.rlimits.cputime_hard:
         runexec.extend(["--timelimit", str(benchmark.rlimits.cputime_hard)])
     if benchmark.rlimits.cputime:
         runexec.extend(["--softtimelimit", str(benchmark.rlimits.cputime)])
     if benchmark.rlimits.walltime:
         runexec.extend(["--walltimelimit", str(benchmark.rlimits.walltime)])
-    # if benchmark.rlimits.cpu_cores:
-    #     runexec.extend(["--???", str(benchmark.rlimits.cpu_cores)])
+    if benchmark.config.concurrency_factor != 1:
+        runexec.extend(["--cores", "$CPUSET"])
     if benchmark.rlimits.memory:
         runexec.extend(["--memlimit", str(benchmark.rlimits.memory)])
 
@@ -243,18 +291,25 @@ def get_run_cli(benchmark, args, tempdir):
         [
             "sh",
             "-c",
-            f"{' '.join(map(util.escape_string_shell, args))} > log 2>&1"
+            f"touch started; "
+            f"{' '.join(map(util.escape_string_shell, ['echo', 'Running command: ', *args]))}; "
+            f"{' '.join(map(util.escape_string_shell, args))} 2>&1 | tee log; "
+            f"touch ended"
         ]
     )
 
-    logging.debug(
-        "Command to run: %s", " ".join(map(util.escape_string_shell, cli))
-    )
-    return " ".join(map(util.escape_string_shell, cli))
+    cli = " ".join(map(util.escape_string_shell, cli))
+    cli = cli.replace("'\"'\"'$CPUSET'\"'\"'", "'$CPUSET'")
+    cli = cli.replace("'$TMPDIR", "\"$TMPDIR").replace(":/overlay'", ":/overlay\"")
+    cli = f"mkdir -p {tempdir}/{{upper,work}}; {cli}; mv {tempdir}/upper/* {resultdir}/; rm -r {tempdir}"
+    logging.debug("Command to run: %s", cli)
+
+    return cli
+
 
 def get_run_result(tempdir, run):
-    runexec_log = f"{tempdir}/upper/log"
-    tmp_log = f"{tempdir}/upper/output.log"
+    runexec_log = f"{tempdir}/log"
+    tmp_log = f"{tempdir}/output.log"
 
     data_dict = {}
     with open(runexec_log, "r") as file:
@@ -266,11 +321,11 @@ def get_run_result(tempdir, run):
 
     ret = {}
     if "walltime" in data_dict:
-        ret["walltime"] = float(data_dict["walltime"][:-1]) # ends in 's'
+        ret["walltime"] = float(data_dict["walltime"][:-1])  # ends in 's'
     if "cputime" in data_dict:
-        ret["cputime"] = float(data_dict["cputime"][:-1]) # ends in 's'
+        ret["cputime"] = float(data_dict["cputime"][:-1])  # ends in 's'
     if "memory" in data_dict:
-        ret["memory"] = int(data_dict["memory"][:-1]) # ends in 'B'
+        ret["memory"] = int(data_dict["memory"][:-1])  # ends in 'B'
     if "returnvalue" in data_dict:
         ret["exitcode"] = ProcessExitCode.create(value=int(data_dict["returnvalue"]))
     if "exitsignal" in data_dict:

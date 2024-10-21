@@ -67,7 +67,7 @@ class Benchmark(benchexec.benchexec.BenchExec):
             dest="retry",
             type=int,
             default="0",
-            help="Retry killed jobs this many times. Use -1 for unbounded retry attempts (cannot be used with --slurm-array)",
+            help="Retry killed jobs this many times. Use -1 for unbounded retry attempts (cannot be used with --slurm-array).",
         )
         slurm_args.add_argument(
             "--use-seff",
@@ -81,7 +81,7 @@ class Benchmark(benchexec.benchexec.BenchExec):
             dest="aggregation_factor",
             type=int,
             default="10",
-            help="Aggregation factor for batch jobs (this many tasks will run in a single SLURM job)",
+            help="Aggregation factor for batch jobs (this many tasks will run in a single SLURM job).",
         )
         slurm_args.add_argument(
             "--batch-size",
@@ -90,13 +90,20 @@ class Benchmark(benchexec.benchexec.BenchExec):
             default="5000",
             help="Split run sets into batches of at most this size. Helpful in avoiding errors with script sizes.",
         )
+        slurm_args.add_argument(
+            "--parallelization",
+            dest="concurrency_factor",
+            type=int,
+            default="4",
+            help="Run this many tasks at once in one job.",
+        )
 
         return parser
 
     def load_executor(self):
         if self.config.slurm_array:
             from slurm import arrayexecutor as executor
-        if self.config.slurm:
+        elif self.config.slurm:
             from slurm import slurmexecutor as executor
         else:
             logging.warning(
