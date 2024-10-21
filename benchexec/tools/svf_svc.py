@@ -50,8 +50,12 @@ class Tool(benchexec.tools.template.BaseTool2):
                 return result.RESULT_TRUE_PROP
             elif line.startswith("Incorrect"):
                 return result.RESULT_FALSE_PROP
-            elif line.startswith("Error"):
-                # The line should contain the error message with details.
-                return line
+            elif line.startswith("Error: "):
+                # The line should contain a short error message.
+                # The tool returns errors in the format Error: info.
+                error = line[line.index(":") + 2:]
+                return result.RESULT_ERROR + "(" + error + ")"
+            elif line.startswith("Unknown"):
+                return result.RESULT_UNKNOWN
 
-        return result.RESULT_UNKNOWN
+        return result.RESULT_ERROR + "(Unknown error)"
