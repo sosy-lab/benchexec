@@ -14,7 +14,7 @@ from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, 
 
 class Tool(BaseTool2):
     """
-    Tool info for Racer-F, a data race detection plugin of Frama-C.
+    Tool info for RacerF, a data race detection plugin of Frama-C.
     """
 
     def name(self):
