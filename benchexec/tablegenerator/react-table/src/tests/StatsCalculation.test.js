@@ -6,7 +6,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from "react";
-import StatisticsTable from "../components/StatisticsTable.js";
+import Summary from "../components/Summary.js";
 import fs from "fs";
 import renderer from "react-test-renderer";
 import { getOverviewProps } from "./utils.js";
@@ -29,12 +29,16 @@ fs.readdirSync(testDir)
         overviewProps = getOverviewProps(data);
         await renderer.act(async () => {
           pythonStatComponent = renderer.create(
-            <StatisticsTable
+            <Summary
+              tools={overviewProps.originalTools}
+              tableHeader={overviewProps.tableHeader}
+              version={overviewProps.data.version}
               selectColumn={overviewProps.toggleSelectColumns}
-              tools={overviewProps.tools}
-              switchToQuantile={overviewProps.switchToQuantile}
-              hiddenCols={overviewProps.hiddenCols}
               tableData={overviewProps.tableData}
+              prepareTableValues={overviewProps.prepareTableValues}
+              changeTab={overviewProps.changeTab}
+              onStatsReady={overviewProps.onStatsReady}
+              hiddenCols={overviewProps.hiddenCols}
               stats={filterComputableStatistics(overviewProps.stats)}
             />,
           );
@@ -43,12 +47,16 @@ fs.readdirSync(testDir)
         const jsStats = await computeStats(overviewProps);
         await renderer.act(async () => {
           jsStatComponent = renderer.create(
-            <StatisticsTable
+            <Summary
+              tools={overviewProps.originalTools}
+              tableHeader={overviewProps.tableHeader}
+              version={overviewProps.data.version}
               selectColumn={overviewProps.toggleSelectColumns}
-              tools={overviewProps.tools}
-              switchToQuantile={overviewProps.switchToQuantile}
-              hiddenCols={overviewProps.hiddenCols}
               tableData={overviewProps.tableData}
+              prepareTableValues={overviewProps.prepareTableValues}
+              changeTab={overviewProps.changeTab}
+              onStatsReady={overviewProps.onStatsReady}
+              hiddenCols={overviewProps.hiddenCols}
               stats={jsStats}
             />,
           );
