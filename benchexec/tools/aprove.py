@@ -36,7 +36,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         return tool_locator.find_executable("AProVE.sh")
 
     def name(self):
-        return "AProVE (KoAT + LoAT)"
+        return "AProVE"
 
     def project_url(self):
         return "http://aprove.informatik.rwth-aachen.de/"
