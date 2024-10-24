@@ -78,7 +78,7 @@ class Tool(BaseTool2):
     def get_value_from_output(self, output, identifier):
         # search for the text in output and get its value,
         # search the first line, that starts with the searched text
-        # warn if there are more lines (multiple statistics from sequential analysis?)
+        # warn if there are more lines with the searched text
         match = None
         for line in output:
             if line.lstrip().startswith(identifier):
