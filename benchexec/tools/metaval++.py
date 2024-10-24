@@ -54,24 +54,23 @@ class Tool(BaseTool2):
             return benchexec.result.RESULT_ERROR
         lastline = run.output[-1]
         if lastline.startswith("Witness is correct"):
-            status = benchexec.result.RESULT_TRUE_PROP
+            return benchexec.result.RESULT_TRUE_PROP
         elif lastline.startswith("Witness could not be validated"):
             if ":" in lastline:
-                status = benchexec.result.RESULT_ERROR + lastline.split(":")[1].strip()
+                return benchexec.result.RESULT_ERROR + lastline.split(":")[1].strip()
             else:
-                status = benchexec.result.RESULT_ERROR
+                return benchexec.result.RESULT_ERROR
         elif lastline.startswith(
             "There was an error validating the witness in the backend verifier"
         ):
             if ":" in lastline:
-                status = benchexec.result.RESULT_ERROR + lastline.split(":")[1].strip()
+                return benchexec.result.RESULT_ERROR + lastline.split(":")[1].strip()
             else:
-                status = benchexec.result.RESULT_ERROR
+                return benchexec.result.RESULT_ERROR
         elif lastline.startswith("Witness file does not exist"):
-            status = benchexec.result.RESULT_ERROR + "(no witness)"
+            return benchexec.result.RESULT_ERROR + "(no witness)"
         else:
-            status = benchexec.result.RESULT_ERROR
-        return status
+            return benchexec.result.RESULT_ERROR
 
     def get_value_from_output(self, output, identifier):
         # search for the text in output and get its value,
