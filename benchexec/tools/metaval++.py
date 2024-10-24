@@ -17,7 +17,7 @@ class Tool(BaseTool2):
     Tool info for Deductive Validator.
     """
 
-    REQUIRED_PATHS = ["lib", "src", "metaval++.py"]
+    REQUIRED_PATHS = ["lib", "src"]
 
     def executable(self, tool_locator: BaseTool2.ToolLocator):
         return tool_locator.find_executable("metaval++.py")
