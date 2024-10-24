@@ -57,11 +57,9 @@ class Tool(BaseTool2):
             status = benchexec.result.RESULT_TRUE_PROP
         elif lastline.startswith("Witness could not be validated"):
             if ":" in lastline:
-                status = (
-                    benchexec.result.RESULT_UNKNOWN + lastline.split(":")[1].strip()
-                )
+                status = benchexec.result.RESULT_ERROR + lastline.split(":")[1].strip()
             else:
-                status = benchexec.result.RESULT_UNKNOWN
+                status = benchexec.result.RESULT_ERROR
         elif lastline.startswith(
             "There was an error validating the witness in the backend verifier"
         ):
