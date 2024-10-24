@@ -9,7 +9,7 @@ import benchexec.tools.template
 import benchexec.result as result
 from benchexec.tools.validation_utils import (
     get_non_witness_input_files,
-    add_witness_options,
+    get_witness_options,
 )
 
 
@@ -32,7 +32,7 @@ class Tool(benchexec.tools.template.BaseTool2):
             options += [task.property_file]
         input_files = get_non_witness_input_files(task)
         witness_options = ["-witness"]
-        additional_options = add_witness_options(options, task, witness_options)
+        additional_options = get_witness_options(options, task, witness_options)
         return [executable] + options + additional_options + input_files
 
     def version(self, executable):
