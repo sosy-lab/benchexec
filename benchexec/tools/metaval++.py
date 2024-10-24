@@ -22,11 +22,6 @@ class Tool(BaseTool2):
     def executable(self, tool_locator: BaseTool2.ToolLocator):
         return tool_locator.find_executable("metaval++.py")
 
-    def program_files(self, executable):
-        return [executable] + self._program_files_from_executable(
-            executable, self.REQUIRED_PATHS, parent_dir=True
-        )
-
     def version(self, executable):
         return self._version_from_tool(executable)
 
