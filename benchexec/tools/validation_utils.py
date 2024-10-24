@@ -56,7 +56,7 @@ def get_unique_non_witness_input_files(task):
 def get_witness_options(options, task, witness_options):
     additional_options = []
     if isinstance(task.options, dict) and "witness" in task.options.keys():
-        if any(witness_option in options.keys() for witness_option in witness_options):
+        if not any(witness_option in options for witness_option in witness_options):
             for witness_option in witness_options:
                 additional_options += [witness_option, get_unique_witness(task)]
         else:
