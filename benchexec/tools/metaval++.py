@@ -17,10 +17,10 @@ class Tool(BaseTool2):
     Tool info for Deductive Validator.
     """
 
-    REQUIRED_PATHS = ["lib", "src", "metaval_2.0.py"]
+    REQUIRED_PATHS = ["lib", "src", "metaval++.py"]
 
     def executable(self, tool_locator: BaseTool2.ToolLocator):
-        return tool_locator.find_executable("metaval_2.0.py")
+        return tool_locator.find_executable("metaval++.py")
 
     def program_files(self, executable):
         return [executable] + self._program_files_from_executable(
@@ -31,10 +31,10 @@ class Tool(BaseTool2):
         return self._version_from_tool(executable)
 
     def name(self):
-        return "MetaVal 2.0"
+        return "MetaVal++"
 
     def project_url(self):
-        return "https://gitlab.com/sosy-lab/software/metaval-2.0"
+        return "https://gitlab.com/sosy-lab/software/metavalpp"
 
     def cmdline(self, executable, options, task, rlimits):
         if task.property_file:
