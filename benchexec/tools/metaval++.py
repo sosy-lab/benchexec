@@ -47,7 +47,7 @@ class Tool(BaseTool2):
         if data_model_param and "--data-model" not in options:
             options += ["--data-model", data_model_param]
 
-        return [executable] + options + list(task.input_files_or_identifier)
+        return [executable] + options + list(task.single_input_file)
 
     def determine_result(self, run):
         if not run.output:
