@@ -5,15 +5,13 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import benchexec.tools.template
-import benchexec.result as result
-
-import re
 import logging
+import re
 
+import benchexec.result as result
+import benchexec.tools.template
 from benchexec.tools.validation_utils import (
     get_non_witness_input_files,
-    get_unique_witness,
     get_witness_options,
 )
 

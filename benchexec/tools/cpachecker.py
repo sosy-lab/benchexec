@@ -6,17 +6,14 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
-from pathlib import Path
-import sys
 import os
 import re
+import sys
 
 import benchexec.result as result
 import benchexec.tools.template
-
 from benchexec.tools.template import ToolNotFoundException
 from benchexec.tools.validation_utils import (
-    get_witness_input_files,
     get_non_witness_input_files,
     get_unique_witness,
 )

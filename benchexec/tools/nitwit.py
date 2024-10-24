@@ -11,7 +11,6 @@ import os
 import benchexec.result as result
 import benchexec.tools.template
 from benchexec.tools.validation_utils import (
-    get_non_witness_input_files,
     get_witness_options,
     get_unique_non_witness_input_files,
 )
