@@ -1,0 +1,52 @@
+# This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
+#
+# SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
+#
+# SPDX-License-Identifier: Apache-2.0
+
+"""
+This module contains some useful functions for handling Validation Tasks
+"""
+
+from pathlib import Path
+
+from benchexec.tools.template import UnsupportedFeatureException
+
+
+def __partition_input_files(task):
+    input_files = task.input_files_or_identifier
+    witness_files = []
+    other_files = []
+    for file in input_files:
+        if Path(file).name == task.options.get("witness"):
+            witness_files.append(file)
+        else:
+            other_files.append(file)
+    return witness_files, other_files
+
+
+def get_witness_input_files(task):
+    witness_files, _ = __partition_input_files(task)
+    return witness_files
+
+
+def get_unique_witness(task):
+    witness_files = get_witness_input_files(task)
+    if len(witness_files) > 1:
+        raise UnsupportedFeatureException(
+            "Tool does not support multiple witness files"
+        )
+    return witness_files[0]
+
+
+def get_non_witness_input_files(task):
+    _, other_files = __partition_input_files(task)
+    return other_files
+
+
+def get_unique_non_witness_input_files(task):
+    other_files = get_non_witness_input_files(task)
+    if len(other_files) > 1:
+        raise UnsupportedFeatureException("Tool does not support multiple input files")
+    return other_files[0]

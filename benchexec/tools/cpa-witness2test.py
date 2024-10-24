@@ -7,7 +7,10 @@
 
 import benchexec.tools.cpachecker as cpachecker
 
-from benchexec.tools.template import ToolNotFoundException, UnsupportedFeatureException
+from benchexec.tools.template import ToolNotFoundException
+from benchexec.tools.validation_utils import (
+    get_unique_non_witness_input_files,
+)
 
 
 class Tool(cpachecker.Tool):
@@ -51,10 +54,5 @@ class Tool(cpachecker.Tool):
     def cmdline(self, executable, options, task, rlimits):
         additional_options = self._get_additional_options(options, task, rlimits)
         # Add additional options in front of existing ones, since -gcc-args ... must be last argument in front of task
-        input_files = self._get_non_witness_input_files(task)
-        if len(input_files) != 1:
-            raise UnsupportedFeatureException(
-                f"{self.name()} does not support tasks with more than one non-witness input file"
-            )
-
+        input_files = [get_unique_non_witness_input_files(task)]
         return [executable] + additional_options + options + input_files

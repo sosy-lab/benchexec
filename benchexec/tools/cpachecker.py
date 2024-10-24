@@ -15,6 +15,11 @@ import benchexec.result as result
 import benchexec.tools.template
 
 from benchexec.tools.template import ToolNotFoundException
+from benchexec.tools.validation_utils import (
+    get_witness_input_files,
+    get_non_witness_input_files,
+    get_unique_witness,
+)
 
 
 class Tool(benchexec.tools.template.BaseTool2):
@@ -183,14 +188,7 @@ class Tool(benchexec.tools.template.BaseTool2):
 
         if isinstance(task.options, dict) and "witness" in task.options.keys():
             if not option_present("witness"):
-                possible_witness_files = self._get_witness_input_files(task)
-
-                if len(possible_witness_files) != 1:
-                    raise benchexec.tools.template.UnsupportedFeatureException(
-                        f"Expected exactly one witness file, but found {len(possible_witness_files)}: {possible_witness_files}"
-                    )
-
-                options += [f"{prefix}witness", possible_witness_files[0]]
+                options += [f"{prefix}witness", get_unique_witness(task)]
             else:
                 raise benchexec.tools.template.UnsupportedFeatureException(
                     "You are passing a witness as both an option and through the task definition. "
@@ -199,28 +197,9 @@ class Tool(benchexec.tools.template.BaseTool2):
 
         return options
 
-    def __partition_input_files(self, task):
-        input_files = task.input_files_or_identifier
-        witness_files = []
-        other_files = []
-        for file in input_files:
-            if Path(file).name == task.options.get("witness"):
-                witness_files.append(file)
-            else:
-                other_files.append(file)
-        return witness_files, other_files
-
-    def _get_witness_input_files(self, task):
-        witness_files, _ = self.__partition_input_files(task)
-        return witness_files
-
-    def _get_non_witness_input_files(self, task):
-        _, other_files = self.__partition_input_files(task)
-        return other_files
-
     def cmdline(self, executable, options, task, rlimits):
         additional_options = self._get_additional_options(options, task, rlimits)
-        input_files = self._get_non_witness_input_files(task)
+        input_files = get_non_witness_input_files(task)
         return [executable] + options + additional_options + input_files
 
     def determine_result(self, run):
