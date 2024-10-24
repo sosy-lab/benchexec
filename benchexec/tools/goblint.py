@@ -5,11 +5,15 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import benchexec.tools.template
-import benchexec.result as result
-
-import re
 import logging
+import re
+
+import benchexec.result as result
+import benchexec.tools.template
+from benchexec.tools.validation_utils import (
+    get_non_witness_input_files,
+    get_witness_options,
+)
 
 
 class Tool(benchexec.tools.template.BaseTool2):
@@ -63,11 +67,16 @@ class Tool(benchexec.tools.template.BaseTool2):
                         f"Unsupported data_model '{data_model}'"
                     )
 
+        witness_options = ["--witness.yaml.validate", "--witness.yaml.unassume"]
+        additional_options += get_witness_options(options, task, witness_options)
+
+        input_files = get_non_witness_input_files(task)
+
         return [
             executable,
             *options,
             *additional_options,
-            *task.input_files,
+            *input_files,
         ]
 
     def determine_result(self, run):

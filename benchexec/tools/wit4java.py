@@ -8,6 +8,10 @@
 import benchexec.tools.template
 import benchexec.result as result
 from benchexec.tools.template import ToolNotFoundException
+from benchexec.tools.validation_utils import (
+    get_non_witness_input_files,
+    get_witness_options,
+)
 
 
 class Tool(benchexec.tools.template.BaseTool2):
@@ -31,7 +35,11 @@ class Tool(benchexec.tools.template.BaseTool2):
         return "https://github.com/wit4java/wit4java"
 
     def cmdline(self, executable, options, task, rlimits):
-        return [executable] + options + list(task.input_files)
+        input_files = get_non_witness_input_files(task)
+        witness_options = ["--witness"]
+        additional_options = get_witness_options(options, task, witness_options)
+
+        return [executable] + options + additional_options + input_files
 
     def determine_result(self, run):
         output = run.output

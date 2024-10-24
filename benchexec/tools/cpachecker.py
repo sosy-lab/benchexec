@@ -6,14 +6,17 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
-import sys
 import os
 import re
+import sys
 
 import benchexec.result as result
 import benchexec.tools.template
-
 from benchexec.tools.template import ToolNotFoundException
+from benchexec.tools.validation_utils import (
+    get_non_witness_input_files,
+    get_unique_witness,
+)
 
 
 class Tool(benchexec.tools.template.BaseTool2):
@@ -180,16 +183,21 @@ class Tool(benchexec.tools.template.BaseTool2):
                         f"Unsupported data_model '{data_model}' defined for task '{task}'"
                     )
 
+        if isinstance(task.options, dict) and "witness" in task.options.keys():
+            if not option_present("witness"):
+                options += [f"{prefix}witness", get_unique_witness(task)]
+            else:
+                raise benchexec.tools.template.UnsupportedFeatureException(
+                    "You are passing a witness as both an option and through the task definition. "
+                    "Please remove one of them."
+                )
+
         return options
 
     def cmdline(self, executable, options, task, rlimits):
         additional_options = self._get_additional_options(options, task, rlimits)
-        return (
-            [executable]
-            + options
-            + additional_options
-            + list(task.input_files_or_identifier)
-        )
+        input_files = get_non_witness_input_files(task)
+        return [executable] + options + additional_options + input_files
 
     def determine_result(self, run):
         """
