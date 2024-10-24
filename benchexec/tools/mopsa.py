@@ -7,6 +7,10 @@
 
 import benchexec.tools.template
 import benchexec.result as result
+from benchexec.tools.validation_utils import (
+    get_non_witness_input_files,
+    get_witness_options,
+)
 
 
 class Tool(benchexec.tools.template.BaseTool2):
@@ -27,7 +31,11 @@ class Tool(benchexec.tools.template.BaseTool2):
         return "https://gitlab.com/mopsa/mopsa-analyzer/"
 
     def cmdline(self, executable, options, task, rlimits):
-        cmd = [executable, "--program", *task.input_files]
+        input_files = get_non_witness_input_files(task)
+        witness_options = ["--validate_yaml_witness"]
+        additional_options = get_witness_options(options, task, witness_options)
+
+        cmd = [executable, "--program"] + input_files + additional_options
         if task.options is not None and "data_model" in task.options:
             cmd += ["--data_model", task.options.get("data_model")]
         if task.property_file:
