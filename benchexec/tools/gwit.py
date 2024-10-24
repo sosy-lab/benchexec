@@ -7,6 +7,10 @@
 
 import benchexec.result as result
 from benchexec.tools.template import BaseTool2
+from benchexec.tools.validation_utils import (
+    get_non_witness_input_files,
+    add_witness_options,
+)
 
 
 class Tool(BaseTool2):
@@ -28,10 +32,14 @@ class Tool(BaseTool2):
         return "https://github.com/tudo-aqua/gwit"
 
     def cmdline(self, executable, options, task, rlimits):
-        cmd = [executable] + options
+        input_files = get_non_witness_input_files(task)
+        witness_options = ["--witness"]
+        additional_options = add_witness_options(options, task, witness_options)
+
+        cmd = [executable] + options + additional_options
         if task.property_file:
             cmd.append(task.property_file)
-        return cmd + list(task.input_files)
+        return cmd + input_files
 
     def determine_result(self, run):
         status = result.RESULT_ERROR
