@@ -12,11 +12,11 @@ import sys
 
 import benchexec.result as result
 import benchexec.tools.template
-from benchexec.tools.template import ToolNotFoundException
 from benchexec.tools.sv_benchmarks_util import (
     get_non_witness_input_files_or_identifier,
-    get_unique_witness,
+    get_witness_options,
 )
+from benchexec.tools.template import ToolNotFoundException
 
 
 class Tool(benchexec.tools.template.BaseTool2):
@@ -183,14 +183,7 @@ class Tool(benchexec.tools.template.BaseTool2):
                         f"Unsupported data_model '{data_model}' defined for task '{task}'"
                     )
 
-        if isinstance(task.options, dict) and "witness" in task.options.keys():
-            if not option_present("witness"):
-                options += [f"{prefix}witness", get_unique_witness(task)]
-            else:
-                raise benchexec.tools.template.UnsupportedFeatureException(
-                    "You are passing a witness as both an option and through the task definition. "
-                    "Please remove one of them."
-                )
+        options += get_witness_options(options, task, [f"{prefix}witness"])
 
         return options
 
