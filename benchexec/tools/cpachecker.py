@@ -13,7 +13,7 @@ import sys
 import benchexec.result as result
 import benchexec.tools.template
 from benchexec.tools.template import ToolNotFoundException
-from benchexec.tools.validation_utils import (
+from benchexec.tools.sv_benchmarks_util import (
     get_non_witness_input_files,
     get_unique_witness,
 )

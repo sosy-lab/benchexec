@@ -21,7 +21,7 @@ import benchexec.tools.template
 from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, LP64
 from benchexec.tools.template import ToolNotFoundException
 from benchexec.tools.template import UnsupportedFeatureException
-from benchexec.tools.validation_utils import (
+from benchexec.tools.sv_benchmarks_util import (
     get_non_witness_input_files,
     get_witness_options,
 )

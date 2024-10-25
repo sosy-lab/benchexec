@@ -8,7 +8,7 @@
 import benchexec.tools.template
 import benchexec.result as result
 from benchexec.tools.template import ToolNotFoundException
-from benchexec.tools.validation_utils import (
+from benchexec.tools.sv_benchmarks_util import (
     get_non_witness_input_files,
     get_witness_options,
 )

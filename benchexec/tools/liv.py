@@ -11,7 +11,7 @@ import re
 import benchexec.result
 from benchexec.tools.sv_benchmarks_util import ILP32, LP64, get_data_model_from_task
 from benchexec.tools.template import BaseTool2
-from benchexec.tools.validation_utils import (
+from benchexec.tools.sv_benchmarks_util import (
     get_non_witness_input_files,
     get_witness_options,
 )

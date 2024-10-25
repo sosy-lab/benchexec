@@ -8,7 +8,7 @@
 import benchexec.tools.cpachecker as cpachecker
 
 from benchexec.tools.template import ToolNotFoundException
-from benchexec.tools.validation_utils import (
+from benchexec.tools.sv_benchmarks_util import (
     get_unique_non_witness_input_files,
 )
 

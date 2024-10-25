@@ -13,7 +13,7 @@ import threading
 
 from benchexec.tools.template import BaseTool2
 from benchexec.tools.template import UnsupportedFeatureException
-from benchexec.tools.validation_utils import (
+from benchexec.tools.sv_benchmarks_util import (
     get_unique_witness,
     get_unique_non_witness_input_files,
 )
