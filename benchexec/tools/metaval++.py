@@ -70,7 +70,7 @@ class Tool(BaseTool2):
 
     def get_value_from_output(self, output, identifier):
         # Search the text line per line using the regex passed as identifier
-        # and return the first match found. If the regex has groups, 
+        # and return the first match found. If the regex has groups,
         # only the first group will be returned.
         match = None
         for line in output:
