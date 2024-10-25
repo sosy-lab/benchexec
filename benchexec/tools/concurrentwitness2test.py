@@ -7,8 +7,8 @@
 import benchexec.result as result
 import benchexec.tools.template
 from benchexec.tools.sv_benchmarks_util import (
-    get_witness_options,
-    get_single_non_witness_input_file,
+    handle_witness_of_task,
+    TaskFilesConsidered,
 )
 
 
@@ -30,10 +30,10 @@ class Tool(benchexec.tools.template.BaseTool2):
         return self._version_from_tool(executable)
 
     def cmdline(self, executable, options, task, rlimits):
-        witness_options = ["--witness"]
-        additional_options = get_witness_options(options, task, witness_options)
-        input_file = get_single_non_witness_input_file(task)
-        return [executable, input_file] + options + additional_options
+        input_file, witness_options = handle_witness_of_task(
+            task, options, ["--witness"], TaskFilesConsidered.SINGLE_INPUT_FILE
+        )
+        return [executable] + input_file + options + witness_options
 
     def determine_result(self, run):
         for line in run.output:
