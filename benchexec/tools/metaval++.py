@@ -54,26 +54,31 @@ class Tool(BaseTool2):
         )
 
     def determine_result(self, run):
+        separator = ":"
         if not run.output:
             return benchexec.result.RESULT_ERROR
         lastline = run.output[-1]
         if lastline.startswith("Witness is correct"):
             return benchexec.result.RESULT_TRUE_PROP
         elif lastline.startswith("Witness could not be validated"):
-            if ":" in lastline:
+            if separator in lastline:
                 return (
                     benchexec.result.RESULT_ERROR
-                    + self.substring_after_identifier(lastline, ":").strip()
+                    + "("
+                    + self.substring_after_identifier(lastline, separator).strip()
+                    + ")"
                 )
             else:
                 return benchexec.result.RESULT_ERROR
         elif lastline.startswith(
             "There was an error validating the witness in the backend verifier"
         ):
-            if ":" in lastline:
+            if separator in lastline:
                 return (
                     benchexec.result.RESULT_ERROR
-                    + self.substring_after_identifier(lastline, ":").strip()
+                    + "("
+                    + +self.substring_after_identifier(lastline, separator).strip()
+                    + ")"
                 )
             else:
                 return benchexec.result.RESULT_ERROR
