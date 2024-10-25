@@ -110,6 +110,7 @@ def get_non_witness_input_files(task):
     @param task: An instance of a task
     @return: List of non-witness files
     """
+    task.require_input_files()
     _, other_files = _partition_input_files(task.input_files, task.options)
     return other_files
 
