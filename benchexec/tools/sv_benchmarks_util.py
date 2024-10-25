@@ -64,20 +64,6 @@ def _partition_input_files(input_files, task_options):
     return witness_files, other_files
 
 
-def get_witness_input_files(task):
-    """
-    This function returns the witness input files from the task.
-    They are identified by the option "witness" in the task options.
-
-    @param task: An instance of a task
-    @return: List of witness files
-    """
-    witness_files, _ = _partition_input_files(
-        task.input_files_or_identifier, task.options
-    )
-    return witness_files
-
-
 def get_unique_witness(task):
     """
     This function returns the unique witness file from the task.
@@ -87,7 +73,9 @@ def get_unique_witness(task):
     @param task: An instance of a task
     @return: Unique witness file
     """
-    witness_files = get_witness_input_files(task)
+    witness_files, _ = _partition_input_files(
+        task.input_files_or_identifier, task.options
+    )
     if len(witness_files) > 1:
         raise UnsupportedFeatureException(
             "Tool does not support tasks with more than one witness file"
