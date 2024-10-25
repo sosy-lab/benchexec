@@ -145,6 +145,24 @@ def get_witness_options(options, task, witness_options):
     Therefore, this function can be used with any task regardless if it
     has a witness option or not.
 
+    In validation task definition files, there is a key "witness" inside the
+    options of a task. To handle this type of tasks correctly in the tool info module
+    you should do the following two steps, if your tool does not already support
+    them natively:
+    1. Add the witness options obtained by calling the function `get_witness_options`
+        to the options list in the `cmdline` function.
+    2. Filter the input files to only get those tasks which are not witnesses. This
+        can be done by calling one of the following functions, depending on the
+        type of input files you want:
+            * `get_non_witness_input_files_or_identifier`: If you want to consider
+                both input files and identifiers
+            * `get_non_witness_input_files`: If you want to consider only input files
+            * `get_single_non_witness_input_file`: If you want to consider only a single
+                input file
+    Instead of doing the above two steps manually, you can use the function
+    `handle_witness_of_task` which does both of the above steps and returns the
+    input files and witness options.
+
     @param options: List of existing options
     @param task: An instance of a task
     @param witness_options: List of options which need to be set to handle witnesses
