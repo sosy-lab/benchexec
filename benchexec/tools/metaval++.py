@@ -6,6 +6,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
+import re
 
 import benchexec.result
 from benchexec.tools.sv_benchmarks_util import ILP32, LP64, get_data_model_from_task
@@ -68,22 +69,21 @@ class Tool(BaseTool2):
             return benchexec.result.RESULT_ERROR
 
     def get_value_from_output(self, output, identifier):
-        # search for the text in output and get its value,
-        # search the first line, that starts with the searched text
-        # warn if there are more lines with the searched text
+        # Search the text line per line using the regex passed as identifier
+        # and return the first match found. If the regex has groups, 
+        # only the first group will be returned.
         match = None
         for line in output:
-            if line.lstrip().startswith(identifier):
-                startPosition = line.find(":") + 1
-                endPosition = line.find("(", startPosition)
-                if endPosition == -1:
-                    endPosition = len(line)
-                if match is None:
-                    match = line[startPosition:endPosition].strip()
-                else:
+            matches = re.findall(identifier, line)
+            if matches is not None and len(matches) > 0:
+                if isinstance(matches[0], tuple):
                     logging.warning(
-                        "skipping repeated match for identifier '%s': '%s'",
-                        identifier,
-                        line,
+                        "The regex '{}' has groups, but only the first group will be returned".format(
+                            identifier
+                        )
                     )
+                    match = matches[0][0]
+                else:
+                    match = matches[0]
+                break
         return match
