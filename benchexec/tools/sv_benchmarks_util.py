@@ -88,7 +88,7 @@ def get_unique_witness(task):
     witness_files = get_witness_input_files(task)
     if len(witness_files) > 1:
         raise UnsupportedFeatureException(
-            "Tool does not support multiple witness files"
+            "Tool does not support tasks with more than one witness file"
         )
     return witness_files[0]
 
@@ -118,7 +118,9 @@ def get_unique_non_witness_input_files(task):
     """
     other_files = get_non_witness_input_files(task)
     if len(other_files) > 1:
-        raise UnsupportedFeatureException("Tool does not support multiple input files")
+        raise UnsupportedFeatureException(
+            "Tool does not support tasks with more than one input file"
+        )
     return other_files[0]
 
 
