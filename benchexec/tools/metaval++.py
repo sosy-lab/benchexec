@@ -60,24 +60,16 @@ class Tool(BaseTool2):
         lastline = run.output[-1]
         if lastline.startswith("Witness is correct"):
             return benchexec.result.RESULT_TRUE_PROP
-        elif lastline.startswith("Witness could not be validated"):
-            if separator in lastline:
-                return (
-                    benchexec.result.RESULT_ERROR
-                    + "("
-                    + self.substring_after_identifier(lastline, separator).strip()
-                    + ")"
-                )
-            else:
-                return benchexec.result.RESULT_ERROR
         elif lastline.startswith(
+            "Witness could not be validated"
+        ) or lastline.startswith(
             "There was an error validating the witness in the backend verifier"
         ):
             if separator in lastline:
                 return (
                     benchexec.result.RESULT_ERROR
                     + "("
-                    + +self.substring_after_identifier(lastline, separator).strip()
+                    + self.substring_after_identifier(lastline, separator).strip()
                     + ")"
                 )
             else:
