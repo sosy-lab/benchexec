@@ -92,6 +92,9 @@ def get_non_witness_input_files_or_identifier(task):
     @param task: An instance of a task
     @return: List of non-witness files
     """
+
+    # We can pass the identifier, because it is unlikely
+    # that it will match the witness file name
     _, other_files = _partition_input_files(
         task.input_files_or_identifier, task.options
     )
