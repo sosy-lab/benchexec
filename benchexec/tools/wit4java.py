@@ -5,13 +5,13 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import benchexec.tools.template
 import benchexec.result as result
-from benchexec.tools.template import ToolNotFoundException
+import benchexec.tools.template
 from benchexec.tools.sv_benchmarks_util import (
-    get_non_witness_input_files,
     get_witness_options,
+    get_non_witness_input_files,
 )
+from benchexec.tools.template import ToolNotFoundException
 
 
 class Tool(benchexec.tools.template.BaseTool2):

@@ -18,13 +18,15 @@ from typing import List
 
 import benchexec.result as result
 import benchexec.tools.template
-from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, LP64
-from benchexec.tools.template import ToolNotFoundException
-from benchexec.tools.template import UnsupportedFeatureException
 from benchexec.tools.sv_benchmarks_util import (
+    get_data_model_from_task,
+    ILP32,
+    LP64,
     get_non_witness_input_files,
     get_witness_options,
 )
+from benchexec.tools.template import ToolNotFoundException
+from benchexec.tools.template import UnsupportedFeatureException
 
 _OPTION_NO_WRAPPER = "--force-no-wrapper"
 _SVCOMP17_VERSIONS = {"f7c3ed31"}

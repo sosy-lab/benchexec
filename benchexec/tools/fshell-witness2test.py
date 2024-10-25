@@ -11,7 +11,7 @@ import benchexec.result as result
 import benchexec.tools.template
 from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, LP64
 from benchexec.tools.sv_benchmarks_util import (
-    get_non_witness_input_files,
+    get_non_witness_input_files_or_identifier,
     get_witness_options,
 )
 
@@ -66,7 +66,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         if data_model_param and data_model_param not in options:
             options += [data_model_param]
 
-        input_files = get_non_witness_input_files(task)
+        input_files = get_non_witness_input_files_or_identifier(task)
         witness_options = ["--graphml-witness"]
         additional_options = get_witness_options(options, task, witness_options)
         return [executable] + options + additional_options + input_files

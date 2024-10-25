@@ -14,7 +14,7 @@ import benchexec.result as result
 import benchexec.tools.template
 from benchexec.tools.template import ToolNotFoundException
 from benchexec.tools.sv_benchmarks_util import (
-    get_non_witness_input_files,
+    get_non_witness_input_files_or_identifier,
     get_unique_witness,
 )
 
@@ -196,7 +196,7 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def cmdline(self, executable, options, task, rlimits):
         additional_options = self._get_additional_options(options, task, rlimits)
-        input_files = get_non_witness_input_files(task)
+        input_files = get_non_witness_input_files_or_identifier(task)
         return [executable] + options + additional_options + input_files
 
     def determine_result(self, run):

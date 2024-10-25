@@ -44,7 +44,7 @@ def get_data_model_from_task(task, param_dict):
     return None
 
 
-def _partition_input_files(task):
+def _partition_input_files(input_files, task_options):
     """
     This function partitions the input files into witness and other files.
     The distinction is based on the file name of the witness file, which
@@ -53,11 +53,10 @@ def _partition_input_files(task):
     @param task: An instance of a task
     @return: Tuple of witness files and other files
     """
-    input_files = task.input_files_or_identifier
     witness_files = []
     other_files = []
     for file in input_files:
-        if Path(file).name == task.options.get("witness"):
+        if Path(file).name == task_options.options.get("witness"):
             witness_files.append(file)
         else:
             other_files.append(file)
@@ -72,7 +71,9 @@ def get_witness_input_files(task):
     @param task: An instance of a task
     @return: List of witness files
     """
-    witness_files, _ = _partition_input_files(task)
+    witness_files, _ = _partition_input_files(
+        task.input_files_or_identifier, task.options
+    )
     return witness_files
 
 
@@ -93,6 +94,21 @@ def get_unique_witness(task):
     return witness_files[0]
 
 
+def get_non_witness_input_files_or_identifier(task):
+    """
+    This function returns the non-witness input files or the identifier from the task.
+    They consist of all elements which do not match the witness file name.
+    The witness file is identified by the option "witness" in the task options.
+
+    @param task: An instance of a task
+    @return: List of non-witness files
+    """
+    _, other_files = _partition_input_files(
+        task.input_files_or_identifier, task.options
+    )
+    return other_files
+
+
 def get_non_witness_input_files(task):
     """
     This function returns the non-witness input files from the task.
@@ -102,7 +118,7 @@ def get_non_witness_input_files(task):
     @param task: An instance of a task
     @return: List of non-witness files
     """
-    _, other_files = _partition_input_files(task)
+    _, other_files = _partition_input_files(task.input_files, task.options)
     return other_files
 
 
