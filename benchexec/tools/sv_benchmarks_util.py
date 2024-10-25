@@ -129,6 +129,9 @@ def get_witness_options(options, task, witness_options):
     This function returns the additional options to handle witnesses.
     It checks if the witness is passed as an option or through the task definition.
     If the witness is passed through both, it raises an exception.
+    If no witness is given in the task, it returns an empty list.
+    Therefore, this function can be used with any task regardless if it
+    has a witness option or not.
 
     @param options: List of existing options
     @param task: An instance of a task
