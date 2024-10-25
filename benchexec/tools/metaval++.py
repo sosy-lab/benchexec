@@ -44,15 +44,6 @@ class Tool(BaseTool2):
 
         return [executable] + options + list(task.single_input_file)
 
-    @staticmethod
-    def substring_after_identifier(string, identifier):
-        occurrences = 1
-        return (
-            identifier.join(string.split(identifier)[occurrences:])
-            if occurrences > 0
-            else string
-        )
-
     def determine_result(self, run):
         separator = ":"
         if not run.output:
@@ -69,7 +60,7 @@ class Tool(BaseTool2):
                 return (
                     benchexec.result.RESULT_ERROR
                     + "("
-                    + self.substring_after_identifier(lastline, separator).strip()
+                    + lastline.split(separator, maxsplit=1)[1].strip()
                     + ")"
                 )
             else:
