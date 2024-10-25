@@ -45,6 +45,14 @@ class Tool(BaseTool2):
 
         return [executable] + options + list(task.single_input_file)
 
+    @staticmethod
+    def substring_after_identifier(string, identifier, occurrences=1):
+        return (
+            identifier.join(string.split(identifier)[occurrences:])
+            if occurrences > 0
+            else string
+        )
+
     def determine_result(self, run):
         if not run.output:
             return benchexec.result.RESULT_ERROR
@@ -53,14 +61,20 @@ class Tool(BaseTool2):
             return benchexec.result.RESULT_TRUE_PROP
         elif lastline.startswith("Witness could not be validated"):
             if ":" in lastline:
-                return benchexec.result.RESULT_ERROR + lastline.split(":")[1].strip()
+                return (
+                    benchexec.result.RESULT_ERROR
+                    + self.substring_after_identifier(lastline, ":").strip()
+                )
             else:
                 return benchexec.result.RESULT_ERROR
         elif lastline.startswith(
             "There was an error validating the witness in the backend verifier"
         ):
             if ":" in lastline:
-                return benchexec.result.RESULT_ERROR + lastline.split(":")[1].strip()
+                return (
+                    benchexec.result.RESULT_ERROR
+                    + self.substring_after_identifier(lastline, ":").strip()
+                )
             else:
                 return benchexec.result.RESULT_ERROR
         elif lastline.startswith("Witness file does not exist"):
