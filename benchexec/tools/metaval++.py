@@ -75,7 +75,7 @@ class Tool(BaseTool2):
         match = None
         for line in output:
             matches = re.findall(identifier, line)
-            if matches is not None and len(matches) > 0:
+            if matches:
                 if isinstance(matches[0], tuple):
                     logging.warning(
                         "The regex '%s' has groups, but only the first group will be returned",
