@@ -9,7 +9,7 @@ import benchexec.tools.template
 import benchexec.result as result
 from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, LP64
 from benchexec.tools.sv_benchmarks_util import (
-    get_unique_non_witness_input_files,
+    get_single_non_witness_input_file,
     get_witness_options,
 )
 
@@ -59,7 +59,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         if data_model_param and data_model_param not in options:
             options += [data_model_param]
 
-        input_file = get_unique_non_witness_input_files(task)
+        input_file = get_single_non_witness_input_file(task)
         witness_options = ["--validate"]
         additional_options = get_witness_options(options, task, witness_options)
 

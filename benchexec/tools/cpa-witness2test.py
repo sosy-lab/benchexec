@@ -9,7 +9,7 @@ import benchexec.tools.cpachecker as cpachecker
 
 from benchexec.tools.template import ToolNotFoundException
 from benchexec.tools.sv_benchmarks_util import (
-    get_unique_non_witness_input_files,
+    get_single_non_witness_input_file,
 )
 
 
@@ -54,5 +54,5 @@ class Tool(cpachecker.Tool):
     def cmdline(self, executable, options, task, rlimits):
         additional_options = self._get_additional_options(options, task, rlimits)
         # Add additional options in front of existing ones, since -gcc-args ... must be last argument in front of task
-        input_files = [get_unique_non_witness_input_files(task)]
+        input_files = [get_single_non_witness_input_file(task)]
         return [executable] + additional_options + options + input_files

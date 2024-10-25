@@ -15,7 +15,7 @@ from benchexec.tools.template import BaseTool2
 from benchexec.tools.template import UnsupportedFeatureException
 from benchexec.tools.sv_benchmarks_util import (
     get_unique_witness,
-    get_unique_non_witness_input_files,
+    get_single_non_witness_input_file,
 )
 
 
@@ -137,7 +137,7 @@ class Tool(benchexec.tools.template.BaseTool2):
             rlimits,
         )
 
-        input_file = get_unique_non_witness_input_files(task)
+        input_file = get_single_non_witness_input_file(task)
 
         return (
             [

@@ -12,7 +12,7 @@ import benchexec.result as result
 import benchexec.tools.template
 from benchexec.tools.sv_benchmarks_util import (
     get_witness_options,
-    get_unique_non_witness_input_files,
+    get_single_non_witness_input_file,
 )
 
 
@@ -47,7 +47,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         return "https://github.com/moves-rwth/nitwit-validator"
 
     def cmdline(self, executable, options, task, rlimits):
-        input_file = get_unique_non_witness_input_files(task)
+        input_file = get_single_non_witness_input_file(task)
         witness_options = ["-w"]
         additional_options = get_witness_options(options, task, witness_options)
 

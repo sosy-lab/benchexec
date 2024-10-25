@@ -106,7 +106,7 @@ def get_non_witness_input_files(task):
     return other_files
 
 
-def get_unique_non_witness_input_files(task):
+def get_single_non_witness_input_file(task):
     """
     This function returns the unique non-witness file from the task.
     It raises an exception if there are multiple non-witness files.
