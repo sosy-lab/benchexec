@@ -88,15 +88,8 @@ class Tool(BaseTool2):
         # only the first group will be returned.
         match = None
         for line in output:
-            matches = re.findall(identifier, line)
+            matches = re.search(identifier, line).group()
             if matches:
-                if isinstance(matches[0], tuple):
-                    logging.warning(
-                        "The regex '%s' has groups, but only the first group will be returned",
-                        identifier,
-                    )
-                    match = matches[0][0]
-                else:
-                    match = matches[0]
+                match = matches
                 break
         return match
