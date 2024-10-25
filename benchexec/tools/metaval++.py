@@ -85,8 +85,8 @@ class Tool(BaseTool2):
         # only the first group will be returned.
         match = None
         for line in output:
-            matches = re.search(identifier, line).group()
+            matches = re.search(identifier, line)
             if matches:
-                match = matches
+                match = matches.group()
                 break
         return match
