@@ -78,9 +78,8 @@ class Tool(BaseTool2):
             if matches is not None and len(matches) > 0:
                 if isinstance(matches[0], tuple):
                     logging.warning(
-                        "The regex '{}' has groups, but only the first group will be returned".format(
-                            identifier
-                        )
+                        "The regex '%s' has groups, but only the first group will be returned",
+                        identifier,
                     )
                     match = matches[0][0]
                 else:
