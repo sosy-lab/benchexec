@@ -44,7 +44,15 @@ def get_data_model_from_task(task, param_dict):
     return None
 
 
-def __partition_input_files(task):
+def _partition_input_files(task):
+    """
+    This function partitions the input files into witness and other files.
+    The distinction is based on the file name of the witness file, which
+    is identified by the option "witness" in the task options.
+
+    @param task: An instance of a task
+    @return: Tuple of witness files and other files
+    """
     input_files = task.input_files_or_identifier
     witness_files = []
     other_files = []
@@ -57,11 +65,26 @@ def __partition_input_files(task):
 
 
 def get_witness_input_files(task):
-    witness_files, _ = __partition_input_files(task)
+    """
+    This function returns the witness input files from the task.
+    They are identified by the option "witness" in the task options.
+
+    @param task: An instance of a task
+    @return: List of witness files
+    """
+    witness_files, _ = _partition_input_files(task)
     return witness_files
 
 
 def get_unique_witness(task):
+    """
+    This function returns the unique witness file from the task.
+    It raises an exception if there are multiple witness files.
+    The witness file is identified by the option "witness" in the task options.
+
+    @param task: An instance of a task
+    @return: Unique witness file
+    """
     witness_files = get_witness_input_files(task)
     if len(witness_files) > 1:
         raise UnsupportedFeatureException(
@@ -71,11 +94,28 @@ def get_unique_witness(task):
 
 
 def get_non_witness_input_files(task):
-    _, other_files = __partition_input_files(task)
+    """
+    This function returns the non-witness input files from the task.
+    They consist of all files which do not match the witness file name.
+    The witness file is identified by the option "witness" in the task options.
+
+    @param task: An instance of a task
+    @return: List of non-witness files
+    """
+    _, other_files = _partition_input_files(task)
     return other_files
 
 
 def get_unique_non_witness_input_files(task):
+    """
+    This function returns the unique non-witness file from the task.
+    It raises an exception if there are multiple non-witness files.
+    Non-witness files consist of all files which do not match the witness file name.
+    The witness file is identified by the option "witness" in the task options.
+
+    @param task: An instance of a task
+    @return: Unique non-witness file
+    """
     other_files = get_non_witness_input_files(task)
     if len(other_files) > 1:
         raise UnsupportedFeatureException("Tool does not support multiple input files")
@@ -83,6 +123,23 @@ def get_unique_non_witness_input_files(task):
 
 
 def get_witness_options(options, task, witness_options):
+    """
+    This function returns the additional options to handle witnesses.
+    It checks if the witness is passed as an option or through the task definition.
+    If the witness is passed through both, it raises an exception.
+
+    @param options: List of existing options to see weather the witness
+        has already been passed to the tool
+    @param task: An instance of a task
+    @param witness_options: List of options which need to be set to handle witnesses
+        e.g. if the options are ["-w"], then the witness should be passed as "-w witness_file"
+        to the tool
+
+    @return: List of additional options to handle witnesses. They are constructed
+        based on witness_options. For example if witness_options is ["-w"], then
+        the return value will be ["-w", "witness_file"]
+    """
+
     additional_options = []
     if isinstance(task.options, dict) and "witness" in task.options.keys():
         if not any(witness_option in options for witness_option in witness_options):
