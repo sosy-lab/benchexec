@@ -64,7 +64,7 @@ def _partition_input_files(input_files, task_options):
     return witness_files, other_files
 
 
-def get_unique_witness(task):
+def get_witness(task):
     """
     This function returns the unique witness file from the task.
     It raises an exception if there are multiple witness files.
@@ -160,7 +160,7 @@ def get_witness_options(options, task, witness_options):
     if isinstance(task.options, dict) and "witness" in task.options.keys():
         if not any(witness_option in options for witness_option in witness_options):
             for witness_option in witness_options:
-                additional_options += [witness_option, get_unique_witness(task)]
+                additional_options += [witness_option, get_witness(task)]
         else:
             raise benchexec.tools.template.UnsupportedFeatureException(
                 "You are passing a witness as both an option and through the task definition. "

@@ -14,7 +14,7 @@ import threading
 from benchexec.tools.template import BaseTool2
 from benchexec.tools.template import UnsupportedFeatureException
 from benchexec.tools.sv_benchmarks_util import (
-    get_unique_witness,
+    get_witness,
     get_single_non_witness_input_file,
 )
 
@@ -95,7 +95,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         verifierName = knownargs.metavalVerifierBackend.lower()
         witnessName = knownargs.metavalWitness
         if knownargs.metavalWitness is None:
-            witnessName = get_unique_witness(task)
+            witnessName = get_witness(task)
 
         additionalPathArgument = (
             ["--additionalPATH", knownargs.metavalAdditionalPATH]
