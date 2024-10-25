@@ -130,8 +130,7 @@ def get_witness_options(options, task, witness_options):
     It checks if the witness is passed as an option or through the task definition.
     If the witness is passed through both, it raises an exception.
 
-    @param options: List of existing options to see weather the witness
-        has already been passed to the tool
+    @param options: List of existing options
     @param task: An instance of a task
     @param witness_options: List of options which need to be set to handle witnesses
         e.g. if the options are ["-w"], then the witness should be passed as "-w witness_file"
