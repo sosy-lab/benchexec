@@ -8,8 +8,8 @@
 import benchexec.result as result
 import benchexec.tools.template
 from benchexec.tools.sv_benchmarks_util import (
-    get_witness_options,
-    get_non_witness_input_files,
+    TaskFilesConsidered,
+    handle_witness_of_task,
 )
 
 
@@ -31,11 +31,14 @@ class Tool(benchexec.tools.template.BaseTool2):
         return "https://github.com/Chriszai/JCWIT"
 
     def cmdline(self, executable, options, task, rlimits):
-        input_files = get_non_witness_input_files(task)
-        witness_options = ["--witness"]
-        additional_options = get_witness_options(options, task, witness_options)
+        input_files, witness_options = handle_witness_of_task(
+            task,
+            options,
+            ["--witness"],
+            TaskFilesConsidered.INPUT_FILES,
+        )
 
-        return [executable] + options + additional_options + input_files
+        return [executable] + options + witness_options + input_files
 
     def determine_result(self, run):
         for line in run.output:

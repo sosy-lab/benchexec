@@ -15,6 +15,7 @@ Note the following points before using any function in this util:
     2. Out-of-tree modules should not use this util
     3. Any function in this util may change at any point in time
 """
+from enum import Enum
 from pathlib import Path
 
 import benchexec.tools.template
@@ -171,3 +172,46 @@ def get_witness_options(options, task, witness_options):
                 "Please remove one of them."
             )
     return additional_options
+
+
+class TaskFilesConsidered(Enum):
+    """
+    Enum to represent the different types of input
+    files that can be considered for a task.
+    """
+
+    INPUT_FILES_OR_IDENTIFIER = 1
+    INPUT_FILES = 2
+    SINGLE_INPUT_FILE = 3
+
+
+def handle_witness_of_task(
+    task, options, witness_options, task_files_considered: TaskFilesConsidered
+):
+    """
+    This function returns the input files and witness options for a task.
+    The input files are based on the task_files_considered parameter.
+    The witness options are based on the witness_options parameter.
+
+    @param task: An instance of a task
+    @param options: List of existing options
+    @param witness_options: List of options which need to be set to handle witnesses
+        e.g. if the options are ["-w"], then the witness should be passed as "-w witness_file"
+        to the tool
+    @param task_files_considered: Enum to represent the different types of input files
+        that can be considered for a task.
+
+    @return: Tuple of input files and witness options
+    """
+
+    witness_cmd_options = get_witness_options(options, task, witness_options)
+    if task_files_considered == TaskFilesConsidered.INPUT_FILES_OR_IDENTIFIER:
+        input_files = get_non_witness_input_files_or_identifier(task)
+    elif task_files_considered == TaskFilesConsidered.INPUT_FILES:
+        input_files = get_non_witness_input_files(task)
+    elif task_files_considered == TaskFilesConsidered.SINGLE_INPUT_FILE:
+        input_files = [get_single_non_witness_input_file(task)]
+    else:
+        raise ValueError("Invalid value for enum TaskFilesConsidered")
+
+    return input_files, witness_cmd_options

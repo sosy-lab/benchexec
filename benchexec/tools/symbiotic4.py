@@ -5,12 +5,14 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, LP64
 import benchexec.tools.template
 import benchexec.result as result
 from benchexec.tools.sv_benchmarks_util import (
-    get_non_witness_input_files_or_identifier,
-    get_witness_options,
+    get_data_model_from_task,
+    ILP32,
+    LP64,
+    TaskFilesConsidered,
+    handle_witness_of_task,
 )
 
 
@@ -54,11 +56,14 @@ class Tool(benchexec.tools.template.BaseTool2):
         if data_model_param and data_model_param not in options:
             options += [data_model_param]
 
-        input_files = get_non_witness_input_files_or_identifier(task)
-        witness_options = ["--witness-check"]
-        additional_options = get_witness_options(options, task, witness_options)
+        input_files, witness_options = handle_witness_of_task(
+            task,
+            options,
+            ["--witness-check"],
+            TaskFilesConsidered.INPUT_FILES_OR_IDENTIFIER,
+        )
 
-        return [executable] + options + additional_options + input_files
+        return [executable] + options + witness_options + input_files
 
     def determine_result(self, run):
         if run.was_timeout:

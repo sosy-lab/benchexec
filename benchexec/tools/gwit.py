@@ -7,8 +7,8 @@
 
 import benchexec.result as result
 from benchexec.tools.sv_benchmarks_util import (
-    get_witness_options,
-    get_non_witness_input_files,
+    handle_witness_of_task,
+    TaskFilesConsidered,
 )
 from benchexec.tools.template import BaseTool2
 
@@ -32,11 +32,14 @@ class Tool(BaseTool2):
         return "https://github.com/tudo-aqua/gwit"
 
     def cmdline(self, executable, options, task, rlimits):
-        input_files = get_non_witness_input_files(task)
-        witness_options = ["--witness"]
-        additional_options = get_witness_options(options, task, witness_options)
+        input_files, witness_options = handle_witness_of_task(
+            task,
+            options,
+            ["--witness"],
+            TaskFilesConsidered.INPUT_FILES,
+        )
 
-        cmd = [executable] + options + additional_options
+        cmd = [executable] + options + witness_options
         if task.property_file:
             cmd.append(task.property_file)
         return cmd + input_files

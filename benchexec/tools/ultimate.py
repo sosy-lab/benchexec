@@ -22,8 +22,8 @@ from benchexec.tools.sv_benchmarks_util import (
     get_data_model_from_task,
     ILP32,
     LP64,
-    get_non_witness_input_files,
-    get_witness_options,
+    handle_witness_of_task,
+    TaskFilesConsidered,
 )
 from benchexec.tools.template import ToolNotFoundException
 from benchexec.tools.template import UnsupportedFeatureException
@@ -299,11 +299,14 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
                         os.path.join(os.path.dirname(executable), "data"),
                     ]
 
-        input_files = get_non_witness_input_files(task)
-        witness_options = ["--validate"]
-        additional_options = get_witness_options(options, task, witness_options)
+        input_files, witness_options = handle_witness_of_task(
+            task,
+            options,
+            ["--validate"],
+            TaskFilesConsidered.INPUT_FILES,
+        )
 
-        cmdline += additional_options
+        cmdline += witness_options
         cmdline += options
 
         if task.input_files_or_empty:
@@ -315,11 +318,14 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
         # use the old wrapper script if a property file is given
         cmdline = [executable, "--spec", task.property_file]
 
-        input_files = get_non_witness_input_files(task)
-        witness_options = ["--validate"]
-        additional_options = get_witness_options(options, task, witness_options)
+        input_files, witness_options = handle_witness_of_task(
+            task,
+            options,
+            ["--validate"],
+            TaskFilesConsidered.INPUT_FILES,
+        )
 
-        cmdline += additional_options
+        cmdline += witness_options
         if task.input_files_or_empty:
             cmdline += ["--file", *input_files]
         cmdline += options
@@ -333,11 +339,14 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
         ]
         cmdline.append("--full-output")
 
-        input_files = get_non_witness_input_files(task)
-        witness_options = ["--validate"]
-        additional_options = get_witness_options(options, task, witness_options)
+        input_files, witness_options = handle_witness_of_task(
+            task,
+            options,
+            ["--validate"],
+            TaskFilesConsidered.INPUT_FILES,
+        )
 
-        cmdline += additional_options
+        cmdline += witness_options
         cmdline += input_files
         self.__assert_cmdline(cmdline, "SVCOMP17")
         return cmdline
