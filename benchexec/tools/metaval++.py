@@ -45,7 +45,8 @@ class Tool(BaseTool2):
         return [executable] + options + list(task.single_input_file)
 
     @staticmethod
-    def substring_after_identifier(string, identifier, occurrences=1):
+    def substring_after_identifier(string, identifier):
+        occurrences = 1
         return (
             identifier.join(string.split(identifier)[occurrences:])
             if occurrences > 0
