@@ -15,6 +15,7 @@ Note the following points before using any function in this util:
     2. Out-of-tree modules should not use this util
     3. Any function in this util may change at any point in time
 """
+import logging
 from enum import Enum
 from pathlib import Path
 
@@ -78,6 +79,10 @@ def get_witness(task):
         task.input_files_or_identifier, task.options
     )
     if len(witness_files) != 1:
+        logging.warning(
+            "Tool uses benchexec default validation task processing. "
+            "It does not support tasks with more than one witness"
+        )
         raise UnsupportedFeatureException(
             "Tool only supports tasks with exactly one witness file"
         )
@@ -113,6 +118,10 @@ def get_non_witness_input_files(task):
     """
     _, other_files = _partition_input_files(task.input_files, task.options)
     if not other_files:
+        logging.warning(
+            "Tool uses benchexec default validation task processing. "
+            "It does not support tasks without non-witness input files"
+        )
         raise UnsupportedFeatureException(
             "Tool does not support tasks without input files"
         )
