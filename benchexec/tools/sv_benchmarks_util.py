@@ -30,7 +30,7 @@ def get_data_model_from_task(task, param_dict):
     """
     This function tries to extract tool parameter for data model
     depending on the data model in the task.
-    @param task: An instance of of class Task, e.g., with the input files
+    @param task: An instance of class Task, e.g., with the input files
     @param param_dict: Dictionary mapping data model to the tool param value
     """
     if isinstance(task.options, dict) and task.options.get("language") == "C":
