@@ -77,9 +77,9 @@ def get_witness(task):
     witness_files, _ = _partition_input_files(
         task.input_files_or_identifier, task.options
     )
-    if len(witness_files) > 1:
+    if len(witness_files) != 1:
         raise UnsupportedFeatureException(
-            "Tool does not support tasks with more than one witness file"
+            "Tool only supports tasks with exactly one witness file"
         )
     return witness_files[0]
 
