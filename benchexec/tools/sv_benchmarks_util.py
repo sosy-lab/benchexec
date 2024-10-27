@@ -57,7 +57,7 @@ def _partition_input_files(input_files, task_options):
     witness_files = []
     other_files = []
     for file in input_files:
-        if Path(file).name == task_options.options.get("witness"):
+        if Path(file).name == task_options.get("witness"):
             witness_files.append(file)
         else:
             other_files.append(file)
