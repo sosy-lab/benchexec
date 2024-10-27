@@ -51,7 +51,8 @@ def _partition_input_files(input_files, task_options):
     The distinction is based on the file name of the witness file, which
     is identified by the option "witness" in the task options.
 
-    @param task: An instance of a task
+    @param input_files: List of input files
+    @param task_options: Dictionary of task options
     @return: Tuple of witness files and other files
     """
     witness_files = []
