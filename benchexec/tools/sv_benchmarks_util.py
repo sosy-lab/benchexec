@@ -150,9 +150,9 @@ def get_witness_options(options, task, witness_options):
 
     @param options: List of existing options
     @param task: An instance of a task
-    @param witness_options: List of options which need to be set to handle witnesses
-        e.g. if the options are ["-w"], then the witness should be passed as "-w witness_file"
-        to the tool
+    @@param witness_options: List of options which need to be set to handle witnesses
+        e.g. if the option is "-w witness_file", then the witness should be passed as
+        ["-w", "witness_file"] to the tool and the witness_options parameter is ["-w"]
 
     @return: List of additional options to handle witnesses. They are constructed
         based on witness_options. For example if witness_options is ["-w"], then
@@ -184,7 +184,7 @@ class TaskFilesConsidered(Enum):
 
 
 def handle_witness_of_task(
-    task, options, witness_options, task_files_considered: TaskFilesConsidered
+    task, options, witness_option, task_files_considered: TaskFilesConsidered
 ):
     """
     This function returns the input files and witness options for a task.
@@ -211,16 +211,16 @@ def handle_witness_of_task(
 
     @param task: An instance of a task
     @param options: List of existing options
-    @param witness_options: Option which needs to be set to handle witnesses
+    @param witness_option: Option which needs to be set to handle witnesses
         e.g. if the option is "-w witness_file", then the witness should be passed as
-        ["-w", "witness_file"] to the tool
+        ["-w", "witness_file"] to the tool and the witness_option parameter is "-w"
     @param task_files_considered: Enum to represent the different types of input files
         that can be considered for a task.
 
     @return: Tuple of input files and witness options
     """
 
-    witness_cmd_options = get_witness_options(options, task, [witness_options])
+    witness_cmd_options = get_witness_options(options, task, [witness_option])
     if task_files_considered == TaskFilesConsidered.INPUT_FILES_OR_IDENTIFIER:
         input_files = get_non_witness_input_files_or_identifier(task)
     elif task_files_considered == TaskFilesConsidered.INPUT_FILES:
