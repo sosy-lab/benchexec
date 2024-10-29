@@ -211,9 +211,9 @@ def handle_witness_of_task(
 
     @param task: An instance of a task
     @param options: List of existing options
-    @param witness_options: List of options which need to be set to handle witnesses
-        e.g. if the options are ["-w"], then the witness should be passed as "-w witness_file"
-        to the tool
+    @param witness_options: Option which needs to be set to handle witnesses
+        e.g. if the option is "-w witness_file", then the witness should be passed as
+        ["-w", "witness_file"] to the tool
     @param task_files_considered: Enum to represent the different types of input files
         that can be considered for a task.
 
