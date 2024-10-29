@@ -77,6 +77,5 @@ class Tool(BaseTool2):
         for line in output:
             matches = re.search(identifier, line)
             if matches:
-                match = matches.group()
-                break
+                return matches.group()
         return match
