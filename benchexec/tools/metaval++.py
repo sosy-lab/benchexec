@@ -73,9 +73,8 @@ class Tool(BaseTool2):
     def get_value_from_output(self, output, identifier):
         # Search the text line per line using the regex passed as identifier
         # and return the first match found.
-        match = None
         for line in output:
             matches = re.search(identifier, line)
             if matches:
                 return matches.group()
-        return match
+        return None
