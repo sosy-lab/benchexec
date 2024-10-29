@@ -56,7 +56,7 @@ class Tool(BaseTool2):
         input_files, witness_options = handle_witness_of_task(
             task,
             options,
-            ["--witness"],
+            "--witness",
             TaskFilesConsidered.INPUT_FILES_OR_IDENTIFIER,
         )
 

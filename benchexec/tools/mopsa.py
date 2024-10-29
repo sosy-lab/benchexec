@@ -34,7 +34,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         input_files, witness_options = handle_witness_of_task(
             task,
             options,
-            ["--validate_yaml_witness"],
+            "--validate_yaml_witness",
             TaskFilesConsidered.INPUT_FILES,
         )
 

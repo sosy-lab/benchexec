@@ -31,7 +31,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         if task.property_file:
             options += [task.property_file]
         input_files, witness_options = handle_witness_of_task(
-            task, options, ["-witness"], TaskFilesConsidered.INPUT_FILES_OR_IDENTIFIER
+            task, options, "-witness", TaskFilesConsidered.INPUT_FILES_OR_IDENTIFIER
         )
         return [executable] + options + witness_options + input_files
 

@@ -50,7 +50,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         input_file, witness_options = handle_witness_of_task(
             task,
             options,
-            ["-w"],
+            "-w",
             TaskFilesConsidered.SINGLE_INPUT_FILE,
         )
 

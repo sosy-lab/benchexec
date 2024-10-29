@@ -64,7 +64,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         input_file, witness_options = handle_witness_of_task(
             task,
             options,
-            ["--validate"],
+            "--validate",
             TaskFilesConsidered.SINGLE_INPUT_FILE,
         )
 

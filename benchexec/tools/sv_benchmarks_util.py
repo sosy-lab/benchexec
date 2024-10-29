@@ -80,7 +80,8 @@ def get_witness(task):
     )
     if len(witness_files) != 1:
         raise UnsupportedFeatureException(
-            "Witness did not occur exactly once in input files of the task definition"
+            "Witness given in the task-definition did not occur exactly once "
+            "in input files of the task definition"
         )
     return witness_files[0]
 
@@ -218,7 +219,7 @@ def handle_witness_of_task(
     @return: Tuple of input files and witness options
     """
 
-    witness_cmd_options = get_witness_options(options, task, witness_options)
+    witness_cmd_options = get_witness_options(options, task, [witness_options])
     if task_files_considered == TaskFilesConsidered.INPUT_FILES_OR_IDENTIFIER:
         input_files = get_non_witness_input_files_or_identifier(task)
     elif task_files_considered == TaskFilesConsidered.INPUT_FILES:

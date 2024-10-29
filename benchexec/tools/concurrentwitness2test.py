@@ -31,7 +31,7 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def cmdline(self, executable, options, task, rlimits):
         input_file, witness_options = handle_witness_of_task(
-            task, options, ["--witness"], TaskFilesConsidered.SINGLE_INPUT_FILE
+            task, options, "--witness", TaskFilesConsidered.SINGLE_INPUT_FILE
         )
         return [executable] + input_file + options + witness_options
 

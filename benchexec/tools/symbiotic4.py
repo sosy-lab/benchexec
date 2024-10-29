@@ -59,7 +59,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         input_files, witness_options = handle_witness_of_task(
             task,
             options,
-            ["--witness-check"],
+            "--witness-check",
             TaskFilesConsidered.INPUT_FILES_OR_IDENTIFIER,
         )
 

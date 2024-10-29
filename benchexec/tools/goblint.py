@@ -13,6 +13,8 @@ import benchexec.tools.template
 from benchexec.tools.sv_benchmarks_util import (
     handle_witness_of_task,
     TaskFilesConsidered,
+    get_witness_options,
+    get_non_witness_input_files,
 )
 
 
@@ -67,12 +69,10 @@ class Tool(benchexec.tools.template.BaseTool2):
                         f"Unsupported data_model '{data_model}'"
                     )
 
-        input_files, witness_options = handle_witness_of_task(
-            task,
-            options,
-            ["--witness.yaml.validate", "--witness.yaml.unassume"],
-            TaskFilesConsidered.INPUT_FILES,
+        witness_options = get_witness_options(
+            options, task, ["--witness.yaml.validate", "--witness.yaml.unassume"]
         )
+        input_files = get_non_witness_input_files(task)
 
         return [
             executable,
