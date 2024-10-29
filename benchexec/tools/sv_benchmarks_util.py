@@ -15,7 +15,6 @@ Note the following points before using any function in this util:
     2. Out-of-tree modules should not use this util
     3. Any function in this util may change at any point in time
 """
-import logging
 from enum import Enum
 from pathlib import Path
 
