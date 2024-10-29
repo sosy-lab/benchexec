@@ -68,12 +68,12 @@ def _partition_input_files(input_files, task_options):
 
 def get_witness(task):
     """
-    This function returns the unique witness file from the task.
+    This function returns the single witness file from the task.
     It raises an exception if there are multiple witness files.
     The witness file is identified by the option "witness" in the task options.
 
     @param task: An instance of a task
-    @return: Unique witness file
+    @return: Single witness file
     """
     witness_files, _ = _partition_input_files(
         task.input_files_or_identifier, task.options
@@ -130,13 +130,13 @@ def get_non_witness_input_files(task):
 
 def get_single_non_witness_input_file(task):
     """
-    This function returns the unique non-witness file from the task.
+    This function returns the single non-witness file from the task.
     It raises an exception if there are multiple non-witness files.
     Non-witness files consist of all files which do not match the witness file name.
     The witness file is identified by the option "witness" in the task options.
 
     @param task: An instance of a task
-    @return: Unique non-witness file
+    @return: Single non-witness file
     """
     other_files = get_non_witness_input_files(task)
     if len(other_files) > 1:
