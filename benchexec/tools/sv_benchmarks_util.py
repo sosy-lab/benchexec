@@ -80,7 +80,7 @@ def get_witness(task):
     )
     if len(witness_files) != 1:
         raise UnsupportedFeatureException(
-            "Tool only supports tasks with exactly one witness file"
+            "Witness did not occur exactly once in input files of the task definition"
         )
     return witness_files[0]
 
