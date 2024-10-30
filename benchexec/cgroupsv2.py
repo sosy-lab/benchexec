@@ -10,6 +10,7 @@ import logging
 import os
 import pathlib
 import secrets
+import select
 import signal
 import stat
 import sys
@@ -173,12 +174,43 @@ def _create_systemd_scope_for_us():
 
             random_suffix = secrets.token_urlsafe(8)
             name = f"benchexec_{random_suffix}.scope".encode()
-            manager.Manager.StartTransientUnit(name, b"fail", unit_params)
+
             # StartTransientUnit is async, so we need to ensure it has finished
             # and moved our process before we continue.
-            # We might need a loop here (so far it always seems to work without,
-            # maybe systemd serializes this request with the unit creation).
+            # The man page org.freedesktop.systemd1 documents that the way to do this
+            # is to wait for the JobRemoved signal of the start job of the unit.
+            # The name of the start job is returned by StartTransientUnit.
+
+            unit_is_active = False
+
+            def process_signal(msg, error=None, userdata=None):
+                msg.process_reply(True)  # necessary to access msg.body
+                if msg.body[1] == start_job:
+                    # Job is the correct one, and we only listen for JobRemoved anyway
+                    nonlocal unit_is_active
+                    unit_is_active = True
+
             with Unit(name, bus=bus) as unit:
+                # We need to register for signals before we call StartTransientUnit
+                bus.match_signal(
+                    b"org.freedesktop.systemd1",
+                    b"/org/freedesktop/systemd1",
+                    None,
+                    b"JobRemoved",
+                    process_signal,
+                    None,
+                )
+
+                start_job = manager.Manager.StartTransientUnit(
+                    name, b"fail", unit_params
+                )
+
+                fd = bus.get_fd()
+                while not unit_is_active:
+                    # Wait for event and trigger signal handling
+                    select.select([fd], [], [])
+                    bus.process()
+
                 assert unit.LoadState == b"loaded"
                 assert unit.ActiveState == b"active"
                 assert unit.SubState == b"running"
