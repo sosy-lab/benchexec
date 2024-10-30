@@ -258,7 +258,8 @@ class Cgroups(ABC):
         except OSError:
             # sometimes this fails because the cgroup is still busy, we try again once
             try:
-                os.chmod(os.path.basename(path), stat.S_IWUSR)
+                parent = os.path.dirname(path)
+                os.chmod(parent, stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR)
                 os.rmdir(path)
             except OSError as e:
                 if e.errno != errno.ENOENT:
