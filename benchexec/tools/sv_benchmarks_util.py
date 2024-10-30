@@ -47,7 +47,7 @@ def get_data_model_from_task(task, param_dict):
 
 def _partition_input_files(input_files, task_options):
     """
-    This function partitions the input files into witness and other files.
+    This function partitions the input files into the witness and other files.
     The distinction is based on the file name of the witness file, which
     is identified by the option "witness" in the task options.
 
@@ -67,11 +67,14 @@ def _partition_input_files(input_files, task_options):
 
 def get_witness(task):
     """
-    This function returns the single witness file from the task.
-    It raises an exception if there are multiple witness files.
-    The witness file is identified by the option "witness" in the task options.
+    This function returns the witness file that is declared in the options of the task,
+    with the correct relative path that makes it suitable to be passed to the tool.
+    For this the witness file also needs to be contained in the input files of the task.
+    The function raises an exception if there is no witness defined in the options
+    or if there is not exactly one entry in the input files that matches the witness.
+    Inside the task options the witness needs to be defined with the key "witness".
 
-    @param task: An instance of a task
+    @param task: An instance of a task with a "witness" key in options
     @return: Single witness file
     """
     witness_files, _ = _partition_input_files(
@@ -79,8 +82,8 @@ def get_witness(task):
     )
     if len(witness_files) != 1:
         raise UnsupportedFeatureException(
-            "Witness given in the task-definition did not occur exactly once "
-            "in input files of the task definition"
+            "Witness given in the task-definition options did not occur exactly once "
+            "in input_files of the task definition"
         )
     return witness_files[0]
 
@@ -140,7 +143,7 @@ def get_single_non_witness_input_file(task):
 
 def get_witness_options(options, task, witness_options):
     """
-    This function returns the additional options to handle witnesses.
+    This function returns the additional options to handle the witness.
     It checks if the witness is passed as an option or through the task definition.
     If the witness is passed through both, it raises an exception.
     If no witness is given in the task, it returns an empty list.
@@ -149,11 +152,11 @@ def get_witness_options(options, task, witness_options):
 
     @param options: List of existing options
     @param task: An instance of a task
-    @@param witness_options: List of options which need to be set to handle witnesses
+    @@param witness_options: List of options which need to be set to handle the witness
         e.g. if the option is "-w witness_file", then the witness should be passed as
         ["-w", "witness_file"] to the tool and the witness_options parameter is ["-w"]
 
-    @return: List of additional options to handle witnesses. They are constructed
+    @return: List of additional options to handle the witness. They are constructed
         based on witness_options. For example if witness_options is ["-w"], then
         the return value will be ["-w", "witness_file"]
     """
@@ -199,7 +202,7 @@ def handle_witness_of_task(
     This function is a shortcut to handle the following two steps:
     1. Add the witness options obtained by calling the function `get_witness_options`
         to the options list in the `cmdline` function.
-    2. Filter the input files to only get those tasks which are not witnesses. This
+    2. Filter the input files to only get those files which are not the witness. This
         can be done by calling one of the following functions, depending on the
         type of input files you want:
             * `get_non_witness_input_files_or_identifier`: If you want to consider
@@ -210,7 +213,7 @@ def handle_witness_of_task(
 
     @param task: An instance of a task
     @param options: List of existing options
-    @param witness_option: Option which needs to be set to handle witnesses
+    @param witness_option: Option which needs to be set to handle the witness
         e.g. if the option is "-w witness_file", then the witness should be passed as
         ["-w", "witness_file"] to the tool and the witness_option parameter is "-w"
     @param task_files_considered: Enum to represent the different types of input files
