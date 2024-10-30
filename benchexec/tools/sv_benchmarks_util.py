@@ -15,6 +15,7 @@ Note the following points before using any function in this util:
     2. Out-of-tree modules should not use this util
     3. Any function in this util may change at any point in time
 """
+import logging
 from enum import Enum
 from pathlib import Path
 
@@ -167,10 +168,11 @@ def get_witness_options(options, task, witness_options):
             for witness_option in witness_options:
                 additional_options += [witness_option, get_witness(task)]
         else:
-            raise benchexec.tools.template.UnsupportedFeatureException(
+            logging.warning(
                 "You are passing a witness as both an option and through the task definition. "
-                "Please remove one of them."
+                "Using the witness passed as option."
             )
+            return []
     return additional_options
 
 
