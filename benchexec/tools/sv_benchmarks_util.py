@@ -162,18 +162,19 @@ def get_witness_options(options, task, witness_options):
         the return value will be ["-w", "witness_file"]
     """
 
-    additional_options = []
     if isinstance(task.options, dict) and "witness" in task.options.keys():
         if not any(witness_option in options for witness_option in witness_options):
+            additional_options = []
             for witness_option in witness_options:
                 additional_options += [witness_option, get_witness(task)]
+            return additional_options
         else:
             logging.warning(
                 "You are passing a witness as both an option and through the task definition. "
                 "Using the witness passed as option."
             )
             return []
-    return additional_options
+    return []
 
 
 class TaskFilesConsidered(Enum):
