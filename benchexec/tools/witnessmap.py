@@ -44,10 +44,3 @@ class Tool(benchexec.tools.template.BaseTool2):
             if line_without_log_prefix.startswith(identifier):
                 return line_without_log_prefix.split(":", maxsplit=1)[-1].strip()
         return None
-
-    def determine_result(self, run):
-        exit_code = run.exit_code.value
-        if exit_code != 0:
-            return result.RESULT_ERROR
-
-        return result.RESULT_DONE
