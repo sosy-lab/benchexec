@@ -33,6 +33,9 @@ class Tool(benchexec.tools.template.BaseTool2):
         return version_string.partition("version")[2].strip().split(" ")[0]
 
     def cmdline(self, executable, options, task, rlimits):
+        # The input files are irrelevant, since the goal of WitnessMap
+        # is only to copy the witness given in the task definition options
+        #  into the output folder
         mapping_options = get_witness_options(options, task, ["--input"])
 
         return [executable, *options, *mapping_options]
