@@ -171,7 +171,7 @@ def get_witness_options(options, task, witness_options):
         else:
             logging.warning(
                 "You are passing a witness as both an option and through the task definition. "
-                "Using the witness passed as option."
+                "The witness in the task definition will be ignored."
             )
             return []
     return []
