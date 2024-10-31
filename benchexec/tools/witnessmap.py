@@ -15,6 +15,7 @@ from benchexec.tools.sv_benchmarks_util import (
 class Tool(benchexec.tools.template.BaseTool2):
     """
     Tool info for the witness mapper (witnessmap)
+    The goal of this tool, currently, is only to help run SV-COMP.
     """
 
     REQUIRED_PATHS = []
