@@ -43,6 +43,7 @@ class TestRunExecutor(unittest.TestCase):
         cls.echo = shutil.which("echo") or "/bin/echo"
         cls.sleep = shutil.which("sleep") or "/bin/sleep"
         cls.cat = shutil.which("cat") or "/bin/cat"
+        cls.dd = shutil.which("dd") or "/bin/dd"
         cls.grep = shutil.which("grep") or "/bin/grep"
 
     def setUp(self, *args, **kwargs):
@@ -408,6 +409,34 @@ class TestRunExecutor(unittest.TestCase):
             msg="cputime is not approximately the time after which the process should have been killed",
         )
 
+        for line in output[1:]:
+            self.assertRegex(line, "^-*$", "unexpected text in run output")
+
+    def test_memory_limit(self):
+        if not os.path.exists(self.dd):
+            self.skipTest("missing dd")
+        memlimit = 100_000_000
+        (result, output) = self.execute_run(
+            self.dd,
+            "if=/dev/zero",
+            "of=/dev/null",
+            f"bs={memlimit}",
+            "count=1",
+            memlimit=memlimit,
+            expect_terminationreason="memory",
+        )
+
+        self.check_exitcode(result, 9, "exit code of killed process is not 9")
+        self.assertAlmostEqual(
+            result["memory"],
+            memlimit,
+            delta=memlimit // 100,
+            msg="memory is not approximately the amount after which the process should have been killed",
+        )
+
+        self.check_command_in_output(
+            output, f"{self.dd} if=/dev/zero of=/dev/null bs={memlimit} count=1"
+        )
         for line in output[1:]:
             self.assertRegex(line, "^-*$", "unexpected text in run output")
 
