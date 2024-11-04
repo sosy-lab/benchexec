@@ -445,6 +445,15 @@ class CgroupsV2(Cgroups):
             # recursively), but informs the users of the child cgroup about the limit
             # (otherwise they would not see it).
             child_cgroup.write_memory_limit(self.read_memory_limit() or "max")
+            # We need to avoid the kernel killing our child process (the init process
+            # of the container) together with the benchmarked process on OOM,
+            # but both processes will be inside the current cgroup.
+            # So we must ensure that memory.oom.group is 0 here
+            # (write_memory_limit sets it to 1).
+            # In theory, this does not prevent the kernel from (also) killing our child
+            # process, but it makes it highly unlikely at least (the benchmarked process
+            # will be the reason for the OOM and the main target for the OOM killer).
+            self.set_value(self.MEMORY, "oom.group", 0)
 
         return child_cgroup
 
