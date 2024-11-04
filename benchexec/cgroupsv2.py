@@ -426,10 +426,10 @@ class CgroupsV2(Cgroups):
 
     def create_fresh_child_cgroup_for_delegation(self, prefix="delegate_"):
         """
-        Create a special child cgroup and delegate all controllers to it.
+        Create a child cgroup and delegate all controllers to it.
         The current cgroup must not have processes and may never have processes.
         This method can be called only once because we remember what child cgroup
-        we create here and use it for some special purposes later on.
+        we create here and use it for some assertions later on.
         """
         assert not self._delegated_to
         self._delegate_controllers()
@@ -609,14 +609,9 @@ class CgroupsV2(Cgroups):
         # anyway (since 5.14). So it is probably not worth to fix it and instead
         # we just eventually require kernel 5.14 for cgroupsv2
         # (before 5.19 memory measurements are missing as well).
-        keep_child = self._delegated_to.path if self._delegated_to else None
         for child_cgroup in recursive_child_cgroups(self.path):
             kill_all_tasks_in_cgroup(child_cgroup)
-
-            # Remove child_cgroup, but not if it is our immediate child because of
-            # delegation. We need that cgroup to read the OOM kill count.
-            if child_cgroup != keep_child:
-                self._remove_cgroup(child_cgroup)
+            self._remove_cgroup(child_cgroup)
 
         kill_all_tasks_in_cgroup(self.path)
 
@@ -717,8 +712,9 @@ class CgroupsV2(Cgroups):
         # arbitrary nested child cgroup, but not for the main process itself.
         # But if we have delegated, then our own cgroup has no processes and OOM count
         # would remain zero, so we have to read it from the child cgroup.
-        if self._delegated_to:
-            return self._delegated_to.read_oom_kill_count()
+        assert (
+            not self._delegated_to
+        ), "Reading OOM kill count does not make sense for delegated cgroups"
 
         for k, v in self.get_key_value_pairs(self.MEMORY, "events.local"):
             if k == "oom_kill":
