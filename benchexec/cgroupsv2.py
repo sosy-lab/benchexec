@@ -193,9 +193,9 @@ def _create_systemd_scope_for_us():
             with Unit(name, bus=bus) as unit:
                 # We need to register for signals before we call StartTransientUnit
                 bus.match_signal(
-                    b"org.freedesktop.systemd1",
-                    b"/org/freedesktop/systemd1",
-                    None,
+                    manager.destination,
+                    manager.path,
+                    b"org.freedesktop.systemd1.Manager",
                     b"JobRemoved",
                     process_signal,
                     None,
