@@ -10,6 +10,7 @@ import functools
 import glob
 import logging
 import os
+from pathlib import Path
 import re
 import shlex
 import shutil
@@ -72,15 +73,13 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
 
     def executable(self, tool_locator):
         exe = tool_locator.find_executable("Ultimate.py")
-        dir_name = os.path.dirname(exe)
-        logging.debug("Looking in %s for Ultimate and plugins/", dir_name)
-        for _, dir_names, file_names in os.walk(dir_name):
-            if "Ultimate" in file_names and "plugins" in dir_names:
-                return exe
-            break
+        dir_name = Path(os.path.dirname(exe))
+        logging.debug("Checking if %s contains a launcher jar", dir_name)
+        if any([(dir_name / rel_launcher).exists() for rel_launcher in _LAUNCHER_JARS]):
+            return exe
         msg = (
             f"ERROR: Did find a Ultimate.py in {os.path.dirname(exe)} "
-            f"but no 'Ultimate' or no 'plugins' directory besides it"
+            f"but no launcher .jar besides it"
         )
         raise ToolNotFoundException(msg)
 
