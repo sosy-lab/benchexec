@@ -13,16 +13,19 @@ import benchexec.tools.template
 class Tool(benchexec.tools.template.BaseTool2):
     """
     Tool info for Korn, a software verifier based on Horn-clauses.
+    URL: https://github.com/gernst/korn
     """
 
     REQUIRED_PATHS = [
         "run",
         "korn.jar",
         "z3",
+        "golem",
         "eld",
         "eld.jar",
         "__VERIFIER.c",
         "__VERIFIER_random.c",
+        "__VERIFIER_zero.c",
     ]
 
     def executable(self, tool_locator):
@@ -34,8 +37,21 @@ class Tool(benchexec.tools.template.BaseTool2):
     def name(self):
         return "Korn"
 
-    def project_url(self):
-        return "https://github.com/gernst/korn"
+    def cmdline(self, executable, options, task, rlimits):
+        cmd = [executable]
+        cmd = cmd + options
+
+        data_model = task.options.get("data_model")
+
+        if data_model == "ILP32":
+            cmd = cmd + ["-32"]
+
+        if data_model == "LP64":
+            cmd = cmd + ["-64"]
+
+        cmd = cmd + [task.single_input_file]
+
+        return cmd
 
     def determine_result(self, run):
         """
