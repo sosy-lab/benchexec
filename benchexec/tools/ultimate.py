@@ -467,6 +467,8 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
         return None
 
     def get_java_installations(self):
+        # The code in this method is (and should remain) consistent with the method `get_java` in
+        # <https://github.com/ultimate-pa/ultimate/blob/dev/releaseScripts/default/adds/Ultimate.py>.
         candidates = [
             "java",
             "/usr/bin/java",
@@ -475,11 +477,16 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
             "/usr/lib/jvm/java-*-openjdk-amd64/bin/java",
         ]
 
-        candidates = [c for entry in candidates for c in glob.glob(entry)]
+        candidates_extended = []
+        for c in candidates:
+            if "*" in c:
+                candidates_extended += glob.glob(c)
+            else:
+                candidates_extended += [c]
         pattern = r'"(\d+\.\d+).*"'
 
         rtr = {}
-        for c in candidates:
+        for c in candidates_extended:
             candidate = shutil.which(c)
             if not candidate:
                 continue
