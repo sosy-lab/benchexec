@@ -13,7 +13,6 @@ import benchexec.tools.template
 class Tool(benchexec.tools.template.BaseTool2):
     """
     Tool info for Korn, a software verifier based on Horn-clauses.
-    URL: https://github.com/gernst/korn
     """
 
     REQUIRED_PATHS = [
@@ -37,17 +36,17 @@ class Tool(benchexec.tools.template.BaseTool2):
     def name(self):
         return "Korn"
 
+    def project_url(self):
+        return "https://github.com/gernst/korn"
+
     def cmdline(self, executable, options, task, rlimits):
         cmd = [executable]
         cmd = cmd + options
 
-        data_model = task.options.get("data_model")
+        data_model_param = get_data_model_from_task(task, {ILP32: "-32", LP64: "-64"})
 
-        if data_model == "ILP32":
-            cmd = cmd + ["-32"]
-
-        if data_model == "LP64":
-            cmd = cmd + ["-64"]
+        if data_model_param and data_model_param not in options:
+            cmd += data_model_param
 
         cmd = cmd + [task.single_input_file]
 
