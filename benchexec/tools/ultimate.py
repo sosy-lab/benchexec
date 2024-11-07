@@ -75,7 +75,7 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
         exe = tool_locator.find_executable("Ultimate.py")
         dir_name = Path(os.path.dirname(exe))
         logging.debug("Checking if %s contains a launcher jar", dir_name)
-        if any([(dir_name / rel_launcher).exists() for rel_launcher in _LAUNCHER_JARS]):
+        if any((dir_name / rel_launcher).exists() for rel_launcher in _LAUNCHER_JARS):
             return exe
         msg = (
             f"ERROR: Did find a Ultimate.py in {os.path.dirname(exe)} "
