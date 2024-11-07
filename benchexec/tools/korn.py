@@ -9,6 +9,7 @@
 import benchexec.result as result
 import benchexec.tools.template
 
+from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, LP64
 
 class Tool(benchexec.tools.template.BaseTool2):
     """
@@ -44,7 +45,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         cmd = cmd + options
 
         data_model_param = get_data_model_from_task(
-            task, {"ILP32": "-32", "LP64": "-64"}
+            task, {ILP32: "-32", LP64: "-64"}
         )
 
         if data_model_param and data_model_param not in options:
