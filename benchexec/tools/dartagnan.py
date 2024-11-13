@@ -43,6 +43,8 @@ class Tool(benchexec.tools.template.BaseTool2):
                     status = result.RESULT_FALSE_DEREF
                 elif "user assertion" in failure_str:
                     status = result.RESULT_FALSE_REACH
+                elif "data race found" in failure_str:
+                    status = result.RESULT_FALSE_DATARACE
                 else:
                     status = result.RESULT_FALSE_PROP
             elif "PASS" in result_str:
