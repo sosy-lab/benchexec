@@ -363,6 +363,7 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
         ltl_false_string = "execution that violates the LTL property"
         ltl_true_string = "Buchi Automizer proved that the LTL property"
         overflow_false_string = "overflow possible"
+        datarace_false_string = "DataRaceFoundResult"
 
         for line in run.output:
             if unsupported_syntax_errorstring in line:
@@ -385,6 +386,8 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
                 return "FALSE(valid-ltl)"
             if ltl_true_string in line:
                 return result.RESULT_TRUE_PROP
+            if datarace_false_string in line:
+                return result.RESULT_FALSE_DATARACE
             if unsafety_string in line:
                 return result.RESULT_FALSE_REACH
             if mem_deref_false_string in line:
@@ -441,6 +444,8 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
                 return result.RESULT_FALSE_TERMINATION
             elif line.startswith("FALSE(OVERFLOW)"):
                 return result.RESULT_FALSE_OVERFLOW
+            elif line.startswith("FALSE(DATA-RACE)"):
+                return result.RESULT_FALSE_DATARACE
             elif line.startswith("FALSE"):
                 return result.RESULT_FALSE_REACH
             elif line.startswith("TRUE"):
