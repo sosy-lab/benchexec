@@ -29,7 +29,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         return "AISE"
 
     def project_url(self):
-        return "https://github.com/ZhenWang233/AISE"
+        return "https://github.com/zbchen/aise-verifier.git"
 
     def version(self, executable):
         return self._version_from_tool(executable, arg="--version")
