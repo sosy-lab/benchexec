@@ -6,6 +6,7 @@
 # SPDX-License-Identifier: Apache-2.0
 import benchexec.result as result
 import benchexec.tools.template
+import re
 
 
 class Tool(benchexec.tools.template.BaseTool2):
@@ -46,6 +47,7 @@ class Tool(benchexec.tools.template.BaseTool2):
             return result.RESULT_ERROR
         status = result.RESULT_UNKNOWN
         parsing_status = "before"
+        property = None
         for line in run.output:
             if "SafetyResult Unsafe" in line:
                 status = result.RESULT_FALSE_REACH
@@ -53,6 +55,15 @@ class Tool(benchexec.tools.template.BaseTool2):
                 status = result.RESULT_TRUE_PROP
             elif "ParsingResult Success" in line:
                 parsing_status = "after"
+            elif "Property" in line and property:
+                match = re.search("\(Property ([a-z-]*)\)")
+                if match:
+                    property = match.group(1)
+
+        if (
+            status == result.RESULT_FALSE_REACH and property
+        ):  # for compatibility reasons, unreach-call is default
+            status = f"false({property})"
 
         if run.was_timeout:
             status = result.RESULT_TIMEOUT + f" ({parsing_status} parsing finished)"
