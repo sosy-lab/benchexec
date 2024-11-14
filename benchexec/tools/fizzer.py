@@ -121,4 +121,11 @@ class Tool(benchexec.tools.template.BaseTool2):
         else:
             result_code = result.RESULT_UNKNOWN
 
-        return result_code + " (" + str(termination_type) + "," + str(termination_reason) + ")"
+        return (
+            result_code
+            + " ("
+            + str(termination_type)
+            + ","
+            + str(termination_reason)
+            + ")"
+        )
