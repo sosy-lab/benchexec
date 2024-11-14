@@ -31,14 +31,24 @@ class Tool(benchexec.tools.template.BaseTool2):
     def version(self, executable):
         return self._version_from_tool(executable)
 
+    def min_version(self, current, limit):
+        for i in range(len(current)):
+            if int(current[i]) < int(limit[i]):
+                return False
+        return True
+
     def cmdline(self, executable, options, task, rlimits):
-        # Theta supports data race and unreach call
+        current_version = self.version(executable).split(".")
         if task.property_file:
             options += ["--property", task.property_file]
-        if isinstance(task.options, dict) and task.options.get("language") == "C":
-            data_model = task.options.get("data_model")
-            if data_model:
-                options += ["--architecture", data_model]
+        if self.min_version(current_version, [6, 0, 0]):
+            if isinstance(task.options, dict) and task.options.get("language") == "C":
+                data_model = task.options.get("data_model")
+                if data_model:
+                    options += ["--architecture", data_model]
+        if self.min_version(current_version, [6, 8, 6]):
+            if rlimits.memory:
+                options += ["--memlimit", str(rlimits.memory)]  # memory in Bytes
 
         return [executable, task.single_input_file] + options
 
