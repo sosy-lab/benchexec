@@ -70,8 +70,15 @@ class Tool(benchexec.tools.template.BaseTool2):
         data_model = get_data_model_from_task(task, {ILP32: ["--m32"], LP64: []})
         if data_model is None:
             data_model = []
+        time_options = []
+        if rlimits.cputime is not None:
+            time_options += [ "--max_seconds", str(int((865.0/900.0) * rlimits.cputime))]
+            time_options += [ "--optimizer_max_seconds", str(int((30.0/900.0) * rlimits.cputime))]
+        memory_options = []
+        if rlimits.memory is not None:
+            time_options += [ "--max_exec_megabytes", str(int((13.0/15.0) * (rlimits.memory / (1024.0 * 1024.0))))]
         return (
-            [executable, "--input_file", task.single_input_file] + options + data_model
+            [executable, "--input_file", task.single_input_file] + data_model + time_options + memory_options + options
         )
 
     def determine_result(self, run):
