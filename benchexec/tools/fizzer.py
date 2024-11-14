@@ -92,47 +92,16 @@ class Tool(benchexec.tools.template.BaseTool2):
         if not run.output:
             return result.RESULT_UNKNOWN
 
-        compilation = None
-        instrumentation = None
-        linking = None
         termination_type = None
         termination_reason = None
-        error_message = None
-        fuzzing_stats_found = False
         for line in run.output:
-            if fuzzing_stats_found is False:
-                if line.startswith("Fuzzing was stopped. Details:"):
-                    fuzzing_stats_found = True
-                elif "Compiling...Done[" in line:
-                    compilation = True
-                elif "Instrumenting...Done[" in line:
-                    instrumentation = True
-                elif "Linking...Done[" in line:
-                    linking = True
-                continue
-            if line.startswith("Optimization was stopped. Details:"):
-                break
             line = line.strip()
-            if "termination_type" in line:
+            if termination_type is None and "termination_type" in line:
                 termination_type = line.split(": ")[1].split('"')[1]
-            elif "termination_reason" in line:
+            elif termination_reason is None and "termination_reason" in line:
                 termination_reason = line.split(": ")[1].split('"')[1]
-            elif "error_message" in line:
-                error_message = line.split(": ")[1].split('"')[1]
-            if termination_type is not None and termination_reason is not None:
-                break
 
         # Now we are ready to compute the result string.
-
-        def result_string(error_code, message=None):
-            return error_code + ("" if message is None else " (" + message + ")")
-
-        if compilation is None:
-            return result_string(result.RESULT_ERROR, "compilation")
-        elif instrumentation is None:
-            return result_string(result.RESULT_ERROR, "instrumentation")
-        elif linking is None:
-            return result_string(result.RESULT_ERROR, "linking")
 
         if termination_type in [
             "SERVER_INTERNAL_ERROR",
@@ -140,9 +109,6 @@ class Tool(benchexec.tools.template.BaseTool2):
             "UNCLASSIFIED_ERROR",
         ]:
             result_code = result.RESULT_ERROR
-            termination_reason = (
-                error_message if error_message is not None else termination_reason
-            )
         elif termination_type != "NORMAL":
             result_code = result.RESULT_UNKNOWN
         elif termination_reason in [
@@ -155,6 +121,4 @@ class Tool(benchexec.tools.template.BaseTool2):
         else:
             result_code = result.RESULT_UNKNOWN
 
-        return result_string(
-            result_code, str(termination_type) + "," + str(termination_reason)
-        )
+        return result_code + " (" + str(termination_type) + "," + str(termination_reason) + ")"
