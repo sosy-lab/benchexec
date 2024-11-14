@@ -29,7 +29,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         return "https://github.com/ftsrg/theta"
 
     def version(self, executable):
-        return self._version_from_tool(executable)
+        return self._version_from_tool(executable)version1
 
     def cmdline(self, executable, options, task, rlimits):
         # Theta supports data race and unreach call
