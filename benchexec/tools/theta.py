@@ -54,7 +54,7 @@ class Tool(benchexec.tools.template.BaseTool2):
             return result.RESULT_ERROR
         status = result.RESULT_UNKNOWN
         parsing_status = "before"
-        property = None
+        violated_property = None
         for line in run.output:
             if "SafetyResult Unsafe" in line:
                 status = result.RESULT_FALSE_REACH
@@ -64,15 +64,15 @@ class Tool(benchexec.tools.template.BaseTool2):
                 status = result.RESULT_UNKNOWN
             elif "ParsingResult Success" in line:
                 parsing_status = "after"
-            elif "Property" in line and not property:
+            elif "Property" in line and not violated_property:
                 match = re.search("\(Property ([a-z-]*)\)", line)
                 if match:
-                    property = match.group(1)
+                    violated_property = match.group(1)
 
         if (
-            status == result.RESULT_FALSE_REACH and property
+            status == result.RESULT_FALSE_REACH and violated_property
         ):  # for compatibility reasons, unreach-call is default
-            status = f"false({property})"
+            status = f"false({violated_property})"
 
         if run.was_timeout:
             status = result.RESULT_TIMEOUT + f" ({parsing_status} parsing finished)"
