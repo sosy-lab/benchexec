@@ -32,10 +32,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         return self._version_from_tool(executable)
 
     def min_version(self, current, limit):
-        for i in range(len(current)):
-            if int(current[i]) < int(limit[i]):
-                return False
-        return True
+        return [int(x) for x in current] >= limit
 
     def cmdline(self, executable, options, task, rlimits):
         current_version = self.version(executable).split(".")
