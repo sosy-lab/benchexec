@@ -65,7 +65,7 @@ class Tool(benchexec.tools.template.BaseTool2):
             elif "ParsingResult Success" in line:
                 parsing_status = "after"
             elif "Property" in line and not violated_property:
-                match = re.search("\(Property ([a-z-]*)\)", line)
+                match = re.search(r"\(Property ([a-z-]*)\)", line)
                 if match:
                     violated_property = match.group(1)
 
