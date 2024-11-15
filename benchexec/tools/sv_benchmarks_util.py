@@ -26,6 +26,10 @@ from benchexec.tools.template import UnsupportedFeatureException
 ILP32 = "ILP32"
 LP64 = "LP64"
 
+# This variable defines the key in the task options
+# which is used to identify the witness file.
+WITNESS_INPUT_FILE_IDENTIFIER = "witness"
+
 
 def get_data_model_from_task(task, param_dict):
     """
@@ -50,7 +54,8 @@ def _partition_input_files(input_files, task_options):
     """
     This function partitions the input files into the witness and other files.
     The distinction is based on the file name of the witness file, which
-    is identified by the option "witness" in the task options.
+    is identified by the option described by the variable
+    WITNESS_INPUT_FILE_IDENTIFIER in the task options.
 
     @param input_files: List of input files
     @param task_options: Dictionary of task options
@@ -59,7 +64,7 @@ def _partition_input_files(input_files, task_options):
     witness_files = []
     other_files = []
     for file in input_files:
-        if Path(file).name == task_options.get("witness"):
+        if Path(file).name == task_options.get(WITNESS_INPUT_FILE_IDENTIFIER):
             witness_files.append(file)
         else:
             other_files.append(file)
@@ -73,9 +78,10 @@ def get_witness(task):
     For this the witness file also needs to be contained in the input files of the task.
     The function raises an exception if there is no witness defined in the options
     or if there is not exactly one entry in the input files that matches the witness.
-    Inside the task options the witness needs to be defined with the key "witness".
+    Inside the task options the witness needs to be defined with the key given by the string
+    in WITNESS_INPUT_FILE_IDENTIFIER.
 
-    @param task: An instance of a task with a "witness" key in options
+    @param task: An instance of a task with a key given by WITNESS_INPUT_FILE_IDENTIFIER in options
     @return: Single witness file
     """
     witness_files, _ = _partition_input_files(
@@ -93,7 +99,8 @@ def get_non_witness_input_files_or_identifier(task):
     """
     This function returns the non-witness input files or the identifier from the task.
     They consist of all elements which do not match the witness file name.
-    The witness file is identified by the option "witness" in the task options.
+    The witness file is identified by the option given by
+    WITNESS_INPUT_FILE_IDENTIFIER in the task options.
 
     @param task: An instance of a task
     @return: List of non-witness files
@@ -111,7 +118,8 @@ def get_non_witness_input_files(task):
     """
     This function returns the non-witness input files from the task.
     They consist of all files which do not match the witness file name.
-    The witness file is identified by the option "witness" in the task options.
+    The witness file is identified by the option given by
+    WITNESS_INPUT_FILE_IDENTIFIER in the task options.
 
     @param task: An instance of a task
     @return: List of non-witness files
@@ -129,7 +137,8 @@ def get_single_non_witness_input_file(task):
     This function returns the single non-witness file from the task.
     It raises an exception if there are multiple non-witness files.
     Non-witness files consist of all files which do not match the witness file name.
-    The witness file is identified by the option "witness" in the task options.
+    The witness file is identified by the option
+    given by WITNESS_INPUT_FILE_IDENTIFIER in the task options.
 
     @param task: An instance of a task
     @return: Single non-witness file
@@ -162,7 +171,10 @@ def get_witness_options(options, task, witness_options):
         the return value will be ["-w", "witness_file"]
     """
 
-    if isinstance(task.options, dict) and "witness" in task.options.keys():
+    if (
+        isinstance(task.options, dict)
+        and WITNESS_INPUT_FILE_IDENTIFIER in task.options.keys()
+    ):
         if not any(witness_option in options for witness_option in witness_options):
             additional_options = []
             for witness_option in witness_options:
@@ -196,7 +208,8 @@ def handle_witness_of_task(
     The input files are based on the task_files_considered parameter.
     The witness options are based on the witness_options parameter.
 
-    In validation task definition files, there is a key "witness" inside the
+    In validation task definition files, there is a key given by the value of the variable
+    WITNESS_INPUT_FILE_IDENTIFIER inside the
     options of a task. To handle this type of tasks correctly in the tool info module
     you need to call this function and add the resulting witness_options to your
     command line and use the resulting input_files instead of the original
