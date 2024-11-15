@@ -210,7 +210,9 @@ def handle_witness_of_task(
 
     In validation task definition files, there is a key given by the value of the variable
     WITNESS_INPUT_FILE_IDENTIFIER inside the
-    options of a task. To handle this type of tasks correctly in the tool info module
+    options of a task. The option and its semantics are described in
+    https://gitlab.com/sosy-lab/benchmarking/sv-benchmarks#task-definitions.
+    To handle this type of tasks correctly in the tool info module
     you need to call this function and add the resulting witness_options to your
     command line and use the resulting input_files instead of the original
     files contained in the task.
