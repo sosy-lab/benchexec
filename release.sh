@@ -133,7 +133,10 @@ git push --tags
 twine upload "$DIST_DIR/BenchExec"*
 dput ppa:sosy-lab/benchmarking "$DIST_DIR/benchexec_$VERSION-1_source.changes"
 
-read -p "Please enter next version number:  " -r
+REPLY=
+while [[ $REPLY = "" ]]; do
+  read -p "Please enter next version number:  " -r
+done
 sed -e "s/^__version__ = .*/__version__ = \"$REPLY\"/" -i benchexec/__init__.py
 git commit benchexec/__init__.py -m"Prepare version number for next development cycle."
 

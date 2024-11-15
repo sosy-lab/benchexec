@@ -10,6 +10,7 @@ import functools
 import glob
 import logging
 import os
+from pathlib import Path
 import re
 import shlex
 import shutil
@@ -36,6 +37,7 @@ _ULTIMATE_VERSION_REGEX = re.compile(r"^Version is (.*)$", re.MULTILINE)
 _LAUNCHER_JARS = [
     "plugins/org.eclipse.equinox.launcher_1.5.800.v20200727-1323.jar",
     "plugins/org.eclipse.equinox.launcher_1.3.100.v20150511-1540.jar",
+    "plugins/org.eclipse.equinox.launcher_1.6.800.v20240513-1750.jar",
 ]
 
 
@@ -77,15 +79,13 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
 
     def executable(self, tool_locator):
         exe = tool_locator.find_executable("Ultimate.py")
-        dir_name = os.path.dirname(exe)
-        logging.debug("Looking in %s for Ultimate and plugins/", dir_name)
-        for _, dir_names, file_names in os.walk(dir_name):
-            if "Ultimate" in file_names and "plugins" in dir_names:
-                return exe
-            break
+        dir_name = Path(os.path.dirname(exe))
+        logging.debug("Checking if %s contains a launcher jar", dir_name)
+        if any((dir_name / rel_launcher).exists() for rel_launcher in _LAUNCHER_JARS):
+            return exe
         msg = (
             f"ERROR: Did find a Ultimate.py in {os.path.dirname(exe)} "
-            f"but no 'Ultimate' or no 'plugins' directory besides it"
+            f"but no launcher .jar besides it"
         )
         raise ToolNotFoundException(msg)
 
@@ -395,6 +395,7 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
         ltl_false_string = "execution that violates the LTL property"
         ltl_true_string = "Buchi Automizer proved that the LTL property"
         overflow_false_string = "overflow possible"
+        datarace_false_string = "DataRaceFoundResult"
 
         for line in run.output:
             if unsupported_syntax_errorstring in line:
@@ -417,6 +418,8 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
                 return "FALSE(valid-ltl)"
             if ltl_true_string in line:
                 return result.RESULT_TRUE_PROP
+            if datarace_false_string in line:
+                return result.RESULT_FALSE_DATARACE
             if unsafety_string in line:
                 return result.RESULT_FALSE_REACH
             if mem_deref_false_string in line:
@@ -473,6 +476,8 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
                 return result.RESULT_FALSE_TERMINATION
             elif line.startswith("FALSE(OVERFLOW)"):
                 return result.RESULT_FALSE_OVERFLOW
+            elif line.startswith("FALSE(DATA-RACE)"):
+                return result.RESULT_FALSE_DATARACE
             elif line.startswith("FALSE"):
                 return result.RESULT_FALSE_REACH
             elif line.startswith("TRUE"):
@@ -498,6 +503,8 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
         return None
 
     def get_java_installations(self):
+        # The code in this method is (and should remain) consistent with the method `get_java` in
+        # <https://github.com/ultimate-pa/ultimate/blob/dev/releaseScripts/default/adds/Ultimate.py>.
         candidates = [
             "java",
             "/usr/bin/java",
@@ -506,11 +513,16 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
             "/usr/lib/jvm/java-*-openjdk-amd64/bin/java",
         ]
 
-        candidates = [c for entry in candidates for c in glob.glob(entry)]
+        candidates_extended = []
+        for c in candidates:
+            if "*" in c:
+                candidates_extended += glob.glob(c)
+            else:
+                candidates_extended += [c]
         pattern = r'"(\d+\.\d+).*"'
 
         rtr = {}
-        for c in candidates:
+        for c in candidates_extended:
             candidate = shutil.which(c)
             if not candidate:
                 continue

@@ -1007,8 +1007,9 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 }
         if self._termination_reason:
             result["terminationreason"] = self._termination_reason
-        elif self.cgroups.version == 2 and result.get("oom_kill_count"):
+        elif self.cgroups.version == 2 and (oom_kills := result.get("oom_kill_count")):
             # At least one process was killed by the kernel due to OOM.
+            logging.debug("Kernel killed %s processes due to OOM.", oom_kills)
             result["terminationreason"] = "memory"
         elif self.cgroups.version == 1 and (
             memlimit and result.get("memory", 0) >= memlimit

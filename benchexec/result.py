@@ -87,6 +87,8 @@ RESULT_FALSE_MEMTRACK = RESULT_FALSE_PROP + "(valid-memtrack)"
 """SV-COMP valid-memtrack property violated"""
 RESULT_FALSE_MEMCLEANUP = RESULT_FALSE_PROP + "(valid-memcleanup)"
 """SV-COMP valid-memcleanup property violated"""
+RESULT_FALSE_DATARACE = RESULT_FALSE_PROP + "(no-data-race)"
+"""SV-COMP no-data-race property violated"""
 
 RESULT_LIST_OTHER = [RESULT_DONE, RESULT_ERROR, RESULT_UNKNOWN]
 """list of unspecific standard results besides true/false"""

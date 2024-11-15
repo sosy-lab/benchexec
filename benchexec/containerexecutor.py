@@ -975,6 +975,10 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             # - We want to move our child process (the init process of the container)
             #   into a cgroups where the limits apply because LXCFS reports the limits
             #   of the init process of the container.
+            #   This has the disadvantage that in principle the memory limit also
+            #   includes and applies to our child process, but there is no other way
+            #   to make LXCFS report the limits correctly. And at least we do not
+            #   include our child process in the measurements.
             # - On cgroupsv2 we want to move the grandchild process (the started tool)
             #   into a cgroup that becomes the root of the cgroup ns,
             #   such that no other cgroup (in particular the one with the limits)

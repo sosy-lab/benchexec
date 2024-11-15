@@ -6,6 +6,7 @@
 # SPDX-License-Identifier: Apache-2.0
 import benchexec.result as result
 import benchexec.tools.template
+import re
 
 
 class Tool(benchexec.tools.template.BaseTool2):
@@ -30,14 +31,21 @@ class Tool(benchexec.tools.template.BaseTool2):
     def version(self, executable):
         return self._version_from_tool(executable)
 
+    def min_version(self, current, limit):
+        return [int(x) for x in current] >= limit
+
     def cmdline(self, executable, options, task, rlimits):
-        # Theta supports data race and unreach call
+        current_version = self.version(executable).split(".")
         if task.property_file:
             options += ["--property", task.property_file]
-        if isinstance(task.options, dict) and task.options.get("language") == "C":
-            data_model = task.options.get("data_model")
-            if data_model:
-                options += ["--architecture", data_model]
+        if self.min_version(current_version, [6, 0, 0]):
+            if isinstance(task.options, dict) and task.options.get("language") == "C":
+                data_model = task.options.get("data_model")
+                if data_model:
+                    options += ["--architecture", data_model]
+        if self.min_version(current_version, [6, 8, 6]):
+            if rlimits.memory:
+                options += ["--memlimit", str(rlimits.memory)]  # memory in Bytes
 
         return [executable, task.single_input_file] + options
 
@@ -46,13 +54,25 @@ class Tool(benchexec.tools.template.BaseTool2):
             return result.RESULT_ERROR
         status = result.RESULT_UNKNOWN
         parsing_status = "before"
+        violated_property = None
         for line in run.output:
             if "SafetyResult Unsafe" in line:
                 status = result.RESULT_FALSE_REACH
             elif "SafetyResult Safe" in line:
                 status = result.RESULT_TRUE_PROP
+            elif "SafetyResult Unknown" in line:
+                status = result.RESULT_UNKNOWN
             elif "ParsingResult Success" in line:
                 parsing_status = "after"
+            elif "Property" in line and not violated_property:
+                match = re.search(r"\(Property ([a-z-]*)\)", line)
+                if match:
+                    violated_property = match.group(1)
+
+        if (
+            status == result.RESULT_FALSE_REACH and violated_property
+        ):  # for compatibility reasons, unreach-call is default
+            status = f"false({violated_property})"
 
         if run.was_timeout:
             status = result.RESULT_TIMEOUT + f" ({parsing_status} parsing finished)"
