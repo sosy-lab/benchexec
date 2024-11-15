@@ -28,7 +28,7 @@ LP64 = "LP64"
 
 # This variable defines the key in the task options
 # which is used to identify the witness file.
-WITNESS_INPUT_FILE_IDENTIFIER = "witness"
+WITNESS_INPUT_FILE_IDENTIFIER = "witness_input_file"
 
 
 def get_data_model_from_task(task, param_dict):
