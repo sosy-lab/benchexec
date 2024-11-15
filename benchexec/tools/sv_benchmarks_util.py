@@ -162,7 +162,7 @@ def get_witness_options(options, task, witness_options):
 
     @param options: List of existing options
     @param task: An instance of a task
-    @@param witness_options: List of options which need to be set to handle the witness
+    @param witness_options: List of options which need to be set to handle the witness
         e.g. if the option is "-w witness_file", then the witness should be passed as
         ["-w", "witness_file"] to the tool and the witness_options parameter is ["-w"]
 
