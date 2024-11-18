@@ -1052,6 +1052,10 @@ class Run(object):
         assert (
             self.runSet.benchmark.executable is not None
         ), "executor needs to set tool executable"
+
+        if hasattr(self, "_cmdline"):
+            return self._cmdline
+
         self._cmdline = cmdline_for_run(
             self.runSet.benchmark.tool,
             self.runSet.benchmark.executable,
@@ -1127,7 +1131,7 @@ class Run(object):
             logging.debug("My subprocess returned %s.", exitcode)
             tool_status = self.runSet.benchmark.tool.determine_result(
                 tooladapter.CURRENT_BASETOOL.Run(
-                    self._cmdline, exitcode, output, termination_reason
+                    self.cmdline(), exitcode, output, termination_reason
                 )
             )
 
