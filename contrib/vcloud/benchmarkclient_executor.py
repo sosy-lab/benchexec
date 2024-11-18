@@ -113,6 +113,8 @@ def execute_benchmark(benchmark, output_handler):
         if benchmark.config.containerImage:
             cmdLine.extend(["--containerImage", str(benchmark.config.containerImage)])
 
+        start_time = benchexec.util.read_local_time()
+
         cloud = subprocess.Popen(
             cmdLine,
             stdin=subprocess.PIPE,
