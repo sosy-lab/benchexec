@@ -60,6 +60,8 @@ class Tool(benchexec.tools.template.BaseTool2):
             status = result.RESULT_FALSE_OVERFLOW
         elif run.output.any_line_contains("FALSE_TERMINATION"):
             status = result.RESULT_FALSE_TERMINATION
+        elif run.output.any_line_contains("FALSE_DATARACE"):
+            status = result.RESULT_FALSE_DATARACE
         elif run.output.any_line_contains("FALSE"):
             status = result.RESULT_FALSE_REACH
         elif run.output.any_line_contains("TRUE"):
