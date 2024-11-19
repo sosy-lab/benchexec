@@ -45,7 +45,7 @@ class Tool(BaseTool2):
             return result.RESULT_UNKNOWN
 
         if run.output.any_line_contains("Data race (must)"):
-            return result.RESULT_FALSE_PROP
+            return result.RESULT_FALSE_DATARACE
 
         if run.output.any_line_contains("Data race (may)"):
             return result.RESULT_UNKNOWN
