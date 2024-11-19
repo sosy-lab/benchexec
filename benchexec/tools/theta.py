@@ -6,6 +6,7 @@
 # SPDX-License-Identifier: Apache-2.0
 import benchexec.result as result
 import benchexec.tools.template
+import functools
 import re
 
 
@@ -28,6 +29,7 @@ class Tool(benchexec.tools.template.BaseTool2):
     def project_url(self):
         return "https://github.com/ftsrg/theta"
 
+    @functools.lru_cache
     def version(self, executable):
         return self._version_from_tool(executable)
 
