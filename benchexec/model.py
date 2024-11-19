@@ -44,7 +44,7 @@ _ERROR_RESULTS_FOR_TERMINATION_REASON = {
 _EXPECTED_RESULT_FILTER_VALUES = {True: "true", False: "false", None: "unknown"}
 _WARNED_ABOUT_UNSUPPORTED_EXPECTED_RESULT_FILTER = False
 
-_TASK_DEF_VERSIONS = frozenset(["0.1", "1.0", "2.0"])
+_TASK_DEF_VERSIONS = frozenset(["0.1", "1.0", "2.0", "2.1"])
 
 
 def substitute_vars(oldList, runSet=None, task_file=None):
@@ -107,11 +107,24 @@ def load_task_definition_file(task_def_file):
             f"invalid format_version '{task_def.get('format_version')}'."
         )
 
-    if format_version != "2.0" and "options" in task_def:
+    if format_version not in ["2.0", "2.1"] and "options" in task_def:
         raise BenchExecException(
             f"Task-definition file {task_def_file} specifies invalid key 'options', "
             f"format_version needs to be at least 2.0 for this."
         )
+
+    if format_version != "2.1" and "additional_information" in task_def:
+        raise BenchExecException(
+            f"Task-definition file {task_def_file} specifies invalid key 'additional_information', "
+            f"format_version needs to be at least 2.1 for this."
+        )
+
+    if format_version == "2.1":
+        # Remove the additional_information key from the task definition
+        # since this should only be considered as a comment
+        # as described in its definition:
+        # https://gitlab.com/sosy-lab/benchmarking/task-definition-format
+        task_def.pop("additional_information", None)
 
     return task_def
 
