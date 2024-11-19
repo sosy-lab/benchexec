@@ -119,13 +119,6 @@ def load_task_definition_file(task_def_file):
             f"format_version needs to be at least 2.1 for this."
         )
 
-    if format_version == "2.1":
-        # Remove the additional_information key from the task definition
-        # since this should only be considered as a comment
-        # as described in its definition:
-        # https://gitlab.com/sosy-lab/benchmarking/task-definition-format
-        task_def.pop("additional_information", None)
-
     return task_def
 
 
