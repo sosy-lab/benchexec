@@ -5,8 +5,12 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import benchexec.tools.template
 import benchexec.result as result
+import benchexec.tools.template
+from benchexec.tools.sv_benchmarks_util import (
+    TaskFilesConsidered,
+    handle_witness_of_task,
+)
 
 
 class Tool(benchexec.tools.template.BaseTool2):
@@ -27,7 +31,14 @@ class Tool(benchexec.tools.template.BaseTool2):
         return "https://github.com/Chriszai/JCWIT"
 
     def cmdline(self, executable, options, task, rlimits):
-        return [executable] + options + list(task.input_files)
+        input_files, witness_options = handle_witness_of_task(
+            task,
+            options,
+            "--witness",
+            TaskFilesConsidered.INPUT_FILES,
+        )
+
+        return [executable] + options + witness_options + input_files
 
     def determine_result(self, run):
         for line in run.output:

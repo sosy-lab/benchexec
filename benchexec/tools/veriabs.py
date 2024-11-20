@@ -5,9 +5,15 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import benchexec.tools.template
 import benchexec.result as result
-from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, LP64
+import benchexec.tools.template
+from benchexec.tools.sv_benchmarks_util import (
+    get_data_model_from_task,
+    ILP32,
+    LP64,
+    TaskFilesConsidered,
+    handle_witness_of_task,
+)
 
 
 class Tool(benchexec.tools.template.BaseTool2):
@@ -54,7 +60,15 @@ class Tool(benchexec.tools.template.BaseTool2):
         data_model_param = get_data_model_from_task(task, {ILP32: "-32", LP64: "-64"})
         if data_model_param and data_model_param not in options:
             options += [data_model_param]
-        return [executable] + options + [task.single_input_file]
+
+        input_file, witness_options = handle_witness_of_task(
+            task,
+            options,
+            "--validate",
+            TaskFilesConsidered.SINGLE_INPUT_FILE,
+        )
+
+        return [executable] + options + witness_options + input_file
 
     def determine_result(self, run):
         if run.output.any_line_contains("VERIABS_VERIFICATION_SUCCESSFUL"):

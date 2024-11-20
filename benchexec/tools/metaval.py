@@ -13,6 +13,10 @@ import threading
 
 from benchexec.tools.template import BaseTool2
 from benchexec.tools.template import UnsupportedFeatureException
+from benchexec.tools.sv_benchmarks_util import (
+    get_witness,
+    get_single_non_witness_input_file,
+)
 
 
 class Tool(benchexec.tools.template.BaseTool2):
@@ -83,13 +87,16 @@ class Tool(benchexec.tools.template.BaseTool2):
                 f"Execution without property file is not supported by {self.name()}!"
             )
         parser = argparse.ArgumentParser(add_help=False, usage=argparse.SUPPRESS)
-        parser.add_argument("--metavalWitness", required=True)
+        parser.add_argument("--metavalWitness", default=None)
         parser.add_argument("--metavalVerifierBackend", required=True)
         parser.add_argument("--metavalAdditionalPATH")
         parser.add_argument("--metavalWitnessType")
         (knownargs, options) = parser.parse_known_args(options)
         verifierName = knownargs.metavalVerifierBackend.lower()
         witnessName = knownargs.metavalWitness
+        if knownargs.metavalWitness is None:
+            witnessName = get_witness(task)
+
         additionalPathArgument = (
             ["--additionalPATH", knownargs.metavalAdditionalPATH]
             if knownargs.metavalAdditionalPATH
@@ -130,6 +137,8 @@ class Tool(benchexec.tools.template.BaseTool2):
             rlimits,
         )
 
+        input_file = get_single_non_witness_input_file(task)
+
         return (
             [
                 executable,
@@ -141,7 +150,7 @@ class Tool(benchexec.tools.template.BaseTool2):
             + additionalPathArgument
             + witnessTypeArgument
             + ["--property", task.property_file]
-            + [task.single_input_file]
+            + [input_file]
             + ["--"]
             + wrappedOptions
         )
