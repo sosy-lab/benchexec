@@ -15,7 +15,7 @@ class Tool(template.BaseTool2):
     of natively compiled CPAchecker instances.
     """
 
-    REQUIRED_PATHS = ["bin", "lib"]
+    REQUIRED_PATHS = ["bin", "lib", "native"]
 
     def executable(self, tool_locator):
         return tool_locator.find_executable("nacpa", subdir="bin")
