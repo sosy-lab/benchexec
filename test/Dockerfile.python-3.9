@@ -19,14 +19,17 @@ FROM python:3.9
 # because these images do not use the Python installed via apt.
 
 RUN apt-get update && apt-get install -y \
+  fuse-overlayfs \
   libsystemd-dev \
   lxcfs \
-  sudo
+  sudo \
+  && rm -rf /var/lib/apt/lists/*
 
 RUN pip install \
   coloredlogs \
   "coverage[toml] >= 5.0" \
   lxml \
-  nose \
   pystemd \
+  pytest \
+  pytest-cov \
   pyyaml

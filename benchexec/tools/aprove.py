@@ -22,7 +22,14 @@ class Tool(benchexec.tools.template.BaseTool2):
     Only the binary (jar) distribution of AProVE is supported.
     """
 
-    REQUIRED_PATHS = ["aprove.jar", "AProVE.sh", "bin", "newstrategy.strategy"]
+    REQUIRED_PATHS = [
+        "aprove.jar",
+        "AProVE.sh",
+        "bin",
+        "newstrategy.strategy",
+        "lib",
+        "fake_include",
+    ]
     BIT_WIDTH_PARAMETER_NAME = "--bit-width"
 
     def executable(self, tool_locator):

@@ -51,9 +51,36 @@ Please format all code using `black .`.
 Apart from what is formatted automatically,
 we try to follow the official Python style guide [PEP8](https://www.python.org/dev/peps/pep-0008/).
 
-We also check our code using the static-analysis tool [flake8](http://flake8.pycqa.org).
+
+## Tests and CI
+
+To run the test suite of BenchExec, use the following command:
+
+    python3 -m pytest
+
+Specific tests can be selected with `-k TEST_NAME_SUBSTRING`
+and debug logs can be captured with `--log-level DEBUG`.
+
+A container with the necessary environment and permissions
+for executing the tests can be started with:
+
+    podman run --rm -it \
+      --security-opt unmask=/sys/fs/cgroup --cgroups=split \
+      --security-opt unmask=/proc/*  --security-opt seccomp=unconfined \
+      -v /var/lib/lxcfs:/var/lib/lxcfs:ro --device /dev/fuse \
+      -v $(pwd):$(pwd):rw -w $(pwd) \
+      registry.gitlab.com/sosy-lab/software/benchexec/test:python-3.12 \
+      test/setup_cgroupsv2_in_container.sh bash
+
+We also check our code using the static-analysis tools
+[flake8](http://flake8.pycqa.org) and [ruff](https://github.com/astral-sh/ruff/).
 If you find a rule that should not be enforced in your opinion,
 please raise an issue.
+
+As main CI we use GitLab, which runs all tests and checks,
+but only on branches from our repository (not on PRs from forks).
+GitHub Actions and AppVeyor also run a subset of checks
+(mostly for the JavaScript part of BenchExec) on all PRs.
 
 
 ## Releasing a new Version

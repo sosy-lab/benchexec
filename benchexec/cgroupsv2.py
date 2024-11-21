@@ -5,10 +5,12 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import errno
 import logging
 import os
 import pathlib
 import secrets
+import select
 import signal
 import stat
 import sys
@@ -102,22 +104,22 @@ def initialize():
 
         cgroup = CgroupsV2.from_system()
 
-        if list(cgroup.get_all_tasks()) == [os.getpid()]:
-            # If we are the only process, somebody prepared a cgroup for us. Use it.
-            # We might be able to relax this check and for example allow child processes,
-            # but then we would also have to move them to another cgroup,
-            # which might not be a good idea.
+        if cgroup.path and all(
+            util.is_child_process_of_us(pid) for pid in cgroup.get_all_tasks()
+        ):
+            # If we (and our subprocesses) are the only processes,
+            # somebody prepared a cgroup for us. Use it.
             logging.debug("BenchExec was started in its own cgroup: %s", cgroup)
 
-        elif _create_systemd_scope_for_us():
-            # If we can create a systemd scope for us and move ourselves in it,
-            # we have a usable cgroup afterwards.
+        elif _create_systemd_scope_for_us() or _try_fallback_cgroup():
+            # If we can create a systemd scope for us or find a usable fallback cgroup
+            # and move ourselves in it, we have a usable cgroup afterwards.
             cgroup = CgroupsV2.from_system()
 
         else:
             # No usable cgroup. We might still be able to continue if we actually
             # do not require cgroups for benchmarking. So we do not fail here
-            # but return an instance that will on produce an error later.
+            # but return an instance that will only produce an error later.
             return CgroupsV2({})
 
         # Now we are the only process in this cgroup. In order to make it usable for
@@ -132,6 +134,8 @@ def initialize():
             logging.debug("Cgroup found, but cannot create child cgroups: %s", e)
             return CgroupsV2({})
 
+        # TODO: This moves our subprocesses if they are in the same cgroup.
+        # We should probably make this consistent and always move them.
         for pid in cgroup.get_all_tasks():
             child_cgroup.add_task(pid)
         assert child_cgroup.has_tasks()
@@ -156,7 +160,7 @@ def _create_systemd_scope_for_us():
     """
     try:
         from pystemd.dbuslib import DBus
-        from pystemd.dbusexc import DBusFileNotFoundError
+        from pystemd.dbusexc import DBusBaseError
         from pystemd.systemd1 import Manager, Unit
 
         with DBus(user_mode=True) as bus, Manager(bus=bus) as manager:
@@ -170,12 +174,43 @@ def _create_systemd_scope_for_us():
 
             random_suffix = secrets.token_urlsafe(8)
             name = f"benchexec_{random_suffix}.scope".encode()
-            manager.Manager.StartTransientUnit(name, b"fail", unit_params)
+
             # StartTransientUnit is async, so we need to ensure it has finished
             # and moved our process before we continue.
-            # We might need a loop here (so far it always seems to work without,
-            # maybe systemd serializes this request with the unit creation).
+            # The man page org.freedesktop.systemd1 documents that the way to do this
+            # is to wait for the JobRemoved signal of the start job of the unit.
+            # The name of the start job is returned by StartTransientUnit.
+
+            unit_is_active = False
+
+            def process_signal(msg, error=None, userdata=None):
+                msg.process_reply(True)  # necessary to access msg.body
+                if msg.body[1] == start_job:
+                    # Job is the correct one, and we only listen for JobRemoved anyway
+                    nonlocal unit_is_active
+                    unit_is_active = True
+
             with Unit(name, bus=bus) as unit:
+                # We need to register for signals before we call StartTransientUnit
+                bus.match_signal(
+                    manager.destination,
+                    manager.path,
+                    b"org.freedesktop.systemd1.Manager",
+                    b"JobRemoved",
+                    process_signal,
+                    None,
+                )
+
+                start_job = manager.Manager.StartTransientUnit(
+                    name, b"fail", unit_params
+                )
+
+                fd = bus.get_fd()
+                while not unit_is_active:
+                    # Wait for event and trigger signal handling
+                    select.select([fd], [], [])
+                    bus.process()
+
                 assert unit.LoadState == b"loaded"
                 assert unit.ActiveState == b"active"
                 assert unit.SubState == b"running"
@@ -186,8 +221,37 @@ def _create_systemd_scope_for_us():
 
     except ImportError:
         logging.debug("pystemd could not be imported.")
-    except DBusFileNotFoundError as e:  # pytype: disable=name-error
-        logging.debug("No user DBus found, not using pystemd: %s", e)
+    except DBusBaseError as e:  # pytype: disable=name-error
+        if -e.errno in [errno.ENOENT, errno.ENOMEDIUM]:
+            logging.debug("No user DBus found, not using pystemd: %s", e)
+        else:
+            raise
+
+    return False
+
+
+def _try_fallback_cgroup():
+    """
+    Attempt to locate a usable fallback cgroup.
+    If it is found this process is moved into it.
+
+    @return: a boolean indicating whether this succeeded
+    """
+    # Attempt to use /benchexec cgroup.
+    # If it exists, some deliberately created it for us to use.
+    # The following does this by just faking a /proc/self/cgroup for this case.
+    cgroup = CgroupsV2.from_system(["0::/benchexec"])
+    if cgroup.path and os.path.isdir(cgroup.path) and not list(cgroup.get_all_tasks()):
+        logging.debug("Found existing cgroup /benchexec, using it as fallback.")
+
+        # Create cgroup for this execution of BenchExec.
+        cgroup = cgroup.create_fresh_child_cgroup(
+            cgroup.subsystems.keys(), prefix="benchexec_"
+        )
+        # Move ourselves to it such that for the rest of the code this looks as usual.
+        cgroup.add_task(os.getpid())
+
+        return True
 
     return False
 
@@ -229,6 +293,12 @@ def _parse_proc_pid_cgroup(cgroup_file):
     mountpoint = _find_cgroup_mount()
     for line in cgroup_file:
         own_cgroup = line.strip().split(":")[2][1:]
+        if own_cgroup.startswith("../"):
+            # Our cgroup is outside the root cgroup!
+            # Happens inside containers with a cgroup namespace
+            # and an inappropriate cgroup config, such as bind-mounting the host cgroup.
+            logging.debug("Process is in unusable out-of-tree cgroup '%s'", own_cgroup)
+            return None
         path = mountpoint / own_cgroup
 
     return path
@@ -300,13 +370,16 @@ class CgroupsV2(Cgroups):
 
     @classmethod
     def from_system(cls, cgroup_procinfo=None):
-        logging.debug(
-            "Analyzing /proc/mounts and /proc/self/cgroup to determine cgroups."
-        )
         if cgroup_procinfo is None:
+            logging.debug(
+                "Analyzing /proc/mounts and /proc/self/cgroup to determine cgroups."
+            )
             cgroup_path = _find_own_cgroups()
         else:
             cgroup_path = _parse_proc_pid_cgroup(cgroup_procinfo)
+
+        if not cgroup_path:
+            return cls({})
 
         try:
             with open(cgroup_path / "cgroup.controllers") as subsystems_file:
@@ -353,10 +426,10 @@ class CgroupsV2(Cgroups):
 
     def create_fresh_child_cgroup_for_delegation(self, prefix="delegate_"):
         """
-        Create a special child cgroup and delegate all controllers to it.
+        Create a child cgroup and delegate all controllers to it.
         The current cgroup must not have processes and may never have processes.
         This method can be called only once because we remember what child cgroup
-        we create here and use it for some special purposes later on.
+        we create here and use it for some assertions later on.
         """
         assert not self._delegated_to
         self._delegate_controllers()
@@ -372,6 +445,15 @@ class CgroupsV2(Cgroups):
             # recursively), but informs the users of the child cgroup about the limit
             # (otherwise they would not see it).
             child_cgroup.write_memory_limit(self.read_memory_limit() or "max")
+            # We need to avoid the kernel killing our child process (the init process
+            # of the container) together with the benchmarked process on OOM,
+            # but both processes will be inside the current cgroup.
+            # So we must ensure that memory.oom.group is 0 here
+            # (write_memory_limit sets it to 1).
+            # In theory, this does not prevent the kernel from (also) killing our child
+            # process, but it makes it highly unlikely at least (the benchmarked process
+            # will be the reason for the OOM and the main target for the OOM killer).
+            self.set_value(self.MEMORY, "oom.group", 0)
 
         return child_cgroup
 
@@ -521,14 +603,15 @@ class CgroupsV2(Cgroups):
         # On cgroupsv2, frozen processes can still be killed, so this is all we need to
         # do.
         util.write_file("1", self.path, "cgroup.freeze", force=True)
-        keep_child = self._delegated_to.path if self._delegated_to else None
+        # According to Lennart Poettering, this is not enough:
+        # https://lwn.net/Articles/855312/
+        # But we never encountered any problems, and new kernels have cgroup.kill
+        # anyway (since 5.14). So it is probably not worth to fix it and instead
+        # we just eventually require kernel 5.14 for cgroupsv2
+        # (before 5.19 memory measurements are missing as well).
         for child_cgroup in recursive_child_cgroups(self.path):
             kill_all_tasks_in_cgroup(child_cgroup)
-
-            # Remove child_cgroup, but not if it is our immediate child because of
-            # delegation. We need that cgroup to read the OOM kill count.
-            if child_cgroup != keep_child:
-                self._remove_cgroup(child_cgroup)
+            self._remove_cgroup(child_cgroup)
 
         kill_all_tasks_in_cgroup(self.path)
 
@@ -546,12 +629,13 @@ class CgroupsV2(Cgroups):
         return None
 
     def _read_pressure_stall_information(self, subsystem):
-        for line in open(self.path / (subsystem + ".pressure")):
-            if line.startswith("some "):
-                for item in line.split(" ")[1:]:
-                    k, v = item.split("=")
-                    if k == "total":
-                        return Decimal(v) / 1_000_000
+        with open(self.path / (subsystem + ".pressure")) as pressure_file:
+            for line in pressure_file:
+                if line.startswith("some "):
+                    for item in line.split(" ")[1:]:
+                        k, v = item.split("=")
+                        if k == "total":
+                            return Decimal(v) / 1_000_000
         return None
 
     def read_mem_pressure(self):
@@ -628,8 +712,9 @@ class CgroupsV2(Cgroups):
         # arbitrary nested child cgroup, but not for the main process itself.
         # But if we have delegated, then our own cgroup has no processes and OOM count
         # would remain zero, so we have to read it from the child cgroup.
-        if self._delegated_to:
-            return self._delegated_to.read_oom_kill_count()
+        assert (
+            not self._delegated_to
+        ), "Reading OOM kill count does not make sense for delegated cgroups"
 
         for k, v in self.get_key_value_pairs(self.MEMORY, "events.local"):
             if k == "oom_kill":

@@ -5,8 +5,12 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import benchexec.tools.template
 import benchexec.result as result
+import benchexec.tools.template
+from benchexec.tools.sv_benchmarks_util import (
+    handle_witness_of_task,
+    TaskFilesConsidered,
+)
 from benchexec.tools.template import ToolNotFoundException
 
 
@@ -31,7 +35,14 @@ class Tool(benchexec.tools.template.BaseTool2):
         return "https://github.com/wit4java/wit4java"
 
     def cmdline(self, executable, options, task, rlimits):
-        return [executable] + options + list(task.input_files)
+        input_files, witness_options = handle_witness_of_task(
+            task,
+            options,
+            "--witness",
+            TaskFilesConsidered.INPUT_FILES,
+        )
+
+        return [executable] + options + witness_options + input_files
 
     def determine_result(self, run):
         output = run.output

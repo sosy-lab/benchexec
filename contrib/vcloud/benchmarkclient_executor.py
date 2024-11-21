@@ -5,14 +5,16 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import sys
 import json
 import logging
 import os
 import shutil
 import subprocess
+import sys
+
 import benchexec.tooladapter
 import benchexec.util
+
 from . import vcloudutil
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
@@ -108,6 +110,8 @@ def execute_benchmark(benchmark, output_handler):
             cmdLine.extend(["--try-less-memory", str(benchmark.config.tryLessMemory)])
         if benchmark.config.debug:
             cmdLine.extend(["--print-new-files", "true"])
+        if benchmark.config.containerImage:
+            cmdLine.extend(["--containerImage", str(benchmark.config.containerImage)])
 
         start_time = benchexec.util.read_local_time()
 

@@ -7,6 +7,10 @@
 
 import benchexec.result as result
 import benchexec.tools.template
+from benchexec.tools.sv_benchmarks_util import (
+    handle_witness_of_task,
+    TaskFilesConsidered,
+)
 
 
 class Tool(benchexec.tools.template.BaseTool2):
@@ -28,6 +32,16 @@ class Tool(benchexec.tools.template.BaseTool2):
     def version(self, executable):
         version_string = self._version_from_tool(executable)
         return version_string.partition("version")[2].strip().split(" ")[0]
+
+    def cmdline(self, executable, options, task, rlimits):
+        input_files, witness_options = handle_witness_of_task(
+            task,
+            options,
+            "--witness",
+            TaskFilesConsidered.INPUT_FILES_OR_IDENTIFIER,
+        )
+
+        return [executable, *options, *witness_options, *input_files]
 
     def get_value_from_output(self, output, identifier):
         for line in output:

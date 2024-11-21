@@ -11,16 +11,16 @@ SPDX-License-Identifier: Apache-2.0
 
 BenchExec consists of three programs:
 
-- `benchexec`: main benchmarking utility
-- `table-generator`: for generating result tables
-- `runexec`: for benchmarking a single tool execution (can also be integrated into other benchmarking frameworks)
+- `benchexec`: main benchmarking utility, especially for large sets of benchmark runs
+- `table-generator`: for generating result tables from `benchexec` results
+- `runexec`: for benchmarking a single tool execution as a simple replacement for `time`
+  with better measurement accuracy and more features,
+  or for integrating into other benchmarking frameworks and scripts
 
 The documentation for BenchExec is available in the following files:
 
-- [General installation instructions](INSTALL.md)
-- [benchexec](benchexec.md)
-- [table-generator](table-generator.md)
-- [runexec](runexec.md)
+- [General installation instructions](INSTALL.md) and [setup in containerized environments](benchexec-in-container.md)
+- The tools [benchexec](benchexec.md), [table-generator](table-generator.md), and [runexec](runexec.md)
 - [Benchmarking guidelines](benchmarking.md) with advice for how to get reliable benchmarks
 - [Container mode](container.md) for isolating applications
 - [Resource handling](resources.md) for measuring and limiting resources like time and memory

@@ -9,6 +9,9 @@ SPDX-License-Identifier: Apache-2.0
 
 # BenchExec: Container Mode
 
+> Note: If you are looking for information on running BenchExec inside a
+> container, consult [this document](benchexec-in-container.md) instead.
+
 The container mode isolates the benchmarked process from other processes on the same system,
 in a similar way as for example Docker isolates applications
 (using namespaces for operating-level system virtualization).
@@ -46,6 +49,9 @@ The features of container mode are:
 Note that while BenchExec containers rely on the same kernel features as similar solutions,
 they are not meant as a secure solution for restricting potentially malicious applications.
 **Execution of untrusted applications in a BenchExec container is at your own risk.**
+In particular, while the code in the tool-info modules of BenchExec
+is also executed within a container,
+there are known ways how a malicious tool-info module would be able to execute code outside of the container.
 
 
 ## Container Configuration
@@ -63,7 +69,9 @@ For each directory in the container one of the following four access modes can b
   Writes to this directory will not be visible on the host.
 - **read-only**: This directory is visible in the container, but read-only.
 - **overlay**: This directory is visible in the container and
-  an [overlay filesystem](https://www.kernel.org/doc/Documentation/filesystems/overlayfs.txt)
+  an overlay filesystem (either from the
+  [kernel](https://www.kernel.org/doc/Documentation/filesystems/overlayfs.txt)
+  or [fuse-overlayfs])
   is layered on top of it that redirects all write accesses.
   This means that write accesses are possible in the container, but the effect of any write
   is not visible on the host, only inside the container, and not written to disk.
@@ -175,34 +183,6 @@ For `benchexec`, the patterns are given within `<resultfiles>` tags
 in the benchmark-definition XML file,
 and the result files are placed in a directory besides the result XML file.
 
-## Using BenchExec in a Docker/Podman Container
-
-It is possible to use BenchExec inside other container environments,
-but we strongly recommend to use [Podman](https://podman.io/)
-(which is compatible with Docker)
-because it provides "rootless" containers
-(containers started as a regular user without sudo just like BenchExec containers).
-To use BenchExec within Podman,
-start it as a regular user (not root) and use the following arguments:
-```
-podman run --security-opt unmask=/proc/* --security-opt unmask=/sys/fs/cgroup --security-opt seccomp=unconfined ...
-```
-You may additionally need the arguments documented for
-[cgroup usage](INSTALL.md#setting-up-cgroups-in-a-dockerpodman-container).
-
-Using Docker is also possible, but only using the `--privileged` argument.
-However, this gives your Docker container *full root access* to the host,
-so please also add the `--cap-drop=all` flag,
-make sure to use this only with trusted images,
-and configure your Docker container such that everything in it
-is executed under a different user account, not as root.
-BenchExec is not designed to run as root and does not provide
-any safety guarantees regarding its container under this circumstances.
-<!--
-In principle, `--security-opt systempaths=unconfined --security-opt seccomp=unconfined`
-should also be sufficient as Docker arguments,
-but then mounting within the container still fails.
--->
 
 ## Common Problems
 
@@ -211,7 +191,7 @@ in a container with `containerexec` than using `benchexec` or `runexec`.
 
 #### `Cannot execute ...: Unprivileged user namespaces forbidden on this system...`
 Unprivileged user namespaces are forbidden on your system
-(this is the default on some distributions like Debian, Arch Linux, and CentOS).
+(this is the default on some distributions like Debian, Arch Linux, CentOS, and Ubuntu since 24.04).
 Please check the [system requirements](INSTALL.md#kernel-requirements)
 how to enable them.
 
@@ -227,13 +207,13 @@ You can still use BenchExec if you completely disable the container mode with `-
 #### `Failed to configure container: [Errno 19] Creating overlay mount for '...' failed: No such device`
 Your kernel does not support the overlay filesystem,
 please check the [system requirements](INSTALL.md#kernel-requirements).
-You can use a different access mode for directories, e.g., with `--read-only-dir /`.
+You can use [fuse-overlayfs] or a different access mode for directories, e.g., with `--read-only-dir /`.
 If some directories need to be writable, specify other directory modes for these directories as described above.
 
 #### `Failed to configure container: [Errno 1] Creating overlay mount for '...' failed: Operation not permitted`
 Your kernel does not allow mounting the overlay filesystem inside a container.
-For this you need either Ubuntu or kernel version 5.11 or newer.
-Alternatively, if you cannot use either,
+For this you need either Ubuntu, [fuse-overlayfs], or kernel version 5.11 or newer.
+Alternatively, if you cannot use any of these,
 you can use a different access mode for directories, e.g., with `--read-only-dir /`.
 If some directories need to be writable, specify other directory modes for these directories as described above.
 
@@ -247,6 +227,9 @@ which prevents overlays from being used if there is another mountpoint somewhere
 Another limitation of the kernel is that one can only nest overlays twice,
 so if you want to run a container inside a container inside a container,
 at least one of these needs to use a non-overlay mode for this path.
+
+We recommend the installation of [fuse-overlayfs] in version 1.10 or newer,
+which supports all of these use cases.
 
 #### `Cannot change into working directory inside container: [Errno 2] No such file or directory`
 Either you have specified an invalid directory as working directory with `--dir`,
@@ -275,3 +258,5 @@ If it still occurs, please attach to all child process of BenchExec
 with `sudo gdb -p <PID>`, get a stack trace with `bt`,
 and [report an issue](https://github.com/sosy-lab/benchexec/issues/new) with as much information as possible.
 BenchExec will usually be able to continue if the hanging child process is killed.
+
+[fuse-overlayfs]: https://github.com/containers/fuse-overlayfs

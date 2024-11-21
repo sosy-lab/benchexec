@@ -9,6 +9,7 @@ import errno
 import grp
 import logging
 import os
+import shlex
 import shutil
 import signal
 import stat
@@ -336,7 +337,7 @@ class CgroupsV1(Cgroups):
                         name = grp.getgrgid(gid).gr_name
                     except KeyError:
                         name = None
-                    return util.escape_string_shell(name or str(gid))
+                    return shlex.quote(name or str(gid))
 
                 groups = " ".join(sorted(set(map(get_group_name, groups))))
                 permission_hint = _PERMISSION_HINT_GROUPS.format(groups)
@@ -350,13 +351,13 @@ class CgroupsV1(Cgroups):
             else:
                 permission_hint = _PERMISSION_HINT_OTHER
 
-            paths = " ".join([util.escape_string_shell(str(p)) for p in paths])
+            paths = shlex.join(str(p) for p in paths)
             sys.exit(_ERROR_MSG_PERMISSIONS.format(permission_hint, paths))
 
         else:
             sys.exit(_ERROR_MSG_OTHER)  # e.g., subsystem not mounted
 
-    def create_fresh_child_cgroup(self, subsystems):
+    def create_fresh_child_cgroup(self, subsystems, prefix=CGROUP_NAME_PREFIX):
         """
         Create child cgroups of the current cgroup for at least the given subsystems.
         @return: A Cgroup instance representing the new child cgroup(s).
@@ -373,7 +374,7 @@ class CgroupsV1(Cgroups):
                 ]
                 continue
 
-            cgroup = tempfile.mkdtemp(prefix=CGROUP_NAME_PREFIX, dir=parentCgroup)
+            cgroup = tempfile.mkdtemp(prefix=prefix, dir=parentCgroup)
             createdCgroupsPerSubsystem[subsystem] = cgroup
             createdCgroupsPerParent[parentCgroup] = cgroup
 
@@ -393,6 +394,18 @@ class CgroupsV1(Cgroups):
                 pass
 
         return CgroupsV1(createdCgroupsPerSubsystem)
+
+    def create_fresh_child_cgroup_for_delegation(self, prefix="delegate_"):
+        """
+        Create a child cgroup with all controllers.
+        On cgroupsv1 there is no difference to a regular child cgroup.
+        """
+        child_cgroup = self.create_fresh_child_cgroup(self.subsystems.keys(), prefix)
+        assert (
+            self.subsystems.keys() == child_cgroup.subsystems.keys()
+        ), "delegation failed for at least one controller"
+
+        return child_cgroup
 
     def add_task(self, pid):
         """

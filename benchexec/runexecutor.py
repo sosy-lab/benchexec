@@ -12,6 +12,7 @@ import decimal
 import logging
 import multiprocessing
 import os
+import shlex
 import signal
 import subprocess
 import sys
@@ -241,16 +242,15 @@ def main(argv=None):
     signal.signal(signal.SIGQUIT, signal_handler_kill)
     signal.signal(signal.SIGINT, signal_handler_kill)
 
-    formatted_args = " ".join(map(util.escape_string_shell, options.args))
-    logging.info("Starting command %s", formatted_args)
+    logging.info("Starting command %s", shlex.join(options.args))
     if options.container and options.output_directory and options.result_files:
         logging.info(
             "Writing output to %s and result files to %s",
-            util.escape_string_shell(options.output),
-            util.escape_string_shell(options.output_directory),
+            shlex.quote(options.output),
+            shlex.quote(options.output_directory),
         )
     else:
-        logging.info("Writing output to %s", util.escape_string_shell(options.output))
+        logging.info("Writing output to %s", shlex.quote(options.output))
 
     # actual run execution
     try:
@@ -529,12 +529,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             sys.exit("Could not write to output file: " + str(e))
 
         if write_header:
-            output_file.write(
-                " ".join(map(util.escape_string_shell, args))
-                + "\n\n\n"
-                + "-" * 80
-                + "\n\n\n"
-            )
+            output_file.write(shlex.join(args) + "\n\n\n" + "-" * 80 + "\n\n\n")
             output_file.flush()
 
         return output_file
@@ -768,14 +763,12 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             )
 
         except BenchExecException as e:
-            logging.critical(
-                "Cannot execute '%s': %s.", util.escape_string_shell(args[0]), e
-            )
+            logging.critical("Cannot execute '%s': %s.", shlex.quote(args[0]), e)
             return {"terminationreason": "failed"}
         except OSError as e:
             logging.critical(
                 "Error while starting '%s' in '%s': %s.",
-                util.escape_string_shell(args[0]),
+                shlex.quote(args[0]),
                 workingDir or ".",
                 e,
             )
@@ -838,7 +831,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             walltime_before = time.monotonic()
             return starttime, walltime_before
 
-        def postParent(preParent_result, exit_code, base_path):
+        def postParent(preParent_result, exit_code, base_path, tool_cgroups):
             """Cleanup that is executed in the parent process immediately after the actual tool terminated."""
             # finish measurements
             starttime, walltime_before = preParent_result
@@ -853,8 +846,8 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             # process existed, and killing via cgroups prevents this.
             # But if we do not have freezer, it is safer to just let all processes run
             # until the container is killed.
-            if cgroups.FREEZE in cgroups:
-                cgroups.kill_all_tasks()
+            if tool_cgroups.FREEZE in tool_cgroups:
+                tool_cgroups.kill_all_tasks()
 
             # For a similar reason, we cancel all limits. Otherwise a run could have
             # terminationreason=walltime because copying output files took a long time.
@@ -889,7 +882,8 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 error_filename, args, write_header=write_header
             )
 
-        pid = None
+        tool_pid = None
+        tool_cgroups = None
         returnvalue = 0
         ru_child = None
         self._termination_reason = None
@@ -901,7 +895,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         logging.debug("Starting process.")
 
         try:
-            pid, result_fn = self._start_execution(
+            tool_pid, tool_cgroups, result_fn = self._start_execution(
                 args=args,
                 stdin=stdin,
                 stdout=outputFile,
@@ -919,14 +913,21 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             )
 
             with self.SUB_PROCESS_PIDS_LOCK:
-                self.SUB_PROCESS_PIDS.add(pid)
+                self.SUB_PROCESS_PIDS.add(tool_pid)
 
             timelimitThread = self._setup_cgroup_time_limit(
-                hardtimelimit, softtimelimit, walltimelimit, cgroups, cores, pid
+                hardtimelimit,
+                softtimelimit,
+                walltimelimit,
+                tool_cgroups,
+                cores,
+                tool_pid,
             )
-            oomThread = self._setup_cgroup_memory_limit_thread(memlimit, cgroups, pid)
+            oomThread = self._setup_cgroup_memory_limit_thread(
+                memlimit, tool_cgroups, tool_pid
+            )
             file_hierarchy_limit_thread = self._setup_file_hierarchy_limit(
-                files_count_limit, files_size_limit, temp_dir, cgroups, pid
+                files_count_limit, files_size_limit, temp_dir, tool_cgroups, tool_pid
             )
 
             # wait until process has terminated
@@ -939,7 +940,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             logging.debug("Process terminated, exit code %s.", returnvalue)
 
             with self.SUB_PROCESS_PIDS_LOCK:
-                self.SUB_PROCESS_PIDS.discard(pid)
+                self.SUB_PROCESS_PIDS.discard(tool_pid)
 
             if timelimitThread:
                 timelimitThread.cancel()
@@ -952,7 +953,8 @@ class RunExecutor(containerexecutor.ContainerExecutor):
 
             # Make sure to kill all processes if there are still some
             # (needs to come early to avoid accumulating more CPU time)
-            cgroups.kill_all_tasks()
+            if tool_cgroups:
+                tool_cgroups.kill_all_tasks()
 
             # normally subprocess closes file, we do this again after all tasks terminated
             outputFile.close()
@@ -960,8 +962,10 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 errorFile.close()
 
             # measurements are not relevant in case of failure, but need to come before cgroup cleanup
-            self._get_cgroup_measurements(cgroups, ru_child, result)
+            if tool_cgroups:
+                self._get_cgroup_measurements(tool_cgroups, ru_child, result)
             logging.debug("Cleaning up cgroups.")
+            cgroups.kill_all_tasks()  # currently necessary for removing child cgroups
             cgroups.remove()
 
             self._cleanup_temp_dir(temp_dir)
@@ -1003,8 +1007,9 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 }
         if self._termination_reason:
             result["terminationreason"] = self._termination_reason
-        elif self.cgroups.version == 2 and result.get("oom_kill_count"):
+        elif self.cgroups.version == 2 and (oom_kills := result.get("oom_kill_count")):
             # At least one process was killed by the kernel due to OOM.
+            logging.debug("Kernel killed %s processes due to OOM.", oom_kills)
             result["terminationreason"] = "memory"
         elif self.cgroups.version == 1 and (
             memlimit and result.get("memory", 0) >= memlimit

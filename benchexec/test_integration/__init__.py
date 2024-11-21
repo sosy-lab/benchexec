@@ -10,14 +10,11 @@ import glob
 import os
 import shutil
 import subprocess
-import sys
 import tempfile
 import unittest
 import zipfile
 
 from xml.etree import ElementTree
-
-sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
 here = os.path.dirname(__file__)
 base_dir = os.path.join(here, "..", "..")
@@ -45,10 +42,6 @@ OVERWRITE_MODE = False
 
 
 class BenchExecIntegrationTests(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.longMessage = True
-        cls.maxDiff = None
 
     def _build_tmp_dir(self):
         """
@@ -202,6 +195,10 @@ class BenchExecIntegrationTests(unittest.TestCase):
         )
         actual_runs = actual_result.findall("run")
         expected_runs = expected_result.findall("run")
+        self.assertListEqual(
+            [run.get("name") for run in actual_runs],
+            [run.get("name") for run in expected_runs],
+        )
         for actual, expected in zip(actual_runs, expected_runs):
             self.assertEqual(actual.get("files"), expected.get("files"))
             self.assertEqual(actual.get("name"), expected.get("name"))

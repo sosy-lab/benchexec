@@ -5,8 +5,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import logging
-import sys
 import unittest
 import types
 
@@ -20,17 +18,10 @@ from benchexec.result import (
 )
 from benchexec.tools.template import BaseTool
 
-sys.dont_write_bytecode = True  # prevent creation of .pyc files
-
 normal_result = ProcessExitCode(raw=0, value=0, signal=None)
 
 
 class TestResult(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.longMessage = True
-        logging.disable(logging.CRITICAL)
-
     def create_run(self, info_result=RESULT_UNKNOWN):
         runSet = types.SimpleNamespace()
         runSet.log_folder = "."

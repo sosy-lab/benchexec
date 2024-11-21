@@ -14,6 +14,7 @@ import collections
 import shutil
 import pickle
 import select
+import shlex
 import signal
 import socket
 import subprocess
@@ -278,8 +279,7 @@ def main(argv=None):
         options.uid = 0
         options.gid = 0
 
-    formatted_args = " ".join(map(util.escape_string_shell, options.args))
-    logging.info("Starting command %s", formatted_args)
+    logging.info("Starting command %s", shlex.join(options.args))
 
     executor = ContainerExecutor(uid=options.uid, gid=options.gid, **container_options)
 
@@ -300,7 +300,7 @@ def main(argv=None):
     except (BenchExecException, OSError) as e:
         if options.debug:
             logging.exception(e)
-        sys.exit(f"Cannot execute {util.escape_string_shell(options.args[0])}: {e}.")
+        sys.exit(f"Cannot execute {shlex.quote(options.args[0])}: {e}.")
     return result.signal or result.value
 
 
@@ -388,8 +388,8 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         # container, but we do not want a warning per run.
         if not is_accessible(container.LXCFS_PROC_DIR):
             logging.info(
-                "LXCFS is not available,"
-                " some host information like the uptime leaks into the container."
+                "LXCFS is not available, some host information like the uptime"
+                " and the total number of CPU cores leaks into the container."
             )
 
         if not NATIVE_CLONE_CALLBACK_SUPPORTED:
@@ -457,13 +457,14 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         cgroups = self._cgroups.create_fresh_child_cgroup(
             self._cgroups.subsystems.keys()
         )
-        pid = None
+        tool_pid = None
+        tool_cgroups = None
         returnvalue = 0
 
         logging.debug("Starting process.")
 
         try:
-            pid, result_fn = self._start_execution(
+            tool_pid, tool_cgroups, result_fn = self._start_execution(
                 args=args,
                 stdin=None,
                 stdout=None,
@@ -481,7 +482,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             )
 
             with self.SUB_PROCESS_PIDS_LOCK:
-                self.SUB_PROCESS_PIDS.add(pid)
+                self.SUB_PROCESS_PIDS.add(tool_pid)
 
             # wait until process has terminated
             returnvalue, unused_ru_child, unused = result_fn()
@@ -491,7 +492,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             logging.debug("Process terminated, exit code %s.", returnvalue)
 
             with self.SUB_PROCESS_PIDS_LOCK:
-                self.SUB_PROCESS_PIDS.discard(pid)
+                self.SUB_PROCESS_PIDS.discard(tool_pid)
 
             if temp_dir is not None:
                 logging.debug("Cleaning up temporary directory.")
@@ -754,6 +755,8 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                         traceback.extract_tb(e.__traceback__, limit=-1)[0].line,
                         e,
                     )
+                    if container.check_apparmor_userns_restriction(e):
+                        logging.critical(container._ERROR_MSG_USER_NS_RESTRICTION)
                     return CHILD_OSERROR
 
                 try:
@@ -967,15 +970,28 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 child_pid,
             )
 
-            # cgroups is the cgroups where we configure limits.
-            # So for isolation, we need to create a child cgroup that becomes the root
-            # of the cgroup ns, such that the limit settings are not accessible in the
-            # container and cannot be changed.
-            if use_cgroup_ns:
-                cgroups = cgroups.create_fresh_child_cgroup_for_delegation()
+            # cgroups is the cgroup where we configure limits.
+            # We add another layer of cgroups below it, for two reasons:
+            # - We want to move our child process (the init process of the container)
+            #   into a cgroups where the limits apply because LXCFS reports the limits
+            #   of the init process of the container.
+            #   This has the disadvantage that in principle the memory limit also
+            #   includes and applies to our child process, but there is no other way
+            #   to make LXCFS report the limits correctly. And at least we do not
+            #   include our child process in the measurements.
+            # - On cgroupsv2 we want to move the grandchild process (the started tool)
+            #   into a cgroup that becomes the root of the cgroup ns,
+            #   such that no other cgroup (in particular the one with the limits)
+            #   is accessible in the container and the limits cannot be changed
+            #   from within the container.
+            child_cgroup = cgroups.create_fresh_child_cgroup(
+                cgroups.subsystems.keys(), prefix="init_"
+            )
+            child_cgroup.add_task(child_pid)
+            grandchild_cgroups = cgroups.create_fresh_child_cgroup_for_delegation()
 
             # start measurements
-            cgroups.add_task(grandchild_pid)
+            grandchild_cgroups.add_task(grandchild_pid)
             parent_setup = parent_setup_fn()
 
             # Signal grandchild that setup is finished
@@ -1013,7 +1029,10 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
 
             base_path = f"/proc/{child_pid}/root"
             parent_cleanup = parent_cleanup_fn(
-                parent_setup, util.ProcessExitCode.from_raw(exitcode), base_path
+                parent_setup,
+                util.ProcessExitCode.from_raw(exitcode),
+                base_path,
+                grandchild_cgroups,
             )
 
             if result_files_patterns:
@@ -1030,7 +1049,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
 
             return exitcode, ru_child, parent_cleanup
 
-        return grandchild_pid, wait_for_grandchild
+        return grandchild_pid, grandchild_cgroups, wait_for_grandchild
 
     def _setup_container_filesystem(self, temp_dir, output_dir, memlimit, memory_nodes):
         """Setup the filesystem layout in the container.

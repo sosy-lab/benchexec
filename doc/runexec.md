@@ -8,12 +8,13 @@ SPDX-License-Identifier: Apache-2.0
 -->
 
 # BenchExec: runexec
+
 ## Benchmarking a Single Run
 
 BenchExec provides a program called `runexec` that can be used to
 easily execute a single command while measuring its resource consumption,
 similarly to the tool `time` but with more reliable time measurements
-and with measurement of memory usage.
+and with more features such measurement of memory usage as well as resource limits.
 To use it, simply pass as parameters the command that should be executed
 (adding `--` before the command will ensure that the arguments to the command
 will not be misinterpreted as arguments to `runexec`):

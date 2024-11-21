@@ -14,6 +14,9 @@ from benchexec import result
 from benchexec.tablegenerator import util
 from benchexec.tablegenerator.columns import ColumnType
 
+# It's important to make sure on *all* entry points / methods which perform arithmetics that the correct
+# rounding / context is used.
+DECIMAL_CONTEXT = decimal.Context(rounding=decimal.ROUND_HALF_UP)
 
 nan = Decimal("nan")
 inf = Decimal("inf")
@@ -65,55 +68,56 @@ class StatValue(object):
 
     @classmethod
     def from_list(cls, values):
-        if any(v is not None and v.is_nan() for v in values):
-            return StatValue(nan, nan, nan, nan, nan, nan)
+        with decimal.localcontext(DECIMAL_CONTEXT):
+            if any(v is not None and v.is_nan() for v in values):
+                return StatValue(nan, nan, nan, nan, nan, nan)
 
-        values = sorted(v for v in values if v is not None)
-        if not values:
-            return None
+            values = sorted(v for v in values if v is not None)
+            if not values:
+                return None
 
-        values_len = len(values)
-        min_value = values[0]
-        max_value = values[-1]
+            values_len = len(values)
+            min_value = values[0]
+            max_value = values[-1]
 
-        if min_value == -inf and max_value == +inf:
-            values_sum = nan
-            mean = nan
-            stdev = nan
-        elif max_value == inf:
-            values_sum = inf
-            mean = inf
-            stdev = inf
-        elif min_value == -inf:
-            values_sum = -inf
-            mean = -inf
-            stdev = inf
-        else:
-            values_sum = sum(values)
-            mean = values_sum / values_len
+            if min_value == -inf and max_value == +inf:
+                values_sum = nan
+                mean = nan
+                stdev = nan
+            elif max_value == inf:
+                values_sum = inf
+                mean = inf
+                stdev = inf
+            elif min_value == -inf:
+                values_sum = -inf
+                mean = -inf
+                stdev = inf
+            else:
+                values_sum = sum(values)
+                mean = values_sum / values_len
 
-            # The scaling is just to avoid having too few decimal digits when printing,
-            # the value is still just 0.
-            stdev = Decimal(0).scaleb(-decimal.getcontext().prec)
-            for v in values:
-                diff = v - mean
-                stdev += diff * diff
-            stdev = (stdev / values_len).sqrt()
+                # The scaling is just to avoid having too few decimal digits when printing,
+                # the value is still just 0.
+                stdev = Decimal(0).scaleb(-decimal.getcontext().prec)
+                for v in values:
+                    diff = v - mean
+                    stdev += diff * diff
+                stdev = (stdev / values_len).sqrt()
 
-        half, len_is_odd = divmod(values_len, 2)
-        if len_is_odd:
-            median = values[half]
-        else:
-            median = (values[half - 1] + values[half]) / Decimal(2)
+            half, len_is_odd = divmod(values_len, 2)
+            if len_is_odd:
+                median = values[half]
+            else:
+                median = (values[half - 1] + values[half]) / Decimal(2)
 
-        return StatValue(
-            values_sum,
-            min=min_value,
-            max=max_value,
-            avg=mean,
-            median=median,
-            stdev=stdev,
-        )
+            return StatValue(
+                values_sum,
+                min=min_value,
+                max=max_value,
+                avg=mean,
+                median=median,
+                stdev=stdev,
+            )
 
 
 def get_stats_of_run_set(runResults, correct_only):

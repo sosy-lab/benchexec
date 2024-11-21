@@ -74,19 +74,15 @@ mkdir "$DIST_DIR"
 export SOURCE_DATE_EPOCH="$(dpkg-parsechangelog -STimestamp)"
 
 
-# Test and build under Python 3
+# Test and build wheel in a fresh directory and environment
 TEMP3="$(mktemp -d)"
 python3 -m venv "$TEMP3"
 . "$TEMP3/bin/activate"
 git clone "file://$DIR" "$TEMP3/benchexec"
 pushd "$TEMP3/benchexec"
-pip install "pip >= 10.0" "setuptools >= 42.0.0, < 58" "wheel >= 0.32.0"
-# avoid the wheel on PyPi for nose, it does not work on Python 3.10
-pip install nose --no-binary :all:
-# install build if it is not installed by default (it usually is)
 pip install build
 pip install -e ".[dev]"
-python -m nose
+python -m pytest
 python -m build
 popd
 deactivate
@@ -107,7 +103,10 @@ cd "BenchExec-$VERSION"
 dh_make -p "benchexec_$VERSION" --createorig -f "../$TAR" -i -c apache || true
 
 dpkg-buildpackage --build=source -sa "--sign-key=$DEBKEY"
-sudo docker run --rm -w "$(pwd)" -v "$TEMP_DEB:$TEMP_DEB:rw" ubuntu:20.04 bash -c '
+podman run --security-opt unmask=/sys/fs/cgroup --cgroups=split \
+  --security-opt unmask=/proc/* --security-opt seccomp=unconfined --device /dev/fuse \
+  --rm -w "$(pwd)" -v "$TEMP_DEB:$TEMP_DEB:rw" --rm ubuntu:20.04 \
+  "$TEMP_DEB/BenchExec-$VERSION/test/setup_cgroupsv2_in_container.sh" bash -c '
   apt-get update
   apt-get install -y --no-install-recommends dpkg-dev
   TZ=UTC DEBIAN_FRONTEND=noninteractive apt-get install -y $(dpkg-checkbuilddeps 2>&1 | grep -o "Unmet build dependencies:.*" | cut -d: -f2- | sed "s/([^)]*)//g")
@@ -115,7 +114,7 @@ sudo docker run --rm -w "$(pwd)" -v "$TEMP_DEB:$TEMP_DEB:rw" ubuntu:20.04 bash -
 '
 popd
 cp "$TEMP_DEB/benchexec_$VERSION"{.orig.tar.gz,-1_all.deb,-1.dsc,-1.debian.tar.xz,-1_source.buildinfo,-1_source.changes} "$DIST_DIR"
-sudo rm -rf "$TEMP_DEB"
+rm -rf "$TEMP_DEB"
 
 for f in "$DIST_DIR/BenchExec-$VERSION"*.{whl,tar.gz} "$DIST_DIR/benchexec_$VERSION"*.deb; do
   gpg --detach-sign -a -u "$DEBKEY" "$f"
@@ -134,7 +133,10 @@ git push --tags
 twine upload "$DIST_DIR/BenchExec"*
 dput ppa:sosy-lab/benchmarking "$DIST_DIR/benchexec_$VERSION-1_source.changes"
 
-read -p "Please enter next version number:  " -r
+REPLY=
+while [[ $REPLY = "" ]]; do
+  read -p "Please enter next version number:  " -r
+done
 sed -e "s/^__version__ = .*/__version__ = \"$REPLY\"/" -i benchexec/__init__.py
 git commit benchexec/__init__.py -m"Prepare version number for next development cycle."
 

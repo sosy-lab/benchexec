@@ -12,6 +12,7 @@ import logging
 import os
 import queue
 import re
+import shlex
 import subprocess
 import sys
 import tempfile
@@ -255,6 +256,7 @@ def run_slurm(benchmark, args, log_file):
         )
 
     with tempfile.TemporaryDirectory(dir=benchmark.config.scratchdir) as tempdir:
+        tempdir="tmp"
         tmp_log = os.path.join(tempdir, "log")
 
         os.makedirs(os.path.join(tempdir, "upper"))
@@ -293,7 +295,7 @@ def run_slurm(benchmark, args, log_file):
             [
                 "sh",
                 "-c",
-                f"echo job $SLURM_JOB_ID started; {' '.join(map(util.escape_string_shell, args))}; echo $? > exitcode",
+                f"echo job $SLURM_JOB_ID started; {shlex.join(args)}; echo $? > exitcode",
             ]
         )
 
@@ -364,7 +366,7 @@ def run_slurm(benchmark, args, log_file):
         with open(log_file, "w+") as file:
             with open(tmp_log, "r") as log_source:
                 content = log_source.read()
-                file.write(f"{' '.join(map(util.escape_string_shell, args))}")
+                file.write(f"{shlex.join(args)}")
                 file.write("\n\n\n" + "-" * 80 + "\n\n\n")
                 file.write(content)
                 if content == "":

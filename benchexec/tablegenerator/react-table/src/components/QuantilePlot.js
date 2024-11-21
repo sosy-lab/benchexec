@@ -25,7 +25,7 @@ import {
   getURLParameters,
   getFirstVisibles,
 } from "../utils/utils";
-import { renderSetting } from "../utils/plot";
+import { renderResetButton, renderSetting } from "../utils/plot";
 
 export default class QuantilePlot extends React.Component {
   constructor(props) {
@@ -564,6 +564,14 @@ export default class QuantilePlot extends React.Component {
                 this.resultsOptions,
                 resultsTooltip,
                 this.state.isResultSelectionDisabled,
+              )}
+              {renderResetButton(() =>
+                setURLParameter({
+                  selection: null,
+                  plot: null,
+                  scaling: null,
+                  results: null,
+                }),
               )}
             </div>
           </div>

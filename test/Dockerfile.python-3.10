@@ -19,19 +19,17 @@ FROM python:3.10
 # because these images do not use the Python installed via apt.
 
 RUN apt-get update && apt-get install -y \
+  fuse-overlayfs \
   libsystemd-dev \
   lxcfs \
-  sudo
+  sudo \
+  && rm -rf /var/lib/apt/lists/*
 
 RUN pip install \
   coloredlogs \
   "coverage[toml] >= 5.0" \
   lxml \
   pystemd \
-  pyyaml \
-  'setuptools < 58'
-
-# Avoid the wheel on PyPi for nose, because it does not work on Python 3.10.
-# An installation from source does work, though, if setuptools<58 exists.
-# Cf. https://github.com/nose-devs/nose/issues/1099
-RUN pip install nose --no-binary :all:
+  pytest \
+  pytest-cov \
+  pyyaml

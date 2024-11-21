@@ -1,3 +1,45 @@
+benchexec (3.26-1) jammy; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Tue, 05 Nov 2024 09:24:24 +0100
+
+benchexec (3.25-3) jammy; urgency=medium
+
+  * Fix syntax in debian/rules
+
+ -- Philipp Wendler <debian@philippwendler.de>  Fri, 20 Sep 2024 14:41:53 +0200
+
+benchexec (3.25-2) jammy; urgency=medium
+
+  * Fix build of package in environments without cgroup access.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Fri, 20 Sep 2024 14:35:08 +0200
+
+benchexec (3.25-1) jammy; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Fri, 20 Sep 2024 14:02:24 +0200
+
+benchexec (3.24-1) jammy; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Mon, 29 Jul 2024 09:53:54 +0200
+
+benchexec (3.23-1) jammy; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Fri, 28 Jun 2024 13:13:34 +0200
+
+benchexec (3.22-1) jammy; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Wed, 19 Jun 2024 15:09:48 +0200
+
 benchexec (3.21-1) jammy; urgency=medium
 
   * New upstream version.

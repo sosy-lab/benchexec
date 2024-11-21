@@ -222,6 +222,11 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
        </option>
       </select>
      </div>
+     <button
+      className="setting-button"
+     >
+      Reset plot
+     </button>
     </div>
    </div>
   </div>
@@ -499,6 +504,11 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
        </option>
       </select>
      </div>
+     <button
+      className="setting-button"
+     >
+      Reset plot
+     </button>
     </div>
    </div>
   </div>
@@ -776,6 +786,11 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
        </option>
       </select>
      </div>
+     <button
+      className="setting-button"
+     >
+      Reset plot
+     </button>
     </div>
    </div>
   </div>
@@ -3052,6 +3067,11 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
        </option>
       </select>
      </div>
+     <button
+      className="setting-button"
+     >
+      Reset plot
+     </button>
     </div>
    </div>
   </div>
@@ -4936,6 +4956,11 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
        </option>
       </select>
      </div>
+     <button
+      className="setting-button"
+     >
+      Reset plot
+     </button>
     </div>
    </div>
   </div>
@@ -9042,6 +9067,11 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
        </option>
       </select>
      </div>
+     <button
+      className="setting-button"
+     >
+      Reset plot
+     </button>
     </div>
    </div>
   </div>
@@ -11608,6 +11638,11 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
        </option>
       </select>
      </div>
+     <button
+      className="setting-button"
+     >
+      Reset plot
+     </button>
     </div>
    </div>
   </div>
@@ -14303,6 +14338,11 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
        </option>
       </select>
      </div>
+     <button
+      className="setting-button"
+     >
+      Reset plot
+     </button>
     </div>
    </div>
   </div>
@@ -18643,6 +18683,11 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
        </option>
       </select>
      </div>
+     <button
+      className="setting-button"
+     >
+      Reset plot
+     </button>
     </div>
    </div>
   </div>
@@ -20198,6 +20243,11 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
        </option>
       </select>
      </div>
+     <button
+      className="setting-button"
+     >
+      Reset plot
+     </button>
     </div>
    </div>
   </div>
@@ -22170,6 +22220,11 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
        </option>
       </select>
      </div>
+     <button
+      className="setting-button"
+     >
+      Reset plot
+     </button>
     </div>
    </div>
   </div>
@@ -24392,6 +24447,11 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
        </option>
       </select>
      </div>
+     <button
+      className="setting-button"
+     >
+      Reset plot
+     </button>
     </div>
    </div>
   </div>
@@ -26222,6 +26282,11 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
        </option>
       </select>
      </div>
+     <button
+      className="setting-button"
+     >
+      Reset plot
+     </button>
     </div>
    </div>
   </div>
@@ -28830,6 +28895,11 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
        </option>
       </select>
      </div>
+     <button
+      className="setting-button"
+     >
+      Reset plot
+     </button>
     </div>
    </div>
   </div>
@@ -31194,6 +31264,11 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
        </option>
       </select>
      </div>
+     <button
+      className="setting-button"
+     >
+      Reset plot
+     </button>
     </div>
    </div>
   </div>
@@ -31471,6 +31546,11 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
        </option>
       </select>
      </div>
+     <button
+      className="setting-button"
+     >
+      Reset plot
+     </button>
     </div>
    </div>
   </div>
@@ -31748,6 +31828,11 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
        </option>
       </select>
      </div>
+     <button
+      className="setting-button"
+     >
+      Reset plot
+     </button>
     </div>
    </div>
   </div>
@@ -34024,6 +34109,11 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
        </option>
       </select>
      </div>
+     <button
+      className="setting-button"
+     >
+      Reset plot
+     </button>
     </div>
    </div>
   </div>
@@ -35908,6 +35998,11 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
        </option>
       </select>
      </div>
+     <button
+      className="setting-button"
+     >
+      Reset plot
+     </button>
     </div>
    </div>
   </div>
@@ -40014,6 +40109,11 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
        </option>
       </select>
      </div>
+     <button
+      className="setting-button"
+     >
+      Reset plot
+     </button>
     </div>
    </div>
   </div>
@@ -42580,6 +42680,11 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
        </option>
       </select>
      </div>
+     <button
+      className="setting-button"
+     >
+      Reset plot
+     </button>
     </div>
    </div>
   </div>
@@ -45275,6 +45380,11 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
        </option>
       </select>
      </div>
+     <button
+      className="setting-button"
+     >
+      Reset plot
+     </button>
     </div>
    </div>
   </div>
@@ -49615,6 +49725,11 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
        </option>
       </select>
      </div>
+     <button
+      className="setting-button"
+     >
+      Reset plot
+     </button>
     </div>
    </div>
   </div>
@@ -51170,6 +51285,11 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
        </option>
       </select>
      </div>
+     <button
+      className="setting-button"
+     >
+      Reset plot
+     </button>
     </div>
    </div>
   </div>
@@ -53142,6 +53262,11 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
        </option>
       </select>
      </div>
+     <button
+      className="setting-button"
+     >
+      Reset plot
+     </button>
     </div>
    </div>
   </div>
@@ -55364,6 +55489,11 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
        </option>
       </select>
      </div>
+     <button
+      className="setting-button"
+     >
+      Reset plot
+     </button>
     </div>
    </div>
   </div>
@@ -57194,6 +57324,11 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
        </option>
       </select>
      </div>
+     <button
+      className="setting-button"
+     >
+      Reset plot
+     </button>
     </div>
    </div>
   </div>
@@ -59802,6 +59937,11 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
        </option>
       </select>
      </div>
+     <button
+      className="setting-button"
+     >
+      Reset plot
+     </button>
     </div>
    </div>
   </div>
@@ -62138,6 +62278,11 @@ exports[`Quantile Plot tests for file rows-with-scores.html Direct Plot should m
        </option>
       </select>
      </div>
+     <button
+      className="setting-button"
+     >
+      Reset plot
+     </button>
     </div>
    </div>
   </div>
@@ -63662,6 +63807,11 @@ exports[`Quantile Plot tests for file rows-with-scores.html Direct Plot should m
        </option>
       </select>
      </div>
+     <button
+      className="setting-button"
+     >
+      Reset plot
+     </button>
     </div>
    </div>
   </div>
@@ -65186,6 +65336,11 @@ exports[`Quantile Plot tests for file rows-with-scores.html Direct Plot should m
        </option>
       </select>
      </div>
+     <button
+      className="setting-button"
+     >
+      Reset plot
+     </button>
     </div>
    </div>
   </div>
@@ -66710,6 +66865,11 @@ exports[`Quantile Plot tests for file rows-with-scores.html Direct Plot should m
        </option>
       </select>
      </div>
+     <button
+      className="setting-button"
+     >
+      Reset plot
+     </button>
     </div>
    </div>
   </div>
@@ -68234,6 +68394,11 @@ exports[`Quantile Plot tests for file rows-with-scores.html Direct Plot should m
        </option>
       </select>
      </div>
+     <button
+      className="setting-button"
+     >
+      Reset plot
+     </button>
     </div>
    </div>
   </div>
@@ -69758,6 +69923,11 @@ exports[`Quantile Plot tests for file rows-with-scores.html Direct Plot should m
        </option>
       </select>
      </div>
+     <button
+      className="setting-button"
+     >
+      Reset plot
+     </button>
     </div>
    </div>
   </div>
@@ -71282,6 +71452,11 @@ exports[`Quantile Plot tests for file rows-with-scores.html Direct Plot should m
        </option>
       </select>
      </div>
+     <button
+      className="setting-button"
+     >
+      Reset plot
+     </button>
     </div>
    </div>
   </div>
@@ -72590,6 +72765,11 @@ exports[`Quantile Plot tests for file rows-with-scores.html Direct Plot should m
        </option>
       </select>
      </div>
+     <button
+      className="setting-button"
+     >
+      Reset plot
+     </button>
     </div>
    </div>
   </div>
@@ -73898,6 +74078,11 @@ exports[`Quantile Plot tests for file rows-with-scores.html Quantile Plot should
        </option>
       </select>
      </div>
+     <button
+      className="setting-button"
+     >
+      Reset plot
+     </button>
     </div>
    </div>
   </div>
@@ -75422,6 +75607,11 @@ exports[`Quantile Plot tests for file rows-with-scores.html Quantile Plot should
        </option>
       </select>
      </div>
+     <button
+      className="setting-button"
+     >
+      Reset plot
+     </button>
     </div>
    </div>
   </div>
@@ -76946,6 +77136,11 @@ exports[`Quantile Plot tests for file rows-with-scores.html Quantile Plot should
        </option>
       </select>
      </div>
+     <button
+      className="setting-button"
+     >
+      Reset plot
+     </button>
     </div>
    </div>
   </div>
@@ -78470,6 +78665,11 @@ exports[`Quantile Plot tests for file rows-with-scores.html Quantile Plot should
        </option>
       </select>
      </div>
+     <button
+      className="setting-button"
+     >
+      Reset plot
+     </button>
     </div>
    </div>
   </div>
@@ -79994,6 +80194,11 @@ exports[`Quantile Plot tests for file rows-with-scores.html Quantile Plot should
        </option>
       </select>
      </div>
+     <button
+      className="setting-button"
+     >
+      Reset plot
+     </button>
     </div>
    </div>
   </div>
@@ -81518,6 +81723,11 @@ exports[`Quantile Plot tests for file rows-with-scores.html Quantile Plot should
        </option>
       </select>
      </div>
+     <button
+      className="setting-button"
+     >
+      Reset plot
+     </button>
     </div>
    </div>
   </div>
@@ -83042,6 +83252,11 @@ exports[`Quantile Plot tests for file rows-with-scores.html Quantile Plot should
        </option>
       </select>
      </div>
+     <button
+      className="setting-button"
+     >
+      Reset plot
+     </button>
     </div>
    </div>
   </div>
@@ -84350,6 +84565,11 @@ exports[`Quantile Plot tests for file rows-with-scores.html Quantile Plot should
        </option>
       </select>
      </div>
+     <button
+      className="setting-button"
+     >
+      Reset plot
+     </button>
     </div>
    </div>
   </div>
@@ -85658,6 +85878,11 @@ exports[`Quantile Plot tests for file rows-with-scores.html Score-based Quantile
        </option>
       </select>
      </div>
+     <button
+      className="setting-button"
+     >
+      Reset plot
+     </button>
     </div>
    </div>
   </div>
@@ -87182,6 +87407,11 @@ exports[`Quantile Plot tests for file rows-with-scores.html Score-based Quantile
        </option>
       </select>
      </div>
+     <button
+      className="setting-button"
+     >
+      Reset plot
+     </button>
     </div>
    </div>
   </div>

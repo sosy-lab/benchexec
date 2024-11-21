@@ -17,8 +17,6 @@ import benchexec
 import benchexec.util
 import benchexec.tablegenerator.util
 
-sys.dont_write_bytecode = True  # prevent creation of .pyc files
-
 here = os.path.relpath(os.path.dirname(__file__))
 base_dir = os.path.join(here, "..", "..", "..")
 bin_dir = os.path.join(base_dir, "bin")
@@ -37,11 +35,6 @@ def result_file(name):
 class TableGeneratorIntegrationTests(unittest.TestCase):
     # Tests compare the generated CSV files and ignore the HTML files
     # because we assume the HTML files change more often on purpose.
-
-    @classmethod
-    def setUpClass(cls):
-        cls.longMessage = True
-        cls.maxDiff = None
 
     def setUp(self):
         # We use a temporary directory inside the source tree to avoid mismatching

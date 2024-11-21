@@ -167,7 +167,11 @@ class Cgroups(ABC):
         pass
 
     @abstractmethod
-    def create_fresh_child_cgroup(self, subsystems):
+    def create_fresh_child_cgroup(self, subsystems, prefix=None):
+        pass
+
+    @abstractmethod
+    def create_fresh_child_cgroup_for_delegation(self):
         pass
 
     @abstractmethod
@@ -254,7 +258,8 @@ class Cgroups(ABC):
         except OSError:
             # sometimes this fails because the cgroup is still busy, we try again once
             try:
-                os.chmod(os.path.basename(path), stat.S_IWUSR)
+                parent = os.path.dirname(path)
+                os.chmod(parent, stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR)
                 os.rmdir(path)
             except OSError as e:
                 if e.errno != errno.ENOENT:
@@ -352,7 +357,7 @@ class _DummyCgroups(Cgroups):
     def kill_all_tasks(self):
         pass
 
-    def create_fresh_child_cgroup(self, subsystems):
+    def create_fresh_child_cgroup(self, subsystems, prefix=None):
         return self
 
     def create_fresh_child_cgroup_for_delegation(self):

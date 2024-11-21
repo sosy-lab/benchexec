@@ -10,7 +10,6 @@ import logging
 import os
 import re
 import subprocess
-import sys
 import tempfile
 import threading
 import time
@@ -25,8 +24,6 @@ from benchexec.cgroups import Cgroups
 from benchexec import runexecutor
 from benchexec import util
 
-sys.dont_write_bytecode = True  # prevent creation of .pyc files
-
 here = os.path.dirname(__file__)
 base_dir = os.path.join(here, "..")
 bin_dir = os.path.join(base_dir, "bin")
@@ -38,9 +35,6 @@ trivial_run_grace_time = 0.2
 class TestRunExecutor(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.longMessage = True
-        cls.maxDiff = None
-        logging.disable(logging.NOTSET)  # need to make sure to get all messages
         if not hasattr(cls, "assertRegex"):
             cls.assertRegex = cls.assertRegexpMatches
 
@@ -49,6 +43,8 @@ class TestRunExecutor(unittest.TestCase):
         cls.echo = shutil.which("echo") or "/bin/echo"
         cls.sleep = shutil.which("sleep") or "/bin/sleep"
         cls.cat = shutil.which("cat") or "/bin/cat"
+        cls.dd = shutil.which("dd") or "/bin/dd"
+        cls.grep = shutil.which("grep") or "/bin/grep"
 
     def setUp(self, *args, **kwargs):
         with self.skip_if_logs(
@@ -413,6 +409,34 @@ class TestRunExecutor(unittest.TestCase):
             msg="cputime is not approximately the time after which the process should have been killed",
         )
 
+        for line in output[1:]:
+            self.assertRegex(line, "^-*$", "unexpected text in run output")
+
+    def test_memory_limit(self):
+        if not os.path.exists(self.dd):
+            self.skipTest("missing dd")
+        memlimit = 100_000_000
+        (result, output) = self.execute_run(
+            self.dd,
+            "if=/dev/zero",
+            "of=/dev/null",
+            f"bs={memlimit}",
+            "count=1",
+            memlimit=memlimit,
+            expect_terminationreason="memory",
+        )
+
+        self.check_exitcode(result, 9, "exit code of killed process is not 9")
+        self.assertAlmostEqual(
+            result["memory"],
+            memlimit,
+            delta=memlimit // 100,
+            msg="memory is not approximately the amount after which the process should have been killed",
+        )
+
+        self.check_command_in_output(
+            output, f"{self.dd} if=/dev/zero of=/dev/null bs={memlimit} count=1"
+        )
         for line in output[1:]:
             self.assertRegex(line, "^-*$", "unexpected text in run output")
 
@@ -1157,6 +1181,28 @@ class TestRunExecutorWithContainer(TestRunExecutor):
         finally:
             shutil.rmtree(temp_dir)
 
+    def test_cpuinfo_with_lxcfs(self):
+        if not os.path.exists("/var/lib/lxcfs/proc"):
+            self.skipTest("missing lxcfs")
+        result, output = self.execute_run(
+            self.grep, "^processor", "/proc/cpuinfo", cores=[0]
+        )
+        self.check_result_keys(result)
+        self.check_exitcode(result, 0, "exit code for reading cpuinfo is not zero")
+        cpus = [int(line.split()[2]) for line in output if line.startswith("processor")]
+        self.assertListEqual(cpus, [0], "Unexpected CPU cores visible in container")
+
+    def test_sys_cpu_with_lxcfs(self):
+        if not os.path.exists("/var/lib/lxcfs/proc"):
+            self.skipTest("missing lxcfs")
+        result, output = self.execute_run(
+            self.cat, "/sys/devices/system/cpu/online", cores=[0]
+        )
+        self.check_result_keys(result)
+        self.check_exitcode(result, 0, "exit code for reading online CPUs is not zero")
+        cpus = util.parse_int_list(output[-1])
+        self.assertListEqual(cpus, [0], "Unexpected CPU cores online in container")
+
     def test_uptime_with_lxcfs(self):
         if not os.path.exists("/var/lib/lxcfs/proc"):
             self.skipTest("missing lxcfs")
@@ -1181,6 +1227,135 @@ class TestRunExecutorWithContainer(TestRunExecutor):
         self.assertGreaterEqual(
             uptime, 10, f"Uptime {uptime}s unexpectedly low in container"
         )
+
+    def test_fuse_overlay(self):
+        if not container.get_fuse_overlayfs_executable():
+            self.skipTest("fuse-overlayfs not available")
+        with tempfile.TemporaryDirectory(prefix="BenchExec_test_") as temp_dir:
+            test_file_path = os.path.join(temp_dir, "test_file")
+            with open(test_file_path, "wb") as test_file:
+                test_file.write(b"TEST_TOKEN")
+
+            self.setUp(
+                dir_modes={
+                    "/": containerexecutor.DIR_READ_ONLY,
+                    "/home": containerexecutor.DIR_HIDDEN,
+                    "/tmp": containerexecutor.DIR_HIDDEN,
+                    temp_dir: containerexecutor.DIR_OVERLAY,
+                },
+            )
+            result, output = self.execute_run(
+                "/bin/sh",
+                "-c",
+                f"if [ $({self.cat} {test_file_path}) != TEST_TOKEN ]; then exit 1; fi; \
+                {self.echo} TOKEN_CHANGED >{test_file_path}",
+            )
+            self.check_result_keys(result, "returnvalue")
+            self.check_exitcode(result, 0, "exit code of inner runexec is not zero")
+            self.assertTrue(
+                os.path.exists(test_file_path),
+                f"File '{test_file_path}' removed, output was:\n" + "\n".join(output),
+            )
+            with open(test_file_path, "rb") as test_file:
+                test_token = test_file.read()
+            self.assertEqual(
+                test_token.strip(),
+                b"TEST_TOKEN",
+                f"File '{test_file_path}' content is incorrect. Expected 'TEST_TOKEN', but got:\n{test_token}",
+            )
+
+    def test_triple_nested_runexec(self):
+        if not container.get_fuse_overlayfs_executable():
+            self.skipTest("missing fuse-overlayfs")
+
+        # Check if COV_CORE_SOURCE environment variable is set and remove it.
+        # This is necessary because the coverage tool will not work in the nested runexec.
+        coverage_env_var = os.environ.pop("COV_CORE_SOURCE", None)
+
+        with tempfile.TemporaryDirectory(prefix="BenchExec_test_") as temp_dir:
+            overlay_dir = os.path.join(temp_dir, "overlay")
+            os.makedirs(overlay_dir)
+            test_file = os.path.join(overlay_dir, "TEST_FILE")
+            output_dir = os.path.join(temp_dir, "output")
+            os.makedirs(output_dir)
+            mid_output_file = os.path.join(output_dir, "mid_output.log")
+            inner_output_file = os.path.join(output_dir, "inner_output.log")
+            with open(test_file, "w") as f:
+                f.write("TEST_TOKEN")
+                f.seek(0)
+
+            outer_cmd = [
+                "python3",
+                runexec,
+                "--full-access-dir",
+                "/",
+                "--overlay-dir",
+                overlay_dir,
+                "--full-access-dir",
+                output_dir,
+                "--hidden-dir",
+                "/tmp",
+                "--full-access-dir",
+                os.getcwd(),
+                "--output",
+                mid_output_file,
+                "--",
+            ]
+            mid_cmd = [
+                "python3",
+                runexec,
+                "--full-access-dir",
+                "/",
+                "--overlay-dir",
+                overlay_dir,
+                "--full-access-dir",
+                output_dir,
+                "--hidden-dir",
+                "/tmp",
+                "--full-access-dir",
+                os.getcwd(),
+                "--output",
+                inner_output_file,
+                "--",
+            ]
+            inner_cmd = [
+                "/bin/sh",
+                "-c",
+                f"if [ $({self.cat} {test_file}) != TEST_TOKEN ]; then exit 1; fi; {self.echo} TOKEN_CHANGED >{test_file}",
+            ]
+            combined_cmd = outer_cmd + mid_cmd + inner_cmd
+
+            self.setUp(
+                dir_modes={
+                    "/": containerexecutor.DIR_FULL_ACCESS,
+                    "/tmp": containerexecutor.DIR_HIDDEN,
+                    overlay_dir: containerexecutor.DIR_OVERLAY,
+                    output_dir: containerexecutor.DIR_FULL_ACCESS,
+                    os.getcwd(): containerexecutor.DIR_FULL_ACCESS,
+                },
+            )
+            outer_result, outer_output = self.execute_run(*combined_cmd)
+            self.check_result_keys(outer_result, "returnvalue")
+            self.check_exitcode(
+                outer_result, 0, "exit code of outer runexec is not zero"
+            )
+            with open(mid_output_file, "r") as f:
+                self.assertIn("returnvalue=0", f.read().strip().splitlines())
+            self.assertTrue(
+                os.path.exists(test_file),
+                f"File '{test_file}' removed, output was:\n" + "\n".join(outer_output),
+            )
+            with open(test_file, "r") as f:
+                test_token = f.read()
+                self.assertEqual(
+                    test_token.strip(),
+                    "TEST_TOKEN",
+                    f"File '{test_file}' content is incorrect. Expected 'TEST_TOKEN', but got:\n{test_token}",
+                )
+
+        # Restore COV_CORE_SOURCE environment variable
+        if coverage_env_var is not None:
+            os.environ["COV_CORE_SOURCE"] = coverage_env_var
 
 
 class _StopRunThread(threading.Thread):

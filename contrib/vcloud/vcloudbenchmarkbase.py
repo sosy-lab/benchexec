@@ -97,6 +97,14 @@ class VcloudBenchmarkBase(benchexec.benchexec.BenchExec):
             action="store_true",
             help="Prevents ivy from caching the downloaded jar files. This prevents clashes due to concurrent access to the cache.",
         )
+        vcloud_args.add_argument(
+            self.get_param_name("cloudContainerImage"),
+            dest="containerImage",
+            metavar="IMAGE",
+            action="store",
+            type=str,
+            help="Use the specified container image for the execution of the benchmark.",
+        )
 
     def get_param_name(self, pname):
         return "--v" + pname
