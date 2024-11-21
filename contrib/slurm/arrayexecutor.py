@@ -426,9 +426,8 @@ def get_run_result(output_dir, tempdir, run):
             content = log_source.read()
             file.write(content)
 
-    src_files = os.listdir(tempdir)
+    src_files = os.listdir(os.path.join(tempdir, "output"))
     for file_name in src_files:
-        if file_name not in ["log", "output.log"]:
             full_file_name = os.path.join(tempdir, file_name)
             if os.path.isfile(full_file_name):
                 shutil.copy(full_file_name, output_dir)
