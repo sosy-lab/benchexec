@@ -367,8 +367,6 @@ def get_run_cli(benchmark, args, tempdir, resultdir):
                 "-B",
                 f"{os.getcwd()}:/lower",
                 "--no-home",
-                "--cwd",
-                os.getcwd(),
                 "-B",
                 f"{tempdir}:/overlay",
                 "--fusemount",
