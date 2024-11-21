@@ -29,16 +29,21 @@ STOPPED_BY_INTERRUPT = False
 def init(config, benchmark):
     tool_locator = tooladapter.create_tool_locator(config)
     benchmark.executable = benchmark.tool.executable(tool_locator)
+    has_version = False
     try:
         benchmark.tool_version = benchmark.tool.version(benchmark.executable)
+        if benchmark.tool_version != "":
+            has_version = True
     except Exception as e:
-        if benchmark.config.singularity:
-            logging.warning(
-                "could not determine version due to error: %s, will retry in executor",
-                e,
-            )
-            try:
-                version_printer = f"""from benchexec import tooladapter
+        logging.warning(
+            "could not determine version due to error: %s, will retry in executor if allowed",
+            e,
+        )
+        has_version = False
+
+    if not has_version and benchmark.config.singularity:
+        try:
+            version_printer = f"""from benchexec import tooladapter
 from benchexec.model import load_tool_info
 class Config():
   pass
@@ -50,28 +55,25 @@ locator = tooladapter.create_tool_locator(config)
 tool = load_tool_info("{benchmark.tool_module}", config)[1]
 executable = tool.executable(locator)
 print(tool.version(executable))"""
-                with open(".get_version.py", "w") as script:
-                    script.write(version_printer)
-                result = subprocess.run(
-                    [
-                        "singularity",
-                        "exec",
-                        benchmark.config.singularity,
-                        "python3",
-                        ".get_version.py",
-                    ],
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.STDOUT,
-                )
-                if result.stdout:
-                    for line in result.stdout.splitlines():
-                        benchmark.tool_version = line
+            with open(".get_version.py", "w") as script:
+                script.write(version_printer)
+            result = subprocess.run(
+                [
+                    "singularity",
+                    "exec",
+                    benchmark.config.singularity,
+                    "python3",
+                    ".get_version.py",
+                ],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+            )
+            if result.stdout:
+                for line in result.stdout.splitlines():
+                    benchmark.tool_version = line
 
-            except Exception as e:
-                logging.warning("could not determine version due to error: %s", e)
-                benchmark.tool_version = None
-        else:
-            logging.warning("could not determine version due to error: %s", e)
+        except Exception as e:
+            logging.warning("could not determine version (in container) due to error: %s", e)
             benchmark.tool_version = None
 
 
