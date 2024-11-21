@@ -183,7 +183,7 @@ class Tool(benchexec.tools.template.BaseTool2):
                         f"Unsupported data_model '{data_model}' defined for task '{task}'"
                     )
 
-        options += get_witness_options(options, task, [f"{prefix}witness"])
+        options += get_witness_options(existing_options, task, [f"{prefix}witness"])
 
         return options
 
