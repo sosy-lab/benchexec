@@ -305,8 +305,8 @@ def execute_batch(
             try:
                 run.set_result(get_run_result(run.result_files_folder, os.path.join(tempdir, str(i)), run))
                 output_handler.output_after_run(run)
-            except:
-                logging.debug(f"Output missing for run #{i}")
+            except Exception as e:
+                logging.warning("could not set result due to error: %s", e)
 
 
 def stop():
