@@ -11,6 +11,7 @@ import logging
 import os
 import re
 import shlex
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -300,7 +301,7 @@ def execute_batch(
 
         for i, run in enumerate(runs):
             try:
-                run.set_result(get_run_result(os.path.join(tempdir, str(i)), run))
+                run.set_result(get_run_result(benchmark.log_folder, os.path.join(tempdir, str(i)), run))
                 output_handler.output_after_run(run)
             except:
                 logging.debug(f"Output missing for run #{i}")
@@ -380,10 +381,8 @@ def get_run_cli(benchmark, args, tempdir, resultdir):
         [
             "sh",
             "-c",
-            f"touch started; "
             f"{shlex.join(['echo', 'Running command: ', *args])}; "
-            f"{shlex.join(args)} 2>&1 | tee log; "
-            f"touch ended",
+            f"{shlex.join(args)} 2>&1 | tee log; ",
         ]
     )
 
@@ -396,7 +395,7 @@ def get_run_cli(benchmark, args, tempdir, resultdir):
     return cli
 
 
-def get_run_result(tempdir, run):
+def get_run_result(output_dir, tempdir, run):
     runexec_log = f"{tempdir}/log"
     tmp_log = f"{tempdir}/output.log"
 
@@ -426,5 +425,12 @@ def get_run_result(tempdir, run):
         with open(tmp_log, "r") as log_source:
             content = log_source.read()
             file.write(content)
+
+    src_files = os.listdir(tempdir)
+    for file_name in src_files:
+        if file_name not in ["log", "output.log"]:
+            full_file_name = os.path.join(tempdir, file_name)
+            if os.path.isfile(full_file_name):
+                shutil.copy(full_file_name, output_dir)
 
     return ret
