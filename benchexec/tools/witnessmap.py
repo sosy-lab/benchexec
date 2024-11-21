@@ -30,7 +30,7 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def version(self, executable):
         version_string = self._version_from_tool(executable)
-        return version_string.partition("version")[2].strip().split(" ")[0]
+        return version_string
 
     def cmdline(self, executable, options, task, rlimits):
         # The input files are irrelevant, since the goal of WitnessMap
