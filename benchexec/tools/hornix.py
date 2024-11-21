@@ -6,6 +6,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import re
+
 import benchexec
 import benchexec.result as result
 
@@ -21,7 +23,10 @@ class Tool(benchexec.tools.template.BaseTool2):
         return tool_locator.find_executable("hornix")
 
     def version(self, executable):
-        return self._version_from_tool(executable, arg="--version")
+        output = self._version_from_tool(executable, arg="--version")
+        version_pattern = r"\d+\.\d+\.\d+"
+        match = re.search(version_pattern, output)
+        return match.group(0) if match else ""
 
     def name(self):
         """The human-readable name of the tool."""
