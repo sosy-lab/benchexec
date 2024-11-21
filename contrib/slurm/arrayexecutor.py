@@ -365,12 +365,12 @@ def get_run_cli(benchmark, args, tempdir, resultdir):
                 "-B",
                 "/sys/fs/cgroup:/sys/fs/cgroup",
                 "-B",
-                f"{os.getcwd()}:/lower",
+                f"{os.path.abspath(os.path.dirname(benchmark.config.singularity))}:/lower",
                 "--no-home",
                 "-B",
                 f"{tempdir}:/overlay",
                 "--fusemount",
-                f"container:fuse-overlayfs -o lowerdir=/lower -o upperdir=/overlay/upper -o workdir=/overlay/work {os.getcwd()}",
+                f"container:fuse-overlayfs -o lowerdir=/lower -o upperdir=/overlay/upper -o workdir=/overlay/work {os.path.abspath(os.path.dirname(benchmark.config.singularity))}",
                 benchmark.config.singularity,
             ]
         )
