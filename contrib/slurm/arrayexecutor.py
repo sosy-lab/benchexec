@@ -303,7 +303,7 @@ def execute_batch(
 
         for i, run in enumerate(runs):
             try:
-                run.set_result(get_run_result(benchmark.result_files_folder, os.path.join(tempdir, str(i)), run))
+                run.set_result(get_run_result(run.result_files_folder, os.path.join(tempdir, str(i)), run))
                 output_handler.output_after_run(run)
             except:
                 logging.debug(f"Output missing for run #{i}")
