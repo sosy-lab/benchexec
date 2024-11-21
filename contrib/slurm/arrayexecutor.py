@@ -70,7 +70,7 @@ print(tool.version(executable))"""
             )
             if result.stdout:
                 for line in result.stdout.splitlines():
-                    benchmark.tool_version = line
+                    benchmark.tool_version = str(line)
 
         except Exception as e:
             logging.warning("could not determine version (in container) due to error: %s", e)
@@ -430,8 +430,8 @@ def get_run_result(output_dir, tempdir, run):
 
     src_files = os.listdir(os.path.join(tempdir, "output"))
     for file_name in src_files:
-            full_file_name = os.path.join(tempdir, file_name)
-            if os.path.isfile(full_file_name):
-                shutil.copy(full_file_name, output_dir)
+        full_file_name = os.path.join(os.path.join(tempdir, "output"), file_name)
+        if os.path.isfile(full_file_name):
+            shutil.copy(full_file_name, output_dir)
 
     return ret
