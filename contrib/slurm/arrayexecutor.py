@@ -256,7 +256,7 @@ def get_resource_limits(benchmark, tempdir):
 def get_run_cli(benchmark, args, tempdir, resultdir):
     os.makedirs(resultdir)
     cli = []
-    runexec = ["python3", "benchexec/bin/runexec", "--no-container", "--debug"]
+    runexec = ["runexec", "--no-container"]
     if benchmark.rlimits.cputime_hard:
         runexec.extend(["--timelimit", str(benchmark.rlimits.cputime_hard)])
     if benchmark.rlimits.cputime:
