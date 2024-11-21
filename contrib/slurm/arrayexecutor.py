@@ -12,6 +12,7 @@ import logging
 import os
 import queue
 import re
+import shlex
 import subprocess
 import sys
 import tempfile
@@ -198,7 +199,7 @@ def execute_batch(
         try:
             sbatch_cmd = ["sbatch", "--wait", str(batchfile)]
             logging.debug(
-                "Command to run: %s", " ".join(map(util.escape_string_shell, sbatch_cmd))
+                "Command to run: %s", shlex.join(sbatch_cmd)
             )
             sbatch_result = subprocess.run(
                 sbatch_cmd,
@@ -278,12 +279,12 @@ def get_run_cli(benchmark, args, tempdir, resultdir):
                 "-B",
                 "/sys/fs/cgroup:/sys/fs/cgroup",
                 "-B",
-                "./:/lower",
+                "/home:/lower",
                 "--no-home",
                 "-B",
                 f"{tempdir}:/overlay",
                 "--fusemount",
-                f"container:fuse-overlayfs -o lowerdir=/lower -o upperdir=/overlay/upper -o workdir=/overlay/work /home/{os.getlogin()}",
+                f"container:fuse-overlayfs -o lowerdir=/lower -o upperdir=/overlay/upper -o workdir=/overlay/work /home/",
                 benchmark.config.singularity,
             ]
         )
@@ -292,13 +293,13 @@ def get_run_cli(benchmark, args, tempdir, resultdir):
             "sh",
             "-c",
             f"touch started; "
-            f"{' '.join(map(util.escape_string_shell, ['echo', 'Running command: ', *args]))}; "
-            f"{' '.join(map(util.escape_string_shell, args))} 2>&1 | tee log; "
+            f"{shlex.join(['echo', 'Running command: ', *args])}; "
+            f"{shlex.join(args)} 2>&1 | tee log; "
             f"touch ended"
         ]
     )
 
-    cli = " ".join(map(util.escape_string_shell, cli))
+    cli = shlex.join(cli)
     cli = cli.replace("'\"'\"'$CPUSET'\"'\"'", "'$CPUSET'")
     cli = cli.replace("'$TMPDIR", "\"$TMPDIR").replace(":/overlay'", ":/overlay\"")
     cli = f"mkdir -p {tempdir}/{{upper,work}}; {cli}; mv {tempdir}/upper/* {resultdir}/; rm -r {tempdir}"

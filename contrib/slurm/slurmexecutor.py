@@ -300,7 +300,7 @@ def run_slurm(benchmark, args, log_file):
         )
 
         logging.debug(
-            "Command to run: %s", " ".join(map(util.escape_string_shell, srun_command))
+            "Command to run: %s", shlex.join(srun_command)
         )
         jobid = None
         while jobid is None and not STOPPED_BY_INTERRUPT:
@@ -410,7 +410,7 @@ def run_sacct(jobid):
         "--format=State,ExitCode,TotalCpu,Elapsed,MaxRSS",
     ]
     logging.debug(
-        "Command to run: %s", " ".join(map(util.escape_string_shell, sacct_command))
+        "Command to run: %s", shlex.join(sacct_command)
     )
 
     def get_checked_sacct_result():
@@ -467,7 +467,7 @@ def run_seff(jobid):
 
     seff_command = ["seff", str(jobid)]
     logging.debug(
-        "Command to run: %s", " ".join(map(util.escape_string_shell, seff_command))
+        "Command to run: %s", shlex.join(seff_command)
     )
 
     def get_checked_seff_result():
