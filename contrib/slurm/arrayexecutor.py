@@ -428,11 +428,12 @@ def get_run_result(output_dir, tempdir, run):
             content = log_source.read()
             file.write(content)
 
-    os.makedirs(output_dir, exist_ok=True)
-    src_files = os.listdir(os.path.join(tempdir, "output"))
-    for file_name in src_files:
-        full_file_name = os.path.join(os.path.join(tempdir, "output"), file_name)
-        if os.path.isfile(full_file_name):
-            shutil.copy(full_file_name, output_dir)
+    if os.path.exists(os.path.join(tempdir, "output")):
+        os.makedirs(output_dir, exist_ok=True)
+        src_files = os.listdir(os.path.join(tempdir, "output"))
+        for file_name in src_files:
+            full_file_name = os.path.join(os.path.join(tempdir, "output"), file_name)
+            if os.path.isfile(full_file_name):
+                shutil.copy(full_file_name, output_dir)
 
     return ret
