@@ -356,6 +356,8 @@ def get_run_cli(benchmark, args, tempdir, resultdir):
         runexec.extend(["--memlimit", str(benchmark.rlimits.memory)])
 
     args = [*runexec, "--", *args]
+    basedir = os.path.abspath(os.path.dirname(benchmark.config.singularity))
+    prefix = os.path.relpath(os.getcwd(), basedir)
 
     if benchmark.config.singularity:
         cli.extend(
@@ -365,12 +367,12 @@ def get_run_cli(benchmark, args, tempdir, resultdir):
                 "-B",
                 "/sys/fs/cgroup:/sys/fs/cgroup",
                 "-B",
-                f"{os.path.abspath(os.path.dirname(benchmark.config.singularity))}:/lower",
+                f"{basedir}:/lower",
                 "--no-home",
                 "-B",
                 f"{tempdir}:/overlay",
                 "--fusemount",
-                f"container:fuse-overlayfs -o lowerdir=/lower -o upperdir=/overlay/upper -o workdir=/overlay/work {os.path.abspath(os.path.dirname(benchmark.config.singularity))}",
+                f"container:fuse-overlayfs -o lowerdir=/lower -o upperdir=/overlay/upper -o workdir=/overlay/work {basedir}",
                 benchmark.config.singularity,
             ]
         )
@@ -388,7 +390,7 @@ def get_run_cli(benchmark, args, tempdir, resultdir):
     cli = shlex.join(cli)
     cli = cli.replace("'\"'\"'$CPUSET'\"'\"'", "'$CPUSET'")
     cli = cli.replace("'$TMPDIR", '"$TMPDIR').replace(":/overlay'", ':/overlay"')
-    cli = f"mkdir -p {tempdir}/{{upper,work}}; {cli}; mv {tempdir}/upper/* {resultdir}/; rm -r {tempdir}"
+    cli = f"mkdir -p {tempdir}/{{upper,work}}; {cli}; mv {tempdir}/upper/{prefix}/* {resultdir}/; rm -r {tempdir}"
     logging.debug("Command to run: %s", cli)
 
     return cli
