@@ -7,19 +7,16 @@
 # SPDX-FileCopyrightText: Budapest University of Technology and Economics <https://www.ftsrg.mit.bme.hu>
 #
 # SPDX-License-Identifier: Apache-2.0
-import itertools
 import logging
 import os
-import queue
 import re
 import shlex
 import subprocess
 import sys
 import tempfile
-import threading
 import time
 
-from benchexec import BenchExecException, tooladapter, util
+from benchexec import tooladapter
 from benchexec.util import ProcessExitCode
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
@@ -34,8 +31,47 @@ def init(config, benchmark):
     try:
         benchmark.tool_version = benchmark.tool.version(benchmark.executable)
     except Exception as e:
-        logging.warning("could not determine version due to error: %s", e)
-        benchmark.tool_version = None
+        if benchmark.config.singularity:
+            logging.warning(
+                "could not determine version due to error: %s, will retry in executor",
+                e,
+            )
+            try:
+                version_printer = f"""from benchexec import tooladapter
+from benchexec.model import load_tool_info
+class Config():
+  pass
+
+config = Config()
+config.container = False
+config.tool_directory = "{config.tool_directory}"
+locator = tooladapter.create_tool_locator(config)
+tool = load_tool_info("{benchmark.tool_module}", config)[1]
+executable = tool.executable(locator)
+print(tool.version(executable))"""
+                with open(".get_version.py", "w") as script:
+                    script.write(version_printer)
+                result = subprocess.run(
+                    [
+                        "singularity",
+                        "exec",
+                        benchmark.config.singularity,
+                        "python3",
+                        ".get_version.py",
+                    ],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                )
+                if result.stdout:
+                    for line in result.stdout.splitlines():
+                        benchmark.tool_version = line
+
+            except Exception as e:
+                logging.warning("could not determine version due to error: %s", e)
+                benchmark.tool_version = None
+        else:
+            logging.warning("could not determine version due to error: %s", e)
+            benchmark.tool_version = None
 
 
 def get_system_info():
@@ -74,9 +110,9 @@ sbatch_pattern = re.compile(r"Submitted batch job (\d+)")
 
 
 def _execute_run_set(
-        runSet,
-        benchmark,
-        output_handler,
+    runSet,
+    benchmark,
+    output_handler,
 ):
     global STOPPED_BY_INTERRUPT
 
@@ -101,7 +137,9 @@ def _execute_run_set(
 
     for i in range(0, len(runSet.runs), benchmark.config.batch_size):
         if not STOPPED_BY_INTERRUPT:
-            chunk = runSet.runs[i:min(i + benchmark.config.batch_size, len(runSet.runs))]
+            chunk = runSet.runs[
+                i : min(i + benchmark.config.batch_size, len(runSet.runs))
+            ]
             execute_batch(chunk, benchmark, output_handler)
 
     if STOPPED_BY_INTERRUPT:
@@ -114,21 +152,29 @@ def _execute_run_set(
 
 
 def get_cpu_cmd(concurrency_factor, cores):
-    get_cpus = ("cpus=($(scontrol show job -d \"$SLURM_JOB_ID\" | grep -o 'CPU_IDs=[^ ]*' | "
-                "awk -F= ' { print $2 } ' | head -n1 | "
-                "awk -F, ' { for (i = 1; i <= NF; i++ ) { if ($i ~ /-/) "
-                "{ split($i, range, \"-\"); for (j = range[1]; j <= range[2]; j++  ) { print j } } "
-                "else { print $i } } }'))")
+    get_cpus = (
+        "cpus=($(scontrol show job -d \"$SLURM_JOB_ID\" | grep -o 'CPU_IDs=[^ ]*' | "
+        "awk -F= ' { print $2 } ' | head -n1 | "
+        "awk -F, ' { for (i = 1; i <= NF; i++ ) { if ($i ~ /-/) "
+        '{ split($i, range, "-"); for (j = range[1]; j <= range[2]; j++  ) { print j } } '
+        "else { print $i } } }'))"
+    )
     for i in range(concurrency_factor):
-        get_cpus = get_cpus + f"\nexport cpuset{i}=$(IFS=,; echo \"${{cpus[*]:{i * cores}:{cores}}}\")"
+        get_cpus = (
+            get_cpus
+            + f'\nexport cpuset{i}=$(IFS=,; echo "${{cpus[*]:{i * cores}:{cores}}}")'
+        )
     return get_cpus
 
 
 def lock_cpu_cmds(concurrency_factor, tempdir, bin):
-    lock_cpus = "CPUSET=\"\"; while ! {"
+    lock_cpus = 'CPUSET=""; while ! {'
     for i in range(concurrency_factor):
-        lock_cpus = lock_cpus + f" {{ mkdir {tempdir}/cpuset_{bin}_{i} 2>/dev/null && cpuset={i} && CPUSET=\"$cpuset{i}\"; }}"
-        if (i == concurrency_factor - 1):
+        lock_cpus = (
+            lock_cpus
+            + f' {{ mkdir {tempdir}/cpuset_{bin}_{i} 2>/dev/null && cpuset={i} && CPUSET="$cpuset{i}"; }}'
+        )
+        if i == concurrency_factor - 1:
             lock_cpus = lock_cpus + "; }; do sleep 1; done"
         else:
             lock_cpus = lock_cpus + " ||"
@@ -137,16 +183,18 @@ def lock_cpu_cmds(concurrency_factor, tempdir, bin):
 
 
 def execute_batch(
-        runs,
-        benchmark,
-        output_handler,
+    runs,
+    benchmark,
+    output_handler,
 ):
     global STOPPED_BY_INTERRUPT
     number_of_bins = int(len(runs) / benchmark.config.aggregation_factor) + 1
 
     use_concurrency = benchmark.config.concurrency_factor != 1
     if use_concurrency:
-        get_cpus = get_cpu_cmd(benchmark.config.concurrency_factor, benchmark.rlimits.cpu_cores)
+        get_cpus = get_cpu_cmd(
+            benchmark.config.concurrency_factor, benchmark.rlimits.cpu_cores
+        )
 
     with tempfile.TemporaryDirectory(dir=benchmark.config.scratchdir) as tempdir:
         batch_lines = ["#!/bin/bash"]
@@ -154,7 +202,9 @@ def execute_batch(
         for setting in get_resource_limits(benchmark, tempdir):
             batch_lines.extend(["\n#SBATCH " + str(setting)])
 
-        batch_lines.extend([f"\n#SBATCH --array=0-{number_of_bins - 1}%{benchmark.num_of_threads}"])
+        batch_lines.extend(
+            [f"\n#SBATCH --array=0-{number_of_bins - 1}%{benchmark.num_of_threads}"]
+        )
         batch_lines.extend(["\n\nTMPDIR=$(mktemp -d)"])
 
         bins = {}
@@ -168,26 +218,56 @@ def execute_batch(
             batch_lines.extend(["\n\n" + get_cpus])
             batch_lines.extend(["\n\ncase $SLURM_ARRAY_TASK_ID in"])
             for bin in bins:
-                lock_cpus, unlock_cpus = lock_cpu_cmds(benchmark.config.concurrency_factor, tempdir, bin)
+                lock_cpus, unlock_cpus = lock_cpu_cmds(
+                    benchmark.config.concurrency_factor, tempdir, bin
+                )
                 batch_lines.extend(["\n" + str(bin) + ") "])
                 taskfile_name = f"bin{str(bin)}.tasks"
                 taskfile = os.path.join(tempdir, taskfile_name)
                 with open(taskfile, "w") as f:
                     task_lines = []
-                    for (i, run) in bins[bin]:
+                    for i, run in bins[bin]:
                         task_lines.extend(
-                            [lock_cpus + " && " + str(get_run_cli(benchmark, run.cmdline(), os.path.join("$TMPDIR", str(i)), os.path.join(tempdir, str(i)))) + "; " + unlock_cpus + "\n"])
+                            [
+                                lock_cpus
+                                + " && "
+                                + str(
+                                    get_run_cli(
+                                        benchmark,
+                                        run.cmdline(),
+                                        os.path.join("$TMPDIR", str(i)),
+                                        os.path.join(tempdir, str(i)),
+                                    )
+                                )
+                                + "; "
+                                + unlock_cpus
+                                + "\n"
+                            ]
+                        )
                     f.writelines(task_lines)
-                batch_lines.extend(f"\n while read -r x; do /bin/sh -c \"$x\" & done < {taskfile}")
+                batch_lines.extend(
+                    f'\n while read -r x; do /bin/sh -c "$x" & done < {taskfile}'
+                )
                 batch_lines.extend("\n wait")
                 batch_lines.extend(["\n;;"])
         else:
             batch_lines.extend(["\n\ncase $SLURM_ARRAY_TASK_ID in"])
             for bin in bins:
                 batch_lines.extend(["\n" + str(bin) + ") "])
-                for (i, run) in bins[bin]:
+                for i, run in bins[bin]:
                     batch_lines.extend(
-                        ["\n  " + str(get_run_cli(benchmark, run.cmdline(), os.path.join("$TMPDIR", str(i)), os.path.join(tempdir, str(i))))])
+                        [
+                            "\n  "
+                            + str(
+                                get_run_cli(
+                                    benchmark,
+                                    run.cmdline(),
+                                    os.path.join("$TMPDIR", str(i)),
+                                    os.path.join(tempdir, str(i)),
+                                )
+                            )
+                        ]
+                    )
                 batch_lines.extend(["\n;;"])
 
         batch_lines.extend(["\nesac"])
@@ -198,9 +278,7 @@ def execute_batch(
 
         try:
             sbatch_cmd = ["sbatch", "--wait", str(batchfile)]
-            logging.debug(
-                "Command to run: %s", shlex.join(sbatch_cmd)
-            )
+            logging.debug("Command to run: %s", shlex.join(sbatch_cmd))
             sbatch_result = subprocess.run(
                 sbatch_cmd,
                 stdout=subprocess.PIPE,
@@ -234,23 +312,31 @@ def stop():
 
 
 def get_resource_limits(benchmark, tempdir):
-    timelimit = benchmark.rlimits.cputime * benchmark.config.aggregation_factor * 2  # safe overapprox
+    timelimit = (
+        benchmark.rlimits.cputime * benchmark.config.aggregation_factor * 2
+    )  # safe overapprox
     cpus = benchmark.rlimits.cpu_cores * benchmark.config.concurrency_factor
-    memory = benchmark.rlimits.memory * benchmark.config.concurrency_factor * 1.5  # so that runexec catches the OOM, not SLURM
+    memory = (
+        benchmark.rlimits.memory * benchmark.config.concurrency_factor * 1.5
+    )  # so that runexec catches the OOM, not SLURM
     os.makedirs(os.path.join(tempdir, "logs"), exist_ok=True)
 
     srun_timelimit_h = int(timelimit / 3600)
     srun_timelimit_m = int((timelimit % 3600) / 60)
     srun_timelimit_s = int(timelimit % 60)
-    srun_timelimit = f"{srun_timelimit_h:02d}:{srun_timelimit_m:02d}:{srun_timelimit_s:02d}"
+    srun_timelimit = (
+        f"{srun_timelimit_h:02d}:{srun_timelimit_m:02d}:{srun_timelimit_s:02d}"
+    )
 
-    ret = [f"--output={tempdir}/logs/%A_%a.out",
-           "--time=" + str(srun_timelimit),
-           "--cpus-per-task=" + str(cpus),
-           "--mem=" + str(int(memory / 1000000)) + "M",
-           "--threads-per-core=1",  # --use_hyperthreading=False is always given here
-           "--mincpus=" + str(cpus),
-           "--ntasks=1"]
+    ret = [
+        f"--output={tempdir}/logs/%A_%a.out",
+        "--time=" + str(srun_timelimit),
+        "--cpus-per-task=" + str(cpus),
+        "--mem=" + str(int(memory / 1000000)) + "M",
+        "--threads-per-core=1",  # --use_hyperthreading=False is always given here
+        "--mincpus=" + str(cpus),
+        "--ntasks=1",
+    ]
     return ret
 
 
@@ -295,13 +381,13 @@ def get_run_cli(benchmark, args, tempdir, resultdir):
             f"touch started; "
             f"{shlex.join(['echo', 'Running command: ', *args])}; "
             f"{shlex.join(args)} 2>&1 | tee log; "
-            f"touch ended"
+            f"touch ended",
         ]
     )
 
     cli = shlex.join(cli)
     cli = cli.replace("'\"'\"'$CPUSET'\"'\"'", "'$CPUSET'")
-    cli = cli.replace("'$TMPDIR", "\"$TMPDIR").replace(":/overlay'", ":/overlay\"")
+    cli = cli.replace("'$TMPDIR", '"$TMPDIR').replace(":/overlay'", ':/overlay"')
     cli = f"mkdir -p {tempdir}/{{upper,work}}; {cli}; mv {tempdir}/upper/* {resultdir}/; rm -r {tempdir}"
     logging.debug("Command to run: %s", cli)
 
@@ -316,8 +402,8 @@ def get_run_result(tempdir, run):
     with open(runexec_log, "r") as file:
         for line in file:
             line = line.strip()
-            if line and '=' in line:
-                key, value = line.split('=', 1)
+            if line and "=" in line:
+                key, value = line.split("=", 1)
                 data_dict[key.strip()] = value.strip()
 
     ret = {}
