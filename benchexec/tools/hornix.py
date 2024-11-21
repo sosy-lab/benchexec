@@ -38,7 +38,9 @@ class Tool(benchexec.tools.template.BaseTool2):
             return result.RESULT_TRUE_PROP
         elif "unsat" == line:
             return result.RESULT_FALSE_REACH
-        elif "unknown" == line:
+        elif "unknown" == line or line.startswith("UNKNOWN"):
             return result.RESULT_UNKNOWN
+        elif "timeout" == line:
+            return result.RESULT_TIMEOUT
         else:
             return result.RESULT_ERROR
