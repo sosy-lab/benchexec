@@ -16,6 +16,8 @@ class Tool(BaseTool2):
     """
 
     REQUIRED_PATHS = [
+        "knife-fuzzer",
+        "local_z3_installation",
         "libs",
         "symbolic-executor",
         "symbolic-explorer",
