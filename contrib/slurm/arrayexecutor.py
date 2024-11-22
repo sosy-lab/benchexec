@@ -202,6 +202,7 @@ def get_cpu_cmd(concurrency_factor, cores):
         "awk -F, ' { for (i = 1; i <= NF; i++ ) { if ($i ~ /-/) "
         '{ split($i, range, "-"); for (j = range[1]; j <= range[2]; j++  ) { print j } } '
         "else { print $i } } }'))"
+        '"\necho "${cpus[@]}"'
     )
     for i in range(concurrency_factor):
         get_cpus = (
@@ -355,7 +356,7 @@ def execute_batch(
                     logging.warning("could not set result due to error: %s", e)
                     if not STOPPED_BY_INTERRUPT:
                         logging.debug("preserving log(s) due to error with run")
-                        for file in glob.glob(f"{tempdir}/logs/*{bin}.out"):
+                        for file in glob.glob(f"{tempdir}/logs/*_{bin}.out"):
                             shutil.copy(file, os.path.join(benchmark.result_files_folder, os.path.basename(file) + ".error"))
 
 
