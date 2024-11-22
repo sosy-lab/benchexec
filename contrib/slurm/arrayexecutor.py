@@ -237,6 +237,7 @@ def execute_batch(
     runs,
     benchmark,
     output_handler,
+    first_time = True,
 ):
     global STOPPED_BY_INTERRUPT
     number_of_bins = int(len(runs) / benchmark.config.aggregation_factor) + 1
@@ -360,11 +361,14 @@ def execute_batch(
                     output_handler.output_after_run(run)
                 except Exception as e:
                     logging.warning("could not set result due to error: %s", e)
-                    if not STOPPED_BY_INTERRUPT:
-                        logging.debug("preserving log(s) due to error with run")
-                        for file in glob.glob(f"{tempdir}/logs/*_{bin}.out"):
-                            os.makedirs(benchmark.result_files_folder, exist_ok=True)
-                            shutil.copy(file, os.path.join(benchmark.result_files_folder, os.path.basename(file) + ".error"))
+                    if first_time:
+                        execute_batch(bins[bin], benchmark, output_handler, False)
+                    else:
+                        if not STOPPED_BY_INTERRUPT:
+                            logging.debug("preserving log(s) due to error with run")
+                            for file in glob.glob(f"{tempdir}/logs/*_{bin}.out"):
+                                os.makedirs(benchmark.result_files_folder, exist_ok=True)
+                                shutil.copy(file, os.path.join(benchmark.result_files_folder, os.path.basename(file) + ".error"))
 
 
 def stop():
@@ -374,7 +378,7 @@ def stop():
 
 def get_resource_limits(benchmark, tempdir):
     timelimit = (
-        benchmark.rlimits.cputime * benchmark.config.aggregation_factor * 2
+        benchmark.rlimits.cputime * benchmark.config.aggregation_factor / benchmark.config.concurrency_factor
     )  # safe overapprox
     cpus = benchmark.rlimits.cpu_cores * benchmark.config.concurrency_factor
     memory = (
