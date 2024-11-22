@@ -40,7 +40,7 @@ class Tool(benchexec.tools.template.BaseTool2):
             if "Verdict: SOMETIMES" in line or "Verdict: ALWAYS" in line:
                 return result.RESULT_FALSE_REACH
             elif "Verdict: NEVER" in line:
-                return result.RESULT_TRUE_PROP
+                return result.RESULT_ERROR + "(ineffective  witness)"
             elif "Verdict: TIMEOUT" in line:
                 return result.RESULT_TIMEOUT + "(inner)"
             elif "Verdict: Unknown error" in line:
