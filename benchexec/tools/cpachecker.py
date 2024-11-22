@@ -140,6 +140,12 @@ class Tool(benchexec.tools.template.BaseTool2):
             version = version.rsplit("-", maxsplit=1)[-1]
             return f"https://gitlab.com/sosy-lab/software/cpachecker/-/tree/{version}"
 
+        elif re.fullmatch("[0-9.]+-[0-9]+-g[0-9a-f]{6,}", version):
+            # Development version with git commit like "4.0-123-gabcdef"
+            # Could end in "+", but then has local changes and we do not want a link.
+            version = version.rsplit("g", maxsplit=1)[-1]
+            return f"https://gitlab.com/sosy-lab/software/cpachecker/-/tree/{version}"
+
         elif re.fullmatch("[0-9a-f]{40}", version):
             # Full git hash produced by VerifierCloud WebClient
             return f"https://gitlab.com/sosy-lab/software/cpachecker/-/tree/{version}"
