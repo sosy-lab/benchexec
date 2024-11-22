@@ -350,9 +350,9 @@ def execute_batch(
                         logging.debug(f"Canceling sbatch job #{jobid}")
                         subprocess.run(["scancel", str(jobid)])
 
+        missing_runs = []
         for bin in bins:
             for i, run in bins[bin]:
-                missing_runs = []
                 try:
                     run.set_result(
                         get_run_result(
@@ -370,8 +370,8 @@ def execute_batch(
                             for file in glob.glob(f"{tempdir}/logs/*_{bin}.out"):
                                 os.makedirs(benchmark.result_files_folder, exist_ok=True)
                                 shutil.copy(file, os.path.join(benchmark.result_files_folder, os.path.basename(file) + ".error"))
-                if len(missing_runs) > 0:
-                    execute_batch(missing_runs, benchmark, output_handler, False)
+        if len(missing_runs) > 0:
+            execute_batch(missing_runs, benchmark, output_handler, False)
 
 
 def stop():
