@@ -7,6 +7,7 @@
 # SPDX-FileCopyrightText: Budapest University of Technology and Economics <https://www.ftsrg.mit.bme.hu>
 #
 # SPDX-License-Identifier: Apache-2.0
+import json
 import logging
 import os
 import re
@@ -18,6 +19,7 @@ import tempfile
 import time
 
 from benchexec import tooladapter
+from benchexec.systeminfo import SystemInfo
 from benchexec.util import ProcessExitCode
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
@@ -81,6 +83,37 @@ print(tool.version(executable))"""
 
 
 def get_system_info():
+    try:
+        process = subprocess.run(
+            [
+                "srun",
+                "singularity",
+                "exec",
+                "python3",
+                "-c",
+                "import benchexec.systeminfo; "
+                "import json; "
+                "print(json.dumps(benchexec.systeminfo.SystemInfo().__dict__)",
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            stdin=subprocess.DEVNULL,
+            universal_newlines=True,
+        )
+        if process.stdout:
+            actual_sysinfo = json.loads(process.stdout.strip())
+            blank_sysinfo = SystemInfo()
+            blank_sysinfo.hostname = str(actual_sysinfo["hostname"]) + " (sample)"
+            blank_sysinfo.os = actual_sysinfo["os"]
+            blank_sysinfo.cpu_max_frequency = actual_sysinfo["cpu_max_frequency"]
+            blank_sysinfo.cpu_number_of_cores = actual_sysinfo["cpu_number_of_cores"]
+            blank_sysinfo.cpu_model = actual_sysinfo["cpu_model"]
+            blank_sysinfo.cpu_turboboost = actual_sysinfo["cpu_turboboost"]
+            blank_sysinfo.memory = actual_sysinfo["memory"]
+            return blank_sysinfo
+
+    except Exception as e:
+        logging.warning("could not determine system info due to error: %s", e)
     return None
 
 
