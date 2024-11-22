@@ -208,7 +208,7 @@ def get_cpu_cmd(concurrency_factor, cores):
         "awk -F, ' { for (i = 1; i <= NF; i++ ) { if ($i ~ /-/) "
         '{ split($i, range, "-"); for (j = range[1]; j <= range[2]; j++  ) { print j } } '
         "else { print $i } } }'))"
-        '"\necho "${cpus[@]}"'
+        '\necho "${cpus[@]}"'
     )
     for i in range(concurrency_factor):
         get_cpus = (
