@@ -48,7 +48,7 @@ print(tool.version(executable))"""
         try:
             with open(".get_version.py", "w") as script:
                 script.write(version_printer)
-            result = subprocess.run(
+            process = subprocess.run(
                 [
                     "singularity",
                     "exec",
@@ -57,15 +57,16 @@ print(tool.version(executable))"""
                     ".get_version.py",
                 ],
                 stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,
+                stderr=subprocess.DEVNULL,
+                stdin=subprocess.DEVNULL,
+                universal_newlines=True,
             )
-            if result.stdout:
-                for line in result.stdout.splitlines():
-                    return str(line) # first line is OK
+            if process.stdout:
+                return process.stdout.strip()
 
         except Exception as e:
             logging.warning("could not determine version (in container) due to error: %s", e)
-            return ""
+        return ""
 
     tool_locator = tooladapter.create_tool_locator(config)
     benchmark.executable = benchmark.tool.executable(tool_locator)
