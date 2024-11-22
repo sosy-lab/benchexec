@@ -425,7 +425,6 @@ def get_run_cli(benchmark, args, tempdir, resultdir):
 
     args = [*runexec, "--", *args]
     basedir = os.path.abspath(os.path.dirname(benchmark.config.singularity))
-    prefix = os.path.relpath(os.getcwd(), basedir)
 
     if benchmark.config.singularity:
         cli.extend(
@@ -458,7 +457,7 @@ def get_run_cli(benchmark, args, tempdir, resultdir):
     cli = shlex.join(cli)
     cli = cli.replace("'\"'\"'$CPUSET'\"'\"'", "'$CPUSET'")
     cli = cli.replace("'$TMPDIR", '"$TMPDIR').replace(":/overlay'", ':/overlay"')
-    cli = f"mkdir -p {tempdir}/{{upper,work}}; {cli}; mv {tempdir}/upper/{prefix}/* {resultdir}/; rm -r {tempdir}"
+    cli = f"mkdir -p {tempdir}/{{upper,work}}; {cli}; mv {tempdir}/upper/* {resultdir}/; rm -r {tempdir}"
     logging.debug("Command to run: %s", cli)
 
     return cli
