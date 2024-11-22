@@ -28,8 +28,13 @@ sys.dont_write_bytecode = True  # prevent creation of .pyc files
 WORKER_THREADS = []
 STOPPED_BY_INTERRUPT = False
 
+singularity = None
 
 def init(config, benchmark):
+    global singularity
+    if benchmark.config.singularity:
+        singularity = benchmark.config.singularity
+
     version_printer = f"""from benchexec import tooladapter
 from benchexec.model import load_tool_info
 class Config():
@@ -94,11 +99,12 @@ def get_system_info():
                 "srun",
                 "singularity",
                 "exec",
+                singularity,
                 "python3",
                 "-c",
                 "import benchexec.systeminfo; "
                 "import json; "
-                "print(json.dumps(benchexec.systeminfo.SystemInfo().__dict__)",
+                "print(json.dumps(benchexec.systeminfo.SystemInfo().__dict__))",
             ],
             stdout=subprocess.PIPE,
             stderr=subprocess.DEVNULL,
@@ -357,6 +363,7 @@ def execute_batch(
                     if not STOPPED_BY_INTERRUPT:
                         logging.debug("preserving log(s) due to error with run")
                         for file in glob.glob(f"{tempdir}/logs/*_{bin}.out"):
+                            os.makedirs(benchmark.result_files_folder, exist_ok=True)
                             shutil.copy(file, os.path.join(benchmark.result_files_folder, os.path.basename(file) + ".error"))
 
 
