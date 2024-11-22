@@ -33,7 +33,7 @@ class Config():
 
 config = Config()
 config.container = False
-config.tool_directory = "{config.tool_directory}"
+config.tool_directory = "."
 locator = tooladapter.create_tool_locator(config)
 tool = load_tool_info("{benchmark.tool_module}", config)[1]
 executable = tool.executable(locator)
@@ -61,7 +61,7 @@ print(tool.version(executable))"""
             )
             if result.stdout:
                 for line in result.stdout.splitlines():
-                    return str(line)
+                    return str(line) # first line is OK
 
         except Exception as e:
             logging.warning("could not determine version (in container) due to error: %s", e)
