@@ -9,7 +9,6 @@ import benchexec.tools.template
 from benchexec.tools.sv_benchmarks_util import (
     handle_witness_of_task,
     TaskFilesConsidered,
-    get_witness_options,
 )
 
 
@@ -34,20 +33,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         version_string = self._version_from_tool(executable)
         return version_string
 
-    @staticmethod
-    def _cmdline_version_001(executable, options, task):
-        # The input files are irrelevant, since the goal of WitnessMap
-        # is only to copy the witness given in the task definition options
-        #  into the output folder
-        mapping_options = get_witness_options(options, task, ["--input"])
-
-        return [executable, *options, *mapping_options]
-
-    @staticmethod
-    def _cmdline_version_002(executable, options, task):
-        # Version 2 of WitnessMap also adjusts the witness metadata
-        # to include the correct paths to the programs which are being
-        # copied into the witness
+    def cmdline(self, executable, options, task, rlimits):
         input_file, mapping_options = handle_witness_of_task(
             task, options, "--witness", TaskFilesConsidered.SINGLE_INPUT_FILE
         )
@@ -59,16 +45,6 @@ class Tool(benchexec.tools.template.BaseTool2):
             "--program",
             input_file[0],
         ]
-
-    def cmdline(self, executable, options, task, rlimits):
-        version = self.version(executable)
-
-        if version in ["0.0.1-dev", "0.0.1"]:
-            return self._cmdline_version_001(executable, options, task)
-        elif version == "0.0.2-dev":
-            return self._cmdline_version_002(executable, options, task)
-        else:
-            raise ValueError(f"Unknown version of witnessmap: {version}")
 
     def get_value_from_output(self, output, identifier):
         for line in output:
