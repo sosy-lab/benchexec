@@ -25,25 +25,8 @@ sys.dont_write_bytecode = True  # prevent creation of .pyc files
 WORKER_THREADS = []
 STOPPED_BY_INTERRUPT = False
 
-
 def init(config, benchmark):
-    tool_locator = tooladapter.create_tool_locator(config)
-    benchmark.executable = benchmark.tool.executable(tool_locator)
-    has_version = False
-    try:
-        benchmark.tool_version = benchmark.tool.version(benchmark.executable)
-        if benchmark.tool_version != "":
-            has_version = True
-    except Exception as e:
-        logging.warning(
-            "could not determine version due to error: %s, will retry in executor if allowed",
-            e,
-        )
-        has_version = False
-
-    if not has_version and benchmark.config.singularity:
-        try:
-            version_printer = f"""from benchexec import tooladapter
+    version_printer = f"""from benchexec import tooladapter
 from benchexec.model import load_tool_info
 class Config():
   pass
@@ -55,6 +38,14 @@ locator = tooladapter.create_tool_locator(config)
 tool = load_tool_info("{benchmark.tool_module}", config)[1]
 executable = tool.executable(locator)
 print(tool.version(executable))"""
+
+    def version_from_tool_in_container(
+        executable,
+        arg="--version",
+        use_stderr=False,
+        ignore_stderr=False,
+        line_prefix=None):
+        try:
             with open(".get_version.py", "w") as script:
                 script.write(version_printer)
             result = subprocess.run(
@@ -70,11 +61,22 @@ print(tool.version(executable))"""
             )
             if result.stdout:
                 for line in result.stdout.splitlines():
-                    benchmark.tool_version = str(line)
+                    return str(line)
 
         except Exception as e:
             logging.warning("could not determine version (in container) due to error: %s", e)
-            benchmark.tool_version = None
+            return ""
+
+    tool_locator = tooladapter.create_tool_locator(config)
+    benchmark.executable = benchmark.tool.executable(tool_locator)
+    benchmark.tool._version_from_tool = version_from_tool_in_container
+    try:
+        benchmark.tool_version = benchmark.tool.version(benchmark.executable)
+    except Exception as e:
+        logging.warning(
+            "could not determine version due to error: %s",
+            e,
+        )
 
 
 def get_system_info():
