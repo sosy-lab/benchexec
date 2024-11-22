@@ -435,12 +435,14 @@ def get_run_cli(benchmark, args, tempdir, resultdir):
                 "-B",
                 "/sys/fs/cgroup:/sys/fs/cgroup",
                 "-B",
-                f"{basedir}:/lower",
+                f"{basedir}",
+                "-B",
+                f"{os.getcwd()}:/lower",
                 "--no-home",
                 "-B",
                 f"{tempdir}:/overlay",
                 "--fusemount",
-                f"container:fuse-overlayfs -o lowerdir=/lower -o upperdir=/overlay/upper -o workdir=/overlay/work {basedir}",
+                f"container:fuse-overlayfs -o lowerdir=/lower -o upperdir=/overlay/upper -o workdir=/overlay/work {os.getcwd()}",
                 benchmark.config.singularity,
             ]
         )
