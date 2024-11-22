@@ -7,6 +7,7 @@
 # SPDX-FileCopyrightText: Budapest University of Technology and Economics <https://www.ftsrg.mit.bme.hu>
 #
 # SPDX-License-Identifier: Apache-2.0
+import glob
 import json
 import logging
 import os
@@ -341,16 +342,21 @@ def execute_batch(
                         logging.debug(f"Canceling sbatch job #{jobid}")
                         subprocess.run(["scancel", str(jobid)])
 
-        for i, run in enumerate(runs):
-            try:
-                run.set_result(
-                    get_run_result(
-                        run.result_files_folder, os.path.join(tempdir, str(i)), run
+        for bin in bins:
+            for i, run in bins[bin]:
+                try:
+                    run.set_result(
+                        get_run_result(
+                            run.result_files_folder, os.path.join(tempdir, str(i)), run
+                        )
                     )
-                )
-                output_handler.output_after_run(run)
-            except Exception as e:
-                logging.warning("could not set result due to error: %s", e)
+                    output_handler.output_after_run(run)
+                except Exception as e:
+                    logging.warning("could not set result due to error: %s", e)
+                    if not STOPPED_BY_INTERRUPT:
+                        logging.debug("preserving log(s) due to error with run")
+                        for file in glob.glob(f"{tempdir}/logs/*{bin}.out"):
+                            shutil.copy(file, os.path.join(benchmark.result_files_folder, os.path.basename(file) + ".error"))
 
 
 def stop():
