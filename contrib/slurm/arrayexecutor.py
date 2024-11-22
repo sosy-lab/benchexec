@@ -27,6 +27,7 @@ sys.dont_write_bytecode = True  # prevent creation of .pyc files
 WORKER_THREADS = []
 STOPPED_BY_INTERRUPT = False
 
+
 def init(config, benchmark):
     version_printer = f"""from benchexec import tooladapter
 from benchexec.model import load_tool_info
@@ -46,7 +47,8 @@ print(tool.version(executable))"""
         arg="--version",
         use_stderr=False,
         ignore_stderr=False,
-        line_prefix=None):
+        line_prefix=None,
+    ):
         try:
             with open(".get_version.py", "w") as script:
                 script.write(version_printer)
@@ -67,7 +69,9 @@ print(tool.version(executable))"""
                 return process.stdout.strip()
 
         except Exception as e:
-            logging.warning("could not determine version (in container) due to error: %s", e)
+            logging.warning(
+                "could not determine version (in container) due to error: %s", e
+            )
         return ""
 
     tool_locator = tooladapter.create_tool_locator(config)
@@ -339,7 +343,11 @@ def execute_batch(
 
         for i, run in enumerate(runs):
             try:
-                run.set_result(get_run_result(run.result_files_folder, os.path.join(tempdir, str(i)), run))
+                run.set_result(
+                    get_run_result(
+                        run.result_files_folder, os.path.join(tempdir, str(i)), run
+                    )
+                )
                 output_handler.output_after_run(run)
             except Exception as e:
                 logging.warning("could not set result due to error: %s", e)
