@@ -352,6 +352,7 @@ def execute_batch(
 
         for bin in bins:
             for i, run in bins[bin]:
+                missing_runs = []
                 try:
                     run.set_result(
                         get_run_result(
@@ -362,13 +363,15 @@ def execute_batch(
                 except Exception as e:
                     logging.warning("could not set result due to error: %s", e)
                     if first_time:
-                        execute_batch(bins[bin], benchmark, output_handler, False)
+                        missing_runs.append(run)
                     else:
                         if not STOPPED_BY_INTERRUPT:
                             logging.debug("preserving log(s) due to error with run")
                             for file in glob.glob(f"{tempdir}/logs/*_{bin}.out"):
                                 os.makedirs(benchmark.result_files_folder, exist_ok=True)
                                 shutil.copy(file, os.path.join(benchmark.result_files_folder, os.path.basename(file) + ".error"))
+                if len(missing_runs) > 0:
+                    execute_batch(missing_runs, benchmark, output_handler, False)
 
 
 def stop():
