@@ -63,7 +63,9 @@ class Tool(benchexec.tools.template.BaseTool2):
             for line in run.output:
                 if "nodatarace.assertion." in line and "FAILURE" in line:
                     status = result.RESULT_FALSE_DATARACE
-                if ("alloc.assertion." in line or "pointer_dereference." in line) and "FAILURE" in line:
+                if (
+                    "alloc.assertion." in line or "pointer_dereference." in line
+                ) and "FAILURE" in line:
                     status = result.RESULT_FALSE_DEREF
                 if "memory-leak." in line and "FAILURE" in line:
                     status = result.RESULT_FALSE_MEMTRACK
