@@ -241,7 +241,7 @@ def execute_batch(
             STOPPED_BY_INTERRUPT = True
 
         if STOPPED_BY_INTERRUPT:
-            logging.debug(f"Canceling sbatch job if already started")
+            logging.debug("Canceling sbatch job if already started")
             if sbatch_result and sbatch_result.stdout:
                 for line in sbatch_result.stdout.splitlines():
                     jobid_match = sbatch_pattern.search(str(line))
