@@ -30,6 +30,7 @@ STOPPED_BY_INTERRUPT = False
 
 singularity = None
 
+
 def init(config, benchmark):
     global singularity
     if benchmark.config.singularity:
@@ -237,7 +238,7 @@ def execute_batch(
     runs,
     benchmark,
     output_handler,
-    first_time = True,
+    first_time=True,
 ):
     global STOPPED_BY_INTERRUPT
     number_of_bins = int(len(runs) / benchmark.config.aggregation_factor) + 1
@@ -368,9 +369,17 @@ def execute_batch(
                         if not STOPPED_BY_INTERRUPT:
                             logging.debug("preserving log(s) due to error with run")
                             for file in glob.glob(f"{tempdir}/logs/*_{bin}.out"):
-                                os.makedirs(benchmark.result_files_folder, exist_ok=True)
-                                shutil.copy(file, os.path.join(benchmark.result_files_folder, os.path.basename(file) + ".error"))
-        if len(missing_runs) > 0:
+                                os.makedirs(
+                                    benchmark.result_files_folder, exist_ok=True
+                                )
+                                shutil.copy(
+                                    file,
+                                    os.path.join(
+                                        benchmark.result_files_folder,
+                                        os.path.basename(file) + ".error",
+                                    ),
+                                )
+        if len(missing_runs) > 0 and not STOPPED_BY_INTERRUPT:
             execute_batch(missing_runs, benchmark, output_handler, False)
 
 
@@ -381,7 +390,9 @@ def stop():
 
 def get_resource_limits(benchmark, tempdir):
     timelimit = (
-        benchmark.rlimits.cputime * benchmark.config.aggregation_factor / benchmark.config.concurrency_factor
+        benchmark.rlimits.cputime
+        * benchmark.config.aggregation_factor
+        / benchmark.config.concurrency_factor
     )  # safe overapprox
     cpus = benchmark.rlimits.cpu_cores * benchmark.config.concurrency_factor
     memory = (
@@ -497,7 +508,11 @@ def get_run_result(output_dir, tempdir, run):
     if os.path.exists(os.path.join(tempdir, "output")):
         os.makedirs(output_dir, exist_ok=True)
         src_files = os.listdir(os.path.join(tempdir, "output"))
-        for file_name in src_files:
+        for file_name in [
+            file
+            for file in src_files
+            if os.path.basename(file) in ["witness.graphml", "witness.yml"]
+        ]:  # this should use 'benchmark.resultfiles', but if a tool is not set up correctly, it will produce way too many files.
             full_file_name = os.path.join(os.path.join(tempdir, "output"), file_name)
             if os.path.isfile(full_file_name):
                 shutil.copy(full_file_name, output_dir)
