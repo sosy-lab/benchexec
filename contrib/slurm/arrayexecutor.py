@@ -385,10 +385,15 @@ def stop():
 
 def get_resource_limits(benchmark, tempdir):
     timelimit = int(
-        benchmark.rlimits.cputime  # safe overapprox
+        max(
+            benchmark.rlimits.cputime,
+            benchmark.rlimits.walltime,
+            benchmark.rlimits.cputime_hard,
+        )  # safe overapprox
         * math.ceil(
             benchmark.config.aggregation_factor / benchmark.config.concurrency_factor
         )
+        * 1.1
     )
     cpus = benchmark.rlimits.cpu_cores * benchmark.config.concurrency_factor
     memory = (
