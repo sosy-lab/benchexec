@@ -6,7 +6,7 @@
 # SPDX-FileCopyrightText: Budapest University of Technology and Economics <https://www.ftsrg.mit.bme.hu>
 #
 # SPDX-License-Identifier: Apache-2.0
-
+import functools
 import json
 import logging
 import subprocess
@@ -28,6 +28,7 @@ tool = load_tool_info("{tool_module}", config)[1]
 executable = tool.executable(locator)
 print(tool.version(executable))"""
 
+    @functools.lru_cache()
     def version_from_tool_in_container(executable):
         try:
             with open(".get_version.py", "w") as script:
