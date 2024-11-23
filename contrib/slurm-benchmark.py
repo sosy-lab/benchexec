@@ -100,7 +100,9 @@ class Benchmark(benchexec.benchexec.BenchExec):
         if self.config.slurm_array:
             from slurm import arrayexecutor as executor
         elif self.config.slurm:
-            logging.error("Single-job-based SLURM-integration is no longer supported. Use --slurm-array instead.")
+            logging.error(
+                "Single-job-based SLURM-integration is no longer supported. Use --slurm-array instead."
+            )
             from slurm import slurmexecutor as executor
         else:
             logging.warning(
