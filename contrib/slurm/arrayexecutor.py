@@ -50,13 +50,7 @@ tool = load_tool_info("{benchmark.tool_module}", config)[1]
 executable = tool.executable(locator)
 print(tool.version(executable))"""
 
-    def version_from_tool_in_container(
-        executable,
-        arg="--version",
-        use_stderr=False,
-        ignore_stderr=False,
-        line_prefix=None,
-    ):
+    def version_from_tool_in_container(executable):
         try:
             with open(".get_version.py", "w") as script:
                 script.write(version_printer)
@@ -84,7 +78,7 @@ print(tool.version(executable))"""
 
     tool_locator = tooladapter.create_tool_locator(config)
     benchmark.executable = benchmark.tool.executable(tool_locator)
-    benchmark.tool._version_from_tool = version_from_tool_in_container
+    benchmark.tool.version = version_from_tool_in_container
     try:
         benchmark.tool_version = benchmark.tool.version(benchmark.executable)
     except Exception as e:
