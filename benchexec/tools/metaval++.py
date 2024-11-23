@@ -52,7 +52,7 @@ class Tool(BaseTool2):
             task, options, "--witness", TaskFilesConsidered.SINGLE_INPUT_FILE
         )
 
-        return [executable] + options + witness_options + [input_file]
+        return [executable] + options + witness_options + input_file
 
     def determine_result(self, run):
         separator = ":"
