@@ -39,7 +39,7 @@ class Tool(benchexec.tools.template.BaseTool2):
             if result_str == "CoOpeRace verdict: true":
                 return result.RESULT_TRUE_PROP
             if result_str == "CoOpeRace verdict: false":
-                return result.RESULT_FALSE_PROP
+                return result.RESULT_FALSE_DATARACE
             if result_str == "CoOpeRace verdict: unknown":
                 return result.RESULT_UNKNOWN
 
