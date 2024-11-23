@@ -259,7 +259,8 @@ def execute_batch(
                             run.result_files_folder,
                             os.path.join(tempdir, str(i)),
                             run,
-                            benchmark.result_files_patterns + "*witness*", # e.g., deagle uses mismatched naming
+                            benchmark.result_files_patterns
+                            + ["*witness*"],  # e.g., deagle uses mismatched naming
                         )
                     )
                     output_handler.output_after_run(run)
