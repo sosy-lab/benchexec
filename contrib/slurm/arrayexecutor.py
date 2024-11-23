@@ -415,10 +415,10 @@ def get_run_result(output_dir, tempdir, run, result_files_patterns):
             content = log_source.read()
             file.write(content)
 
-    if os.path.exists(os.path.join(tempdir, "output")):
+    if os.path.exists(tempdir):
         os.makedirs(output_dir, exist_ok=True)
         for result_files_pattern in result_files_patterns:
-            for file_name in glob.glob(f"{tempdir}/output/{result_files_pattern}"):
+            for file_name in glob.glob(f"{tempdir}/{result_files_pattern}"):
                 if os.path.isfile(file_name):
                     shutil.copy(file_name, output_dir)
 
