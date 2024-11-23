@@ -23,7 +23,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         return self._version_from_tool(executable)
 
     def name(self):
-        return "sv-sanitizers"
+        return "SV-sanitizers"
 
     def project_url(self):
         return "https://github.com/sim642/sv-sanitizers/"
