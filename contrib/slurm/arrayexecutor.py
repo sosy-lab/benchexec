@@ -225,6 +225,9 @@ def execute_batch(
         with open(batchfile, "w") as f:
             f.writelines(batch_lines)
 
+        logging.info("Waiting for 10s for the newly created files to settle (NFS)")
+        time.sleep(10)
+
         try:
             sbatch_cmd = ["sbatch", "--wait", str(batchfile)]
             logging.debug("Command to run: %s", shlex.join(sbatch_cmd))
