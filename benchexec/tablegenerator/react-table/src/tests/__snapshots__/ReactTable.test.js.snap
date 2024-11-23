@@ -168,11 +168,9 @@ exports[`Render ReactTable for benchmark-example-true.2019-11-06_0932.results.no
          }
         >
          <div>
-          <span
-           className="selectColumns"
-          >
-           Click here to select columns
-          </span>
+          <button>
+           Select Columns
+          </button>
          </div>
         </div>
         <div
@@ -4442,11 +4440,9 @@ exports[`Render ReactTable for big-table.diff.html 1`] = `
          }
         >
          <div>
-          <span
-           className="selectColumns"
-          >
-           Click here to select columns
-          </span>
+          <button>
+           Select Columns
+          </button>
          </div>
         </div>
         <div
@@ -17996,11 +17992,9 @@ exports[`Render ReactTable for cbmc.2015-12-11_1211.results.Simple.html 1`] = `
          }
         >
          <div>
-          <span
-           className="selectColumns"
-          >
-           Click here to select columns
-          </span>
+          <button>
+           Select Columns
+          </button>
          </div>
         </div>
         <div
@@ -24244,11 +24238,9 @@ exports[`Render ReactTable for multi-table.diff.html 1`] = `
          }
         >
          <div>
-          <span
-           className="selectColumns"
-          >
-           Click here to select columns
-          </span>
+          <button>
+           Select Columns
+          </button>
          </div>
         </div>
         <div
@@ -27001,11 +26993,9 @@ exports[`Render ReactTable for multi-table.table.html 1`] = `
          }
         >
          <div>
-          <span
-           className="selectColumns"
-          >
-           Click here to select columns
-          </span>
+          <button>
+           Select Columns
+          </button>
          </div>
         </div>
         <div
@@ -30519,11 +30509,9 @@ exports[`Render ReactTable for multi-table-only-columns.diff.html 1`] = `
          }
         >
          <div>
-          <span
-           className="selectColumns"
-          >
-           Click here to select columns
-          </span>
+          <button>
+           Select Columns
+          </button>
          </div>
         </div>
         <div
@@ -34848,11 +34836,9 @@ exports[`Render ReactTable for multi-table-only-columns.table.html 1`] = `
          }
         >
          <div>
-          <span
-           className="selectColumns"
-          >
-           Click here to select columns
-          </span>
+          <button>
+           Select Columns
+          </button>
          </div>
         </div>
         <div
@@ -40354,11 +40340,9 @@ exports[`Render ReactTable for multi-table-with-columns.diff.html 1`] = `
          }
         >
          <div>
-          <span
-           className="selectColumns"
-          >
-           Click here to select columns
-          </span>
+          <button>
+           Select Columns
+          </button>
          </div>
         </div>
         <div
@@ -44491,11 +44475,9 @@ exports[`Render ReactTable for multi-table-with-columns.table.html 1`] = `
          }
         >
          <div>
-          <span
-           className="selectColumns"
-          >
-           Click here to select columns
-          </span>
+          <button>
+           Select Columns
+          </button>
          </div>
         </div>
         <div
@@ -49757,11 +49739,9 @@ exports[`Render ReactTable for multi-table-with-diff-over-column.diff.html 1`] =
          }
         >
          <div>
-          <span
-           className="selectColumns"
-          >
-           Click here to select columns
-          </span>
+          <button>
+           Select Columns
+          </button>
          </div>
         </div>
         <div
@@ -54722,11 +54702,9 @@ exports[`Render ReactTable for multi-table-with-diff-over-column.table.html 1`] 
          }
         >
          <div>
-          <span
-           className="selectColumns"
-          >
-           Click here to select columns
-          </span>
+          <button>
+           Select Columns
+          </button>
          </div>
         </div>
         <div
@@ -60228,11 +60206,9 @@ exports[`Render ReactTable for multi-table-with-wildcards.diff.html 1`] = `
          }
         >
          <div>
-          <span
-           className="selectColumns"
-          >
-           Click here to select columns
-          </span>
+          <button>
+           Select Columns
+          </button>
          </div>
         </div>
         <div
@@ -62985,11 +62961,9 @@ exports[`Render ReactTable for multi-table-with-wildcards.table.html 1`] = `
          }
         >
          <div>
-          <span
-           className="selectColumns"
-          >
-           Click here to select columns
-          </span>
+          <button>
+           Select Columns
+          </button>
          </div>
         </div>
         <div
@@ -66359,11 +66333,9 @@ exports[`Render ReactTable for nan_and_inf.html 1`] = `
          }
         >
          <div>
-          <span
-           className="selectColumns"
-          >
-           Click here to select columns
-          </span>
+          <button>
+           Select Columns
+          </button>
          </div>
         </div>
         <div
@@ -68247,11 +68219,9 @@ exports[`Render ReactTable for predicateAnalysis.table.html 1`] = `
          }
         >
          <div>
-          <span
-           className="selectColumns"
-          >
-           Click here to select columns
-          </span>
+          <button>
+           Select Columns
+          </button>
          </div>
         </div>
         <div
@@ -70257,11 +70227,9 @@ exports[`Render ReactTable for predicateAnalysis-reverse.table.html 1`] = `
          }
         >
          <div>
-          <span
-           className="selectColumns"
-          >
-           Click here to select columns
-          </span>
+          <button>
+           Select Columns
+          </button>
          </div>
         </div>
         <div
@@ -72267,11 +72235,9 @@ exports[`Render ReactTable for rows-with-scores.html 1`] = `
          }
         >
          <div>
-          <span
-           className="selectColumns"
-          >
-           Click here to select columns
-          </span>
+          <button>
+           Select Columns
+          </button>
          </div>
         </div>
         <div
@@ -77550,11 +77516,9 @@ exports[`Render ReactTable for simple-table-with-columns.table.html 1`] = `
          }
         >
          <div>
-          <span
-           className="selectColumns"
-          >
-           Click here to select columns
-          </span>
+          <button>
+           Select Columns
+          </button>
          </div>
         </div>
         <div
@@ -79039,11 +79003,9 @@ exports[`Render ReactTable for simple-table-with-links.table.html 1`] = `
          }
         >
          <div>
-          <span
-           className="selectColumns"
-          >
-           Click here to select columns
-          </span>
+          <button>
+           Select Columns
+          </button>
          </div>
         </div>
         <div
@@ -80306,11 +80268,9 @@ exports[`Render ReactTable for simple-table-with-numberOfDigits.table.html 1`] =
          }
         >
          <div>
-          <span
-           className="selectColumns"
-          >
-           Click here to select columns
-          </span>
+          <button>
+           Select Columns
+          </button>
          </div>
         </div>
         <div
@@ -81555,11 +81515,9 @@ exports[`Render ReactTable for simple-table-with-scaling.table.html 1`] = `
          }
         >
          <div>
-          <span
-           className="selectColumns"
-          >
-           Click here to select columns
-          </span>
+          <button>
+           Select Columns
+          </button>
          </div>
         </div>
         <div
@@ -83422,11 +83380,9 @@ exports[`Render ReactTable for smt.diff.html 1`] = `
          }
         >
          <div>
-          <span
-           className="selectColumns"
-          >
-           Click here to select columns
-          </span>
+          <button>
+           Select Columns
+          </button>
          </div>
         </div>
         <div
@@ -85430,11 +85386,9 @@ exports[`Render ReactTable for smt.table.html 1`] = `
          }
         >
          <div>
-          <span
-           className="selectColumns"
-          >
-           Click here to select columns
-          </span>
+          <button>
+           Select Columns
+          </button>
          </div>
         </div>
         <div
@@ -87703,11 +87657,9 @@ exports[`Render ReactTable for task-def-files.table.html 1`] = `
          }
         >
          <div>
-          <span
-           className="selectColumns"
-          >
-           Click here to select columns
-          </span>
+          <button>
+           Select Columns
+          </button>
          </div>
         </div>
         <div
@@ -90214,11 +90166,9 @@ exports[`Render ReactTable for test.2015-03-03_1613.diff.html 1`] = `
          }
         >
          <div>
-          <span
-           className="selectColumns"
-          >
-           Click here to select columns
-          </span>
+          <button>
+           Select Columns
+          </button>
          </div>
         </div>
         <div
@@ -91748,11 +91698,9 @@ exports[`Render ReactTable for test.2015-03-03_1613.results.predicateAnalysis.al
          }
         >
          <div>
-          <span
-           className="selectColumns"
-          >
-           Click here to select columns
-          </span>
+          <button>
+           Select Columns
+          </button>
          </div>
         </div>
         <div
@@ -93279,11 +93227,9 @@ exports[`Render ReactTable for test.2015-03-03_1613.results.predicateAnalysis.co
          }
         >
          <div>
-          <span
-           className="selectColumns"
-          >
-           Click here to select columns
-          </span>
+          <button>
+           Select Columns
+          </button>
          </div>
         </div>
         <div
@@ -94506,11 +94452,9 @@ exports[`Render ReactTable for test.2015-03-03_1613.results.predicateAnalysis.cu
          }
         >
          <div>
-          <span
-           className="selectColumns"
-          >
-           Click here to select columns
-          </span>
+          <button>
+           Select Columns
+          </button>
          </div>
         </div>
         <div
@@ -95601,11 +95545,9 @@ exports[`Render ReactTable for test.2015-03-03_1613.results.predicateAnalysis.ht
          }
         >
          <div>
-          <span
-           className="selectColumns"
-          >
-           Click here to select columns
-          </span>
+          <button>
+           Select Columns
+          </button>
          </div>
         </div>
         <div
@@ -96852,11 +96794,9 @@ exports[`Render ReactTable for test.2015-03-03_1613.results.valueAnalysis.html 1
          }
         >
          <div>
-          <span
-           className="selectColumns"
-          >
-           Click here to select columns
-          </span>
+          <button>
+           Select Columns
+          </button>
          </div>
         </div>
         <div
@@ -97984,11 +97924,9 @@ exports[`Render ReactTable for test.2015-03-03_1613.results.valueAnalysis.table.
          }
         >
          <div>
-          <span
-           className="selectColumns"
-          >
-           Click here to select columns
-          </span>
+          <button>
+           Select Columns
+          </button>
          </div>
         </div>
         <div
@@ -99164,11 +99102,9 @@ exports[`Render ReactTable for test.2015-03-03_1613.table.html 1`] = `
          }
         >
          <div>
-          <span
-           className="selectColumns"
-          >
-           Click here to select columns
-          </span>
+          <button>
+           Select Columns
+          </button>
          </div>
         </div>
         <div
@@ -101169,11 +101105,9 @@ exports[`Render ReactTable for test.2015-03-03_1613-common.diff.html 1`] = `
          }
         >
          <div>
-          <span
-           className="selectColumns"
-          >
-           Click here to select columns
-          </span>
+          <button>
+           Select Columns
+          </button>
          </div>
         </div>
         <div
@@ -102558,11 +102492,9 @@ exports[`Render ReactTable for test.2015-03-03_1613-common.table.html 1`] = `
          }
         >
          <div>
-          <span
-           className="selectColumns"
-          >
-           Click here to select columns
-          </span>
+          <button>
+           Select Columns
+          </button>
          </div>
         </div>
         <div
@@ -104370,11 +104302,9 @@ exports[`Render ReactTable for test.2015-03-03_1613-correct-only.diff.html 1`] =
          }
         >
          <div>
-          <span
-           className="selectColumns"
-          >
-           Click here to select columns
-          </span>
+          <button>
+           Select Columns
+          </button>
          </div>
         </div>
         <div
@@ -105928,11 +105858,9 @@ exports[`Render ReactTable for test.2015-03-03_1613-correct-only.table.html 1`] 
          }
         >
          <div>
-          <span
-           className="selectColumns"
-          >
-           Click here to select columns
-          </span>
+          <button>
+           Select Columns
+          </button>
          </div>
         </div>
         <div
@@ -107885,11 +107813,9 @@ exports[`Render ReactTable for test.2015-03-03_1613-reverse.diff.html 1`] = `
          }
         >
          <div>
-          <span
-           className="selectColumns"
-          >
-           Click here to select columns
-          </span>
+          <button>
+           Select Columns
+          </button>
          </div>
         </div>
         <div
@@ -109467,11 +109393,9 @@ exports[`Render ReactTable for test.2015-03-03_1613-reverse.table.html 1`] = `
          }
         >
          <div>
-          <span
-           className="selectColumns"
-          >
-           Click here to select columns
-          </span>
+          <button>
+           Select Columns
+          </button>
          </div>
         </div>
         <div
@@ -111472,11 +111396,9 @@ exports[`Render ReactTable for test-error.2015-03-03_1613.diff.html 1`] = `
          }
         >
          <div>
-          <span
-           className="selectColumns"
-          >
-           Click here to select columns
-          </span>
+          <button>
+           Select Columns
+          </button>
          </div>
         </div>
         <div
@@ -113054,11 +112976,9 @@ exports[`Render ReactTable for test-error.2015-03-03_1613.table.html 1`] = `
          }
         >
          <div>
-          <span
-           className="selectColumns"
-          >
-           Click here to select columns
-          </span>
+          <button>
+           Select Columns
+          </button>
          </div>
         </div>
         <div
@@ -115059,11 +114979,9 @@ exports[`Render ReactTable for union-table.diff.html 1`] = `
          }
         >
          <div>
-          <span
-           className="selectColumns"
-          >
-           Click here to select columns
-          </span>
+          <button>
+           Select Columns
+          </button>
          </div>
         </div>
         <div
@@ -116641,11 +116559,9 @@ exports[`Render ReactTable for union-table.table.html 1`] = `
          }
         >
          <div>
-          <span
-           className="selectColumns"
-          >
-           Click here to select columns
-          </span>
+          <button>
+           Select Columns
+          </button>
          </div>
         </div>
         <div
@@ -118646,11 +118562,9 @@ exports[`Render ReactTable for union-table-duplicate-results.diff.html 1`] = `
          }
         >
          <div>
-          <span
-           className="selectColumns"
-          >
-           Click here to select columns
-          </span>
+          <button>
+           Select Columns
+          </button>
          </div>
         </div>
         <div
@@ -120228,11 +120142,9 @@ exports[`Render ReactTable for union-table-duplicate-results.table.html 1`] = `
          }
         >
          <div>
-          <span
-           className="selectColumns"
-          >
-           Click here to select columns
-          </span>
+          <button>
+           Select Columns
+          </button>
          </div>
         </div>
         <div
@@ -122281,11 +122193,9 @@ exports[`Render ReactTable for union-table-mixed.diff.html 1`] = `
          }
         >
          <div>
-          <span
-           className="selectColumns"
-          >
-           Click here to select columns
-          </span>
+          <button>
+           Select Columns
+          </button>
          </div>
         </div>
         <div
@@ -124453,11 +124363,9 @@ exports[`Render ReactTable for union-table-mixed.table.html 1`] = `
          }
         >
          <div>
-          <span
-           className="selectColumns"
-          >
-           Click here to select columns
-          </span>
+          <button>
+           Select Columns
+          </button>
          </div>
         </div>
         <div
@@ -127169,11 +127077,9 @@ exports[`Render ReactTable for union-table-multiple-results.diff.html 1`] = `
          }
         >
          <div>
-          <span
-           className="selectColumns"
-          >
-           Click here to select columns
-          </span>
+          <button>
+           Select Columns
+          </button>
          </div>
         </div>
         <div
@@ -129375,11 +129281,9 @@ exports[`Render ReactTable for union-table-multiple-results.table.html 1`] = `
          }
         >
          <div>
-          <span
-           className="selectColumns"
-          >
-           Click here to select columns
-          </span>
+          <button>
+           Select Columns
+          </button>
          </div>
         </div>
         <div
@@ -132377,11 +132281,9 @@ exports[`Render ReactTable for union-table-predicateAnalysis.table.html 1`] = `
          }
         >
          <div>
-          <span
-           className="selectColumns"
-          >
-           Click here to select columns
-          </span>
+          <button>
+           Select Columns
+          </button>
          </div>
         </div>
         <div
@@ -133628,11 +133530,9 @@ exports[`Render ReactTable for union-table-valueAnalysis.table.html 1`] = `
          }
         >
          <div>
-          <span
-           className="selectColumns"
-          >
-           Click here to select columns
-          </span>
+          <button>
+           Select Columns
+          </button>
          </div>
         </div>
         <div
