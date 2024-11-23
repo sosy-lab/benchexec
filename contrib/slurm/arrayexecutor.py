@@ -342,25 +342,24 @@ def get_run_cli(benchmark, args, tempdir, resultdir):
     args = [*runexec, "--", *args]
     basedir = os.path.abspath(os.path.dirname(singularity))
 
-    if singularity:
-        cli.extend(
-            [
-                "singularity",
-                "exec",
-                "-B",
-                "/sys/fs/cgroup:/sys/fs/cgroup",
-                "-B",
-                f"{basedir}",
-                "-B",
-                f"{os.getcwd()}:/lower",
-                "--no-home",
-                "-B",
-                f"{tempdir}:/overlay",
-                "--fusemount",
-                f"container:fuse-overlayfs -o lowerdir=/lower -o upperdir=/overlay/upper -o workdir=/overlay/work {os.getcwd()}",
-                singularity,
-            ]
-        )
+    cli.extend(
+        [
+            "singularity",
+            "exec",
+            "-B",
+            "/sys/fs/cgroup:/sys/fs/cgroup",
+            "-B",
+            f"{basedir}",
+            "-B",
+            f"{os.getcwd()}:/lower",
+            "--no-home",
+            "-B",
+            f"{tempdir}:/overlay",
+            "--fusemount",
+            f"container:fuse-overlayfs -o lowerdir=/lower -o upperdir=/overlay/upper -o workdir=/overlay/work {os.getcwd()}",
+            singularity,
+        ]
+    )
     cli.extend(
         [
             "sh",
