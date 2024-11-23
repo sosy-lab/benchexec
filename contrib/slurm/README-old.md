@@ -11,6 +11,9 @@ SPDX-License-Identifier: Apache-2.0
 -->
 # BenchExec Extension for Benchmarking via SLURM
 
+> [!CAUTION]
+> This, single-job-based SLURM integration is no longer maintained. For the maintained, array-based version's documentation, see [README.md](./README.md)
+
 This Python script extends BenchExec, a benchmarking framework, to facilitate benchmarking via SLURM, optionally using a Singularity container.
 
 In case of problems, please tag in an [issue](https://github.com/sosy-lab/benchexec/issues/new/choose): [Levente Bajczi](https://github.com/leventeBajczi) (@leventeBajczi).

@@ -46,7 +46,7 @@ In case of problems, please tag in an [issue](https://github.com/sosy-lab/benche
     
 ## Overview of the Workflow
 
-This works similarly to BenchExec, however, instead of delegating each run directly to `runexec`, it creates a hierarchy of run infos and an array job description for SLURM, which is then executed using `sbatch`.
+This works similarly to BenchExec, however, instead of delegating each run directly to `runexec`, it creates a hierarchy of run infos and an array job description for SLURM, which is then executed using `sbatch`. `runexec` is still used to measure and limit resources.
 
 1. The script wraps the command to run in a container. This is useful for dependency management (in most HPC environments, arbitrary package installations are frowned upon). For a simple container, use the following: 
 
