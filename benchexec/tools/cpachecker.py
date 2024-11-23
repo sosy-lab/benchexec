@@ -6,13 +6,16 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
-import sys
 import os
 import re
+import sys
 
 import benchexec.result as result
 import benchexec.tools.template
-
+from benchexec.tools.sv_benchmarks_util import (
+    get_non_witness_input_files_or_identifier,
+    get_witness_options,
+)
 from benchexec.tools.template import ToolNotFoundException
 
 
@@ -137,6 +140,12 @@ class Tool(benchexec.tools.template.BaseTool2):
             version = version.rsplit("-", maxsplit=1)[-1]
             return f"https://gitlab.com/sosy-lab/software/cpachecker/-/tree/{version}"
 
+        elif re.fullmatch("[0-9.]+-[0-9]+-g[0-9a-f]{6,}", version):
+            # Development version with git commit like "4.0-123-gabcdef"
+            # Could end in "+", but then has local changes and we do not want a link.
+            version = version.rsplit("g", maxsplit=1)[-1]
+            return f"https://gitlab.com/sosy-lab/software/cpachecker/-/tree/{version}"
+
         elif re.fullmatch("[0-9a-f]{40}", version):
             # Full git hash produced by VerifierCloud WebClient
             return f"https://gitlab.com/sosy-lab/software/cpachecker/-/tree/{version}"
@@ -180,16 +189,14 @@ class Tool(benchexec.tools.template.BaseTool2):
                         f"Unsupported data_model '{data_model}' defined for task '{task}'"
                     )
 
+        options += get_witness_options(existing_options, task, [f"{prefix}witness"])
+
         return options
 
     def cmdline(self, executable, options, task, rlimits):
         additional_options = self._get_additional_options(options, task, rlimits)
-        return (
-            [executable]
-            + options
-            + additional_options
-            + list(task.input_files_or_identifier)
-        )
+        input_files = get_non_witness_input_files_or_identifier(task)
+        return [executable] + options + additional_options + input_files
 
     def determine_result(self, run):
         """

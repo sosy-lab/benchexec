@@ -60,6 +60,17 @@ class Tool(benchexec.tools.template.BaseTool2):
             status = result.RESULT_TRUE_PROP
         elif run.output.any_line_contains("FAILED"):
             status = result.RESULT_FALSE_REACH
+            for line in run.output:
+                if "nodatarace.assertion." in line and "FAILURE" in line:
+                    status = result.RESULT_FALSE_DATARACE
+                if (
+                    "alloc.assertion." in line or "pointer_dereference." in line
+                ) and "FAILURE" in line:
+                    status = result.RESULT_FALSE_DEREF
+                if "memory-leak." in line and "FAILURE" in line:
+                    status = result.RESULT_FALSE_MEMTRACK
+                if "overflow." in line and "FAILURE" in line:
+                    status = result.RESULT_FALSE_OVERFLOW
         elif run.exit_code.value == 1:
             status = result.RESULT_UNKNOWN
         else:

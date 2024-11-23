@@ -1,3 +1,9 @@
+benchexec (3.26-1) jammy; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Tue, 05 Nov 2024 09:24:24 +0100
+
 benchexec (3.25-3) jammy; urgency=medium
 
   * Fix syntax in debian/rules

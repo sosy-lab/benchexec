@@ -10,6 +10,7 @@ import logging
 import os
 import pathlib
 import secrets
+import select
 import signal
 import stat
 import sys
@@ -173,12 +174,43 @@ def _create_systemd_scope_for_us():
 
             random_suffix = secrets.token_urlsafe(8)
             name = f"benchexec_{random_suffix}.scope".encode()
-            manager.Manager.StartTransientUnit(name, b"fail", unit_params)
+
             # StartTransientUnit is async, so we need to ensure it has finished
             # and moved our process before we continue.
-            # We might need a loop here (so far it always seems to work without,
-            # maybe systemd serializes this request with the unit creation).
+            # The man page org.freedesktop.systemd1 documents that the way to do this
+            # is to wait for the JobRemoved signal of the start job of the unit.
+            # The name of the start job is returned by StartTransientUnit.
+
+            unit_is_active = False
+
+            def process_signal(msg, error=None, userdata=None):
+                msg.process_reply(True)  # necessary to access msg.body
+                if msg.body[1] == start_job:
+                    # Job is the correct one, and we only listen for JobRemoved anyway
+                    nonlocal unit_is_active
+                    unit_is_active = True
+
             with Unit(name, bus=bus) as unit:
+                # We need to register for signals before we call StartTransientUnit
+                bus.match_signal(
+                    manager.destination,
+                    manager.path,
+                    b"org.freedesktop.systemd1.Manager",
+                    b"JobRemoved",
+                    process_signal,
+                    None,
+                )
+
+                start_job = manager.Manager.StartTransientUnit(
+                    name, b"fail", unit_params
+                )
+
+                fd = bus.get_fd()
+                while not unit_is_active:
+                    # Wait for event and trigger signal handling
+                    select.select([fd], [], [])
+                    bus.process()
+
                 assert unit.LoadState == b"loaded"
                 assert unit.ActiveState == b"active"
                 assert unit.SubState == b"running"
@@ -394,10 +426,10 @@ class CgroupsV2(Cgroups):
 
     def create_fresh_child_cgroup_for_delegation(self, prefix="delegate_"):
         """
-        Create a special child cgroup and delegate all controllers to it.
+        Create a child cgroup and delegate all controllers to it.
         The current cgroup must not have processes and may never have processes.
         This method can be called only once because we remember what child cgroup
-        we create here and use it for some special purposes later on.
+        we create here and use it for some assertions later on.
         """
         assert not self._delegated_to
         self._delegate_controllers()
@@ -413,6 +445,15 @@ class CgroupsV2(Cgroups):
             # recursively), but informs the users of the child cgroup about the limit
             # (otherwise they would not see it).
             child_cgroup.write_memory_limit(self.read_memory_limit() or "max")
+            # We need to avoid the kernel killing our child process (the init process
+            # of the container) together with the benchmarked process on OOM,
+            # but both processes will be inside the current cgroup.
+            # So we must ensure that memory.oom.group is 0 here
+            # (write_memory_limit sets it to 1).
+            # In theory, this does not prevent the kernel from (also) killing our child
+            # process, but it makes it highly unlikely at least (the benchmarked process
+            # will be the reason for the OOM and the main target for the OOM killer).
+            self.set_value(self.MEMORY, "oom.group", 0)
 
         return child_cgroup
 
@@ -568,14 +609,9 @@ class CgroupsV2(Cgroups):
         # anyway (since 5.14). So it is probably not worth to fix it and instead
         # we just eventually require kernel 5.14 for cgroupsv2
         # (before 5.19 memory measurements are missing as well).
-        keep_child = self._delegated_to.path if self._delegated_to else None
         for child_cgroup in recursive_child_cgroups(self.path):
             kill_all_tasks_in_cgroup(child_cgroup)
-
-            # Remove child_cgroup, but not if it is our immediate child because of
-            # delegation. We need that cgroup to read the OOM kill count.
-            if child_cgroup != keep_child:
-                self._remove_cgroup(child_cgroup)
+            self._remove_cgroup(child_cgroup)
 
         kill_all_tasks_in_cgroup(self.path)
 
@@ -676,8 +712,9 @@ class CgroupsV2(Cgroups):
         # arbitrary nested child cgroup, but not for the main process itself.
         # But if we have delegated, then our own cgroup has no processes and OOM count
         # would remain zero, so we have to read it from the child cgroup.
-        if self._delegated_to:
-            return self._delegated_to.read_oom_kill_count()
+        assert (
+            not self._delegated_to
+        ), "Reading OOM kill count does not make sense for delegated cgroups"
 
         for k, v in self.get_key_value_pairs(self.MEMORY, "events.local"):
             if k == "oom_kill":

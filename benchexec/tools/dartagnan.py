@@ -7,6 +7,10 @@
 
 import benchexec.tools.template
 import benchexec.result as result
+from benchexec.tools.sv_benchmarks_util import (
+    TaskFilesConsidered,
+    handle_witness_of_task,
+)
 
 
 class Tool(benchexec.tools.template.BaseTool2):
@@ -26,7 +30,10 @@ class Tool(benchexec.tools.template.BaseTool2):
     def cmdline(self, executable, options, task, rlimits):
         if task.property_file:
             options += [task.property_file]
-        return [executable] + options + list(task.input_files_or_identifier)
+        input_files, witness_options = handle_witness_of_task(
+            task, options, "-witness", TaskFilesConsidered.INPUT_FILES_OR_IDENTIFIER
+        )
+        return [executable] + options + witness_options + input_files
 
     def version(self, executable):
         return self._version_from_tool(executable)
@@ -43,6 +50,8 @@ class Tool(benchexec.tools.template.BaseTool2):
                     status = result.RESULT_FALSE_DEREF
                 elif "user assertion" in failure_str:
                     status = result.RESULT_FALSE_REACH
+                elif "data race found" in failure_str:
+                    status = result.RESULT_FALSE_DATARACE
                 else:
                     status = result.RESULT_FALSE_PROP
             elif "PASS" in result_str:

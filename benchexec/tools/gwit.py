@@ -6,6 +6,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import benchexec.result as result
+from benchexec.tools.sv_benchmarks_util import (
+    handle_witness_of_task,
+    TaskFilesConsidered,
+)
 from benchexec.tools.template import BaseTool2
 
 
@@ -28,10 +32,17 @@ class Tool(BaseTool2):
         return "https://github.com/tudo-aqua/gwit"
 
     def cmdline(self, executable, options, task, rlimits):
-        cmd = [executable] + options
+        input_files, witness_options = handle_witness_of_task(
+            task,
+            options,
+            "--witness",
+            TaskFilesConsidered.INPUT_FILES,
+        )
+
+        cmd = [executable] + options + witness_options
         if task.property_file:
             cmd.append(task.property_file)
-        return cmd + list(task.input_files)
+        return cmd + input_files
 
     def determine_result(self, run):
         status = result.RESULT_ERROR

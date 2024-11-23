@@ -5,14 +5,16 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import sys
 import json
 import logging
 import os
 import shutil
 import subprocess
+import sys
+
 import benchexec.tooladapter
 import benchexec.util
+
 from . import vcloudutil
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
@@ -108,6 +110,8 @@ def execute_benchmark(benchmark, output_handler):
             cmdLine.extend(["--try-less-memory", str(benchmark.config.tryLessMemory)])
         if benchmark.config.debug:
             cmdLine.extend(["--print-new-files", "true"])
+        if benchmark.config.containerImage:
+            cmdLine.extend(["--containerImage", str(benchmark.config.containerImage)])
 
         start_time = benchexec.util.read_local_time()
 
@@ -203,15 +207,18 @@ def getCloudInput(benchmark):
 def getBenchmarkDataForCloud(benchmark):
     # get requirements
     r = benchmark.requirements
+    memRequirement = bytes_to_mb(
+        DEFAULT_CLOUD_MEMORY_REQUIREMENT if r.memory is None else r.memory
+    )
     requirements = [
-        bytes_to_mb(DEFAULT_CLOUD_MEMORY_REQUIREMENT if r.memory is None else r.memory),
+        memRequirement,
         DEFAULT_CLOUD_CPUCORE_REQUIREMENT if r.cpu_cores is None else r.cpu_cores,
         DEFAULT_CLOUD_CPUMODEL_REQUIREMENT if r.cpu_model is None else r.cpu_model,
     ]
 
     # get limits and number of Runs
     timeLimit = benchmark.rlimits.cputime_hard or DEFAULT_CLOUD_TIMELIMIT
-    memLimit = bytes_to_mb(benchmark.rlimits.memory)
+    memLimit = bytes_to_mb(benchmark.rlimits.memory) or memRequirement
     coreLimit = benchmark.rlimits.cpu_cores
     numberOfRuns = sum(
         len(runSet.runs) for runSet in benchmark.run_sets if runSet.should_be_executed()

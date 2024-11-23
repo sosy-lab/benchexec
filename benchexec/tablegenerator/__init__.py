@@ -409,7 +409,7 @@ class RunSetResult(object):
             self.attributes["project_url"] = [tool.project_url()]
 
             versions = self.attributes["version"]
-            if len(versions) == 1 and versions[0]:
+            if len(set(versions)) == 1 and versions[0]:
                 self.attributes["version_url"] = [tool.url_for_version(versions[0])]
 
         def get_value_from_logfile(lines, identifier):

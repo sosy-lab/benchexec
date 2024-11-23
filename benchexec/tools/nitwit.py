@@ -10,6 +10,10 @@ import os
 
 import benchexec.result as result
 import benchexec.tools.template
+from benchexec.tools.sv_benchmarks_util import (
+    TaskFilesConsidered,
+    handle_witness_of_task,
+)
 
 
 class Tool(benchexec.tools.template.BaseTool2):
@@ -43,9 +47,16 @@ class Tool(benchexec.tools.template.BaseTool2):
         return "https://github.com/moves-rwth/nitwit-validator"
 
     def cmdline(self, executable, options, task, rlimits):
+        input_file, witness_options = handle_witness_of_task(
+            task,
+            options,
+            "-w",
+            TaskFilesConsidered.SINGLE_INPUT_FILE,
+        )
+
         if task.property_file:
             options = options + ["-p", task.property_file]
-        return [executable] + options + [task.single_input_file]
+        return [executable] + options + witness_options + input_file
 
     def determine_result(self, run):
         """

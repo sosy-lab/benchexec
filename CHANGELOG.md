@@ -9,7 +9,28 @@ SPDX-License-Identifier: Apache-2.0
 
 # BenchExec Changelog
 
-## BenchExec 3.25 - 2024-09-17
+## BenchExec 3.26 - 2024-11-05
+
+This release brings several important fixes for cgroups v2
+and all users on systems with cgroups v2 are strongly recommended to upgrade.
+
+- Fix regression from BenchExec 3.25 for detecting memory-limit violations of a run.  
+  The changes related to the LXCFS integration in the last version caused the
+  problem that a run that hit the memory limit was no longer marked as "out of memory"
+  but as "failed" and did not have any measurement results
+  (only for cgroups v2 and with container mode enabled).
+  Note that the memory limit was still correctly working
+  and also measurements produced for non-failed runs were correct.
+- Fix AssertionError when creating a systemd scope for cgroups v2 usage.  
+  This was caused by a race condition and did occur only with a certain probability
+  depending on the system load.
+- Fix warning about left-over cgroup during run cleanup for cgroups v2.
+- More robust cleanup of cgroups created by the benchmarked process.
+- Fix installation of our Python package on Windows.
+- Several new and improved tool-info modules.
+
+
+## BenchExec 3.25 - 2024-09-20
 
 - Support for fuse-overlayfs as alternative to kernel-based overlayfs  
   BenchExec uses overlayfs for providing a virtualized file-system

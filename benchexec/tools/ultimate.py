@@ -10,6 +10,7 @@ import functools
 import glob
 import logging
 import os
+from pathlib import Path
 import re
 import shlex
 import shutil
@@ -18,7 +19,13 @@ from typing import List
 
 import benchexec.result as result
 import benchexec.tools.template
-from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, LP64
+from benchexec.tools.sv_benchmarks_util import (
+    get_data_model_from_task,
+    ILP32,
+    LP64,
+    handle_witness_of_task,
+    TaskFilesConsidered,
+)
 from benchexec.tools.template import ToolNotFoundException
 from benchexec.tools.template import UnsupportedFeatureException
 
@@ -30,6 +37,7 @@ _ULTIMATE_VERSION_REGEX = re.compile(r"^Version is (.*)$", re.MULTILINE)
 _LAUNCHER_JARS = [
     "plugins/org.eclipse.equinox.launcher_1.5.800.v20200727-1323.jar",
     "plugins/org.eclipse.equinox.launcher_1.3.100.v20150511-1540.jar",
+    "plugins/org.eclipse.equinox.launcher_1.6.800.v20240513-1750.jar",
 ]
 
 
@@ -71,15 +79,13 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
 
     def executable(self, tool_locator):
         exe = tool_locator.find_executable("Ultimate.py")
-        dir_name = os.path.dirname(exe)
-        logging.debug("Looking in %s for Ultimate and plugins/", dir_name)
-        for _, dir_names, file_names in os.walk(dir_name):
-            if "Ultimate" in file_names and "plugins" in dir_names:
-                return exe
-            break
+        dir_name = Path(os.path.dirname(exe))
+        logging.debug("Checking if %s contains a launcher jar", dir_name)
+        if any((dir_name / rel_launcher).exists() for rel_launcher in _LAUNCHER_JARS):
+            return exe
         msg = (
             f"ERROR: Did find a Ultimate.py in {os.path.dirname(exe)} "
-            f"but no 'Ultimate' or no 'plugins' directory besides it"
+            f"but no launcher .jar besides it"
         )
         raise ToolNotFoundException(msg)
 
@@ -293,18 +299,35 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
                         os.path.join(os.path.dirname(executable), "data"),
                     ]
 
+        input_files, witness_options = handle_witness_of_task(
+            task,
+            options,
+            "--validate",
+            TaskFilesConsidered.INPUT_FILES,
+        )
+
+        cmdline += witness_options
         cmdline += options
 
         if task.input_files_or_empty:
-            cmdline += ["-i", *task.input_files]
+            cmdline += ["-i", *input_files]
         self.__assert_cmdline(cmdline, "No_Wrapper")
         return cmdline
 
     def _cmdline_default(self, executable, options, task):
         # use the old wrapper script if a property file is given
         cmdline = [executable, "--spec", task.property_file]
+
+        input_files, witness_options = handle_witness_of_task(
+            task,
+            options,
+            "--validate",
+            TaskFilesConsidered.INPUT_FILES,
+        )
+
+        cmdline += witness_options
         if task.input_files_or_empty:
-            cmdline += ["--file", *task.input_files]
+            cmdline += ["--file", *input_files]
         cmdline += options
         self.__assert_cmdline(cmdline, "Default")
         return cmdline
@@ -315,7 +338,16 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
             option for option in options if option not in _SVCOMP17_FORBIDDEN_FLAGS
         ]
         cmdline.append("--full-output")
-        cmdline += task.input_files
+
+        input_files, witness_options = handle_witness_of_task(
+            task,
+            options,
+            "--validate",
+            TaskFilesConsidered.INPUT_FILES,
+        )
+
+        cmdline += witness_options
+        cmdline += input_files
         self.__assert_cmdline(cmdline, "SVCOMP17")
         return cmdline
 
@@ -363,6 +395,7 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
         ltl_false_string = "execution that violates the LTL property"
         ltl_true_string = "Buchi Automizer proved that the LTL property"
         overflow_false_string = "overflow possible"
+        datarace_false_string = "DataRaceFoundResult"
 
         for line in run.output:
             if unsupported_syntax_errorstring in line:
@@ -385,6 +418,8 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
                 return "FALSE(valid-ltl)"
             if ltl_true_string in line:
                 return result.RESULT_TRUE_PROP
+            if datarace_false_string in line:
+                return result.RESULT_FALSE_DATARACE
             if unsafety_string in line:
                 return result.RESULT_FALSE_REACH
             if mem_deref_false_string in line:
@@ -441,6 +476,8 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
                 return result.RESULT_FALSE_TERMINATION
             elif line.startswith("FALSE(OVERFLOW)"):
                 return result.RESULT_FALSE_OVERFLOW
+            elif line.startswith("FALSE(DATA-RACE)"):
+                return result.RESULT_FALSE_DATARACE
             elif line.startswith("FALSE"):
                 return result.RESULT_FALSE_REACH
             elif line.startswith("TRUE"):
@@ -466,6 +503,8 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
         return None
 
     def get_java_installations(self):
+        # The code in this method is (and should remain) consistent with the method `get_java` in
+        # <https://github.com/ultimate-pa/ultimate/blob/dev/releaseScripts/default/adds/Ultimate.py>.
         candidates = [
             "java",
             "/usr/bin/java",
@@ -474,11 +513,16 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
             "/usr/lib/jvm/java-*-openjdk-amd64/bin/java",
         ]
 
-        candidates = [c for entry in candidates for c in glob.glob(entry)]
+        candidates_extended = []
+        for c in candidates:
+            if "*" in c:
+                candidates_extended += glob.glob(c)
+            else:
+                candidates_extended += [c]
         pattern = r'"(\d+\.\d+).*"'
 
         rtr = {}
-        for c in candidates:
+        for c in candidates_extended:
             candidate = shutil.which(c)
             if not candidate:
                 continue
