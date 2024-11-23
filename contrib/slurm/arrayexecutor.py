@@ -256,7 +256,10 @@ def execute_batch(
                 try:
                     run.set_result(
                         get_run_result(
-                            run.result_files_folder, os.path.join(tempdir, str(i)), run
+                            run.result_files_folder,
+                            os.path.join(tempdir, str(i)),
+                            run,
+                            benchmark.result_files_patterns,
                         )
                     )
                     output_handler.output_after_run(run)
@@ -381,7 +384,7 @@ def get_run_cli(benchmark, args, tempdir, resultdir):
     return cli
 
 
-def get_run_result(output_dir, tempdir, run):
+def get_run_result(output_dir, tempdir, run, result_files_patterns):
     runexec_log = f"{tempdir}/log"
     tmp_log = f"{tempdir}/output.log"
 
@@ -414,14 +417,9 @@ def get_run_result(output_dir, tempdir, run):
 
     if os.path.exists(os.path.join(tempdir, "output")):
         os.makedirs(output_dir, exist_ok=True)
-        src_files = os.listdir(os.path.join(tempdir, "output"))
-        for file_name in [
-            file
-            for file in src_files
-            if os.path.basename(file) in ["witness.graphml", "witness.yml"]
-        ]:  # this should use 'benchmark.resultfiles', but if a tool is not set up correctly, it will produce way too many files.
-            full_file_name = os.path.join(os.path.join(tempdir, "output"), file_name)
-            if os.path.isfile(full_file_name):
-                shutil.copy(full_file_name, output_dir)
+        for result_files_pattern in result_files_patterns:
+            for file_name in glob.glob(f"{tempdir}/output/{result_files_pattern}"):
+                if os.path.isfile(file_name):
+                    shutil.copy(file_name, output_dir)
 
     return ret
