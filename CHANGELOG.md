@@ -9,6 +9,11 @@ SPDX-License-Identifier: Apache-2.0
 
 # BenchExec Changelog
 
+## BenchExec 3.27 - 2024-11-22
+
+- Support for [version 2.1 of the task-definition format](https://gitlab.com/sosy-lab/benchmarking/task-definition-format/-/tags/2.1).
+- Updated tool-info modules for SV-COMP'25 and Test-Comp'25.
+
 ## BenchExec 3.26 - 2024-11-05
 
 This release brings several important fixes for cgroups v2
