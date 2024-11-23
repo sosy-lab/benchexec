@@ -10,6 +10,7 @@
 import glob
 import json
 import logging
+import math
 import os
 import re
 import shlex
@@ -389,15 +390,16 @@ def stop():
 
 
 def get_resource_limits(benchmark, tempdir):
-    timelimit = (
-        benchmark.rlimits.cputime
-        * benchmark.config.aggregation_factor
-        / benchmark.config.concurrency_factor
-    )  # safe overapprox
+    timelimit = int(
+        benchmark.rlimits.cputime  # safe overapprox
+        * math.ceil(
+            benchmark.config.aggregation_factor / benchmark.config.concurrency_factor
+        )
+    )
     cpus = benchmark.rlimits.cpu_cores * benchmark.config.concurrency_factor
     memory = (
         benchmark.rlimits.memory * benchmark.config.concurrency_factor * 1.5
-    )  # so that runexec catches the OOM, not SLURM
+    )  # so that runexec catches the OOM, not SLURM (other stuff runs in the container as well)
     os.makedirs(os.path.join(tempdir, "logs"), exist_ok=True)
 
     srun_timelimit_h = int(timelimit / 3600)
