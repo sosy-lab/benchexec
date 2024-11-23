@@ -71,12 +71,6 @@ class Benchmark(benchexec.benchexec.BenchExec):
             default="0",
             help="Retry killed jobs this many times. Use -1 for unbounded retry attempts (cannot be used with --slurm-array).",
         )
-        slurm_args.add_argument(
-            "--use-seff",
-            dest="seff",
-            action="store_true",
-            help="Use seff instead of sacct for resource measurement data (cannot be used with --slurm-array).",
-        )
 
         slurm_args.add_argument(
             "--aggregation-factor",
@@ -106,6 +100,7 @@ class Benchmark(benchexec.benchexec.BenchExec):
         if self.config.slurm_array:
             from slurm import arrayexecutor as executor
         elif self.config.slurm:
+            logging.error("Single-job-based SLURM-integration is no longer supported. Use --slurm-array instead.")
             from slurm import slurmexecutor as executor
         else:
             logging.warning(

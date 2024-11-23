@@ -19,7 +19,7 @@ import tempfile
 import threading
 import time
 
-from benchexec import BenchExecException, tooladapter, util
+from benchexec import BenchExecException, tooladapter
 from benchexec.util import ProcessExitCode
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
@@ -171,23 +171,20 @@ class _Worker(threading.Thread):
                     args,
                     run.log_file,
                 )
-                if run_result is None:
-                    stop()
-                else:
-                    if (
-                        "terminationreason" not in run_result
-                        or not run_result["terminationreason"] == "killed"
-                        or (attempts >= self.benchmark.config.retry >= 0)
-                        or STOPPED_BY_INTERRUPT
-                    ):
-                        break
-                    attempts += 1
-                    time.sleep(1)  # as to not overcrowd a failing scheduler
-                    logging.debug(
-                        "Retrying after %d attempts, limit: %d",
-                        attempts,
-                        self.benchmark.config.retry,
-                    )
+                if (
+                    "terminationreason" not in run_result
+                    or not run_result["terminationreason"] == "killed"
+                    or (attempts >= self.benchmark.config.retry >= 0)
+                    or STOPPED_BY_INTERRUPT
+                ):
+                    break
+                attempts += 1
+                time.sleep(1)  # as to not overcrowd a failing scheduler
+                logging.debug(
+                    "Retrying after %d attempts, limit: %d",
+                    attempts,
+                    self.benchmark.config.retry,
+                )
 
         except KeyboardInterrupt:
             # If the run was interrupted, we ignore the result and cleanup.
@@ -208,7 +205,7 @@ class _Worker(threading.Thread):
         return None
 
 
-jobid_pattern = re.compile(r"job (\d*) started")
+jobid_pattern = re.compile(r"job (\d*) queued")
 
 
 def wait_for(func, timeout_sec=None, poll_interval_sec=1):
@@ -220,7 +217,7 @@ def wait_for(func, timeout_sec=None, poll_interval_sec=1):
     """
     start_time = time.monotonic()
 
-    while not STOPPED_BY_INTERRUPT:
+    while True:
         ret = func()
         if ret is not None:
             return ret
@@ -234,8 +231,6 @@ def wait_for(func, timeout_sec=None, poll_interval_sec=1):
 
 
 def run_slurm(benchmark, args, log_file):
-    global STOPPED_BY_INTERRUPT
-
     timelimit = benchmark.rlimits.cputime
     cpus = benchmark.rlimits.cpu_cores
     memory = benchmark.rlimits.memory
@@ -256,7 +251,6 @@ def run_slurm(benchmark, args, log_file):
         )
 
     with tempfile.TemporaryDirectory(dir=benchmark.config.scratchdir) as tempdir:
-        tempdir="tmp"
         tmp_log = os.path.join(tempdir, "log")
 
         os.makedirs(os.path.join(tempdir, "upper"))
@@ -295,15 +289,13 @@ def run_slurm(benchmark, args, log_file):
             [
                 "sh",
                 "-c",
-                f"echo job $SLURM_JOB_ID started; {shlex.join(args)}; echo $? > exitcode",
+                f"{shlex.join(args)}; echo $? > exitcode",
             ]
         )
 
-        logging.debug(
-            "Command to run: %s", shlex.join(srun_command)
-        )
+        logging.debug("Command to run: %s", shlex.join(srun_command))
         jobid = None
-        while jobid is None and not STOPPED_BY_INTERRUPT:
+        while jobid is None:
             with open(tmp_log, "w") as tmp_log_f:
                 subprocess.run(
                     srun_command,
@@ -311,27 +303,33 @@ def run_slurm(benchmark, args, log_file):
                     stderr=subprocess.STDOUT,
                 )
 
-            if (
-                STOPPED_BY_INTERRUPT
-            ):  # job cancelled while srun was running, log not necessarily finalized
-                return
-
-            # we try to read back the log, in the first three lines, there should be the jobid
+            # we try to read back the log, in the first two lines there should be the jobid
             with open(tmp_log, "r") as tmp_log_f:
-                for line in itertools.islice(tmp_log_f, 3):
+                for line in itertools.islice(tmp_log_f, 2):
                     jobid_match = jobid_pattern.search(line)
                     if jobid_match:
                         jobid = int(jobid_match.group(1))
                         break
-                    logging.debug("Pattern not found in log line: %s", line)
 
-        if (
-            STOPPED_BY_INTERRUPT
-        ):  # job was cancelled during log parsing, no job id present
-            return
+        seff_command = ["seff", str(jobid)]
+        logging.debug("Command to run: %s", shlex.join(seff_command))
 
-        raw_output, slurm_status, exit_code, cpu_time, wall_time, memory_usage = (
-            run_seff(jobid) if benchmark.config.seff else run_sacct(jobid)
+        def get_checked_seff_result():
+            seff_result = subprocess.run(
+                seff_command,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+            )
+            if "exit code" in str(seff_result.stdout):
+                return seff_result
+            else:
+                return None
+
+        # sometimes `seff` needs a few extra seconds to realize the task has ended
+        result = wait_for(get_checked_seff_result, 30, 2)
+
+        slurm_status, exit_code, cpu_time, wall_time, memory_usage = parse_seff(
+            str(result.stdout)
         )
 
         if os.path.exists(exitcode_file):
@@ -366,7 +364,7 @@ def run_slurm(benchmark, args, log_file):
         with open(log_file, "w+") as file:
             with open(tmp_log, "r") as log_source:
                 content = log_source.read()
-                file.write(f"{shlex.join(args)}")
+                file.write(shlex.join(args))
                 file.write("\n\n\n" + "-" * 80 + "\n\n\n")
                 file.write(content)
                 if content == "":
@@ -375,118 +373,10 @@ def run_slurm(benchmark, args, log_file):
         if benchmark.config.debug:
             with open(log_file + ".debug_info", "w+") as file:
                 file.write(f"jobid: {jobid}\n")
-                file.write(f"seff output: {str(raw_output)}\n")
+                file.write(f"seff output: {str(result.stdout)}\n")
                 file.write(f"Parsed data: {str(ret)}\n")
 
         return ret
-
-
-time_pattern = re.compile(r"(?:(\d+):)?(\d+):(\d+)(?:\.(\d+))?")
-
-
-def get_seconds_from_time(time_str):
-    time_match = time_pattern.search(time_str)
-    if time_match:
-        hours, minutes, seconds, millis = time_match.groups()
-        if hours is None:
-            hours = 0
-        if minutes is None:
-            minutes = 0  # realistically never None, but doesn't hurt
-        if seconds is None:
-            seconds = 0  # realistically never None, but doesn't hurt
-        if millis is None:
-            millis = 0
-        return int(hours) * 3600 + int(minutes) * 60 + int(seconds) + int(millis) / 1000
-
-
-def run_sacct(jobid):
-    global STOPPED_BY_INTERRUPT
-
-    sacct_command = [
-        "sacct",
-        "-j",
-        str(jobid),
-        "-n",
-        "--format=State,ExitCode,TotalCpu,Elapsed,MaxRSS",
-    ]
-    logging.debug(
-        "Command to run: %s", shlex.join(sacct_command)
-    )
-
-    def get_checked_sacct_result():
-        sacct_result = subprocess.run(
-            sacct_command,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-        )
-        lines = sacct_result.stdout.splitlines()
-        if len(lines) < 2:
-            logging.debug("Sacct output not yet ready: %s", lines)
-            return None  # jobs not yet ready
-        parent_job = lines[0].split()  # State is read from here
-        child_job = lines[
-            1
-        ].split()  # ExitCode, TotalCPU, Elapsed and MaxRSS read from here
-        logging.debug("Sacct data: parent: %s; child: %s", parent_job, child_job)
-        if parent_job[0].decode() in [
-            "RUNNING",
-            "PENDING",
-            "REQUEUED",
-            "RESIZING",
-            "SUSPENDED",
-            "R",
-            "PD",
-            "RQ",
-            "RS",
-            "S",
-        ]:
-            logging.debug(
-                "Sacct output not yet ready due to state: %s", parent_job[0].decode()
-            )
-            return None  # not finished
-        if len(child_job) < 5:
-            logging.debug(
-                "Sacct output not yet ready due to memory not available: %s", child_job
-            )
-            return None  # not finished
-        return (
-            sacct_result.stdout,
-            parent_job[0].decode(),  # State
-            child_job[1].decode().split(":")[0],  # ExitCode
-            get_seconds_from_time(child_job[2].decode()),  # TotalCPU in seconds
-            get_seconds_from_time(child_job[3].decode()),  # Elapsed in seconds
-            float(child_job[4].decode()[:-1]) * 1000,
-        )  # MaxRSS in K * 1000 -> Bytes
-
-    # sometimes `seff` needs a few extra seconds to realize the task has ended
-    return wait_for(get_checked_sacct_result, 30, 2)
-
-
-def run_seff(jobid):
-    global STOPPED_BY_INTERRUPT
-
-    seff_command = ["seff", str(jobid)]
-    logging.debug(
-        "Command to run: %s", shlex.join(seff_command)
-    )
-
-    def get_checked_seff_result():
-        seff_result = subprocess.run(
-            seff_command,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-        )
-        if "exit code" in str(seff_result.stdout):
-            return seff_result
-        else:
-            return None
-
-    # sometimes `seff` needs a few extra seconds to realize the task has ended
-    result = wait_for(get_checked_seff_result, 30, 2)
-    if STOPPED_BY_INTERRUPT:  # job was cancelled
-        return
-
-    return result.stdout, *parse_seff(str(result.stdout))
 
 
 exit_code_pattern = re.compile(r"State: ([A-Z-_]*) \(exit code (\d+)\)")

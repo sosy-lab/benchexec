@@ -8,7 +8,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 import glob
-import json
 import logging
 import math
 import os
@@ -21,64 +20,30 @@ import tempfile
 import time
 
 from benchexec import tooladapter
-from benchexec.systeminfo import SystemInfo
 from benchexec.util import ProcessExitCode
+from contrib.slurm.utils import (
+    version_in_container,
+    get_system_info_srun,
+    get_cpu_cmd,
+    lock_cpu_cmds,
+)
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
-WORKER_THREADS = []
 STOPPED_BY_INTERRUPT = False
-
 singularity = None
 
 
 def init(config, benchmark):
     global singularity
-    if benchmark.config.singularity:
-        singularity = benchmark.config.singularity
-
-    version_printer = f"""from benchexec import tooladapter
-from benchexec.model import load_tool_info
-class Config():
-  pass
-
-config = Config()
-config.container = False
-config.tool_directory = "."
-locator = tooladapter.create_tool_locator(config)
-tool = load_tool_info("{benchmark.tool_module}", config)[1]
-executable = tool.executable(locator)
-print(tool.version(executable))"""
-
-    def version_from_tool_in_container(executable):
-        try:
-            with open(".get_version.py", "w") as script:
-                script.write(version_printer)
-            process = subprocess.run(
-                [
-                    "singularity",
-                    "exec",
-                    benchmark.config.singularity,
-                    "python3",
-                    ".get_version.py",
-                ],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.DEVNULL,
-                stdin=subprocess.DEVNULL,
-                universal_newlines=True,
-            )
-            if process.stdout:
-                return process.stdout.strip()
-
-        except Exception as e:
-            logging.warning(
-                "could not determine version (in container) due to error: %s", e
-            )
-        return ""
+    assert (
+        benchmark.config.singularity
+    ), "Singularity is required for array-based SLURM jobs."
+    singularity = benchmark.config.singularity
 
     tool_locator = tooladapter.create_tool_locator(config)
     benchmark.executable = benchmark.tool.executable(tool_locator)
-    benchmark.tool.version = version_from_tool_in_container
+    benchmark.tool.version = version_in_container(singularity, benchmark.tool_module)
     try:
         benchmark.tool_version = benchmark.tool.version(benchmark.executable)
     except Exception as e:
@@ -89,39 +54,7 @@ print(tool.version(executable))"""
 
 
 def get_system_info():
-    try:
-        process = subprocess.run(
-            [
-                "srun",
-                "singularity",
-                "exec",
-                singularity,
-                "python3",
-                "-c",
-                "import benchexec.systeminfo; "
-                "import json; "
-                "print(json.dumps(benchexec.systeminfo.SystemInfo().__dict__))",
-            ],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.DEVNULL,
-            stdin=subprocess.DEVNULL,
-            universal_newlines=True,
-        )
-        if process.stdout:
-            actual_sysinfo = json.loads(process.stdout.strip())
-            blank_sysinfo = SystemInfo()
-            blank_sysinfo.hostname = str(actual_sysinfo["hostname"]) + " (sample)"
-            blank_sysinfo.os = actual_sysinfo["os"]
-            blank_sysinfo.cpu_max_frequency = actual_sysinfo["cpu_max_frequency"]
-            blank_sysinfo.cpu_number_of_cores = actual_sysinfo["cpu_number_of_cores"]
-            blank_sysinfo.cpu_model = actual_sysinfo["cpu_model"]
-            blank_sysinfo.cpu_turboboost = actual_sysinfo["cpu_turboboost"]
-            blank_sysinfo.memory = actual_sysinfo["memory"]
-            return blank_sysinfo
-
-    except Exception as e:
-        logging.warning("could not determine system info due to error: %s", e)
-    return None
+    return get_system_info_srun(singularity)
 
 
 def execute_benchmark(benchmark, output_handler):
@@ -197,43 +130,11 @@ def _execute_run_set(
     )
 
 
-def get_cpu_cmd(concurrency_factor, cores):
-    get_cpus = (
-        "cpus=($(scontrol show job -d \"$SLURM_JOB_ID\" | grep -o 'CPU_IDs=[^ ]*' | "
-        "awk -F= ' { print $2 } ' | head -n1 | "
-        "awk -F, ' { for (i = 1; i <= NF; i++ ) { if ($i ~ /-/) "
-        '{ split($i, range, "-"); for (j = range[1]; j <= range[2]; j++  ) { print j } } '
-        "else { print $i } } }'))"
-        '\necho "${cpus[@]}"'
-    )
-    for i in range(concurrency_factor):
-        get_cpus = (
-            get_cpus
-            + f'\nexport cpuset{i}=$(IFS=,; echo "${{cpus[*]:{i * cores}:{cores}}}")'
-        )
-    return get_cpus
-
-
-def lock_cpu_cmds(concurrency_factor, tempdir, bin):
-    lock_cpus = 'CPUSET=""; while ! {'
-    for i in range(concurrency_factor):
-        lock_cpus = (
-            lock_cpus
-            + f' {{ mkdir {tempdir}/cpuset_{bin}_{i} 2>/dev/null && cpuset={i} && CPUSET="$cpuset{i}"; }}'
-        )
-        if i == concurrency_factor - 1:
-            lock_cpus = lock_cpus + "; }; do sleep 1; done"
-        else:
-            lock_cpus = lock_cpus + " ||"
-    unlock_cpus = f"rm -r {tempdir}/cpuset_{bin}_$cpuset"
-    return lock_cpus, unlock_cpus
-
-
 def execute_batch(
     runs,
     benchmark,
     output_handler,
-    first_time=True,
+    counter=0,
 ):
     global STOPPED_BY_INTERRUPT
     number_of_bins = int(len(runs) / benchmark.config.aggregation_factor) + 1
@@ -358,7 +259,7 @@ def execute_batch(
                     output_handler.output_after_run(run)
                 except Exception as e:
                     logging.warning("could not set result due to error: %s", e)
-                    if first_time:
+                    if counter < benchmark.config.retry or benchmark.config.retry < 0:
                         missing_runs.append(run)
                     else:
                         if not STOPPED_BY_INTERRUPT:
@@ -375,7 +276,7 @@ def execute_batch(
                                     ),
                                 )
         if len(missing_runs) > 0 and not STOPPED_BY_INTERRUPT:
-            execute_batch(missing_runs, benchmark, output_handler, False)
+            execute_batch(missing_runs, benchmark, output_handler, counter + 1)
 
 
 def stop():
@@ -395,7 +296,7 @@ def get_resource_limits(benchmark, tempdir):
         * math.ceil(
             benchmark.config.aggregation_factor / benchmark.config.concurrency_factor
         )
-        * 1.1
+        * 1.5  # to let all processes finish, we add 50%
     )
     assert timelimit > 0, "Either cputime, cputime_hard, or walltime should be given."
     cpus = benchmark.rlimits.cpu_cores * benchmark.config.concurrency_factor
@@ -439,9 +340,9 @@ def get_run_cli(benchmark, args, tempdir, resultdir):
         runexec.extend(["--memlimit", str(benchmark.rlimits.memory)])
 
     args = [*runexec, "--", *args]
-    basedir = os.path.abspath(os.path.dirname(benchmark.config.singularity))
+    basedir = os.path.abspath(os.path.dirname(singularity))
 
-    if benchmark.config.singularity:
+    if singularity:
         cli.extend(
             [
                 "singularity",
@@ -457,7 +358,7 @@ def get_run_cli(benchmark, args, tempdir, resultdir):
                 f"{tempdir}:/overlay",
                 "--fusemount",
                 f"container:fuse-overlayfs -o lowerdir=/lower -o upperdir=/overlay/upper -o workdir=/overlay/work {os.getcwd()}",
-                benchmark.config.singularity,
+                singularity,
             ]
         )
     cli.extend(
