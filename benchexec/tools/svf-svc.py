@@ -59,6 +59,9 @@ class Tool(benchexec.tools.template.BaseTool2):
                 return result.RESULT_TRUE_PROP
             elif line.startswith("Unknown"):
                 return result.RESULT_UNKNOWN
+            elif line.startswith("ERROR("):
+                # This will always be a single word error.
+                return line
 
-        # Not matching the last three means something bad happened.
+        # Not matching any means something bad happened.
         return result.RESULT_ERROR
