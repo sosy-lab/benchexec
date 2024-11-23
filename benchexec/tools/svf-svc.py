@@ -46,16 +46,22 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def determine_result(self, run):
         for line in run.output:
-            if line.startswith("Correct"):
-                return result.RESULT_TRUE_PROP
-            elif line.startswith("Incorrect"):
+            if line.startswith("REACH Incorrect"):
+                return result.RESULT_FALSE_REACH
+            elif line.startswith("MEMORY Incorrect"):
+                # SVF-SVC does not currently distinguish between memory safety types.
                 return result.RESULT_FALSE_PROP
-            elif line.startswith("Error: "):
-                # The line should contain a short error message.
-                # The tool returns errors in the format Error: info.
-                error = line[line.index(":") + 2 :]
-                return result.RESULT_ERROR + "(" + error + ")"
+            elif line.startswith("OVERFLOW Incorrect"):
+                return result.RESULT_FALSE_OVERFLOW
+            elif "Incorrect" in line:
+                return result.RESULT_FALSE_PROP
+            elif "Correct" in line:
+                return result.RESULT_TRUE_PROP
             elif line.startswith("Unknown"):
                 return result.RESULT_UNKNOWN
+            elif line.startswith("ERROR("):
+                # This will always be a single word error.
+                return line
 
+        # Not matching any means something bad happened.
         return result.RESULT_ERROR

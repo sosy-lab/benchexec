@@ -7,7 +7,8 @@
 
 import benchexec.tools.template
 from benchexec.tools.sv_benchmarks_util import (
-    get_witness_options,
+    handle_witness_of_task,
+    TaskFilesConsidered,
 )
 
 
@@ -33,12 +34,17 @@ class Tool(benchexec.tools.template.BaseTool2):
         return version_string
 
     def cmdline(self, executable, options, task, rlimits):
-        # The input files are irrelevant, since the goal of WitnessMap
-        # is only to copy the witness given in the task definition options
-        #  into the output folder
-        mapping_options = get_witness_options(options, task, ["--input"])
+        input_file, mapping_options = handle_witness_of_task(
+            task, options, "--witness", TaskFilesConsidered.SINGLE_INPUT_FILE
+        )
 
-        return [executable, *options, *mapping_options]
+        return [
+            executable,
+            *options,
+            *mapping_options,
+            "--program",
+            input_file[0],
+        ]
 
     def get_value_from_output(self, output, identifier):
         for line in output:

@@ -207,15 +207,18 @@ def getCloudInput(benchmark):
 def getBenchmarkDataForCloud(benchmark):
     # get requirements
     r = benchmark.requirements
+    memRequirement = bytes_to_mb(
+        DEFAULT_CLOUD_MEMORY_REQUIREMENT if r.memory is None else r.memory
+    )
     requirements = [
-        bytes_to_mb(DEFAULT_CLOUD_MEMORY_REQUIREMENT if r.memory is None else r.memory),
+        memRequirement,
         DEFAULT_CLOUD_CPUCORE_REQUIREMENT if r.cpu_cores is None else r.cpu_cores,
         DEFAULT_CLOUD_CPUMODEL_REQUIREMENT if r.cpu_model is None else r.cpu_model,
     ]
 
     # get limits and number of Runs
     timeLimit = benchmark.rlimits.cputime_hard or DEFAULT_CLOUD_TIMELIMIT
-    memLimit = bytes_to_mb(benchmark.rlimits.memory)
+    memLimit = bytes_to_mb(benchmark.rlimits.memory) or memRequirement
     coreLimit = benchmark.rlimits.cpu_cores
     numberOfRuns = sum(
         len(runSet.runs) for runSet in benchmark.run_sets if runSet.should_be_executed()
