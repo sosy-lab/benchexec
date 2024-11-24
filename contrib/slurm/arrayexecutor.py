@@ -256,7 +256,6 @@ def execute_batch(
                 try:
                     run.set_result(
                         get_run_result(
-                            run.result_files_folder,
                             os.path.join(tempdir, str(i)),
                             run,
                             benchmark.result_files_patterns
@@ -379,13 +378,13 @@ def get_run_cli(benchmark, args, tempdir, resultdir):
     cli = shlex.join(cli)
     cli = cli.replace("'\"'\"'$CPUSET'\"'\"'", "'$CPUSET'")
     cli = cli.replace("'$TMPDIR", '"$TMPDIR').replace(":/overlay:rw'", ':/overlay:rw"')
-    cli = f"mkdir -p {tempdir}/{{upper,work}}; {cli}; mv {tempdir}/upper/* {resultdir}/; rm -r {tempdir}"
+    cli = f"mkdir -p {tempdir}/{{upper,work}}; {cli}; mv {tempdir}/upper/{{log,output.log,*witness*,{",".join(benchmark.result_files_patterns)}}} {resultdir}/; rm -r {tempdir}"
     logging.debug("Command to run: %s", cli)
 
     return cli
 
 
-def get_run_result(output_dir, tempdir, run, result_files_patterns):
+def get_run_result(tempdir, run, result_files_patterns):
     runexec_log = f"{tempdir}/log"
     tmp_log = f"{tempdir}/output.log"
 
@@ -417,10 +416,11 @@ def get_run_result(output_dir, tempdir, run, result_files_patterns):
             file.write(content)
 
     if os.path.exists(tempdir):
-        os.makedirs(output_dir, exist_ok=True)
+        os.makedirs(run.result_files_folder, exist_ok=True)
         for result_files_pattern in result_files_patterns:
             for file_name in glob.glob(f"{tempdir}/{result_files_pattern}"):
                 if os.path.isfile(file_name):
-                    shutil.copy(file_name, output_dir)
+                    shutil.copy(file_name, run.result_files_folder)
+        shutil.rmtree(tempdir)
 
     return ret
