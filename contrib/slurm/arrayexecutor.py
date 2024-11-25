@@ -139,7 +139,7 @@ def filter_previous_results(run_set, benchmark):
     prefix_base = f"{benchmark.config.output_path}{benchmark.name}."
     files = glob.glob(f"{prefix_base}*.logfiles.zip")
     if files:
-        prefix = str(max(files, key=os.path.getmtime))[0 : -(len(".logfiles.zip"))]
+        prefix = str(max(filter(lambda file: file != benchmark.log_zip, files), key=os.path.getmtime))[0 : -(len(".logfiles.zip"))]
     else:
         logging.warning("No logfile zip found. Giving up recovery.")
         return run_set.runs
