@@ -246,6 +246,7 @@ def filter_previous_results(run_set, benchmark, output_handler):
                     for file in os.listdir(old_files):
                         shutil.copy(file, run.result_files_folder)
 
+                    run.cmdline() # we need to call this, because it sets the _cmdline value
                     run.set_result(previous_runs[key])
                     output_handler.output_after_run(run)
                 else:
