@@ -244,7 +244,7 @@ def filter_previous_results(run_set, benchmark, output_handler):
                 if os.path.exists(old_files) and os.path.isdir(old_files):
                     os.makedirs(run.result_files_folder, exist_ok=True)
                     for file in os.listdir(old_files):
-                        shutil.copy(file, run.result_files_folder)
+                        shutil.copy(os.path.join(old_files, file), run.result_files_folder)
 
                     run.cmdline() # we need to call this, because it sets the _cmdline value
                     run.set_result(previous_runs[key])
