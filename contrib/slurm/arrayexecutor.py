@@ -231,7 +231,8 @@ def filter_previous_results(run_set, benchmark):
     missing_runs = []
     for run in run_set.runs:
         props = " ".join(sorted([prop.name for prop in run.properties]))
-        key = (run.name, props)
+        name = relative_path(run.identifier, result_file)
+        key = (name, props)
         if key in previous_runs:
             old_log = str(
                 os.path.join(logfile_folder, os.path.basename(run.identifier) + ".log")
@@ -249,10 +250,13 @@ def filter_previous_results(run_set, benchmark):
 
                     run.set_result(previous_runs[key])
                 else:
+                    logging.warning(f"Old files directory {old_files} does not exist. Skipping run {name}.")
                     missing_runs.append(run)
             else:
+                logging.warning(f"Old log {old_log} does not exist. Skipping run {name}.")
                 missing_runs.append(run)
         else:
+            logging.warning(f"Run with key {key} not found in results. Skipping run {name}.")
             missing_runs.append(run)
 
     shutil.rmtree(logfile_folder)
