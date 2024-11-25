@@ -18,9 +18,11 @@ import subprocess
 import sys
 import tempfile
 import time
+import zipfile
 
 from benchexec import tooladapter
-from benchexec.util import ProcessExitCode
+from benchexec.tablegenerator import parse_results_file, handle_union_tag
+from benchexec.util import ProcessExitCode, relative_path
 from contrib.slurm.utils import (
     version_in_container,
     get_system_info_srun,
@@ -114,11 +116,14 @@ def _execute_run_set(
     walltime_after = time.monotonic()
     usedWallTime = walltime_after - walltime_before
 
-    for i in range(0, len(runSet.runs), benchmark.config.batch_size):
+    if benchmark.config.continue_interrupted:
+        runs = filter_previous_results(runSet, benchmark)
+    else:
+        runs = runSet.runs
+
+    for i in range(0, len(runs), benchmark.config.batch_size):
         if not STOPPED_BY_INTERRUPT:
-            chunk = runSet.runs[
-                i : min(i + benchmark.config.batch_size, len(runSet.runs))
-            ]
+            chunk = runs[i : min(i + benchmark.config.batch_size, len(runs))]
             execute_batch(chunk, benchmark, output_handler)
 
     if STOPPED_BY_INTERRUPT:
@@ -128,6 +133,135 @@ def _execute_run_set(
         runSet,
         walltime=usedWallTime,
     )
+
+
+def filter_previous_results(run_set, benchmark):
+    prefix_base = f"{benchmark.config.output_path}{benchmark.name}."
+    files = glob.glob(f"{prefix_base}*.logfiles.zip")
+    if files:
+        prefix = str(max(files, key=os.path.getmtime))[0 : -(len(".logfiles.zip"))]
+    else:
+        logging.warning("No logfile zip found. Giving up recovery.")
+        return run_set.runs
+    logging.info(f"Logfile zip found with prefix {prefix}. Attempting recovery.")
+
+    logfile_zip = prefix + ".logfiles.zip"
+    file_zip = prefix + ".files.zip"
+    logfile_folder = prefix + ".logfiles"
+    files_folder = prefix + ".files"
+
+    with zipfile.ZipFile(logfile_zip, "r") as zip_ref:
+        zip_ref.extractall(
+            benchmark.config.output_path
+        )  # we must clean this directory up on every exit point
+
+    if not os.path.isdir(logfile_folder):
+        logging.warning(
+            f"Logfiles were extracted, but could not be found under {logfile_folder}."
+        )
+        return run_set.runs
+
+    if not os.path.isfile(file_zip):
+        logging.warning(f"No {file_zip} found. Giving up recovery.")
+        shutil.rmtree(logfile_folder)
+        return run_set.runs
+
+    with zipfile.ZipFile(file_zip, "r") as zip_ref:
+        zip_ref.extractall(
+            benchmark.config.output_path
+        )  # we must clean this directory up on every exit point
+
+    if not os.path.isdir(files_folder):
+        logging.warning(
+            f"Files were extracted, but could not be found under {files_folder}."
+        )
+        shutil.rmtree(logfile_folder)
+        return run_set.runs
+
+    xml_filename_base = prefix + ".results." + run_set.name
+    xml = xml_filename_base + ".xml"
+    xml_bz2 = xml_filename_base + ".xml.bz2"
+    if os.path.exists(xml):
+        result_file = xml
+    elif os.path.exists(xml_bz2):
+        result_file = xml_bz2
+    else:
+        logging.warning(
+            ".xml or .xml.bz2 must exist for previous run. Giving up recovery."
+        )
+        shutil.rmtree(logfile_folder)
+        shutil.rmtree(files_folder)
+        return run_set.runs
+
+    previous_results = parse_results_file(result_file)
+    previous_runs = {}
+    for elem in previous_results:
+        if elem.tag == "run":
+            values = {}
+            for col in elem:
+                if col.tag == "column":
+                    if "walltime" == col.get("title"):
+                        values["walltime"] = float(
+                            str(col.get("value"))[:-1]
+                        )  # ends in 's'
+                    elif "cputime" == col.get("title"):
+                        values["cputime"] = float(
+                            str(col.get("value"))[:-1]
+                        )  # ends in 's'
+                    elif "memory" == col.get("title"):
+                        values["memory"] = int(
+                            str(col.get("value"))[:-1]
+                        )  # ends in 'B'
+                    elif "returnvalue" == col.get("title"):
+                        values["exitcode"] = ProcessExitCode.create(
+                            value=int(col.get("value"))
+                        )
+                    elif "exitsignal" == col.get("title"):
+                        values["exitcode"] = ProcessExitCode.create(
+                            signal=int(col.get("value"))
+                        )
+                    elif "terminationreason" == col.get("title"):
+                        values["terminationreason"] = col.get("value")
+                    else:
+                        values[col.get("title")] = col.get("value")
+            # I think 'name' and 'properties' are enough to uniquely identify runs, but this should probably be more extensible
+            if values != {}:
+                previous_runs[(elem.get("name"), elem.get("properties"))] = values
+
+    missing_runs = []
+    for run in run_set.runs:
+        props = " ".join(sorted([prop.name for prop in run.properties]))
+        key = (run.name, props)
+        if key in previous_runs:
+            old_log = str(
+                os.path.join(logfile_folder, os.path.basename(run.identifier) + ".log")
+            )
+            if os.path.exists(old_log) and os.path.isfile(old_log):
+                shutil.copy(old_log, run.log_file)
+
+                old_files = str(
+                    os.path.join(logfile_folder, os.path.basename(run.identifier))
+                )
+                if os.path.exists(old_files) and os.path.isdir(old_files):
+                    os.makedirs(run.result_files_folder, exist_ok=True)
+                    for file in os.listdir(old_files):
+                        shutil.copy(file, run.result_files_folder)
+
+                    run.set_result(previous_runs[key])
+                else:
+                    missing_runs.append(run)
+            else:
+                missing_runs.append(run)
+        else:
+            missing_runs.append(run)
+
+    shutil.rmtree(logfile_folder)
+    shutil.rmtree(files_folder)
+
+    logging.info(
+        f"Successfully recovered {len(run_set.runs) - len(missing_runs)} runs, still missing {len(missing_runs)} more."
+    )
+    return missing_runs
 
 
 def execute_batch(
@@ -282,8 +416,11 @@ def execute_batch(
                                     ),
                                 )
         if len(missing_runs) > 0 and not STOPPED_BY_INTERRUPT:
-            logging.info(f"Retrying {len(missing_runs)} runs due to errors. Current retry count for this batch: {counter}")
+            logging.info(
+                f"Retrying {len(missing_runs)} runs due to errors. Current retry count for this batch: {counter}"
+            )
             execute_batch(missing_runs, benchmark, output_handler, counter + 1)
+
 
 def stop():
     global STOPPED_BY_INTERRUPT

@@ -93,6 +93,13 @@ class Benchmark(benchexec.benchexec.BenchExec):
             default="4",
             help="Run this many tasks at once in one job.",
         )
+        slurm_args.add_argument(
+            "--continue-interrupted",
+            dest="continue_interrupted",
+            type=str,
+            default=None,
+            help="Continue a previously interrupted job.",
+        )
 
         return parser
 
