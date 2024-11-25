@@ -282,8 +282,8 @@ def execute_batch(
                                     ),
                                 )
         if len(missing_runs) > 0 and not STOPPED_BY_INTERRUPT:
+            logging.info(f"Retrying {len(missing_runs)} runs due to errors. Current retry count for this batch: {counter}")
             execute_batch(missing_runs, benchmark, output_handler, counter + 1)
-
 
 def stop():
     global STOPPED_BY_INTERRUPT
