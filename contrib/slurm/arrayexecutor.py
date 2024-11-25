@@ -226,7 +226,7 @@ def filter_previous_results(run_set, benchmark):
                         values[col.get("title")] = col.get("value")
             # I think 'name' and 'properties' are enough to uniquely identify runs, but this should probably be more extensible
             if values != {}:
-                previous_runs[(elem.get("name"), elem.get("properties"))] = values
+                previous_runs[(elem.get("name"), elem.get("properties"))] = (values, elem.get("logfile"))
 
     missing_runs = []
     for run in run_set.runs:
@@ -234,9 +234,7 @@ def filter_previous_results(run_set, benchmark):
         name = relative_path(run.identifier, result_file)
         key = (name, props)
         if key in previous_runs:
-            old_log = str(
-                os.path.join(logfile_folder, os.path.basename(run.identifier) + ".log")
-            )
+            values, old_log = previous_runs[key]
             if os.path.exists(old_log) and os.path.isfile(old_log):
                 shutil.copy(old_log, run.log_file)
 
@@ -248,7 +246,7 @@ def filter_previous_results(run_set, benchmark):
                     for file in os.listdir(old_files):
                         shutil.copy(file, run.result_files_folder)
 
-                    run.set_result(previous_runs[key])
+                    run.set_result(values)
                 else:
                     logging.warning(f"Old files directory {old_files} does not exist. Skipping run {name}.")
                     missing_runs.append(run)
