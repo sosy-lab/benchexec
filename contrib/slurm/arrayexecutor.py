@@ -117,7 +117,7 @@ def _execute_run_set(
     usedWallTime = walltime_after - walltime_before
 
     if benchmark.config.continue_interrupted:
-        runs = filter_previous_results(runSet, benchmark)
+        runs = filter_previous_results(runSet, benchmark, output_handler)
     else:
         runs = runSet.runs
 
