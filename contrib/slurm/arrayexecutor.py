@@ -137,9 +137,12 @@ def _execute_run_set(
 
 def filter_previous_results(run_set, benchmark, output_handler):
     prefix_base = f"{benchmark.config.output_path}{benchmark.name}."
-    files = glob.glob(f"{prefix_base}*.logfiles.zip")
+    files = filter(
+        lambda file: file != benchmark.log_zip,
+        glob.glob(f"{prefix_base}*.logfiles.zip"),
+    )
     if files:
-        prefix = str(max(filter(lambda file: file != benchmark.log_zip, files), key=os.path.getmtime))[0 : -(len(".logfiles.zip"))]
+        prefix = str(max(files, key=os.path.getmtime))[0 : -(len(".logfiles.zip"))]
     else:
         logging.warning("No logfile zip found. Giving up recovery.")
         return run_set.runs
@@ -233,30 +236,45 @@ def filter_previous_results(run_set, benchmark, output_handler):
         key = (name, props)
         if key in previous_runs:
             old_log = str(
-                os.path.join(logfile_folder, run_set.real_name + "." + os.path.basename(run.identifier) + ".log")
+                os.path.join(
+                    logfile_folder,
+                    run_set.real_name + "." + os.path.basename(run.identifier) + ".log",
+                )
             )
             if os.path.exists(old_log) and os.path.isfile(old_log):
                 shutil.copy(old_log, run.log_file)
 
                 old_files = str(
-                    os.path.join(files_folder, run_set.real_name, os.path.basename(run.identifier))
+                    os.path.join(
+                        files_folder,
+                        run_set.real_name,
+                        os.path.basename(run.identifier),
+                    )
                 )
                 if os.path.exists(old_files) and os.path.isdir(old_files):
                     os.makedirs(run.result_files_folder, exist_ok=True)
                     for file in os.listdir(old_files):
-                        shutil.copy(os.path.join(old_files, file), run.result_files_folder)
+                        shutil.copy(
+                            os.path.join(old_files, file), run.result_files_folder
+                        )
 
-                    run.cmdline() # we need to call this, because it sets the _cmdline value
+                    run.cmdline()  # we need to call this, because it sets the _cmdline value
                     run.set_result(previous_runs[key])
                     output_handler.output_after_run(run)
                 else:
-                    logging.warning(f"Old files directory {old_files} does not exist. Skipping run {name}.")
+                    logging.warning(
+                        f"Old files directory {old_files} does not exist. Skipping run {name}."
+                    )
                     missing_runs.append(run)
             else:
-                logging.warning(f"Old log {old_log} does not exist. Skipping run {name}.")
+                logging.warning(
+                    f"Old log {old_log} does not exist. Skipping run {name}."
+                )
                 missing_runs.append(run)
         else:
-            logging.warning(f"Run with key {key} not found in results. Skipping run {name}.")
+            logging.warning(
+                f"Run with key {key} not found in results. Skipping run {name}."
+            )
             missing_runs.append(run)
 
     shutil.rmtree(logfile_folder)
