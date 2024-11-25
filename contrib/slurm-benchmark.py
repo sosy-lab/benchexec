@@ -96,8 +96,7 @@ class Benchmark(benchexec.benchexec.BenchExec):
         slurm_args.add_argument(
             "--continue-interrupted",
             dest="continue_interrupted",
-            type=str,
-            default=None,
+            action="store_true",
             help="Continue a previously interrupted job.",
         )
 
