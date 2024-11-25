@@ -135,7 +135,7 @@ def _execute_run_set(
     )
 
 
-def filter_previous_results(run_set, benchmark):
+def filter_previous_results(run_set, benchmark, output_handler):
     prefix_base = f"{benchmark.config.output_path}{benchmark.name}."
     files = glob.glob(f"{prefix_base}*.logfiles.zip")
     if files:
@@ -222,8 +222,6 @@ def filter_previous_results(run_set, benchmark):
                         )
                     elif "terminationreason" == col.get("title"):
                         values["terminationreason"] = col.get("value")
-                    else:
-                        values[col.get("title")] = col.get("value")
             # I think 'name' and 'properties' are enough to uniquely identify runs, but this should probably be more extensible
             if values != {}:
                 previous_runs[(elem.get("name"), elem.get("properties"))] = values
@@ -249,6 +247,7 @@ def filter_previous_results(run_set, benchmark):
                         shutil.copy(file, run.result_files_folder)
 
                     run.set_result(previous_runs[key])
+                    output_handler.output_after_run(run)
                 else:
                     logging.warning(f"Old files directory {old_files} does not exist. Skipping run {name}.")
                     missing_runs.append(run)
