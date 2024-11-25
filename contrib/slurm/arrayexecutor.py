@@ -241,7 +241,7 @@ def filter_previous_results(run_set, benchmark):
                 shutil.copy(old_log, run.log_file)
 
                 old_files = str(
-                    os.path.join(logfile_folder, run_set.real_name, os.path.basename(run.identifier))
+                    os.path.join(files_folder, run_set.real_name, os.path.basename(run.identifier))
                 )
                 if os.path.exists(old_files) and os.path.isdir(old_files):
                     os.makedirs(run.result_files_folder, exist_ok=True)
