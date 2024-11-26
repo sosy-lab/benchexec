@@ -137,9 +137,11 @@ def _execute_run_set(
 
 def filter_previous_results(run_set, benchmark, output_handler):
     prefix_base = f"{benchmark.config.output_path}{benchmark.name}."
-    files = filter(
-        lambda file: file != benchmark.log_zip,
-        glob.glob(f"{prefix_base}*.logfiles.zip"),
+    files = list(
+        filter(
+            lambda file: file != benchmark.log_zip,
+            glob.glob(f"{prefix_base}*.logfiles.zip"),
+        )
     )
     if files and len(files) > 0:
         prefix = str(max(files, key=os.path.getmtime))[0 : -(len(".logfiles.zip"))]
