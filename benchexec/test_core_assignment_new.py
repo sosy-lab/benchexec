@@ -302,7 +302,7 @@ class TestCpuCoresPerRun_dualCPU_HT(TestCpuCoresPerRun):
     ]
 
     def test_dualCPU_HT(self):
-        self.assertValid(16, 2, [lrange(0, 16), lrange(16, 32)])
+        self.mainAssertValid(16, [lrange(0, 16), lrange(16, 32)], 2)
 
     def test_dualCPU_HT_invalid(self):
         self.assertInvalid(2, 17)
@@ -434,29 +434,29 @@ class TestCpuCoresPerRun_quadCPU_HT(TestCpuCoresPerRun):
     use_hyperthreading = True
 
     def test_quadCPU_HT(self):
-        self.assertValid(
+        self.mainAssertValid(
             16,
-            4,
             [
                 lrange(0, 16),
                 lrange(16, 32),
                 lrange(32, 48),
                 lrange(48, 64),
             ],
+            4,
         )
 
         # Just test that no exception occurs
         # Commented out tests are not longer possible
         # self.assertValid(1, 64) - we do not divide HT siblings
-        self.assertValid(64, 1)
-        self.assertValid(2, 32)
-        self.assertValid(32, 2)
+        self.mainAssertValid(64, expectedResult=None, maxThreads=1)
+        self.mainAssertValid(2, expectedResult=None, maxThreads=32)
+        self.mainAssertValid(32, expectedResult=None, maxThreads=2)
         # self.assertValid(3, 20) - we do not divide HT siblings: 4*20 = 80
-        self.assertValid(16, 3)
-        self.assertValid(4, 16)
-        self.assertValid(16, 4)
+        self.mainAssertValid(16, expectedResult=None, maxThreads=3)
+        self.mainAssertValid(4, expectedResult=None, maxThreads=16)
+        self.mainAssertValid(16, expectedResult=None, maxThreads=4)
         # self.assertValid(5, 12) - we do not divide HT siblings: 6*12 =72
-        self.assertValid(8, 8)
+        self.mainAssertValid(8, expectedResult=None, maxThreads=8)
 
     def test_quadCPU_HT_invalid(self):
         self.assertInvalid(2, 33)
@@ -607,9 +607,9 @@ class TestCpuCoresPerRun_quadCPU_no_ht(TestCpuCoresPerRun):
         self.assertInvalid(8, 3)
 
     def test_quadCPU_no_ht_valid(self):
-        self.assertValid(5, 2, [[0, 2, 4, 6, 8], [16, 18, 20, 22, 24]])
+        self.mainAssertValid(5, [[0, 2, 4, 6, 8], [16, 18, 20, 22, 24]], 2)
         self.assertInvalid(5, 3)
-        self.assertValid(6, 2, [[0, 2, 4, 6, 8, 10], [16, 18, 20, 22, 24, 26]])
+        self.mainAssertValid(6, [[0, 2, 4, 6, 8, 10], [16, 18, 20, 22, 24, 26]], 2)
         self.assertInvalid(6, 3)
 
 
