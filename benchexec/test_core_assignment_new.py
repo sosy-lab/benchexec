@@ -150,23 +150,26 @@ class TestCpuCoresPerRun(unittest.TestCase):
 
     def test_oneCorePerRun(self):
         # test all possible numOfThread values for runs with one core
-        self.mainAssertValid(1, self.oneCore_assignment)
+        self._test_nCoresPerRun(1, self.oneCore_assignment)
 
     def test_twoCoresPerRun(self):
         # test all possible numOfThread values for runs with two cores
-        self.mainAssertValid(2, self.twoCore_assignment)
+        self._test_nCoresPerRun(2, self.twoCore_assignment)
 
     def test_threeCoresPerRun(self):
         # test all possible numOfThread values for runs with three cores
-        self.mainAssertValid(3, self.threeCore_assignment)
+        self._test_nCoresPerRun(3, self.threeCore_assignment)
 
     def test_fourCoresPerRun(self):
         # test all possible numOfThread values for runs with four cores
-        self.mainAssertValid(4, self.fourCore_assignment)
+        self._test_nCoresPerRun(4, self.fourCore_assignment)
 
     def test_eightCoresPerRun(self):
         # test all possible numOfThread values for runs with eight cores
-        self.mainAssertValid(8, self.eightCore_assignment)
+        self._test_nCoresPerRun(8, self.eightCore_assignment)
+
+    def _test_nCoresPerRun(self, coreLimit, expected_assignment, max_threads=None):
+        self.mainAssertValid(coreLimit, expected_assignment, max_threads)
 
 
 class TestCpuCoresPerRun_singleCPU(TestCpuCoresPerRun):
@@ -333,11 +336,11 @@ class TestCpuCoresPerRun_threeCPU(TestCpuCoresPerRun):
 
     def test_twoCoresPerRun(self):
         # Overwritten because the maximum is only 6
-        self.mainAssertValid(2, self.twoCore_assignment, 6)
+        self._test_nCoresPerRun(2, self.twoCore_assignment, 6)
 
     def test_threeCoresPerRun(self):
         # Overwritten because the maximum is only 3
-        self.mainAssertValid(3, self.threeCore_assignment, 3)
+        self._test_nCoresPerRun(3, self.threeCore_assignment, 3)
 
     def test_threeCPU_invalid(self):
         self.assertInvalid(6, 2)
@@ -393,11 +396,11 @@ class TestCpuCoresPerRun_threeCPU_HT(TestCpuCoresPerRun):
 
     def test_threeCoresPerRun(self):
         # Overwritten because the maximum is only 6
-        self.mainAssertValid(3, self.threeCore_assignment, 6)
+        self._test_nCoresPerRun(3, self.threeCore_assignment, 6)
 
     def test_fourCoresPerRun(self):
         # Overwritten because the maximum is only 6
-        self.mainAssertValid(3, self.threeCore_assignment, 6)
+        self._test_nCoresPerRun(3, self.threeCore_assignment, 6)
 
     def test_threeCPU_HT_invalid(self):
         self.assertInvalid(11, 2)
@@ -554,11 +557,11 @@ class TestCpuCoresPerRun_threeCPU_no_ht(TestCpuCoresPerRun):
 
     def test_twoCoresPerRun(self):
         # Overwritten because the maximum is only 3
-        self.mainAssertValid(2, self.twoCore_assignment, 3)
+        self._test_nCoresPerRun(2, self.twoCore_assignment, 3)
 
     def test_fourCoresPerRun(self):
         # Overwritten because the maximum is only 3
-        self.mainAssertValid(4, self.fourCore_assignment, 1)
+        self._test_nCoresPerRun(4, self.fourCore_assignment, 1)
 
 
 class TestCpuCoresPerRun_quadCPU_no_ht(TestCpuCoresPerRun):
@@ -594,7 +597,7 @@ class TestCpuCoresPerRun_quadCPU_no_ht(TestCpuCoresPerRun):
 
     def test_threeCoresPerRun(self):
         # Overwritten because the maximum is only 6
-        self.mainAssertValid(3, self.threeCore_assignment, 4)
+        self._test_nCoresPerRun(3, self.threeCore_assignment, 4)
 
     def test_quadCPU_no_ht_invalid(self):
         self.assertInvalid(1, 17)
@@ -640,7 +643,7 @@ class Test_Topology_P1_NUMA2_L8_C16_F(TestCpuCoresPerRun):
     eightCore_assignment = [[0, 2, 4, 6, 8, 10, 12, 14]]
 
     def test_fiveCoresPerRun(self):
-        self.mainAssertValid(5, self.fiveCore_assignment)
+        self._test_nCoresPerRun(5, self.fiveCore_assignment)
 
     def test_invalid(self):
         # coreLimit, num_of_threads
@@ -702,7 +705,7 @@ class Test_Topology_P1_NUMA3_L6_C12_F(TestCpuCoresPerRun):
     fourCore_assignment = [[0, 2, 4, 6]]
 
     def test_threeCoresPerRun(self):
-        self.mainAssertValid(3, self.threeCore_assignment, 1)
+        self._test_nCoresPerRun(3, self.threeCore_assignment, 1)
 
     def test_invalid(self):
         # coreLimit, num_of_threads
@@ -736,7 +739,7 @@ class Test_Topology_P1_NUMA3_L6_C12_T(TestCpuCoresPerRun):
     eightCore_assignment = [[0, 1, 2, 3, 4, 5, 6, 7]]
 
     def test_fiveCoresPerRun(self):
-        self.mainAssertValid(5, self.fiveCore_assignment, 1)
+        self._test_nCoresPerRun(5, self.fiveCore_assignment, 1)
 
     def test_invalid(self):
         # coreLimit, num_of_threads
