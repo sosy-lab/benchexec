@@ -569,10 +569,7 @@ def get_run_result(tempdir, run, result_files_patterns):
     if "terminationreason" in data_dict:
         ret["terminationreason"] = data_dict["terminationreason"]
 
-    with open(run.log_file, "w+") as file:
-        with open(tmp_log, "r") as log_source:
-            content = log_source.read()
-            file.write(content)
+    shutil.copy(tmp_log, run.log_file)
 
     if os.path.exists(tempdir):
         os.makedirs(run.result_files_folder, exist_ok=True)
