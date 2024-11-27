@@ -190,7 +190,8 @@ class TestCpuCoresPerRun_singleCPU(TestCpuCoresPerRun):
         self.assertInvalid(3, 3)
 
 
-class TestCpuCoresPerRun_singleCPU_HT(TestCpuCoresPerRun_singleCPU):
+class TestCpuCoresPerRun_singleCPU_HT(TestCpuCoresPerRun):
+    num_of_packages = 1
     num_of_cores = 16
     num_of_hyperthreading_siblings = 2
     use_hyperthreading = False
@@ -201,6 +202,11 @@ class TestCpuCoresPerRun_singleCPU_HT(TestCpuCoresPerRun_singleCPU):
     threeCore_assignment = [[0, 2, 4], [6, 8, 10]]
     fourCore_assignment = [[0, 2, 4, 6], [8, 10, 12, 14]]
     eightCore_assignment = [list(range(0, 16, 2))]
+
+    def test_singleCPU_invalid(self):
+        self.assertInvalid(2, 5)
+        self.assertInvalid(5, 2)
+        self.assertInvalid(3, 3)
 
     """def test_halfPhysicalCore(self):
         # Can now run if we have only half of one physical core
