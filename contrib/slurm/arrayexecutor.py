@@ -201,7 +201,7 @@ def filter_previous_results(run_set, benchmark, output_handler):
     previous_results = parse_results_file(result_file)
     if previous_results.get("version") != benchmark.tool_version:
         logging.warning(
-            f"Mismatch in tool version: old version={previous_results.get("version")}, current version: {benchmark.tool_version}"
+            f"Mismatch in tool version: old version={previous_results.get('version')}, current version: {benchmark.tool_version}"
         )
         shutil.rmtree(logfile_folder)
         shutil.rmtree(files_folder)
@@ -209,7 +209,7 @@ def filter_previous_results(run_set, benchmark, output_handler):
 
     if previous_results.get("options") != benchmark.options:
         logging.warning(
-            f"Mismatch in tool options: old options='{previous_results.get("options")}', current options: '{benchmark.options}'"
+            f"Mismatch in tool options: old options='{previous_results.get('options')}', current options: '{benchmark.options}'"
         )
         shutil.rmtree(logfile_folder)
         shutil.rmtree(files_folder)
