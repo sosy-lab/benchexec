@@ -63,6 +63,8 @@ def get_system_info_srun(singularity):
         process = subprocess.run(
             [
                 "srun",
+                "-t",
+                "1"
                 "singularity",
                 "exec",
                 singularity,
