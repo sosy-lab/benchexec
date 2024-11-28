@@ -233,10 +233,13 @@ def filter_previous_results(run_set, benchmark, output_handler):
                 key = (name, props)
                 if key in previous_runs:
                     old_log = str(
-                        run_set.real_name
-                        + "."
-                        + os.path.basename(run.identifier)
-                        + ".log"
+                        os.path.join(
+                            str(os.path.basename(logfile_zip))[0 : -(len(".zip"))],
+                            run_set.real_name
+                            + "."
+                            + os.path.basename(run.identifier)
+                            + ".log",
+                        )
                     )
                     if old_log in logfile_zip_ref.namelist():
                         with logfile_zip_ref.open(old_log) as zipped_log, open(
@@ -247,6 +250,7 @@ def filter_previous_results(run_set, benchmark, output_handler):
                         old_files_prefix = (
                             str(
                                 os.path.join(
+                                    str(os.path.basename(file_zip))[0 : -(len(".zip"))],
                                     run_set.real_name,
                                     os.path.basename(run.identifier),
                                 )
