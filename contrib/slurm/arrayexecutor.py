@@ -152,161 +152,151 @@ def filter_previous_results(run_set, benchmark, output_handler):
 
     logfile_zip = prefix + ".logfiles.zip"
     file_zip = prefix + ".files.zip"
-    logfile_folder = prefix + ".logfiles"
-    files_folder = prefix + ".files"
-
-    with zipfile.ZipFile(logfile_zip, "r") as zip_ref:
-        zip_ref.extractall(
-            benchmark.config.output_path
-        )  # we must clean this directory up on every exit point
-
-    if not os.path.isdir(logfile_folder):
-        logging.warning(
-            f"Logfiles were extracted, but could not be found under {logfile_folder}."
-        )
-        return run_set.runs
 
     if not os.path.isfile(file_zip):
         logging.warning(f"No {file_zip} found. Giving up recovery.")
-        shutil.rmtree(logfile_folder)
         return run_set.runs
 
-    with zipfile.ZipFile(file_zip, "r") as zip_ref:
-        zip_ref.extractall(
-            benchmark.config.output_path
-        )  # we must clean this directory up on every exit point
+    with zipfile.ZipFile(logfile_zip, "r") as logfile_zip_ref:
 
-    if not os.path.isdir(files_folder):
-        logging.warning(
-            f"Files were extracted, but could not be found under {files_folder}."
-        )
-        shutil.rmtree(logfile_folder)
-        return run_set.runs
+        with zipfile.ZipFile(file_zip, "r") as file_zip_ref:
 
-    xml_filename_base = prefix + ".results." + run_set.name
-    xml = xml_filename_base + ".xml"
-    xml_bz2 = xml_filename_base + ".xml.bz2"
-    if os.path.exists(xml):
-        result_file = xml
-    elif os.path.exists(xml_bz2):
-        result_file = xml_bz2
-    else:
-        logging.warning(
-            ".xml or .xml.bz2 must exist for previous run. Giving up recovery."
-        )
-        shutil.rmtree(logfile_folder)
-        shutil.rmtree(files_folder)
-        return run_set.runs
-
-    previous_results = parse_results_file(result_file)
-
-    old_version = previous_results.get("version")
-    new_version = benchmark.tool_version
-    if old_version != new_version:
-        logging.warning(
-            f"Mismatch in tool version: old version={old_version}, current version: {new_version}"
-        )
-        shutil.rmtree(logfile_folder)
-        shutil.rmtree(files_folder)
-        return run_set.runs
-
-    old_options = previous_results.get("options")
-    new_options = " ".join(benchmark.options)
-    if old_options != new_options:
-        logging.warning(
-            f"Mismatch in tool options: old options='{old_options}', current options: '{new_options}'"
-        )
-        shutil.rmtree(logfile_folder)
-        shutil.rmtree(files_folder)
-        return run_set.runs
-
-    previous_runs = {}
-    for elem in previous_results:
-        if elem.tag == "run":
-            values = {}
-            for col in elem:
-                if col.tag == "column":
-                    if "walltime" == col.get("title"):
-                        values["walltime"] = float(
-                            str(col.get("value"))[:-1]
-                        )  # ends in 's'
-                    elif "cputime" == col.get("title"):
-                        values["cputime"] = float(
-                            str(col.get("value"))[:-1]
-                        )  # ends in 's'
-                    elif "memory" == col.get("title"):
-                        values["memory"] = int(
-                            str(col.get("value"))[:-1]
-                        )  # ends in 'B'
-                    elif "returnvalue" == col.get("title"):
-                        values["exitcode"] = ProcessExitCode.create(
-                            value=int(col.get("value"))
-                        )
-                    elif "exitsignal" == col.get("title"):
-                        values["exitcode"] = ProcessExitCode.create(
-                            signal=int(col.get("value"))
-                        )
-                    elif "terminationreason" == col.get("title"):
-                        values["terminationreason"] = col.get("value")
-            # I think 'name' and 'properties' are enough to uniquely identify runs, but this should probably be more extensible
-            if values != {}:
-                previous_runs[(elem.get("name"), elem.get("properties"))] = values
-
-    missing_runs = []
-    for run in run_set.runs:
-        props = " ".join(sorted([prop.name for prop in run.properties]))
-        name = relative_path(run.identifier, result_file)
-        key = (name, props)
-        if key in previous_runs:
-            old_log = str(
-                os.path.join(
-                    logfile_folder,
-                    run_set.real_name + "." + os.path.basename(run.identifier) + ".log",
-                )
-            )
-            if os.path.exists(old_log) and os.path.isfile(old_log):
-                shutil.copy(old_log, run.log_file)
-
-                old_files = str(
-                    os.path.join(
-                        files_folder,
-                        run_set.real_name,
-                        os.path.basename(run.identifier),
-                    )
-                )
-                if os.path.exists(old_files) and os.path.isdir(old_files):
-                    os.makedirs(run.result_files_folder, exist_ok=True)
-                    for file in os.listdir(old_files):
-                        shutil.copy(
-                            os.path.join(old_files, file), run.result_files_folder
-                        )
-
-                    run.cmdline()  # we need to call this, because it sets the _cmdline value
-                    run.set_result(previous_runs[key])
-                    output_handler.output_after_run(run)
-                else:
-                    logging.warning(
-                        f"Old files directory {old_files} does not exist. Skipping run {name}."
-                    )
-                    missing_runs.append(run)
+            xml_filename_base = prefix + ".results." + run_set.name
+            xml = xml_filename_base + ".xml"
+            xml_bz2 = xml_filename_base + ".xml.bz2"
+            if os.path.exists(xml):
+                result_file = xml
+            elif os.path.exists(xml_bz2):
+                result_file = xml_bz2
             else:
                 logging.warning(
-                    f"Old log {old_log} does not exist. Skipping run {name}."
+                    ".xml or .xml.bz2 must exist for previous run. Giving up recovery."
                 )
-                missing_runs.append(run)
-        else:
-            logging.warning(
-                f"Run with key {key} not found in results. Skipping run {name}."
+                return run_set.runs
+
+            previous_results = parse_results_file(result_file)
+
+            old_version = previous_results.get("version")
+            new_version = benchmark.tool_version
+            if old_version != new_version:
+                logging.warning(
+                    f"Mismatch in tool version: old version={old_version}, current version: {new_version}"
+                )
+                return run_set.runs
+
+            old_options = previous_results.get("options")
+            new_options = " ".join(benchmark.options)
+            if old_options != new_options:
+                logging.warning(
+                    f"Mismatch in tool options: old options='{old_options}', current options: '{new_options}'"
+                )
+                return run_set.runs
+
+            previous_runs = {}
+            for elem in previous_results:
+                if elem.tag == "run":
+                    values = {}
+                    for col in elem:
+                        if col.tag == "column":
+                            if "walltime" == col.get("title"):
+                                values["walltime"] = float(
+                                    str(col.get("value"))[:-1]
+                                )  # ends in 's'
+                            elif "cputime" == col.get("title"):
+                                values["cputime"] = float(
+                                    str(col.get("value"))[:-1]
+                                )  # ends in 's'
+                            elif "memory" == col.get("title"):
+                                values["memory"] = int(
+                                    str(col.get("value"))[:-1]
+                                )  # ends in 'B'
+                            elif "returnvalue" == col.get("title"):
+                                values["exitcode"] = ProcessExitCode.create(
+                                    value=int(col.get("value"))
+                                )
+                            elif "exitsignal" == col.get("title"):
+                                values["exitcode"] = ProcessExitCode.create(
+                                    signal=int(col.get("value"))
+                                )
+                            elif "terminationreason" == col.get("title"):
+                                values["terminationreason"] = col.get("value")
+                    # I think 'name' and 'properties' are enough to uniquely identify runs, but this should probably be more extensible
+                    if values != {}:
+                        previous_runs[(elem.get("name"), elem.get("properties"))] = (
+                            values
+                        )
+
+            missing_runs = []
+            for run in run_set.runs:
+                props = " ".join(sorted([prop.name for prop in run.properties]))
+                name = relative_path(run.identifier, result_file)
+                key = (name, props)
+                if key in previous_runs:
+                    old_log = str(
+                        run_set.real_name
+                        + "."
+                        + os.path.basename(run.identifier)
+                        + ".log"
+                    )
+                    if old_log in logfile_zip_ref.namelist():
+                        with logfile_zip_ref.open(old_log) as zipped_log, open(
+                            run.log_file, "wb"
+                        ) as target_log:
+                            shutil.copyfileobj(zipped_log, target_log)
+
+                        old_files_prefix = (
+                            str(
+                                os.path.join(
+                                    run_set.real_name,
+                                    os.path.basename(run.identifier),
+                                )
+                            )
+                            + "/"
+                        )
+
+                        files_in_zip = [
+                            f
+                            for f in file_zip_ref.namelist()
+                            if f.startswith(old_files_prefix)
+                        ]
+                        if files_in_zip and len(files_in_zip) > 0:
+                            os.makedirs(run.result_files_folder, exist_ok=True)
+                            for file_in_zip in files_in_zip:
+                                if not file_in_zip.endswith("/"):
+                                    with file_zip_ref.open(
+                                        file_in_zip
+                                    ) as source_file, open(
+                                        os.path.join(
+                                            run.result_files_folder,
+                                            os.path.basename(file_in_zip),
+                                        ),
+                                        "wb",
+                                    ) as target_file:
+                                        shutil.copyfileobj(source_file, target_file)
+
+                            run.cmdline()  # we need to call this, because it sets the _cmdline value
+                            run.set_result(previous_runs[key])
+                            output_handler.output_after_run(run)
+                        else:
+                            logging.warning(
+                                f"Old files directory {old_files_prefix} does not exist. Skipping run {name}."
+                            )
+                            missing_runs.append(run)
+                    else:
+                        logging.warning(
+                            f"Old log {old_log} does not exist. Skipping run {name}."
+                        )
+                        missing_runs.append(run)
+                else:
+                    logging.warning(
+                        f"Run with key {key} not found in results. Skipping run {name}."
+                    )
+                    missing_runs.append(run)
+
+            logging.info(
+                f"Successfully recovered {len(run_set.runs) - len(missing_runs)} runs, still missing {len(missing_runs)} more."
             )
-            missing_runs.append(run)
-
-    shutil.rmtree(logfile_folder)
-    shutil.rmtree(files_folder)
-
-    logging.info(
-        f"Successfully recovered {len(run_set.runs) - len(missing_runs)} runs, still missing {len(missing_runs)} more."
-    )
-    return missing_runs
+            return missing_runs
 
 
 def execute_batch(
