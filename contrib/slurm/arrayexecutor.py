@@ -185,7 +185,7 @@ def filter_previous_results(run_set, benchmark, output_handler):
                 return run_set.runs
 
             old_options = previous_results.get("options")
-            new_options = " ".join(benchmark.options)
+            new_options = " ".join(run_set.options)
             if old_options != new_options:
                 logging.warning(
                     f"Mismatch in tool options: old options='{old_options}', current options: '{new_options}'"
