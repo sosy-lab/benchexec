@@ -195,6 +195,11 @@ class TestCpuCoresPerRun(unittest.TestCase):
         self.mainAssertValid(coreLimit, expected_assignment, max_threads)
 
 
+@expect_assignment(1, [[x] for x in range(8)])
+@expect_assignment(2, [[0, 1], [2, 3], [4, 5], [6, 7]])
+@expect_assignment(3, [[0, 1, 2], [3, 4, 5]])
+@expect_assignment(4, [[0, 1, 2, 3], [4, 5, 6, 7]])
+@expect_assignment(8, [list(range(8))])
 class TestCpuCoresPerRun_singleCPU(TestCpuCoresPerRun):
     num_of_packages = 1
     num_of_cores = 8
@@ -213,6 +218,11 @@ class TestCpuCoresPerRun_singleCPU(TestCpuCoresPerRun):
         self.assertInvalid(3, 3)
 
 
+@expect_assignment(1, [[x] for x in range(0, 16, 2)])
+@expect_assignment(2, [[0, 2], [4, 6], [8, 10], [12, 14]])
+@expect_assignment(3, [[0, 2, 4], [6, 8, 10]])
+@expect_assignment(4, [[0, 2, 4, 6], [8, 10, 12, 14]])
+@expect_assignment(8, [list(range(0, 16, 2))])
 class TestCpuCoresPerRun_singleCPU_HT(TestCpuCoresPerRun):
     num_of_packages = 1
     num_of_cores = 16
@@ -251,6 +261,86 @@ class TestCpuCoresPerRun_singleCPU_HT(TestCpuCoresPerRun):
         )"""
 
 
+@expect_assignment(
+    1,
+    [
+        [x]
+        for x in [
+            0,
+            16,
+            2,
+            18,
+            4,
+            20,
+            6,
+            22,
+            8,
+            24,
+            10,
+            26,
+            12,
+            28,
+            14,
+            30,
+        ]
+    ],
+)
+@expect_assignment(
+    2,
+    [
+        [0, 1],
+        [16, 17],
+        [2, 3],
+        [18, 19],
+        [4, 5],
+        [20, 21],
+        [6, 7],
+        [22, 23],
+        [8, 9],
+        [24, 25],
+        [10, 11],
+        [26, 27],
+        [12, 13],
+        [28, 29],
+        [14, 15],
+        [30, 31],
+    ],
+)
+@expect_assignment(
+    3,
+    [
+        [0, 1, 2],
+        [16, 17, 18],
+        [4, 5, 6],
+        [20, 21, 22],
+        [8, 9, 10],
+        [24, 25, 26],
+        [12, 13, 14],
+        [28, 29, 30],
+    ],
+)
+@expect_assignment(
+    4,
+    [
+        [0, 1, 2, 3],
+        [16, 17, 18, 19],
+        [4, 5, 6, 7],
+        [20, 21, 22, 23],
+        [8, 9, 10, 11],
+        [24, 25, 26, 27],
+        [12, 13, 14, 15],
+        [28, 29, 30, 31],
+    ],
+)
+@expect_assignment(
+    8,
+    [
+        [0, 1, 2, 3, 4, 5, 6, 7],
+        [16, 17, 18, 19, 20, 21, 22, 23],
+        [8, 9, 10, 11, 12, 13, 14, 15],
+        [24, 25, 26, 27, 28, 29, 30, 31],
+    ],
+)
 class TestCpuCoresPerRun_dualCPU_HT(TestCpuCoresPerRun):
     num_of_packages = 2
     num_of_cores = 32
@@ -342,6 +432,22 @@ class TestCpuCoresPerRun_dualCPU_HT(TestCpuCoresPerRun):
         self.assertInvalid(5, 8)
 
 
+@expect_assignment(1, [[x] for x in [0, 5, 10, 1, 6, 11, 2, 7, 12, 3, 8, 13, 4, 9, 14]])
+@expect_assignment(
+    2,
+    [
+        [0, 1],
+        [5, 6],
+        [10, 11],
+        [2, 3],
+        [7, 8],
+        [12, 13],
+    ],
+    6,
+)
+@expect_assignment(3, [[0, 1, 2], [5, 6, 7], [10, 11, 12]], 3)
+@expect_assignment(4, [[0, 1, 2, 3], [5, 6, 7, 8], [10, 11, 12, 13]])
+@expect_assignment(8, [[0, 1, 2, 3, 4, 5, 6, 7]])
 class TestCpuCoresPerRun_threeCPU(TestCpuCoresPerRun):
     num_of_packages = 3
     num_of_cores = 15
@@ -375,6 +481,60 @@ class TestCpuCoresPerRun_threeCPU(TestCpuCoresPerRun):
         self.assertInvalid(6, 2)
 
 
+@expect_assignment(
+    1, [[x] for x in [0, 10, 20, 2, 12, 22, 4, 14, 24, 6, 16, 26, 8, 18, 28]]
+)
+@expect_assignment(
+    2,
+    [
+        [0, 1],
+        [10, 11],
+        [20, 21],
+        [2, 3],
+        [12, 13],
+        [22, 23],
+        [4, 5],
+        [14, 15],
+        [24, 25],
+        [6, 7],
+        [16, 17],
+        [26, 27],
+        [8, 9],
+        [18, 19],
+        [28, 29],
+    ],
+)
+@expect_assignment(
+    3,
+    [
+        [0, 1, 2],
+        [10, 11, 12],
+        [20, 21, 22],
+        [4, 5, 6],
+        [14, 15, 16],
+        [24, 25, 26],
+    ],
+    6,
+)
+# @expect_assignment(
+#    4,
+#    [
+#        [0, 1, 2, 3],
+#        [10, 11, 12, 13],
+#        [20, 21, 22, 23],
+#        [4, 5, 6, 7],
+#        [14, 15, 16, 17],
+#        [24, 25, 26, 27],
+#    ], 6
+# )
+@expect_assignment(
+    8,
+    [
+        [0, 1, 2, 3, 4, 5, 6, 7],
+        [10, 11, 12, 13, 14, 15, 16, 17],
+        [20, 21, 22, 23, 24, 25, 26, 27],
+    ],
+)
 class TestCpuCoresPerRun_threeCPU_HT(TestCpuCoresPerRun):
     num_of_packages = 3
     num_of_cores = 30
