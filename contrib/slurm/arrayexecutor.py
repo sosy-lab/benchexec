@@ -19,6 +19,7 @@ import sys
 import tempfile
 import time
 import zipfile
+from csv import excel
 
 from benchexec import tooladapter
 from benchexec.tablegenerator import parse_results_file, handle_union_tag
@@ -426,6 +427,7 @@ def execute_batch(
         missing_runs = []
         for bin in bins:
             for i, run in bins[bin]:
+                success = False
                 try:
                     run.set_result(
                         get_run_result(
@@ -435,7 +437,7 @@ def execute_batch(
                             + ["*witness*"],  # e.g., deagle uses mismatched naming
                         )
                     )
-                    output_handler.output_after_run(run)
+                    success = True
                 except Exception as e:
                     logging.warning("could not set result due to error: %s", e)
                     if counter < benchmark.config.retry or benchmark.config.retry < 0:
@@ -454,6 +456,12 @@ def execute_batch(
                                         os.path.basename(file) + ".error",
                                     ),
                                 )
+                if success:
+                    try:
+                        output_handler.output_after_run(run)
+                    except Exception as e:
+                        logging.warning("could not print result due to error: %s", e)
+
         if len(missing_runs) > 0 and not STOPPED_BY_INTERRUPT:
             logging.info(
                 f"Retrying {len(missing_runs)} runs due to errors. Current retry count for this batch: {counter}"
