@@ -18,6 +18,29 @@ from benchexec.resources import (
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
 
+def expect_assignment(
+    number_cores: int, expected_assignment: list, max_threads: int | None = None
+) -> callable:
+    """
+    Add a new test case "test_(number_cores)_cores", which checks if the results match the expected assignment
+    The test will automatically be run by pytest
+
+    @param: number_cores            the number of cores for each parallel benchmark execution
+    @param: expected_assignment     the expected assignment as a ground truth
+    @param: max_threads             the max number of threads which can be used, or None if unlimited
+    """
+
+    def class_decorator(c: TestCpuCoresPerRun) -> callable:
+        def decorator_test_number_cores(self):
+            self._test_nCoresPerRun(number_cores, expected_assignment, max_threads)
+
+        dynamic_test_name = f"test_{number_cores}_cores"
+        setattr(c, dynamic_test_name, decorator_test_number_cores)
+        return c
+
+    return class_decorator
+
+
 def lrange(start, end):
     return list(range(start, end))
 
