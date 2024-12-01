@@ -167,7 +167,11 @@ class Cgroups(ABC):
         pass
 
     @abstractmethod
-    def create_fresh_child_cgroup(self, subsystems):
+    def create_fresh_child_cgroup(self, subsystems, prefix=None):
+        pass
+
+    @abstractmethod
+    def create_fresh_child_cgroup_for_delegation(self):
         pass
 
     @abstractmethod
@@ -352,7 +356,7 @@ class _DummyCgroups(Cgroups):
     def kill_all_tasks(self):
         pass
 
-    def create_fresh_child_cgroup(self, subsystems):
+    def create_fresh_child_cgroup(self, subsystems, prefix=None):
         return self
 
     def create_fresh_child_cgroup_for_delegation(self):

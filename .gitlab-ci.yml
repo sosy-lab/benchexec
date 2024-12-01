@@ -33,53 +33,104 @@ stages:
   - images
   - test
 
-.unit-tests: &unit-tests
+.tests:cgroupsv1: &tests-cgroupsv1
   stage: test
   before_script:
     # Create user, we do not want to test as root
     - adduser --disabled-login --gecos "" $PRIMARY_USER
-    # Activate coverage for subprocesses
-    - printf 'import coverage\ncoverage.process_startup()\n' > "/usr/local/lib/python${PYTHON_VERSION}/site-packages/sitecustomize.py"
     # Give $PRIMARY_USER permission to create cgroups
     - test/for_each_of_my_cgroups.sh chgrp $PRIMARY_USER
     - test/for_each_of_my_cgroups.sh chmod g+w $PRIMARY_USER
+    # Install pytest-cov (does not work with --user)
+    - pip install pytest-cov
     # Install BenchExec with `dev` dependencies
     - sudo -u $PRIMARY_USER pip install --user ".[dev]"
     # Start lxcfs
     - lxcfs /var/lib/lxcfs &
   script:
-    - sudo -u $PRIMARY_USER
-        COVERAGE_PROCESS_START=.coveragerc
-        coverage run -m pytest
+    - sudo -u $PRIMARY_USER python -m pytest -ra --cov
   after_script:
-    - sudo -u $PRIMARY_USER coverage combine
-    - sudo -u $PRIMARY_USER coverage report
     - sudo -u $PRIMARY_USER coverage xml
   tags:
     - privileged
+  coverage: '/TOTAL.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
   artifacts:
-    paths:
-      - coverage.xml
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.xml
 
-unit-tests:python-3.8:
-  <<: *unit-tests
+tests:cgroupsv1:python-3.8:
+  <<: *tests-cgroupsv1
   variables:
     PYTHON_VERSION: '3.8'
 
-unit-tests:python-3.9:
-  <<: *unit-tests
+tests:cgroupsv1:python-3.9:
+  <<: *tests-cgroupsv1
   variables:
     PYTHON_VERSION: '3.9'
 
-unit-tests:python-3.10:
-  <<: *unit-tests
+tests:cgroupsv1:python-3.10:
+  <<: *tests-cgroupsv1
   variables:
     PYTHON_VERSION: '3.10'
 
-unit-tests:python-3.11:
-  <<: *unit-tests
+tests:cgroupsv1:python-3.11:
+  <<: *tests-cgroupsv1
   variables:
     PYTHON_VERSION: '3.11'
+
+tests:cgroupsv1:python-3.12:
+  <<: *tests-cgroupsv1
+  variables:
+    PYTHON_VERSION: '3.12'
+
+.tests:cgroupsv2: &tests-cgroupsv2
+  stage: test
+  before_script:
+    # Prepare cgroups
+    - test/setup_cgroupsv2_in_container.sh
+    # Install pytest-cov (does not work with --user)
+    - pip install pytest-cov
+    # Install BenchExec with `dev` dependencies
+    - pip install --user ".[dev]"
+  script:
+    - python -m pytest -ra --cov
+  after_script:
+    - coverage xml
+  tags:
+    - cgroupsv2
+  coverage: '/TOTAL.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.xml
+
+tests:cgroupsv2:python-3.8:
+  <<: *tests-cgroupsv2
+  variables:
+    PYTHON_VERSION: '3.8'
+
+tests:cgroupsv2:python-3.9:
+  <<: *tests-cgroupsv2
+  variables:
+    PYTHON_VERSION: '3.9'
+
+tests:cgroupsv2:python-3.10:
+  <<: *tests-cgroupsv2
+  variables:
+    PYTHON_VERSION: '3.10'
+
+tests:cgroupsv2:python-3.11:
+  <<: *tests-cgroupsv2
+  variables:
+    PYTHON_VERSION: '3.11'
+
+tests:cgroupsv2:python-3.12:
+  <<: *tests-cgroupsv2
+  variables:
+    PYTHON_VERSION: '3.12'
 
 # Static checks
 check-format:
@@ -228,3 +279,9 @@ build-docker:test:python-3.11:
   variables:
     DOCKERFILE: test/Dockerfile.python-3.11
     IMAGE: test:python-3.11
+
+build-docker:test:python-3.12:
+  extends: .build-docker
+  variables:
+    DOCKERFILE: test/Dockerfile.python-3.12
+    IMAGE: test:python-3.12

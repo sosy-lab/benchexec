@@ -119,7 +119,7 @@ and install [cpu-energy-meter], [libseccomp2], [LXCFS], and [pqos_wrapper] if de
 
 ### Containerized Environments
 
-Please refer to the [dedicated guide](doc/benchexec-in-container.md) for the
+Please refer to the [dedicated guide](benchexec-in-container.md) for the
 necessary steps to install BenchExec inside a container.
 
 **IMPORTANT**: In any case, cgroups with all relevant controllers need to be
@@ -152,8 +152,10 @@ For other distributions, please read the following detailed requirements.
 
 Except on Ubuntu, the full feature set of BenchExec is only usable
 on **Linux 5.11 or newer**, so we suggest at least this kernel version.
+And if your system is using cgroups v2 (cf. below),
+the full feature set requires **Linux 5.19 or newer**.
 
-On older kernels, you need to avoid using the overlay filesystem (cf. below),
+On kernels than 5.11, you need to avoid using the overlay filesystem (cf. below),
 all other features are supported.
 However, we strongly recommend to use at least **Linux 4.14 or newer**
 because it reduces the overhead of BenchExec's memory measurements and limits.
@@ -212,6 +214,9 @@ On Debian/Ubuntu, this could be done with the following steps and rebooting afte
 echo 'GRUB_CMDLINE_LINUX_DEFAULT="${GRUB_CMDLINE_LINUX_DEFAULT} systemd.unified_cgroup_hierarchy=0"' | sudo tee /etc/default/grub.d/cgroupsv1-for-benchexec.cfg
 sudo update-grub
 ```
+
+Furthermore, with cgroups v2 Linux 5.19 or newer is required
+in order to have memory measurements.
 
 ### Setting up Cgroups v2 on Machines with systemd
 
