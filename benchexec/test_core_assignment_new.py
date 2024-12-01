@@ -589,7 +589,7 @@ class TestCpuCoresPerRun_threeCPU_HT(TestCpuCoresPerRun):
 
     def test_fourCoresPerRun(self):
         # Overwritten because the maximum is only 6
-        self._test_nCoresPerRun(3, self.threeCore_assignment, 6)
+        self._test_nCoresPerRun(4, self.fourCore_assignment, 6)
 
     def test_threeCPU_HT_invalid(self):
         self.assertInvalid(11, 2)
