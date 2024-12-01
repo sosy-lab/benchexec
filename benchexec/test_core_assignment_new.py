@@ -30,7 +30,7 @@ def expect_assignment(
     @param: max_threads             the max number of threads which can be used, or None if unlimited
     """
 
-    def class_decorator(c: TestCpuCoresPerRun) -> callable:
+    def class_decorator(c) -> callable:
         def decorator_test_number_cores(self):
             self._test_nCoresPerRun(number_cores, expected_assignment, max_threads)
 
