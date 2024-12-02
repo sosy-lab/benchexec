@@ -429,13 +429,11 @@ def execute_batch(
             for i, run in bins[bin]:
                 success = False
                 try:
-                    run.set_result(
-                        get_run_result(
-                            os.path.join(tempdir, str(i)),
-                            run,
-                            benchmark.result_files_patterns
-                            + ["*witness*"],  # e.g., deagle uses mismatched naming
-                        )
+                    result = get_run_result(
+                        os.path.join(tempdir, str(i)),
+                        run,
+                        benchmark.result_files_patterns
+                        + ["*witness*"],  # e.g., deagle uses mismatched naming
                     )
                     success = True
                 except Exception as e:
@@ -458,9 +456,10 @@ def execute_batch(
                                 )
                 if success:
                     try:
+                        run.set_result(result)
                         output_handler.output_after_run(run)
                     except Exception as e:
-                        logging.warning("could not print result due to error: %s", e)
+                        logging.warning("could not set result due to error: %s", e)
 
         if len(missing_runs) > 0 and not STOPPED_BY_INTERRUPT:
             logging.info(
