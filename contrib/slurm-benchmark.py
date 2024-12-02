@@ -14,6 +14,8 @@ import logging
 import os
 import sys
 
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+
 import benchexec.benchexec
 import benchexec.tools
 import benchexec.util
@@ -44,6 +46,12 @@ class Benchmark(benchexec.benchexec.BenchExec):
             help="Use SLURM to execute benchmarks.",
         )
         slurm_args.add_argument(
+            "--slurm-array",
+            dest="slurm_array",
+            action="store_true",
+            help="Use SLURM array jobs to execute benchmarks.",
+        )
+        slurm_args.add_argument(
             "--singularity",
             dest="singularity",
             type=str,
@@ -61,13 +69,46 @@ class Benchmark(benchexec.benchexec.BenchExec):
             dest="retry",
             type=int,
             default="0",
-            help="Retry killed jobs this many times. Use -1 for unbounded retry attempts.",
+            help="Retry killed jobs this many times. Use -1 for unbounded retry attempts (cannot be used with --slurm-array).",
+        )
+
+        slurm_args.add_argument(
+            "--aggregation-factor",
+            dest="aggregation_factor",
+            type=int,
+            default="10",
+            help="Aggregation factor for batch jobs (this many tasks will run in a single SLURM job).",
+        )
+        slurm_args.add_argument(
+            "--batch-size",
+            dest="batch_size",
+            type=int,
+            default="5000",
+            help="Split run sets into batches of at most this size. Helpful in avoiding errors with script sizes.",
+        )
+        slurm_args.add_argument(
+            "--parallelization",
+            dest="concurrency_factor",
+            type=int,
+            default="4",
+            help="Run this many tasks at once in one job.",
+        )
+        slurm_args.add_argument(
+            "--continue-interrupted",
+            dest="continue_interrupted",
+            action="store_true",
+            help="Continue a previously interrupted job.",
         )
 
         return parser
 
     def load_executor(self):
-        if self.config.slurm:
+        if self.config.slurm_array:
+            from slurm import arrayexecutor as executor
+        elif self.config.slurm:
+            logging.error(
+                "Single-job-based SLURM-integration is no longer supported. Use --slurm-array instead."
+            )
             from slurm import slurmexecutor as executor
         else:
             logging.warning(
