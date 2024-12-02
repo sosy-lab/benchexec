@@ -19,7 +19,7 @@ sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
 
 def expect_assignment(
-    number_cores: int, expected_assignment: list, max_threads: int | None = None
+    number_cores: int, expected_assignment: list, max_threads=None
 ) -> callable:
     """
     Add a new test case "test_(number_cores)_cores", which checks if the results match the expected assignment
