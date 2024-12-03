@@ -54,6 +54,8 @@ def find_tool_base_dir(tool_locator, executable):
         if executable_path.is_relative_to(abs_candidate_dir):
             return abs_candidate_dir
 
+    return None
+
 
 class ContainerizedVersionGetter:
     def __init__(self, tool_base_dir, image, fall_back):
@@ -143,12 +145,12 @@ def init(config, benchmark):
     benchmark.executable = benchmark.tool.executable(tool_locator)
     if config.containerImage:
         tool_base_dir = find_tool_base_dir(tool_locator, benchmark.executable)
-        print(f"tool_base_dir: {tool_base_dir}")
-        benchmark.tool._version_from_tool = ContainerizedVersionGetter(
-            tool_base_dir,
-            config.containerImage,
-            fall_back=benchmark.tool._version_from_tool,
-        )
+        if tool_base_dir is not None:
+            benchmark.tool._version_from_tool = ContainerizedVersionGetter(
+                tool_base_dir,
+                config.containerImage,
+                fall_back=benchmark.tool._version_from_tool,
+            )
 
     benchmark.tool_version = benchmark.tool.version(benchmark.executable)
     environment = benchmark.environment()
