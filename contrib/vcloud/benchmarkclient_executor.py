@@ -11,9 +11,11 @@ import os
 import shutil
 import subprocess
 import sys
+from pathlib import Path
 
 import benchexec.tooladapter
 import benchexec.util
+from benchexec.tools.template import ToolNotFoundException
 
 from . import vcloudutil
 
@@ -35,12 +37,95 @@ def set_vcloud_jar_path(p):
     vcloud_jar = p
 
 
+class CustomToolLocator:
+    def __init__(self, tool_directory=None, container_mount_point=None):
+        self.tool_directory = tool_directory
+        self.container_mount_point = container_mount_point
+
+    def find_executable(self, executable_name, subdir=""):
+        logging.debug(
+            "Using custom tool locator to find executable %s", executable_name
+        )
+        assert (
+            os.path.basename(executable_name) == executable_name
+        ), "Executable needs to be a simple file name"
+        dirs = []
+
+        if not self.tool_directory:
+            raise ToolNotFoundException(
+                "Podman containerized tool info module execution is only possible with --tool-directory explicitly set."
+            )
+
+        assert self.container_mount_point is not None, "Container mount point not set"
+
+        # At this point we know, that the tool is located at container_mount_point
+        # as the container as the tool_dir mounted to this location
+        dirs.append(os.path.join(self.container_mount_point, subdir))
+        logging.debug("Searching for executable %s in %s", executable_name, dirs)
+
+        executable = benchexec.util.find_executable2(executable_name, dirs)
+        if executable:
+            return executable
+
+        other_file = benchexec.util.find_executable2(executable_name, dirs, os.F_OK)
+        if other_file:
+            raise ToolNotFoundException(
+                f"Could not find executable '{executable_name}', "
+                f"but found file '{other_file}' that is not executable."
+            )
+
+        msg = (
+            f"Could not find executable '{executable_name}'. "
+            f"The searched directories were: " + "".join("\n  " + d for d in dirs)
+        )
+        if not self.tool_directory:
+            msg += "\nYou can specify the tool's directory with --tool-directory."
+
+        raise ToolNotFoundException(msg)
+
+
 def init(config, benchmark):
     global _JustReprocessResults
     _JustReprocessResults = config.reprocessResults
-    tool_locator = benchexec.tooladapter.create_tool_locator(config)
-    benchmark.executable = benchmark.tool.executable(tool_locator)
-    benchmark.tool_version = benchmark.tool.version(benchmark.executable)
+
+    if config.containerImage:
+        from vcloud.podman_containerized_tool import TOOL_DIRECTORY_MOUNT_POINT
+
+        tool_locator = CustomToolLocator(
+            config.tool_directory, TOOL_DIRECTORY_MOUNT_POINT
+        )
+        executable_for_version = benchmark.tool.executable(tool_locator)
+        benchmark.tool_version = benchmark.tool.version(executable_for_version)
+
+        # If the tool info does not call find_executable, we don't know if the
+        # executable path is containing the mount point.
+        # In this case we can check whether the path is relative
+        # and continue with the assumption that it is relative to the provided
+        # tool directory.
+        try:
+            executable_relative_to_mount_point = Path(
+                executable_for_version
+            ).relative_to(TOOL_DIRECTORY_MOUNT_POINT)
+        except ValueError:
+            if Path(executable_for_version).is_absolute():
+                raise ValueError(
+                    f"Executable path {executable_for_version} is not relative"
+                    " and is not containing the expected container to the mount point"
+                    " {TOOL_DIRECTORY_MOUNT_POINT}"
+                ) from None
+            executable_relative_to_mount_point = executable_for_version
+
+        # The vcloud uses the tool location later to determine which files need to be uploaded
+        # So this needs to point to the actual path where the executable is on the host
+        benchmark.executable = (
+            Path(config.tool_directory) / executable_relative_to_mount_point
+        )
+
+    else:
+        tool_locator = benchexec.tooladapter.create_tool_locator(config)
+        benchmark.executable = benchmark.tool.executable(tool_locator)
+        benchmark.tool_version = benchmark.tool.version(executable_for_version)
+
     environment = benchmark.environment()
     if environment.get("keepEnv", None) or environment.get("additionalEnv", None):
         sys.exit(
