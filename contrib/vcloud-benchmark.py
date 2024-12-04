@@ -9,19 +9,20 @@
 
 import logging
 import os
+import subprocess
 import sys
 import tempfile
 import urllib.request
-import subprocess
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from vcloud.vcloudbenchmarkbase import VcloudBenchmarkBase  # noqa E402
 from vcloud import vcloudutil  # noqa E402
-from benchexec import __version__  # noqa E402
+from vcloud.vcloudbenchmarkbase import VcloudBenchmarkBase  # noqa E402
+
 import benchexec.benchexec  # noqa E402
 import benchexec.tools  # noqa E402
+from benchexec import __version__  # noqa E402
 
 _ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "vcloud"))
 IVY_JAR_NAME = "ivy-2.5.0.jar"
