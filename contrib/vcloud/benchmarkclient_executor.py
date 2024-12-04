@@ -94,11 +94,13 @@ def init(config, benchmark):
         tool_locator = CustomToolLocator(
             config.tool_directory, TOOL_DIRECTORY_MOUNT_POINT
         )
-    else:
-        tool_locator = benchexec.tooladapter.create_tool_locator(config)
+        executable_for_version = benchmark.tool.executable(tool_locator)
+        benchmark.tool_version = benchmark.tool.version(executable_for_version)
 
+    # The vcloud uses the tool location later to determine which files need to be uploaded
+    tool_locator = benchexec.tooladapter.create_tool_locator(config)
     benchmark.executable = benchmark.tool.executable(tool_locator)
-    benchmark.tool_version = benchmark.tool.version(benchmark.executable)
+
     environment = benchmark.environment()
     if environment.get("keepEnv", None) or environment.get("additionalEnv", None):
         sys.exit(
