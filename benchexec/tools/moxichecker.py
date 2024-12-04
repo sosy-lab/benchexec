@@ -14,7 +14,7 @@ class Tool(benchexec.tools.template.BaseTool2):
     Tool info for MoXIchecker
     """
 
-    REQUIRED_PATHS = ["moxichecker/"]
+    REQUIRED_PATHS = ["moxichecker/", "lib/"]
 
     def executable(self, tool_locator):
         return tool_locator.find_executable("moxichecker", subdir="bin")
