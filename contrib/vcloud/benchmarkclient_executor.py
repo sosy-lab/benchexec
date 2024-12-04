@@ -15,6 +15,7 @@ from pathlib import Path
 
 import benchexec.tooladapter
 import benchexec.util
+from benchexec.tools.template import ToolNotFoundException
 
 from . import vcloudutil
 
@@ -36,121 +37,65 @@ def set_vcloud_jar_path(p):
     vcloud_jar = p
 
 
-def find_tool_base_dir(tool_locator, executable):
-    dirs = []
-    if tool_locator.tool_directory:
-        # join automatically handles the case where subdir is the empty string
-        dirs.append(tool_locator.tool_directory)
-    if tool_locator.use_path:
-        dirs.extend(benchexec.util.get_path())
-    if tool_locator.use_current:
-        dirs.append(os.curdir)
+class CustomToolLocator:
+    def __init__(self, tool_directory=None, container_mount_point=None):
+        self.tool_directory = tool_directory
+        self.container_mount_point = container_mount_point
 
-    executable_path = Path(executable).resolve()
-    print(f"executable_path: {executable_path}")
-    for candidate_dir in dirs:
-        print(f"candidate_dir: {candidate_dir}")
-        abs_candidate_dir = Path(candidate_dir).resolve()
-        if executable_path.is_relative_to(abs_candidate_dir):
-            return abs_candidate_dir
+    def find_executable(self, executable_name, subdir=""):
+        logging.debug(
+            "Using custom tool locator to find executable %s", executable_name
+        )
+        assert (
+            os.path.basename(executable_name) == executable_name
+        ), "Executable needs to be a simple file name"
+        dirs = []
 
-    return None
-
-
-class ContainerizedVersionGetter:
-    def __init__(self, tool_base_dir, image, fall_back):
-        self.tool_base_dir: Path = Path(tool_base_dir)
-        self.image = image
-        self.fall_back = fall_back
-
-    def __call__(
-        self,
-        executable,
-        arg="--version",
-        use_stderr=False,
-        ignore_stderr=False,
-        line_prefix=None,
-    ):
-        """
-        This function is a replacement for the get_version_from_tool. It wraps the call to the tool
-        in a container.
-        """
-        if shutil.which("podman") is None:
-            logging.warning(
-                "Podman is not available on the system.\n Determining version will fall back to the default way."
-            )
-            return self.fall_back(
-                executable, arg, use_stderr, ignore_stderr, line_prefix
+        if not self.tool_directory:
+            raise ToolNotFoundException(
+                "Podman containerized tool info module execution is only possible with --tool-directory explicitly set."
             )
 
-        command = [
-            "podman",
-            "run",
-            "--rm",
-            "--entrypoint",
-            '[""]',
-            "--volume",
-            f"{self.tool_base_dir}:{self.tool_base_dir}",
-            "--workdir",
-            str(self.tool_base_dir),
-            self.image,
-            Path(executable).resolve().relative_to(self.tool_base_dir),
-            arg,
-        ]
-        logging.info("Using container with podman to determine version.")
-        logging.debug("Running command: %s", " ".join(map(str, command)))
-        try:
-            process = subprocess.run(
-                command,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                stdin=subprocess.DEVNULL,
-                universal_newlines=True,
-            )
-        except OSError as e:
-            logging.warning(
-                "Cannot run %s to determine version: %s", executable, e.strerror
-            )
-            return ""
-        if process.stderr and not use_stderr and not ignore_stderr:
-            logging.warning(
-                "Cannot determine %s version, error output: %s",
-                executable,
-                process.stderr,
-            )
-            return ""
-        if process.returncode:
-            logging.warning(
-                "Cannot determine %s version, exit code %s",
-                executable,
-                process.returncode,
-            )
-            return ""
+        assert self.container_mount_point is not None, "Container mount point not set"
 
-        output = (process.stderr if use_stderr else process.stdout).strip()
-        if line_prefix:
-            matches = (
-                line[len(line_prefix) :].strip()
-                for line in output.splitlines()
-                if line.startswith(line_prefix)
+        dirs.append(os.path.join(self.container_mount_point, subdir))
+        logging.debug("Searching for executable %s in %s", executable_name, dirs)
+
+        executable = benchexec.util.find_executable2(executable_name, dirs)
+        if executable:
+            return os.path.relpath(executable, self.tool_directory)
+
+        other_file = benchexec.util.find_executable2(executable_name, dirs, os.F_OK)
+        if other_file:
+            raise ToolNotFoundException(
+                f"Could not find executable '{executable_name}', "
+                f"but found file '{other_file}' that is not executable."
             )
-            output = next(matches, "")
-        return output
+
+        msg = (
+            f"Could not find executable '{executable_name}'. "
+            f"The searched directories were: " + "".join("\n  " + d for d in dirs)
+        )
+        if not self.tool_directory:
+            msg += "\nYou can specify the tool's directory with --tool-directory."
+
+        raise ToolNotFoundException(msg)
 
 
 def init(config, benchmark):
     global _JustReprocessResults
     _JustReprocessResults = config.reprocessResults
-    tool_locator = benchexec.tooladapter.create_tool_locator(config)
-    benchmark.executable = benchmark.tool.executable(tool_locator)
+
     if config.containerImage:
-        tool_base_dir = find_tool_base_dir(tool_locator, benchmark.executable)
-        if tool_base_dir is not None:
-            benchmark.tool._version_from_tool = ContainerizedVersionGetter(
-                tool_base_dir,
-                config.containerImage,
-                fall_back=benchmark.tool._version_from_tool,
-            )
+        from vcloud.podman_containerized_tool import TOOL_DIRECTORY_MOUNT_POINT
+
+        tool_locator = CustomToolLocator(
+            config.tool_directory, TOOL_DIRECTORY_MOUNT_POINT
+        )
+    else:
+        tool_locator = benchexec.tooladapter.create_tool_locator(config)
+
+    benchmark.executable = benchmark.tool.executable(tool_locator)
 
     benchmark.tool_version = benchmark.tool.version(benchmark.executable)
     environment = benchmark.environment()
