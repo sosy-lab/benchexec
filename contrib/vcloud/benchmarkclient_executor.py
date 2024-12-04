@@ -58,12 +58,14 @@ class CustomToolLocator:
 
         assert self.container_mount_point is not None, "Container mount point not set"
 
+        # At this point we know, that the tool is located at container_mount_point
+        # as the container as the tool_dir mounted to this location
         dirs.append(os.path.join(self.container_mount_point, subdir))
         logging.debug("Searching for executable %s in %s", executable_name, dirs)
 
         executable = benchexec.util.find_executable2(executable_name, dirs)
         if executable:
-            return os.path.relpath(executable, self.tool_directory)
+            return executable
 
         other_file = benchexec.util.find_executable2(executable_name, dirs, os.F_OK)
         if other_file:
