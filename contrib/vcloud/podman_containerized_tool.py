@@ -244,7 +244,7 @@ def _init_container(
                     "Failed to join namespace %s: %s", namespace, os.strerror(e.errno)
                 )
 
-        os.chdir("/mnt")
+        os.chdir(TOOL_DIRECTORY_MOUNT_POINT)
         return container_id
 
     except OSError as e:

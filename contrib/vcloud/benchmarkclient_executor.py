@@ -96,7 +96,6 @@ def init(config, benchmark):
         tool_locator = benchexec.tooladapter.create_tool_locator(config)
 
     benchmark.executable = benchmark.tool.executable(tool_locator)
-
     benchmark.tool_version = benchmark.tool.version(benchmark.executable)
     environment = benchmark.environment()
     if environment.get("keepEnv", None) or environment.get("additionalEnv", None):
