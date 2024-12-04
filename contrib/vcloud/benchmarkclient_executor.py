@@ -97,9 +97,34 @@ def init(config, benchmark):
         executable_for_version = benchmark.tool.executable(tool_locator)
         benchmark.tool_version = benchmark.tool.version(executable_for_version)
 
-    # The vcloud uses the tool location later to determine which files need to be uploaded
-    tool_locator = benchexec.tooladapter.create_tool_locator(config)
-    benchmark.executable = benchmark.tool.executable(tool_locator)
+        # If the tool info does not call find_executable, we don't know if the
+        # executable path is containing the mount point.
+        # In this case we can check whether the path is relative
+        # and continue with the assumption that it is relative to the provided
+        # tool directory.
+        try:
+            executable_relative_to_mount_point = Path(
+                executable_for_version
+            ).relative_to(TOOL_DIRECTORY_MOUNT_POINT)
+        except ValueError:
+            if Path(executable_for_version).is_absolute():
+                raise ValueError(
+                    f"Executable path {executable_for_version} is not relative"
+                    " and is not containing the expected container to the mount point"
+                    " {TOOL_DIRECTORY_MOUNT_POINT}"
+                ) from None
+            executable_relative_to_mount_point = executable_for_version
+
+        # The vcloud uses the tool location later to determine which files need to be uploaded
+        # So this needs to point to the actual path where the executable is on the host
+        benchmark.executable = (
+            Path(config.tool_directory) / executable_relative_to_mount_point
+        )
+
+    else:
+        tool_locator = benchexec.tooladapter.create_tool_locator(config)
+        benchmark.executable = benchmark.tool.executable(tool_locator)
+        benchmark.tool_version = benchmark.tool.version(executable_for_version)
 
     environment = benchmark.environment()
     if environment.get("keepEnv", None) or environment.get("additionalEnv", None):
