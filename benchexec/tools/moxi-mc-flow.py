@@ -7,7 +7,6 @@
 
 import benchexec.result as result
 import benchexec.tools.template
-from math import ceil
 
 
 class Tool(benchexec.tools.template.BaseTool2):
