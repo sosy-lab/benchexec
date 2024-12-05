@@ -37,8 +37,6 @@ class Tool(benchexec.tools.template.BaseTool2):
         """
         @return: status of AVR after executing a run
         """
-        if run.was_timeout:
-            return result.RESULT_TIMEOUT
         for line in run.output[::-1]:
             # skip the lines that do not contain verification result
             if not line.startswith("Verification result:"):
