@@ -32,9 +32,6 @@ class Tool(benchexec.tools.template.BaseTool2):
     def project_url(self):
         return "https://github.com/ModelChecker/moxi-mc-flow"
 
-    def program_files(self, executable):
-        return self._program_files_from_executable(executable, self.REQUIRED_PATHS)
-
     def cmdline(self, executable, options, task, rlimits):
         if rlimits.cputime and "--timeout" not in options:
             options += ["--timeout", str(ceil(rlimits.cputime * 1.05))]
