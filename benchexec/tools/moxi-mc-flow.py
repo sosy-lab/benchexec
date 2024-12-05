@@ -34,7 +34,15 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def cmdline(self, executable, options, task, rlimits):
         if rlimits.cputime and "--timeout" not in options:
-            options += ["--timeout", str(ceil(rlimits.cputime * 1.05))]
+            # The `--timeout` parameter must be passed to the tool
+            # to prevent it from using its default value,
+            # which could be shorter than the limit set by BenchExec
+            # and cause early termination.
+            # Moreover, in practice the tool sometimes terminates itself prematurely
+            # even when the exact time limit is passed.
+            # To prevent this and ensure the tool utilizes the full time limit,
+            # a factor of 2 is applied to the timeout value.
+            options += ["--timeout", str(rlimits.cputime * 2)]
         return ["python3", executable, task.single_input_file, *options]
 
     def determine_result(self, run):
