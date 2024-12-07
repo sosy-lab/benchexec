@@ -22,7 +22,7 @@ def expect_assignment(
     number_cores: int, expected_assignment: list, max_threads=None
 ) -> callable:
     """
-    Add a new test case "test_(number_cores)_cores", which checks if the results match the expected assignment
+    Add a new test case "test_(number_cores)_cores_assignment", which checks if the results match the expected assignment
     The test will automatically be run by pytest
 
     @param: number_cores            the number of cores for each parallel benchmark execution
@@ -31,11 +31,11 @@ def expect_assignment(
     """
 
     def class_decorator(c) -> callable:
-        def decorator_test_number_cores(self):
+        def decorator_test_assignment(self):
             self._test_nCoresPerRun(number_cores, expected_assignment, max_threads)
 
-        dynamic_test_name = f"test_{number_cores}_cores"
-        setattr(c, dynamic_test_name, decorator_test_number_cores)
+        dynamic_test_name = f"test_{number_cores}_cores_assignment"
+        setattr(c, dynamic_test_name, decorator_test_assignment)
         return c
 
     return class_decorator
