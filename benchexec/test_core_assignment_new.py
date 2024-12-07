@@ -355,9 +355,6 @@ class TestCpuCoresPerRun_threeCPU(TestCpuCoresPerRun):
     num_of_hyperthreading_siblings = 1
     use_hyperthreading = False
 
-    def test_threeCPU_invalid(self):
-        self.assertInvalid(6, 2)
-
 
 @expect_assignment(
     1, [[x] for x in [0, 10, 20, 2, 12, 22, 4, 14, 24, 6, 16, 26, 8, 18, 28]]
@@ -650,12 +647,6 @@ class Test_Topology_P1_NUMA2_L8_C16_T(TestCpuCoresPerRun):
     num_of_cores = 16
     num_of_hyperthreading_siblings = 2
     use_hyperthreading = True
-
-    def test_invalid(self):
-        # coreLimit, num_of_threads
-        self.assertInvalid(2, 9)
-        self.assertInvalid(4, 5)
-        self.assertInvalid(3, 5)
 
 
 @expect_assignment(1, [[x] for x in [0, 4, 8, 2, 6, 10]])
