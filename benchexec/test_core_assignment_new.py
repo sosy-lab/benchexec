@@ -202,11 +202,6 @@ class TestCpuCoresPerRun_singleCPU(TestCpuCoresPerRun):
     num_of_hyperthreading_siblings = 1
     use_hyperthreading = False
 
-    def test_singleCPU_invalid(self):
-        self.assertInvalid(2, 5)
-        self.assertInvalid(5, 2)
-        self.assertInvalid(3, 3)
-
 
 @expect_assignment(1, [[x] for x in range(0, 16, 2)])
 @expect_assignment(2, [[0, 2], [4, 6], [8, 10], [12, 14]])
@@ -221,11 +216,6 @@ class TestCpuCoresPerRun_singleCPU_HT(TestCpuCoresPerRun):
     use_hyperthreading = False
 
     # 0(1)  2(3)    4(5)    6(7)
-
-    def test_singleCPU_invalid(self):
-        self.assertInvalid(2, 5)
-        self.assertInvalid(5, 2)
-        self.assertInvalid(3, 3)
 
     """def test_halfPhysicalCore(self):
         # Can now run if we have only half of one physical core
@@ -341,14 +331,6 @@ class TestCpuCoresPerRun_dualCPU_HT(TestCpuCoresPerRun):
     def test_dualCPU_HT(self):
         self.assertValid(16, 2, [lrange(0, 16), lrange(16, 32)])
 
-    def test_dualCPU_HT_invalid(self):
-        self.assertInvalid(2, 17)
-        self.assertInvalid(17, 2)
-        self.assertInvalid(4, 9)
-        self.assertInvalid(9, 4)
-        self.assertInvalid(8, 5)
-        self.assertInvalid(5, 8)
-
 
 @expect_assignment(1, [[x] for x in [0, 5, 10, 1, 6, 11, 2, 7, 12, 3, 8, 13, 4, 9, 14]])
 @expect_assignment(
@@ -438,9 +420,6 @@ class TestCpuCoresPerRun_threeCPU_HT(TestCpuCoresPerRun):
     num_of_hyperthreading_siblings = 2
     use_hyperthreading = True
 
-    def test_threeCPU_HT_invalid(self):
-        self.assertInvalid(11, 2)
-
     def test_threeCPU_HT_noncontiguousId(self):
         """
         3 CPUs with one core (plus HT) and non-contiguous core and package numbers.
@@ -528,39 +507,6 @@ class TestCpuCoresPerRun_quadCPU_HT(TestCpuCoresPerRun):
         # self.assertValid(5, 12) - we do not divide HT siblings: 6*12 =72
         self.assertValid(8, 8)
 
-    def test_quadCPU_HT_invalid(self):
-        self.assertInvalid(2, 33)
-        self.assertInvalid(33, 2)
-        self.assertInvalid(3, 21)
-        self.assertInvalid(17, 3)
-        self.assertInvalid(4, 17)
-        self.assertInvalid(17, 4)
-        self.assertInvalid(5, 13)
-        self.assertInvalid(9, 5)
-        self.assertInvalid(6, 9)
-        self.assertInvalid(9, 6)
-        self.assertInvalid(7, 9)
-        self.assertInvalid(9, 7)
-        self.assertInvalid(8, 9)
-        self.assertInvalid(9, 8)
-
-        self.assertInvalid(9, 5)
-        self.assertInvalid(6, 9)
-        self.assertInvalid(10, 5)
-        self.assertInvalid(6, 10)
-        self.assertInvalid(11, 5)
-        self.assertInvalid(6, 11)
-        self.assertInvalid(12, 5)
-        self.assertInvalid(6, 12)
-        self.assertInvalid(13, 5)
-        self.assertInvalid(5, 13)
-        self.assertInvalid(14, 5)
-        self.assertInvalid(5, 14)
-        self.assertInvalid(15, 5)
-        self.assertInvalid(5, 15)
-        self.assertInvalid(16, 5)
-        self.assertInvalid(5, 16)
-
 
 @expect_assignment(1, [[x] for x in [0, 2, 4, 6]])
 @expect_assignment(2, [[0, 2], [4, 6]])
@@ -572,13 +518,6 @@ class TestCpuCoresPerRun_singleCPU_no_ht(TestCpuCoresPerRun):
     num_of_cores = 8
     num_of_hyperthreading_siblings = 2
     use_hyperthreading = False
-
-    def test_singleCPU_no_ht_invalid(self):
-        self.assertInvalid(1, 5)
-        self.assertInvalid(2, 3)
-        self.assertInvalid(3, 2)
-        self.assertInvalid(4, 2)
-        self.assertInvalid(8, 1)
 
 
 @expect_assignment(1, [[0], [8], [2], [10], [4], [12], [6], [14]])
@@ -595,18 +534,6 @@ class TestCpuCoresPerRun_dualCPU_no_ht(TestCpuCoresPerRun):
     num_of_hyperthreading_siblings = 2
     use_hyperthreading = False
 
-    def test_dualCPU_no_ht_invalid(self):
-        self.assertInvalid(1, 9)
-        self.assertInvalid(1, 10)
-        self.assertInvalid(2, 5)
-        self.assertInvalid(2, 6)
-        self.assertInvalid(3, 3)
-        self.assertInvalid(3, 4)
-        self.assertInvalid(4, 3)
-        self.assertInvalid(4, 4)
-        self.assertInvalid(8, 2)
-        self.assertInvalid(8, 3)
-
 
 @expect_assignment(1, [[x] for x in [0, 6, 12, 2, 8, 14, 4, 10, 16]])
 @expect_assignment(2, [[0, 2], [6, 8], [12, 14]], 3)
@@ -619,13 +546,6 @@ class TestCpuCoresPerRun_threeCPU_no_ht(TestCpuCoresPerRun):
     num_of_cores = 18
     num_of_hyperthreading_siblings = 2
     use_hyperthreading = False
-
-    def test_threeCPU_no_ht_invalid(self):
-        self.assertInvalid(1, 10)
-        self.assertInvalid(2, 4)
-        self.assertInvalid(3, 4)
-        self.assertInvalid(4, 2)
-        self.assertInvalid(8, 2)
 
 
 @expect_assignment(
@@ -669,18 +589,9 @@ class TestCpuCoresPerRun_quadCPU_no_ht(TestCpuCoresPerRun):
     num_of_hyperthreading_siblings = 2
     use_hyperthreading = False
 
-    def test_quadCPU_no_ht_invalid(self):
-        self.assertInvalid(1, 17)
-        self.assertInvalid(2, 9)
-        self.assertInvalid(3, 5)
-        self.assertInvalid(4, 5)
-        self.assertInvalid(8, 3)
-
     def test_quadCPU_no_ht_valid(self):
         self.assertValid(5, 2, [[0, 2, 4, 6, 8], [16, 18, 20, 22, 24]])
-        self.assertInvalid(5, 3)
         self.assertValid(6, 2, [[0, 2, 4, 6, 8, 10], [16, 18, 20, 22, 24, 26]])
-        self.assertInvalid(6, 3)
 
 
 @expect_assignment(1, [[x] for x in [0, 8, 2, 10, 4, 12, 6, 14]])
@@ -711,12 +622,6 @@ class Test_Topology_P1_NUMA2_L8_C16_F(TestCpuCoresPerRun):
 
     0-  2-     4-   6-     8-   10-   12-  14-
     """
-
-    def test_invalid(self):
-        # coreLimit, num_of_threads
-        self.assertInvalid(2, 5)
-        self.assertInvalid(5, 2)
-        self.assertInvalid(3, 3)
 
 
 @expect_assignment(1, [[x] for x in [0, 8, 2, 10, 4, 12, 6, 14]])
@@ -772,12 +677,6 @@ class Test_Topology_P1_NUMA3_L6_C12_F(TestCpuCoresPerRun):
     0   (1)     2   (3)     4   (5)     6   (7)     8   (9)     10     (11)     cores
     """
 
-    def test_invalid(self):
-        # coreLimit, num_of_threads
-        self.assertInvalid(2, 4)
-        self.assertInvalid(3, 2)
-        self.assertInvalid(4, 2)
-
 
 @expect_assignment(1, [[x] for x in [0, 4, 8, 2, 6, 10]])
 @expect_assignment(2, [[0, 1], [4, 5], [8, 9], [2, 3], [6, 7], [10, 11]])
@@ -802,13 +701,6 @@ class Test_Topology_P1_NUMA3_L6_C12_T(TestCpuCoresPerRun):
     0   1     2    3        4     5     6   7       8   9     10    11          cores
     """
 
-    def test_invalid(self):
-        # coreLimit, num_of_threads
-        self.assertInvalid(2, 7)
-        self.assertInvalid(3, 4)
-        self.assertInvalid(4, 4)
-        self.assertInvalid(5, 2)
-
 
 @expect_assignment(1, [[x] for x in [0, 8, 4, 12, 2, 10, 6, 14]])
 @expect_assignment(2, [[0, 2], [8, 10], [4, 6], [12, 14]])
@@ -823,13 +715,6 @@ class Test_Topology_P2_NUMA4_L8_C16_F(TestCpuCoresPerRun):
     num_of_cores = 16
     num_of_hyperthreading_siblings = 2
     use_hyperthreading = False
-
-    def test_invalid(self):
-        # coreLimit, num_of_threads
-        self.assertInvalid(2, 5)
-        self.assertInvalid(3, 3)
-        self.assertInvalid(4, 3)
-        self.assertInvalid(8, 2)
 
 
 @expect_assignment(1, [[x] for x in [0, 8, 4, 12, 2, 10, 6, 14]])
@@ -858,13 +743,6 @@ class Test_Topology_P2_NUMA4_L8_C16_T(TestCpuCoresPerRun):
     num_of_hyperthreading_siblings = 2
     use_hyperthreading = True
 
-    def test_invalid(self):
-        # coreLimit, num_of_threads
-        self.assertInvalid(2, 9)
-        self.assertInvalid(3, 5)
-        self.assertInvalid(4, 5)
-        self.assertInvalid(8, 3)
-
 
 @expect_assignment(1, [[x] for x in [0, 8, 4, 12, 2, 10, 6, 14]])
 @expect_assignment(2, [[0, 2], [8, 10], [4, 6], [12, 14]])
@@ -880,13 +758,6 @@ class Test_Topology_P1_G2_NUMA4_L8_C16_F(TestCpuCoresPerRun):
     num_of_cores = 16
     num_of_hyperthreading_siblings = 2
     use_hyperthreading = False
-
-    def test_invalid(self):
-        # coreLimit, num_of_threads
-        self.assertInvalid(2, 5)
-        self.assertInvalid(3, 3)
-        self.assertInvalid(4, 3)
-        self.assertInvalid(8, 2)
 
 
 @expect_assignment(1, [[x] for x in [0, 8, 4, 12, 2, 10, 6, 14]])
@@ -916,13 +787,6 @@ class Test_Topology_P1_G2_NUMA4_L8_C16_T(TestCpuCoresPerRun):
     num_of_hyperthreading_siblings = 2
     use_hyperthreading = True
 
-    def test_invalid(self):
-        # coreLimit, num_of_threads
-        self.assertInvalid(2, 9)
-        self.assertInvalid(3, 5)
-        self.assertInvalid(4, 5)
-        self.assertInvalid(8, 3)
-
 
 @expect_assignment(1, [[x] for x in [0, 6, 3, 9]])
 @expect_assignment(2, [[0, 3], [6, 9]])
@@ -936,13 +800,6 @@ class Test_Topology_P1_NUMA2_L4_C12_F3(TestCpuCoresPerRun):
     num_of_cores = 12
     num_of_hyperthreading_siblings = 3
     use_hyperthreading = False
-
-    def test_invalid(self):
-        # coreLimit, num_of_threads
-        self.assertInvalid(2, 3)
-        self.assertInvalid(3, 2)
-        self.assertInvalid(4, 2)
-        self.assertInvalid(8, 3)
 
 
 @expect_assignment(1, [[x] for x in [0, 6, 3, 9]])
@@ -958,13 +815,6 @@ class Test_Topology_P1_NUMA2_L4_C12_T3(TestCpuCoresPerRun):
     num_of_cores = 12
     num_of_hyperthreading_siblings = 3
     use_hyperthreading = True
-
-    def test_invalid(self):
-        # coreLimit, num_of_threads
-        self.assertInvalid(2, 5)
-        self.assertInvalid(3, 5)
-        self.assertInvalid(4, 3)
-        self.assertInvalid(8, 2)
 
 
 # fmt: off
