@@ -41,6 +41,29 @@ def expect_assignment(
     return class_decorator
 
 
+def expect_invalid(core_and_thread_tupels: list) -> callable:
+    """
+    Add a new test case "test_(number_cores)_cores_(number_threads)_threads_invalid", which checks if an exception is raised due to
+    impossibility of an assignment
+
+    @param: core_and_thread_tupels  list of tupels with invalid numbers of cores and threads
+    """
+
+    def class_decorator(c) -> callable:
+        for number_cores, number_threads in core_and_thread_tupels:
+
+            def decorator_test_invalid(self):
+                self.assertInvalid(number_cores, number_threads)
+
+            dynamic_test_name = (
+                f"test_{number_cores}_cores_{number_threads}_threads_invalid"
+            )
+            setattr(c, dynamic_test_name, decorator_test_invalid)
+        return c
+
+    return class_decorator
+
+
 def lrange(start, end):
     return list(range(start, end))
 
