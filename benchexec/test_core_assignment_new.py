@@ -195,6 +195,7 @@ class TestCpuCoresPerRun(unittest.TestCase):
 @expect_assignment(3, [[0, 1, 2], [3, 4, 5]])
 @expect_assignment(4, [[0, 1, 2, 3], [4, 5, 6, 7]])
 @expect_assignment(8, [list(range(8))])
+@expect_invalid([(2, 5), (5, 2), (3, 3)])
 class TestCpuCoresPerRun_singleCPU(TestCpuCoresPerRun):
     num_of_packages = 1
     num_of_cores = 8
@@ -212,6 +213,7 @@ class TestCpuCoresPerRun_singleCPU(TestCpuCoresPerRun):
 @expect_assignment(3, [[0, 2, 4], [6, 8, 10]])
 @expect_assignment(4, [[0, 2, 4, 6], [8, 10, 12, 14]])
 @expect_assignment(8, [list(range(0, 16, 2))])
+@expect_invalid([(2, 5), (5, 2), (3, 3)])
 class TestCpuCoresPerRun_singleCPU_HT(TestCpuCoresPerRun):
     num_of_packages = 1
     num_of_cores = 16
@@ -325,6 +327,7 @@ class TestCpuCoresPerRun_singleCPU_HT(TestCpuCoresPerRun):
         [24, 25, 26, 27, 28, 29, 30, 31],
     ],
 )
+@expect_invalid([(2, 17), (17, 2), (4, 9), (9, 4), (8, 5), (5, 8)])
 class TestCpuCoresPerRun_dualCPU_HT(TestCpuCoresPerRun):
     num_of_packages = 2
     num_of_cores = 32
@@ -428,6 +431,7 @@ class TestCpuCoresPerRun_threeCPU(TestCpuCoresPerRun):
         [20, 21, 22, 23, 24, 25, 26, 27],
     ],
 )
+@expect_invalid([(11, 2)])
 class TestCpuCoresPerRun_threeCPU_HT(TestCpuCoresPerRun):
     num_of_packages = 3
     num_of_cores = 30
@@ -459,6 +463,40 @@ class TestCpuCoresPerRun_threeCPU_HT(TestCpuCoresPerRun):
         )
 
 
+@expect_invalid(
+    [
+        (2, 33),
+        (33, 2),
+        (3, 21),
+        (17, 3),
+        (4, 17),
+        (17, 4),
+        (5, 13),
+        (9, 5),
+        (6, 9),
+        (9, 6),
+        (7, 9),
+        (9, 7),
+        (8, 9),
+        (9, 8),
+        (9, 5),
+        (6, 9),
+        (10, 5),
+        (6, 10),
+        (11, 5),
+        (6, 11),
+        (12, 5),
+        (6, 12),
+        (13, 5),
+        (5, 13),
+        (14, 5),
+        (5, 14),
+        (15, 5),
+        (5, 15),
+        (16, 5),
+        (5, 16),
+    ]
+)
 class TestCpuCoresPerRun_quadCPU_HT(TestCpuCoresPerRun):
     num_of_packages = 4
     num_of_cores = 64
@@ -528,6 +566,7 @@ class TestCpuCoresPerRun_quadCPU_HT(TestCpuCoresPerRun):
 @expect_assignment(2, [[0, 2], [4, 6]])
 @expect_assignment(3, [[0, 2, 4]])
 @expect_assignment(4, [[0, 2, 4, 6]])
+@expect_invalid([(1, 5), (2, 3), (3, 2), (4, 2), (8, 1)])
 class TestCpuCoresPerRun_singleCPU_no_ht(TestCpuCoresPerRun):
     num_of_packages = 1
     num_of_cores = 8
@@ -547,6 +586,9 @@ class TestCpuCoresPerRun_singleCPU_no_ht(TestCpuCoresPerRun):
 @expect_assignment(3, [[0, 2, 4], [8, 10, 12]])
 @expect_assignment(4, [[0, 2, 4, 6], [8, 10, 12, 14]])
 @expect_assignment(8, [[0, 2, 4, 6, 8, 10, 12, 14]])
+@expect_invalid(
+    [(1, 9), (1, 10), (2, 5), (2, 6), (3, 3), (3, 4), (4, 3), (4, 4), (8, 2), (8, 3)]
+)
 class TestCpuCoresPerRun_dualCPU_no_ht(TestCpuCoresPerRun):
     num_of_packages = 2
     num_of_cores = 16
@@ -571,6 +613,7 @@ class TestCpuCoresPerRun_dualCPU_no_ht(TestCpuCoresPerRun):
 @expect_assignment(3, [[0, 2, 4], [6, 8, 10], [12, 14, 16]])
 @expect_assignment(4, [[0, 2, 4, 6]], 1)
 @expect_assignment(8, [[0, 2, 4, 6, 8, 10, 12, 14]])
+@expect_invalid([(1, 10), (2, 4), (3, 4), (4, 2), (8, 2)])
 class TestCpuCoresPerRun_threeCPU_no_ht(TestCpuCoresPerRun):
     num_of_packages = 3
     num_of_cores = 18
@@ -618,6 +661,8 @@ class TestCpuCoresPerRun_threeCPU_no_ht(TestCpuCoresPerRun):
         [16, 18, 20, 22, 24, 26, 28, 30],
     ],
 )
+@expect_invalid([(1, 17), (2, 9), (3, 5), (4, 5), (8, 3)])
+@expect_invalid([(5, 3), (6, 3)])
 class TestCpuCoresPerRun_quadCPU_no_ht(TestCpuCoresPerRun):
     num_of_packages = 4
     num_of_cores = 32
@@ -644,6 +689,7 @@ class TestCpuCoresPerRun_quadCPU_no_ht(TestCpuCoresPerRun):
 @expect_assignment(4, [[0, 2, 4, 6], [8, 10, 12, 14]])
 @expect_assignment(5, [[0, 2, 4, 6, 8]])
 @expect_assignment(8, [[0, 2, 4, 6, 8, 10, 12, 14]])
+@expect_invalid([(2, 5), (5, 2), (3, 3)])
 class Test_Topology_P1_NUMA2_L8_C16_F(TestCpuCoresPerRun):
     num_of_packages = 1
     num_of_NUMAs = 2
@@ -709,6 +755,7 @@ class Test_Topology_P1_NUMA2_L8_C16_T(TestCpuCoresPerRun):
 @expect_assignment(2, [[0, 2], [4, 6], [8, 10]])
 @expect_assignment(3, [[0, 2, 4]], 1)
 @expect_assignment(4, [[0, 2, 4, 6]])
+@expect_invalid([(2, 4), (3, 2), (4, 2)])
 class Test_Topology_P1_NUMA3_L6_C12_F(TestCpuCoresPerRun):
     num_of_packages = 1
     num_of_NUMAs = 3
@@ -738,6 +785,7 @@ class Test_Topology_P1_NUMA3_L6_C12_F(TestCpuCoresPerRun):
 @expect_assignment(4, [[0, 1, 2, 3], [4, 5, 6, 7], [8, 9, 10, 11]])
 @expect_assignment(5, [[0, 1, 2, 3, 4]], 1)
 @expect_assignment(8, [[0, 1, 2, 3, 4, 5, 6, 7]])
+@expect_invalid([(2, 7), (3, 4), (4, 4), (5, 2)])
 class Test_Topology_P1_NUMA3_L6_C12_T(TestCpuCoresPerRun):
     num_of_packages = 1
     num_of_NUMAs = 3
@@ -767,6 +815,7 @@ class Test_Topology_P1_NUMA3_L6_C12_T(TestCpuCoresPerRun):
 @expect_assignment(3, [[0, 2, 4], [8, 10, 12]])
 @expect_assignment(4, [[0, 2, 4, 6], [8, 10, 12, 14]])
 @expect_assignment(8, [[0, 2, 4, 6, 8, 10, 12, 14]])
+@expect_invalid([(2, 5), (3, 3), (4, 3), (8, 2)])
 class Test_Topology_P2_NUMA4_L8_C16_F(TestCpuCoresPerRun):
     num_of_packages = 2
     num_of_NUMAs = 4
@@ -800,6 +849,7 @@ class Test_Topology_P2_NUMA4_L8_C16_F(TestCpuCoresPerRun):
 @expect_assignment(3, [[0, 1, 2], [8, 9, 10], [4, 5, 6], [12, 13, 14]])
 @expect_assignment(4, [[0, 1, 2, 3], [8, 9, 10, 11], [4, 5, 6, 7], [12, 13, 14, 15]])
 @expect_assignment(8, [[0, 1, 2, 3, 4, 5, 6, 7], [8, 9, 10, 11, 12, 13, 14, 15]])
+@expect_invalid([(2, 9), (3, 5), (4, 5), (8, 3)])
 class Test_Topology_P2_NUMA4_L8_C16_T(TestCpuCoresPerRun):
     num_of_packages = 2
     num_of_NUMAs = 4
@@ -821,6 +871,7 @@ class Test_Topology_P2_NUMA4_L8_C16_T(TestCpuCoresPerRun):
 @expect_assignment(3, [[0, 2, 4], [8, 10, 12]])
 @expect_assignment(4, [[0, 2, 4, 6], [8, 10, 12, 14]])
 @expect_assignment(8, [[0, 2, 4, 6, 8, 10, 12, 14]])
+@expect_invalid([(2, 5), (3, 3), (4, 3), (8, 2)])
 class Test_Topology_P1_G2_NUMA4_L8_C16_F(TestCpuCoresPerRun):
     num_of_packages = 1
     num_of_groups = 2
@@ -855,6 +906,7 @@ class Test_Topology_P1_G2_NUMA4_L8_C16_F(TestCpuCoresPerRun):
 @expect_assignment(3, [[0, 1, 2], [8, 9, 10], [4, 5, 6], [12, 13, 14]])
 @expect_assignment(4, [[0, 1, 2, 3], [8, 9, 10, 11], [4, 5, 6, 7], [12, 13, 14, 15]])
 @expect_assignment(8, [[0, 1, 2, 3, 4, 5, 6, 7], [8, 9, 10, 11, 12, 13, 14, 15]])
+@expect_invalid([(2, 9), (3, 5), (4, 5), (8, 3)])
 class Test_Topology_P1_G2_NUMA4_L8_C16_T(TestCpuCoresPerRun):
     num_of_packages = 1
     num_of_groups = 2
@@ -876,6 +928,7 @@ class Test_Topology_P1_G2_NUMA4_L8_C16_T(TestCpuCoresPerRun):
 @expect_assignment(2, [[0, 3], [6, 9]])
 @expect_assignment(3, [[0, 3, 6]])
 @expect_assignment(4, [[0, 3, 6, 9]])
+@expect_invalid([(2, 3), (3, 2), (4, 2), (8, 3)])
 class Test_Topology_P1_NUMA2_L4_C12_F3(TestCpuCoresPerRun):
     num_of_packages = 1
     num_of_NUMAs = 2
@@ -897,6 +950,7 @@ class Test_Topology_P1_NUMA2_L4_C12_F3(TestCpuCoresPerRun):
 @expect_assignment(3, [[0, 1, 2], [6, 7, 8], [3, 4, 5], [9, 10, 11]])
 @expect_assignment(4, [[0, 1, 2, 3], [6, 7, 8, 9]])
 @expect_assignment(8, [[0, 1, 2, 3, 4, 5, 6, 7]])
+@expect_invalid([(2, 5), (3, 5), (4, 3), (8, 2)])
 class Test_Topology_P1_NUMA2_L4_C12_T3(TestCpuCoresPerRun):
     num_of_packages = 1
     num_of_NUMAs = 2
