@@ -110,34 +110,11 @@ class TestCpuCoresPerRun(unittest.TestCase):
     def machine(self):
         """Create the necessary parameters of get_cpu_distribution for a specific machine."""
 
-        # temporary translation of previous definition to dynamic layers to create smooth transition from
-        # old-new testsuite to new testsuite - will be removed at some point in the future, as we can
-        # define any layers we want with a simple list, simplifying the function significantly
-        # kinda horrible atm, but we can rewrite this later, it's just there to allow continuity between the tests
-        layer_definition = []
-        if self.num_of_hyperthreading_siblings:
-            layer_definition.append(
-                math.trunc(self.num_of_cores / self.num_of_hyperthreading_siblings)
-            )
-        if self.num_of_L3_regions:
-            layer_definition.append(self.num_of_L3_regions)
-        if self.num_of_NUMAs:
-            layer_definition.append(self.num_of_NUMAs)
-        if self.num_of_groups:
-            layer_definition.append(self.num_of_groups)
-        if self.num_of_packages:
-            layer_definition.append(self.num_of_packages)
-
-        _layers, _virtual_cores_per_core = self.machine_definition
-        assert _layers == layer_definition
-        assert _layers[0] * _virtual_cores_per_core == self.num_of_cores
+        layer_definition, _virtual_cores_per_core = self.machine_definition
+        assert layer_definition[0] * _virtual_cores_per_core == self.num_of_cores
         assert _virtual_cores_per_core == self.num_of_hyperthreading_siblings
 
         layers = []
-        print(f"{ len(layer_definition) } layers, { str(layer_definition) }")
-        print(
-            f"cores: { self.num_of_cores }, num_of_packages: { self.num_of_packages }, num_of_groups: { self.num_of_groups }, num_of_NUMAs: { self.num_of_NUMAs }, num_of_L3_regions: { self.num_of_L3_regions }, num_of_hyperthreading_siblings: { self.num_of_hyperthreading_siblings }"
-        )
 
         for _i in range(len(layer_definition)):
             _layer = defaultdict(list)
@@ -167,6 +144,7 @@ class TestCpuCoresPerRun(unittest.TestCase):
         return (layers,)
 
     def mainAssertValid(self, coreLimit, expectedResult, maxThreads=None):
+        _, _virtual_cores_per_core = self.machine_definition
         self.coreLimit = coreLimit
         if expectedResult:
             if maxThreads:
@@ -175,18 +153,14 @@ class TestCpuCoresPerRun(unittest.TestCase):
                 if not self.use_hyperthreading:
                     threadLimit = math.floor(
                         self.num_of_cores
-                        / math.ceil(
-                            self.coreLimit * self.num_of_hyperthreading_siblings
-                        )
+                        / math.ceil(self.coreLimit * _virtual_cores_per_core)
                     )
                 else:
                     threadLimit = math.floor(
                         self.num_of_cores
                         / (
-                            math.ceil(
-                                self.coreLimit / self.num_of_hyperthreading_siblings
-                            )
-                            * self.num_of_hyperthreading_siblings
+                            math.ceil(self.coreLimit / _virtual_cores_per_core)
+                            * _virtual_cores_per_core
                         )
                     )
             for num_of_threads in range(threadLimit + 1):
