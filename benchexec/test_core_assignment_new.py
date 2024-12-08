@@ -212,6 +212,7 @@ class TestCpuCoresPerRun_singleCPU(TestCpuCoresPerRun):
     num_of_cores = 8
     num_of_hyperthreading_siblings = 1
     use_hyperthreading = False
+    machine_definition = ([8, 1], 1)
 
 
 @expect_assignment(1, [[x] for x in range(0, 16, 2)])
@@ -225,6 +226,7 @@ class TestCpuCoresPerRun_singleCPU_HT(TestCpuCoresPerRun):
     num_of_cores = 16
     num_of_hyperthreading_siblings = 2
     use_hyperthreading = False
+    machine_definition = ([8, 1], 2)
 
     # 0(1)  2(3)    4(5)    6(7)
 
@@ -334,6 +336,7 @@ class TestCpuCoresPerRun_dualCPU_HT(TestCpuCoresPerRun):
     num_of_cores = 32
     num_of_hyperthreading_siblings = 2
     use_hyperthreading = True
+    machine_definition = ([16, 2], 2)
 
     # Note: the core assignment here is non-uniform, the last two threads are spread over three physical cores
     # Currently, the assignment algorithm cannot do better for odd coreLimits,
@@ -365,6 +368,7 @@ class TestCpuCoresPerRun_threeCPU(TestCpuCoresPerRun):
     num_of_cores = 15
     num_of_hyperthreading_siblings = 1
     use_hyperthreading = False
+    machine_definition = ([15, 3], 1)
 
 
 @expect_assignment(
@@ -428,6 +432,7 @@ class TestCpuCoresPerRun_threeCPU_HT(TestCpuCoresPerRun):
     num_of_cores = 30
     num_of_hyperthreading_siblings = 2
     use_hyperthreading = True
+    machine_definition = ([15, 3], 2)
 
     def test_threeCPU_HT_noncontiguousId(self):
         """
@@ -490,6 +495,7 @@ class TestCpuCoresPerRun_quadCPU_HT(TestCpuCoresPerRun):
     num_of_cores = 64
     num_of_hyperthreading_siblings = 2
     use_hyperthreading = True
+    machine_definition = ([32, 4], 2)
 
     def test_quadCPU_HT(self):
         self.assertValid(
@@ -527,6 +533,7 @@ class TestCpuCoresPerRun_singleCPU_no_ht(TestCpuCoresPerRun):
     num_of_cores = 8
     num_of_hyperthreading_siblings = 2
     use_hyperthreading = False
+    machine_definition = ([4, 1], 2)
 
 
 @expect_assignment(1, [[0], [8], [2], [10], [4], [12], [6], [14]])
@@ -542,6 +549,7 @@ class TestCpuCoresPerRun_dualCPU_no_ht(TestCpuCoresPerRun):
     num_of_cores = 16
     num_of_hyperthreading_siblings = 2
     use_hyperthreading = False
+    machine_definition = ([8, 2], 2)
 
 
 @expect_assignment(1, [[x] for x in [0, 6, 12, 2, 8, 14, 4, 10, 16]])
@@ -555,6 +563,7 @@ class TestCpuCoresPerRun_threeCPU_no_ht(TestCpuCoresPerRun):
     num_of_cores = 18
     num_of_hyperthreading_siblings = 2
     use_hyperthreading = False
+    machine_definition = ([9, 3], 2)
 
 
 @expect_assignment(
@@ -597,6 +606,7 @@ class TestCpuCoresPerRun_quadCPU_no_ht(TestCpuCoresPerRun):
     num_of_cores = 32
     num_of_hyperthreading_siblings = 2
     use_hyperthreading = False
+    machine_definition = ([16, 4], 2)
 
     def test_quadCPU_no_ht_valid(self):
         self.assertValid(5, 2, [[0, 2, 4, 6, 8], [16, 18, 20, 22, 24]])
@@ -617,6 +627,7 @@ class Test_Topology_P1_NUMA2_L8_C16_F(TestCpuCoresPerRun):
     num_of_cores = 16
     num_of_hyperthreading_siblings = 2
     use_hyperthreading = False
+    machine_definition = ([8, 8, 2, 1], 2)
 
     """
     x : symbolizes a unit (package, NUMA, L3)
@@ -658,6 +669,7 @@ class Test_Topology_P1_NUMA2_L8_C16_T(TestCpuCoresPerRun):
     num_of_cores = 16
     num_of_hyperthreading_siblings = 2
     use_hyperthreading = True
+    machine_definition = ([8, 8, 2, 1], 2)
 
 
 @expect_assignment(1, [[x] for x in [0, 4, 8, 2, 6, 10]])
@@ -672,6 +684,7 @@ class Test_Topology_P1_NUMA3_L6_C12_F(TestCpuCoresPerRun):
     num_of_cores = 12
     num_of_hyperthreading_siblings = 2
     use_hyperthreading = False
+    machine_definition = ([6, 6, 3, 1], 2)
     """                             x                                           P
 
             x                       x                       x                   NUMA
@@ -696,6 +709,7 @@ class Test_Topology_P1_NUMA3_L6_C12_T(TestCpuCoresPerRun):
     num_of_cores = 12
     num_of_hyperthreading_siblings = 2
     use_hyperthreading = True
+    machine_definition = ([6, 6, 3, 1], 2)
     """                             x                                           P
 
             x                       x                       x                   NUMA
@@ -719,6 +733,7 @@ class Test_Topology_P2_NUMA4_L8_C16_F(TestCpuCoresPerRun):
     num_of_cores = 16
     num_of_hyperthreading_siblings = 2
     use_hyperthreading = False
+    machine_definition = ([8, 8, 4, 2], 2)
 
 
 @expect_assignment(1, [[x] for x in [0, 8, 4, 12, 2, 10, 6, 14]])
@@ -746,6 +761,7 @@ class Test_Topology_P2_NUMA4_L8_C16_T(TestCpuCoresPerRun):
     num_of_cores = 16
     num_of_hyperthreading_siblings = 2
     use_hyperthreading = True
+    machine_definition = ([8, 8, 4, 2], 2)
 
 
 @expect_assignment(1, [[x] for x in [0, 8, 4, 12, 2, 10, 6, 14]])
@@ -762,6 +778,7 @@ class Test_Topology_P1_G2_NUMA4_L8_C16_F(TestCpuCoresPerRun):
     num_of_cores = 16
     num_of_hyperthreading_siblings = 2
     use_hyperthreading = False
+    machine_definition = ([8, 8, 4, 2, 1], 2)
 
 
 @expect_assignment(1, [[x] for x in [0, 8, 4, 12, 2, 10, 6, 14]])
@@ -790,6 +807,7 @@ class Test_Topology_P1_G2_NUMA4_L8_C16_T(TestCpuCoresPerRun):
     num_of_cores = 16
     num_of_hyperthreading_siblings = 2
     use_hyperthreading = True
+    machine_definition = ([8, 8, 4, 2, 1], 2)
 
 
 @expect_assignment(1, [[x] for x in [0, 6, 3, 9]])
@@ -804,6 +822,7 @@ class Test_Topology_P1_NUMA2_L4_C12_F3(TestCpuCoresPerRun):
     num_of_cores = 12
     num_of_hyperthreading_siblings = 3
     use_hyperthreading = False
+    machine_definition = ([4, 4, 2, 1], 3)
 
 
 @expect_assignment(1, [[x] for x in [0, 6, 3, 9]])
@@ -819,6 +838,7 @@ class Test_Topology_P1_NUMA2_L4_C12_T3(TestCpuCoresPerRun):
     num_of_cores = 12
     num_of_hyperthreading_siblings = 3
     use_hyperthreading = True
+    machine_definition = ([4, 4, 2, 1], 3)
 
 
 # fmt: off
@@ -908,6 +928,7 @@ class Test_Topology_P2_G2_NUMA8_L16_C256_T(TestCpuCoresPerRun):
     num_of_cores = 256
     num_of_hyperthreading_siblings = 2
     use_hyperthreading = True
+    machine_definition = ([128, 16, 8, 2, 2], 2)
 
 
 # prevent execution of base class as its own test
