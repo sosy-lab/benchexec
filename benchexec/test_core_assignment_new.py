@@ -128,11 +128,10 @@ class TestCpuCoresPerRun(unittest.TestCase):
         if self.num_of_packages:
             layer_definition.append(self.num_of_packages)
 
-        if self.machine_definition:
-            _layers, _virtual_cores_per_core = self.machine_definition
-            assert _layers == layer_definition
-            assert _layers[0] * _virtual_cores_per_core == self.num_of_cores
-            assert _virtual_cores_per_core == self.num_of_hyperthreading_siblings
+        _layers, _virtual_cores_per_core = self.machine_definition
+        assert _layers == layer_definition
+        assert _layers[0] * _virtual_cores_per_core == self.num_of_cores
+        assert _virtual_cores_per_core == self.num_of_hyperthreading_siblings
 
         layers = []
         print(f"{ len(layer_definition) } layers, { str(layer_definition) }")
