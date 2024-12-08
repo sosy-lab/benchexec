@@ -111,8 +111,7 @@ class TestCpuCoresPerRun(unittest.TestCase):
         """Create the necessary parameters of get_cpu_distribution for a specific machine."""
 
         layer_definition, _virtual_cores_per_core = self.machine_definition
-        assert layer_definition[0] * _virtual_cores_per_core == self.num_of_cores
-        assert _virtual_cores_per_core == self.num_of_hyperthreading_siblings
+        self.num_of_cores = layer_definition[0] * _virtual_cores_per_core
 
         layers = []
 
@@ -126,11 +125,8 @@ class TestCpuCoresPerRun(unittest.TestCase):
                 # v again, it shouldn't matter in the end, but let's keep consistent with the current implementation to keep the
                 # tests consistent: hyperthreading "cores" get the id of their real core
                 if _i == 0:
-                    _hyperthread_siblings = math.trunc(
-                        self.num_of_cores / layer_definition[_i]
-                    )
-                    layer_number = layer_number * _hyperthread_siblings
-                    layer_number -= layer_number % _hyperthread_siblings
+                    layer_number = layer_number * _virtual_cores_per_core
+                    layer_number -= layer_number % _virtual_cores_per_core
                 # ^ we can probably get rid of this piece of code in the end, TODO
                 _layer[layer_number] = _layer.get(layer_number, [])
                 _layer[layer_number].append(cpu_nr)
@@ -144,7 +140,8 @@ class TestCpuCoresPerRun(unittest.TestCase):
         return (layers,)
 
     def mainAssertValid(self, coreLimit, expectedResult, maxThreads=None):
-        _, _virtual_cores_per_core = self.machine_definition
+        _layer_definition, _virtual_cores_per_core = self.machine_definition
+        self.num_of_cores = _layer_definition[0] * _virtual_cores_per_core
         self.coreLimit = coreLimit
         if expectedResult:
             if maxThreads:
@@ -181,9 +178,6 @@ class TestCpuCoresPerRun(unittest.TestCase):
 @expect_assignment(8, [list(range(8))])
 @expect_invalid([(2, 5), (5, 2), (3, 3)])
 class TestCpuCoresPerRun_singleCPU(TestCpuCoresPerRun):
-    num_of_packages = 1
-    num_of_cores = 8
-    num_of_hyperthreading_siblings = 1
     use_hyperthreading = False
     machine_definition = ([8, 1], 1)
 
@@ -195,9 +189,6 @@ class TestCpuCoresPerRun_singleCPU(TestCpuCoresPerRun):
 @expect_assignment(8, [list(range(0, 16, 2))])
 @expect_invalid([(2, 5), (5, 2), (3, 3)])
 class TestCpuCoresPerRun_singleCPU_HT(TestCpuCoresPerRun):
-    num_of_packages = 1
-    num_of_cores = 16
-    num_of_hyperthreading_siblings = 2
     use_hyperthreading = False
     machine_definition = ([8, 1], 2)
 
@@ -305,9 +296,6 @@ class TestCpuCoresPerRun_singleCPU_HT(TestCpuCoresPerRun):
 )
 @expect_invalid([(2, 17), (17, 2), (4, 9), (9, 4), (8, 5), (5, 8)])
 class TestCpuCoresPerRun_dualCPU_HT(TestCpuCoresPerRun):
-    num_of_packages = 2
-    num_of_cores = 32
-    num_of_hyperthreading_siblings = 2
     use_hyperthreading = True
     machine_definition = ([16, 2], 2)
 
@@ -337,9 +325,6 @@ class TestCpuCoresPerRun_dualCPU_HT(TestCpuCoresPerRun):
 @expect_assignment(8, [[0, 1, 2, 3, 4, 5, 6, 7]])
 @expect_invalid([(6, 2)])
 class TestCpuCoresPerRun_threeCPU(TestCpuCoresPerRun):
-    num_of_packages = 3
-    num_of_cores = 15
-    num_of_hyperthreading_siblings = 1
     use_hyperthreading = False
     machine_definition = ([15, 3], 1)
 
@@ -401,9 +386,6 @@ class TestCpuCoresPerRun_threeCPU(TestCpuCoresPerRun):
 )
 @expect_invalid([(11, 2)])
 class TestCpuCoresPerRun_threeCPU_HT(TestCpuCoresPerRun):
-    num_of_packages = 3
-    num_of_cores = 30
-    num_of_hyperthreading_siblings = 2
     use_hyperthreading = True
     machine_definition = ([15, 3], 2)
 
@@ -464,9 +446,6 @@ class TestCpuCoresPerRun_threeCPU_HT(TestCpuCoresPerRun):
     ]
 )
 class TestCpuCoresPerRun_quadCPU_HT(TestCpuCoresPerRun):
-    num_of_packages = 4
-    num_of_cores = 64
-    num_of_hyperthreading_siblings = 2
     use_hyperthreading = True
     machine_definition = ([32, 4], 2)
 
@@ -502,9 +481,6 @@ class TestCpuCoresPerRun_quadCPU_HT(TestCpuCoresPerRun):
 @expect_assignment(4, [[0, 2, 4, 6]])
 @expect_invalid([(1, 5), (2, 3), (3, 2), (4, 2), (8, 1)])
 class TestCpuCoresPerRun_singleCPU_no_ht(TestCpuCoresPerRun):
-    num_of_packages = 1
-    num_of_cores = 8
-    num_of_hyperthreading_siblings = 2
     use_hyperthreading = False
     machine_definition = ([4, 1], 2)
 
@@ -518,9 +494,6 @@ class TestCpuCoresPerRun_singleCPU_no_ht(TestCpuCoresPerRun):
     [(1, 9), (1, 10), (2, 5), (2, 6), (3, 3), (3, 4), (4, 3), (4, 4), (8, 2), (8, 3)]
 )
 class TestCpuCoresPerRun_dualCPU_no_ht(TestCpuCoresPerRun):
-    num_of_packages = 2
-    num_of_cores = 16
-    num_of_hyperthreading_siblings = 2
     use_hyperthreading = False
     machine_definition = ([8, 2], 2)
 
@@ -532,9 +505,6 @@ class TestCpuCoresPerRun_dualCPU_no_ht(TestCpuCoresPerRun):
 @expect_assignment(8, [[0, 2, 4, 6, 8, 10, 12, 14]])
 @expect_invalid([(1, 10), (2, 4), (3, 4), (4, 2), (8, 2)])
 class TestCpuCoresPerRun_threeCPU_no_ht(TestCpuCoresPerRun):
-    num_of_packages = 3
-    num_of_cores = 18
-    num_of_hyperthreading_siblings = 2
     use_hyperthreading = False
     machine_definition = ([9, 3], 2)
 
@@ -575,9 +545,6 @@ class TestCpuCoresPerRun_threeCPU_no_ht(TestCpuCoresPerRun):
 @expect_invalid([(1, 17), (2, 9), (3, 5), (4, 5), (8, 3)])
 @expect_invalid([(5, 3), (6, 3)])
 class TestCpuCoresPerRun_quadCPU_no_ht(TestCpuCoresPerRun):
-    num_of_packages = 4
-    num_of_cores = 32
-    num_of_hyperthreading_siblings = 2
     use_hyperthreading = False
     machine_definition = ([16, 4], 2)
 
@@ -594,11 +561,6 @@ class TestCpuCoresPerRun_quadCPU_no_ht(TestCpuCoresPerRun):
 @expect_assignment(8, [[0, 2, 4, 6, 8, 10, 12, 14]])
 @expect_invalid([(2, 5), (5, 2), (3, 3)])
 class Test_Topology_P1_NUMA2_L8_C16_F(TestCpuCoresPerRun):
-    num_of_packages = 1
-    num_of_NUMAs = 2
-    num_of_L3_regions = 8
-    num_of_cores = 16
-    num_of_hyperthreading_siblings = 2
     use_hyperthreading = False
     machine_definition = ([8, 8, 2, 1], 2)
 
@@ -636,11 +598,6 @@ class Test_Topology_P1_NUMA2_L8_C16_F(TestCpuCoresPerRun):
 @expect_assignment(8, [[0, 1, 2, 3, 4, 5, 6, 7], [8, 9, 10, 11, 12, 13, 14, 15]])
 @expect_invalid([(2, 9), (4, 5), (3, 5)])
 class Test_Topology_P1_NUMA2_L8_C16_T(TestCpuCoresPerRun):
-    num_of_packages = 1
-    num_of_NUMAs = 2
-    num_of_L3_regions = 8
-    num_of_cores = 16
-    num_of_hyperthreading_siblings = 2
     use_hyperthreading = True
     machine_definition = ([8, 8, 2, 1], 2)
 
@@ -651,11 +608,6 @@ class Test_Topology_P1_NUMA2_L8_C16_T(TestCpuCoresPerRun):
 @expect_assignment(4, [[0, 2, 4, 6]])
 @expect_invalid([(2, 4), (3, 2), (4, 2)])
 class Test_Topology_P1_NUMA3_L6_C12_F(TestCpuCoresPerRun):
-    num_of_packages = 1
-    num_of_NUMAs = 3
-    num_of_L3_regions = 6
-    num_of_cores = 12
-    num_of_hyperthreading_siblings = 2
     use_hyperthreading = False
     machine_definition = ([6, 6, 3, 1], 2)
     """                             x                                           P
@@ -676,11 +628,6 @@ class Test_Topology_P1_NUMA3_L6_C12_F(TestCpuCoresPerRun):
 @expect_assignment(8, [[0, 1, 2, 3, 4, 5, 6, 7]])
 @expect_invalid([(2, 7), (3, 4), (4, 4), (5, 2)])
 class Test_Topology_P1_NUMA3_L6_C12_T(TestCpuCoresPerRun):
-    num_of_packages = 1
-    num_of_NUMAs = 3
-    num_of_L3_regions = 6
-    num_of_cores = 12
-    num_of_hyperthreading_siblings = 2
     use_hyperthreading = True
     machine_definition = ([6, 6, 3, 1], 2)
     """                             x                                           P
@@ -700,11 +647,6 @@ class Test_Topology_P1_NUMA3_L6_C12_T(TestCpuCoresPerRun):
 @expect_assignment(8, [[0, 2, 4, 6, 8, 10, 12, 14]])
 @expect_invalid([(2, 5), (3, 3), (4, 3), (8, 2)])
 class Test_Topology_P2_NUMA4_L8_C16_F(TestCpuCoresPerRun):
-    num_of_packages = 2
-    num_of_NUMAs = 4
-    num_of_L3_regions = 8
-    num_of_cores = 16
-    num_of_hyperthreading_siblings = 2
     use_hyperthreading = False
     machine_definition = ([8, 8, 4, 2], 2)
 
@@ -728,11 +670,6 @@ class Test_Topology_P2_NUMA4_L8_C16_F(TestCpuCoresPerRun):
 @expect_assignment(8, [[0, 1, 2, 3, 4, 5, 6, 7], [8, 9, 10, 11, 12, 13, 14, 15]])
 @expect_invalid([(2, 9), (3, 5), (4, 5), (8, 3)])
 class Test_Topology_P2_NUMA4_L8_C16_T(TestCpuCoresPerRun):
-    num_of_packages = 2
-    num_of_NUMAs = 4
-    num_of_L3_regions = 8
-    num_of_cores = 16
-    num_of_hyperthreading_siblings = 2
     use_hyperthreading = True
     machine_definition = ([8, 8, 4, 2], 2)
 
@@ -744,12 +681,6 @@ class Test_Topology_P2_NUMA4_L8_C16_T(TestCpuCoresPerRun):
 @expect_assignment(8, [[0, 2, 4, 6, 8, 10, 12, 14]])
 @expect_invalid([(2, 5), (3, 3), (4, 3), (8, 2)])
 class Test_Topology_P1_G2_NUMA4_L8_C16_F(TestCpuCoresPerRun):
-    num_of_packages = 1
-    num_of_groups = 2
-    num_of_NUMAs = 4
-    num_of_L3_regions = 8
-    num_of_cores = 16
-    num_of_hyperthreading_siblings = 2
     use_hyperthreading = False
     machine_definition = ([8, 8, 4, 2, 1], 2)
 
@@ -773,12 +704,6 @@ class Test_Topology_P1_G2_NUMA4_L8_C16_F(TestCpuCoresPerRun):
 @expect_assignment(8, [[0, 1, 2, 3, 4, 5, 6, 7], [8, 9, 10, 11, 12, 13, 14, 15]])
 @expect_invalid([(2, 9), (3, 5), (4, 5), (8, 3)])
 class Test_Topology_P1_G2_NUMA4_L8_C16_T(TestCpuCoresPerRun):
-    num_of_packages = 1
-    num_of_groups = 2
-    num_of_NUMAs = 4
-    num_of_L3_regions = 8
-    num_of_cores = 16
-    num_of_hyperthreading_siblings = 2
     use_hyperthreading = True
     machine_definition = ([8, 8, 4, 2, 1], 2)
 
@@ -789,11 +714,6 @@ class Test_Topology_P1_G2_NUMA4_L8_C16_T(TestCpuCoresPerRun):
 @expect_assignment(4, [[0, 3, 6, 9]])
 @expect_invalid([(2, 3), (3, 2), (4, 2), (8, 3)])
 class Test_Topology_P1_NUMA2_L4_C12_F3(TestCpuCoresPerRun):
-    num_of_packages = 1
-    num_of_NUMAs = 2
-    num_of_L3_regions = 4
-    num_of_cores = 12
-    num_of_hyperthreading_siblings = 3
     use_hyperthreading = False
     machine_definition = ([4, 4, 2, 1], 3)
 
@@ -805,11 +725,6 @@ class Test_Topology_P1_NUMA2_L4_C12_F3(TestCpuCoresPerRun):
 @expect_assignment(8, [[0, 1, 2, 3, 4, 5, 6, 7]])
 @expect_invalid([(2, 5), (3, 5), (4, 3), (8, 2)])
 class Test_Topology_P1_NUMA2_L4_C12_T3(TestCpuCoresPerRun):
-    num_of_packages = 1
-    num_of_NUMAs = 2
-    num_of_L3_regions = 4
-    num_of_cores = 12
-    num_of_hyperthreading_siblings = 3
     use_hyperthreading = True
     machine_definition = ([4, 4, 2, 1], 3)
 
@@ -894,12 +809,6 @@ class Test_Topology_P1_NUMA2_L4_C12_T3(TestCpuCoresPerRun):
 )
 # fmt: on
 class Test_Topology_P2_G2_NUMA8_L16_C256_T(TestCpuCoresPerRun):
-    num_of_packages = 2
-    num_of_groups = 2
-    num_of_NUMAs = 8
-    num_of_L3_regions = 16
-    num_of_cores = 256
-    num_of_hyperthreading_siblings = 2
     use_hyperthreading = True
     machine_definition = ([128, 16, 8, 2, 2], 2)
 
