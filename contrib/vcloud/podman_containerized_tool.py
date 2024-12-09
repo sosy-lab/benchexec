@@ -10,6 +10,7 @@ import os
 import shlex
 import subprocess
 import sys
+from pathlib import Path
 from typing import Optional
 
 from benchexec import (
@@ -40,22 +41,22 @@ def _init_container(
     # The modules are mounted at the exact same path in the container
     # because we do not yet know a solution to tell python to use
     # different paths for the modules in the container.
-    python_paths = [path for path in sys.path if os.path.isdir(path)]
-    for path in python_paths:
-        abs_path = os.path.abspath(path)
-        volumes.extend(["--volume", f"{abs_path}:{abs_path}:ro"])
+    for path in map(Path, sys.path):
+        if not path.is_dir():
+            continue
+
+        abs_path = path.absolute()
+        volumes += ["--volume", f"{abs_path}:{abs_path}:ro"]
 
     # Mount the tool directory into the container at a known location
-    volumes.extend(
-        [
-            "--volume",
-            f"{tool_directory}:{TOOL_DIRECTORY_MOUNT_POINT}:O",
-            # :O creates an overlay mount. The tool can write files in the container
-            # but they are not visible outside the container.
-            "--workdir",
-            "/mnt",
-        ]
-    )
+    volumes += [
+        "--volume",
+        f"{tool_directory}:{TOOL_DIRECTORY_MOUNT_POINT}:O",
+        # :O creates an overlay mount. The tool can write files in the container
+        # but they are not visible outside the container.
+        "--workdir",
+        "/mnt",
+    ]
 
     # Create a container that does nothing but keeps running
     command = (
