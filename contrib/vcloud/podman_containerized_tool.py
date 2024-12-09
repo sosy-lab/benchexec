@@ -59,9 +59,9 @@ def _init_container(
 
     # Create a container that does nothing but keeps running
     command = (
-        ["podman", "run", "--entrypoint", "tail", "--rm", "-d"]
+        ["podman", "create", "--entrypoint", '[""]', "--rm"]
         + volumes
-        + [image, "-F", "/dev/null"]
+        + [image, "/bin/sh"]
     )
 
     logging.debug(
@@ -71,15 +71,26 @@ def _init_container(
     res = subprocess.run(
         command,
         stdout=subprocess.PIPE,
+        stderr=subprocess.DEVNULL,
+        stdin=subprocess.DEVNULL,
+        check=True,
     )
-
-    res.check_returncode()
     container_id = res.stdout.decode().strip()
+
+    subprocess.run(
+        ["podman", "init", container_id],
+        check=True,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        stdin=subprocess.DEVNULL,
+    )
 
     container_pid = (
         subprocess.run(
             ["podman", "inspect", "--format", "{{.State.Pid}}", container_id],
             stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            stdin=subprocess.DEVNULL,
         )
         .stdout.decode()
         .strip()
@@ -161,9 +172,10 @@ class PodmanContainerizedTool(ContainerizedTool):
             return
         try:
             subprocess.run(
-                ["podman", "kill", "--signal", "SIGKILL", self.container_id],
+                ["podman", "rm", self.container_id],
                 check=True,
                 stdout=subprocess.DEVNULL,
+                stdin=subprocess.DEVNULL,
                 stderr=subprocess.PIPE,
             )
         except subprocess.CalledProcessError as e:
