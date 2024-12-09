@@ -10,13 +10,17 @@ import os
 import shlex
 import subprocess
 import sys
+from typing import Optional
 
 from benchexec import (
     BenchExecException,
     libc,
     tooladapter,
 )
-from benchexec.containerized_tool import ContainerizedToolBase
+from benchexec.containerized_tool import (
+    ContainerizedTool,
+    _init_container_and_load_tool,
+)
 
 TOOL_DIRECTORY_MOUNT_POINT = "/mnt/__benchexec_tool_directory"
 
@@ -124,7 +128,11 @@ def _init_container(
 
 
 @tooladapter.CURRENT_BASETOOL.register  # mark as instance of CURRENT_BASETOOL
-class PodmanContainerizedTool(ContainerizedToolBase):
+class PodmanContainerizedTool(ContainerizedTool):
+    tool_directory: str
+    image: str
+    container_id: Optional[str]
+
     def __init__(self, tool_module, config, image):
         assert (
             config.tool_directory
@@ -132,20 +140,23 @@ class PodmanContainerizedTool(ContainerizedToolBase):
 
         self.tool_directory = config.tool_directory
         self.image = image
+        self.container_id = None
 
-        super().__init__(tool_module, config, _init_container)
+        super().__init__(tool_module, config)
 
-    def mk_args(self, tool_module, tmp_dir):
-        return [tool_module]
+    def _setup_container(self, tool_module):
+        self.__doc__, self.container_id = self._pool.apply(
+            _init_container_and_load_tool,
+            [_init_container, tool_module],
+            {
+                "image": self.image,
+                "tool_directory": self.tool_directory,
+            },
+        )
 
-    def mk_kwargs(self, container_options):
-        return {
-            "image": self.image,
-            "tool_directory": self.tool_directory,
-        }
-
-    def _cleanup(self):
-        logging.debug("Stopping container with global id %s", self.container_id)
+    def close(self):
+        super().close()
+        logging.debug("Removing container with global id %s", self.container_id)
         if self.container_id is None:
             return
         try:
