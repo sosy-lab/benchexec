@@ -82,16 +82,15 @@ def hook_load_tool_info(tool_name, config):
     Either a full Python package name or a name within the benchexec.tools package.
     @return: A tuple of the full name of the used tool-info module and an instance of the tool-info class.
     """
-    tool_module = tool_name if "." in tool_name else f"benchexec.tools.{tool_name}"
-    try:
-        if config.containerImage:
-            import vcloud.podman_containerized_tool as pod
+    if not config.containerImage:
+        return real_load_tool_info(tool_name, config)
 
-            tool = pod.PodmanContainerizedTool(
-                tool_module, config, config.containerImage
-            )
-        else:
-            _, tool = real_load_tool_info(tool_module, config)
+    tool_module = tool_name if "." in tool_name else f"benchexec.tools.{tool_name}"
+
+    try:
+        import vcloud.podman_containerized_tool as pod
+
+        tool = pod.PodmanContainerizedTool(tool_module, config, config.containerImage)
 
     except ImportError as ie:
         logging.debug(
