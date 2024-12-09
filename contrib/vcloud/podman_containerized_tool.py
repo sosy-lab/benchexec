@@ -11,6 +11,7 @@ import inspect
 import logging
 import multiprocessing
 import os
+import shlex
 import signal
 import subprocess
 import sys
@@ -196,7 +197,7 @@ def _init_container(
 
     logging.debug(
         "Command to start container: %s",
-        " ".join(map(str, command)),
+        shlex.join(map(str, command)),
     )
     res = subprocess.run(
         command,
