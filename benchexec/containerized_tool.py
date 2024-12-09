@@ -299,8 +299,8 @@ def _call_tool_func(name, args, kwargs):
 
 
 class ContainerizedTool(ContainerizedToolBase):
-    def __init__(self, tool_module, config, initializer):
-        super().__init__(tool_module, config, initializer, initializer=_init_container)
+    def __init__(self, tool_module, config):
+        super().__init__(tool_module, config, initializer=_init_container)
 
     def _cleanup(self):
         pass
