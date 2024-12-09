@@ -5,154 +5,20 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import errno
-import functools
-import inspect
 import logging
-import multiprocessing
 import os
 import shlex
-import signal
 import subprocess
 import sys
 
 from benchexec import (
     BenchExecException,
-    container,
     libc,
     tooladapter,
-    util,
 )
-
-tool: tooladapter.CURRENT_BASETOOL = None
+from benchexec.containerized_tool import ContainerizedToolBase
 
 TOOL_DIRECTORY_MOUNT_POINT = "/mnt/__benchexec_tool_directory"
-
-
-@tooladapter.CURRENT_BASETOOL.register  # mark as instance of CURRENT_BASETOOL
-class PodmanContainerizedTool(object):
-    """Wrapper for an instance of any subclass of one of the base-tool classes in
-    benchexec.tools.template.
-    The module and the subclass instance will be loaded in a subprocess that has been
-    put into a container. This means, for example, that the code of this module cannot
-    make network connections and that any changes made to files on disk have no effect.
-
-    Because we use the multiprocessing module and thus communication is done
-    via serialization with pickle, this is not a secure solution:
-    Code from the tool-info module can use pickle to execute arbitrary code
-    in the main BenchExec process.
-    But the use of containers in BenchExec is for safety and robustness, not security.
-
-    This class is heavily inspired by ContainerizedTool and it will create a podman
-    container and move the multiprocessing process into the namespace of the podman container.
-    """
-
-    def __init__(self, tool_module, config, image):
-        """Load tool-info module in subprocess.
-        @param tool_module: The name of the module to load.
-            Needs to define class named Tool.
-        @param config: A config object suitable for
-            benchexec.containerexecutor.handle_basic_container_args()
-        """
-        assert (
-            config.tool_directory
-        ), "Tool directory must be set when using podman for tool info module."
-
-        # We use multiprocessing.Pool as an easy way for RPC with another process.
-        self._pool = multiprocessing.Pool(1, _init_worker_process)
-
-        self.container_id = None
-        # Call function that loads tool module and returns its doc
-        try:
-            self.__doc__, self.container_id = self._pool.apply(
-                _init_container_and_load_tool,
-                [tool_module],
-                {
-                    "image": image,
-                    "tool_directory": config.tool_directory,
-                },
-            )
-        except BaseException as e:
-            self._pool.terminate()
-            raise e
-
-    def close(self):
-        self._forward_call("close", [], {})
-        self._pool.close()
-        if self.container_id is None:
-            return
-        try:
-            # FIXME: Unexpected terminations could lead to the container not being stopped and removed
-            # SIGTERM sent by stop does not stop the container running tail -F /dev/null or sleep infinity
-            subprocess.run(
-                ["podman", "kill", "--signal", "SIGKILL", self.container_id],
-                check=True,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.PIPE,
-            )
-        except subprocess.CalledProcessError as e:
-            logging.warning(
-                "Failed to stop container %s: %s",
-                self.container_id,
-                e.stderr.decode(),
-            )
-
-    def _forward_call(self, method_name, args, kwargs):
-        """Call given method indirectly on the tool instance in the container."""
-        return self._pool.apply(_call_tool_func, [method_name, list(args), kwargs])
-
-    @classmethod
-    def _add_proxy_function(cls, method_name, method):
-        """Add function to given class that calls the specified method indirectly."""
-
-        @functools.wraps(method)  # lets proxy_function look like method (name and doc)
-        def proxy_function(self, *args, **kwargs):
-            return self._forward_call(method_name, args, kwargs)
-
-        if method_name == "working_directory":
-            # Add a cache. This method is called per run but would always return the
-            # same result. On some systems the calls are slow and this is worth it:
-            # https://github.com/python/cpython/issues/98493
-            proxy_function = functools.lru_cache()(proxy_function)
-
-        setattr(cls, member_name, proxy_function)
-
-
-# The following will automatically add forwarding methods for all methods defined by the
-# current tool-info API. This should work without any version-specific adjustments,
-# so we declare compatibility with the latest version with @CURRENT_BASETOOL.register.
-# We do not inherit from a BaseTool class to ensure that no default methods will be used
-# accidentally.
-for member_name, member in inspect.getmembers(
-    tooladapter.CURRENT_BASETOOL, inspect.isfunction
-):
-    if member_name[0] == "_" or member_name == "close":
-        continue
-    PodmanContainerizedTool._add_proxy_function(member_name, member)
-
-
-def _init_worker_process():
-    """Initial setup of worker process from multiprocessing module."""
-
-    # Need to reset signal handling because multiprocessing relies on SIGTERM
-    # but benchexec adds a handler for it.
-    signal.signal(signal.SIGTERM, signal.SIG_DFL)
-
-    # If Ctrl+C is pressed, each process receives SIGINT. We need to ignore it because
-    # concurrent worker threads of benchexec might still attempt to use the tool-info
-    # module until all of them are stopped, so this process must stay alive.
-    signal.signal(signal.SIGINT, signal.SIG_IGN)
-
-
-def _init_container_and_load_tool(tool_module, *args, **kwargs):
-    """Initialize container for the current process and load given tool-info module."""
-    try:
-        container_id = _init_container(*args, **kwargs)
-    except OSError as e:
-        if container.check_apparmor_userns_restriction(e):
-            raise BenchExecException(container._ERROR_MSG_USER_NS_RESTRICTION)
-        raise BenchExecException(f"Failed to configure container: {e}")
-    return _load_tool(tool_module), container_id
 
 
 def _init_container(
@@ -162,7 +28,6 @@ def _init_container(
     """
     Move this process into a container.
     """
-
     volumes = []
 
     tool_directory = os.path.abspath(tool_directory)
@@ -257,3 +122,42 @@ def _init_container(
             "Joining the podman container failed: " + os.strerror(e.errno)
         )
 
+
+@tooladapter.CURRENT_BASETOOL.register  # mark as instance of CURRENT_BASETOOL
+class PodmanContainerizedTool(ContainerizedToolBase):
+    def __init__(self, tool_module, config, image):
+        assert (
+            config.tool_directory
+        ), "Tool directory must be set when using podman for tool info module."
+
+        self.tool_directory = config.tool_directory
+        self.image = image
+
+        super().__init__(tool_module, config, _init_container)
+
+    def mk_args(self, tool_module, config, tmp_dir):
+        return [tool_module]
+
+    def mk_kwargs(self, container_options):
+        return {
+            "image": self.image,
+            "tool_directory": self.tool_directory,
+        }
+
+    def _cleanup(self):
+        logging.debug("Stopping container with global id %s", self.container_id)
+        if self.container_id is None:
+            return
+        try:
+            subprocess.run(
+                ["podman", "kill", "--signal", "SIGKILL", self.container_id],
+                check=True,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.PIPE,
+            )
+        except subprocess.CalledProcessError as e:
+            logging.warning(
+                "Failed to stop container %s: %s",
+                self.container_id,
+                e.stderr.decode(),
+            )

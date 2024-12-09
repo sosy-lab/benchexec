@@ -16,6 +16,7 @@ import os
 import signal
 import socket
 import tempfile
+from abc import ABCMeta
 
 from benchexec import (
     BenchExecException,
@@ -26,12 +27,11 @@ from benchexec import (
     util,
 )
 
-
 tool: tooladapter.CURRENT_BASETOOL = None
 
 
 @tooladapter.CURRENT_BASETOOL.register  # mark as instance of CURRENT_BASETOOL
-class ContainerizedTool(object):
+class ContainerizedToolBase(object, metaclass=ABCMeta):
     """Wrapper for an instance of any subclass of one of the base-tool classes in
     benchexec.tools.template.
     The module and the subclass instance will be loaded in a subprocess that has been
@@ -45,7 +45,7 @@ class ContainerizedTool(object):
     But the use of containers in BenchExec is for safety and robustness, not security.
     """
 
-    def __init__(self, tool_module, config):
+    def __init__(self, tool_module, config, initializer):
         """Load tool-info module in subprocess.
         @param tool_module: The name of the module to load.
             Needs to define class named Tool.
@@ -57,13 +57,13 @@ class ContainerizedTool(object):
 
         container_options = containerexecutor.handle_basic_container_args(config)
         temp_dir = tempfile.mkdtemp(prefix="Benchexec_tool_info_container_")
-
+        self.container_id = None
         # Call function that loads tool module and returns its doc
         try:
-            self.__doc__ = self._pool.apply(
+            self.__doc__, self.container_id = self._pool.apply(
                 _init_container_and_load_tool,
-                [tool_module, temp_dir],
-                container_options,
+                [initializer] + self.mk_args(tool_module, config, temp_dir),
+                self.mk_kwargs(container_options),
             )
         except BaseException as e:
             self._pool.terminate()
@@ -74,8 +74,15 @@ class ContainerizedTool(object):
             with contextlib.suppress(OSError):
                 os.rmdir(temp_dir)
 
+    def mk_args(self, tool_module, config, tmp_dir):
+        return [tool_module, config, tmp_dir]
+
+    def mk_kwargs(self, container_options):
+        return container_options
+
     def close(self):
         self._forward_call("close", [], {})
+        self._cleanup()
         self._pool.close()
 
     def _forward_call(self, method_name, args, kwargs):
@@ -109,7 +116,7 @@ for member_name, member in inspect.getmembers(
 ):
     if member_name[0] == "_" or member_name == "close":
         continue
-    ContainerizedTool._add_proxy_function(member_name, member)
+    ContainerizedToolBase._add_proxy_function(member_name, member)
 
 
 def _init_worker_process():
@@ -125,15 +132,16 @@ def _init_worker_process():
     signal.signal(signal.SIGINT, signal.SIG_IGN)
 
 
-def _init_container_and_load_tool(tool_module, *args, **kwargs):
+def _init_container_and_load_tool(initializer, tool_module, *args, **kwargs):
     """Initialize container for the current process and load given tool-info module."""
+    container_id = None
     try:
-        _init_container(*args, **kwargs)
+        container_id = initializer(*args, **kwargs)
     except OSError as e:
         if container.check_apparmor_userns_restriction(e):
             raise BenchExecException(container._ERROR_MSG_USER_NS_RESTRICTION)
         raise BenchExecException(f"Failed to configure container: {e}")
-    return _load_tool(tool_module)
+    return _load_tool(tool_module), container_id
 
 
 def _init_container(
@@ -288,3 +296,11 @@ def _call_tool_func(name, args, kwargs):
     except SystemExit as e:
         # SystemExit would terminate the worker process instead of being propagated.
         raise BenchExecException(str(e.code))
+
+
+class ContainerizedTool(ContainerizedToolBase):
+    def __init__(self, tool_module, config, initializer):
+        super().__init__(tool_module, config, initializer, initializer=_init_container)
+
+    def _cleanup(self):
+        pass
