@@ -38,8 +38,7 @@ def set_vcloud_jar_path(p):
 
 
 class CustomToolLocator:
-    def __init__(self, tool_directory=None, container_mount_point=None):
-        self.tool_directory = tool_directory
+    def __init__(self, container_mount_point=None):
         self.container_mount_point = container_mount_point
 
     def find_executable(self, executable_name, subdir=""):
@@ -50,11 +49,6 @@ class CustomToolLocator:
             os.path.basename(executable_name) == executable_name
         ), "Executable needs to be a simple file name"
         dirs = []
-
-        if not self.tool_directory:
-            raise ToolNotFoundException(
-                "Podman containerized tool info module execution is only possible with --tool-directory explicitly set."
-            )
 
         assert self.container_mount_point is not None, "Container mount point not set"
 
@@ -78,8 +72,6 @@ class CustomToolLocator:
             f"Could not find executable '{executable_name}'. "
             f"The searched directories were: " + "".join("\n  " + d for d in dirs)
         )
-        if not self.tool_directory:
-            msg += "\nYou can specify the tool's directory with --tool-directory."
 
         raise ToolNotFoundException(msg)
 
@@ -91,9 +83,7 @@ def init(config, benchmark):
     if config.containerImage:
         from vcloud.podman_containerized_tool import TOOL_DIRECTORY_MOUNT_POINT
 
-        tool_locator = CustomToolLocator(
-            config.tool_directory, TOOL_DIRECTORY_MOUNT_POINT
-        )
+        tool_locator = CustomToolLocator(TOOL_DIRECTORY_MOUNT_POINT)
         executable_for_version = benchmark.tool.executable(tool_locator)
         benchmark.tool_version = benchmark.tool.version(executable_for_version)
 
