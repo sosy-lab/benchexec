@@ -30,7 +30,7 @@ IVY_JAR_NAME = "ivy-2.5.0.jar"
 IVY_PATH = os.path.join(_ROOT_DIR, "lib", IVY_JAR_NAME)
 IVY_DOWNLOAD_URL = "https://www.sosy-lab.org/ivy/org.apache.ivy/ivy/" + IVY_JAR_NAME
 
-real_load_tool_info = benchexec.model.load_tool_info
+original_load_tool_info = benchexec.model.load_tool_info
 
 
 def download_required_jars(config):
@@ -83,7 +83,7 @@ def hook_load_tool_info(tool_name, config):
     @return: A tuple of the full name of the used tool-info module and an instance of the tool-info class.
     """
     if not config.containerImage:
-        return real_load_tool_info(tool_name, config)
+        return original_load_tool_info(tool_name, config)
 
     tool_module = tool_name if "." in tool_name else f"benchexec.tools.{tool_name}"
 
