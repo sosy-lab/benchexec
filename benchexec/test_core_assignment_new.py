@@ -69,12 +69,7 @@ def lrange(start, end):
 
 
 class TestCpuCoresPerRun(unittest.TestCase):
-    num_of_packages = None
-    num_of_groups = None
-    num_of_NUMAs = None
-    num_of_L3_regions = None
     num_of_cores = None
-    num_of_hyperthreading_siblings = None
 
     @classmethod
     def setUpClass(cls):
