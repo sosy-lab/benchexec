@@ -53,13 +53,9 @@ class PodmanContainerizedTool(object):
         @param config: A config object suitable for
             benchexec.containerexecutor.handle_basic_container_args()
         """
-        if not config.tool_directory:
-            logging.warning(
-                "Podman continaerized toool currently only works if --tool-directory is set"
-            )
-            raise ValueError(
-                "Podman continaerized toool currently only works if --tool-directory is set"
-            )
+        assert (
+            config.tool_directory
+        ), "Tool directory must be set when using podman for tool info module."
 
         # We use multiprocessing.Pool as an easy way for RPC with another process.
         self._pool = multiprocessing.Pool(1, _init_worker_process)
