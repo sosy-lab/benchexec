@@ -216,79 +216,44 @@ def _init_container(
         .strip()
     )
 
-    try:
-        logging.debug("Joining user namespace of container %s", container_id)
-
-        # The user namespace must be joined first
-        user_ns = f"/proc/{container_pid}/ns/user"
-        with open(user_ns, "rb") as f:
+    def join_ns(namespace):
+        namespace = f"/proc/{container_pid}/ns/{namespace}"
+        logging.debug("Joining namespace %s .", namespace)
+        with open(namespace, "rb") as f:
             libc.setns(f.fileno(), 0)
 
+    try:
+        logging.debug("Joining namespaces of container %s.", container_id)
+
+        necessary_namespaces = frozenset(("user", "mnt"))
+
+        # The user namespace must be joined first
+        # because the other namespaces depend on it
+        join_ns("user")
+
         for namespace in os.listdir(f"/proc/{container_pid}/ns"):
-            namespace = os.path.join(f"/proc/{container_pid}/ns", namespace)
-
-            if namespace == user_ns:
+            if namespace in necessary_namespaces:
                 continue
-            logging.debug("Joining namespace %s", namespace)
-
             try:
                 # We try to mount all listed namespaces, but some might not be available
-                with open(namespace, "rb") as f:
-                    libc.setns(f.fileno(), 0)
+                join_ns(namespace)
 
             except OSError as e:
                 logging.debug(
                     "Failed to join namespace %s: %s", namespace, os.strerror(e.errno)
                 )
 
+        # The mount namespace must be joined so we want
+        # to fail if we cannot join the mount namespace.
+        # mnt must be joined last because after joining it,
+        # we can no longer access /proc/<container_pid>/ns
+        join_ns("mnt")
+
         os.chdir(TOOL_DIRECTORY_MOUNT_POINT)
         return container_id
 
     except OSError as e:
-        if (
-            e.errno == errno.EPERM
-            and util.try_read_file("/proc/sys/kernel/unprivileged_userns_clone") == "0"
-        ):
-            raise BenchExecException(
-                "Unprivileged user namespaces forbidden on this system, please "
-                "enable them with 'sysctl -w kernel.unprivileged_userns_clone=1' "
-                "or disable container mode"
-            )
-        elif (
-            e.errno in {errno.ENOSPC, errno.EINVAL}
-            and util.try_read_file("/proc/sys/user/max_user_namespaces") == "0"
-        ):
-            # Ubuntu has ENOSPC, Centos seems to produce EINVAL in this case
-            raise BenchExecException(
-                "Unprivileged user namespaces forbidden on this system, please "
-                "enable by using 'sysctl -w user.max_user_namespaces=10000' "
-                "(or another value) or disable container mode"
-            )
-        else:
-            raise BenchExecException(
-                "Creating namespace for container mode failed: " + os.strerror(e.errno)
-            )
+        raise BenchExecException(
+            "Joining the podman container failed: " + os.strerror(e.errno)
+        )
 
-
-def _load_tool(tool_module):
-    logging.debug("Loading tool-info module %s in container", tool_module)
-    global tool
-
-    tool = __import__(tool_module, fromlist=["Tool"]).Tool()
-
-    tool = tooladapter.adapt_to_current_version(tool)
-    return tool.__doc__
-
-
-def _call_tool_func(name, args, kwargs):
-    """Call a method on the tool instance.
-    @param name: The method name to call.
-    @param args: List of arguments to be passed as positional arguments.
-    @param kwargs: Dict of arguments to be passed as keyword arguments.
-    """
-    global tool
-    try:
-        return getattr(tool, name)(*args, **kwargs)
-    except SystemExit as e:
-        # SystemExit would terminate the worker process instead of being propagated.
-        raise BenchExecException(str(e.code))
