@@ -135,7 +135,7 @@ class PodmanContainerizedTool(ContainerizedToolBase):
 
         super().__init__(tool_module, config, _init_container)
 
-    def mk_args(self, tool_module, config, tmp_dir):
+    def mk_args(self, tool_module, tmp_dir):
         return [tool_module]
 
     def mk_kwargs(self, container_options):

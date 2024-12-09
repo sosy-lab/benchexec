@@ -62,7 +62,7 @@ class ContainerizedToolBase(object, metaclass=ABCMeta):
         try:
             self.__doc__, self.container_id = self._pool.apply(
                 _init_container_and_load_tool,
-                [initializer] + self.mk_args(tool_module, config, temp_dir),
+                [initializer] + self.mk_args(tool_module, temp_dir),
                 self.mk_kwargs(container_options),
             )
         except BaseException as e:
@@ -74,8 +74,8 @@ class ContainerizedToolBase(object, metaclass=ABCMeta):
             with contextlib.suppress(OSError):
                 os.rmdir(temp_dir)
 
-    def mk_args(self, tool_module, config, tmp_dir):
-        return [tool_module, config, tmp_dir]
+    def mk_args(self, tool_module, tmp_dir):
+        return [tool_module, tmp_dir]
 
     def mk_kwargs(self, container_options):
         return container_options
