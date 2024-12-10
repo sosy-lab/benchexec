@@ -55,6 +55,13 @@ def expect_invalid(core_and_thread_tupels: list) -> callable:
 
             def decorator_test_invalid(self):
                 self.assertInvalid(number_cores, number_threads)
+                with pytest.raises(SystemExit):
+                    get_cpu_distribution(
+                        number_cores,
+                        number_threads,
+                        self.use_hyperthreading,
+                        *self.machine(),
+                    )
 
             dynamic_test_name = (
                 f"test_{number_cores}_cores_{number_threads}_threads_invalid"
@@ -97,10 +104,6 @@ class TestCpuCoresPerRun(unittest.TestCase):
             self.use_hyperthreading,
             *self.machine(),
         )
-        with pytest.raises(SystemExit):
-            get_cpu_distribution(
-                coreLimit, num_of_threads, self.use_hyperthreading, *self.machine()
-            )
 
     machine_definition = None
 
