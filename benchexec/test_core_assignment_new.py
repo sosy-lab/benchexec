@@ -14,6 +14,7 @@ from benchexec.resources import (
     get_cpu_distribution,
     filter_duplicate_hierarchy_levels,
 )
+import pytest
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
@@ -96,6 +97,10 @@ class TestCpuCoresPerRun(unittest.TestCase):
             self.use_hyperthreading,
             *self.machine(),
         )
+        with pytest.raises(SystemExit):
+            get_cpu_distribution(
+                coreLimit, num_of_threads, self.use_hyperthreading, *self.machine()
+            )
 
     machine_definition = None
 
