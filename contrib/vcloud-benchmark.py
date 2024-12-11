@@ -23,7 +23,7 @@ from vcloud.vcloudbenchmarkbase import VcloudBenchmarkBase  # noqa E402
 import benchexec.benchexec  # noqa E402
 import benchexec.model  # noqa E402
 import benchexec.tools  # noqa E402
-from benchexec import __version__  # noqa E402
+from benchexec import BenchExecException, __version__  # noqa E402
 
 _ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "vcloud"))
 IVY_JAR_NAME = "ivy-2.5.0.jar"
@@ -84,6 +84,13 @@ def hook_load_tool_info(tool_name, config):
     """
     if not config.containerImage:
         return original_load_tool_info(tool_name, config)
+
+    if not config.tool_directory:
+        raise BenchExecException(
+            "Using a container image is currently only supported "
+            "if the tool directory is explicitly provided. Please set it "
+            "using the --tool-directory option."
+        )
 
     tool_module = tool_name if "." in tool_name else f"benchexec.tools.{tool_name}"
 
