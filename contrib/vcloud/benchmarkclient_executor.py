@@ -13,9 +13,8 @@ import subprocess
 import sys
 from pathlib import Path
 
-import benchexec.tooladapter
 import benchexec.util
-from benchexec.tools.template import ToolNotFoundException
+from benchexec.tooladapter import CURRENT_BASETOOL, create_tool_locator
 
 from . import vcloudutil
 
@@ -37,45 +36,6 @@ def set_vcloud_jar_path(p):
     vcloud_jar = p
 
 
-class CustomToolLocator:
-    def __init__(self, container_mount_point=None):
-        self.container_mount_point = container_mount_point
-
-    def find_executable(self, executable_name, subdir=""):
-        logging.debug(
-            "Using custom tool locator to find executable %s", executable_name
-        )
-        assert (
-            os.path.basename(executable_name) == executable_name
-        ), "Executable needs to be a simple file name"
-        dirs = []
-
-        assert self.container_mount_point is not None, "Container mount point not set"
-
-        # At this point we know, that the tool is located at container_mount_point
-        # as the container as the tool_dir mounted to this location
-        dirs.append(os.path.join(self.container_mount_point, subdir))
-        logging.debug("Searching for executable %s in %s", executable_name, dirs)
-
-        executable = benchexec.util.find_executable2(executable_name, dirs)
-        if executable:
-            return executable
-
-        other_file = benchexec.util.find_executable2(executable_name, dirs, os.F_OK)
-        if other_file:
-            raise ToolNotFoundException(
-                f"Could not find executable '{executable_name}', "
-                f"but found file '{other_file}' that is not executable."
-            )
-
-        msg = (
-            f"Could not find executable '{executable_name}'. "
-            f"The searched directories were: " + "".join("\n  " + d for d in dirs)
-        )
-
-        raise ToolNotFoundException(msg)
-
-
 def init(config, benchmark):
     global _JustReprocessResults
     _JustReprocessResults = config.reprocessResults
@@ -83,7 +43,9 @@ def init(config, benchmark):
     if config.containerImage:
         from vcloud.podman_containerized_tool import TOOL_DIRECTORY_MOUNT_POINT
 
-        tool_locator = CustomToolLocator(TOOL_DIRECTORY_MOUNT_POINT)
+        tool_locator = CURRENT_BASETOOL.ToolLocator(
+            tool_directory=TOOL_DIRECTORY_MOUNT_POINT
+        )
         executable_for_version = benchmark.tool.executable(tool_locator)
         benchmark.tool_version = benchmark.tool.version(executable_for_version)
 
@@ -112,7 +74,7 @@ def init(config, benchmark):
         )
 
     else:
-        tool_locator = benchexec.tooladapter.create_tool_locator(config)
+        tool_locator = create_tool_locator(config)
         benchmark.executable = benchmark.tool.executable(tool_locator)
         benchmark.tool_version = benchmark.tool.version(benchmark.executable)
 
