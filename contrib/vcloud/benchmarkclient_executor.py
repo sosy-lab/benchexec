@@ -107,7 +107,7 @@ def init(config, benchmark):
 
         # The vcloud uses the tool location later to determine which files need to be uploaded
         # So this needs to point to the actual path where the executable is on the host
-        benchmark.executable = (
+        benchmark.executable = str(
             Path(config.tool_directory) / executable_relative_to_mount_point
         )
 
