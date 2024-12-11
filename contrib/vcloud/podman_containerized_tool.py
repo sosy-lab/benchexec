@@ -80,10 +80,10 @@ def _init_container(
 
     subprocess.run(
         ["podman", "init", container_id],
-        check=True,
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
         stdin=subprocess.DEVNULL,
+        check=True,
     )
 
     container_pid = (
@@ -92,6 +92,7 @@ def _init_container(
             stdout=subprocess.PIPE,
             stderr=subprocess.DEVNULL,
             stdin=subprocess.DEVNULL,
+            check=True,
         )
         .stdout.decode()
         .strip()
