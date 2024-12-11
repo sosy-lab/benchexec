@@ -156,7 +156,7 @@ class PodmanContainerizedTool(ContainerizedTool):
 
         super().__init__(tool_module, config)
 
-    def _setup_container(self, tool_module):
+    def _setup_container(self, tool_module, config):
         self.__doc__, self.container_id = self._pool.apply(
             _init_container_and_load_tool,
             [_init_container, tool_module],

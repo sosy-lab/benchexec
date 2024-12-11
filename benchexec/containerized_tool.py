@@ -54,28 +54,28 @@ class ContainerizedTool(object):
         # We use multiprocessing.Pool as an easy way for RPC with another process.
         self._pool = multiprocessing.Pool(1, _init_worker_process)
 
-        self.container_options = containerexecutor.handle_basic_container_args(config)
-        self.temp_dir = tempfile.mkdtemp(prefix="Benchexec_tool_info_container_")
-
         # Call function that loads tool module and returns its doc
         try:
-            self._setup_container(tool_module)
-
+            self._setup_container(tool_module, config)
         except BaseException as e:
             self._pool.terminate()
             raise e
+
+    def _setup_container(self, tool_module, config):
+        container_options = containerexecutor.handle_basic_container_args(config)
+        temp_dir = tempfile.mkdtemp(prefix="Benchexec_tool_info_container_")
+
+        try:
+            self.__doc__, _ = self._pool.apply(
+                _init_container_and_load_tool,
+                [_init_container, tool_module, temp_dir],
+                container_options,
+            )
         finally:
             # Outside the container, the temp_dir is just an empty directory, because
             # the tmpfs mount is only visible inside. We can remove it immediately.
             with contextlib.suppress(OSError):
-                os.rmdir(self.temp_dir)
-
-    def _setup_container(self, tool_module):
-        self.__doc__, _ = self._pool.apply(
-            _init_container_and_load_tool,
-            [_init_container, tool_module, self.temp_dir],
-            self.container_options,
-        )
+                os.rmdir(temp_dir)
 
     def close(self):
         self._forward_call("close", [], {})
