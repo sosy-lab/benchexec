@@ -33,20 +33,17 @@ def _init_container(
     """
     Move this process into a container.
     """
-    volumes = []
-
     tool_directory = os.path.abspath(tool_directory)
 
     # Mount the python loaded paths into the container
     # The modules are mounted at the exact same path in the container
     # because we do not yet know a solution to tell python to use
     # different paths for the modules in the container.
-    for path in map(Path, sys.path):
-        if not path.is_dir():
-            continue
-
-        abs_path = path.absolute()
-        volumes += ["--volume", f"{abs_path}:{abs_path}:ro"]
+    # We need to normalize and deduplicate the paths because Podman rejects duplicates.
+    import_paths = {Path(path).resolve() for path in sys.path if os.path.isdir(path)}
+    volumes = []
+    for path in import_paths:
+        volumes += ["--volume", f"{path}:{path}:ro"]
 
     # Mount the tool directory into the container at a known location
     volumes += [
