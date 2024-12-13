@@ -39,11 +39,21 @@ def _init_container(
     # The modules are mounted at the exact same path in the container
     # because we do not yet know a solution to tell python to use
     # different paths for the modules in the container.
-    # We need to normalize and deduplicate the paths because Podman rejects duplicates.
-    import_paths = {Path(path).resolve() for path in sys.path if os.path.isdir(path)}
+    # We need to deduplicate the paths because Podman rejects duplicates.
     volumes = []
-    for path in import_paths:
-        volumes += ["--volume", f"{path}:{path}:ro"]
+    seen_paths = set()
+    for path in sys.path:
+        path = Path(path)
+        resolved_path = path.resolve()
+
+        # paths erlier in sys.path take precedence
+        if not resolved_path.is_dir() or resolved_path in seen_paths:
+            continue
+
+        seen_paths.add(resolved_path)
+
+        # we mount
+        volumes += ["--volume", f"{resolved_path}:{path}:ro"]
 
     # Mount the tool directory into the container at a known location
     volumes += [
