@@ -33,7 +33,7 @@ def expect_assignment(
 
     def class_decorator(c) -> callable:
         def decorator_test_assignment(self):
-            self._test_nCoresPerRun(number_cores, expected_assignment, max_threads)
+            self.mainAssertValid(number_cores, expected_assignment, max_threads)
 
         dynamic_test_name = f"test_{number_cores}_cores_assignment"
         setattr(c, dynamic_test_name, decorator_test_assignment)
@@ -158,9 +158,6 @@ class TestCpuCoresPerRun(unittest.TestCase):
                 )
 
     use_hyperthreading = True
-
-    def _test_nCoresPerRun(self, coreLimit, expected_assignment, max_threads=None):
-        self.mainAssertValid(coreLimit, expected_assignment, max_threads)
 
 
 @expect_assignment(1, [[x] for x in range(8)])
