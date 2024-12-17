@@ -5,12 +5,11 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import benchexec.util as util
-import benchexec.tools.template
 import benchexec.result as result
+import benchexec.tools.template
 
 
-class Tool(benchexec.tools.template.BaseTool):
+class Tool(benchexec.tools.template.BaseTool2):
     """
     Tool info for JPF with symbolic extension (SPF)
     """
@@ -25,8 +24,8 @@ class Tool(benchexec.tools.template.BaseTool):
         "jpf-sv-comp",
     ]
 
-    def executable(self):
-        return util.find_executable("jpf-sv-comp")
+    def executable(self, tool_locator):
+        return tool_locator.find_executable("jpf-sv-comp")
 
     def name(self):
         return "SPF"
@@ -39,11 +38,12 @@ class Tool(benchexec.tools.template.BaseTool):
         first_line = output.splitlines()[0]
         return first_line.strip()
 
-    def cmdline(self, executable, options, tasks, propertyfile, rlimits):
-        options = options + ["--propertyfile", propertyfile]
-        return [executable] + options + tasks
+    def cmdline(self, executable, options, tasks, rlimits):
+        options = options + ["--propertyfile", tasks.property_file]
+        return [executable] + options + list(tasks.input_files_or_identifier)
 
-    def determine_result(self, returncode, returnsignal, output, isTimeout):
+    def determine_result(self, run):
+        output = run.output
         # parse output
         status = result.RESULT_UNKNOWN
 
