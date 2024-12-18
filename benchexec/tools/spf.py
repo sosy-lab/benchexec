@@ -40,7 +40,7 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def cmdline(self, executable, options, tasks, rlimits):
         options = options + ["--propertyfile", tasks.property_file]
-        return [executable] + options + list(tasks.input_files_or_identifier)
+        return [executable] + options + list(tasks.input_files)
 
     def determine_result(self, run):
         output = run.output
