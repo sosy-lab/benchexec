@@ -76,34 +76,50 @@ def _init_container(
         "Command to start container: %s",
         shlex.join(map(str, command)),
     )
-    res = subprocess.run(
-        command,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.DEVNULL,
-        stdin=subprocess.DEVNULL,
-        check=True,
-    )
-    container_id = res.stdout.decode().strip()
-
-    subprocess.run(
-        ["podman", "init", container_id],
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
-        stdin=subprocess.DEVNULL,
-        check=True,
-    )
-
-    container_pid = (
-        subprocess.run(
-            ["podman", "inspect", "--format", "{{.State.Pid}}", container_id],
+    try:
+        res = subprocess.run(
+            command,
             stdout=subprocess.PIPE,
-            stderr=subprocess.DEVNULL,
+            stderr=subprocess.PIPE,
             stdin=subprocess.DEVNULL,
             check=True,
         )
-        .stdout.decode()
-        .strip()
-    )
+    except subprocess.CalledProcessError as e:
+        raise BenchExecException(
+            "Creating of the podman container failed:\n" + e.stderr.decode()
+        )
+
+    container_id = res.stdout.decode().strip()
+
+    try:
+        subprocess.run(
+            ["podman", "init", container_id],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.PIPE,
+            stdin=subprocess.DEVNULL,
+            check=True,
+        )
+    except subprocess.CalledProcessError as e:
+        raise BenchExecException(
+            "Initializing the podman container failed:\n" + e.stderr.decode()
+        )
+
+    try:
+        container_pid = (
+            subprocess.run(
+                ["podman", "inspect", "--format", "{{.State.Pid}}", container_id],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                stdin=subprocess.DEVNULL,
+                check=True,
+            )
+            .stdout.decode()
+            .strip()
+        )
+    except subprocess.CalledProcessError as e:
+        raise BenchExecException(
+            "Inspecting the podman container failed:\n" + e.stderr.decode()
+        )
 
     def join_ns(namespace):
         namespace = f"/proc/{container_pid}/ns/{namespace}"
