@@ -38,9 +38,9 @@ class Tool(benchexec.tools.template.BaseTool2):
         first_line = output.splitlines()[0]
         return first_line.strip()
 
-    def cmdline(self, executable, options, tasks, rlimits):
-        options = options + ["--propertyfile", tasks.property_file]
-        return [executable] + options + list(tasks.input_files)
+    def cmdline(self, executable, options, task, rlimits):
+        options = options + ["--propertyfile", task.property_file]
+        return [executable] + options + list(task.input_files)
 
     def determine_result(self, run):
         output = run.output
