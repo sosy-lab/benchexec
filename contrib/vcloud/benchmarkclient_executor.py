@@ -82,6 +82,13 @@ def init(config, benchmark):
 
         # The vcloud uses the tool location later to determine which files need to be uploaded
         # So this needs to point to the actual path where the executable is on the host
+        if not executable_for_cloud.is_absolute() and "/" not in str(
+            executable_for_cloud
+        ):
+            # add ./ to the beginning of the path if the executable is just the executable name
+            # otherwise os.path.dirname will return '' causing problems with some tool info modules
+            executable_for_cloud = "./" + str(executable_for_cloud)
+
         benchmark.executable = str(executable_for_cloud)
 
     else:
