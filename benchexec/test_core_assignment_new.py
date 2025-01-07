@@ -42,6 +42,30 @@ def expect_assignment(
     return class_decorator
 
 
+def expect_valid(core_and_thread_tupels: list, expected_assignment: list) -> callable:
+    """
+    Add a new test case "test_(number_cores)_cores_(number_threads)_threads_expected_result", which asserts if a certain
+    combination of core limit and thread requirements return the expected result
+
+    @param: core_and_thread_tupels  list of tupels with a max numbers of cores which may be used and required number of threads
+    @param: expected_assignment     single expected assignment for all tupels
+    """
+
+    def class_decorator(c) -> callable:
+        for number_cores, number_threads in core_and_thread_tupels:
+
+            def decorator_test_invalid(self):
+                self.assertValid(number_cores, number_threads, expected_assignment)
+
+            dynamic_test_name = (
+                f"test_{number_cores}_cores_{number_threads}_threads_expected_result"
+            )
+            setattr(c, dynamic_test_name, decorator_test_invalid)
+        return c
+
+    return class_decorator
+
+
 def expect_invalid(core_and_thread_tupels: list) -> callable:
     """
     Add a new test case "test_(number_cores)_cores_(number_threads)_threads_invalid", which checks if an exception is raised due to
