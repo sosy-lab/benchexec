@@ -308,6 +308,7 @@ class TestCpuCoresPerRun_singleCPU_HT(TestCpuCoresPerRun):
     ],
 )
 @expect_invalid([(2, 17), (17, 2), (4, 9), (9, 4), (8, 5), (5, 8)])
+@expect_valid([(16, 2)], [lrange(0, 16), lrange(16, 32)])
 class TestCpuCoresPerRun_dualCPU_HT(TestCpuCoresPerRun):
     use_hyperthreading = True
     machine_definition = ([16, 2], 2)
@@ -458,6 +459,16 @@ class TestCpuCoresPerRun_threeCPU_HT(TestCpuCoresPerRun):
         (5, 16),
     ]
 )
+@expect_valid(
+    [(16, 4)],
+    [
+        lrange(0, 16),
+        lrange(16, 32),
+        lrange(32, 48),
+        lrange(48, 64),
+    ],
+)
+@expect_valid([(64, 1), (2, 32), (32, 2), (16, 3), (4, 16), (16, 4), (8, 8)], None)
 class TestCpuCoresPerRun_quadCPU_HT(TestCpuCoresPerRun):
     use_hyperthreading = True
     machine_definition = ([32, 4], 2)
@@ -557,6 +568,8 @@ class TestCpuCoresPerRun_threeCPU_no_ht(TestCpuCoresPerRun):
 )
 @expect_invalid([(1, 17), (2, 9), (3, 5), (4, 5), (8, 3)])
 @expect_invalid([(5, 3), (6, 3)])
+@expect_valid([(5, 2)], [[0, 2, 4, 6, 8], [16, 18, 20, 22, 24]])
+@expect_valid([(6, 2)], [[0, 2, 4, 6, 8, 10], [16, 18, 20, 22, 24, 26]])
 class TestCpuCoresPerRun_quadCPU_no_ht(TestCpuCoresPerRun):
     use_hyperthreading = False
     machine_definition = ([16, 4], 2)
