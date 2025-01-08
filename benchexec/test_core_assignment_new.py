@@ -317,9 +317,6 @@ class TestCpuCoresPerRun_dualCPU_HT(TestCpuCoresPerRun):
     # Currently, the assignment algorithm cannot do better for odd coreLimits,
     # but this affects only cases where physical cores are split between runs, which is not recommended anyway.
 
-    def test_dualCPU_HT(self):
-        self.assertValid(16, 2, [lrange(0, 16), lrange(16, 32)])
-
 
 @expect_assignment(1, [[x] for x in [0, 5, 10, 1, 6, 11, 2, 7, 12, 3, 8, 13, 4, 9, 14]])
 @expect_assignment(
@@ -473,30 +470,11 @@ class TestCpuCoresPerRun_quadCPU_HT(TestCpuCoresPerRun):
     use_hyperthreading = True
     machine_definition = ([32, 4], 2)
 
-    def test_quadCPU_HT(self):
-        self.assertValid(
-            16,
-            4,
-            [
-                lrange(0, 16),
-                lrange(16, 32),
-                lrange(32, 48),
-                lrange(48, 64),
-            ],
-        )
-
-        # Just test that no exception occurs
-        # Commented out tests are not longer possible
-        # self.assertValid(1, 64) - we do not divide HT siblings
-        self.assertValid(64, 1)
-        self.assertValid(2, 32)
-        self.assertValid(32, 2)
-        # self.assertValid(3, 20) - we do not divide HT siblings: 4*20 = 80
-        self.assertValid(16, 3)
-        self.assertValid(4, 16)
-        self.assertValid(16, 4)
-        # self.assertValid(5, 12) - we do not divide HT siblings: 6*12 =72
-        self.assertValid(8, 8)
+    # Just test that no exception occurs
+    # Commented out tests are not longer possible
+    # self.assertValid(1, 64) - we do not divide HT siblings
+    # self.assertValid(3, 20) - we do not divide HT siblings: 4*20 = 80
+    # self.assertValid(5, 12) - we do not divide HT siblings: 6*12 =72
 
 
 @expect_assignment(1, [[x] for x in [0, 2, 4, 6]])
@@ -573,10 +551,6 @@ class TestCpuCoresPerRun_threeCPU_no_ht(TestCpuCoresPerRun):
 class TestCpuCoresPerRun_quadCPU_no_ht(TestCpuCoresPerRun):
     use_hyperthreading = False
     machine_definition = ([16, 4], 2)
-
-    def test_quadCPU_no_ht_valid(self):
-        self.assertValid(5, 2, [[0, 2, 4, 6, 8], [16, 18, 20, 22, 24]])
-        self.assertValid(6, 2, [[0, 2, 4, 6, 8, 10], [16, 18, 20, 22, 24, 26]])
 
 
 @expect_assignment(1, [[x] for x in [0, 8, 2, 10, 4, 12, 6, 14]])
