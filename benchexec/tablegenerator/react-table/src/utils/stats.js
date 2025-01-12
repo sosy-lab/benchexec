@@ -114,7 +114,7 @@ export const computeStats = async({ tools, tableData, stats }) => {
     // The result of our stat calculation only contains relevant columns.
     // The stat table however requires a strict ordering of columns that also
     // includes columns that are not even rendered.
-    //
+
     // In order to ensure a consistent layout we iterate through all columns
     // of the runset and append dummy objects until we reach a column that we
     // have calculated data for

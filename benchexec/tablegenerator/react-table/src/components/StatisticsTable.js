@@ -88,8 +88,7 @@ const StatisticsTable = ({
                   header.className || ""
                 }`,
                             })
-                        } >
-                        { header.render("Header") }
+                        } > { header.render("Header") }
 
                         {
                             (!header.className ||
@@ -120,8 +119,7 @@ const StatisticsTable = ({
                             div {...cell.getCellProps({
                                     className: "td " + (cell.column.className || ""),
                                 })
-                            } >
-                            { cell.render("Cell") } <
+                            } > { cell.render("Cell") } <
                             /div>
                         ))
                     } <
@@ -149,10 +147,10 @@ const StatisticsTable = ({
             div className = "table-content" >
             <
             div className = "table-container" {...getTableProps() } > { renderTableHeaders(headerGroups) } { renderTableData(rows) } <
-            /div> <
-            /div> <
-            /div> <
-            /div>
+            /div> < /
+            div > <
+            /div> < /
+            div >
         );
     };
 
@@ -168,7 +166,8 @@ const StatisticsTable = ({
                     className = "header-data clickable"
                     title = "Show Quantile Plot of this column"
                     onClick = {
-                        (e) => switchToQuantile(column) }
+                        (e) => switchToQuantile(column)
+                    }
                     />
                 ),
                 hidden: hiddenCols[runSetIdx].includes(column.colIdx) ||
@@ -212,7 +211,8 @@ const StatisticsTable = ({
                         title = {
                             column.type !== "status" ? renderTooltip(cell.value) : undefined
                         } >
-                        < /div>
+                        <
+                        /div>
                     ) : ( <
                         div className = "cell" > - < /div>
                     );
@@ -231,9 +231,10 @@ const StatisticsTable = ({
                 type = "checkbox"
                 checked = { isTitleColSticky }
                 onChange = {
-                    ({ target }) => setTitleColSticky(target.checked) }
-                /> <
-                /label> <
+                    ({ target }) => setTitleColSticky(target.checked)
+                }
+                /> < /
+                label > <
                 /form>
             ),
             id: "row-title",
@@ -312,8 +313,8 @@ const StatisticsTable = ({
     return ( <
         div id = "statistics" >
         <
-        h2 > Statistics < /h2> { renderTable(headerGroups, rows) } <
-        /div>
+        h2 > Statistics < /h2> { renderTable(headerGroups, rows) } < /
+        div >
     );
 };
 
