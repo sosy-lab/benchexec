@@ -428,14 +428,17 @@ def calculate_chosen_level(
     @return:                        calculated chosen level as index
     """
 
+    def next_level_suitable(chosen_level, hierarchy_levels, core_limit):
+        """Check if its possible to proceed to the next hierarchy level."""
+        if chosen_level >= len(hierarchy_levels) - 1:
+            return False  # Already at the last level
+        current_level_values = next(iter(hierarchy_levels[chosen_level].values()))
+        return len(current_level_values) < core_limit
+
     chosen_level = 1
     # move up in hierarchy as long as the number of cores at the current level is smaller than the coreLimit
     # if the number of cores at the current level is as big as the coreLimit: exit loop
-    while (
-        chosen_level < len(hierarchy_levels) - 1
-        and len(next(iter(hierarchy_levels[chosen_level].values())))
-        < coreLimit_rounded_up
-    ):
+    while next_level_suitable(chosen_level, hierarchy_levels, coreLimit_rounded_up):
         chosen_level = chosen_level + 1
     return chosen_level
 
