@@ -156,24 +156,27 @@ def filter_duplicate_hierarchy_levels(
     @param: hierarchy_levels    the list of hierarchyLevels to be filtered for duplicate levels
     @return:                    a list of hierarchyLevels without identical levels
     """
-    removeList = []
-    filteredList = hierarchy_levels.copy()
-    for index in range(len(hierarchy_levels) - 1):
-        if len(hierarchy_levels[index]) == len(hierarchy_levels[index + 1]):
-            allIdentical = True
-            for key in hierarchy_levels[index]:
-                set1 = set(hierarchy_levels[index][key])
-                anyIdentical = False
-                if any(
-                    set1 == (set(s2)) for s2 in hierarchy_levels[index + 1].values()
-                ):
-                    anyIdentical = True
-                allIdentical = allIdentical and anyIdentical
-            if allIdentical:
-                removeList.append(hierarchy_levels[index + 1])
-    for level in removeList:
-        filteredList.remove(level)
-    return filteredList
+    if not hierarchy_levels:
+        return []
+
+    # the first level (=> all CPU cores) cannot be a duplicate yet and is always included
+    filtered_list = [hierarchy_levels[0]]
+
+    # we compare all adjacent levels with each other...
+    for i in range(len(hierarchy_levels) - 1):
+        current_level = hierarchy_levels[i]
+        next_level = hierarchy_levels[i + 1]
+
+        current_values_set = [set(values) for values in current_level.values()]
+        next_values_set = [set(values) for values in next_level.values()]
+
+        # ... whether they contain either the same lists or just permutations of it
+        if current_values_set == next_values_set:
+            continue
+
+        filtered_list.append(next_level)
+
+    return filtered_list
 
 
 class VirtualCore:
