@@ -237,20 +237,20 @@ def check_internal_validity(
 
 
 def get_cpu_distribution(
-    coreLimit: int,
+    core_limit: int,
     num_of_threads: int,
     use_hyperthreading: bool,
     hierarchy_levels: List[HierarchyLevel],
-    coreRequirement: Optional[int] = None,
+    core_requirement: Optional[int] = None,
 ) -> List[List[int]]:
     """
     Implements optional restrictions and calls the actual assignment function
 
-    @param: coreLimit           the number of cores for each parallel benchmark execution
+    @param: core_limit          the number of cores for each parallel benchmark execution
     @param: num_of_threads      the number of parallel benchmark executions
     @param: use_hyperthreading  boolean to check if no-hyperthreading method is being used
     @param: hierarchy_levels    list of dicts of lists: each dict in the list corresponds to one topology layer and maps from the identifier read from the topology to a list of the cores belonging to it
-    @param: coreRequirement     minimum number of cores to be reserved for each execution run
+    @param: core_requirement    minimum number of cores to be reserved for each execution run
     @return:                    list of lists, where each inner list contains the cores for one run
     """
 
@@ -275,39 +275,39 @@ def get_cpu_distribution(
         filter_hyperthreading_siblings(allCpus, hierarchy_levels)
         check_internal_validity(allCpus, hierarchy_levels)
 
-    if not coreRequirement:
+    if not core_requirement:
         result = core_allocation_algorithm(
-            coreLimit,
+            core_limit,
             num_of_threads,
             allCpus,
             hierarchy_levels,
         )
     else:
-        if coreRequirement >= coreLimit:
-            # reserves coreRequirement number of cores of which coreLimit is used
+        if core_requirement >= core_limit:
+            # reserves core_requirement number of cores of which coreLimit is used
             prelim_result = core_allocation_algorithm(
-                coreRequirement,
+                core_requirement,
                 num_of_threads,
                 allCpus,
                 hierarchy_levels,
             )
             for resultlist in prelim_result:
-                result.append(resultlist[:coreLimit])
+                result.append(resultlist[:core_limit])
         else:
-            i = coreLimit
-            while i > coreRequirement:
-                # uses as many cores as possible (with maximum coreLimit), but at least coreRequirement num of cores
+            max_possible_cores = core_limit
+            while max_possible_cores > core_requirement:
+                # uses as many cores as possible (with maximum coreLimit), but at least core_requirement num of cores
                 if check_distribution_feasibility(
-                    i,
+                    max_possible_cores,
                     num_of_threads,
                     hierarchy_levels,
                     isTest=True,
                 ):
                     break
                 else:
-                    i -= 1
+                    max_possible_cores -= 1
             result = core_allocation_algorithm(
-                i,
+                max_possible_cores,
                 num_of_threads,
                 allCpus,
                 hierarchy_levels,
