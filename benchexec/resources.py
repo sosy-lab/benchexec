@@ -325,19 +325,31 @@ def filter_hyperthreading_siblings(
     @param: allCpus             list of VirtualCore objects
     @param: hierarchy_levels    list of dicts of lists: each dict in the list corresponds to one topology layer and maps from the identifier read from the topology to a list of the cores belonging to it
     """
-    for core in hierarchy_levels[0]:
-        no_HT_filter = []
-        for sibling in hierarchy_levels[0][core]:
-            if sibling != core:
-                no_HT_filter.append(sibling)
-        for virtual_core in no_HT_filter:
-            region_keys = allCpus[virtual_core].memory_regions
-            i = 0
-            while i < len(region_keys):
-                if virtual_core in hierarchy_levels[i][region_keys[i]]:
-                    hierarchy_levels[i][region_keys[i]].remove(virtual_core)
-                i = i + 1
-            allCpus.pop(virtual_core)
+    if not hierarchy_levels:
+        return
+
+    cores_to_remove = set()
+
+    # hierarchy_levels[0] is the lowest layer containing all CPU cores, including hyperthreading ones.
+    # each value in it represents a physical core and is a list with all hyperthreading cores on this physical core
+    for sibling_group in hierarchy_levels[0].values():
+        # we only want to keep one hyperthreading core => we add all but the first to the removal list
+        cores_to_remove.update(sibling_group[1:])
+
+    # the removed cores are still in the hierarchy and need to be removed, not only on the first layer,
+    # but all layers
+    for core in cores_to_remove:
+        if core in allCpus:
+            current_regions = allCpus[core].memory_regions
+            del allCpus[core]
+
+            for i, region in enumerate(current_regions):
+                level = hierarchy_levels[i]
+                if core in level.get(region, []):
+                    level[region].remove(core)
+                    if not level[region]:
+                        # empty group
+                        del level[region]
 
 
 def check_distribution_feasibility(
