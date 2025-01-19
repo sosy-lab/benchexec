@@ -35,6 +35,7 @@ trivial_run_grace_time = 0.2
 class TestRunExecutor(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        logging.disable(logging.NOTSET)  # need to make sure to get all messages
         if not hasattr(cls, "assertRegex"):
             cls.assertRegex = cls.assertRegexpMatches
 
