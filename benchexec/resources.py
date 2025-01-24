@@ -609,11 +609,10 @@ def core_allocation_algorithm(
                 # if length of core lists unequal: get element with highest length
                 largest_core_subset = max(distribution_dict.values(), key=len)
 
-                child_dict = get_core_units_on_level(
+                distribution_dict = get_core_units_on_level(
                     allCpus, largest_core_subset, search_current_level - 1
                 )
-                distribution_dict = child_dict.copy()
-                if check_symmetric_num_of_values(child_dict):
+                if check_symmetric_num_of_values(distribution_dict):
                     if search_current_level > chosen_level:
                         while (
                             search_current_level >= chosen_level
@@ -625,10 +624,9 @@ def core_allocation_algorithm(
                                 distribution_dict.values(), key=len
                             )
 
-                            child_dict = get_core_units_on_level(
+                            distribution_dict = get_core_units_on_level(
                                 allCpus, largest_core_subset, search_current_level - 1
                             )
-                            distribution_dict = child_dict.copy()
                     break
                 else:
                     search_current_level -= 1
