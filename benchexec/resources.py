@@ -585,7 +585,6 @@ def core_allocation_algorithm(
 
     # Start core assignment algorithm
     result = []
-    blocked_cores = []
     active_hierarchy_level = hierarchy_levels[chosen_level]
     while len(result) < num_of_threads:  # and i < len(active_hierarchy_level):
         """
@@ -696,10 +695,6 @@ def core_allocation_algorithm(
                 for core in core_with_siblings:
                     if len(cores) < coreLimit:
                         cores.append(core)  # add core&siblings to results
-                    else:
-                        blocked_cores.append(
-                            core
-                        )  # add superfluous cores to blocked_cores
                     core_clean_up(core, allCpus, hierarchy_levels)
 
             while sub_unit_cores:
