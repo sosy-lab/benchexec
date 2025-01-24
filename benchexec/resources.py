@@ -558,6 +558,48 @@ def core_allocation_algorithm(
     @return result:             list of lists each containing the cores assigned to the same thread
     """
 
+    def _find_spreading_memory_region_key(
+        allCpus: Dict[int, VirtualCore],
+        chosen_level: int,
+        hierarchy_levels: List[HierarchyLevel],
+    ) -> tuple[int, HierarchyLevel]:
+        # we start from the highest hierarchy level
+        search_current_level = len(hierarchy_levels) - 1
+        distribution_dict = hierarchy_levels[search_current_level]
+
+        while search_current_level > 0:
+            if check_symmetric_num_of_values(distribution_dict):
+                # for symmetric ones, we go further into the hierarchy (and only return them if we are at the end of the hierarchy already)
+                search_current_level -= 1
+                distribution_dict = hierarchy_levels[search_current_level]
+            else:
+                largest_core_subset = max(distribution_dict.values(), key=len)
+                distribution_dict = get_core_units_on_level(
+                    allCpus, largest_core_subset, search_current_level - 1
+                )
+
+                if check_symmetric_num_of_values(distribution_dict):
+                    if search_current_level > chosen_level:
+                        while (
+                            search_current_level >= chosen_level
+                            and search_current_level > 0
+                        ):
+                            search_current_level -= 1
+                            largest_core_subset = max(
+                                distribution_dict.values(), key=len
+                            )
+                            distribution_dict = get_core_units_on_level(
+                                allCpus, largest_core_subset, search_current_level - 1
+                            )
+                    break
+                else:
+                    search_current_level -= 1
+
+        # we only need the memory region, thus we just take the first core, doesn't matter
+        first_core = list(distribution_dict.values())[0][0]
+        spreading_memory_region_key = allCpus[first_core].memory_regions[chosen_level]
+        return spreading_memory_region_key, distribution_dict
+
     # check whether the distribution can work with the given parameters
     check_distribution_feasibility(
         coreLimit,
@@ -636,9 +678,10 @@ def core_allocation_algorithm(
         the memory region and the list of cores relevant for the core assignment for the next thread
         """
         # return the memory region key of values first core at chosen_level
-        spreading_memory_region_key = allCpus[
-            list(distribution_dict.values())[0][0]
-        ].memory_regions[chosen_level]
+        spreading_memory_region_key, _distribution_dict = (
+            _find_spreading_memory_region_key(allCpus, chosen_level, hierarchy_levels)
+        )
+        assert distribution_dict == _distribution_dict
         # return the list of cores belonging to the spreading_memory_region_key
         active_cores = active_hierarchy_level[spreading_memory_region_key]
 
