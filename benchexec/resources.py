@@ -638,50 +638,10 @@ def core_allocation_algorithm(
         from which to continue the search for the cores with the highest distance from the cores
         assigned before
         """
-        # choose cores for assignment:
-        search_current_level = len(hierarchy_levels) - 1
-        distribution_dict = hierarchy_levels[search_current_level]
-        # start with highest dict: continue while length = 1 or equal length of values
-        while search_current_level > 0:
-            # if length of core lists equal:
-            if check_symmetric_num_of_values(distribution_dict):
-                search_current_level -= 1
-                distribution_dict = hierarchy_levels[search_current_level]
-            else:
-                # if length of core lists unequal: get element with highest length
-                largest_core_subset = max(distribution_dict.values(), key=len)
 
-                distribution_dict = get_core_units_on_level(
-                    allCpus, largest_core_subset, search_current_level - 1
-                )
-                if check_symmetric_num_of_values(distribution_dict):
-                    if search_current_level > chosen_level:
-                        while (
-                            search_current_level >= chosen_level
-                            and search_current_level > 0
-                        ):
-                            search_current_level -= 1
-                            # if length of core lists unequal: get element with highest length
-                            largest_core_subset = max(
-                                distribution_dict.values(), key=len
-                            )
-
-                            distribution_dict = get_core_units_on_level(
-                                allCpus, largest_core_subset, search_current_level - 1
-                            )
-                    break
-                else:
-                    search_current_level -= 1
-        """
-        The values of the hierarchy_levels dict at index search_current_level are sorted by length and
-        from the the largest list of values, the first core is used to identify
-        the memory region and the list of cores relevant for the core assignment for the next thread
-        """
-        # return the memory region key of values first core at chosen_level
-        spreading_memory_region_key, _distribution_dict = (
+        spreading_memory_region_key, distribution_dict = (
             _find_spreading_memory_region_key(allCpus, chosen_level, hierarchy_levels)
         )
-        assert distribution_dict == _distribution_dict
         # return the list of cores belonging to the spreading_memory_region_key
         active_cores = active_hierarchy_level[spreading_memory_region_key]
 
