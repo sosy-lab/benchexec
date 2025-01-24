@@ -592,45 +592,48 @@ def core_allocation_algorithm(
         dict with an unequal number of cores, chooses the value list with the most cores and
         compiles a child dict with these cores, then again choosing the value list with the most cores ...
         until the value lists have the same length.
-        Thus the algorithm finds the index i for hierarchy_levels that indicates the dict
+        Thus the algorithm finds the index search_current_level for hierarchy_levels that indicates the dict
         from which to continue the search for the cores with the highest distance from the cores
         assigned before
         """
         # choose cores for assignment:
-        i = len(hierarchy_levels) - 1
-        distribution_dict = hierarchy_levels[i]
+        search_current_level = len(hierarchy_levels) - 1
+        distribution_dict = hierarchy_levels[search_current_level]
         # start with highest dict: continue while length = 1 or equal length of values
-        while i > 0:
+        while search_current_level > 0:
             # if length of core lists equal:
             if check_symmetric_num_of_values(distribution_dict):
-                i = i - 1
-                distribution_dict = hierarchy_levels[i]
+                search_current_level -= 1
+                distribution_dict = hierarchy_levels[search_current_level]
             else:
                 # if length of core lists unequal: get element with highest length
                 largest_core_subset = max(distribution_dict.values(), key=len)
 
                 child_dict = get_core_units_on_level(
-                    allCpus, largest_core_subset, i - 1
+                    allCpus, largest_core_subset, search_current_level - 1
                 )
                 distribution_dict = child_dict.copy()
                 if check_symmetric_num_of_values(child_dict):
-                    if i > chosen_level:
-                        while i >= chosen_level and i > 0:
-                            i = i - 1
+                    if search_current_level > chosen_level:
+                        while (
+                            search_current_level >= chosen_level
+                            and search_current_level > 0
+                        ):
+                            search_current_level -= 1
                             # if length of core lists unequal: get element with highest length
                             largest_core_subset = max(
                                 distribution_dict.values(), key=len
                             )
 
                             child_dict = get_core_units_on_level(
-                                allCpus, largest_core_subset, i - 1
+                                allCpus, largest_core_subset, search_current_level - 1
                             )
                             distribution_dict = child_dict.copy()
                     break
                 else:
-                    i = i - 1
+                    search_current_level -= 1
         """
-        The values of the hierarchy_levels dict at index i are sorted by length and
+        The values of the hierarchy_levels dict at index search_current_level are sorted by length and
         from the the largest list of values, the first core is used to identify
         the memory region and the list of cores relevant for the core assignment for the next thread
         """
@@ -659,29 +662,31 @@ def core_allocation_algorithm(
             while len(cores) < coreLimit and sub_unit_cores:
                 """assigns the cores from sub_unit_cores list into child dict
                 in accordance with their memory regions"""
-                j = chosen_level - 1
-                if j - 1 > 0:
-                    j = j - 1
+                assignment_current_level = chosen_level - 1
+                if assignment_current_level - 1 > 0:
+                    assignment_current_level -= 1
 
-                child_dict = get_core_units_on_level(allCpus, sub_unit_cores.copy(), j)
+                child_dict = get_core_units_on_level(
+                    allCpus, sub_unit_cores.copy(), assignment_current_level
+                )
                 """
                 searches for the key-value pair that already provided cores for the assignment
                 and therefore has the fewest elements in its value list while non-empty,
                 and returns one of the cores in this key-value pair.
                 If no cores have been assigned yet, any core can be chosen and the next best core is returned.
                 """
-                while j > 0:
+                while assignment_current_level > 0:
                     if check_symmetric_num_of_values(child_dict):
                         break
                     else:
-                        j -= 1
+                        assignment_current_level -= 1
                         distribution_list = list(child_dict.values())
                         for iter2 in distribution_list.copy():
                             if len(iter2) == 0:
                                 distribution_list.remove(iter2)
                         distribution_list.sort(reverse=False)
                         child_dict = get_core_units_on_level(
-                            allCpus, distribution_list[0], j
+                            allCpus, distribution_list[0], assignment_current_level
                         )
                 next_core = list(child_dict.values())[0][0]
 
