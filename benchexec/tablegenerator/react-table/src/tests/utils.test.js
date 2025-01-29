@@ -353,7 +353,7 @@ describe("serialization", () => {
       { id: "0_hostname_2", value: "satu" },
     ];
 
-    const urlencoded = escape("1223:4567");
+    const urlencoded = encodeURIComponent("1223:4567");
     const expected = `0(1*cputime*(value(${urlencoded})),2*hostname*(value(satu)))`;
 
     expect(serializer(filter)).toBe(expected);
@@ -367,8 +367,8 @@ describe("serialization", () => {
       { id: "1_hostname_2", value: "tilo" },
     ];
 
-    const urlencoded1 = escape("1223:4567");
-    const urlencoded2 = escape(":4567");
+    const urlencoded1 = encodeURIComponent("1223:4567");
+    const urlencoded2 = encodeURIComponent(":4567");
 
     const filterRunset1 = `0(1*cputime*(value(${urlencoded1})),2*hostname*(value(satu)))`;
     const filterRunset2 = `1(1*cputime*(value(${urlencoded2})),2*hostname*(value(tilo)))`;
@@ -386,8 +386,8 @@ describe("serialization", () => {
       { id: "id", values: ["abc", "def"] },
     ];
 
-    const urlencoded1 = escape("1223:4567");
-    const urlencoded2 = escape(":4567");
+    const urlencoded1 = encodeURIComponent("1223:4567");
+    const urlencoded2 = encodeURIComponent(":4567");
 
     const filterRunset1 = `0(1*cputime*(value(${urlencoded1})),2*hostname*(value(satu)))`;
     const filterRunset2 = `1(1*cputime*(value(${urlencoded2})),2*hostname*(value(tilo)))`;
@@ -434,7 +434,7 @@ describe("serialization", () => {
       })),
     );
 
-    const encoded = escape("false(reach)");
+    const encoded = encodeURIComponent("false(reach)");
 
     const expected = `0(0*status*(status(in(OOM,${encoded})),category(notIn())))`;
 
@@ -470,7 +470,7 @@ describe("serialization", () => {
       })),
     );
 
-    const encoded = escape("false(reach)");
+    const encoded = encodeURIComponent("false(reach)");
 
     const expected1 = `0(0*status*(status(in(OOM,${encoded})),category(notIn())))`;
     const expected2 = `1(0*status*(status(notIn(true,false)),category(notIn())))`;

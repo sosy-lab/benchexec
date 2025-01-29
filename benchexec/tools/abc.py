@@ -72,7 +72,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         regex_decimal = r"(\d+\.\d*|\d*\.\d+)"
         regex_scinote = r"(\d\.?\d*[Ee][+\-]?\d+)"
         regex_pattern = (
-            re.escape(identifier)
+            re.encodeURIComponent(identifier)
             + r"\s*[:=]?\s*(-?("
             + regex_integer
             + r"|"

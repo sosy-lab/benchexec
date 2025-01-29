@@ -434,7 +434,7 @@ const makeFilterSerializer =
       }
       const { tool, name, column } = decodeFilter(id);
       const toolBucket = groupedFilters[tool] || {};
-      const columnBucket = toolBucket[column] || { name: escape(name) };
+      const columnBucket = toolBucket[column] || { name: encodeURIComponent(name) };
 
       if (allStatusValues[tool][column] || allCategoryValues[tool][column]) {
         // we are processing a status column with checkboxes
@@ -506,7 +506,7 @@ const makeFilterSerializer =
           );
         } else {
           // <valueFilter>
-          filter = `value(${escape(filters.value)})`;
+          filter = `value(${encodeURIComponent(filters.value)})`;
         }
         if (filter !== "") {
           columnFilters.push(`${columnFilterHeader}(${filter})`);
