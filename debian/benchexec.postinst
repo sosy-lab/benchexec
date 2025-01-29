@@ -1,0 +1,37 @@
+#!/bin/sh
+
+# This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
+#
+# SPDX-FileCopyrightText: 2019-2024 Dirk Beyer <https://www.sosy-lab.org>
+#
+# SPDX-License-Identifier: Apache-2.0
+
+set -e
+
+GROUP=benchexec
+
+add_group() {
+  groupadd --force --system "${GROUP}"
+  if [ ! -f /sys/fs/cgroup/cgroup.controllers ]; then
+    echo
+    echo "Please add those user accounts that should be able to use BenchExec to the group ${GROUP}."
+    echo
+  fi
+}
+
+case "$1" in
+  configure)
+    add_group
+    ;;
+esac
+
+if [ "$1" = "configure" ] || [ "$1" = "abort-upgrade" ]; then
+  # Our AppArmor profiles depend on abi/4.0, so install only if this is available.
+  if [ -f "/etc/apparmor.d/abi/4.0" ]; then
+    ucf "/usr/share/benchexec/apparmor.d/benchexec" "/etc/apparmor.d/benchexec"
+    ucfr benchexec "/etc/apparmor.d/benchexec"
+  fi
+fi
+
+#DEBHELPER#

@@ -1,0 +1,33 @@
+<?xml version="1.0" ?>
+
+<!--
+This file is part of BenchExec, a framework for reliable benchmarking:
+https://github.com/sosy-lab/benchexec
+
+SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
+<!DOCTYPE table PUBLIC "+//IDN sosy-lab.org//DTD BenchExec table 1.10//EN" "https://www.sosy-lab.org/benchexec/table-1.10.dtd">
+<table>
+
+  <!-- By default, use all columns (no <column> tags). -->
+
+  <!-- <result> defines from which files/URLs to take the benchmark results (can appear multiple times). -->
+  <result filename="../results/benchmark-example-rand.*.results.xml">
+
+    <!-- <column> can be used here to override the global set of columns.  -->
+    <column title="status"/>
+    <column title="cputime" displayTitle="CPU Time"/>
+    <column title="memory" displayTitle="Memory" sourceUnit="B" displayUnit="MB"/>
+  </result>
+
+  <!-- <union> groups a set of results which should be placed below each other in the table
+       (instead of side-by-side). The tasks need to be distinct in all of the results. -->
+  <union>
+    <!-- <column> could be used there, too, but not nested within the following <result> tags -->
+    <result filename="../results/benchmark-example-rand.2015-01-01_00-00-00.results.Markdown files.xml"/>
+    <result filename="../results/benchmark-example-rand.2015-01-01_00-00-00.results.XML files.xml"/>
+  </union>
+</table>

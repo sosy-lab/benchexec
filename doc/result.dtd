@@ -1,0 +1,73 @@
+<!--
+This file is part of BenchExec, a framework for reliable benchmarking:
+https://github.com/sosy-lab/benchexec
+
+SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
+<!ELEMENT result (description?, columns, systeminfo+, run*, column*)>
+<!ATTLIST result name CDATA #IMPLIED
+               benchmarkname CDATA #REQUIRED
+               displayName CDATA #IMPLIED
+               block CDATA #IMPLIED
+               starttime CDATA #REQUIRED
+               endtime CDATA #IMPLIED
+               date CDATA #REQUIRED
+               tool CDATA #REQUIRED
+               toolmodule CDATA #REQUIRED
+               version CDATA #REQUIRED
+               options CDATA #IMPLIED
+               memlimit CDATA #IMPLIED
+               timelimit CDATA #IMPLIED
+               cpuCores CDATA #IMPLIED
+               generator CDATA #REQUIRED
+               error CDATA #IMPLIED>
+
+<!ELEMENT description (#PCDATA)>
+
+<!ELEMENT systeminfo (os, cpu, ram, environment)>
+<!ATTLIST systeminfo hostname CDATA #IMPLIED>
+<!ELEMENT os EMPTY>
+<!ATTLIST os name CDATA #REQUIRED>
+<!ELEMENT cpu EMPTY>
+<!ATTLIST cpu cores CDATA #REQUIRED
+              frequency CDATA #REQUIRED
+              turboboostActive CDATA #IMPLIED
+              model CDATA #REQUIRED>
+<!ELEMENT ram EMPTY>
+<!ATTLIST ram size CDATA #REQUIRED>
+
+<!-- Copy of the environment variables defined when BenchExec is started.
+  If a variable contains a character that is invalid in XML,
+  the value is encoded in Base64 (as defined in RfC 4648)
+  and the encoding attribute is set to "base64".
+-->
+<!ELEMENT environment (var*)>
+<!ELEMENT var (#PCDATA)>
+<!ATTLIST var name CDATA #REQUIRED
+              encoding CDATA #IMPLIED>
+
+<!ELEMENT columns (column*)>
+<!ELEMENT column EMPTY>
+<!ATTLIST column title CDATA #REQUIRED
+                 value CDATA #IMPLIED
+                 hidden CDATA #IMPLIED>
+
+<!-- Result for a single benchmark run.
+  name: identifier for the run
+  files: list of input files of the run
+  properties: list of properties of the run
+  options: run-specific command-line options for the tool
+  logfile: path or URL that points to the logfile for this run
+      (absolute or relative to directory of result file)
+-->
+<!ELEMENT run (column*)>
+<!ATTLIST run name CDATA #REQUIRED
+              files CDATA #IMPLIED
+              properties CDATA #IMPLIED
+              propertyFile CDATA #IMPLIED
+              expectedVerdict CDATA #IMPLIED
+              options CDATA #IMPLIED
+              logfile CDATA #IMPLIED>

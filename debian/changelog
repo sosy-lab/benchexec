@@ -1,0 +1,372 @@
+benchexec (3.27-1) jammy; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Sat, 23 Nov 2024 10:13:14 +0100
+
+benchexec (3.26-1) jammy; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Tue, 05 Nov 2024 09:24:24 +0100
+
+benchexec (3.25-3) jammy; urgency=medium
+
+  * Fix syntax in debian/rules
+
+ -- Philipp Wendler <debian@philippwendler.de>  Fri, 20 Sep 2024 14:41:53 +0200
+
+benchexec (3.25-2) jammy; urgency=medium
+
+  * Fix build of package in environments without cgroup access.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Fri, 20 Sep 2024 14:35:08 +0200
+
+benchexec (3.25-1) jammy; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Fri, 20 Sep 2024 14:02:24 +0200
+
+benchexec (3.24-1) jammy; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Mon, 29 Jul 2024 09:53:54 +0200
+
+benchexec (3.23-1) jammy; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Fri, 28 Jun 2024 13:13:34 +0200
+
+benchexec (3.22-1) jammy; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Wed, 19 Jun 2024 15:09:48 +0200
+
+benchexec (3.21-1) jammy; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Fri, 16 Feb 2024 13:33:26 +0100
+
+benchexec (3.20-1) jammy; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Mon, 27 Nov 2023 13:27:09 +0100
+
+benchexec (3.19-1) jammy; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Fri, 24 Nov 2023 10:25:25 +0100
+
+benchexec (3.18-1) jammy; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Fri, 20 Oct 2023 16:52:35 +0200
+
+benchexec (3.17-1) jammy; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Tue, 11 Jul 2023 15:53:27 +0200
+
+benchexec (3.16-1) jammy; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Mon, 06 Feb 2023 13:23:03 +0100
+
+benchexec (3.15-1) jammy; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Wed, 23 Nov 2022 15:26:41 +0100
+
+benchexec (3.14-1) jammy; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Mon, 07 Nov 2022 13:49:36 +0100
+
+benchexec (3.13-1) jammy; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Wed, 07 Sep 2022 11:03:52 +0200
+
+benchexec (3.12-1) jammy; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Thu, 21 Jul 2022 15:37:43 +0200
+
+benchexec (3.11-2) impish; urgency=medium
+
+  * Build binary package on Ubuntu 20.04 to avoid zst compression.
+    This should make the package installable on Debian again.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Fri, 11 Mar 2022 17:30:41 +0100
+
+benchexec (3.11-1) impish; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Wed, 09 Feb 2022 09:55:06 +0100
+
+benchexec (3.10-1) focal; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Tue, 23 Nov 2021 09:37:41 +0100
+
+benchexec (3.9-1) focal; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Tue, 28 Sep 2021 16:05:23 +0200
+
+benchexec (3.8-1) focal; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Wed, 19 May 2021 15:58:55 +0200
+
+benchexec (3.7-1) focal; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Wed, 21 Apr 2021 12:37:27 +0200
+
+benchexec (3.6-1) bionic; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Fri, 11 Dec 2020 16:02:28 +0100
+
+benchexec (3.5-1) bionic; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Thu, 03 Dec 2020 10:34:33 +0100
+
+benchexec (3.4-1) bionic; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Thu, 03 Dec 2020 09:48:55 +0100
+
+benchexec (3.3-2) bionic; urgency=medium
+
+  * Add python3-yaml as dependency.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Thu, 01 Oct 2020 15:44:35 +0200
+
+benchexec (3.3-1) bionic; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Sat, 26 Sep 2020 10:54:28 +0200
+
+benchexec (3.2-1) bionic; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Wed, 26 Aug 2020 09:48:30 +0200
+
+benchexec (3.1-1) bionic; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Thu, 06 Aug 2020 10:25:22 +0200
+
+benchexec (3.0-1) bionic; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Fri, 03 Jul 2020 12:42:25 +0200
+
+benchexec (2.7-1) bionic; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Fri, 05 Jun 2020 07:37:26 +0200
+
+benchexec (2.6-1) bionic; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Thu, 07 May 2020 11:51:17 +0200
+
+benchexec (2.5.1-1) bionic; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Fri, 13 Dec 2019 13:30:40 +0100
+
+benchexec (2.5-1) bionic; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Thu, 28 Nov 2019 19:03:40 +0100
+
+benchexec (2.4-1) bionic; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Thu, 28 Nov 2019 13:52:05 +0100
+
+benchexec (2.3-1) bionic; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Thu, 28 Nov 2019 08:27:11 +0100
+
+benchexec (2.2-1) bionic; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Fri, 27 Sep 2019 10:36:43 +0200
+
+benchexec (2.1-1) bionic; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Tue, 17 Sep 2019 15:29:04 +0200
+
+benchexec (2.0-1) bionic; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Wed, 17 Jul 2019 17:24:02 +0200
+
+benchexec (1.22-1) bionic; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Thu, 11 Jul 2019 18:40:13 +0200
+
+benchexec (1.21-1) bionic; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Tue, 25 Jun 2019 10:28:47 +0200
+
+benchexec (1.20-1) bionic; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Thu, 13 Jun 2019 14:24:55 +0200
+
+benchexec (1.19-1) bionic; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Thu, 06 Jun 2019 14:14:50 +0200
+
+benchexec (1.18-1) bionic; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Mon, 11 Feb 2019 11:37:20 +0100
+
+benchexec (1.17-1) bionic; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Wed, 28 Nov 2018 16:20:59 +0100
+
+benchexec (1.16-1) xenial; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Wed, 31 Jan 2018 14:10:13 +0100
+
+benchexec (1.14-1) xenial; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Mon, 04 Dec 2017 11:59:51 +0100
+
+benchexec (1.13-1) xenial; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Tue, 07 Nov 2017 08:55:07 +0100
+
+benchexec (1.12-1) xenial; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Mon, 02 Oct 2017 16:06:14 +0200
+
+benchexec (1.11-1) xenial; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Mon, 02 Oct 2017 14:30:05 +0200
+
+benchexec (1.10-1) xenial; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Wed, 25 Jan 2017 09:48:53 +0100
+
+benchexec (1.9-1) trusty; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Fri, 20 May 2016 15:24:24 +0200
+
+benchexec (1.8-1) trusty; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Fri, 05 Feb 2016 14:33:37 +0100
+
+benchexec (1.7-1) trusty; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Wed, 20 Jan 2016 17:27:29 +0100
+
+benchexec (1.6-1) trusty; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Tue, 19 Jan 2016 13:43:52 +0100
+
+benchexec (1.5-1) trusty; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Fri, 18 Dec 2015 13:46:12 +0100
+
+benchexec (1.4-1) trusty; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Mon, 07 Dec 2015 21:59:36 +0100
+
+benchexec (1.3-1) trusty; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Wed, 25 Nov 2015 16:25:11 +0100
+
+benchexec (1.2-1) unstable; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Mon, 19 Oct 2015 17:11:54 +0200
+
+benchexec (1.1-1) unstable; urgency=medium
+
+  * Initial release.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Fri, 11 Sep 2015 16:35:58 +0200

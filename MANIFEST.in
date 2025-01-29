@@ -1,0 +1,17 @@
+# This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
+#
+# SPDX-FileCopyrightText: 2019-2020 Dirk Beyer <https://www.sosy-lab.org>
+#
+# SPDX-License-Identifier: Apache-2.0
+
+include pyproject.toml
+include *.md
+include test/*.sh
+recursive-include benchexec/tablegenerator/react-table/build *.min.js
+recursive-include benchexec/tablegenerator/react-table/build *.min.css
+recursive-include bin *
+recursive-include contrib *
+recursive-include doc *
+recursive-include benchexec/tablegenerator/test_integration *.py *.xml *.xml.gz *.xml.bz2 *.log *.csv *.html *.zip
+recursive-include test/tasks *

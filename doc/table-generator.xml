@@ -1,0 +1,56 @@
+<?xml version="1.0" ?>
+
+<!--
+This file is part of BenchExec, a framework for reliable benchmarking:
+https://github.com/sosy-lab/benchexec
+
+SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
+<!DOCTYPE table PUBLIC "+//IDN sosy-lab.org//DTD BenchExec table 1.10//EN" "https://www.sosy-lab.org/benchexec/table-1.10.dtd">
+<table>
+
+  <!-- <column> defines which column should appear in the tables (can appear multiple times).
+       If omitted, all columns are used. The following features (which can also be combined) are available. -->
+  <!-- Pre-defined columns of BenchExec can be used: -->
+  <column title="*name of a column produced by BenchExec: status, category, score, cputime, walltime, memory*"/>
+  <!-- Columns can be renamed: -->
+  <column title="*name of a column produced by BenchExec*" displayTitle="new name"/>
+  <!-- Data can be extracted using a pattern from the output of the tool
+       (needs specific support in the tool-specific Python module): -->
+  <column title="*name of a (new) column*">*pattern for extracting data from tool output*</column>
+  <!-- Rounding can be specified: -->
+  <column title="..." numberOfDigits="*optional number of significant digits for presenting the value*">...</column>
+  <!-- If input value has no unit, unit for output and conversion factor can be specified: -->
+  <column title="..." displayUnit="*unit*" scaleFactor="*number*">...</column>
+  <!-- If input value has a unit, source unit must be specified for conversion to another unit: -->
+  <column title="..." sourceUnit="*source unit*" displayUnit="*unit*" scaleFactor="*number*">...</column>
+  <!-- Table cells can contain configurable link: -->
+  <column title="..." href="*path relative to this file or absolute URL*">*(optional) text to appear in all cells of the column*</column>
+  <!-- Using a different column to calculate the differences table is also
+       possible. If this is used, only the columns with this attribute will be
+       considered for the differences table. -->
+  <column title="..." relevantForDiff="true">...</column>
+
+  <!-- <result> defines from which files to take the benchmark results (can appear multiple times).
+       If <result> is not used, the files need to be passed as command-line arguments to table-generator. -->
+  <result filename="*file-name pattern or URL for XML files produced by BenchExec*">
+    <!-- <column> can be used here to override the global set of columns.  -->
+  </result>
+
+  <!-- <union> groups a set of results which should be placed below each other in the table
+       (instead of side-by-side). The tasks should be distinct in all of the results. -->
+  <union title="*optional title*">
+    <!-- If each of the result files contains results for the same set of tasks,
+         and all these results should be placed below each other in the table
+         add a unique attribute "id" to the <result> tag
+         and make sure its file pattern matches only one file.
+         The id will be visible as part of the task identifier in the table. -->
+    <result filename="*file-name pattern for XML files produced by BenchExec*"/>
+    <!-- <column> can be used here to override the global set of columns.
+         But note that <column> can not be used inside <result> tags
+         that are nested in a <union> tag. -->
+  </union>
+</table>

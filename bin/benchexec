@@ -1,0 +1,27 @@
+#!/usr/bin/env python3
+
+# This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
+#
+# SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
+#
+# SPDX-License-Identifier: Apache-2.0
+
+import os
+import sys
+
+sys.dont_write_bytecode = True  # prevent creation of .pyc files
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+
+"""
+Main script of BenchExec for executing a whole benchmark (suite).
+
+This script can be called from the command line.
+For integrating from within Python instantiate the benchexec.benchexec.BenchExec class
+and either call "instance.start()" or "benchexec.benchexec.main(instance)".
+"""
+
+import benchexec.benchexec
+
+if __name__ == "__main__":
+    sys.exit(benchexec.benchexec.main())

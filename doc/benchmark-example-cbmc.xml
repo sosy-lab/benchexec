@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+
+<!--
+This file is part of BenchExec, a framework for reliable benchmarking:
+https://github.com/sosy-lab/benchexec
+
+SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
+<!DOCTYPE benchmark PUBLIC "+//IDN sosy-lab.org//DTD BenchExec benchmark 2.3//EN" "https://www.sosy-lab.org/benchexec/benchmark-2.2.3dtd">
+<!-- Example file for benchmark definition for BenchExec,
+     using tool "cbmc" with a CPU time limit of 60s,
+     1000 MB of RAM, and 1 CPU core.
+     To use this file, CBMC needs to be on PATH
+     and C programs from SV-COMP need to be available in directory programs/
+     (or input files need to be changed). -->
+<benchmark tool="cbmc"
+           timelimit="60s"
+           hardtimelimit="90s"
+           memlimit="1000 MB"
+           cpuCores="1">
+
+  <!-- <rundefinition> defines tool configurations to benchmark. -->
+  <rundefinition name="unwind3">
+    <option name="--unwind">3</option> <!-- Pass command-line option "unwind 3" to CBMC. -->
+  </rundefinition>
+
+  <rundefinition name="unwind10">
+    <option name="--unwind">10</option>
+  </rundefinition>
+
+  <!-- <tasks> defines a set of tasks
+       (here two group of files from SV-COMP15 declared in a separate file). -->
+  <tasks name="ControlFlowInteger">
+    <includesfile>programs/ControlFlowInteger.set</includesfile>
+  </tasks>
+
+  <tasks name="Simple.set">
+    <includesfile>programs/Simple.set</includesfile>
+  </tasks>
+
+  <!-- Use an SV-COMP property file as specification
+    (file ALL.prp in the same directory as each source file). -->
+  <propertyfile>${inputfile_path}/ALL.prp</propertyfile>
+</benchmark>

@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<!-- SPDX-FileCopyrightText: 2020-2021 CASTOR Software Research Centre
+<https://www.castor.kth.se/>
+SPDX-FileCopyrightText: 2020-2021 Johan Paulsson
+
+SPDX-License-Identifier: Apache-2.0 -->
+
+<!DOCTYPE benchmark PUBLIC "+//IDN sosy-lab.org//DTD BenchExec benchmark 2.3//EN" "https://www.sosy-lab.org/benchexec/benchmark-2.3.dtd">
+
+<benchmark tool="p4-test-tool" displayName="P4 test">
+    <option name="switch_folder">~/benchexec/contrib/p4/docker_files/switch_bmv2</option>
+    <option name="ptf_test_folder">~/benchexec/contrib/p4/docker_files/ptf_tester/tests</option>
+    <option name="network_config">~/benchexec/contrib/p4/network_config.json</option>
+
+    <rundefinition>
+        <tasks>
+            <!-- <withoutfile>Run 1</withoutfile> -->
+            <include>expected_results.json</include>
+        </tasks>
+    </rundefinition>
+</benchmark>

@@ -1,0 +1,13 @@
+# This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
+#
+# SPDX-FileCopyrightText: 2019-2020 Dirk Beyer <https://www.sosy-lab.org>
+#
+# SPDX-License-Identifier: Apache-2.0
+
+# Exclude test files from project statistics
+# cf. https://github.com/github/linguist#troubleshooting
+benchexec/tablegenerator/test_integration/expected/** linguist-vendored
+benchexec/tablegenerator/test_integration/results/** linguist-vendored
+benchexec/tablegenerator/react-table/build/** linguist-generated
+*.js.snap linguist-vendored

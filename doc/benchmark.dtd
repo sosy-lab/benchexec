@@ -1,0 +1,50 @@
+<!--
+This file is part of BenchExec, a framework for reliable benchmarking:
+https://github.com/sosy-lab/benchexec
+
+SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
+<!ELEMENT benchmark ((rundefinition | option | propertyfile | tasks | requiredfiles | resultfiles | require )*, columns?)>
+<!ELEMENT rundefinition (tasks | option | propertyfile | requiredfiles)*>
+
+<!ELEMENT tasks (include | includesfile | exclude | excludesfile | append | withoutfile | option | propertyfile | requiredfiles)*>
+<!ELEMENT include (#PCDATA)>
+<!ELEMENT includesfile (#PCDATA)>
+<!ELEMENT exclude (#PCDATA)>
+<!ELEMENT excludesfile (#PCDATA)>
+<!ELEMENT withoutfile (#PCDATA)>
+<!ELEMENT append (#PCDATA)>
+
+<!ELEMENT requiredfiles (#PCDATA)>
+<!ELEMENT resultfiles (#PCDATA)>
+<!ELEMENT require (#PCDATA)>
+
+<!ELEMENT option (#PCDATA)>
+<!ELEMENT propertyfile (#PCDATA)>
+<!ELEMENT columns (column*)>
+<!ELEMENT column (#PCDATA)>
+
+<!ATTLIST rundefinition name CDATA #IMPLIED>
+
+<!ATTLIST benchmark tool CDATA #REQUIRED>
+<!ATTLIST benchmark displayName CDATA #IMPLIED>
+<!ATTLIST benchmark memlimit CDATA #IMPLIED>
+<!ATTLIST benchmark timelimit CDATA #IMPLIED>
+<!ATTLIST benchmark walltimelimit CDATA #IMPLIED>
+<!ATTLIST benchmark hardtimelimit CDATA #IMPLIED>
+<!ATTLIST benchmark cpuCores CDATA #IMPLIED>
+<!ATTLIST benchmark threads CDATA #IMPLIED>
+
+<!ATTLIST tasks name CDATA #IMPLIED>
+
+<!ATTLIST require cpuModel CDATA #IMPLIED>
+<!ATTLIST require cpuCores CDATA "1">
+<!ATTLIST require memory   CDATA "1">
+
+<!ATTLIST option name CDATA #REQUIRED>
+<!ATTLIST propertyfile expectedverdict CDATA #IMPLIED>
+<!ATTLIST column title CDATA #IMPLIED
+                 numberOfDigits CDATA #IMPLIED>

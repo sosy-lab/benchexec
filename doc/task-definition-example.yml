@@ -1,0 +1,58 @@
+# This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
+#
+# SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
+#
+# SPDX-License-Identifier: Apache-2.0
+
+# The official definition of this format is at
+# https://gitlab.com/sosy-lab/benchmarking/task-definition-format
+
+# Required, string with format version of this file
+format_version: "2.0"
+
+# Required, either a string or a list of strings with file-name patterns.
+# Relative paths interpreted as relative to this file.
+# Each matching file or directory will be given as input to the tool.
+input_files:
+  - '*.md'
+  - '../*.md'
+
+# Optional, either a string or a list of strings with file-name patterns.
+# Relative paths interpreted as relative to this file.
+# Each matching file or directory is treated as required for the task,
+# but will not be explicitly given to the tool.
+required_files:
+  - './'
+
+# Optional, contains list of dicts, each with at least the key "property_file".
+# Existing entries specify which properties can be used for tasks from this file.
+# If given, benchexec will compare expected verdicts against actual verdicts.
+properties:
+  - property_file: ../test/tasks/test.prp        # string with file-name pattern that matches exactly one file
+    expected_verdict: false                      # optional boolean
+    subproperty: valid-deref                     # optional string, contains violated subproperty
+  - property_file: ../test/tasks/other.prp
+    expected_verdict: true
+
+# Optional data structure with arbitrary additional information or context
+# about the task that is not interpreted by benchexec itself.
+# However, benchexec will pass any content of this key to the tool-info module.
+# This can be used for example to define options that the tool needs to know
+# in order to correctly interpret the task, for example the format or language
+# of the input files.
+#
+# Apart from being valid YAML, benchexec does not impose any restrictions
+# on the content of this key. However, it is recommended to use a dict of dicts
+# as content in order to avoid confusion and conflicts between the data used by
+# different communities and application areas. The outer dict would contain keys
+# whose names form globally unique namespaces, and each inner dict would contain
+# the data for one use case, defined by some user community
+# (similar to how XML namespaces are used).
+options:
+  # Example namespace
+  com.example:
+    # Definition of data here should be available on https://example.com
+    some_key: some_data
+
+# All other keys in the global dict and in the properties dict are reserved for future use.

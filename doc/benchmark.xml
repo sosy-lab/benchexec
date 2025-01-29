@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+
+<!--
+This file is part of BenchExec, a framework for reliable benchmarking:
+https://github.com/sosy-lab/benchexec
+
+SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
+<!DOCTYPE benchmark PUBLIC "+//IDN sosy-lab.org//DTD BenchExec benchmark 2.3//EN" "https://www.sosy-lab.org/benchexec/benchmark-2.3.dtd">
+<!-- Example file for benchmark definition for BenchExec. -->
+<benchmark tool="*tool to benchmark (name of tool-info module for BenchExec)*"
+           displayName="*human-readable name as description of this benchmark*"
+           timelimit="*optional CPU time limit, use unit 's', 'min', etc. (default: none)*"
+           walltimelimit="*optional wall-time limit, use unit 's', 'min', etc. (default: CPU time plus a few seconds)*"
+           hardtimelimit="*optional hard CPU time limit, use unit 's', 'min', etc. (tool will be forcefully killed, otherwise identical with timelimit)"
+           memlimit="*optional memory limit, use unit 'B', 'kB', 'MB' etc. (default: none)*"
+           cpuCores="*optional CPU core limit (default: none)*"
+           threads="*optional number of parallel tool executions (default: 1)*">
+
+  <!-- <rundefinition> defines a tool configuration to benchmark (can appear multiple times). -->
+  <rundefinition name="*optional name for tool configuration*">
+
+    <!-- <option> defines command-line arguments (can appear multiple times). -->
+    <option name="*command-line argument for tool*">*optional value for command-line argument*</option>
+  </rundefinition>
+
+  <!-- <tasks> defines a set of tasks (can appear multiple times). -->
+  <tasks name="*optional name for this subset of tasks*">
+    <include>*file-name pattern for input files*</include>
+    <includesfile>*file-name pattern for include files (text files with a pattern on each line)*</includesfile>
+    <exclude>*file-name pattern for exclusion from input files*</exclude>
+    <excludesfile>*file-name pattern for exclude files (text files with a pattern on each line)*</excludesfile>
+
+    <!-- <withoutfile> allows to define a task that does not directly correspond to an input file.
+         This can be used for example to define multiple tasks for the same input file but with different entry points. -->
+    <withoutfile>*identifier of task*</withoutfile>
+
+    <!-- <propertyfile> defines a property file with the specification to check (for software verification).
+         The optional attribute can be used to filter tasks. -->
+    <!-- <propertyfile expectedverdict="true, false, false(<subproperty>), or unknown">*file.prp*</propertyfile> -->
+
+    <!-- <option> may be used here, too. -->
+  </tasks>
+
+  <columns>
+    <!-- <column> tags may be used to define columns in the result tables with data from the tool output. -->
+    <column title="*column title*">*pattern for extract data for this column from tool output*</column>
+  </columns>
+
+  <!-- <option> may be used here, too. -->
+  <!-- <propertyfile> may be used here, too. -->
+
+  <!-- Copy all result files from below the working directory to the output directory
+       (this is redundant because it is the default). -->
+  <resultfiles>.</resultfiles>
+
+</benchmark>

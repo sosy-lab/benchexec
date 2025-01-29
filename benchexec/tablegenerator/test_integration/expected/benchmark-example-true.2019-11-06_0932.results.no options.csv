@@ -1,0 +1,29 @@
+tool	DummyTool 	DummyTool 	DummyTool 	DummyTool 	DummyTool 
+run set	no options	no options	no options	no options	no options
+	status	cputime (s)	walltime (s)	memory (MB)	cpuenergy (J)
+benchexec/tablegenerator/test_integration/doc/benchmark.dtd	true	0.001618668	0.004338094004197046	0.262144	0.014832
+benchexec/tablegenerator/test_integration/doc/result.dtd	true	0.001826659	0.004560797999147326	0.253952	0.028137
+benchexec/tablegenerator/test_integration/doc/table.dtd	true	0.002039817	0.005922370000916999	0.286720	
+benchexec/tablegenerator/test_integration/doc/DEVELOPMENT.md	true	0.002296848	0.005788779002614319	0.253952	0
+benchexec/tablegenerator/test_integration/doc/INDEX.md	true	0.001726275	0.004074042000866029	0.249856	0
+benchexec/tablegenerator/test_integration/doc/INSTALL.md	true	0.001979501	0.00514046899479581	0.286720	0
+benchexec/tablegenerator/test_integration/doc/benchexec.md	true	0.004007335	0.009185946997604333	0.286720	0
+benchexec/tablegenerator/test_integration/doc/benchmarking.md	true	0.004633289	0.014527131002978422	0.286720	0
+benchexec/tablegenerator/test_integration/doc/container.md	true	0.003244617	0.009874222996586468	0.253952	0.033386
+benchexec/tablegenerator/test_integration/doc/resources.md	true	0.004392859	0.015613405994372442	0.286720	0
+benchexec/tablegenerator/test_integration/doc/run-results.md	true	0.004988435	0.012905390998639632	0.249856	0.005066
+benchexec/tablegenerator/test_integration/doc/runexec.md	true	0.004791855	0.010970504998113029	0.249856	0
+benchexec/tablegenerator/test_integration/doc/table-generator.md	true	0.004350979	0.012150137998105492	0.262144	0
+benchexec/tablegenerator/test_integration/doc/tool-integration.md	true	0.00427634	0.007912149994808715	0.278528	0
+benchexec/tablegenerator/test_integration/doc/benchmark-example-calculatepi.xml	true	0.004300348	0.009237630001734942	0.249856	0
+benchexec/tablegenerator/test_integration/doc/benchmark-example-cbmc.xml	true	0.003860758	0.011412734995246865	0.286720	0
+benchexec/tablegenerator/test_integration/doc/benchmark-example-rand.xml	true	0.004420762	0.011073210000176914	0.253952	0
+benchexec/tablegenerator/test_integration/doc/benchmark-example-true.xml	true	0.005168485	0.01097818699781783	0.385024	0
+benchexec/tablegenerator/test_integration/doc/benchmark.xml	true	0.004588429	0.013661452998348977	0.286720	0.008972
+benchexec/tablegenerator/test_integration/doc/table-generator-basic.xml	true	0.004022495	0.009622956000384875	0.290816	0
+benchexec/tablegenerator/test_integration/doc/table-generator-example.xml	true	0.004206491	0.009571135000442155	0.249856	0
+benchexec/tablegenerator/test_integration/doc/table-generator.xml	true	0.005157266	0.011915394999959972	0.286720	0.002625
+benchexec/tablegenerator/test_integration/doc/task-definition-example.yml	true	0.00482794	0.013622508005937561	0.253952	0
+dummy task 1	true	0.004999807	0.012675965001108125	0.344064	0.004822
+dummy task 2	true	0.00507474	0.01388536599552026	0.372736	0
+dummy task 3	true	0.004628365	0.014039524998224806	0.253952	0.009827

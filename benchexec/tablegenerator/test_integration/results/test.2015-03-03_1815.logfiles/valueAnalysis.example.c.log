@@ -1,0 +1,132 @@
+scripts/cpa.sh -noout -setprop log.consoleLevel=WARNING -valueAnalysis -stats doc/examples/example.c
+
+
+--------------------------------------------------------------------------------
+
+
+Running CPAchecker with default heap size (1200M). Specify a larger value with -heap if you have more RAM.
+ValueAnalysisCPA statistics
+---------------------------
+Number of variables:                                    212 (count: 109, min: 0, max: 2, avg: 1,94)
+Number of global variables:                               0 (count: 109, min: 0, max: 0, avg: 0,00)
+
+ValueAnalysisPrecisionAdjustment statistics
+-------------------------------------------
+Number of abstraction computations:                     117
+Total time for liveness abstraction:                   0.000s
+Total time for abstraction computation:                0.010s
+Total time for path thresholds:                        0.000s
+
+AutomatonAnalysis (AssertionAutomaton) statistics
+-------------------------------------------------
+Number of states:                                  1
+Total time for successor computation:                  0.006s
+Automaton transfers with branching:                0
+Automaton transfer successors:                          274 (count: 274, min: 1, max: 1, avg: 1,00) [1 x 274]
+
+AutomatonAnalysis (ErrorLabelAutomaton) statistics
+--------------------------------------------------
+Number of states:                                  1
+Total time for successor computation:                  0.004s
+Automaton transfers with branching:                0
+Automaton transfer successors:                          274 (count: 274, min: 1, max: 1, avg: 1,00) [1 x 274]
+
+AutomatonAnalysis (TerminatingFunctions) statistics
+---------------------------------------------------
+Number of states:                                  1
+Total time for successor computation:                  0.002s
+Automaton transfers with branching:                0
+Automaton transfer successors:                          274 (count: 274, min: 1, max: 1, avg: 1,00) [1 x 274]
+
+CPA algorithm statistics
+------------------------
+Number of iterations:            116
+Max size of waitlist:            3
+Average size of waitlist:        1
+Number of computed successors:   117
+Max successors for one state:    2
+Number of times merged:          0
+Number of times stopped:         1
+Number of times breaked:         1
+
+Total time for CPA algorithm:         0.085s (Max:     0.066s)
+  Time for choose from waitlist:      0.000s
+  Time for precision adjustment:      0.015s
+  Time for transfer relation:         0.047s
+  Time for stop operator:             0.013s
+  Time for adding to reached set:     0.004s
+
+ValueAnalysisRefiner statistics
+-------------------------------
+Total number of refinements:              1
+Total number of targets found:            1
+Time for completing refinement:           0.014s
+  Time for interpolation:                              0.007s
+  Number of interpolations:                               1
+  Number of interpolation queries:                        8 (count: 7, min: 0, max: 5, avg: 1,14)
+  Size of interpolant:                                    8 (count: 7, min: 0, max: 2, avg: 1,14)
+  Number of sliced prefixes:                              1 (count: 1, min: 1, max: 1, avg: 1,00)
+Total number of root relocations:         0
+Total number of similar, repeated refinements:         0
+
+CEGAR algorithm statistics
+--------------------------
+Number of refinements:                1
+Number of successful refinements:     1
+Number of failed refinements:         0
+Max. size of reached set before ref.: 10
+Max. size of reached set after ref.:  2
+Avg. size of reached set before ref.: 10.00
+Avg. size of reached set after ref.:  2.00
+
+Total time for CEGAR algorithm:       0.103s
+Time for refinements:                 0.018s
+Average time for refinement:          0.018s
+Max time for refinement:              0.018s
+
+Counterexample-Check Algorithm statistics
+-----------------------------------------
+Number of counterexample checks:    0
+
+CPAchecker general statistics
+-----------------------------
+Number of program locations:     15
+Number of CFA edges:             17
+Number of relevant variables:    2
+Number of functions:             1
+Number of loops:                 1
+Size of reached set:             109
+  Number of reached locations:   12 (80%)
+    Avg states per location:     9
+    Max states per location:     21 (at node N5)
+  Number of reached functions:   1 (100%)
+  Number of partitions:          12
+    Avg size of partitions:      9
+    Max size of partitions:      21 (with key [N5 (before lines 5-16), Function main called from node N1, stack depth 1 [25d38bc3], stack [main], Init, Init, Init])
+  Number of target states:       0
+
+Time for analysis setup:          1.195s
+  Time for loading CPAs:          0.233s
+  Time for loading parser:        0.498s
+  Time for CFA construction:      0.422s
+    Time for parsing file(s):     0.292s
+    Time for AST to CFA:          0.060s
+    Time for CFA sanity check:    0.003s
+    Time for post-processing:     0.045s
+      Time for var class.:        0.000s
+Time for Analysis:                0.105s
+CPU time for analysis:            0.110s
+Total time for CPAchecker:        1.301s
+Total CPU time for CPAchecker:    1.300s
+
+Time for Garbage Collector:       0.034s (in 1 runs)
+Garbage Collector(s) used:    PS MarkSweep, PS Scavenge
+Used heap memory:                 64MB (    61 MiB) max;     36MB (    35 MiB) avg;     77MB (    73 MiB) peak
+Used non-heap memory:             17MB (    16 MiB) max;     11MB (    11 MiB) avg;     17MB (    16 MiB) peak
+Used in PS Old Gen pool:           0MB (     0 MiB) max;      0MB (     0 MiB) avg;      0MB (     0 MiB) peak
+Allocated heap memory:           251MB (   240 MiB) max;    251MB (   240 MiB) avg
+Allocated non-heap memory:        24MB (    23 MiB) max;     24MB (    23 MiB) avg
+Total process virtual memory:   2943MB (  2807 MiB) max;   2943MB (  2807 MiB) avg
+
+Verification result: TRUE. No property violation found by chosen configuration.
+More details about the verification run can be found in the directory "./output".

@@ -1,0 +1,6 @@
+tool	MathSAT 5.3.5	MathSAT 5.3.5	MathSAT 5.3.5	MathSAT 5.3.5	MathSAT 5.3.5	MathSAT 5.3.5	SMTInterpol 2.1-183-g4d3bb9f	SMTInterpol 2.1-183-g4d3bb9f	SMTInterpol 2.1-183-g4d3bb9f	SMTInterpol 2.1-183-g4d3bb9f	SMTInterpol 2.1-183-g4d3bb9f	SMTInterpol 2.1-183-g4d3bb9f
+run set	mathsat	mathsat	mathsat	mathsat	mathsat	mathsat	smtinterpol	smtinterpol	smtinterpol	smtinterpol	smtinterpol	smtinterpol
+benchexec/tablegenerator/test_integration/results/	status	category	score	cputime (s)	walltime (s)	memory	status	category	score	cputime (s)	walltime (s)	memory
+ie-local-interpolant.smt2	unsat	missing		0.125825	0.12830853462219238	19525632	sat	missing		0.47938499999999995	0.4867055416107178	45228032
+other-cast-encoding.smt2	unknown	unknown		0.009091	0.010009765625	4583424	ERROR	error		0.193386	0.19897174835205078	23822336
+smtinterpol-NPE-LAInterpolor-color_unsat.smt2	ERROR	error		0.02087	0.03510880470275879	2883584	unsat	correct		0.769471576	0.7776222229003906	46264320

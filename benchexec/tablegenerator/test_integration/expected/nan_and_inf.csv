@@ -1,0 +1,6 @@
+tool	CPAchecker 1.7-svn 28500M	CPAchecker 1.7-svn 28500M	CPAchecker 1.7-svn 28500M	CPAchecker 1.7-svn 28500M	CPAchecker 1.7-svn 28500M	CPAchecker 1.7-svn 28500M	CPAchecker 1.7-svn 28500M	CPAchecker 1.7-svn 28500M	CPAchecker 1.7-svn 28500M	CPAchecker 1.7-svn 28500M	CPAchecker 1.7-svn 28500M	CPAchecker 1.7-svn 28500M
+run set	Model-Based-Selection	Model-Based-Selection	Model-Based-Selection	Model-Based-Selection	Model-Based-Selection	Model-Based-Selection	Model-Based-Selection	Model-Based-Selection	Model-Based-Selection	Model-Based-Selection	Model-Based-Selection	Model-Based-Selection
+benchexec/tablegenerator/test_integration/	status	cputime (s)	walltime (s)	memory (MB)	Aliasing	Arrays	Boolean	Composite types	Config	Floats	Loops	host
+programs/benchmarks/ldv-linux-4.0-rc1-mav/linux-4_true-termination.0-rc1---drivers--media--rc--lirc_dev.ko_true-unreach-call.cil.c	true	16.07363273	8.29731011391	555.880448	1	1	0	1	configselection-restart-valueAnalysis-fallbacks.properties	NaN	1	apollon104
+results/dummyRun1	true	16.07363273	8.29731011391	555.880448	Inf	1	0	1	configselection-restart-valueAnalysis-fallbacks.properties	0.00000001	Inf	apollon104
+results/dummyRun2	true	16.07363273	8.29731011391	555.880448	-Inf	1	-Inf	1	configselection-restart-valueAnalysis-fallbacks.properties	2000	1	apollon104

@@ -1,0 +1,57 @@
+% This file is part of BenchExec, a framework for reliable benchmarking:
+% https://github.com/sosy-lab/benchexec
+%
+% SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
+%
+% SPDX-License-Identifier: Apache-2.0
+
+% LaTeX code for a scatter plot.
+% Copy the tikzpicture environment to your own document
+% and make sure the siunitx and pgfplots package are loaded,
+% possibly with the options suggested here.
+\documentclass{standalone}
+\usepackage[
+    group-digits=integer, group-minimum-digits=4, % group digits by thousands
+    free-standing-units, unit-optional-argument, % easier input of numbers with units
+    ]{siunitx}[=v2]
+\usepackage{pgfplots}
+\pgfplotsset{
+    compat=1.9,
+    log ticks with fixed point, % no scientific notation in plots
+    table/col sep=tab, % only tabs are column separators
+    unbounded coords=jump, % better have skips in a plot than appear to be interpolating
+    filter discard warning=false, % Don't complain about empty cells
+    }
+\SendSettingsToPgf % use siunitx formatting settings in PGF, too
+
+\begin{document}
+
+\begin{tikzpicture}
+\begin{loglogaxis}[
+    % axis labels
+    xlabel=CPU time for Tool 1 (\second),
+    ylabel=CPU time for Tool 2 (\second),
+    % axis ranges
+    xmin=0.1,
+    xmax=1000,
+    ymin=0.1,
+    ymax=1000,
+    domain=0.1:1001,
+    %
+    clip mode=individual,
+    axis equal image,
+    ]
+    \addplot+[blue, mark=+,only marks]
+         table[
+             header=false,
+             skip first n=3, % ignore CSV table header produced by table-generator
+             x index=3, % index of x column
+             y index=7  % index of y column
+             ] {scatter.table.csv};
+    \addplot[gray] {x};
+    \addplot[gray] {10*x};
+    \addplot[gray] {x/10};
+\end{loglogaxis}
+\end{tikzpicture}
+
+\end{document}

@@ -1,0 +1,6 @@
+README.md
+doc/INDEX.md
+doc/[a-z]*.md
+doc/*.dtd
+doc/benchmark.xml
+doc/table-generator.xml

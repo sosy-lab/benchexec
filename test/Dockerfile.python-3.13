@@ -1,0 +1,36 @@
+# This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
+#
+# SPDX-FileCopyrightText: 2007-2024 Dirk Beyer <https://www.sosy-lab.org>
+#
+# SPDX-License-Identifier: Apache-2.0
+
+# This is a Docker image for running the tests.
+# It should be pushed to registry.gitlab.com/sosy-lab/software/benchexec/test
+# and will be used by CI as declared in .gitlab-ci.yml.
+#
+# Commands for updating the image:
+# docker build --pull -t registry.gitlab.com/sosy-lab/software/benchexec/test:python-3.13 - < test/Dockerfile.python-3.13
+# docker push registry.gitlab.com/sosy-lab/software/benchexec/test
+
+FROM python:3.13
+
+# Cannot use apt package python3-pystemd here
+# because these images do not use the Python installed via apt.
+
+RUN apt-get update && apt-get install -y \
+  fuse-overlayfs \
+  libsystemd-dev \
+  lxcfs \
+  sudo \
+  && rm -rf /var/lib/apt/lists/*
+
+RUN pip install \
+  coloredlogs \
+  "coverage[toml] >= 5.0" \
+  lxml \
+  # Temporarily from git because of https://github.com/systemd/pystemd/issues/95
+  git+https://github.com/systemd/pystemd@v0.13.2 \
+  pytest \
+  pytest-cov \
+  pyyaml

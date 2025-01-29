@@ -1,0 +1,22 @@
+# This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
+#
+# SPDX-FileCopyrightText: 2007-2024 Dirk Beyer <https://www.sosy-lab.org>
+#
+# SPDX-License-Identifier: Apache-2.0
+
+image: "Visual Studio 2022"
+
+environment:
+  matrix:
+    - PYTHON: "C:\\Python38"
+    - PYTHON: "C:\\Python313"
+
+build: off
+
+install:
+  - set PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%
+  - python -m pip install --user ".[dev]"
+
+test_script:
+  - python -m pytest benchexec/tablegenerator/

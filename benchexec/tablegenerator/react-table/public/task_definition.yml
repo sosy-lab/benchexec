@@ -1,0 +1,23 @@
+# This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
+#
+# SPDX-FileCopyrightText: 2019-2020 Dirk Beyer <https://www.sosy-lab.org>
+#
+# SPDX-License-Identifier: Apache-2.0
+
+# Required, string with format version of this file (currently only "1.0")
+format_version: "1.0"
+
+input_files:
+  # Local text file
+  - 'results/test.2015-03-03_1613.logfiles/predicateAnalysis.implicitunsignedconversion_false-unreach-label.i.log'
+  # Local text file, again a task definition (does not happen in practice)
+  - 'task_definition.yml'
+  # Remote text file, but in ZIP archive
+  - 'https://sosy-lab.github.io/benchexec/example-table/cbmc.2015-12-11_1211.logfiles/diskperf_false-unreach-call.i.cil.c.log'
+  # Remote text file
+  - 'https://sosy-lab.github.io/benchexec/example-table/predicateAnalysis.2015-12-11_1059.logfiles/ABEl.diskperf_false-unreach-call.i.cil.c.log'
+
+properties:
+  - property_file: properties/unreach-call.prp  # link is not expected to work
+    expected_verdict: false

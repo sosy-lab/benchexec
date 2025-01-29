@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+
+<!--
+This file is part of BenchExec, a framework for reliable benchmarking:
+https://github.com/sosy-lab/benchexec
+
+SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
+<!DOCTYPE benchmark PUBLIC "+//IDN sosy-lab.org//DTD BenchExec benchmark 2.3//EN" "https://www.sosy-lab.org/benchexec/benchmark-2.3.dtd">
+<!-- Example file for benchmark definition for BenchExec
+     with dummy tool that simply returns random answers.
+     No resource limits are specified. -->
+<benchmark tool="dummy" displayName="Tool with Random Results">
+
+  <!-- For dummy tool, we specify options that define the tool output. -->
+  <option>true</option>
+  <option>false(unreach-call)</option>
+
+  <!-- <rundefinition> defines a tool configuration to benchmark -->
+  <rundefinition/>
+
+  <!-- <tasks> defines a set of tasks:
+       we define three sets of some arbitrary example files here. -->
+  <tasks name="DTD files">
+    <include>*.dtd</include>
+  </tasks>
+
+  <tasks name="Markdown files">
+    <include>*.md</include>
+  </tasks>
+
+  <tasks name="XML files">
+    <include>*.xml</include>
+  </tasks>
+
+  <!-- YAML files can be used as template files from which tasks
+       can be created. Each YAML file will produce one task. -->
+  <tasks name="Tasks from templates">
+    <include>*.yml</include>
+  </tasks>
+
+  <!-- <tasks> with <withoutfile> allows to define tasks without input files,
+       if the tool supports this. -->
+  <tasks name="Dummy tasks">
+    <withoutfile>dummy task 1</withoutfile>
+    <withoutfile>dummy task 2</withoutfile>
+    <withoutfile>dummy task 3</withoutfile>
+  </tasks>
+</benchmark>

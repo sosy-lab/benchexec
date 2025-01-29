@@ -1,0 +1,21 @@
+<?xml version="1.0" ?>
+
+<!--
+This file is part of BenchExec, a framework for reliable benchmarking:
+https://github.com/sosy-lab/benchexec
+
+SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
+<!DOCTYPE table PUBLIC "+//IDN sosy-lab.org//DTD BenchExec table 1.10//EN" "http://www.sosy-lab.org/benchexec/table-1.10.dtd">
+<table>
+  <result filename="https://sv-comp.sosy-lab.org/2023/results/results-verified/symbiotic.2022-12-12_03-19-56.results.SV-COMP23_termination.Termination-Other.xml.bz2"/>
+  <result filename="https://sv-comp.sosy-lab.org/2023/results/results-verified/verifuzz.2022-12-14_01-01-28.results.SV-COMP23_termination.Termination-Other.xml.bz2"/>
+
+  <column title="status"/>
+  <column title="cputime"/>
+  <column title="walltime"/>
+  <column title="memUsage"/>
+</table>

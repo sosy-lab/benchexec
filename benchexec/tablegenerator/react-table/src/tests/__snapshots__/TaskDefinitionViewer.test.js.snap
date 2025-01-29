@@ -1,0 +1,696 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Render TaskDefinitionViewer for empty_file.yml 1`] = `
+<pre
+ className="link-overlay-text"
+>
+ null
+# This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
+#
+# SPDX-FileCopyrightText: 2019-2020 Dirk Beyer &lt;https://www.sosy-lab.org&gt;
+#
+# SPDX-License-Identifier: Apache-2.0
+</pre>
+`;
+
+exports[`Render TaskDefinitionViewer for input_files_as_mapping.yml 1`] = `
+<pre
+ className="link-overlay-text"
+>
+ # This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
+#
+# SPDX-FileCopyrightText: 2019-2020 Dirk Beyer &lt;https://www.sosy-lab.org&gt;
+#
+# SPDX-License-Identifier: Apache-2.0
+format_version: "1.0"
+input_files:
+ - input_file: false_sub_task.yml
+ - input_file: false_other_sub_task.yml
+properties:
+ - property_file: 
+ <a
+  className="link-overlay-file-link"
+  href="test.prp"
+ >
+  test.prp
+ </a>
+  expected_verdict: false
+  subproperty: other_subproperty
+</pre>
+`;
+
+exports[`Render TaskDefinitionViewer for input_files_brackets.yml 1`] = `
+<pre
+ className="link-overlay-text"
+>
+ # This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
+#
+# SPDX-FileCopyrightText: 2019-2020 Dirk Beyer &lt;https://www.sosy-lab.org&gt;
+#
+# SPDX-License-Identifier: Apache-2.0
+format_version: "1.0"
+input_files:
+ [
+ <a
+  className="link-overlay-file-link"
+  href="false_sub_task.yml"
+ >
+  false_sub_task.yml
+ </a>
+ ,
+ <a
+  className="link-overlay-file-link"
+  href="false_other_sub_task.yml"
+ >
+  false_other_sub_task.yml
+ </a>
+ ]
+properties:
+ - property_file: 
+ <a
+  className="link-overlay-file-link"
+  href="test.prp"
+ >
+  test.prp
+ </a>
+  expected_verdict: false
+  subproperty: other_subproperty
+</pre>
+`;
+
+exports[`Render TaskDefinitionViewer for input_files_multiline_string.yml 1`] = `
+<pre
+ className="link-overlay-text"
+>
+ # This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
+#
+# SPDX-FileCopyrightText: 2019-2020 Dirk Beyer &lt;https://www.sosy-lab.org&gt;
+#
+# SPDX-License-Identifier: Apache-2.0
+format_version: "1.0"
+input_files: 
+ <a
+  className="link-overlay-file-link"
+  href="false_other_sub_task.yml"
+ >
+  false_other_sub_task.yml
+ </a>
+properties:
+ - property_file: 
+ <a
+  className="link-overlay-file-link"
+  href="test.prp"
+ >
+  test.prp
+ </a>
+  expected_verdict: false
+  subproperty: other_subproperty
+</pre>
+`;
+
+exports[`Render TaskDefinitionViewer for multiple_input_files.yml 1`] = `
+<pre
+ className="link-overlay-text"
+>
+ # This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
+#
+# SPDX-FileCopyrightText: 2019-2020 Dirk Beyer &lt;https://www.sosy-lab.org&gt;
+#
+# SPDX-License-Identifier: Apache-2.0
+format_version: "1.0"
+input_files:
+ - 
+ <a
+  className="link-overlay-file-link"
+  href="false_sub_task.yml"
+ >
+  false_sub_task.yml
+ </a>
+ - 
+ <a
+  className="link-overlay-file-link"
+  href="false_other_sub_task.yml"
+ >
+  false_other_sub_task.yml
+ </a>
+properties:
+ - property_file: 
+ <a
+  className="link-overlay-file-link"
+  href="test.prp"
+ >
+  test.prp
+ </a>
+  expected_verdict: false
+  subproperty: other_subproperty
+</pre>
+`;
+
+exports[`Render TaskDefinitionViewer for multiple_property_files.yml 1`] = `
+<pre
+ className="link-overlay-text"
+>
+ # This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
+#
+# SPDX-FileCopyrightText: 2019-2020 Dirk Beyer &lt;https://www.sosy-lab.org&gt;
+#
+# SPDX-License-Identifier: Apache-2.0
+format_version: "1.0"
+input_files: 
+ <a
+  className="link-overlay-file-link"
+  href="false_other_sub_task.yml"
+ >
+  false_other_sub_task.yml
+ </a>
+properties:
+ - property_file: 
+ <a
+  className="link-overlay-file-link"
+  href="test.prp"
+ >
+  test.prp
+ </a>
+  expected_verdict: false
+  subproperty: other_subproperty
+ - property_file: 
+ <a
+  className="link-overlay-file-link"
+  href="other.prp"
+ >
+  other.prp
+ </a>
+  expected_verdict: false
+</pre>
+`;
+
+exports[`Render TaskDefinitionViewer for no_input_and_property_files.yml 1`] = `
+<pre
+ className="link-overlay-text"
+>
+ # This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
+#
+# SPDX-FileCopyrightText: 2019-2020 Dirk Beyer &lt;https://www.sosy-lab.org&gt;
+#
+# SPDX-License-Identifier: Apache-2.0
+format_version: "1.0"
+</pre>
+`;
+
+exports[`Render TaskDefinitionViewer for no_input_files.yml 1`] = `
+<pre
+ className="link-overlay-text"
+>
+ # This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
+#
+# SPDX-FileCopyrightText: 2019-2020 Dirk Beyer &lt;https://www.sosy-lab.org&gt;
+#
+# SPDX-License-Identifier: Apache-2.0
+format_version: "1.0"
+input_files: []
+properties:
+ - property_file: 
+ <a
+  className="link-overlay-file-link"
+  href="test.prp"
+ >
+  test.prp
+ </a>
+  expected_verdict: false
+  subproperty: other_subproperty
+ - property_file: 
+ <a
+  className="link-overlay-file-link"
+  href="other.prp"
+ >
+  other.prp
+ </a>
+  expected_verdict: false
+</pre>
+`;
+
+exports[`Render TaskDefinitionViewer for no_property_files.yml 1`] = `
+<pre
+ className="link-overlay-text"
+>
+ # This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
+#
+# SPDX-FileCopyrightText: 2019-2020 Dirk Beyer &lt;https://www.sosy-lab.org&gt;
+#
+# SPDX-License-Identifier: Apache-2.0
+format_version: "1.0"
+input_files:
+ - 
+ <a
+  className="link-overlay-file-link"
+  href="false_sub_task.yml"
+ >
+  false_sub_task.yml
+ </a>
+ - 
+ <a
+  className="link-overlay-file-link"
+  href="false_other_sub_task.yml"
+ >
+  false_other_sub_task.yml
+ </a>
+properties: []
+</pre>
+`;
+
+exports[`Render TaskDefinitionViewer for nonterminated_string.yml 1`] = `
+<div
+ className="link-overlay-text"
+>
+ Errors parsing YAML file:
+ <ul>
+  <li>
+   <pre>
+    Missing closing "quote at line 10, column 14:
+input_files: "false_other_sub_task.yml
+      ^
+   </pre>
+  </li>
+  <li>
+   <pre>
+    Multi-line double-quoted string needs to be sufficiently indented at line 10, column 14:
+input_files: "false_other_sub_task.yml
+      ^
+   </pre>
+  </li>
+  <li>
+   <pre>
+    Document boundary indicators are not allowed within string values at line 10, column 14:
+input_files: "false_other_sub_task.yml
+      ^
+   </pre>
+  </li>
+ </ul>
+ <pre>
+  # This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
+#
+# SPDX-FileCopyrightText: 2019-2020 Dirk Beyer &lt;https://www.sosy-lab.org&gt;
+#
+# SPDX-License-Identifier: Apache-2.0
+format_version: "1.0"
+input_files: "false_other_sub_task.yml
+properties:
+ </pre>
+ ;
+</div>
+`;
+
+exports[`Render TaskDefinitionViewer for one_input_file.yml 1`] = `
+<pre
+ className="link-overlay-text"
+>
+ # This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
+#
+# SPDX-FileCopyrightText: 2019-2020 Dirk Beyer &lt;https://www.sosy-lab.org&gt;
+#
+# SPDX-License-Identifier: Apache-2.0
+format_version: "1.0"
+input_files: 
+ <a
+  className="link-overlay-file-link"
+  href="false_other_sub_task.yml"
+ >
+  false_other_sub_task.yml
+ </a>
+properties:
+ - property_file: 
+ <a
+  className="link-overlay-file-link"
+  href="test.prp"
+ >
+  test.prp
+ </a>
+  expected_verdict: false
+ - property_file: 
+ <a
+  className="link-overlay-file-link"
+  href="other.prp"
+ >
+  other.prp
+ </a>
+</pre>
+`;
+
+exports[`Render TaskDefinitionViewer for one_property_file.yml 1`] = `
+<pre
+ className="link-overlay-text"
+>
+ # This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
+#
+# SPDX-FileCopyrightText: 2019-2020 Dirk Beyer &lt;https://www.sosy-lab.org&gt;
+#
+# SPDX-License-Identifier: Apache-2.0
+format_version: "1.0"
+input_files: 
+ <a
+  className="link-overlay-file-link"
+  href="false_other_sub_task.yml"
+ >
+  false_other_sub_task.yml
+ </a>
+properties:
+ - property_file: 
+ <a
+  className="link-overlay-file-link"
+  href="test.prp"
+ >
+  test.prp
+ </a>
+  subproperty: other_subproperty
+</pre>
+`;
+
+exports[`Render TaskDefinitionViewer for other_list_of_lists.yml 1`] = `
+<pre
+ className="link-overlay-text"
+>
+ # This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
+#
+# SPDX-FileCopyrightText: 2019-2020 Dirk Beyer &lt;https://www.sosy-lab.org&gt;
+#
+# SPDX-License-Identifier: Apache-2.0
+- [ name, duration ]
+- [ task1, 152 ]
+- [ task2, 165 ]
+</pre>
+`;
+
+exports[`Render TaskDefinitionViewer for other_list_of_other_mappings.yml 1`] = `
+<pre
+ className="link-overlay-text"
+>
+ # This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
+#
+# SPDX-FileCopyrightText: 2019-2020 Dirk Beyer &lt;https://www.sosy-lab.org&gt;
+#
+# SPDX-License-Identifier: Apache-2.0
+- name: task1
+ duration: 152
+- name: task2
+ duration: 165
+</pre>
+`;
+
+exports[`Render TaskDefinitionViewer for other_lists.yml 1`] = `
+<pre
+ className="link-overlay-text"
+>
+ # This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
+#
+# SPDX-FileCopyrightText: 2019-2020 Dirk Beyer &lt;https://www.sosy-lab.org&gt;
+#
+# SPDX-License-Identifier: Apache-2.0
+task1:
+ - programs
+ - tasks
+task2:
+ - input
+ - bench
+ - output
+</pre>
+`;
+
+exports[`Render TaskDefinitionViewer for property_files_brackets.yml 1`] = `
+<pre
+ className="link-overlay-text"
+>
+ # This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
+#
+# SPDX-FileCopyrightText: 2019-2020 Dirk Beyer &lt;https://www.sosy-lab.org&gt;
+#
+# SPDX-License-Identifier: Apache-2.0
+format_version: "1.0"
+input_files: 
+ <a
+  className="link-overlay-file-link"
+  href="false_other_sub_task.yml"
+ >
+  false_other_sub_task.yml
+ </a>
+properties:
+ [
+  {
+    property_file: 
+ <a
+  className="link-overlay-file-link"
+  href="test.prp"
+ >
+  test.prp
+ </a>
+ ,
+    expected_verdict: false,
+    subproperty: other_subproperty
+   },
+  {
+    property_file: 
+ <a
+  className="link-overlay-file-link"
+  href="other.prp"
+ >
+  other.prp
+ </a>
+ ,
+    expected_verdict: false
+   }
+ ]
+</pre>
+`;
+
+exports[`Render TaskDefinitionViewer for property_files_multiline_string.yml 1`] = `
+<pre
+ className="link-overlay-text"
+>
+ # This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
+#
+# SPDX-FileCopyrightText: 2019-2020 Dirk Beyer &lt;https://www.sosy-lab.org&gt;
+#
+# SPDX-License-Identifier: Apache-2.0
+format_version: "1.0"
+input_files: 
+ <a
+  className="link-overlay-file-link"
+  href="false_other_sub_task.yml"
+ >
+  false_other_sub_task.yml
+ </a>
+properties:
+ - property_file: "
+ <a
+  className="link-overlay-file-link"
+  href="test.prp"
+ >
+  test.prp
+ </a>
+ "
+  expected_verdict: false
+  subproperty: "other_subproperty"
+</pre>
+`;
+
+exports[`Render TaskDefinitionViewer for property_files_no_mapping.yml 1`] = `
+<pre
+ className="link-overlay-text"
+>
+ # This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
+#
+# SPDX-FileCopyrightText: 2019-2020 Dirk Beyer &lt;https://www.sosy-lab.org&gt;
+#
+# SPDX-License-Identifier: Apache-2.0
+format_version: "1.0"
+input_files: 
+ <a
+  className="link-overlay-file-link"
+  href="false_other_sub_task.yml"
+ >
+  false_other_sub_task.yml
+ </a>
+properties:
+ - test.prp
+ - other.prp
+</pre>
+`;
+
+exports[`Render TaskDefinitionViewer for task_definition_doc_template.yml 1`] = `
+<pre
+ className="link-overlay-text"
+>
+ # This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
+#
+# SPDX-FileCopyrightText: 2019-2020 Dirk Beyer &lt;https://www.sosy-lab.org&gt;
+#
+# SPDX-License-Identifier: Apache-2.0
+# Required, string with format version of this file (currently only "1.0")
+format_version: "1.0"
+# Required, either a string or a list of strings with file-name patterns.
+# Relative paths interpreted as relative to this file.
+# Each matching file or directory will be given as input to the tool.
+input_files:
+ - '
+ <a
+  className="link-overlay-file-link"
+  href="*.md"
+ >
+  *.md
+ </a>
+ '
+ - '
+ <a
+  className="link-overlay-file-link"
+  href="../*.md"
+ >
+  ../*.md
+ </a>
+ '
+# Optional, either a string or a list of strings with file-name patterns.
+# Relative paths interpreted as relative to this file.
+# Each matching file or directory is treated as required for the task,
+# but will not be explicitly given to the tool.
+required_files:
+ - 'properties/'
+# Optional, contains list of dicts, each with at least the key "property_file".
+# Existing entries specify which properties can be used for tasks from this file.
+# If given, benchexec will compare expected verdicts against actual verdicts.
+properties:
+ - property_file: 
+ <a
+  className="link-overlay-file-link"
+  href="properties/memsafety.prp"
+ >
+  properties/memsafety.prp
+ </a>
+ # string with file-name pattern that matches exactly one file
+  expected_verdict: false # optional boolean
+  subproperty: valid-deref # optional string, contains violated subproperty
+ - property_file: 
+ <a
+  className="link-overlay-file-link"
+  href="properties/unreach-call.prp"
+ >
+  properties/unreach-call.prp
+ </a>
+  expected_verdict: true
+ - property_file: 
+ <a
+  className="link-overlay-file-link"
+  href="properties/overflow.prp"
+ >
+  properties/overflow.prp
+ </a>
+</pre>
+`;
+
+exports[`Render TaskDefinitionViewer for undefined_input_files.yml 1`] = `
+<pre
+ className="link-overlay-text"
+>
+ # This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
+#
+# SPDX-FileCopyrightText: 2019-2020 Dirk Beyer &lt;https://www.sosy-lab.org&gt;
+#
+# SPDX-License-Identifier: Apache-2.0
+format_version: "1.0"
+properties:
+ - property_file: 
+ <a
+  className="link-overlay-file-link"
+  href="test.prp"
+ >
+  test.prp
+ </a>
+  subproperty: other_subproperty
+ - property_file: 
+ <a
+  className="link-overlay-file-link"
+  href="other.prp"
+ >
+  other.prp
+ </a>
+  expected_verdict: false
+</pre>
+`;
+
+exports[`Render TaskDefinitionViewer for undefined_property_files.yml 1`] = `
+<pre
+ className="link-overlay-text"
+>
+ # This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
+#
+# SPDX-FileCopyrightText: 2019-2020 Dirk Beyer &lt;https://www.sosy-lab.org&gt;
+#
+# SPDX-License-Identifier: Apache-2.0
+format_version: "1.0"
+input_files: 
+ <a
+  className="link-overlay-file-link"
+  href="false_task.yml"
+ >
+  false_task.yml
+ </a>
+</pre>
+`;
+
+exports[`Render TaskDefinitionViewer for with_html_tags.yml 1`] = `
+<pre
+ className="link-overlay-text"
+>
+ # This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
+#
+# SPDX-FileCopyrightText: 2019-2020 Dirk Beyer &lt;https://www.sosy-lab.org&gt;
+#
+# SPDX-License-Identifier: Apache-2.0
+format_version: "1.0"
+input_files:
+ - 
+ <a
+  className="link-overlay-file-link"
+  href="<span>false_other_sub_task.<b>yml</b></span>"
+ >
+  &lt;span&gt;false_other_sub_task.&lt;b&gt;yml&lt;/b&gt;&lt;/span&gt;
+ </a>
+ - 
+ <a
+  className="link-overlay-file-link"
+  href="<div>false_other_sub_task.yml</div>"
+ >
+  &lt;div&gt;false_other_sub_task.yml&lt;/div&gt;
+ </a>
+&lt;button style="padding-right:3px" onClick="console.log("This should not work")"&gt;&lt;/button&gt;: &lt;button&gt;test&lt;/button&gt;
+properties:
+ - property_file: 
+ <a
+  className="link-overlay-file-link"
+  href="<a href=\\"github.com\\">test.prp</a>"
+ >
+  &lt;a href="github.com"&gt;test.prp&lt;/a&gt;
+ </a>
+  expected_verdict: false
+  broken_list: &lt;ul&gt; &lt;li&gt; item &lt;/li&gt; &lt;/li&gt; &lt;li&gt; &lt;/ul&gt; &lt;/ul&gt;
+</pre>
+`;

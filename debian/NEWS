@@ -1,0 +1,8 @@
+benchexec (1.13-1) xenial; urgency=medium
+
+  Starting from this version a systemd service is shipped
+  that automatically configures the necessary cgroups permissions.
+  Add users who need to use BenchExec to the group "benchexec" to make use of
+  this.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Tue, 07 Nov 2017 08:06:14 +0200

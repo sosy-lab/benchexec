@@ -1,0 +1,79 @@
+# This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
+#
+# SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
+#
+# SPDX-License-Identifier: Apache-2.0
+
+[build-system]
+requires = [
+    # Require versions that support our license files
+    # but produce the same names for artifacts as we always had.
+    'setuptools == 69.2.0',
+    'wheel >= 0.32.0',
+]
+build-backend = 'setuptools.build_meta'
+
+[tool.black]
+include = 'bin|\.py$'
+exclude = 'node_modules|\.eggs'
+target-version = ['py38']
+
+[tool.coverage.run]
+branch = true
+parallel = true
+source = ['benchexec']
+omit = ['benchexec/tools/*']
+
+[tool.coverage.report]
+# Regexes for lines to exclude from consideration
+exclude_lines = [
+    # Have to re-enable the standard pragma
+    'pragma: no cover',
+
+    # Don't complain about missing debug-only code:
+    'def __repr__',
+    'if self\.debug',
+
+    # Don't complain if tests don't hit defensive assertion code:
+    'raise AssertionError',
+    'raise NotImplementedError',
+
+    # Don't complain if non-runnable code isn't run:
+    'if 0:',
+    'if __name__ == .__main__.:',
+]
+
+[tool.coverage.html]
+directory = 'coverage'
+
+[tool.pytype]
+inputs = ['benchexec']
+exclude = [
+    'benchexec/tablegenerator/react-table',
+    # TODO
+    'benchexec/tools',
+    '**/test_*.py',
+    '**/test_*/**.py',
+]
+
+[tool.ruff.lint]
+# TODO: Enable more checks.
+#select = ["ALL"]
+ignore = [
+    # temporarily disabled for historic reasons: documentation, line length, type annotations
+    'E501',
+    'I001',
+]
+[tool.ruff.lint.per-file-ignores]
+'benchexec/test*.py' = [
+    # wildcard imports significantly shorten test code,
+    'F405',
+]
+
+[tool.pytest.ini_options]
+filterwarnings = [
+    "error",
+]
+python_files = ["test_*.py", "test_integration/__init__.py", "test.py"]
+norecursedirs = ["contrib/p4/docker_files", "build", "benchexec/tablegenerator/react-table"]

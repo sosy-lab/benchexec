@@ -1,0 +1,21 @@
+<?xml version="1.0" ?>
+<result benchmarkname="test" block="1" cpuCores="1" date="2015-03-03 16:13:02 CET" memlimit="3000 MB" name="valueAnalysis.1" options="-noout -setprop log.consoleLevel=WARNING -valueAnalysis" timelimit="10 s" tool="CPAchecker" toolmodule="benchexec.tools.cpachecker" version="1.4-svn 15944M">
+  <columns>
+    <column title="status"/>
+    <column title="cputime"/>
+    <column title="walltime"/>
+  </columns>
+  <systeminfo hostname="tortuga">
+    <os name="Linux 3.13.0-45-generic x86_64"/>
+    <cpu cores="8" frequency="3401 MHz" model="Intel Core i7-2600 CPU @ 3.40GHz"/>
+    <ram size="16389384 kB"/>
+  </systeminfo>
+  <run files="[doc/examples/example.c]" name="doc/examples/example.c">
+    <column title="status" value="true"/>
+    <column title="cputime" value="2.018490461s"/>
+    <column title="walltime" value="2.0274627208709717s"/>
+    <column hidden="true" title="category" value="missing"/>
+    <column hidden="true" title="exitcode" value="0"/>
+    <column title="memUsage" value="126210048"/>
+  </run>
+</result>

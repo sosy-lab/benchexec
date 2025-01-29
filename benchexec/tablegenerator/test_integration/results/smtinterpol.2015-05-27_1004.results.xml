@@ -1,0 +1,47 @@
+<?xml version="1.0" ?>
+<result benchmarkname="smtinterpol" cpuCores="1" date="2015-05-27 10:04:27 CEST" memlimit="100 MB" options="" timelimit="10 s" tool="SMTInterpol" toolmodule="benchexec.tools.smtinterpol" version="2.1-183-g4d3bb9f">
+  <columns>
+    <column title="status"/>
+    <column title="cputime"/>
+    <column title="walltime"/>
+  </columns>
+  <systeminfo hostname="tortuga">
+    <os name="Linux 3.13.0-53-generic x86_64"/>
+    <cpu cores="8" frequency="3401 MHz" model="Intel Core i7-2600 CPU @ 3.40GHz"/>
+    <ram size="16389436 kB"/>
+  </systeminfo>
+  <run files="[ie-local-interpolant.smt2]" name="ie-local-interpolant.smt2" properties="sat">
+    <column title="status" value="sat"/>
+    <column title="cputime" value="0.47938499999999995s"/>
+    <column title="walltime" value="0.4867055416107178s"/>
+    <column hidden="true" title="category" value="missing"/>
+    <column hidden="true" title="exitcode" value="0"/>
+    <column title="memUsage" value="45228032"/>
+  </run>
+  <run files="[new-cast-encoding_sat.smt2]" name="new-cast-encoding_sat.smt2" properties="sat">
+    <column title="status" value="sat"/>
+    <column title="cputime" value="0.21415099999999998s"/>
+    <column title="walltime" value="0.22989201545715332s"/>
+    <column hidden="true" title="category" value="correct"/>
+    <column hidden="true" title="exitcode" value="0"/>
+    <column title="memUsage" value="23986176"/>
+  </run>
+  <run files="[other-cast-encoding.smt2]" name="other-cast-encoding.smt2" properties="sat">
+    <column title="status" value="ERROR"/>
+    <column title="cputime" value="0.193386s"/>
+    <column title="walltime" value="0.19897174835205078s"/>
+    <column hidden="true" title="category" value="error"/>
+    <column hidden="true" title="exitcode" value="0"/>
+    <column title="memUsage" value="23822336"/>
+  </run>
+  <run files="[smtinterpol-NPE-LAInterpolor-color_unsat.smt2]" name="smtinterpol-NPE-LAInterpolor-color_unsat.smt2" properties="sat">
+    <column title="status" value="unsat"/>
+    <column title="cputime" value="0.769471576s"/>
+    <column title="walltime" value="0.7776222229003906s"/>
+    <column hidden="true" title="category" value="correct"/>
+    <column hidden="true" title="exitcode" value="0"/>
+    <column title="memUsage" value="46264320"/>
+  </run>
+  <column title="cputime" value="1.65805"/>
+  <column title="walltime" value="2.3188562393188477"/>
+</result>

@@ -1,0 +1,17 @@
+<!--
+This file is part of BenchExec, a framework for reliable benchmarking:
+https://github.com/sosy-lab/benchexec
+
+SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
+<table>
+  <result filename="results/test.2015-03-03_1613.results.predicateAnalysis.xml"/>
+
+  <column title="status"/>
+  <column title="cputime" numberOfDigits="3"/>
+  <column title="walltime" numberOfDigits="2"/>
+  <column title="memUsage" displayTitle="memory" numberOfDigits="5"/>
+</table>

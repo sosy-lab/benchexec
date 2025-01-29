@@ -1,0 +1,67 @@
+% This file is part of BenchExec, a framework for reliable benchmarking:
+% https://github.com/sosy-lab/benchexec
+%
+% SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
+%
+% SPDX-License-Identifier: Apache-2.0
+
+% LaTeX code for a scatter plot where color indicates frequency of data points
+% Copy the tikzpicture environment to your own document
+% and make sure the siunitx and pgfplots package are loaded,
+% possibly with the options suggested here.
+\documentclass{standalone}
+\usepackage[
+    group-digits=integer, group-minimum-digits=4, % group digits by thousands
+    free-standing-units, unit-optional-argument, % easier input of numbers with units
+    ]{siunitx}[=v2]
+\usepackage{pgfplots}
+\pgfplotsset{
+    compat=1.9,
+    log ticks with fixed point, % no scientific notation in plots
+    table/col sep=tab, % only tabs are column separators
+    unbounded coords=jump, % better have skips in a plot than appear to be interpolating
+    filter discard warning=false, % Don't complain about empty cells
+    }
+\SendSettingsToPgf % use siunitx formatting settings in PGF, too
+% Define new pgfmath function for the logarithm to base 10 that also works with fpu library
+\pgfmathdeclarefunction{lg10}{1}{\pgfmathparse{ln(#1)/ln(10)}}
+
+\begin{document}
+
+\begin{tikzpicture}
+\begin{axis}[
+    % axis labels
+    xlabel=Value ``foo'' for Tool 1,
+    ylabel=Value ``foo'' for Tool 2,
+    % axis ranges
+    xmin=0,
+    xmax=100,
+    ymin=0,
+    ymax=100,
+    domain=0:100,
+    %
+    clip mode=individual,
+    axis equal image,
+    colorbar,
+    colormap/bluered,
+    colorbar style = {
+        ylabel=Number of results,
+    },
+    point meta min=0,
+    point meta max=3,
+    colorbar style={yticklabel=\pgfmathparse{10^\tick}\pgfmathprintnumber\pgfmathresult},
+    ]
+    \addplot+[mark=asterisk,scatter,scatter src=rnd*lg10(1000),only marks,samples=50]
+        % The following line actually generates a random plot,
+        % replace with something like the following for reading from CSV:
+        %table[
+        %     header=false,
+        %     x index=2, % index of x column
+        %     y index=6  % index of y column
+        %     ] {scatter.counted.csv};
+        (round(x),{round(x+rand*x)});
+    \addplot[gray] {x};
+\end{axis}
+\end{tikzpicture}
+
+\end{document}

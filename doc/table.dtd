@@ -1,0 +1,27 @@
+<!--
+This file is part of BenchExec, a framework for reliable benchmarking:
+https://github.com/sosy-lab/benchexec
+
+SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
+<!ELEMENT table ((result | union | column)*)>
+
+<!ELEMENT result (column*)>
+<!ATTLIST result id CDATA #IMPLIED
+                 filename CDATA #REQUIRED>
+
+<!ELEMENT union ((result | column)*)>
+<!ATTLIST union title CDATA #IMPLIED>
+
+<!ELEMENT column (#PCDATA)>
+<!ATTLIST column title CDATA #IMPLIED
+                 displayTitle CDATA #IMPLIED
+                 href CDATA #IMPLIED
+                 numberOfDigits CDATA #IMPLIED
+                 sourceUnit CDATA #IMPLIED
+                 displayUnit CDATA #IMPLIED
+                 scaleFactor CDATA #IMPLIED
+                 relevantForDiff (true|false) #IMPLIED>

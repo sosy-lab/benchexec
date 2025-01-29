@@ -1,0 +1,20 @@
+<!--
+This file is part of BenchExec, a framework for reliable benchmarking:
+https://github.com/sosy-lab/benchexec
+
+SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
+<table>
+  <union title="predicateAnalysis">
+    <result filename="results/test.2015-03-03_1613.results.predicateAnalysis.0.xml"/>
+    <result filename="results/test.2015-03-03_1613.results.predicateAnalysis.1.xml"/>
+    <result filename="results/test.2015-03-03_1613.results.predicateAnalysis.2.xml"/>
+  </union>
+  <union title="valueAnalysis">
+    <result filename="results/test.2015-03-03_1613.results.valueAnalysis.1.xml"/>
+    <result filename="results/test.2015-03-03_1613.results.valueAnalysis.0.xml"/>
+  </union>
+</table>
