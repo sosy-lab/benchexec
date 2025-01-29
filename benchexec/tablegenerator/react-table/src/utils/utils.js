@@ -310,7 +310,7 @@ const makeUrlFilterDeserializer = (statusValues, categoryValues) => {
 const makeSerializedFilterValue = (filter) => {
   const parts = [];
   for (const [key, values] of Object.entries(filter)) {
-    parts.push(`${key}(${values.map(escape).join(",")})`);
+    parts.push(`${key}(${values.map(encodeURIComponent).join(",")})`);
   }
   return parts.join(",");
 };
