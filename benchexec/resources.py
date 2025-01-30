@@ -568,7 +568,7 @@ def core_allocation_algorithm(
         distribution_dict = hierarchy_levels[search_current_level]
 
         while search_current_level > 0:
-            if check_symmetric_num_of_values(distribution_dict):
+            if is_symmetric_hierachy(distribution_dict):
                 # for symmetric ones, we go further into the hierarchy (and only return them if we are at the end of the hierarchy already)
                 search_current_level -= 1
                 distribution_dict = hierarchy_levels[search_current_level]
@@ -578,7 +578,7 @@ def core_allocation_algorithm(
                     allCpus, largest_core_subset, search_current_level - 1
                 )
 
-                if check_symmetric_num_of_values(distribution_dict):
+                if is_symmetric_hierachy(distribution_dict):
                     if search_current_level > chosen_level:
                         while (
                             search_current_level >= chosen_level
@@ -677,7 +677,7 @@ def core_allocation_algorithm(
                 If no cores have been assigned yet, any core can be chosen and the next best core is returned.
                 """
                 while assignment_current_level > 0:
-                    if check_symmetric_num_of_values(child_dict):
+                    if is_symmetric_hierachy(child_dict):
                         break
                     else:
                         assignment_current_level -= 1
@@ -720,7 +720,7 @@ def core_allocation_algorithm(
     return result
 
 
-def check_symmetric_num_of_values(hierarchy_level: HierarchyLevel) -> bool:
+def is_symmetric_hierachy(hierarchy_level: HierarchyLevel) -> bool:
     """
     returns True if the number of values in the lists of the key-value pairs
     is equal throughout the dict
@@ -742,7 +742,7 @@ def check_asymmetric_num_of_values(hierarchy_level: HierarchyLevel) -> bool:
                                 maps from the identifier read from the topology to a list of the cores belonging to it
     @return:                    true if asymmetric
     """
-    return not check_symmetric_num_of_values(hierarchy_level)
+    return not is_symmetric_hierachy(hierarchy_level)
 
 
 def remove_core_from_hierarchy_levels(
