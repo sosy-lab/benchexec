@@ -610,7 +610,7 @@ def core_allocation_algorithm(
 
     # check if all units of the same hierarchy level have the same number of cores
     for hierarchy_level in hierarchy_levels:
-        if check_asymmetric_num_of_values(hierarchy_level):
+        if not is_symmetric_hierachy(hierarchy_level):
             sys.exit(
                 "Asymmetric machine architecture not supported: "
                 "CPUs/memory regions with different number of cores."
@@ -731,18 +731,6 @@ def is_symmetric_hierachy(hierarchy_level: HierarchyLevel) -> bool:
     """
     cores_per_unit = len(next(iter(hierarchy_level.values())))
     return all(len(cores) == cores_per_unit for cores in hierarchy_level.values())
-
-
-def check_asymmetric_num_of_values(hierarchy_level: HierarchyLevel) -> bool:
-    """
-    returns True if the number of values in the lists of the key-value pairs
-    is not equal throughout the dict
-
-    @param: hierarchy_levels    list of dicts of lists: each dict in the list corresponds to one topology layer and
-                                maps from the identifier read from the topology to a list of the cores belonging to it
-    @return:                    true if asymmetric
-    """
-    return not is_symmetric_hierachy(hierarchy_level)
 
 
 def remove_core_from_hierarchy_levels(
