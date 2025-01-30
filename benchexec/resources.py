@@ -701,10 +701,12 @@ def core_allocation_algorithm(
                 for core in core_with_siblings:
                     if len(cores) < coreLimit:
                         cores.append(core)  # add core&siblings to results
-                    core_clean_up(core, allCpus, hierarchy_levels)
+                    remove_core_from_hierarchy_levels(core, allCpus, hierarchy_levels)
 
             while sub_unit_cores:
-                core_clean_up(sub_unit_cores[0], allCpus, hierarchy_levels)
+                remove_core_from_hierarchy_levels(
+                    sub_unit_cores[0], allCpus, hierarchy_levels
+                )
                 # active_cores & sub_unit_cores are deleted as well since they're just pointers
                 # to hierarchy_levels
 
@@ -746,7 +748,7 @@ def check_asymmetric_num_of_values(hierarchy_level: HierarchyLevel) -> bool:
     return is_asymmetric
 
 
-def core_clean_up(
+def remove_core_from_hierarchy_levels(
     core: int,
     allCpus: Dict[int, VirtualCore],
     hierarchy_levels: List[HierarchyLevel],
