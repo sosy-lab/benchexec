@@ -760,11 +760,12 @@ def core_clean_up(
                                 maps from the identifier read from the topology to a list of the cores belonging to it
     """
     current_core_regions = allCpus[core].memory_regions
-    for mem_index in range(len(current_core_regions)):
-        region = current_core_regions[mem_index]
-        hierarchy_levels[mem_index][region].remove(core)
-        if len(hierarchy_levels[mem_index][region]) == 0:
-            hierarchy_levels[mem_index].pop(region)
+    for mem_index, region in enumerate(current_core_regions):
+        core_list = hierarchy_levels[mem_index][region]
+        if core in core_list:
+            core_list.remove(core)
+            if not core_list:  # empty memory region, which we can delete
+                hierarchy_levels[mem_index].pop(region, None)
 
 
 def get_cpu_list(my_cgroups, coreSet: Optional[List] = None) -> List[int]:
