@@ -729,7 +729,8 @@ def check_symmetric_num_of_values(hierarchy_level: HierarchyLevel) -> bool:
                                 maps from the identifier read from the topology to a list of the cores belonging to it
     @return:                    true if symmetric
     """
-    return not check_asymmetric_num_of_values(hierarchy_level)
+    cores_per_unit = len(next(iter(hierarchy_level.values())))
+    return all(len(cores) == cores_per_unit for cores in hierarchy_level.values())
 
 
 def check_asymmetric_num_of_values(hierarchy_level: HierarchyLevel) -> bool:
@@ -741,8 +742,7 @@ def check_asymmetric_num_of_values(hierarchy_level: HierarchyLevel) -> bool:
                                 maps from the identifier read from the topology to a list of the cores belonging to it
     @return:                    true if asymmetric
     """
-    cores_per_unit = len(next(iter(hierarchy_level.values())))
-    return not all(len(cores) == cores_per_unit for cores in hierarchy_level.values())
+    return not check_symmetric_num_of_values(hierarchy_level)
 
 
 def remove_core_from_hierarchy_levels(
