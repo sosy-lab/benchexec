@@ -878,37 +878,46 @@ def get_group_mapping(cores_of_NUMA_region: HierarchyLevel) -> HierarchyLevel:
     @param: allCpus_list    list of cpu Ids to be read
     @return:                mapping of group id to list of cores (dict)
     """
-
-    cores_of_groups = {}
     nodes_of_groups = {}
-    # generates dict of all available nodes with their group nodes
+
     try:
-        for node_id in cores_of_NUMA_region.keys():
+        # generates dict of all available nodes with their group nodes
+        for node_id in sorted(cores_of_NUMA_region):
             group = get_nodes_of_group(node_id)
-            nodes_of_groups.setdefault(node_id, []).extend(group)
+            nodes_of_groups[node_id] = frozenset(group)
+
     except FileNotFoundError:
-        nodes_of_groups = {}
         logging.warning(
             "Information on node distances not available at /sys/devices/system/node/nodeX/distance"
         )
-    # deletes superfluous entries after symmetry check
-    clean_list = []
-    for node_key in nodes_of_groups:
-        if node_key not in clean_list:
-            for node in nodes_of_groups[node_key]:
-                if node != node_key:
-                    if nodes_of_groups[node_key] == nodes_of_groups[node]:
-                        clean_list.append(node)
-                    else:
-                        raise Exception("Non-conclusive system information")
-    for element in clean_list:
-        nodes_of_groups.pop(element)
-    # sets new group id, replaces list of nodes with list of cores belonging to the nodes
-    id_index = 0
-    for node_list in nodes_of_groups.values():
-        for entry in node_list:
-            cores_of_groups.setdefault(id_index, []).extend(cores_of_NUMA_region[entry])
-        id_index += 1
+        return {}
+
+    groups_dict = {}
+    next_group_id = 0
+
+    # we merge identical sets & detect overlaps
+    for node_id, node_set in nodes_of_groups.items():
+        # do we have conflicting (partial) overlap of two different sets? => error
+        for existing_set in groups_dict:
+            overlap = existing_set.intersection(node_set)
+            if overlap and existing_set != node_set:
+                raise Exception(
+                    "Non-conclusive system information: overlapping node groups"
+                )
+
+        # if not already in set, add it and give it the next group id
+        if node_set not in groups_dict:
+            groups_dict[node_set] = next_group_id
+            next_group_id += 1
+
+    # for each distict node set, we gather all corresponding cores into a single group
+    cores_of_groups = {}
+    for node_set, group_id in groups_dict.items():
+        group_cores = []
+        for nid in node_set:
+            group_cores.extend(cores_of_NUMA_region[nid])
+        cores_of_groups[group_id] = group_cores
+
     logging.debug("Groups of cores are %s.", cores_of_groups)
     return cores_of_groups
 
