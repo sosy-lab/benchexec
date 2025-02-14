@@ -54,7 +54,7 @@ def add_basic_container_args(argument_parser):
         "--no-tmpfs",
         dest="tmpfs",
         action="store_false",
-        help="Store temporary files (e.t., tool output files) on the actual file system"
+        help="Store temporary files (e.g., tool output files) on the actual file system"
         ' instead of a tmpfs ("RAM disk") that is included in the memory limit',
     )
     argument_parser.add_argument(
