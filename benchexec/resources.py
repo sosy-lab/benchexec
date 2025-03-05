@@ -681,13 +681,17 @@ def core_allocation_algorithm(
                         break
                     else:
                         assignment_current_level -= 1
-                        distribution_list = list(child_dict.values())
-                        for iter2 in distribution_list.copy():
-                            if len(iter2) == 0:
-                                distribution_list.remove(iter2)
-                        distribution_list.sort(reverse=False)
+
+                        core_groups = [cores for cores in child_dict.values() if cores]
+
+                        if not core_groups:
+                            break
+
+                        core_groups.sort()
+                        selected_cores = core_groups[0]
+
                         child_dict = get_core_units_on_level(
-                            allCpus, distribution_list[0], assignment_current_level
+                            allCpus, selected_cores, assignment_current_level
                         )
                 next_core = list(child_dict.values())[0][0]
 
