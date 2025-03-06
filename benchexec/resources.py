@@ -663,9 +663,7 @@ def core_allocation_algorithm(
             while len(cores) < coreLimit and sub_unit_cores:
                 """assigns the cores from sub_unit_cores list into child dict
                 in accordance with their memory regions"""
-                assignment_current_level = chosen_level - 1
-                if assignment_current_level - 1 > 0:
-                    assignment_current_level -= 1
+                assignment_current_level = max(1, chosen_level - 2)
 
                 child_dict = get_core_units_on_level(
                     allCpus, sub_unit_cores.copy(), assignment_current_level
