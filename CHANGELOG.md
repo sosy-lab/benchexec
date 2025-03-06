@@ -9,6 +9,12 @@ SPDX-License-Identifier: Apache-2.0
 
 # BenchExec Changelog
 
+## Changes planned for the next release
+
+- The name of the wheel and tar archives in BenchExec releases
+  changes from `BenchExec-$VERSION*` to `benchexec-$VERSION*`
+  in accordance with Python standard PEP 625 and PyPI requirements.
+
 ## BenchExec 3.28 - 2025-03-01
 
 - Some new and improved tool-info modules.

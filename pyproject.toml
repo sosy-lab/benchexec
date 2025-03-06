@@ -8,8 +8,8 @@
 [build-system]
 requires = [
     # Require versions that support our license files
-    # but produce the same names for artifacts as we always had.
-    'setuptools == 69.2.0',
+    # and produce the expected file names or archives.
+    'setuptools >= 69.3.0',
     'wheel >= 0.32.0',
 ]
 build-backend = 'setuptools.build_meta'
