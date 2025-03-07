@@ -15,7 +15,8 @@ from benchexec.tools.template import BaseTool2
 from benchexec.tools.template import UnsupportedFeatureException
 from benchexec.tools.sv_benchmarks_util import (
     get_witness,
-    get_single_non_witness_input_file, WITNESS_INPUT_FILE_IDENTIFIER,
+    get_single_non_witness_input_file,
+    WITNESS_INPUT_FILE_IDENTIFIER,
 )
 
 
@@ -126,7 +127,11 @@ class Tool(benchexec.tools.template.BaseTool2):
         )
         wrapped_tasks_options = task.options
         if isinstance(wrapped_tasks_options, dict):
-            wrapped_tasks_options = {k: v for k, v in wrapped_tasks_options.items() if k != WITNESS_INPUT_FILE_IDENTIFIER}
+            wrapped_tasks_options = {
+                k: v
+                for k, v in wrapped_tasks_options.items()
+                if k != WITNESS_INPUT_FILE_IDENTIFIER
+            }
         wrappedtask = BaseTool2.Task(
             input_files=[self._resource(executable, "output/ARG.c")],
             identifier=task.identifier,
