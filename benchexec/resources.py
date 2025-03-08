@@ -808,19 +808,20 @@ def frequency_filter(cpu_max_frequencies: Dict[int, List[int]]) -> List[int]:
         if freq >= freq_threshold
     ]
 
-    slow_cores = [
-        core
-        for freq, cores in cpu_max_frequencies.items()
-        for core in cores
-        if freq < freq_threshold
-    ]
-    if slow_cores:
-        logging.debug(
-            "Unused cores due to frequency less than %s%% of fastest core (%s): %s",
-            FREQUENCY_FILTER_THRESHOLD * 100,
-            fastest_core_frequency,
-            slow_cores,
-        )
+    if logging.getLogger().isEnabledFor(logging.DEBUG):
+        slow_cores = [
+            core
+            for freq, cores in cpu_max_frequencies.items()
+            for core in cores
+            if freq < freq_threshold
+        ]
+        if slow_cores:
+            logging.debug(
+                "Unused cores due to frequency less than %s%% of fastest core (%s): %s",
+                FREQUENCY_FILTER_THRESHOLD * 100,
+                fastest_core_frequency,
+                slow_cores,
+            )
 
     return fast_cores
 
