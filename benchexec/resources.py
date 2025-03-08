@@ -798,23 +798,31 @@ def frequency_filter(cpu_max_frequencies: Dict[int, List[int]]) -> List[int]:
     @param: cpu_max_frequencies mapping from frequencies to core ids
     @return: list with the ids of the fastest cores
     """
-    freq_threshold = max(cpu_max_frequencies.keys()) * FREQUENCY_FILTER_THRESHOLD
-    filtered_allCpus_list = []
-    slow_cores = []
-    for key in cpu_max_frequencies:
-        if key >= freq_threshold:
-            filtered_allCpus_list.extend(cpu_max_frequencies[key])
-        else:
-            slow_cores.extend(cpu_max_frequencies[key])
-    fastest = max(cpu_max_frequencies.keys())
+    fastest_core_frequency = max(cpu_max_frequencies.keys())
+    freq_threshold = fastest_core_frequency * FREQUENCY_FILTER_THRESHOLD
+
+    fast_cores = [
+        core
+        for freq, cores in cpu_max_frequencies.items()
+        for core in cores
+        if freq >= freq_threshold
+    ]
+
+    slow_cores = [
+        core
+        for freq, cores in cpu_max_frequencies.items()
+        for core in cores
+        if freq < freq_threshold
+    ]
     if slow_cores:
         logging.debug(
             "Unused cores due to frequency less than %s%% of fastest core (%s): %s",
             FREQUENCY_FILTER_THRESHOLD * 100,
-            fastest,
+            fastest_core_frequency,
             slow_cores,
         )
-    return filtered_allCpus_list
+
+    return fast_cores
 
 
 def read_generic_reverse_mapping(
