@@ -166,6 +166,8 @@ class Property(collections.namedtuple("Property", "filename is_svcomp name")):
         Return the maximum possible score for a task that uses this property.
         @param expected_result:
             an ExpectedResult indicating whether the property is expected to hold for the task
+        @param witness_category:
+            a WITNESS_CATEGORY string indicating whether the witness is correct, wrong, etc.
         """
         if not self.is_svcomp or not expected_result:
             return None
