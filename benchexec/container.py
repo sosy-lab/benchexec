@@ -563,6 +563,8 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
 
             if use_fuse and fuse_overlay_mount_path:
                 fuse_mount_path = fuse_overlay_mount_path + mountpoint
+                if not os.path.exists(fuse_mount_path):
+                    os.makedirs(fuse_mount_path, exist_ok=True)
                 make_bind_mount(fuse_mount_path, mount_path)
             else:
                 overlay_count += 1
