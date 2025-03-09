@@ -123,6 +123,20 @@ def decode_to_string(toDecode):
         return toDecode
 
 
+def decode_path(path):
+    """
+    Replace tab, space, newline, and backslash escapes with actual characters.
+    According to man 5 fstab, only tab and space escaped, but Linux escapes more:
+    https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/fs/proc_namespace.c?id=12a54b150fb5b6c2f3da932dc0e665355f8a5a48#n85
+    """
+    return (
+        path.replace(rb"\011", b"\011")
+        .replace(rb"\040", b"\040")
+        .replace(rb"\012", b"\012")
+        .replace(rb"\134", b"\134")
+    )
+
+
 def format_number(number, number_of_digits):
     """
     The function format_number() return a string-representation of a number
