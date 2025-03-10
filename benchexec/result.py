@@ -108,8 +108,9 @@ _SCORE_UNKNOWN = 0
 _SCORE_WRONG_FALSE = -16
 _SCORE_WRONG_TRUE = -32
 # Score factor for validation results on invalid witnesses
-# as described in https://doi.org/10.1007/978-3-031-22308-2_8 (page 171, last paragraph, factor q)
-# Factor was updated to 1 for SV-COMP 2024.
+# as described in https://doi.org/10.1007/978-3-031-22308-2_8 (page 171, last paragraph, factor q).
+# Factor was updated to 1 for SV-COMP 2024, as defined in
+# https://doi.org/10.1007/978-3-031-57256-2_15 (page 317).
 _SCORE_FACTOR_WRONG_WITNESS = 1
 
 
@@ -166,6 +167,8 @@ class Property(collections.namedtuple("Property", "filename is_svcomp name")):
         Return the maximum possible score for a task that uses this property.
         @param expected_result:
             an ExpectedResult indicating whether the property is expected to hold for the task
+        @param witness_category:
+            a WITNESS_CATEGORY string indicating whether the witness is correct, wrong, etc.
         """
         if not self.is_svcomp or not expected_result:
             return None
