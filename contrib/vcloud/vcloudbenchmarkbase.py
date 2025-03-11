@@ -81,7 +81,7 @@ class VcloudBenchmarkBase(benchexec.benchexec.BenchExec):
             "--cloudNoTmpfs",
             dest="cloudNoTmpfs",
             action="store_true",
-            help="Store temporary files (e.t., tool output files) on the actual file system instead of a tmpfs (\"RAM disk\") that is included in the memory limit.",
+            help='Store temporary files (e.t., tool output files) on the actual file system instead of a tmpfs ("RAM disk") that is included in the memory limit.',
         )
         vcloud_args.add_argument(
             "--tryLessMemory",
