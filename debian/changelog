@@ -1,3 +1,9 @@
+benchexec (3.29-1) noble; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Tue, 11 Mar 2025 15:57:57 +0100
+
 benchexec (3.28-1+build1) noble; urgency=medium
 
   * Fix deprecation warnings produced by entry scripts (cf. #1152).
