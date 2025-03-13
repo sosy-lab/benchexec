@@ -320,7 +320,7 @@ def execute_batch(
         batch_lines.extend(
             [f"\n#SBATCH --array=0-{number_of_bins - 1}%{benchmark.num_of_threads}"]
         )
-        batch_lines.extend(["\n\nTMPDIR=$(mktemp -d)"])
+        batch_lines.extend(["\n\nTMPDIR=$(mktemp -d)\nchmod 777 $TMPDIR"])
 
         bins = {}
         # put all runs into a queue
