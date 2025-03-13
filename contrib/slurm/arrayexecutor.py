@@ -528,7 +528,7 @@ def get_run_cli(benchmark, args, tempdir, resultdir):
             "singularity",
             "exec",
             "--fakeroot",
-            "--contain"
+            "--contain",
             "-B",
             "/sys/fs/cgroup:/sys/fs/cgroup:rw",
             "-B",
@@ -547,6 +547,7 @@ def get_run_cli(benchmark, args, tempdir, resultdir):
         [
             "sh",
             "-c",
+            "pwd; cd {os.getcwd()}; pwd; ls; "
             f"{shlex.join(['echo', 'Running command: ', *args])}; "
             f"{shlex.join(args)} 2>&1 | tee log; ",
         ]
@@ -555,7 +556,7 @@ def get_run_cli(benchmark, args, tempdir, resultdir):
     cli = shlex.join(cli)
     cli = cli.replace("'\"'\"'$CPUSET'\"'\"'", "'$CPUSET'")
     cli = cli.replace("'$TMPDIR", '"$TMPDIR').replace(":/overlay:rw'", ':/overlay:rw"')
-    cli = f"mkdir -p {tempdir}/{{upper,work}}; {cli}; mv {tempdir}/upper/{{log,output.log,*witness*,{','.join(benchmark.result_files_patterns)}}} {resultdir}/; rm -r {tempdir}"
+    cli = f"mkdir -p {tempdir}/{{upper,work}}; chmod 777 {tempdir}/{{upper,work}}; {cli}; mv {tempdir}/upper/{{log,output.log,*witness*,{','.join(benchmark.result_files_patterns)}}} {resultdir}/; rm -r {tempdir}"
     logging.debug("Command to run: %s", cli)
 
     return cli
