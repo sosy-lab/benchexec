@@ -66,6 +66,18 @@ def execute_benchmark(benchmark, output_handler):
             "SLURM can only work properly without hyperthreading enabled, by passing the --no-hyperthreading option. See README.md for details."
         )
 
+    if not benchmark.config.scratchdir:
+        sys.exit("No scratchdir present. Please specify using --scratchdir <path>.")
+    elif not os.path.exists(benchmark.config.scratchdir):
+        os.makedirs(benchmark.config.scratchdir)
+        logging.debug(f"Created scratchdir: {benchmark.config.scratchdir}")
+    elif not os.path.isdir(benchmark.config.scratchdir):
+        sys.exit(
+            f"Scratchdir {benchmark.config.scratchdir} not a directory. Please specify using --scratchdir <path>."
+        )
+
+    # First we execute the tests
+    runs = []
     for runSet in benchmark.run_sets:
         if STOPPED_BY_INTERRUPT:
             break
@@ -79,62 +91,42 @@ def execute_benchmark(benchmark, output_handler):
             )
 
         else:
-            _execute_run_set(
-                runSet,
-                benchmark,
-                output_handler,
-            )
+            output_handler.output_before_run_set(runSet)
+            if benchmark.config.continue_interrupted:
+                runs.extend(filter_previous_results(runSet, benchmark, output_handler))
+            else:
+                runs.extend(runSet.runs)
 
-    output_handler.output_after_benchmark(STOPPED_BY_INTERRUPT)
-
-
-sbatch_pattern = re.compile(r"Submitted batch job (\d+)")
-
-
-def _execute_run_set(
-    runSet,
-    benchmark,
-    output_handler,
-):
-    global STOPPED_BY_INTERRUPT
-
-    # get times before runSet
-    walltime_before = time.monotonic()
-
-    output_handler.output_before_run_set(runSet)
-
-    if not benchmark.config.scratchdir:
-        sys.exit("No scratchdir present. Please specify using --scratchdir <path>.")
-    elif not os.path.exists(benchmark.config.scratchdir):
-        os.makedirs(benchmark.config.scratchdir)
-        logging.debug(f"Created scratchdir: {benchmark.config.scratchdir}")
-    elif not os.path.isdir(benchmark.config.scratchdir):
-        sys.exit(
-            f"Scratchdir {benchmark.config.scratchdir} not a directory. Please specify using --scratchdir <path>."
-        )
-
-    # get times after runSet
-    walltime_after = time.monotonic()
-    usedWallTime = walltime_after - walltime_before
-
-    if benchmark.config.continue_interrupted:
-        runs = filter_previous_results(runSet, benchmark, output_handler)
-    else:
-        runs = runSet.runs
 
     for i in range(0, len(runs), benchmark.config.batch_size):
         if not STOPPED_BY_INTERRUPT:
             chunk = runs[i : min(i + benchmark.config.batch_size, len(runs))]
             execute_batch(chunk, benchmark, output_handler)
 
-    if STOPPED_BY_INTERRUPT:
-        output_handler.set_error("interrupted", runSet)
 
-    output_handler.output_after_run_set(
-        runSet,
-        walltime=usedWallTime,
-    )
+    # Second we set the outputs 
+    for runSet in benchmark.run_sets:
+        if STOPPED_BY_INTERRUPT:
+            break
 
+        if not runSet.should_be_executed():
+            output_handler.output_for_skipping_run_set(runSet)
+
+        elif not runSet.runs:
+            output_handler.output_for_skipping_run_set(
+                runSet, "because it has no files"
+            )
+
+        else:
+            output_handler.output_after_run_set(
+                runSet
+            )
+            
+
+    output_handler.output_after_benchmark(STOPPED_BY_INTERRUPT)
+
+
+sbatch_pattern = re.compile(r"Submitted batch job (\d+)")
 
 def filter_previous_results(run_set, benchmark, output_handler):
     prefix_base = f"{benchmark.config.output_path}{benchmark.name}."
