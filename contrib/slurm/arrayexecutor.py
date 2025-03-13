@@ -508,7 +508,7 @@ def get_resource_limits(benchmark, tempdir):
 def get_run_cli(benchmark, args, tempdir, resultdir):
     os.makedirs(resultdir)
     cli = []
-    runexec = ["runexec", "--no-container"]
+    runexec = ["runexec", "--full-access-dir", "/sys/fs/cgroup"]
     if benchmark.rlimits.cputime_hard:
         runexec.extend(["--timelimit", str(benchmark.rlimits.cputime_hard)])
     if benchmark.rlimits.cputime:
@@ -527,6 +527,8 @@ def get_run_cli(benchmark, args, tempdir, resultdir):
         [
             "singularity",
             "exec",
+            "--fakeroot",
+            "--contain"
             "-B",
             "/sys/fs/cgroup:/sys/fs/cgroup:rw",
             "-B",
