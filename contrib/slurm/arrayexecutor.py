@@ -547,7 +547,7 @@ def get_run_cli(benchmark, args, tempdir, resultdir):
         [
             "sh",
             "-c",
-            "pwd; cd {os.getcwd()}; pwd; ls; "
+            f"pwd; cd {os.getcwd()}; pwd; ls; "
             f"{shlex.join(['echo', 'Running command: ', *args])}; "
             f"{shlex.join(args)} 2>&1 | tee log; ",
         ]
