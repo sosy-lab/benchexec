@@ -508,7 +508,9 @@ def get_resource_limits(benchmark, tempdir):
 def get_run_cli(benchmark, args, tempdir, resultdir):
     os.makedirs(resultdir)
     cli = []
-    runexec = ["runexec", "--full-access-dir", "/sys/fs/cgroup", "--read-only-dir", "/", "--full-access-dir", os.getcwd()]
+    basedir = os.path.abspath(os.path.dirname(singularity))
+
+    runexec = ["runexec", "--full-access-dir", "/sys/fs/cgroup", "--read-only-dir", "/", "--overlay-dir", basedir, "--full-access-dir", os.getcwd()]
     if benchmark.rlimits.cputime_hard:
         runexec.extend(["--timelimit", str(benchmark.rlimits.cputime_hard)])
     if benchmark.rlimits.cputime:
@@ -521,7 +523,6 @@ def get_run_cli(benchmark, args, tempdir, resultdir):
         runexec.extend(["--memlimit", str(benchmark.rlimits.memory)])
 
     args = [*runexec, "--", *args]
-    basedir = os.path.abspath(os.path.dirname(singularity))
 
     cli.extend(
         [
