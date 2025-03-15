@@ -510,7 +510,7 @@ def get_run_cli(benchmark, args, tempdir, resultdir):
     cli = []
     basedir = os.path.abspath(os.path.dirname(singularity))
 
-    runexec = ["runexec", "--full-access-dir", "/sys/fs/cgroup", "--read-only-dir", "/", "--overlay-dir", basedir, "--full-access-dir", os.getcwd()]
+    runexec = ["runexec", "--full-access-dir", "/sys/fs/cgroup", "--read-only-dir", "/", "--read-only-dir", basedir, "--full-access-dir", os.getcwd()]
     if benchmark.rlimits.cputime_hard:
         runexec.extend(["--timelimit", str(benchmark.rlimits.cputime_hard)])
     if benchmark.rlimits.cputime:
