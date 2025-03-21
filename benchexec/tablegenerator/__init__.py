@@ -1308,7 +1308,9 @@ def create_tables(
         "table",
         name,
         rows,
-        use_local_summary=(not options.correct_only and not options.common),
+        use_local_summary=(
+            options.local_summary and not options.correct_only and not options.common
+        ),
     )
 
     # write difference tables
@@ -1503,6 +1505,12 @@ def create_argument_parser():
         action="store_true",
         dest="all_columns",
         help="Show all columns in tables, including those that are normally hidden.",
+    )
+    parser.add_argument(
+        "--no-local-summary",
+        action="store_false",
+        dest="local_summary",
+        help='Hide row "local summary" in statistics of tables.',
     )
     parser.add_argument(
         "--show",
