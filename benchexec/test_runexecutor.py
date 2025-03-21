@@ -1374,7 +1374,7 @@ class TestRunExecutorUnits(unittest.TestCase):
     """unit tests for parts of RunExecutor"""
 
     def test_get_debug_output_with_error_report_and_invalid_utf8(self):
-        invalid_utf8 = b"\xFF"
+        invalid_utf8 = b"\xff"
         with tempfile.NamedTemporaryFile(mode="w+b", delete=False) as report_file:
             with tempfile.NamedTemporaryFile(mode="w+b") as output:
                 output_content = f"""Dummy output

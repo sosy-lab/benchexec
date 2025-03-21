@@ -127,7 +127,7 @@ check-format:
   stage: test
   image: python:3.9
   before_script:
-    - pip install 'black<25'
+    - pip install 'black<26'
   script:
     - black . --check --diff
   <<: *pip-cache
