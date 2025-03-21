@@ -360,11 +360,6 @@ def handleCloudResults(benchmark, output_handler, start_time, end_time):
     # Write worker host informations in xml
     parseAndSetCloudWorkerHostInformation(outputDir, output_handler, benchmark)
 
-    if start_time and end_time:
-        usedWallTime = (end_time - start_time).total_seconds()
-    else:
-        usedWallTime = None
-
     # write results in runs and handle output after all runs are done
     executedAllRuns = True
     runsProducedErrorOutput = False
@@ -415,9 +410,7 @@ def handleCloudResults(benchmark, output_handler, start_time, end_time):
             ):
                 shutil.move(vcloudFilesDirectory, benchexecFilesDirectory)
 
-        output_handler.output_after_run_set(
-            runSet, walltime=usedWallTime, end_time=end_time
-        )
+        output_handler.output_after_run_set(runSet, end_time=end_time)
 
     output_handler.output_after_benchmark(STOPPED_BY_INTERRUPT)
 
