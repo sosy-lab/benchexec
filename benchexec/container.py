@@ -776,15 +776,22 @@ def get_mount_points():
             yield (_decode_path(source), _decode_path(target), fstype, options)
 
 
-def get_bind_mount_points():
+def setup_fuse_overlay_upperdir(upperdir):
     """
-    Get all current bind mount points of the system.
-    This function assumes that the mount point with the shortest relative path
-    to the root of the mounted file system is the original mount.
-    The base implementation is described in:
-    https://unix.stackexchange.com/questions/18048/list-only-bind-mounts
-    @return a generator of (source, target)
+    Make the bind target directories under `upperdir` so that the contents of the bind
+    target directories can be reflected in the overlayfs-mounted directory.
+    (cf. https://github.com/containers/fuse-overlayfs/issues/437)
+
+    @param: upperdir: the fuse-overlay upperdir as bytes
     """
+    # Get all current bind mount points of the system.
+    # The base implementation is described in:
+    # https://unix.stackexchange.com/questions/18048/list-only-bind-mounts
+    # The implementation above assumes that the mount point with the shortest relative
+    # path to the root of the mounted file system is the original mount.
+    # This function removes this assumption, ensuring that directories for all the
+    # mount points are created below `upperdir`, because creating empty directories
+    # that already exist in `lowerdir` do no harm.
     device_id_to_mounts = {}
     with open("/proc/self/mountinfo", "rb") as mounts:
         # The format of this file is written in:
@@ -794,29 +801,19 @@ def get_bind_mount_points():
             fields = mount.rstrip().split(b" ")
             if len(fields) < 5:
                 continue
-            device_id, root, mountpoint = fields[2], fields[3], fields[4]
-            device_id_to_mounts.setdefault(device_id, []).append((root, mountpoint))
+            device_id, mountpoint = fields[2], fields[4]
+            device_id_to_mounts.setdefault(device_id, []).append(mountpoint)
 
     for device_id, mounts in device_id_to_mounts.items():
         # Skip single mounts
         if len(mounts) <= 1:
             continue
-        # Sort list to get the first mount of the device's root dir (if still mounted)
-        mounts.sort(key=lambda x: len(x[1]))
-        # Assume that the mount point with the shortest relative path to the root of
-        # the mounted file system is the original mount.
-        (root_source, root_target), *binds = mounts
-        # Yield (bind source, bind target)
-        for source, target in binds:
-            if root_source == source:
-                srcstring = root_target
-            else:
-                srcstring = (
-                    root_target
-                    + b":/"
-                    + os.path.relpath(source.decode(), root_source.decode()).encode()
-                )
-            yield (_decode_path(srcstring), _decode_path(target))
+        # Make `upperdir/target` directory
+        for target in mounts:
+            if not os.path.isdir(target):
+                continue
+            target_in_upperdir = upperdir + target
+            os.makedirs(target_in_upperdir, exist_ok=True)
 
 
 def remount_with_additional_flags(mountpoint, fstype, existing_options, mountflags):
@@ -1014,16 +1011,7 @@ def setup_fuse_overlay(temp_base, work_base):
     work_fuse = work_base + b"/fuse_work"
     os.makedirs(temp_fuse, exist_ok=True)
     os.makedirs(work_fuse, exist_ok=True)
-
-    for _source, target in get_bind_mount_points():
-        # The contents of the bind target directory aren't reflected in the
-        # overlayfs-mounted directory, unless the bind target directory is created
-        # under `upperdir` before executing fuse-overlayfs
-        # (cf. https://github.com/containers/fuse-overlayfs/issues/437)
-        if not os.path.isdir(target):
-            continue
-        target_in_temp_fuse = temp_base + target
-        os.makedirs(target_in_temp_fuse, exist_ok=True)
+    setup_fuse_overlay_upperdir(temp_base)
 
     logging.debug(
         "Creating overlay mount with %s: target=%s, lower=%s, upper=%s, work=%s",
