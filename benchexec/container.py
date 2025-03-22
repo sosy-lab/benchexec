@@ -747,6 +747,20 @@ def determine_directory_mode(dir_modes, path, fstype=None):
     return result_mode
 
 
+def _decode_path(path):
+    """
+    Replace tab, space, newline, and backslash escapes with actual characters.
+    According to man 5 fstab, only tab and space escaped, but Linux escapes more:
+    https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/fs/proc_namespace.c?id=12a54b150fb5b6c2f3da932dc0e665355f8a5a48#n85
+    """
+    return (
+        path.replace(rb"\011", b"\011")
+        .replace(rb"\040", b"\040")
+        .replace(rb"\012", b"\012")
+        .replace(rb"\134", b"\134")
+    )
+
+
 def get_mount_points():
     """Get all current mount points of the system.
     Changes to the mount points during iteration may be reflected in the result.
@@ -759,7 +773,7 @@ def get_mount_points():
         for mount in mounts:
             source, target, fstype, options, unused1, unused2 = mount.split(b" ")
             options = set(options.split(b","))
-            yield (util.decode_path(source), util.decode_path(target), fstype, options)
+            yield (_decode_path(source), _decode_path(target), fstype, options)
 
 
 def get_bind_mount_points():
@@ -802,7 +816,7 @@ def get_bind_mount_points():
                     + b":/"
                     + os.path.relpath(source.decode(), root_source.decode()).encode()
                 )
-            yield (util.decode_path(srcstring), util.decode_path(target))
+            yield (_decode_path(srcstring), _decode_path(target))
 
 
 def remount_with_additional_flags(mountpoint, fstype, existing_options, mountflags):
