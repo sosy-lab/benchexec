@@ -781,6 +781,8 @@ def get_bind_mount_points():
     Get all current bind mount points of the system.
     This function assumes that the mount point with the shortest relative path
     to the root of the mounted file system is the original mount.
+    The base implementation is described in:
+    https://unix.stackexchange.com/questions/18048/list-only-bind-mounts
     @return a generator of (source, target)
     """
     device_id_to_mounts = {}
@@ -793,9 +795,7 @@ def get_bind_mount_points():
             if len(fields) < 5:
                 continue
             device_id, root, mountpoint = fields[2], fields[3], fields[4]
-            device_id_to_mounts.setdefault(device_id, []).append(
-                [device_id, root, mountpoint]
-            )
+            device_id_to_mounts.setdefault(device_id, []).append((root, mountpoint))
 
     for device_id, mounts in device_id_to_mounts.items():
         # Skip single mounts
@@ -805,9 +805,9 @@ def get_bind_mount_points():
         mounts.sort(key=lambda x: len(x[1]))
         # Assume that the mount point with the shortest relative path to the root of
         # the mounted file system is the original mount.
-        (_root_device_id, root_source, root_target), *binds = mounts
+        (root_source, root_target), *binds = mounts
         # Yield (bind source, bind target)
-        for _device_id, source, target in binds:
+        for source, target in binds:
             if root_source == source:
                 srcstring = root_target
             else:
