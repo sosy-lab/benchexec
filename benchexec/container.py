@@ -767,8 +767,7 @@ def get_bind_mount_points():
     Get all current bind mount points of the system.
     This function assumes that the mount point with the shortest relative path
     to the root of the mounted file system is the original mount.
-    @return a generator of (source, target), both of which are bytes instances
-    (this avoids encoding problems with mount points with problematic characters).
+    @return a generator of (source, target)
     """
     device_id_to_mounts = {}
     with open("/proc/self/mountinfo", "rb") as mounts:
