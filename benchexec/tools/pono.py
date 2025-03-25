@@ -38,4 +38,6 @@ class Tool(benchexec.tools.template.BaseTool2):
                 return result.RESULT_TRUE_PROP
             if line.startswith("sat"):
                 return result.RESULT_FALSE_PROP
+            if line.startswith("unknown"):
+                return result.RESULT_UNKNOWN
         return result.RESULT_ERROR
