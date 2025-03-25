@@ -24,7 +24,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         return "https://github.com/stanford-centaur/pono"
 
     def version(self, executable):
-        return self._version_from_tool(executable)
+        return self._version_from_tool(executable, expected_exitcode=2)
 
     def cmdline(self, executable, options, task, rlimits):
         return [executable] + options + [task.single_input_file]
