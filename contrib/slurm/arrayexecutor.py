@@ -97,14 +97,12 @@ def execute_benchmark(benchmark, output_handler):
             else:
                 runs.extend(runSet.runs)
 
-
     for i in range(0, len(runs), benchmark.config.batch_size):
         if not STOPPED_BY_INTERRUPT:
             chunk = runs[i : min(i + benchmark.config.batch_size, len(runs))]
             execute_batch(chunk, benchmark, output_handler)
 
-
-    # Second we set the outputs 
+    # Second we set the outputs
     for runSet in benchmark.run_sets:
         if STOPPED_BY_INTERRUPT:
             break
@@ -118,15 +116,13 @@ def execute_benchmark(benchmark, output_handler):
             )
 
         else:
-            output_handler.output_after_run_set(
-                runSet
-            )
-            
+            output_handler.output_after_run_set(runSet)
 
     output_handler.output_after_benchmark(STOPPED_BY_INTERRUPT)
 
 
 sbatch_pattern = re.compile(r"Submitted batch job (\d+)")
+
 
 def filter_previous_results(run_set, benchmark, output_handler):
     prefix_base = f"{benchmark.config.output_path}{benchmark.name}."
@@ -391,9 +387,6 @@ def execute_batch(
         with open(batchfile, "w") as f:
             f.writelines(batch_lines)
 
-        logging.info("Waiting for 10s for the newly created files to settle (NFS)")
-        time.sleep(10)
-
         try:
             sbatch_cmd = ["sbatch", "--wait", str(batchfile)]
             logging.debug("Command to run: %s", shlex.join(sbatch_cmd))
@@ -510,7 +503,23 @@ def get_run_cli(benchmark, args, tempdir, resultdir):
     cli = []
     basedir = os.path.abspath(os.path.dirname(singularity))
 
-    runexec = ["runexec", "--full-access-dir", "/sys/fs/cgroup", "--read-only-dir", "/", "--read-only-dir", basedir, "--full-access-dir", os.getcwd()]
+    runexec = [
+        "runexec",
+        "--full-access-dir",
+        "/sys/fs/cgroup",
+        "--read-only-dir",
+        "/",
+        "--overlay-dir",
+        os.getcwd(),
+        "--hidden-dir",
+        "/home",
+        "--output-directory",
+        "/results",
+        "--output",
+        "/results/output.log",
+        "--result-files",
+        "**/*witness*",
+    ]
     if benchmark.rlimits.cputime_hard:
         runexec.extend(["--timelimit", str(benchmark.rlimits.cputime_hard)])
     if benchmark.rlimits.cputime:
@@ -533,14 +542,12 @@ def get_run_cli(benchmark, args, tempdir, resultdir):
             "-B",
             "/sys/fs/cgroup:/sys/fs/cgroup:rw",
             "-B",
-            f"{basedir}:{basedir}:ro",
+            f"{basedir}:/lower:ro",
             "-B",
-            f"{os.getcwd()}:/lower:ro",
+            f"{resultdir}:/results:rw",
             "--no-home",
-            "-B",
-            f"{tempdir}:/overlay:rw",
             "--fusemount",
-            f"container:fuse-overlayfs -o lowerdir=/lower -o upperdir=/overlay/upper -o workdir=/overlay/work {os.getcwd()}",
+            f"container:fuse-overlayfs -o lowerdir=/lower {basedir}",
             singularity,
         ]
     )
@@ -548,16 +555,14 @@ def get_run_cli(benchmark, args, tempdir, resultdir):
         [
             "sh",
             "-c",
-            f"pwd; cd {os.getcwd()}; pwd; ls; "
+            f"cd {os.getcwd()}; "
             f"{shlex.join(['echo', 'Running command: ', *args])}; "
-            f"{shlex.join(args)} 2>&1 | tee log; ",
+            f"{shlex.join(args)} 2>&1 | tee /results/log; ",
         ]
     )
 
     cli = shlex.join(cli)
     cli = cli.replace("'\"'\"'$CPUSET'\"'\"'", "'$CPUSET'")
-    cli = cli.replace("'$TMPDIR", '"$TMPDIR').replace(":/overlay:rw'", ':/overlay:rw"')
-    cli = f"mkdir -p {tempdir}/{{upper,work}}; chmod 777 {tempdir}/{{upper,work}}; {cli}; mv {tempdir}/upper/{{log,output.log,*witness*,{','.join(benchmark.result_files_patterns)}}} {resultdir}/; rm -r {tempdir}"
     logging.debug("Command to run: %s", cli)
 
     return cli
