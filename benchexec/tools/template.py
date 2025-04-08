@@ -140,6 +140,7 @@ class BaseTool2(object, metaclass=ABCMeta):
         use_stderr=False,
         ignore_stderr=False,
         line_prefix=None,
+        *,
         expected_exitcode=0,
     ):
         """
