@@ -510,7 +510,7 @@ def get_run_cli(benchmark, args, tempdir, resultdir):
         "--read-only-dir",
         "/",
         "--overlay-dir",
-        os.getcwd(),
+        "$tooldir" if benchmark.config.copy_tool else os.getcwd(),
         "--hidden-dir",
         "/home",
         "--output-directory",
@@ -547,7 +547,7 @@ def get_run_cli(benchmark, args, tempdir, resultdir):
             f"{resultdir}:/results:rw",
             "--no-home",
             "--fusemount",
-            f"container:fuse-overlayfs -o lowerdir=/lower {basedir}",
+            f"container:fuse-overlayfs -o lowerdir=/lower -o upperdir=/tmp -o workdir=/tmp {basedir}",
             singularity,
         ]
     )
@@ -555,14 +555,19 @@ def get_run_cli(benchmark, args, tempdir, resultdir):
         [
             "sh",
             "-c",
-            f"cd {os.getcwd()}; "
-            f"{shlex.join(['echo', 'Running command: ', *args])}; "
-            f"{shlex.join(args)} 2>&1 | tee /results/log; ",
+            (
+                f"tooldir=$(mktemp -d -p {os.path.dirname(os.getcwd())}); cp -r {os.getcwd()}/. $tooldir/; cd $tooldir; "
+                if benchmark.config.copy_tool
+                else f"cd {os.getcwd()}; "
+                f"{shlex.join(['echo', 'Running command: ', *args])}; "
+                f"{shlex.join(args)} 2>&1 | tee /results/log; "
+            ),
         ]
     )
 
     cli = shlex.join(cli)
     cli = cli.replace("'\"'\"'$CPUSET'\"'\"'", "'$CPUSET'")
+    cli = cli.replace("'\"'\"'$tooldir'\"'\"'", "$tooldir")
     logging.debug("Command to run: %s", cli)
 
     return cli

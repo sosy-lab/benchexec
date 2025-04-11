@@ -99,6 +99,12 @@ class Benchmark(benchexec.benchexec.BenchExec):
             action="store_true",
             help="Continue a previously interrupted job.",
         )
+        slurm_args.add_argument(
+            "--copy-tool",
+            dest="copy_tool",
+            action="store_true",
+            help="Make a copy of the tool folder in the container.",
+        )
 
         return parser
 
