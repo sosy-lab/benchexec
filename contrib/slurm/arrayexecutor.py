@@ -569,7 +569,7 @@ def get_run_cli(benchmark, args, tempdir, resultdir):
             "-c",
             "unset TMPDIR; "
             + (
-                f"tooldir=$(mktemp -d -p {os.path.dirname(os.getcwd())}); cp -vr {os.getcwd()}/. $tooldir/; cp -vr {' '.join(need_copy)} /tmp/; cd $tooldir; "
+                f"tooldir=$(mktemp -d -p {os.path.dirname(os.getcwd())}); cp -vr {os.getcwd()}/. $tooldir/; cd $tooldir; cp -vr {' '.join(need_copy)} /tmp/; "
                 if benchmark.config.copy_tool
                 else f"cd {os.getcwd()}; "
             )
