@@ -540,7 +540,7 @@ def get_run_cli(benchmark, args, tempdir, resultdir):
                 return new_arg
             else:
                 return arg
-        args = [arg for arg in args]
+        args = [map_arg(arg) for arg in args]
 
 
     args = [*runexec, "--", *args]
