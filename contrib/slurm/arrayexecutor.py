@@ -559,9 +559,9 @@ def get_run_cli(benchmark, args, tempdir, resultdir):
                 f"tooldir=$(mktemp -d -p {os.path.dirname(os.getcwd())}); cp -r {os.getcwd()}/. $tooldir/; cd $tooldir; "
                 if benchmark.config.copy_tool
                 else f"cd {os.getcwd()}; "
-                f"{shlex.join(['echo', 'Running command: ', *args])}; "
-                f"{shlex.join(args)} 2>&1 | tee /results/log; "
-            ),
+            )
+            + f"{shlex.join(['echo', 'Running command: ', *args])}; "
+            f"{shlex.join(args)} 2>&1 | tee /results/log; ",
         ]
     )
 
