@@ -810,7 +810,7 @@ def setup_fuse_overlay_upperdir(upperdir):
             continue
         # Make `upperdir/target` directory
         for target in mounts:
-            if not os.path.isdir(target):
+            if not os.path.isdir(_decode_path(target)):
                 continue
             target_in_upperdir = upperdir + target
             os.makedirs(target_in_upperdir, exist_ok=True)
