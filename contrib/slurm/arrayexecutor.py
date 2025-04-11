@@ -520,6 +520,8 @@ def get_run_cli(benchmark, args, tempdir, resultdir):
         "--result-files",
         "**/*witness*",
     ]
+    if benchmark.config.copy_tool:
+        runexec.extend(["--full-access-dir", "/tmp"])
     if benchmark.rlimits.cputime_hard:
         runexec.extend(["--timelimit", str(benchmark.rlimits.cputime_hard)])
     if benchmark.rlimits.cputime:
