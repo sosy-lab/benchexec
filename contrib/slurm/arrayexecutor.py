@@ -531,6 +531,18 @@ def get_run_cli(benchmark, args, tempdir, resultdir):
     if benchmark.rlimits.memory:
         runexec.extend(["--memlimit", str(benchmark.rlimits.memory)])
 
+    need_copy = []
+    if benchmark.config.copy_tool:
+        def map_arg(arg):
+            if os.path.exists(arg) and os.path.dirname(arg) != os.getcwd():
+                new_arg = os.path.join("/tmp", os.path.basename(arg))
+                need_copy.append(arg)
+                return new_arg
+            else:
+                return arg
+        args = [arg for arg in args]
+
+
     args = [*runexec, "--", *args]
 
     cli.extend(
@@ -547,7 +559,7 @@ def get_run_cli(benchmark, args, tempdir, resultdir):
             f"{resultdir}:/results:rw",
             "--no-home",
             "--fusemount",
-            f"container:fuse-overlayfs -o lowerdir=/lower -o upperdir=/tmp -o workdir=/tmp {basedir}",
+            f"container:fuse-overlayfs -o lowerdir=/lower {basedir}",
             singularity,
         ]
     )
@@ -557,7 +569,7 @@ def get_run_cli(benchmark, args, tempdir, resultdir):
             "-c",
             "unset TMPDIR; "
             + (
-                f"tooldir=$(mktemp -d -p {os.path.dirname(os.getcwd())}); cp -r {os.getcwd()}/. $tooldir/; cd $tooldir; "
+                f"tooldir=$(mktemp -d -p {os.path.dirname(os.getcwd())}); cp -vr {os.getcwd()}/. $tooldir/; cd $tooldir; cp -vr {" ".join(need_copy)} /tmp/; "
                 if benchmark.config.copy_tool
                 else f"cd {os.getcwd()}; "
             )
