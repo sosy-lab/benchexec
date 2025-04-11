@@ -534,7 +534,7 @@ def get_run_cli(benchmark, args, tempdir, resultdir):
     need_copy = []
     if benchmark.config.copy_tool:
         def map_arg(arg):
-            if os.path.exists(arg) and os.path.dirname(arg) != os.getcwd():
+            if os.path.exists(arg) and not str(os.path.abspath(arg)).startswith(str(os.path.abspath(os.getcwd()))):
                 new_arg = os.path.join("/tmp", os.path.basename(arg))
                 need_copy.append(arg)
                 return new_arg
