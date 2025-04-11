@@ -813,7 +813,7 @@ def setup_fuse_overlay_upperdir(upperdir):
             if not os.path.isdir(target):
                 continue
             target_in_upperdir = upperdir + target
-            os.makedirs(_decode_path(target_in_upperdir), exist_ok=True)
+            os.makedirs(target_in_upperdir, exist_ok=True)
 
 
 def remount_with_additional_flags(mountpoint, fstype, existing_options, mountflags):
