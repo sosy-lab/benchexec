@@ -9,24 +9,28 @@
 
 import logging
 import os
+import subprocess
 import sys
 import tempfile
 import urllib.request
-import subprocess
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from vcloud.vcloudbenchmarkbase import VcloudBenchmarkBase  # noqa E402
 from vcloud import vcloudutil  # noqa E402
-from benchexec import __version__  # noqa E402
+from vcloud.vcloudbenchmarkbase import VcloudBenchmarkBase  # noqa E402
+
 import benchexec.benchexec  # noqa E402
+import benchexec.model  # noqa E402
 import benchexec.tools  # noqa E402
+from benchexec import BenchExecException, __version__  # noqa E402
 
 _ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "vcloud"))
 IVY_JAR_NAME = "ivy-2.5.0.jar"
 IVY_PATH = os.path.join(_ROOT_DIR, "lib", IVY_JAR_NAME)
 IVY_DOWNLOAD_URL = "https://www.sosy-lab.org/ivy/org.apache.ivy/ivy/" + IVY_JAR_NAME
+
+original_load_tool_info = benchexec.model.load_tool_info
 
 
 def download_required_jars(config):
@@ -69,6 +73,50 @@ def download_required_jars(config):
     finally:
         if temp_dir:
             temp_dir.cleanup()
+
+
+def hook_load_tool_info(tool_name, config):
+    """
+    Load the tool-info class.
+    @param tool_name: The name of the tool-info module.
+    Either a full Python package name or a name within the benchexec.tools package.
+    @return: A tuple of the full name of the used tool-info module and an instance of the tool-info class.
+    """
+    if not config.containerImage:
+        return original_load_tool_info(tool_name, config)
+
+    if not config.tool_directory:
+        raise BenchExecException(
+            "Using a container image is currently only supported "
+            "if the tool directory is explicitly provided. Please set it "
+            "using the --tool-directory option."
+        )
+
+    tool_module = tool_name if "." in tool_name else f"benchexec.tools.{tool_name}"
+
+    try:
+        import vcloud.podman_containerized_tool as pod
+
+        tool = pod.PodmanContainerizedTool(tool_module, config, config.containerImage)
+
+    except ImportError as ie:
+        logging.debug(
+            "Did not find module '%s'. "
+            "Python probably looked for it in one of the following paths:\n  %s",
+            tool_module,
+            "\n  ".join(path or "." for path in sys.path),
+        )
+        sys.exit(f'Unsupported tool "{tool_name}" specified. ImportError: {ie}')
+    except AttributeError as ae:
+        sys.exit(
+            f'Unsupported tool "{tool_name}" specified, class "Tool" is missing: {ae}'
+        )
+    except TypeError as te:
+        sys.exit(f'Unsupported tool "{tool_name}" specified. TypeError: {te}')
+    return tool_module, tool
+
+
+benchexec.model.load_tool_info = hook_load_tool_info
 
 
 class VcloudBenchmark(VcloudBenchmarkBase):

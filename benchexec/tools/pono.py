@@ -23,6 +23,9 @@ class Tool(benchexec.tools.template.BaseTool2):
     def project_url(self):
         return "https://github.com/stanford-centaur/pono"
 
+    def version(self, executable):
+        return self._version_from_tool(executable, expected_exitcode=2)
+
     def cmdline(self, executable, options, task, rlimits):
         return [executable] + options + [task.single_input_file]
 
@@ -35,4 +38,6 @@ class Tool(benchexec.tools.template.BaseTool2):
                 return result.RESULT_TRUE_PROP
             if line.startswith("sat"):
                 return result.RESULT_FALSE_PROP
+            if line.startswith("unknown"):
+                return result.RESULT_UNKNOWN
         return result.RESULT_ERROR

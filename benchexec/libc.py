@@ -70,6 +70,10 @@ unshare = _libc.unshare
 unshare.argtypes = [c_int]
 unshare.errcheck = _check_errno
 
+setns = _libc.setns
+"""Set the current process namespace(s)."""
+setns.argtypes = [c_int, c_int]
+setns.errcheck = _check_errno
 
 mmap = _libc.mmap
 """Map file into memory."""

@@ -9,6 +9,17 @@ SPDX-License-Identifier: Apache-2.0
 
 # BenchExec Changelog
 
+## BenchExec 3.29 - 2025-03-11
+
+- The name of the wheel and tar archives in BenchExec releases
+  changes from `BenchExec-$VERSION*` to `benchexec-$VERSION*`
+  in accordance with Python standard PEP 625 and PyPI requirements.
+- Some new and improved tool-info modules.
+
+## BenchExec 3.28 - 2025-03-01
+
+- Some new and improved tool-info modules.
+
 ## BenchExec 3.27 - 2024-11-22
 
 - Support for [version 2.1 of the task-definition format](https://gitlab.com/sosy-lab/benchmarking/task-definition-format/-/tags/2.1).

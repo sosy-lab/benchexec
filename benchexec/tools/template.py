@@ -140,6 +140,8 @@ class BaseTool2(object, metaclass=ABCMeta):
         use_stderr=False,
         ignore_stderr=False,
         line_prefix=None,
+        *,
+        expected_exitcode=0,
     ):
         """
         Get version of a tool by executing it with argument "--version"
@@ -148,6 +150,7 @@ class BaseTool2(object, metaclass=ABCMeta):
         @param arg: an argument to pass to the tool to let it print its version
         @param use_stderr: True if the tool prints version on stderr, False for stdout
         @param line_prefix: if given, search line with this prefix and return only the rest of this line
+        @param expected_exitcode: the expected exit code after running the version-retrieval command
         @return a (possibly empty) string of output of the tool
         """
         try:
@@ -170,7 +173,7 @@ class BaseTool2(object, metaclass=ABCMeta):
                 process.stderr,
             )
             return ""
-        if process.returncode:
+        if process.returncode != expected_exitcode:
             logging.warning(
                 "Cannot determine %s version, exit code %s",
                 executable,

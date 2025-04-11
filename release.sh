@@ -91,22 +91,25 @@ rm -rf "$TEMP3"
 
 
 # Build Debian package
-TAR="BenchExec-$VERSION.tar.gz"
+TAR="benchexec-$VERSION.tar.gz"
 
 TEMP_DEB="$(mktemp -d)"
 cp "$DIST_DIR/$TAR" "$TEMP_DEB"
 pushd "$TEMP_DEB"
 tar xf "$TAR"
-cp -r "$DIR/debian" "$TEMP_DEB/BenchExec-$VERSION"
-cd "BenchExec-$VERSION"
+cp -r "$DIR/debian" "$TEMP_DEB/benchexec-$VERSION"
+cd "benchexec-$VERSION"
 
 dh_make -p "benchexec_$VERSION" --createorig -f "../$TAR" -i -c apache || true
 
 dpkg-buildpackage --build=source -sa "--sign-key=$DEBKEY"
+# Use container with old Debian for fixing #818.
+# Once we drop support for Debian 11 (#986),
+# we can probably get rid of the container again.
 podman run --security-opt unmask=/sys/fs/cgroup --cgroups=split \
   --security-opt unmask=/proc/* --security-opt seccomp=unconfined --device /dev/fuse \
-  --rm -w "$(pwd)" -v "$TEMP_DEB:$TEMP_DEB:rw" --rm ubuntu:20.04 \
-  "$TEMP_DEB/BenchExec-$VERSION/test/setup_cgroupsv2_in_container.sh" bash -c '
+  --rm -w "$(pwd)" -v "$TEMP_DEB:$TEMP_DEB:rw" --rm debian:11 \
+  "$TEMP_DEB/benchexec-$VERSION/test/setup_cgroupsv2_in_container.sh" bash -c '
   apt-get update
   apt-get install -y --no-install-recommends dpkg-dev
   TZ=UTC DEBIAN_FRONTEND=noninteractive apt-get install -y $(dpkg-checkbuilddeps 2>&1 | grep -o "Unmet build dependencies:.*" | cut -d: -f2- | sed "s/([^)]*)//g")
@@ -116,7 +119,7 @@ popd
 cp "$TEMP_DEB/benchexec_$VERSION"{.orig.tar.gz,-1_all.deb,-1.dsc,-1.debian.tar.xz,-1_source.buildinfo,-1_source.changes} "$DIST_DIR"
 rm -rf "$TEMP_DEB"
 
-for f in "$DIST_DIR/BenchExec-$VERSION"*.{whl,tar.gz} "$DIST_DIR/benchexec_$VERSION"*.deb; do
+for f in "$DIST_DIR/benchexec-$VERSION"*.{whl,tar.gz} "$DIST_DIR/benchexec_$VERSION"*.deb; do
   gpg --detach-sign -a -u "$DEBKEY" "$f"
 done
 git tag -s "$VERSION" -m "Release $VERSION"
@@ -130,7 +133,7 @@ if ! [[ $REPLY =~ ^[Yy]$ ]]; then
 fi
 
 git push --tags
-twine upload "$DIST_DIR/BenchExec"*
+twine upload "$DIST_DIR/benchexec-$VERSION"*.{whl,whl.asc,tar.gz,tar.gz.asc}
 dput ppa:sosy-lab/benchmarking "$DIST_DIR/benchexec_$VERSION-1_source.changes"
 
 REPLY=
@@ -143,6 +146,6 @@ git commit benchexec/__init__.py -m"Prepare version number for next development 
 
 echo
 echo "Please create a release on GitHub and add content from CHANGELOG.md and the following files:"
-ls -1 "$DIST_DIR/BenchExec-$VERSION"*.{whl,whl.asc,tar.gz,tar.gz.asc} "$DIST_DIR/benchexec_$VERSION"*.{deb,deb.asc}
+ls -1 "$DIST_DIR/benchexec-$VERSION"*.{whl,whl.asc,tar.gz,tar.gz.asc} "$DIST_DIR/benchexec_$VERSION"*.{deb,deb.asc}
 echo "=> https://github.com/sosy-lab/benchexec/releases/new?tag=$VERSION&title=Release%20$VERSION"
 echo "Please also copy the binary PPA packages to all newer supported Ubuntu versions after they have been built by going to https://launchpad.net/%7Esosy-lab/+archive/ubuntu/benchmarking/+copy-packages"

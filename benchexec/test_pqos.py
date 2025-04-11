@@ -6,7 +6,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 """
-    Unit tests for pqos module
+Unit tests for pqos module
 """
 import json
 import copy

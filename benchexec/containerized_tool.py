@@ -26,7 +26,6 @@ from benchexec import (
     util,
 )
 
-
 tool: tooladapter.CURRENT_BASETOOL = None
 
 
@@ -55,19 +54,23 @@ class ContainerizedTool(object):
         # We use multiprocessing.Pool as an easy way for RPC with another process.
         self._pool = multiprocessing.Pool(1, _init_worker_process)
 
-        container_options = containerexecutor.handle_basic_container_args(config)
-        temp_dir = tempfile.mkdtemp(prefix="Benchexec_tool_info_container_")
-
         # Call function that loads tool module and returns its doc
         try:
-            self.__doc__ = self._pool.apply(
-                _init_container_and_load_tool,
-                [tool_module, temp_dir],
-                container_options,
-            )
+            self._setup_container(tool_module, config)
         except BaseException as e:
             self._pool.terminate()
             raise e
+
+    def _setup_container(self, tool_module, config):
+        container_options = containerexecutor.handle_basic_container_args(config)
+        temp_dir = tempfile.mkdtemp(prefix="Benchexec_tool_info_container_")
+
+        try:
+            self.__doc__, _ = self._pool.apply(
+                _init_container_and_load_tool,
+                [_init_container, tool_module, temp_dir],
+                container_options,
+            )
         finally:
             # Outside the container, the temp_dir is just an empty directory, because
             # the tmpfs mount is only visible inside. We can remove it immediately.
@@ -125,15 +128,15 @@ def _init_worker_process():
     signal.signal(signal.SIGINT, signal.SIG_IGN)
 
 
-def _init_container_and_load_tool(tool_module, *args, **kwargs):
+def _init_container_and_load_tool(initializer, tool_module, *args, **kwargs):
     """Initialize container for the current process and load given tool-info module."""
     try:
-        _init_container(*args, **kwargs)
+        initializer_ret = initializer(*args, **kwargs)
     except OSError as e:
         if container.check_apparmor_userns_restriction(e):
             raise BenchExecException(container._ERROR_MSG_USER_NS_RESTRICTION)
         raise BenchExecException(f"Failed to configure container: {e}")
-    return _load_tool(tool_module)
+    return _load_tool(tool_module), initializer_ret
 
 
 def _init_container(

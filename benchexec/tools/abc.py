@@ -51,8 +51,6 @@ class Tool(benchexec.tools.template.BaseTool2):
         """
         @return: status of ABC after executing a run
         """
-        if run.was_timeout:
-            return result.RESULT_TIMEOUT
         for line in run.output[::-1]:
             if line.startswith("Property proved") or line.startswith(
                 "Networks are equivalent"

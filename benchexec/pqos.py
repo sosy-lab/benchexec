@@ -6,8 +6,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 """
-    This module contains the Pqos class which is used to interact with pqos_wrapper cli
-    to allocate equal cache for each thread and isolate cache of two individual threads.
+This module contains the Pqos class which is used to interact with pqos_wrapper cli
+to allocate equal cache for each thread and isolate cache of two individual threads.
 """
 
 import os

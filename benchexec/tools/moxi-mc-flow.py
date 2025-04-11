@@ -7,24 +7,29 @@
 
 import benchexec.result as result
 import benchexec.tools.template
-from math import ceil
 
 
 class Tool(benchexec.tools.template.BaseTool2):
     """
-    Tool info for AVR -- Abstractly Verifying Reachability
+    Tool info for MoXI-MC-Flow
     """
 
-    REQUIRED_PATHS = ["build/"]
+    REQUIRED_PATHS = [
+        "deps/",
+        "src/",
+        "json-schema/",
+        "sortcheck.py",
+        "translate.py",
+    ]
 
     def executable(self, tool_locator):
-        return tool_locator.find_executable("avr.py")
+        return tool_locator.find_executable("modelcheck.py")
 
     def name(self):
-        return "AVR"
+        return "MoXI-MC-Flow"
 
     def project_url(self):
-        return "https://github.com/aman-goel/avr"
+        return "https://github.com/ModelChecker/moxi-mc-flow"
 
     def cmdline(self, executable, options, task, rlimits):
         if rlimits.cputime and "--timeout" not in options:
@@ -37,20 +42,15 @@ class Tool(benchexec.tools.template.BaseTool2):
             # To prevent this and ensure the tool utilizes the full time limit,
             # a factor of 2 is applied to the timeout value.
             options += ["--timeout", str(rlimits.cputime * 2)]
-        if rlimits.memory and "--memout" not in options:
-            options += ["--memout", str(ceil(rlimits.memory / 1000000.0))]
-        return [executable] + options + [task.single_input_file]
+        return ["python3", executable, task.single_input_file, *options]
 
     def determine_result(self, run):
         """
-        @return: status of AVR after executing a run
+        @return: verification result obtained from MoXI-MC-Flow
         """
         for line in run.output[::-1]:
-            # skip the lines that do not contain verification result
-            if not line.startswith("Verification result:"):
-                continue
-            if "avr-h" in line:
+            if line.startswith("unsat"):
                 return result.RESULT_TRUE_PROP
-            elif "avr-v" in line:
+            if line.startswith("sat"):
                 return result.RESULT_FALSE_PROP
         return result.RESULT_ERROR
