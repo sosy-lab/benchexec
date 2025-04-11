@@ -559,7 +559,7 @@ def get_run_cli(benchmark, args, tempdir, resultdir):
             f"{resultdir}:/results:rw",
             "--no-home",
             "--fusemount",
-            f"container:fuse-overlayfs -o lowerdir=/lower {basedir}",
+            f"container:fuse-overlayfs -o lowerdir=/lower -o upperdir=/tmp -o workdir=/tmp {basedir}",
             singularity,
         ]
     )
