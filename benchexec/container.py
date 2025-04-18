@@ -802,7 +802,9 @@ def setup_fuse_overlay_upperdir(upperdir):
             if len(fields) < 5:
                 continue
             device_id, mountpoint = fields[2], fields[4]
-            device_id_to_mounts.setdefault(device_id, []).append(mountpoint)
+            device_id_to_mounts.setdefault(device_id, []).append(
+                _decode_path(mountpoint)
+            )
 
     for device_id, mounts in device_id_to_mounts.items():
         # Skip single mounts
@@ -810,7 +812,7 @@ def setup_fuse_overlay_upperdir(upperdir):
             continue
         # Make `upperdir/target` directory
         for target in mounts:
-            if not os.path.isdir(_decode_path(target)):
+            if not os.path.isdir(target):
                 continue
             target_in_upperdir = upperdir + target
             os.makedirs(target_in_upperdir, exist_ok=True)
