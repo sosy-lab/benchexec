@@ -810,11 +810,11 @@ def setup_fuse_overlay_upperdir(upperdir):
         # Skip single mounts
         if len(mounts) <= 1:
             continue
-        # Make `upperdir/target` directory
-        for target in mounts:
-            if not os.path.isdir(target):
+        # Make `upperdir/mountpoint` directory
+        for mountpoint in mounts:
+            if not os.path.isdir(mountpoint):
                 continue
-            target_in_upperdir = upperdir + target
+            target_in_upperdir = upperdir + mountpoint
             os.makedirs(target_in_upperdir, exist_ok=True)
 
 
