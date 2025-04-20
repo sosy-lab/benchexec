@@ -45,8 +45,8 @@ def init(config, benchmark):
     singularity = benchmark.config.singularity
 
     tool_locator = tooladapter.create_tool_locator(config)
-    benchmark.executable = benchmark.tool.executable(tool_locator)
     benchmark.tool.version = version_in_container(singularity, benchmark.tool_module)
+    benchmark.executable = benchmark.tool.executable(tool_locator)
     try:
         benchmark.tool_version = benchmark.tool.version(benchmark.executable)
     except Exception as e:
@@ -448,7 +448,7 @@ def execute_batch(
                         run.set_result(result)
                         output_handler.output_after_run(run)
                     except Exception as e:
-                        logging.warning("could not set result due to error: %s", e)
+                        logging.warning("could not set result due to error, and won't retry: %s", e)
 
         if len(missing_runs) > 0 and not STOPPED_BY_INTERRUPT:
             logging.info(
