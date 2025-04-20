@@ -118,6 +118,8 @@ def execute_benchmark(benchmark, output_handler):
         else:
             output_handler.output_after_run_set(runSet)
 
+    time.sleep(5)
+
     output_handler.output_after_benchmark(STOPPED_BY_INTERRUPT)
 
 
@@ -409,6 +411,8 @@ def execute_batch(
                         logging.debug(f"Canceling sbatch job #{jobid}")
                         subprocess.run(["scancel", str(jobid)])
 
+        time.sleep(5)
+
         missing_runs = []
         for bin in bins:
             for i, run in bins[bin]:
@@ -615,6 +619,11 @@ def get_run_result(tempdir, run, result_files_patterns):
         ret["terminationreason"] = data_dict["terminationreason"]
 
     shutil.copy(tmp_log, run.log_file)
+
+    # 1. fsync the file itself
+    fd = os.open(run.log_file, os.O_RDONLY)
+    os.fsync(fd)              # ensure data+metadata on dst are committed from client
+    os.close(fd)
 
     if os.path.exists(tempdir):
         os.makedirs(run.result_files_folder, exist_ok=True)
