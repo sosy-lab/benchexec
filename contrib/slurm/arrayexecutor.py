@@ -19,7 +19,6 @@ import sys
 import tempfile
 import time
 import zipfile
-from csv import excel
 
 from benchexec import tooladapter
 from benchexec.tablegenerator import parse_results_file, handle_union_tag
@@ -414,9 +413,9 @@ def execute_batch(
         time.sleep(5)
 
         missing_runs = []
+        success_runs = []
         for bin in bins:
             for i, run in bins[bin]:
-                success = False
                 try:
                     result = get_run_result(
                         os.path.join(tempdir, str(i)),
@@ -424,7 +423,7 @@ def execute_batch(
                         benchmark.result_files_patterns
                         + ["*witness*"],  # e.g., deagle uses mismatched naming
                     )
-                    success = True
+                    success_runs.append((run, result))
                 except Exception as e:
                     logging.warning("could not set result due to error: %s", e)
                     if counter < benchmark.config.retry or benchmark.config.retry < 0:
@@ -443,12 +442,17 @@ def execute_batch(
                                         os.path.basename(file) + ".error",
                                     ),
                                 )
-                if success:
-                    try:
-                        run.set_result(result)
-                        output_handler.output_after_run(run)
-                    except Exception as e:
-                        logging.warning("could not set result due to error, and won't retry: %s", e)
+
+        time.sleep(10)
+
+        for run, result in success_runs:
+            try:
+                run.set_result(result)
+                output_handler.output_after_run(run)
+            except Exception as e:
+                logging.warning(
+                    "could not set result due to error, and won't retry: %s", e
+                )
 
         if len(missing_runs) > 0 and not STOPPED_BY_INTERRUPT:
             logging.info(
@@ -539,15 +543,22 @@ def get_run_cli(benchmark, args, tempdir, resultdir):
 
     need_copy = []
     if benchmark.config.copy_tool:
+
         def map_arg(arg):
-            if os.path.exists(arg) and not str(os.path.abspath(arg)).startswith(str(os.path.abspath(os.getcwd()))):
+            if (
+                os.path.exists(arg)
+                and os.path.isfile(arg)
+                and not str(os.path.abspath(arg)).startswith(
+                    str(os.path.abspath(os.getcwd()))
+                )
+            ):
                 new_arg = os.path.join("/tmp", os.path.basename(arg))
                 need_copy.append(arg)
                 return new_arg
             else:
                 return arg
-        args = [map_arg(arg) for arg in args]
 
+        args = [map_arg(arg) for arg in args]
 
     args = [*runexec, "--", *args]
 
@@ -619,11 +630,6 @@ def get_run_result(tempdir, run, result_files_patterns):
         ret["terminationreason"] = data_dict["terminationreason"]
 
     shutil.copy(tmp_log, run.log_file)
-
-    # 1. fsync the file itself
-    fd = os.open(run.log_file, os.O_RDONLY)
-    os.fsync(fd)              # ensure data+metadata on dst are committed from client
-    os.close(fd)
 
     if os.path.exists(tempdir):
         os.makedirs(run.result_files_folder, exist_ok=True)
