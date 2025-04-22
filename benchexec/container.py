@@ -747,6 +747,20 @@ def determine_directory_mode(dir_modes, path, fstype=None):
     return result_mode
 
 
+def _decode_path(path):
+    """
+    Replace tab, space, newline, and backslash escapes with actual characters.
+    According to man 5 fstab, only tab and space escaped, but Linux escapes more:
+    https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/fs/proc_namespace.c?id=12a54b150fb5b6c2f3da932dc0e665355f8a5a48#n85
+    """
+    return (
+        path.replace(rb"\011", b"\011")
+        .replace(rb"\040", b"\040")
+        .replace(rb"\012", b"\012")
+        .replace(rb"\134", b"\134")
+    )
+
+
 def get_mount_points():
     """Get all current mount points of the system.
     Changes to the mount points during iteration may be reflected in the result.
@@ -754,24 +768,54 @@ def get_mount_points():
     where options is a list of bytes instances, and the others are bytes instances
     (this avoids encoding problems with mount points with problematic characters).
     """
-
-    def decode_path(path):
-        # Replace tab, space, newline, and backslash escapes with actual characters.
-        # According to man 5 fstab, only tab and space escaped, but Linux escapes more:
-        # https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/fs/proc_namespace.c?id=12a54b150fb5b6c2f3da932dc0e665355f8a5a48#n85
-        return (
-            path.replace(rb"\011", b"\011")
-            .replace(rb"\040", b"\040")
-            .replace(rb"\012", b"\012")
-            .replace(rb"\134", b"\134")
-        )
-
     with open("/proc/self/mounts", "rb") as mounts:
         # The format of this file is the same as of /etc/fstab (cf. man 5 fstab)
         for mount in mounts:
             source, target, fstype, options, unused1, unused2 = mount.split(b" ")
             options = set(options.split(b","))
-            yield (decode_path(source), decode_path(target), fstype, options)
+            yield (_decode_path(source), _decode_path(target), fstype, options)
+
+
+def setup_fuse_overlay_upperdir(upperdir):
+    """
+    Make the bind target directories under `upperdir` so that the contents of the bind
+    target directories can be reflected in the overlayfs-mounted directory.
+    (cf. https://github.com/containers/fuse-overlayfs/issues/437)
+
+    @param: upperdir: the fuse-overlay upperdir as bytes
+    """
+    # Get all current bind mount points of the system.
+    # The base implementation is described in:
+    # https://unix.stackexchange.com/questions/18048/list-only-bind-mounts
+    # The implementation above assumes that the mount point with the shortest relative
+    # path to the root of the mounted file system is the original mount.
+    # This function removes this assumption, ensuring that directories for all the
+    # mount points are created below `upperdir`, because creating empty directories
+    # that already exist in `lowerdir` do no harm.
+    device_id_to_mounts = {}
+    with open("/proc/self/mountinfo", "rb") as mounts:
+        # The format of this file is written in:
+        # https://www.kernel.org/doc/Documentation/filesystems/proc.txt
+        for mount in mounts:
+            # skip unexpected format
+            fields = mount.rstrip().split(b" ")
+            if len(fields) < 5:
+                continue
+            device_id, mountpoint = fields[2], fields[4]
+            device_id_to_mounts.setdefault(device_id, []).append(
+                _decode_path(mountpoint)
+            )
+
+    for device_id, mounts in device_id_to_mounts.items():
+        # Skip single mounts
+        if len(mounts) <= 1:
+            continue
+        # Make `upperdir/mountpoint` directory
+        for mountpoint in mounts:
+            if not os.path.isdir(mountpoint):
+                continue
+            target_in_upperdir = upperdir + mountpoint
+            os.makedirs(target_in_upperdir, exist_ok=True)
 
 
 def remount_with_additional_flags(mountpoint, fstype, existing_options, mountflags):
@@ -969,6 +1013,7 @@ def setup_fuse_overlay(temp_base, work_base):
     work_fuse = work_base + b"/fuse_work"
     os.makedirs(temp_fuse, exist_ok=True)
     os.makedirs(work_fuse, exist_ok=True)
+    setup_fuse_overlay_upperdir(temp_base)
 
     logging.debug(
         "Creating overlay mount with %s: target=%s, lower=%s, upper=%s, work=%s",
