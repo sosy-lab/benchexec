@@ -600,6 +600,28 @@ def core_allocation_algorithm(
         spreading_memory_region_key = allCpus[first_core].memory_regions[chosen_level]
         return spreading_memory_region_key, distribution_dict
 
+    def _select_next_core(
+        sub_unit_cores: List[int],
+        chosen_level: int,
+        allCpus: Dict[int, VirtualCore],
+    ) -> int:
+
+        level = max(1, chosen_level - 2)
+        child_dict = get_core_units_on_level(allCpus, sub_unit_cores, level)
+
+        # we walk down the hierachy until we reach a symetric level ...
+        while level > 0 and not is_symmetric_hierachy(child_dict):
+            level -= 1
+            # ... and we choose the smallest non‑empty core list to continue our search
+            selected_cores = min(
+                (cores for cores in child_dict.values() if cores), default=[]
+            )
+            child_dict = get_core_units_on_level(allCpus, selected_cores, level)
+
+        # return the first core of the first group (on the now symetric level)
+        # as it must be non-empty anyway, this should be fine
+        return next(iter(child_dict.values()))[0]
+
     # check whether the distribution can work with the given parameters
     check_distribution_feasibility(
         coreLimit,
@@ -692,6 +714,8 @@ def core_allocation_algorithm(
                             allCpus, selected_cores, assignment_current_level
                         )
                 next_core = list(child_dict.values())[0][0]
+                next_core_new = _select_next_core(sub_unit_cores, chosen_level, allCpus)
+                assert next_core == next_core_new
 
                 """
                 Adds the core selected before and its hyper-threading sibling to the thread
