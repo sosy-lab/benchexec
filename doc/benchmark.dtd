@@ -44,7 +44,7 @@ SPDX-License-Identifier: Apache-2.0
 <!ATTLIST require cpuCores CDATA "1">
 <!ATTLIST require memory   CDATA "1">
 
-<!ATTLIST option name CDATA #REQUIRED>
+<!ATTLIST option name CDATA #IMPLIED>
 <!ATTLIST propertyfile expectedverdict CDATA #IMPLIED>
 <!ATTLIST column title CDATA #IMPLIED
                  numberOfDigits CDATA #IMPLIED>
