@@ -696,26 +696,7 @@ def core_allocation_algorithm(
                 and returns one of the cores in this key-value pair.
                 If no cores have been assigned yet, any core can be chosen and the next best core is returned.
                 """
-                while assignment_current_level > 0:
-                    if is_symmetric_hierachy(child_dict):
-                        break
-                    else:
-                        assignment_current_level -= 1
-
-                        core_groups = [cores for cores in child_dict.values() if cores]
-
-                        if not core_groups:
-                            break
-
-                        core_groups.sort()
-                        selected_cores = core_groups[0]
-
-                        child_dict = get_core_units_on_level(
-                            allCpus, selected_cores, assignment_current_level
-                        )
-                next_core = list(child_dict.values())[0][0]
-                next_core_new = _select_next_core(sub_unit_cores, chosen_level, allCpus)
-                assert next_core == next_core_new
+                next_core = _select_next_core(sub_unit_cores, chosen_level, allCpus)
 
                 """
                 Adds the core selected before and its hyper-threading sibling to the thread
