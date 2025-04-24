@@ -5,8 +5,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-"use strict";
-
 const fs = require("fs");
 const path = require("path");
 
@@ -18,7 +16,7 @@ if (dataParam) {
 
   fs.copyFileSync(
     path.resolve(__dirname, "../", dataParam),
-    path.resolve(process.env.DATA)
+    path.resolve(process.env.DATA),
   );
 }
 
