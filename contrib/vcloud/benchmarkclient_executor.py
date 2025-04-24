@@ -281,6 +281,14 @@ def getBenchmarkDataForCloud(benchmark):
     limitsAndNumRuns = [numberOfRuns, timeLimit, memLimit]
     if coreLimit is not None:
         limitsAndNumRuns.append(coreLimit)
+    else:
+        limitsAndNumRuns.append("-")
+    if wallTimeLimit is not None:
+        # WallTimeLimit has to be the 5th element of limitsAndNumRuns
+        assert len(limitsAndNumRuns) == 4
+        limitsAndNumRuns.append(wallTimeLimit)
+    else:
+        limitsAndNumRuns.append("-")
 
     # get Runs with args and sourcefiles
     sourceFiles = []
