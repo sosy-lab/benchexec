@@ -622,6 +622,62 @@ def core_allocation_algorithm(
         # as it must be non-empty anyway, this should be fine
         return next(iter(child_dict.values()))[0]
 
+    def _allocate_single_run(
+        coreLimit: int,
+        chosen_level: int,
+        sub_units_per_run: int,
+        allCpus: Dict[int, VirtualCore],
+        hierarchy_levels: List[HierarchyLevel],
+    ) -> List[int]:
+        spreading_key, _ = _find_spreading_memory_region_key(
+            allCpus, chosen_level, hierarchy_levels
+        )
+        active_cores = hierarchy_levels[chosen_level][spreading_key]
+
+        cores: List[int] = []
+        for _ in range(sub_units_per_run):
+            """
+            the active cores at chosen level are assigned to the current thread
+            ensuring the assignment of all cores belonging to the same key-value pair
+            and all cores of one sub_unit before changing to the next sub_unit
+            """
+            key = allCpus[active_cores[0]].memory_regions[chosen_level - 1]
+            sub_level = hierarchy_levels[chosen_level - 1]
+            sub_unit_cores = sub_level[key]
+
+            """assigns the cores from sub_unit_cores list into child dict
+            in accordance with their memory regions"""
+            while len(cores) < coreLimit and sub_unit_cores:
+                """
+                searches for the key-value pair that already provided cores for the assignment
+                and therefore has the fewest elements in its value list while non-empty,
+                and returns one of the cores in this key-value pair.
+                If no cores have been assigned yet, any core can be chosen and the next best core is returned.
+                """
+                next_core = _select_next_core(sub_unit_cores, chosen_level, allCpus)
+
+                """
+                Adds the core selected before and its hyper-threading sibling to the thread
+                and deletes those cores from all hierarchy_levels
+                """
+                sibling_group = hierarchy_levels[0][
+                    allCpus[next_core].memory_regions[0]
+                ].copy()
+
+                for core in sibling_group:
+                    if len(cores) < coreLimit:
+                        cores.append(core)
+                    remove_core_from_hierarchy_levels(core, allCpus, hierarchy_levels)
+
+            while sub_unit_cores:
+                remove_core_from_hierarchy_levels(
+                    sub_unit_cores[0], allCpus, hierarchy_levels
+                )
+
+        if len(cores) != coreLimit:
+            raise RuntimeError("Allocated core count differs from coreLimit")
+        return cores
+
     # check whether the distribution can work with the given parameters
     check_distribution_feasibility(
         coreLimit,
@@ -647,79 +703,16 @@ def core_allocation_algorithm(
         coreLimit_rounded_up, hierarchy_levels, chosen_level
     )
 
-    # Start core assignment algorithm
-    result = []
-    active_hierarchy_level = hierarchy_levels[chosen_level]
-    while len(result) < num_of_threads:  # and i < len(active_hierarchy_level):
-        """
-        for each new thread, the algorithm searches the hierarchy_levels for a
-        dict with an unequal number of cores, chooses the value list with the most cores and
-        compiles a child dict with these cores, then again choosing the value list with the most cores ...
-        until the value lists have the same length.
-        Thus the algorithm finds the index search_current_level for hierarchy_levels that indicates the dict
-        from which to continue the search for the cores with the highest distance from the cores
-        assigned before
-        """
-
-        spreading_memory_region_key, distribution_dict = (
-            _find_spreading_memory_region_key(allCpus, chosen_level, hierarchy_levels)
+    result: List[List[int]] = [
+        _allocate_single_run(
+            coreLimit,
+            chosen_level,
+            sub_units_per_run,
+            allCpus,
+            hierarchy_levels,
         )
-        # return the list of cores belonging to the spreading_memory_region_key
-        active_cores = active_hierarchy_level[spreading_memory_region_key]
-
-        # Core assignment per thread:
-        cores = []
-        for _sub_unit in range(sub_units_per_run):
-            """
-            the active cores at chosen level are assigned to the current thread
-            ensuring the assignment of all cores belonging to the same key-value pair
-            and all cores of one sub_unit before changing to the next sub_unit
-            """
-            # read key of sub_region from first element of active cores list
-            key = allCpus[active_cores[0]].memory_regions[chosen_level - 1]
-
-            # read list of cores of corresponding sub_region
-            sub_unit_hierarchy_level = hierarchy_levels[chosen_level - 1]
-            sub_unit_cores = sub_unit_hierarchy_level[key]
-
-            while len(cores) < coreLimit and sub_unit_cores:
-                """assigns the cores from sub_unit_cores list into child dict
-                in accordance with their memory regions"""
-                assignment_current_level = max(1, chosen_level - 2)
-
-                child_dict = get_core_units_on_level(
-                    allCpus, sub_unit_cores.copy(), assignment_current_level
-                )
-                """
-                searches for the key-value pair that already provided cores for the assignment
-                and therefore has the fewest elements in its value list while non-empty,
-                and returns one of the cores in this key-value pair.
-                If no cores have been assigned yet, any core can be chosen and the next best core is returned.
-                """
-                next_core = _select_next_core(sub_unit_cores, chosen_level, allCpus)
-
-                """
-                Adds the core selected before and its hyper-threading sibling to the thread
-                and deletes those cores from all hierarchy_levels
-                """
-                core_with_siblings = hierarchy_levels[0][
-                    allCpus[next_core].memory_regions[0]
-                ].copy()
-                for core in core_with_siblings:
-                    if len(cores) < coreLimit:
-                        cores.append(core)  # add core&siblings to results
-                    remove_core_from_hierarchy_levels(core, allCpus, hierarchy_levels)
-
-            while sub_unit_cores:
-                remove_core_from_hierarchy_levels(
-                    sub_unit_cores[0], allCpus, hierarchy_levels
-                )
-                # active_cores & sub_unit_cores are deleted as well since they're just pointers
-                # to hierarchy_levels
-
-            # if coreLimit reached: append core to result, delete remaining cores from active_cores
-            if len(cores) == coreLimit:
-                result.append(cores)
+        for _ in range(num_of_threads)
+    ]
 
     # cleanup: while-loop stops before running through all units: while some active_cores-lists
     # & sub_unit_cores-lists are empty, other stay half-full or full
