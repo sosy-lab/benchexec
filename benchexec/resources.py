@@ -15,6 +15,7 @@ import logging
 import math
 import os
 import sys
+import copy
 from typing import Generator, Optional, List, Dict
 
 from benchexec import util
@@ -530,7 +531,7 @@ def core_allocation_algorithm(
     coreLimit: int,
     num_of_threads: int,
     allCpus: Dict[int, VirtualCore],
-    hierarchy_levels: List[HierarchyLevel],
+    hierarchy: List[HierarchyLevel],
 ) -> List[List[int]]:
     """Actual core distribution method:
     uses the architecture read from the file system by get_cpu_cores_per_run
@@ -554,7 +555,7 @@ def core_allocation_algorithm(
     @param: num_of_threads      the number of parallel benchmark executions
     @param: use_hyperthreading  boolean to check if no-hyperthreading method is being used
     @param: allCpus             list of all available core objects
-    @param: hierarchy_levels    list of dicts mapping from a memory region identifier to its belonging cores
+    @param: hierarchy           list of dicts mapping from a memory region identifier to its belonging cores
     @return result:             list of lists each containing the cores assigned to the same thread
     """
 
@@ -677,6 +678,8 @@ def core_allocation_algorithm(
         if len(cores) != coreLimit:
             raise RuntimeError("Allocated core count differs from coreLimit")
         return cores
+
+    hierarchy_levels = copy.deepcopy(hierarchy)
 
     # check whether the distribution can work with the given parameters
     check_distribution_feasibility(
