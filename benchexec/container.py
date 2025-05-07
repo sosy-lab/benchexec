@@ -432,7 +432,7 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
     # that any unmounts done by the sysadmin won't really unmount the device
     # because it stays mounted in the container and thus keep the device busy
     # (cf. https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=739593#85).
-    # We could allow unmounts being propated with MS_SLAVE instead of MS_PRIVATE,
+    # We could allow unmounts being propagated with MS_SLAVE instead of MS_PRIVATE,
     # but we prefer to have the mount namespace of the container being
     # unchanged during run execution.
     make_bind_mount(b"/", mount_base, recursive=True, private=True)
