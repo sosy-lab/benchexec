@@ -17,11 +17,11 @@ SPDX-License-Identifier: Apache-2.0
 [![DOI](https://zenodo.org/badge/30758422.svg)](https://zenodo.org/badge/latestdoi/30758422)
 
 **News and Updates**:
-- Successful [Google Summer of Code](https://summerofcode.withgoogle.com/) project by
-  [Haoran Yang](https://summerofcode.withgoogle.com/programs/2024/projects/UzhlnEel)
-  brings integration of [fuse-overlayfs](https://github.com/containers/fuse-overlayfs/) into BenchExec 3.25!  
-  This makes BenchExec's default directory configuration for the container mode work out-of-the-box again
-  without having to pass parameters such as `--read-only-dir /`.
+- [Taito Ohsumi](https://github.com/t0hsumi) got accepted with their
+  [project for adding optional timestamps to logs](https://summerofcode.withgoogle.com/programs/2025/projects/AAnqA9dr)
+  for participation in [Google Summer of Code](https://summerofcode.withgoogle.com/)!
+  Congratulations and thanks to Google for providing the opportunity!
+- BenchExec 3.25 can use [fuse-overlayfs](https://github.com/containers/fuse-overlayfs/) to make container mode work out-of-the-box again!
 - BenchExec 3.18 brings support for systems with cgroups v2!
 - We now provide an [Ubuntu PPA](https://launchpad.net/~sosy-lab/+archive/ubuntu/benchmarking) that makes installing and upgrading BenchExec easier ([docs](https://github.com/sosy-lab/benchexec/blob/main/doc/INSTALL.md#debianubuntu)).
 - An extended version of our paper on BenchExec and its background was published as open access in the journal STTT,
