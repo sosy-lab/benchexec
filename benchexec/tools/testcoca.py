@@ -74,11 +74,10 @@ class Tool(benchexec.tools.template.BaseTool2):
 
         if task.property_file:
             options += ["--goal", task.property_file]
-        
+
         return (
             [executable, "--input_file", task.single_input_file] + options + data_model
         )
-
 
     def determine_result(self, run):
         """
