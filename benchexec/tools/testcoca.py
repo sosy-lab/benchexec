@@ -25,7 +25,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         return "My Toolname"
         @return a non-empty string
         """
-        return "TestCoca"
+        return "TestCoCa"
 
     def project_url(self):
         return "https://github.com/staticafi/TestCoCa"
