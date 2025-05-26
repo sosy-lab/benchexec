@@ -498,11 +498,10 @@ class CgroupsV2(Cgroups):
         if self.subsystems:
             # Some subsystems are available, but not the required ones.
             # Check if it is a delegation problem or if some subsystems do not exist.
-            unknown_subsystems = set(critical_cgroups)
-            with open("/proc/cgroups", mode="r") as cgroups:
-                for line in cgroups:
-                    if not line.startswith("#"):
-                        unknown_subsystems.discard(line.split("\t", maxsplit=1)[0])
+            known_subsystems = util.read_file(
+                _find_cgroup_mount(), "cgroup.controllers"
+            ).split(" ")
+            unknown_subsystems = set(critical_cgroups) - set(known_subsystems)
             if unknown_subsystems:
                 sys.exit(
                     _ERROR_MSG_UNKNOWN_SUBSYSTEMS.format(", ".join(unknown_subsystems))
