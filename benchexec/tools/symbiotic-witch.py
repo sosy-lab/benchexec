@@ -9,6 +9,7 @@
 from benchexec.tools.symbiotic import Tool as SymbioticTool
 import benchexec.result as result
 
+
 class Tool(SymbioticTool):
     """
     Symbiotic-Witch tool info object
