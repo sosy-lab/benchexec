@@ -21,7 +21,7 @@ class Tool(SymbioticTool):
         return "symbiotic-witch"
 
     def project_url(self):
-        return "https://github.com/staticafi/symbiotic"
+        return "https://github.com/ayazip/witch"
 
     def _getPhase(self, output):
         lastphase = "initialization"
