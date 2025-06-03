@@ -49,10 +49,10 @@ This needs to be done before committing changes to the JavaScript and style file
 ## Suggested Development Environment
 
 The easiest way to get a suitable development environment
-for running the above scripts is to use Docker with the following command:
+for running the above scripts is to use a container (e.g., Podman or Docker) with the following command:
 
 ```
-docker run --network=host -v $(pwd)/..:$(pwd)/..:rw -w $(pwd) -it node bash
+podman run --network=host -v $(pwd)/..:$(pwd)/..:rw -w $(pwd) -it node bash
 ```
 
 ## Code Style and Linting
