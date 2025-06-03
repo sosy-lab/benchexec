@@ -647,8 +647,8 @@ exports[`Render Summary for benchmark-example-true.2019-11-06_0932.results.no op
         >
          <div
           className="row-title"
-          dangerouslySetInnerHTML={"local summary"}
-          title="(This line contains some statistics from local execution. Only trust those values, if you use your own computer.)"
+          dangerouslySetInnerHTML={"summary measurements"}
+          title="This line contains measurements that include the whole benchmarking process for all runs. For example the walltime in this row represents the time from start of first run to end of last run and might differ from the sum of walltime measurements per run in case of parallel runs."
          />
         </div>
         <div
@@ -4998,8 +4998,8 @@ exports[`Render Summary for cbmc.2015-12-11_1211.results.Simple.html 1`] = `
         >
          <div
           className="row-title"
-          dangerouslySetInnerHTML={"local summary"}
-          title="(This line contains some statistics from local execution. Only trust those values, if you use your own computer.)"
+          dangerouslySetInnerHTML={"summary measurements"}
+          title="This line contains measurements that include the whole benchmarking process for all runs. For example the walltime in this row represents the time from start of first run to end of last run and might differ from the sum of walltime measurements per run in case of parallel runs."
          />
         </div>
         <div
@@ -11081,8 +11081,8 @@ exports[`Render Summary for multi-table.table.html 1`] = `
         >
          <div
           className="row-title"
-          dangerouslySetInnerHTML={"local summary"}
-          title="(This line contains some statistics from local execution. Only trust those values, if you use your own computer.)"
+          dangerouslySetInnerHTML={"summary measurements"}
+          title="This line contains measurements that include the whole benchmarking process for all runs. For example the walltime in this row represents the time from start of first run to end of last run and might differ from the sum of walltime measurements per run in case of parallel runs."
          />
         </div>
         <div
@@ -18896,8 +18896,8 @@ exports[`Render Summary for multi-table-only-columns.table.html 1`] = `
         >
          <div
           className="row-title"
-          dangerouslySetInnerHTML={"local summary"}
-          title="(This line contains some statistics from local execution. Only trust those values, if you use your own computer.)"
+          dangerouslySetInnerHTML={"summary measurements"}
+          title="This line contains measurements that include the whole benchmarking process for all runs. For example the walltime in this row represents the time from start of first run to end of last run and might differ from the sum of walltime measurements per run in case of parallel runs."
          />
         </div>
         <div
@@ -26715,8 +26715,8 @@ exports[`Render Summary for multi-table-with-columns.table.html 1`] = `
         >
          <div
           className="row-title"
-          dangerouslySetInnerHTML={"local summary"}
-          title="(This line contains some statistics from local execution. Only trust those values, if you use your own computer.)"
+          dangerouslySetInnerHTML={"summary measurements"}
+          title="This line contains measurements that include the whole benchmarking process for all runs. For example the walltime in this row represents the time from start of first run to end of last run and might differ from the sum of walltime measurements per run in case of parallel runs."
          />
         </div>
         <div
@@ -34534,8 +34534,8 @@ exports[`Render Summary for multi-table-with-diff-over-column.table.html 1`] = `
         >
          <div
           className="row-title"
-          dangerouslySetInnerHTML={"local summary"}
-          title="(This line contains some statistics from local execution. Only trust those values, if you use your own computer.)"
+          dangerouslySetInnerHTML={"summary measurements"}
+          title="This line contains measurements that include the whole benchmarking process for all runs. For example the walltime in this row represents the time from start of first run to end of last run and might differ from the sum of walltime measurements per run in case of parallel runs."
          />
         </div>
         <div
@@ -42437,8 +42437,8 @@ exports[`Render Summary for multi-table-with-wildcards.table.html 1`] = `
         >
          <div
           className="row-title"
-          dangerouslySetInnerHTML={"local summary"}
-          title="(This line contains some statistics from local execution. Only trust those values, if you use your own computer.)"
+          dangerouslySetInnerHTML={"summary measurements"}
+          title="This line contains measurements that include the whole benchmarking process for all runs. For example the walltime in this row represents the time from start of first run to end of last run and might differ from the sum of walltime measurements per run in case of parallel runs."
          />
         </div>
         <div
@@ -45912,8 +45912,8 @@ exports[`Render Summary for nan_and_inf.html 1`] = `
         >
          <div
           className="row-title"
-          dangerouslySetInnerHTML={"local summary"}
-          title="(This line contains some statistics from local execution. Only trust those values, if you use your own computer.)"
+          dangerouslySetInnerHTML={"summary measurements"}
+          title="This line contains measurements that include the whole benchmarking process for all runs. For example the walltime in this row represents the time from start of first run to end of last run and might differ from the sum of walltime measurements per run in case of parallel runs."
          />
         </div>
         <div
@@ -48418,8 +48418,8 @@ exports[`Render Summary for predicateAnalysis.table.html 1`] = `
         >
          <div
           className="row-title"
-          dangerouslySetInnerHTML={"local summary"}
-          title="(This line contains some statistics from local execution. Only trust those values, if you use your own computer.)"
+          dangerouslySetInnerHTML={"summary measurements"}
+          title="This line contains measurements that include the whole benchmarking process for all runs. For example the walltime in this row represents the time from start of first run to end of last run and might differ from the sum of walltime measurements per run in case of parallel runs."
          />
         </div>
         <div
@@ -50747,8 +50747,8 @@ exports[`Render Summary for predicateAnalysis-reverse.table.html 1`] = `
         >
          <div
           className="row-title"
-          dangerouslySetInnerHTML={"local summary"}
-          title="(This line contains some statistics from local execution. Only trust those values, if you use your own computer.)"
+          dangerouslySetInnerHTML={"summary measurements"}
+          title="This line contains measurements that include the whole benchmarking process for all runs. For example the walltime in this row represents the time from start of first run to end of last run and might differ from the sum of walltime measurements per run in case of parallel runs."
          />
         </div>
         <div
@@ -55607,8 +55607,8 @@ exports[`Render Summary for simple-table-with-columns.table.html 1`] = `
         >
          <div
           className="row-title"
-          dangerouslySetInnerHTML={"local summary"}
-          title="(This line contains some statistics from local execution. Only trust those values, if you use your own computer.)"
+          dangerouslySetInnerHTML={"summary measurements"}
+          title="This line contains measurements that include the whole benchmarking process for all runs. For example the walltime in this row represents the time from start of first run to end of last run and might differ from the sum of walltime measurements per run in case of parallel runs."
          />
         </div>
         <div
@@ -56808,8 +56808,8 @@ exports[`Render Summary for simple-table-with-links.table.html 1`] = `
         >
          <div
           className="row-title"
-          dangerouslySetInnerHTML={"local summary"}
-          title="(This line contains some statistics from local execution. Only trust those values, if you use your own computer.)"
+          dangerouslySetInnerHTML={"summary measurements"}
+          title="This line contains measurements that include the whole benchmarking process for all runs. For example the walltime in this row represents the time from start of first run to end of last run and might differ from the sum of walltime measurements per run in case of parallel runs."
          />
         </div>
         <div
@@ -57983,8 +57983,8 @@ exports[`Render Summary for simple-table-with-numberOfDigits.table.html 1`] = `
         >
          <div
           className="row-title"
-          dangerouslySetInnerHTML={"local summary"}
-          title="(This line contains some statistics from local execution. Only trust those values, if you use your own computer.)"
+          dangerouslySetInnerHTML={"summary measurements"}
+          title="This line contains measurements that include the whole benchmarking process for all runs. For example the walltime in this row represents the time from start of first run to end of last run and might differ from the sum of walltime measurements per run in case of parallel runs."
          />
         </div>
         <div
@@ -59615,8 +59615,8 @@ exports[`Render Summary for simple-table-with-scaling.table.html 1`] = `
         >
          <div
           className="row-title"
-          dangerouslySetInnerHTML={"local summary"}
-          title="(This line contains some statistics from local execution. Only trust those values, if you use your own computer.)"
+          dangerouslySetInnerHTML={"summary measurements"}
+          title="This line contains measurements that include the whole benchmarking process for all runs. For example the walltime in this row represents the time from start of first run to end of last run and might differ from the sum of walltime measurements per run in case of parallel runs."
          />
         </div>
         <div
@@ -62677,8 +62677,8 @@ exports[`Render Summary for smt.table.html 1`] = `
         >
          <div
           className="row-title"
-          dangerouslySetInnerHTML={"local summary"}
-          title="(This line contains some statistics from local execution. Only trust those values, if you use your own computer.)"
+          dangerouslySetInnerHTML={"summary measurements"}
+          title="This line contains measurements that include the whole benchmarking process for all runs. For example the walltime in this row represents the time from start of first run to end of last run and might differ from the sum of walltime measurements per run in case of parallel runs."
          />
         </div>
         <div
@@ -63888,8 +63888,8 @@ exports[`Render Summary for task-def-files.table.html 1`] = `
         >
          <div
           className="row-title"
-          dangerouslySetInnerHTML={"local summary"}
-          title="(This line contains some statistics from local execution. Only trust those values, if you use your own computer.)"
+          dangerouslySetInnerHTML={"summary measurements"}
+          title="This line contains measurements that include the whole benchmarking process for all runs. For example the walltime in this row represents the time from start of first run to end of last run and might differ from the sum of walltime measurements per run in case of parallel runs."
          />
         </div>
         <div
@@ -68543,8 +68543,8 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.all-c
         >
          <div
           className="row-title"
-          dangerouslySetInnerHTML={"local summary"}
-          title="(This line contains some statistics from local execution. Only trust those values, if you use your own computer.)"
+          dangerouslySetInnerHTML={"summary measurements"}
+          title="This line contains measurements that include the whole benchmarking process for all runs. For example the walltime in this row represents the time from start of first run to end of last run and might differ from the sum of walltime measurements per run in case of parallel runs."
          />
         </div>
         <div
@@ -72889,8 +72889,8 @@ exports[`Render Summary for test.2015-03-03_1613.results.predicateAnalysis.html 
         >
          <div
           className="row-title"
-          dangerouslySetInnerHTML={"local summary"}
-          title="(This line contains some statistics from local execution. Only trust those values, if you use your own computer.)"
+          dangerouslySetInnerHTML={"summary measurements"}
+          title="This line contains measurements that include the whole benchmarking process for all runs. For example the walltime in this row represents the time from start of first run to end of last run and might differ from the sum of walltime measurements per run in case of parallel runs."
          />
         </div>
         <div
@@ -74317,8 +74317,8 @@ exports[`Render Summary for test.2015-03-03_1613.results.valueAnalysis.html 1`] 
         >
          <div
           className="row-title"
-          dangerouslySetInnerHTML={"local summary"}
-          title="(This line contains some statistics from local execution. Only trust those values, if you use your own computer.)"
+          dangerouslySetInnerHTML={"summary measurements"}
+          title="This line contains measurements that include the whole benchmarking process for all runs. For example the walltime in this row represents the time from start of first run to end of last run and might differ from the sum of walltime measurements per run in case of parallel runs."
          />
         </div>
         <div
@@ -75745,8 +75745,8 @@ exports[`Render Summary for test.2015-03-03_1613.results.valueAnalysis.table.htm
         >
          <div
           className="row-title"
-          dangerouslySetInnerHTML={"local summary"}
-          title="(This line contains some statistics from local execution. Only trust those values, if you use your own computer.)"
+          dangerouslySetInnerHTML={"summary measurements"}
+          title="This line contains measurements that include the whole benchmarking process for all runs. For example the walltime in this row represents the time from start of first run to end of last run and might differ from the sum of walltime measurements per run in case of parallel runs."
          />
         </div>
         <div
@@ -77475,8 +77475,8 @@ exports[`Render Summary for test.2015-03-03_1613.table.html 1`] = `
         >
          <div
           className="row-title"
-          dangerouslySetInnerHTML={"local summary"}
-          title="(This line contains some statistics from local execution. Only trust those values, if you use your own computer.)"
+          dangerouslySetInnerHTML={"summary measurements"}
+          title="This line contains measurements that include the whole benchmarking process for all runs. For example the walltime in this row represents the time from start of first run to end of last run and might differ from the sum of walltime measurements per run in case of parallel runs."
          />
         </div>
         <div
@@ -90340,8 +90340,8 @@ exports[`Render Summary for test.2015-03-03_1613-reverse.table.html 1`] = `
         >
          <div
           className="row-title"
-          dangerouslySetInnerHTML={"local summary"}
-          title="(This line contains some statistics from local execution. Only trust those values, if you use your own computer.)"
+          dangerouslySetInnerHTML={"summary measurements"}
+          title="This line contains measurements that include the whole benchmarking process for all runs. For example the walltime in this row represents the time from start of first run to end of last run and might differ from the sum of walltime measurements per run in case of parallel runs."
          />
         </div>
         <div
@@ -94761,8 +94761,8 @@ exports[`Render Summary for test-error.2015-03-03_1613.table.html 1`] = `
         >
          <div
           className="row-title"
-          dangerouslySetInnerHTML={"local summary"}
-          title="(This line contains some statistics from local execution. Only trust those values, if you use your own computer.)"
+          dangerouslySetInnerHTML={"summary measurements"}
+          title="This line contains measurements that include the whole benchmarking process for all runs. For example the walltime in this row represents the time from start of first run to end of last run and might differ from the sum of walltime measurements per run in case of parallel runs."
          />
         </div>
         <div
@@ -108766,8 +108766,8 @@ exports[`Render Summary for union-table-mixed.table.html 1`] = `
         >
          <div
           className="row-title"
-          dangerouslySetInnerHTML={"local summary"}
-          title="(This line contains some statistics from local execution. Only trust those values, if you use your own computer.)"
+          dangerouslySetInnerHTML={"summary measurements"}
+          title="This line contains measurements that include the whole benchmarking process for all runs. For example the walltime in this row represents the time from start of first run to end of last run and might differ from the sum of walltime measurements per run in case of parallel runs."
          />
         </div>
         <div

@@ -184,7 +184,7 @@ const StatisticsTable = ({
             } else if (cell.value === null) {
               // We receive a null value directly from the stats object of the dataset.
               // Will be rendered as "-"
-              // This edge case only applies to the local summary as it contains static values
+              // This edge case only applies to the summary-measurements row as it contains static values
               // that we can not calculate and therefore directly take them from the stats object.
 
               valueToRender = null;

@@ -327,12 +327,13 @@ def _prepare_stats(all_column_stats, rows, columns):
 
     add_stat_row("total", description=task_counts)
 
-    if _statistics_has_value_for(all_column_stats, "local"):
+    if _statistics_has_value_for(all_column_stats, "summary"):
         add_stat_row(
-            "local",
-            "local summary",
-            "(This line contains some statistics from local execution. "
-            "Only trust those values, if you use your own computer.)",
+            "summary",
+            "summary measurements",
+            "This line contains measurements that include the whole benchmarking process for all runs."
+            " For example the walltime in this row represents the time from start of first run to end of last run"
+            " and might differ from the sum of walltime measurements per run in case of parallel runs.",
         )
 
     has_correct = _statistics_has_value_for(all_column_stats, "correct")

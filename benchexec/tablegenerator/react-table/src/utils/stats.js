@@ -64,7 +64,7 @@ export const statisticsRows = {
 
 /**
  * Remove all statistics rows for which the statistics worker cannot/will not
- * compute values (e.g., local summary, score).
+ * compute values (e.g., summary measurements, score).
  */
 export const filterComputableStatistics = (stats) =>
   stats.filter((row) => statisticsRows[row.id]);

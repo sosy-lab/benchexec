@@ -26,7 +26,7 @@ class ColumnStatistics(object):
     _fields = frozenset(
         (
             "total",
-            "local",
+            "summary",
             "correct",
             "correct_true",
             "correct_false",
@@ -258,9 +258,9 @@ def _get_stats_of_status_column(run_results, col_index):
     return stats
 
 
-def add_local_summary_statistics(run_set_result, run_set_stats):
+def add_summary_statistics(run_set_result, run_set_stats):
     """
-    Fill in the "local" values of ColumnStatistics instances in result of
+    Fill in the "summary" values of ColumnStatistics instances in result of
     get_stats_of_run_set
     """
     for column, column_stats in zip(run_set_result.columns, run_set_stats):
@@ -270,7 +270,7 @@ def add_local_summary_statistics(run_set_result, run_set_stats):
             and run_set_result.summary[column.title] != ""
         ):
             try:
-                column_stats.local = StatValue(
+                column_stats.summary = StatValue(
                     util.to_decimal(run_set_result.summary[column.title])
                 )
             except InvalidOperation:

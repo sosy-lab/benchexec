@@ -1153,7 +1153,7 @@ def select_relevant_id_columns(rows):
     return relevant_id_columns
 
 
-def compute_stats(rows, run_set_results, use_local_summary, correct_only):
+def compute_stats(rows, run_set_results, use_summary, correct_only):
     result_cols = list(rows_to_columns(rows))  # column-wise
     all_column_stats = list(
         parallel.map(
@@ -1163,9 +1163,9 @@ def compute_stats(rows, run_set_results, use_local_summary, correct_only):
         )
     )
 
-    if use_local_summary:
+    if use_summary:
         for run_set_result, run_set_stats in zip(run_set_results, all_column_stats):
-            statistics.add_local_summary_statistics(run_set_result, run_set_stats)
+            statistics.add_summary_statistics(run_set_result, run_set_stats)
 
     return all_column_stats
 
@@ -1266,13 +1266,13 @@ def create_tables(
 
     futures = []
 
-    def write_table(table_type, title, rows, use_local_summary):
-        local_data = types.SimpleNamespace(title=title, rows=rows)
+    def write_table(table_type, title, rows, use_summary):
+        summary_data = types.SimpleNamespace(title=title, rows=rows)
 
         # calculate statistics if necessary
         if not options.format == ["csv"]:
-            local_data.stats = compute_stats(
-                rows, runSetResults, use_local_summary, options.correct_only
+            summary_data.stats = compute_stats(
+                rows, runSetResults, use_summary, options.correct_only
             )
 
         for template_format in options.format or DEFAULT_TEMPLATE_FORMATS:
@@ -1299,7 +1299,7 @@ def create_tables(
                     template_format,
                     outfile,
                     **data.__dict__,
-                    **local_data.__dict__,
+                    **summary_data.__dict__,
                 )
             )
 
@@ -1308,14 +1308,14 @@ def create_tables(
         "table",
         name,
         rows,
-        use_local_summary=(
-            options.local_summary and not options.correct_only and not options.common
+        use_summary=(
+            options.summary_row and not options.correct_only and not options.common
         ),
     )
 
     # write difference tables
     if rowsDiff:
-        write_table("diff", name + " differences", rowsDiff, use_local_summary=False)
+        write_table("diff", name + " differences", rowsDiff, use_summary=False)
 
     return futures
 
@@ -1507,10 +1507,10 @@ def create_argument_parser():
         help="Show all columns in tables, including those that are normally hidden.",
     )
     parser.add_argument(
-        "--no-local-summary",
+        "--no-summary-row",
         action="store_false",
-        dest="local_summary",
-        help='Hide row "local summary" in statistics of tables.',
+        dest="summary_row",
+        help='Hide row "summary measurements" in statistics of tables.',
     )
     parser.add_argument(
         "--show",
