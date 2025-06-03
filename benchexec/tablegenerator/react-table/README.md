@@ -11,7 +11,7 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 ## Dependencies
 
-This project requires Node.js 12 or newer.
+This project requires Node.js 18 or newer.
 
 ## Available Scripts
 
