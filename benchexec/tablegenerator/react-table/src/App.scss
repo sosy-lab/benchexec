@@ -11,6 +11,36 @@ body {
   overflow-x: hidden;
 }
 
+// Tooltip styles
+.infoTooltip {
+  visibility: hidden;
+  width: 250px;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px;
+  position: absolute;
+  z-index: 200;
+  left: 150%;
+  top: 50%;
+  transform: translateY(-50%);
+  margin-left: 10px;
+  opacity: 0;
+  transition: opacity 0.3s;
+  background-color: #f9f9f9;
+  color: black;
+  font-size: 12px;
+  font-weight: lighter;
+}
+
+.infoTooltipContainer {
+  position: relative;
+  display: inline-block;
+}
+
+.infoTooltipIcon {
+  cursor: pointer;
+}
+
 .App {
   // text-align: center;
   font-family: "Droid Sans", "Liberation Sans", Ubuntu, "Trebuchet MS", Tahoma,
@@ -22,6 +52,12 @@ $border-color: rgb(173, 173, 173);
 $hover-color: darken(white, 20%);
 
 //------------------common------------------
+.footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .correct {
   color: green;
 }
@@ -73,21 +109,11 @@ $hover-color: darken(white, 20%);
 .btn-apply {
   margin-left: 100px;
   background: $key-color;
-  //background-image: linear-gradient(to right, $key-color, white);
-  box-shadow: 0 4px 12px 0 rgba($key-color, 0.5);
   &:hover {
     background: white;
   }
 }
 
-.selectColumns {
-  cursor: pointer;
-  font-weight: 700;
-  background-color: white;
-  &:hover {
-    background-color: $hover-color;
-  }
-}
 .header__tool-infos {
   font-weight: 700;
 }
@@ -424,13 +450,25 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
 
 //------------------summary------------------
 #summary {
-  padding-top: 30px;
+  padding-top: 10px;
   text-align: center;
 
   #benchmark_setup {
     width: 100%;
-    overflow-x: scroll;
-    margin: 40px 0;
+
+    .fixedRowTitle {
+      text-align: left;
+      display: flex;
+      align-items: center;
+      padding-left: 8px;
+    }
+
+    .stickCheckbox {
+      position: sticky;
+      top: 0;
+      left: 0;
+      width: max-content;
+    }
 
     table {
       border-collapse: collapse;
@@ -460,12 +498,25 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
         font-weight: bold;
       }
 
+      th {
+        background-color: white;
+
+        &.sticky {
+          position: sticky !important;
+          left: 0;
+          z-index: 11;
+        }
+      }
+
       tr:nth-child(even) {
         background-color: mix($hover-color, white, 33%);
+        th {
+          background-color: mix($hover-color, white, 33%);
+        }
       }
 
       tr:hover {
-        background-color: mix($hover-color, white, 66%);
+        background-color: mix($hover-color, white, 50%);
       }
 
       th {
@@ -476,13 +527,19 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
       }
     }
   }
+
   #statistics {
+    border: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+
     #statistics-placeholder {
-      padding: 1em;
       border-top: 1px solid #adadad;
       border-bottom: 1px solid #adadad;
       background-color: #f7f7f7;
     }
+
     #statistics-table > .table {
       .table-content {
         .td {
@@ -513,9 +570,9 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
               }
 
               .selectColumns {
-                display: block;
                 text-overflow: ellipsis;
                 overflow: hidden;
+                border: #555;
               }
             }
           }
@@ -537,7 +594,7 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
           }
 
           .tr {
-            border-bottom: 1px solid #adadad;
+            border-bottom: 1px solid transparent;
           }
         }
       }
@@ -545,7 +602,7 @@ $content-height: calc(100vh - 43px); // height of .menu sums up to 43px
   }
 
   p {
-    margin-top: 40px;
+    margin-top: 15px;
   }
 }
 
