@@ -2,7 +2,7 @@
 This file is part of BenchExec, a framework for reliable benchmarking:
 https://github.com/sosy-lab/benchexec
 
-SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
+SPDX-FileCopyrightText: 2007-2025 Dirk Beyer <https://www.sosy-lab.org>
 
 SPDX-License-Identifier: Apache-2.0
 -->
@@ -151,13 +151,12 @@ If you are using an Ubuntu version that is still supported,
 everything else should work out of the box.
 For other distributions, please read the following detailed requirements.
 
-Except on Ubuntu, the full feature set of BenchExec is only usable
-on **Linux 5.11 or newer**, so we suggest at least this kernel version.
-And if your system is using cgroups v2 (cf. below),
-the full feature set requires **Linux 5.19 or newer**.
+Ideal is to run BenchExec on a system with cgroups v2
+and **Linux 5.19 or newer** (i.e., any kernel since July 2022).
+On older kernels, consider using cgroups v1 in order to get memory measurements (cf. below).
 
-On kernels older than 5.11, you need to avoid using the kernel-based overlay filesystem (cf. below),
-all other features are supported.
+On non-Ubuntu kernels that are older than version 5.11 (from February 2021),
+you need to avoid using the kernel-based overlay filesystem (cf. below).
 However, we strongly recommend to use at least **Linux 4.14 or newer**
 because it reduces the overhead of BenchExec's memory measurements and limits.
 For even older kernel versions, please read
@@ -186,7 +185,7 @@ that are not usable on all distributions by default:
   `sysctl -w kernel.apparmor_restrict_unprivileged_userns=0` or a respective entry
   in `/etc/sysctl.conf`.
 
-- **Unprivileged Overlay Filesystem**: This is only available since Linux 5.11
+- **Unprivileged Overlay Filesystem**: This is available since Linux 5.11
   (kernel option `CONFIG_OVERLAY_FS`),
   but also present in all Ubuntu kernels, even older ones.
   Users of older kernels on other distributions can still use container mode,
@@ -210,19 +209,21 @@ If yes, you are using v2, otherwise v1
 Then please follow the instructions from the appropriate subsection
 and the instructions for [testing and troubleshooting](#testing-cgroups-setup-and-known-problems).
 
-Note that support for cgroups v2 is available only since BenchExec 3.18
-and has received less testing than using cgroups v1 so far.
-If you are on a distribution with cgroups v2 and want to switch to cgroups v1,
-you can switch back to cgroups v1 for now by putting
+Cgroups v2 is the current version and default in all major distributions.
+We recommend to use it, as it for example provides safer nesting of containers.
+Cgroups v1 should typically only be used
+if you are using an older version of a distribution or the kernel
+(Linux 5.19 or newer is required in order to have memory measurements
+with cgroups v2).
+
+In case you are on a distribution with cgroups v2 but still want to switch to cgroups v1,
+you can do so by putting
 `systemd.unified_cgroup_hierarchy=0` on the kernel command line.
 On Debian/Ubuntu, this could be done with the following steps and rebooting afterwards:
 ```
 echo 'GRUB_CMDLINE_LINUX_DEFAULT="${GRUB_CMDLINE_LINUX_DEFAULT} systemd.unified_cgroup_hierarchy=0"' | sudo tee /etc/default/grub.d/cgroupsv1-for-benchexec.cfg
 sudo update-grub
 ```
-
-Furthermore, with cgroups v2 Linux 5.19 or newer is required
-in order to have memory measurements.
 
 ### Setting up Cgroups v2 on Machines with systemd
 
