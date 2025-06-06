@@ -9,6 +9,25 @@ SPDX-License-Identifier: Apache-2.0
 
 # BenchExec Changelog
 
+## BenchExec 3.30 - 2025-06-06
+
+**This will be the last release of BenchExec to support Python 3.8 and 3.9.**
+Future versions will require Python 3.10.
+
+- Rename statistics row "local summary" in HTML tables to "summary measurements"
+  and improve tooltip explanation to make it better understandable.
+  Also add a command-line argument `--no-local-summary` to table-generator
+  to be able to hide it completely.
+- Fix crash on cgroupv2 systems where some cgroupsv1 controllers
+  are not present in the kernel anymore (e.g., Fedora 41 or newer).
+  Thanks to our GSoC participant [@t0hsumi](https://github.com/t0hsumi) for investigating and fixing this!
+- Fix visibility of bind mounts in container mode with fuse-overlayfs.
+- Improved explanation in error message about forbidden user namespaces.
+- Some new and improved tool-info modules.
+
+Note: We now recommend all users of BenchExec on modern systems
+(kernel 5.19 or newer) to use cgroupsv2 instead of the outdated cgroupsv1.
+
 ## BenchExec 3.29 - 2025-03-11
 
 - The name of the wheel and tar archives in BenchExec releases
