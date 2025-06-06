@@ -5,8 +5,7 @@ SPDX-FileCopyrightText: 2020-2021 Johan Paulsson
 
 SPDX-License-Identifier: Apache-2.0 -->
 
-<!DOCTYPE benchmark PUBLIC "+//IDN sosy-lab.org//DTD BenchExec benchmark 2.3//EN" "https://www.sosy-lab.org/benchexec/benchmark-2.3.dtd">
-
+<!DOCTYPE benchmark PUBLIC "+//IDN sosy-lab.org//DTD BenchExec benchmark 3.30//EN" "https://www.sosy-lab.org/benchexec/benchmark-3.30.dtd">
 <benchmark tool="p4-test-tool" displayName="P4 test">
     <option name="switch_folder">~/benchexec/contrib/p4/docker_files/switch_bmv2</option>
     <option name="ptf_test_folder">~/benchexec/contrib/p4/docker_files/ptf_tester/tests</option>
