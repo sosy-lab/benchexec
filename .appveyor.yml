@@ -9,7 +9,7 @@ image: "Visual Studio 2022"
 
 environment:
   matrix:
-    - PYTHON: "C:\\Python38"
+    - PYTHON: "C:\\Python310"
     - PYTHON: "C:\\Python313"
 
 build: off
