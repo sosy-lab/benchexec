@@ -105,7 +105,8 @@ dh_make -p "benchexec_$VERSION" --createorig -f "../$TAR" -i -c apache || true
 dpkg-buildpackage --build=source -sa "--sign-key=$DEBKEY"
 # Use container with old distribution to be sure it builds there.
 # Ubuntu 22.04 would be better because it still has Python 3.10,
-# but it has this problem: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1028364
+# but it has too old setuptools for pyproject.toml support and
+# also this problem: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1028364
 podman run --security-opt unmask=/sys/fs/cgroup --cgroups=split \
   --security-opt unmask=/proc/* --security-opt seccomp=unconfined --device /dev/fuse \
   --rm -w "$(pwd)" -v "$TEMP_DEB:$TEMP_DEB:rw" --rm debian:12 \

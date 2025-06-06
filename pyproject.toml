@@ -1,9 +1,67 @@
 # This file is part of BenchExec, a framework for reliable benchmarking:
 # https://github.com/sosy-lab/benchexec
 #
-# SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
+# SPDX-FileCopyrightText: 2007-2025 Dirk Beyer <https://www.sosy-lab.org>
 #
 # SPDX-License-Identifier: Apache-2.0
+
+# Documentation of this file:
+# https://setuptools.pypa.io/en/latest/userguide/pyproject_config.html
+# https://setuptools.readthedocs.io/en/latest/userguide/declarative_config.html
+#
+# Other links for documentation on how to build and use Python packages:
+# https://packaging.python.org/
+# https://snarky.ca/what-the-heck-is-pyproject-toml/
+
+[project]
+name = "BenchExec"
+authors = [{name = "Dirk Beyer"}]
+description = "A Framework for Reliable Benchmarking and Resource Measurement."
+keywords = [
+    "benchmarking",
+    "resource measurement",
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: Apache Software License",
+    "License :: OSI Approved :: BSD License",
+    "License :: OSI Approved :: ISC License (ISCL)",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: System :: Benchmark",
+]
+license = {text = "Apache-2.0 AND BSD-3-Clause AND CC-BY-4.0 AND MIT AND ISC AND LicenseRef-BSD-3-Clause-CMU"}
+requires-python = ">= 3.10"
+dependencies = ["PyYAML >= 3.12"]
+dynamic = ["version"]
+
+[project.readme]
+file = "README.md"
+content-type = "text/markdown"
+
+[project.urls]
+Homepage = "https://github.com/sosy-lab/benchexec/"
+Documentation = "https://github.com/sosy-lab/benchexec/blob/main/doc/INDEX.md"
+Changelog = "https://github.com/sosy-lab/benchexec/blob/main/CHANGELOG.md"
+"Issue Tracker" = "https://github.com/sosy-lab/benchexec/issues"
+
+[project.optional-dependencies]
+dev = [
+    "lxml",
+    "pytest",
+    # Duplicate info here from systemd extra:
+    "pystemd >= 0.7.0; platform_system != 'Windows'",
+]
+systemd = ["pystemd >= 0.7.0; platform_system != 'Windows'"]
+
+[project.scripts]
+benchexec = "benchexec.benchexec:main"
+containerexec = "benchexec.containerexecutor:main"
+runexec = "benchexec.runexecutor:main"
+table-generator = "benchexec.tablegenerator:main"
 
 [build-system]
 requires = [
@@ -13,6 +71,22 @@ requires = [
     'wheel >= 0.32.0',
 ]
 build-backend = 'setuptools.build_meta'
+
+[tool.setuptools]
+packages = ["benchexec", "benchexec.tablegenerator", "benchexec.tools"]
+zip-safe = true
+platforms = ["Linux"]
+license-files = ["LICENSES/*.txt"]
+include-package-data = false
+
+[tool.setuptools.package-data]
+"benchexec.tablegenerator" = [
+    "react-table/build/*.min.js",
+    "react-table/build/*.min.css",
+]
+
+[tool.setuptools.dynamic]
+version = {attr = "benchexec.__version__"}
 
 [tool.black]
 include = 'bin|\.py$'
