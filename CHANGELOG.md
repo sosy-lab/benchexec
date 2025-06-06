@@ -9,6 +9,10 @@ SPDX-License-Identifier: Apache-2.0
 
 # BenchExec Changelog
 
+## Changes since BenchExec 3.30
+
+BenchExec now requires Python 3.10 or newer.
+
 ## BenchExec 3.30 - 2025-06-06
 
 **This will be the last release of BenchExec to support Python 3.8 and 3.9.**

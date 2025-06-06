@@ -103,12 +103,12 @@ cd "benchexec-$VERSION"
 dh_make -p "benchexec_$VERSION" --createorig -f "../$TAR" -i -c apache || true
 
 dpkg-buildpackage --build=source -sa "--sign-key=$DEBKEY"
-# Use container with old Debian for fixing #818.
-# Once we drop support for Debian 11 (#986),
-# we can probably get rid of the container again.
+# Use container with old distribution to be sure it builds there.
+# Ubuntu 22.04 would be better because it still has Python 3.10,
+# but it has this problem: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1028364
 podman run --security-opt unmask=/sys/fs/cgroup --cgroups=split \
   --security-opt unmask=/proc/* --security-opt seccomp=unconfined --device /dev/fuse \
-  --rm -w "$(pwd)" -v "$TEMP_DEB:$TEMP_DEB:rw" --rm debian:11 \
+  --rm -w "$(pwd)" -v "$TEMP_DEB:$TEMP_DEB:rw" --rm debian:12 \
   "$TEMP_DEB/benchexec-$VERSION/test/setup_cgroupsv2_in_container.sh" bash -c '
   apt-get update
   apt-get install -y --no-install-recommends dpkg-dev

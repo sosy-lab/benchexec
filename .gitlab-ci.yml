@@ -60,10 +60,10 @@ stages:
         coverage_format: cobertura
         path: coverage.xml
 
-tests:cgroupsv1:python-3.8:
+tests:cgroupsv1:python-3.10:
   <<: *tests-cgroupsv1
   variables:
-    PYTHON_VERSION: '3.8'
+    PYTHON_VERSION: '3.10'
 
 tests:cgroupsv1:python-3.13:
   <<: *tests-cgroupsv1
@@ -92,16 +92,6 @@ tests:cgroupsv1:python-3.13:
         coverage_format: cobertura
         path: coverage.xml
 
-tests:cgroupsv2:python-3.8:
-  <<: *tests-cgroupsv2
-  variables:
-    PYTHON_VERSION: '3.8'
-
-tests:cgroupsv2:python-3.9:
-  <<: *tests-cgroupsv2
-  variables:
-    PYTHON_VERSION: '3.9'
-
 tests:cgroupsv2:python-3.10:
   <<: *tests-cgroupsv2
   variables:
@@ -125,7 +115,7 @@ tests:cgroupsv2:python-3.13:
 # Static checks
 check-format:
   stage: test
-  image: python:3.9
+  image: python:3.10
   before_script:
     - pip install 'black<26'
   script:
@@ -135,7 +125,7 @@ check-format:
 flynt:
   # Use flynt (https://github.com/ikamensh/flynt) for converting string formatting to f-strings
   stage: test
-  image: python:3.9
+  image: python:3.10
   before_script:
     - pip install flynt
   script:
@@ -144,7 +134,7 @@ flynt:
 
 flake8:
   stage: test
-  image: python:3.8
+  image: python:3.10
   before_script:
     - "pip install 'flake8<6' flake8-awesome"
   script:
@@ -158,7 +148,7 @@ pytype:
   script:
     - pytype -k
   variables:
-    PYTHON_VERSION: '3.8'
+    PYTHON_VERSION: '3.10'
   cache:
     key: "${CI_JOB_NAME}"
     paths:
@@ -245,18 +235,6 @@ reuse:
   only:
     - schedules
     - web
-
-build-docker:test:python-3.8:
-  extends: .build-docker
-  variables:
-    DOCKERFILE: test/Dockerfile.python-3.8
-    IMAGE: test:python-3.8
-
-build-docker:test:python-3.9:
-  extends: .build-docker
-  variables:
-    DOCKERFILE: test/Dockerfile.python-3.9
-    IMAGE: test:python-3.9
 
 build-docker:test:python-3.10:
   extends: .build-docker

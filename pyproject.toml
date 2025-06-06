@@ -17,7 +17,7 @@ build-backend = 'setuptools.build_meta'
 [tool.black]
 include = 'bin|\.py$'
 exclude = 'node_modules|\.eggs|\.jar$'
-target-version = ['py38']
+target-version = ['py310']
 
 [tool.coverage.run]
 branch = true
