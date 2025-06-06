@@ -17,6 +17,8 @@ ignore =
     # the risk of class attributes shadowing builtins is quite small
     # https://github.com/gforcada/flake8-builtins/issues/22#issuecomment-378755804
     A003,
+    # We have no top-level modules shadowing builtins, and for nested modules it is not really a problem.
+    A005,
     # warnings about mutable default values trigger too often
     B006,
     # flags complex expressions, but too many
