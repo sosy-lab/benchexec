@@ -371,7 +371,7 @@ def handleCloudResults(benchmark, output_handler, start_time, end_time):
         output_handler.output_before_run_set(runSet, start_time=start_time)
 
         for run in runSet.runs:
-            run.cmdline() # ignore result, but necessary, otherwise _cmdline is not set
+            run.cmdline()  # ignore result, but necessary, otherwise _cmdline is not set
             dataFile = run.log_file + ".data"
             if os.path.exists(dataFile) and os.path.exists(run.log_file):
                 try:
