@@ -146,24 +146,26 @@ class BaseExecutor(object):
         def wait_and_get_result():
             def wait_for_read():
                 """Wait for stdout and stderr of the process and handle it immediately."""
-                while True:
-                    for key, _unused_event in selector.select():
-                        # Block until output is ready
-                        output = os.read(key.fileobj.fileno(), 4096)
-                        if not output:
-                            selector.unregister(key.fileobj)
-                        else:
-                            print(output.decode().strip(), file=key.data)
-                    if not selector.get_map():
-                        # Exit if both stdout and stderr are closed
-                        break
+                try:
+                    while True:
+                        for key, _unused_event in selector.select():
+                            # Block until output is ready
+                            output = os.read(key.fileobj.fileno(), 4096)
+                            if not output:
+                                selector.unregister(key.fileobj)
+                            else:
+                                print(output.decode().strip(), file=key.data)
+                        if not selector.get_map():
+                            # Exit if both stdout and stderr are closed
+                            break
+                finally:
+                    p.stdout.close()
+                    p.stderr.close()
+                    selector.close()
 
             # Wait until all output has been processed before considering the process
             # as terminated.
             wait_for_read()
-            p.stdout.close()
-            p.stderr.close()
-            selector.close()
             exitcode, ru_child = self._wait_for_process(p.pid, args[0])
             p.poll()
 
