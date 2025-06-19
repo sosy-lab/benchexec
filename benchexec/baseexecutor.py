@@ -111,13 +111,6 @@ class BaseExecutor(object):
         env["TEMP"] = tmp_dir
         logging.debug("Executing run with $HOME and $TMPDIR below %s.", temp_dir)
 
-        # Set output selector
-        # To address https://github.com/sosy-lab/benchexec/issues/535,
-        # the stdout and stderr of the executed process are connected to
-        # selectors.DefaultSelector().
-        # This allows stdout and stderr to be processed asynchronously.
-        selector = selectors.DefaultSelector()
-
         parent_setup = parent_setup_fn()
 
         p = subprocess.Popen(
@@ -131,41 +124,10 @@ class BaseExecutor(object):
             preexec_fn=pre_subprocess,
         )
 
-        def add_nonblocking_flag(fd):
-            fl = fcntl.fcntl(fd, fcntl.F_GETFL)
-            fcntl.fcntl(fd, fcntl.F_SETFL, fl | os.O_NONBLOCK)
-
-        # Add the nonblocking flag to the executed command output
-        add_nonblocking_flag(p.stdout.fileno())
-        add_nonblocking_flag(p.stderr.fileno())
-        # Register the executed command output with the selector,
-        # associating them with their respective file objects
-        selector.register(p.stdout, selectors.EVENT_READ, data=stdout)
-        selector.register(p.stderr, selectors.EVENT_READ, data=stderr)
-
         def wait_and_get_result():
-            def wait_for_read():
-                """Wait for stdout and stderr of the process and handle it immediately."""
-                try:
-                    while True:
-                        for key, _unused_event in selector.select():
-                            # Block until output is ready
-                            output = os.read(key.fileobj.fileno(), 4096)
-                            if not output:
-                                selector.unregister(key.fileobj)
-                            else:
-                                print(output.decode().strip(), file=key.data)
-                        if not selector.get_map():
-                            # Exit if both stdout and stderr are closed
-                            break
-                finally:
-                    p.stdout.close()
-                    p.stderr.close()
-                    selector.close()
-
             # Wait until all output has been processed before considering the process
             # as terminated.
-            wait_for_read()
+            self._stream_output_with_selector(p, stdout, stderr)
             exitcode, ru_child = self._wait_for_process(p.pid, args[0])
             p.poll()
 
@@ -175,6 +137,47 @@ class BaseExecutor(object):
             return exitcode, ru_child, parent_cleanup
 
         return p.pid, cgroups, wait_and_get_result
+
+    def _stream_output_with_selector(self, proc, stdout, stderr):
+        """Asynchronously read from stdout and stderr of the given process
+        and write to the given output target.
+        @param proc subprocess.Popen object whose output to monitor
+        """
+        def add_nonblocking_flag(fd):
+            fl = fcntl.fcntl(fd, fcntl.F_GETFL)
+            fcntl.fcntl(fd, fcntl.F_SETFL, fl | os.O_NONBLOCK)
+
+        # Set output selector
+        # To address https://github.com/sosy-lab/benchexec/issues/535,
+        # the stdout and stderr of the executed process are connected to
+        # selectors.DefaultSelector().
+        # This allows stdout and stderr to be processed asynchronously.
+        selector = selectors.DefaultSelector()
+
+        # Add the nonblocking flag to the executed command output
+        add_nonblocking_flag(proc.stdout.fileno())
+        add_nonblocking_flag(proc.stderr.fileno())
+        # Register the executed command output with the selector,
+        # associating them with their respective file objects
+        selector.register(proc.stdout, selectors.EVENT_READ, data=stdout)
+        selector.register(proc.stderr, selectors.EVENT_READ, data=stderr)
+
+        try:
+            while True:
+                for key, _unused_event in selector.select():
+                    # Block until output is ready
+                    output = os.read(key.fileobj.fileno(), 4096)
+                    if not output:
+                        selector.unregister(key.fileobj)
+                    else:
+                        print(output.decode().strip(), file=key.data)
+                if not selector.get_map():
+                    # Exit if both stdout and stderr are closed
+                    break
+        finally:
+            proc.stdout.close()
+            proc.stderr.close()
+            selector.close()
 
     def _wait_for_process(self, pid, name):
         """Wait for the given process to terminate.
