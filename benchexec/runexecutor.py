@@ -105,7 +105,14 @@ def main(argv=None):
         "--output",
         default="output.log",
         metavar="FILE",
-        help="name of file where command output (stdout and stderr) is written",
+        help="name of file where command standard output is written",
+    )
+    io_args.add_argument(
+        "--error-output",
+        default=None,
+        metavar="FILE",
+        help="name of file where command standard error is written. If not specified, "
+        "the file for the standard output is used",
     )
     io_args.add_argument(
         "--maxOutputSize",
@@ -257,6 +264,7 @@ def main(argv=None):
         result = executor.execute_run(
             args=options.args,
             output_filename=options.output,
+            error_filename=options.error_output,
             stdin=stdin,
             hardtimelimit=options.timelimit,
             softtimelimit=options.softtimelimit,
