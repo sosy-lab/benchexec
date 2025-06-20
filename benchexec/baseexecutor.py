@@ -143,6 +143,7 @@ class BaseExecutor(object):
         and write to the given output target.
         @param proc subprocess.Popen object whose output to monitor
         """
+
         def add_nonblocking_flag(fd):
             fl = fcntl.fcntl(fd, fcntl.F_GETFL)
             fcntl.fcntl(fd, fcntl.F_SETFL, fl | os.O_NONBLOCK)
@@ -168,6 +169,7 @@ class BaseExecutor(object):
                     # Block until output is ready
                     output = os.read(key.fileobj.fileno(), 4096)
                     if not output:
+                        key.data.flush()
                         selector.unregister(key.fileobj)
                     else:
                         print(output.decode().strip(), file=key.data)
