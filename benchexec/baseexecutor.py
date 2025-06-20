@@ -12,7 +12,6 @@ import subprocess
 import sys
 import threading
 import selectors
-import fcntl
 
 from benchexec import __version__
 from benchexec import util
