@@ -116,8 +116,8 @@ class BaseExecutor(object):
         p = subprocess.Popen(
             args,
             stdin=stdin,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            stdout=None if stdout is None else subprocess.PIPE,
+            stderr=None if stderr is None else subprocess.PIPE,
             env=env,
             cwd=cwd,
             close_fds=True,
@@ -127,7 +127,8 @@ class BaseExecutor(object):
         def wait_and_get_result():
             # Wait until all output has been processed before considering the process
             # as terminated.
-            self._stream_output_with_selector(p, stdout, stderr)
+            if stdout is not None or stderr is not None:
+                self._stream_output_with_selector(p, stdout, stderr)
             exitcode, ru_child = self._wait_for_process(p.pid, args[0])
             p.poll()
 
@@ -152,8 +153,10 @@ class BaseExecutor(object):
 
         # Register the executed command output with the selector,
         # associating them with their respective file objects
-        selector.register(proc.stdout, selectors.EVENT_READ, data=stdout)
-        selector.register(proc.stderr, selectors.EVENT_READ, data=stderr)
+        if stdout is not None:
+            selector.register(proc.stdout, selectors.EVENT_READ, data=stdout)
+        if stderr is not None:
+            selector.register(proc.stderr, selectors.EVENT_READ, data=stderr)
 
         try:
             while True:
@@ -169,8 +172,10 @@ class BaseExecutor(object):
                     # Exit if both stdout and stderr are closed
                     break
         finally:
-            proc.stdout.close()
-            proc.stderr.close()
+            if proc.stdout is not None:
+                proc.stdout.close()
+            if proc.stderr is not None:
+                proc.stderr.close()
             selector.close()
 
     def _wait_for_process(self, pid, name):
