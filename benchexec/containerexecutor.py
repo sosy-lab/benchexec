@@ -773,12 +773,13 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                     grandchild_proc = subprocess.Popen(
                         args,
                         stdin=stdin,
-                        stdout=stdout,
-                        stderr=stderr,
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE,
                         env=env,
                         close_fds=False,
                         preexec_fn=grandchild,
                     )
+                    self._stream_output_with_selector(grandchild_proc, stdout, stderr)
                 except (OSError, RuntimeError) as e:
                     logging.critical("Cannot start process: %s", e)
                     return CHILD_OSERROR
