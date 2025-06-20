@@ -143,11 +143,6 @@ class BaseExecutor(object):
         and write to the given output target.
         @param proc subprocess.Popen object whose output to monitor
         """
-
-        def add_nonblocking_flag(fd):
-            fl = fcntl.fcntl(fd, fcntl.F_GETFL)
-            fcntl.fcntl(fd, fcntl.F_SETFL, fl | os.O_NONBLOCK)
-
         # Set output selector
         # To address https://github.com/sosy-lab/benchexec/issues/535,
         # the stdout and stderr of the executed process are connected to
@@ -155,9 +150,6 @@ class BaseExecutor(object):
         # This allows stdout and stderr to be processed asynchronously.
         selector = selectors.DefaultSelector()
 
-        # Add the nonblocking flag to the executed command output
-        add_nonblocking_flag(proc.stdout.fileno())
-        add_nonblocking_flag(proc.stderr.fileno())
         # Register the executed command output with the selector,
         # associating them with their respective file objects
         selector.register(proc.stdout, selectors.EVENT_READ, data=stdout)
