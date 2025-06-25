@@ -159,7 +159,11 @@ class BaseExecutor(object):
 
         try:
             while True:
-                for key, _unused_event in selector.select():
+                events = selector.select()
+                if not events:
+                    break
+
+                for key, _unused_event in events:
                     # Block until output is ready
                     output = os.read(key.fileobj.fileno(), 4096)
                     if not output:
