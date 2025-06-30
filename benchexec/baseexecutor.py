@@ -142,6 +142,8 @@ class BaseExecutor(object):
         """Asynchronously read from stdout and stderr of the given process
         and write to the given output target.
         @param proc subprocess.Popen object whose output to monitor
+        @param stdout fileobj to send stdout
+        @param stderr fileobj to send stderr
         """
         # Set output selector
         # To address https://github.com/sosy-lab/benchexec/issues/535,
