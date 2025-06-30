@@ -161,7 +161,7 @@ class BaseExecutor(object):
             while True:
                 events = selector.select()
                 if not events:
-                    break
+                    continue
 
                 for key, _unused_event in events:
                     # Block until output is ready
