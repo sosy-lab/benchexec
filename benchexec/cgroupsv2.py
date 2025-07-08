@@ -692,7 +692,10 @@ class CgroupsV2(Cgroups):
             try:
                 parent_limit = util.read_file(parent_cgroup, "memory.max")
                 if parent_limit != "max":
-                    limit = min(limit, int(parent_limit))
+                    if limit is None:
+                        limit = int(parent_limit)
+                    else:
+                        limit = min(limit, int(parent_limit))
             except OSError:
                 # reached parent directory of cgroupfs
                 return limit
