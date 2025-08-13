@@ -28,7 +28,9 @@ class Tool(benchexec.tools.template.BaseTool2):
         return self._version_from_tool(executable, line_prefix="Goblint version: ")
 
     def url_for_version(self, version):
-        m = re.fullmatch(r"(heads|tags)/(.+)-(\d+)-g([0-9a-f]{7,})(-dirty)?", version)
+        m = re.fullmatch(
+            r"(heads|tags|remotes/.+)/(.+)-(\d+)-g([0-9a-f]{7,})(-dirty)?", version
+        )
         if m:
             return f"https://github.com/goblint/analyzer/commit/{m.group(4)}"
 
