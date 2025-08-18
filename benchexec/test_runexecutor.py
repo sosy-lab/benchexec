@@ -15,6 +15,7 @@ import tempfile
 import threading
 import time
 import unittest
+import shlex
 import shutil
 
 from benchexec import container
@@ -415,14 +416,15 @@ class TestRunExecutor(unittest.TestCase):
         if not os.path.exists(self.dd):
             self.skipTest("missing dd")
         memlimit = 100_000_000
-        (result, output) = self.execute_run(
+        cmd = [
             self.dd,
             "if=/dev/zero",
             "of=/dev/null",
             f"bs={memlimit}",
             "count=1",
-            memlimit=memlimit,
-            expect_terminationreason="memory",
+        ]
+        (result, output) = self.execute_run(
+            *cmd, memlimit=memlimit, expect_terminationreason="memory"
         )
 
         self.check_exitcode(result, 9, "exit code of killed process is not 9")
@@ -433,9 +435,7 @@ class TestRunExecutor(unittest.TestCase):
             msg="memory is not approximately the amount after which the process should have been killed",
         )
 
-        self.check_command_in_output(
-            output, f"{self.dd} if=/dev/zero of=/dev/null bs={memlimit} count=1"
-        )
+        self.check_command_in_output(output, shlex.join(cmd))
         for line in output[1:]:
             self.assertRegex(line, "^-*$", "unexpected text in run output")
 
