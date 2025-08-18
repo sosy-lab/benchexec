@@ -420,7 +420,8 @@ class TestRunExecutor(unittest.TestCase):
             self.dd,
             "if=/dev/zero",
             "of=/dev/null",
-            f"bs={memlimit}",
+            f"ibs={memlimit}",
+            f"obs={memlimit}",
             "count=1",
         ]
         (result, output) = self.execute_run(
