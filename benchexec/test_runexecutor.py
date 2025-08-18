@@ -8,6 +8,7 @@
 import contextlib
 import logging
 import os
+import pprint
 import re
 import subprocess
 import tempfile
@@ -79,17 +80,15 @@ class TestRunExecutor(unittest.TestCase):
             os.remove(output_filename)
 
         self.check_result_keys(result, "terminationreason")
+        result_str = pprint.pformat(result, sort_dicts=True, underscore_numbers=True)
+        msg = f"Unexpected terminationreason\n\nResult is \n{result_str}\n\nOutput is \n{output}"
         if isinstance(expect_terminationreason, list):
             self.assertIn(
-                result.get("terminationreason"),
-                expect_terminationreason,
-                "Unexpected terminationreason, output is \n" + output,
+                result.get("terminationreason"), expect_terminationreason, msg
             )
         else:
             self.assertEqual(
-                result.get("terminationreason"),
-                expect_terminationreason,
-                "Unexpected terminationreason, output is \n" + output,
+                result.get("terminationreason"), expect_terminationreason, msg
             )
         return (result, output.splitlines())
 
