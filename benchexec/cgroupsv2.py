@@ -115,6 +115,10 @@ def initialize():
             # If we can create a systemd scope for us or find a usable fallback cgroup
             # and move ourselves in it, we have a usable cgroup afterwards.
             cgroup = CgroupsV2.from_system()
+            if not cgroup.path:
+                # It seems using the fallback can fail if we are in an out-of-tree
+                # cgroup. Then we have no usable cgroup.
+                return CgroupsV2({})
 
         else:
             # No usable cgroup. We might still be able to continue if we actually
