@@ -48,7 +48,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         return [executable, *options, task.single_input_file]
 
     def determine_result(self, run):
-        status = self.get_szs_status(run.output)
+        status = self.get_output_value(run.output, "% SZS status", 3)
         if run.exit_code:
             if status == "Timeout":
                 return result.RESULT_TIMEOUT
@@ -65,6 +65,8 @@ class Tool(benchexec.tools.template.BaseTool2):
                 reasons = self.get_other_termination_reasons(run.output)
                 if reasons == ["Time limit"]:
                     return result.RESULT_TIMEOUT
+                if reasons == ["Instruction limit"]:
+                    return "OUT OF INSTRUCTIONS"
                 if reasons == ["Memory limit"]:
                     return "OUT OF MEMORY"
                 if reasons == ["Refutation not found, incomplete strategy"]:
@@ -87,20 +89,22 @@ class Tool(benchexec.tools.template.BaseTool2):
     SZS_SAT = ["CounterSatisfiable", "Satisfiable"]
     SZS_FAIL = ["Timeout", "GaveUp", "User"]
 
-    def get_szs_status(self, output):
+    def get_output_value(self, output, prefix, index):
         """
-        Extract the SZS status from the output.
+        Extract a value from the output.
         @param output: The output of the tool as instance of class RunOutput.
-        @return a non-empty string, or None if no unique SZS status was found
+        @param prefix: The string identifying the line that contains the value.
+        @param index: The index of value within the line identified.
+        @return a non-empty string, or None if no unique value was found
         """
         status = None
         for line in output:
-            if line.startswith("% SZS status"):
+            if line.startswith(prefix):
                 if status is None:
                     words = line.split()
-                    status = words[3] if len(words) >= 4 else None
+                    status = words[index] if len(words) > index else None
                 else:
-                    # More than one SZS status => this is an error!
+                    # More than one value => this is an error!
                     return None
         return status
 
@@ -119,5 +123,8 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def get_value_from_output(self, output, identifier):
         if identifier == "szs-status":
-            return self.get_szs_status(output)
+            return self.get_output_value(output, "% SZS status", 3)
+        if identifier == "instruction-count":
+            res = self.get_output_value(output, "% Instructions burned", 3)
+            return res if res is not None else 0
         return None
