@@ -275,12 +275,21 @@ def getBenchmarkDataForCloud(benchmark):
     timeLimit = benchmark.rlimits.cputime_hard or DEFAULT_CLOUD_TIMELIMIT
     memLimit = bytes_to_mb(benchmark.rlimits.memory) or memRequirement
     coreLimit = benchmark.rlimits.cpu_cores
+    wallTimeLimit = benchmark.rlimits.walltime
     numberOfRuns = sum(
         len(runSet.runs) for runSet in benchmark.run_sets if runSet.should_be_executed()
     )
     limitsAndNumRuns = [numberOfRuns, timeLimit, memLimit]
     if coreLimit is not None:
         limitsAndNumRuns.append(coreLimit)
+    else:
+        limitsAndNumRuns.append("-")
+    if wallTimeLimit is not None:
+        # WallTimeLimit has to be the 5th element of limitsAndNumRuns
+        assert len(limitsAndNumRuns) == 4
+        limitsAndNumRuns.append(wallTimeLimit)
+    else:
+        limitsAndNumRuns.append("-")
 
     # get Runs with args and sourcefiles
     sourceFiles = []
