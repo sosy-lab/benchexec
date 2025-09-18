@@ -11,6 +11,7 @@ import collections
 import datetime
 import decimal
 import io
+import logging
 import os
 import shlex
 import threading
@@ -594,7 +595,20 @@ class OutputHandler(object):
         self._write_pretty_result_xml_to_file(runSet.xml, runSet.xml_file_name)
 
         if len(runSet.blocks) > 1:
+            block_names = collections.Counter(block.name for block in runSet.blocks)
+            duplicate_block_names = {
+                block_name for block_name, count in block_names.items() if count > 1
+            }
+            if duplicate_block_names:
+                logging.warning(
+                    "For run definition '%s' the following task-set names are not unique "
+                    "and will not have separate result files: %s",
+                    runSet.name,
+                    ", ".join(duplicate_block_names),
+                )
             for block in runSet.blocks:
+                if block.name in duplicate_block_names:
+                    continue
                 blockFileName = self.get_filename(runSet.name, block.name + ".xml")
                 block_xml = self.runs_to_xml(runSet, block.runs, block.name)
                 block_xml.set("starttime", runSet.xml.get("starttime"))
