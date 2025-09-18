@@ -5,6 +5,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import collections
 import collections.abc
 import logging
 import os
@@ -462,6 +463,23 @@ class Benchmark(object):
                         "skipping it.",
                         selected,
                     )
+
+        run_set_names = collections.Counter(
+            runSet.name for runSet in self.run_sets if runSet.should_be_executed()
+        )
+        if run_set_names[""] > 1:
+            raise BenchExecException(
+                "Cannot execute benchmark with more than one unnamed run definition. "
+                'Please add attribute "name" to the <rundefinition> tags.'
+            )
+        duplicate_run_set_names = [
+            run_set_name for run_set_name, count in run_set_names.items() if count > 1
+        ]
+        if duplicate_run_set_names:
+            raise BenchExecException(
+                "Run definitions with the following names are present more than once, "
+                "please use unique names: " + ", ".join(duplicate_run_set_names)
+            )
 
     def required_files(self):
         assert self.executable is not None, "executor needs to set tool executable"
