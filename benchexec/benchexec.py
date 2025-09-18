@@ -376,7 +376,7 @@ class BenchExec(object):
 
             self.executor.init(self.config, benchmark)
             output_handler = OutputHandler(
-                benchmark, self.executor.get_system_info(), self.config.compress_results
+                benchmark, self.executor.get_system_info(), self.config
             )
             try:
                 logging.debug(

@@ -74,12 +74,12 @@ class OutputHandler(object):
 
     print_lock = threading.Lock()
 
-    def __init__(self, benchmark, sysinfo, compress_results):
+    def __init__(self, benchmark, sysinfo, config):
         """
         The constructor of OutputHandler collects information about the benchmark and the computer.
         """
 
-        self.compress_results = compress_results
+        self.compress_results = config.compress_results
         self.all_created_files = set()
         self.benchmark = benchmark
         self.statistics = Statistics()
@@ -116,7 +116,7 @@ class OutputHandler(object):
             )
         self.xml_file_names = []
 
-        if compress_results:
+        if self.compress_results:
             self.log_zip = zipfile.ZipFile(
                 benchmark.log_zip, mode="w", compression=zipfile.ZIP_DEFLATED
             )
