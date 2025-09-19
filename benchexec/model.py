@@ -611,15 +611,16 @@ class RunSet(object):
         The files and their options are taken from the list of sourcefilesTags.
         """
         base_dir = self.benchmark.base_dir
+        config = self.benchmark.config
         # runs are structured as sourcefile sets, one set represents one sourcefiles tag
         blocks = []
 
         for index, sourcefilesTag in enumerate(sourcefilesTagList):
             sourcefileSetName = sourcefilesTag.get("name")
             matchName = sourcefileSetName or str(index)
-            if self.benchmark.config.selected_sourcefile_sets and not any(
+            if config.selected_sourcefile_sets and not any(
                 util.wildcard_match(matchName, sourcefile_set)
-                for sourcefile_set in self.benchmark.config.selected_sourcefile_sets
+                for sourcefile_set in config.selected_sourcefile_sets
             ):
                 continue
 
@@ -679,8 +680,8 @@ class RunSet(object):
 
             blocks.append(SourcefileSet(sourcefileSetName, index, currentRuns))
 
-        if self.benchmark.config.selected_sourcefile_sets:
-            for selected in self.benchmark.config.selected_sourcefile_sets:
+        if config.selected_sourcefile_sets:
+            for selected in config.selected_sourcefile_sets:
                 if not any(
                     util.wildcard_match(sourcefile_set.real_name, selected)
                     for sourcefile_set in blocks
