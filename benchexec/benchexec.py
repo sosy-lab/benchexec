@@ -257,6 +257,29 @@ class BenchExec(object):
             help="Do not compress result files.",
         )
 
+        parser.add_argument(
+            "--results-per-taskset",
+            dest="results_per_taskset",
+            action="store_true",
+            help="Output a separate result file per <tasks> tag in the benchmark definition. "
+            "Can be combined with --results-per-rundefinition to produce both sets of files. "
+            "If none of these two arguments are given, "
+            "the current default is to produce both sets of files "
+            "unless there is only one <tasks> per <rundefinition> "
+            "(this default will change in the future.)",
+        )
+        parser.add_argument(
+            "--results-per-rundefinition",
+            dest="results_per_rundefinition",
+            action="store_true",
+            help="Output a separate result file per <rundefinition> tag in the benchmark definition. "
+            "Can be combined with --results-per-taskset to produce both sets of files. "
+            "If none of these two arguments are given, "
+            "the current default is to produce both sets of files "
+            "unless there is only one <tasks> per <rundefinition> "
+            "(this default will change in the future.)",
+        )
+
         def parse_filesize_value(value):
             try:
                 value = int(value)

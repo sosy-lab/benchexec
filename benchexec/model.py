@@ -467,11 +467,21 @@ class Benchmark(object):
         run_set_names = collections.Counter(
             runSet.name for runSet in self.run_sets if runSet.should_be_executed()
         )
-        if run_set_names[""] > 1:
-            raise BenchExecException(
-                "Cannot execute benchmark with more than one unnamed run definition. "
-                'Please add attribute "name" to the <rundefinition> tags.'
-            )
+        if config.results_per_rundefinition or config.results_per_taskset:
+            # with new arguments require strict names for consistency
+            if len(run_set_names) > 1 and run_set_names[None] > 0:
+                raise BenchExecException(
+                    "Mix of named and unnamed run definitions found. "
+                    "Please add unique names to all run definitions."
+                )
+        else:
+            # for now follow old default
+            if run_set_names[""] > 1:
+                raise BenchExecException(
+                    "Cannot execute benchmark with more than one unnamed run definition. "
+                    'Please add attribute "name" to the <rundefinition> tags.'
+                )
+
         duplicate_run_set_names = [
             run_set_name for run_set_name, count in run_set_names.items() if count > 1
         ]
@@ -570,11 +580,20 @@ class RunSet(object):
         )
         self.runs = [run for block in self.blocks for run in block.runs]
 
-        names = [self.real_name]
-        if len(self.blocks) == 1:
-            # there is exactly one source-file set to run, append its name to run-set name
-            names.append(self.blocks[0].real_name)
-        self.name = ".".join(filter(None, names))
+        if (
+            benchmark.config.results_per_rundefinition
+            or benchmark.config.results_per_taskset
+        ):
+            # strict naming, use what user has given
+            self.real_name = self.real_name or None  # normalize "" to None
+            self.name = self.real_name
+        else:
+            # TODO: get rid of this and replace name with real_name
+            names = [self.real_name]
+            if len(self.blocks) == 1:
+                # there is exactly one source-file set to run, append its name to run-set name
+                names.append(self.blocks[0].real_name)
+            self.name = ".".join(filter(None, names))
         self.full_name = self.benchmark.name + (f".{self.name}" if self.name else "")
 
         # Currently we store logfiles as "basename.log",
@@ -678,7 +697,32 @@ class RunSet(object):
                     )
                 )
 
-            blocks.append(SourcefileSet(sourcefileSetName, index, currentRuns))
+            if config.results_per_rundefinition or config.results_per_taskset:
+                # strict naming, use what user has given
+                name = sourcefileSetName or None  # normalize "" to None
+            else:
+                # keep old behavior for now
+                name = sourcefileSetName or str(index)
+            blocks.append(SourcefileSet(sourcefileSetName, name, currentRuns))
+
+        if config.results_per_taskset:
+            # with --results-per-taskset all task sets need non-empty unique names
+            block_names = collections.Counter(block.name for block in blocks)
+            if block_names[None] > 0:
+                raise BenchExecException(
+                    f"""Unnamed task set found in run definition '{rundef_name or ""}' """
+                    "but --results-per-taskset given. "
+                    "Please add non-empty unique names to all <tasks> tags."
+                )
+            duplicate_block_names = {
+                block_name for block_name, count in block_names.items() if count > 1
+            }
+            if duplicate_block_names:
+                raise BenchExecException(
+                    f"""Run definition '{rundef_name or ""}' contains task sets """
+                    "with the following duplicate names, "
+                    "please use unique names: " + ", ".join(duplicate_block_names)
+                )
 
         if config.selected_sourcefile_sets:
             for selected in config.selected_sourcefile_sets:
@@ -946,9 +990,9 @@ class SourcefileSet(object):
     A SourcefileSet contains a list of runs and a name.
     """
 
-    def __init__(self, name, index, runs):
-        self.real_name = name  # this name is optional
-        self.name = name or str(index)  # this name is always non-empty
+    def __init__(self, real_name, name, runs):
+        self.real_name = real_name  # always contains name from benchmark definition
+        self.name = name  # TODO: remove and replace with real_name
         self.runs = runs
 
 
