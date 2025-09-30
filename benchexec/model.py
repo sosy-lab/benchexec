@@ -597,82 +597,86 @@ class RunSet(object):
         blocks = []
 
         for index, sourcefilesTag in enumerate(sourcefilesTagList):
-            sourcefileSetName = sourcefilesTag.get("name")
-            matchName = sourcefileSetName or str(index)
-            if self.benchmark.config.selected_sourcefile_sets and not any(
-                util.wildcard_match(matchName, sourcefile_set)
-                for sourcefile_set in self.benchmark.config.selected_sourcefile_sets
-            ):
-                continue
+            if self.should_be_executed():
 
-            required_files_pattern = global_required_files_pattern.union(
-                {tag.text for tag in sourcefilesTag.findall("requiredfiles")}
-            )
+                sourcefileSetName = sourcefilesTag.get("name")
+                matchName = sourcefileSetName or str(index)
+                if self.benchmark.config.selected_sourcefile_sets and not any(
+                    util.wildcard_match(matchName, sourcefile_set)
+                    for sourcefile_set in self.benchmark.config.selected_sourcefile_sets
+                ):
+                    continue
 
-            # get lists of filenames
-            task_def_files = self.get_task_def_files_from_xml(sourcefilesTag, base_dir)
-
-            # get file-specific options for filenames
-            fileOptions = util.get_list_from_xml(sourcefilesTag)
-            local_propertytag = get_propertytag(sourcefilesTag)
-
-            # some runs need more than one sourcefile,
-            # the first sourcefile is a normal 'include'-file, we use its name as identifier
-            # for logfile and result-category all other files are 'append'ed.
-            appendFileTags = sourcefilesTag.findall("append")
-
-            currentRuns = []
-            for identifier in task_def_files:
-                if identifier.endswith(".yml"):
-                    if appendFileTags:
-                        raise BenchExecException(
-                            "Cannot combine <append> and task-definition files in the same <tasks> tag."
-                        )
-                    run = self.create_run_from_task_definition(
-                        identifier,
-                        fileOptions,
-                        local_propertytag,
-                        required_files_pattern,
-                    )
-                else:
-                    run = self.create_run_for_input_file(
-                        identifier,
-                        fileOptions,
-                        local_propertytag,
-                        required_files_pattern,
-                        appendFileTags,
-                    )
-                if run:
-                    currentRuns.append(run)
-
-            # add runs for cases without source files
-            for run in sourcefilesTag.findall("withoutfile"):
-                currentRuns.append(
-                    Run(
-                        run.text,
-                        [],
-                        None,
-                        fileOptions,
-                        self,
-                        local_propertytag,
-                        required_files_pattern,
-                    )
+                required_files_pattern = global_required_files_pattern.union(
+                    {tag.text for tag in sourcefilesTag.findall("requiredfiles")}
                 )
 
-            blocks.append(SourcefileSet(sourcefileSetName, index, currentRuns))
+                # get lists of filenames
+                task_def_files = self.get_task_def_files_from_xml(
+                    sourcefilesTag, base_dir
+                )
 
-        if self.benchmark.config.selected_sourcefile_sets:
-            for selected in self.benchmark.config.selected_sourcefile_sets:
-                if not any(
-                    util.wildcard_match(sourcefile_set.real_name, selected)
-                    for sourcefile_set in blocks
-                ):
-                    logging.warning(
-                        'For run definition "%s" the selected tasks "%s" '
-                        "do not exist in the benchmark definition, skipping them.",
-                        rundef_name,
-                        selected,
+                # get file-specific options for filenames
+                fileOptions = util.get_list_from_xml(sourcefilesTag)
+                local_propertytag = get_propertytag(sourcefilesTag)
+
+                # some runs need more than one sourcefile,
+                # the first sourcefile is a normal 'include'-file, we use its name as identifier
+                # for logfile and result-category all other files are 'append'ed.
+                appendFileTags = sourcefilesTag.findall("append")
+
+                currentRuns = []
+                for identifier in task_def_files:
+                    if identifier.endswith(".yml"):
+                        if appendFileTags:
+                            raise BenchExecException(
+                                "Cannot combine <append> and task-definition files in the same <tasks> tag."
+                            )
+                        run = self.create_run_from_task_definition(
+                            identifier,
+                            fileOptions,
+                            local_propertytag,
+                            required_files_pattern,
+                        )
+                    else:
+                        run = self.create_run_for_input_file(
+                            identifier,
+                            fileOptions,
+                            local_propertytag,
+                            required_files_pattern,
+                            appendFileTags,
+                        )
+                    if run:
+                        currentRuns.append(run)
+
+                # add runs for cases without source files
+                for run in sourcefilesTag.findall("withoutfile"):
+                    currentRuns.append(
+                        Run(
+                            run.text,
+                            [],
+                            None,
+                            fileOptions,
+                            self,
+                            local_propertytag,
+                            required_files_pattern,
+                        )
                     )
+
+                blocks.append(SourcefileSet(sourcefileSetName, index, currentRuns))
+
+            if self.benchmark.config.selected_sourcefile_sets:
+                for selected in self.benchmark.config.selected_sourcefile_sets:
+                    if not any(
+                        util.wildcard_match(sourcefile_set.real_name, selected)
+                        for sourcefile_set in blocks
+                    ):
+                        logging.warning(
+                            'For run definition "%s" the selected tasks "%s" '
+                            "do not exist in the benchmark definition, skipping them.",
+                            rundef_name,
+                            selected,
+                        )
         return blocks
 
     def get_task_def_files_from_xml(self, sourcefilesTag, base_dir):
