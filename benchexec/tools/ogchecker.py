@@ -13,8 +13,12 @@ class Tool(cpachecker.Tool):
 
     REQUIRED_PATHS = list(cpachecker.Tool.REQUIRED_PATHS) + ["resources"]
 
+    def project_url(self):
+        return "https://gitlab.com/mujtke/ogchecker.git"
+
     def version(self, executable):
-        return ""
+        version = self._version_from_tool(executable, "-help", line_prefix="OGChecker")
+        return version.split("(")[0].strip()
 
     def name(self):
         return "OGChecker"
