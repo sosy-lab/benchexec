@@ -11,10 +11,10 @@ import benchexec.tools.cpachecker as cpachecker
 class Tool(cpachecker.Tool):
     """Tool info for OGChecker."""
 
-    REQUIRED_PATHS = list(cpachecker.Tool.REQUIRED_PATHS) + ["resources"]
+    REQUIRED_PATHS = list(cpachecker.Tool.REQUIRED_PATHS)
 
     def project_url(self):
-        return "https://gitlab.com/mujtke/ogchecker.git"
+        return "https://gitlab.com/mujtke/ogchecker"
 
     def version(self, executable):
         version = self._version_from_tool(executable, "-help", line_prefix="OGChecker")
