@@ -22,4 +22,3 @@ class Tool(cpachecker.Tool):
 
     def name(self):
         return "OGChecker"
-
