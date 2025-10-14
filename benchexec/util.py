@@ -14,6 +14,7 @@ import collections
 import datetime
 import errno
 import fnmatch
+import functools
 import glob
 import logging
 import os
@@ -292,6 +293,7 @@ def print_decimal(d):
     )
 
 
+@functools.cache
 def expand_filename_pattern(pattern, base_dir):
     """
     Expand a file name pattern containing wildcards, environment variables etc.
@@ -330,6 +332,7 @@ def get_files(paths):
     return result if changed else paths
 
 
+@functools.cache
 def substitute_vars(template, replacements):
     """Replace certain keys with respective values in a string.
     @param template: the string in which replacements should be made

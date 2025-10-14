@@ -6,6 +6,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import collections.abc
+import functools
 import logging
 import os
 import re
@@ -84,9 +85,10 @@ def substitute_vars(oldList, runSet=None, task_file=None):
     # do not use keys twice
     assert len({key for (key, value) in keyValueList}) == len(keyValueList)
 
-    return [util.substitute_vars(s, keyValueList) for s in oldList]
+    return [util.substitute_vars(s, tuple(keyValueList)) for s in oldList]
 
 
+@functools.cache
 def load_task_definition_file(task_def_file):
     """Open and parse a task-definition file in YAML format."""
     try:
