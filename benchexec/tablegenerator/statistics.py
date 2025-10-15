@@ -55,12 +55,12 @@ class ColumnStatistics(object):
 class StatValue(object):
     def __init__(
         self,
-        sum,
-        min=None,
-        max=None,
+        sum,  # noqa: A002
+        min=None,  # noqa: A002
+        max=None,  # noqa: A002
         avg=None,
         median=None,
-        stdev=None,  # noqa: A002
+        stdev=None,
     ):  # @ReservedAssignment
         self.sum = sum
         self.min = min
