@@ -52,7 +52,6 @@ class TestExpectedResult(unittest.TestCase):
 
 
 class TestResult(unittest.TestCase):
-
     def expected_result(self, result, subcategory=None):
         return {"dummy.prp": ExpectedResult(result, subcategory)}
 

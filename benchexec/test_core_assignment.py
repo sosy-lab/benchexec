@@ -17,7 +17,6 @@ def lrange(start, end):
 
 
 class TestCpuCoresPerRun(unittest.TestCase):
-
     def assertValid(self, coreLimit, num_of_threads, expectedResult=None):
         result = _get_cpu_cores_per_run0(
             coreLimit, num_of_threads, self.use_ht, *self.machine()
