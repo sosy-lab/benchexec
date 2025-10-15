@@ -159,7 +159,8 @@ pytype:
 ruff:
   stage: test
   before_script:
-    - "pip install ruff"
+    # keep version consistent with .github/workflows/ruff.yml
+    - "pip install ruff==0.14.*"
   script:
     - "ruff check . || true"
     - "ruff check . --output-format=gitlab > gl-code-quality-report.json"

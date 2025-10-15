@@ -17,3 +17,6 @@ jobs:
         with:
           persist-credentials: false
       - uses: astral-sh/ruff-action@v3
+        with:
+          # keep version consistent with .gitlab-ci.yml
+          version: "==0.14.*"
