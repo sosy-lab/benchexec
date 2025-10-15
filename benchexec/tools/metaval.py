@@ -77,9 +77,9 @@ class Tool(benchexec.tools.template.BaseTool2):
         verifierName = self.PATH_TO_TOOL_MAP[verifierDir]
 
         tool = self.wrappedTools[verifierName]
-        assert isinstance(
-            tool, BaseTool2
-        ), "we expect that all wrapped tools extend BaseTool2"
+        assert isinstance(tool, BaseTool2), (
+            "we expect that all wrapped tools extend BaseTool2"
+        )
         return tool.determine_result(run)
 
     def cmdline(self, executable, options, task, rlimits):
@@ -115,9 +115,9 @@ class Tool(benchexec.tools.template.BaseTool2):
                 ).Tool()
 
         tool = self.wrappedTools[verifierName]
-        assert isinstance(
-            tool, BaseTool2
-        ), "we expect that all wrapped tools extend BaseTool2"
+        assert isinstance(tool, BaseTool2), (
+            "we expect that all wrapped tools extend BaseTool2"
+        )
         wrapped_executable = tool.executable(
             BaseTool2.ToolLocator(
                 tool_directory=self._resource(

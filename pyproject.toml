@@ -88,11 +88,6 @@ include-package-data = false
 [tool.setuptools.dynamic]
 version = {attr = "benchexec.__version__"}
 
-[tool.black]
-include = 'bin|\.py$'
-exclude = 'node_modules|\.eggs|\.jar$'
-target-version = ['py310']
-
 [tool.coverage.run]
 branch = true
 parallel = true
@@ -131,15 +126,17 @@ exclude = [
     '**/test_*/**.py',
 ]
 
+[tool.ruff]
+extend-include = ["bin/*"]
+
 [tool.ruff.lint]
 # TODO: Enable more checks.
 #select = ["ALL"]
-ignore = [
-    # temporarily disabled for historic reasons: documentation, line length, type annotations
-    'E501',
-    'I001',
-]
 [tool.ruff.lint.per-file-ignores]
+'bin/*' = [
+    # imports need to come after sys.path changes
+    'E402',
+]
 'benchexec/test*.py' = [
     # wildcard imports significantly shorten test code,
     'F405',

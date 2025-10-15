@@ -164,8 +164,7 @@ def execute_benchmark(benchmark, output_handler):
         )
     if swap_check.has_swapped():
         logging.warning(
-            "System has swapped during benchmarking. "
-            "Benchmark results are unreliable!"
+            "System has swapped during benchmarking. Benchmark results are unreliable!"
         )
     pqos.reset_resources()
     output_handler.output_after_benchmark(STOPPED_BY_INTERRUPT)

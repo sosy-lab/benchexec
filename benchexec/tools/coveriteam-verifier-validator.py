@@ -37,8 +37,7 @@ class Tool(coveriteam.Tool):
             options += ["--input", "specification_path=" + task.property_file]
         else:
             raise UnsupportedFeatureException(
-                "Can't execute CoVeriTeam-Verifier-Validator: "
-                "Specification is missing."
+                "Can't execute CoVeriTeam-Verifier-Validator: Specification is missing."
             )
 
         options += ["--input", "program_path=" + task.single_input_file]

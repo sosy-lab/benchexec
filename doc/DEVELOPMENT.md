@@ -44,9 +44,9 @@ by passing the parameter `--system-site-packages` to `virtualenv`.
 
 ## Code Style
 
-We use the automatic code formatter [black](https://github.com/python/black).
-Installation is possible for example with `pip3 install black`.
-Please format all code using `black .`.
+We use the automatic code formatter [Ruff](https://github.com/astral-sh/ruff).
+Installation is possible for example with `pip3 install ruff`.
+Please format all code using `ruff format`.
 
 Apart from what is formatted automatically,
 we try to follow the official Python style guide [PEP8](https://www.python.org/dev/peps/pep-0008/).

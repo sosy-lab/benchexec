@@ -42,7 +42,6 @@ OVERWRITE_MODE = False
 
 
 class BenchExecIntegrationTests(unittest.TestCase):
-
     def _build_tmp_dir(self):
         """
         Initializes the temporary directory structure for testing.
