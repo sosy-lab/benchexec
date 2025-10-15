@@ -131,6 +131,9 @@ exclude = [
     '**/test_*/**.py',
 ]
 
+[tool.ruff]
+extend-include = ["bin/*"]
+
 [tool.ruff.lint]
 # TODO: Enable more checks.
 #select = ["ALL"]
@@ -140,6 +143,10 @@ ignore = [
     'I001',
 ]
 [tool.ruff.lint.per-file-ignores]
+'bin/*' = [
+    # imports need to come after sys.path changes
+    'E402',
+]
 'benchexec/test*.py' = [
     # wildcard imports significantly shorten test code,
     'F405',
