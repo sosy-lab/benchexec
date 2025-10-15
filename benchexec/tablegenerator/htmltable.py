@@ -455,12 +455,12 @@ def _prepare_rows_for_js(rows, base_dir, href_base, relevant_id_columns):
 def _create_link(href, base_dir, runResult=None, href_base=None):
     def get_replacements(task_file):
         var_prefix = "taskdef_" if task_file.endswith(".yml") else "inputfile_"
-        return [
+        return (
             (var_prefix + "name", os.path.basename(task_file)),
             (var_prefix + "path", os.path.dirname(task_file) or "."),
             (var_prefix + "path_abs", os.path.dirname(os.path.abspath(task_file))),
-        ] + (
-            [
+        ) + (
+            (
                 ("logfile_name", os.path.basename(runResult.log_file)),
                 (
                     "logfile_path",
@@ -473,9 +473,9 @@ def _create_link(href, base_dir, runResult=None, href_base=None):
                     "logfile_path_abs",
                     os.path.dirname(os.path.abspath(runResult.log_file)),
                 ),
-            ]
+            )
             if runResult.log_file
-            else []
+            else ()
         )
 
     source_file = (
