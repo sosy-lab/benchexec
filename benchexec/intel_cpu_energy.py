@@ -38,9 +38,9 @@ class EnergyMeasurement(object):
 
     def start(self):
         """Starts the external measurement program."""
-        assert (
-            not self.is_running()
-        ), "Attempted to start an energy measurement while one was already running."
+        assert not self.is_running(), (
+            "Attempted to start an energy measurement while one was already running."
+        )
 
         self._measurement_process = subprocess.Popen(
             [self._executable, "-r"],

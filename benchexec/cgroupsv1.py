@@ -401,9 +401,9 @@ class CgroupsV1(Cgroups):
         On cgroupsv1 there is no difference to a regular child cgroup.
         """
         child_cgroup = self.create_fresh_child_cgroup(self.subsystems.keys(), prefix)
-        assert (
-            self.subsystems.keys() == child_cgroup.subsystems.keys()
-        ), "delegation failed for at least one controller"
+        assert self.subsystems.keys() == child_cgroup.subsystems.keys(), (
+            "delegation failed for at least one controller"
+        )
 
         return child_cgroup
 

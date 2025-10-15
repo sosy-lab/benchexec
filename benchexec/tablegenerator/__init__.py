@@ -924,9 +924,9 @@ class Row(object):
         self.results = results
         self.id = results[0].task_id
         self.has_sourcefile = results[0].sourcefiles_exist
-        assert (
-            len({r.task_id for r in results}) == 1
-        ), "not all results are for same task"
+        assert len({r.task_id for r in results}) == 1, (
+            "not all results are for same task"
+        )
 
     def set_relative_path(self, common_prefix, base_dir):
         """
@@ -1326,7 +1326,9 @@ def write_csv_table(
     num_id_columns = relevant_id_columns[1:].count(True)
 
     def write_head_line(
-        name, values, value_repetitions=itertools.repeat(1)  # noqa: B008
+        name,
+        values,
+        value_repetitions=itertools.repeat(1),  # noqa: B008
     ):
         if any(values):
             # name may contain paths, so standardize the output across OSs

@@ -1055,9 +1055,9 @@ class Run(object):
         self.category = result.CATEGORY_UNKNOWN
 
     def cmdline(self):
-        assert (
-            self.runSet.benchmark.executable is not None
-        ), "executor needs to set tool executable"
+        assert self.runSet.benchmark.executable is not None, (
+            "executor needs to set tool executable"
+        )
         self._cmdline = cmdline_for_run(
             self.runSet.benchmark.tool,
             self.runSet.benchmark.executable,

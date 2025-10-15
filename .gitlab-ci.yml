@@ -113,16 +113,6 @@ tests:cgroupsv2:python-3.13:
     PYTHON_VERSION: '3.13'
 
 # Static checks
-check-format:
-  stage: test
-  image: python:3.10
-  before_script:
-    # keep version consistent with .github/workflows/black.yml
-    - pip install 'black==25.*'
-  script:
-    - black . --check --diff
-  <<: *pip-cache
-
 flynt:
   # Use flynt (https://github.com/ikamensh/flynt) for converting string formatting to f-strings
   stage: test
@@ -166,6 +156,17 @@ ruff:
   artifacts:
     reports:
       codequality: "gl-code-quality-report.json"
+  cache:
+    key: "${CI_JOB_NAME}"
+    paths:
+      - ".ruff_cache"
+
+check-format:
+  stage: test
+  # keep version consistent with .github/workflows/ruff.yml
+  image: ghcr.io/astral-sh/ruff:0.14
+  script:
+    - "ruff format --check --diff"
   cache:
     key: "${CI_JOB_NAME}"
     paths:

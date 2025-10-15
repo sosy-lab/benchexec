@@ -567,9 +567,9 @@ class ProcessExitCode(collections.namedtuple("ProcessExitCode", "raw value signa
             # signal 0 does not exist, this means there was no signal that killed the process
             exitsignal = None
         else:
-            assert (
-                returnvalue == 0
-            ), f"returnvalue {returnvalue}, although exitsignal is {exitsignal}"
+            assert returnvalue == 0, (
+                f"returnvalue {returnvalue}, although exitsignal is {exitsignal}"
+            )
             returnvalue = None
         return cls(exitcode, returnvalue, exitsignal)
 

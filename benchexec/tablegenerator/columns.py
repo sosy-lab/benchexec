@@ -526,9 +526,9 @@ def _get_column_type_heur(
                     f"{scaled_value:.{max_number_of_dec_digits_after_scale}f}"
                 )
                 scaled_value_match = REGEX_MEASURE.match(scaled_value)
-                assert (
-                    scaled_value_match
-                ), "unexpected output format for number formatting"
+                assert scaled_value_match, (
+                    "unexpected output format for number formatting"
+                )
 
                 curr_dec_digits = _get_decimal_digits(
                     scaled_value_match, column.number_of_significant_digits

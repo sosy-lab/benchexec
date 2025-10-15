@@ -20,3 +20,16 @@ jobs:
         with:
           # keep version consistent with .gitlab-ci.yml
           version: "==0.14.*"
+
+  format:
+    name: Code format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: astral-sh/ruff-action@v3
+        with:
+          # keep version consistent with .gitlab-ci.yml
+          version: "==0.14.*"
+          args: "format --check --diff"
