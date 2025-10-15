@@ -19,4 +19,5 @@ jobs:
       - uses: psf/black@stable
         with:
           options: "--check --diff"
-          version: "<25"
+          # keep version consistent with .gitlab-ci.yml
+          version: "==25.*"

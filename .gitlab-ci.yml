@@ -117,7 +117,8 @@ check-format:
   stage: test
   image: python:3.10
   before_script:
-    - pip install 'black<26'
+    # keep version consistent with .github/workflows/black.yml
+    - pip install 'black==25.*'
   script:
     - black . --check --diff
   <<: *pip-cache
