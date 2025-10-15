@@ -148,8 +148,10 @@ pytype:
 
 ruff:
   stage: test
-  # keep version consistent with .github/workflows/ruff.yml
-  image: ghcr.io/astral-sh/ruff:0.14
+  image:
+    # keep version consistent with .github/workflows/ruff.yml
+    name: ghcr.io/astral-sh/ruff:0.14
+    entrypoint: [""]
   script:
     - "ruff check . || true"
     - "ruff check . --output-format=gitlab > gl-code-quality-report.json"
@@ -163,8 +165,10 @@ ruff:
 
 check-format:
   stage: test
-  # keep version consistent with .github/workflows/ruff.yml
-  image: ghcr.io/astral-sh/ruff:0.14
+  image:
+    # keep version consistent with .github/workflows/ruff.yml
+    name: ghcr.io/astral-sh/ruff:0.14
+    entrypoint: [""]
   script:
     - "ruff format --check --diff"
   cache:
