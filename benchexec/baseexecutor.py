@@ -11,6 +11,7 @@ import os
 import subprocess
 import sys
 import threading
+import select
 
 from benchexec import __version__
 from benchexec import util
@@ -114,8 +115,8 @@ class BaseExecutor(object):
         p = subprocess.Popen(
             args,
             stdin=stdin,
-            stdout=stdout,
-            stderr=stderr,
+            stdout=None if stdout is None else subprocess.PIPE,
+            stderr=None if stderr is None else subprocess.PIPE,
             env=env,
             cwd=cwd,
             close_fds=True,
@@ -123,6 +124,10 @@ class BaseExecutor(object):
         )
 
         def wait_and_get_result():
+            # Wait until all output has been processed before considering the process
+            # as terminated.
+            if stdout is not None or stderr is not None:
+                self._stream_output_with_selector(p, stdout, stderr)
             exitcode, ru_child = self._wait_for_process(p.pid, args[0])
             p.poll()
 
@@ -132,6 +137,70 @@ class BaseExecutor(object):
             return exitcode, ru_child, parent_cleanup
 
         return p.pid, cgroups, wait_and_get_result
+
+    def _stream_output_with_selector(self, proc, stdout, stderr):
+        """Asynchronously read from stdout and stderr of the given process
+        and write to the given output target.
+        @param proc subprocess.Popen object whose output to monitor
+        @param stdout fileobj to send stdout
+        @param stderr fileobj to send stderr
+        """
+        # To address https://github.com/sosy-lab/benchexec/issues/535,
+        # the stdout and stderr of the executed process are monitored
+        # using select.
+        # This allows stdout and stderr to be processed asynchronously.
+
+        # Prepare file descriptors to monitor
+        fd_to_file = {}
+        if stdout is not None:
+            fd_to_file[proc.stdout.fileno()] = stdout
+        if stderr is not None:
+            fd_to_file[proc.stderr.fileno()] = stderr
+
+        # Use pidfd to monitor whether proc terminates
+        try:
+            pidfd = util.pidfd_open(proc.pid)
+        except OSError as e:
+            print(f"Failed to open pidfd: {e}")
+
+        try:
+            while True:
+                # fds to monitor
+                read_fds = list(fd_to_file.keys()) + [pidfd]
+                readables, _wlist, _xlist = select.select(read_fds, [], [])
+
+                for fd in readables:
+                    if fd == pidfd:
+                        continue
+                    out_stream = fd_to_file[fd]
+                    try:
+                        output = os.read(fd, 4096)
+                    except OSError:
+                        # fd might closed
+                        del fd_to_file[fd]
+                        continue
+                    if not output:
+                        # Reach EOF
+                        out_stream.flush()
+                        del fd_to_file[fd]
+                    else:
+                        print(output.decode().strip(), file=out_stream)
+
+                if pidfd in readables:
+                    # Flush all the output and exit if proc receives a signal
+                    for out_stream in fd_to_file.values():
+                        out_stream.flush()
+                    break
+
+                if not fd_to_file:
+                    # Exit if both stdout and stderr send EOF
+                    break
+        finally:
+            if proc.stdout is not None:
+                proc.stdout.close()
+            if proc.stderr is not None:
+                proc.stderr.close()
+            os.close(pidfd)
 
     def _wait_for_process(self, pid, name):
         """Wait for the given process to terminate.
