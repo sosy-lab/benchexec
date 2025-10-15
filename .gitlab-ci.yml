@@ -153,8 +153,8 @@ ruff:
     name: ghcr.io/astral-sh/ruff:0.14
     entrypoint: [""]
   script:
-    - "ruff check . || true"
-    - "ruff check . --output-format=gitlab > gl-code-quality-report.json"
+    - "/ruff check . || true"
+    - "/ruff check . --output-format=gitlab > gl-code-quality-report.json"
   artifacts:
     reports:
       codequality: "gl-code-quality-report.json"
@@ -170,7 +170,7 @@ check-format:
     name: ghcr.io/astral-sh/ruff:0.14
     entrypoint: [""]
   script:
-    - "ruff format --check --diff"
+    - "/ruff format --check --diff"
   cache:
     key: "${CI_JOB_NAME}"
     paths:
