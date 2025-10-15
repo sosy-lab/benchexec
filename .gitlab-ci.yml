@@ -146,35 +146,31 @@ pytype:
       - ".cache/pip"
       - ".pytype"
 
-ruff:
+.base_ruff:
   stage: test
-  image:
-    # keep version consistent with .github/workflows/ruff.yml
-    name: ghcr.io/astral-sh/ruff:0.14
-    entrypoint: [""]
-  script:
-    - "/ruff check . || true"
-    - "/ruff check . --output-format=gitlab > gl-code-quality-report.json"
-  artifacts:
-    reports:
-      codequality: "gl-code-quality-report.json"
+  interruptible: true
+  # keep version consistent with .github/workflows/ruff.yml
+  image: ghcr.io/astral-sh/ruff:0.14-alpine
+  before_script:
+    - ruff --version
   cache:
     key: "${CI_JOB_NAME}"
     paths:
       - ".ruff_cache"
 
-check-format:
-  stage: test
-  image:
-    # keep version consistent with .github/workflows/ruff.yml
-    name: ghcr.io/astral-sh/ruff:0.14
-    entrypoint: [""]
+ruff:
+  extends: .base_ruff
   script:
-    - "/ruff format --check --diff"
-  cache:
-    key: "${CI_JOB_NAME}"
-    paths:
-      - ".ruff_cache"
+    - "ruff check || true"
+    - "ruff check --output-format=gitlab > code-quality-report.json"
+  artifacts:
+    reports:
+      codequality: code-quality-report.json
+
+check-format:
+  extends: .base_ruff
+  script:
+    - "ruff format --check --diff"
 
 
 # For HTML tables, test that bundled files are uptodate
