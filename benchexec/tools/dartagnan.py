@@ -40,24 +40,23 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def determine_result(self, run):
         status = result.RESULT_ERROR
-        if run.output:
-            result_str = run.output[-1].strip()
-            if "FAIL" in result_str:
-                failure_str = run.output[-3].strip()
-                if "integer overflow" in failure_str:
-                    status = result.RESULT_FALSE_OVERFLOW
-                elif "invalid dereference" in failure_str:
-                    status = result.RESULT_FALSE_DEREF
-                elif "user assertion" in failure_str:
-                    status = result.RESULT_FALSE_REACH
-                elif "data race found" in failure_str:
-                    status = result.RESULT_FALSE_DATARACE
-                else:
-                    status = result.RESULT_FALSE_PROP
-            elif "PASS" in result_str:
+        for line in run.output:
+            if "Result: FAIL" in line:
+                status = result.RESULT_FALSE_PROP
+            elif "Result: PASS" in line:
                 status = result.RESULT_TRUE_PROP
-            elif "UNKNOWN" in result_str:
-                status = result.RESULT_UNKNOWN
+            elif "unknown function" in line:
+                status = result.RESULT_ERROR
+            elif "integer overflow" in line:
+                status = result.RESULT_FALSE_OVERFLOW
+            elif "invalid dereference" in line:
+                status = result.RESULT_FALSE_DEREF
+            elif "user assertion" in line:
+                status = result.RESULT_FALSE_REACH
+            elif "data race found" in line:
+                status = result.RESULT_FALSE_DATARACE
+            elif "Termination violation found" in line:
+                status = result.RESULT_FALSE_TERMINATION
         return status
 
     def program_files(self, executable):
