@@ -41,12 +41,12 @@ class Tool(benchexec.tools.template.BaseTool2):
     def determine_result(self, run):
         status = result.RESULT_ERROR
         for line in run.output:
-            if "Result: FAIL" in line:
-                status = result.RESULT_FALSE_PROP
-            elif "Result: PASS" in line:
-                status = result.RESULT_TRUE_PROP
-            elif "unknown function" in line:
+            if "unsupported property" in line:
                 status = result.RESULT_ERROR
+            elif "FAIL" in line:
+                status = result.RESULT_FALSE_PROP
+            elif "PASS" in line:
+                status = result.RESULT_TRUE_PROP
             elif "integer overflow" in line:
                 status = result.RESULT_FALSE_OVERFLOW
             elif "invalid dereference" in line:
