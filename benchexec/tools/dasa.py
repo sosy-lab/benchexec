@@ -19,13 +19,12 @@ class Tool(BaseTool2):
         "run_sv-comp.py",
         "test.py",
         "Version.py",
-        ".venv_dasa"
+        ".venv_dasa",
     ]
     """
     Tool info module for DASA, a static differentiable symbolic analyzer.
     DASA is currently being developed by the Institute for IT Security at the University of Luebeck.
     """
-
 
     def executable(self, tool_locator):
         return tool_locator.find_executable("run_dasa.sh")
