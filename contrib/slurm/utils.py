@@ -94,35 +94,3 @@ def get_system_info_srun(singularity):
     except Exception as e:
         logging.warning("could not determine system info due to error: %s", e)
     return None
-
-
-def get_cpu_cmd(concurrency_factor, cores):
-    get_cpus = (
-        "cpus=($(scontrol show job -d \"$SLURM_JOB_ID\" | grep -o 'CPU_IDs=[^ ]*' | "
-        "awk -F= ' { print $2 } ' | head -n1 | "
-        "awk -F, ' { for (i = 1; i <= NF; i++ ) { if ($i ~ /-/) "
-        '{ split($i, range, "-"); for (j = range[1]; j <= range[2]; j++  ) { print j } } '
-        "else { print $i } } }'))"
-        '\necho "${cpus[@]}"'
-    )
-    for i in range(concurrency_factor):
-        get_cpus = (
-            get_cpus
-            + f'\nexport cpuset{i}=$(IFS=,; echo "${{cpus[*]:{i * cores}:{cores}}}")'
-        )
-    return get_cpus
-
-
-def lock_cpu_cmds(concurrency_factor, tempdir, bin):
-    lock_cpus = 'CPUSET=""; while ! {'
-    for i in range(concurrency_factor):
-        lock_cpus = (
-            lock_cpus
-            + f' {{ mkdir {tempdir}/cpuset_{bin}_{i} 2>/dev/null && cpuset={i} && CPUSET="$cpuset{i}"; }}'
-        )
-        if i == concurrency_factor - 1:
-            lock_cpus = lock_cpus + "; }; do sleep 1; done"
-        else:
-            lock_cpus = lock_cpus + " ||"
-    unlock_cpus = f"rm -r {tempdir}/cpuset_{bin}_$cpuset"
-    return lock_cpus, unlock_cpus

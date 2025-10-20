@@ -21,13 +21,11 @@ import time
 import zipfile
 
 from benchexec import tooladapter
-from benchexec.tablegenerator import parse_results_file, handle_union_tag
+from benchexec.tablegenerator import parse_results_file
 from benchexec.util import ProcessExitCode, relative_path
 from contrib.slurm.utils import (
     version_in_container,
     get_system_info_srun,
-    get_cpu_cmd,
-    lock_cpu_cmds,
 )
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
@@ -302,16 +300,10 @@ def execute_batch(
     global STOPPED_BY_INTERRUPT
     number_of_bins = int(len(runs) / benchmark.config.aggregation_factor) + 1
 
-    use_concurrency = benchmark.config.concurrency_factor != 1
-    if use_concurrency:
-        get_cpus = get_cpu_cmd(
-            benchmark.config.concurrency_factor, benchmark.rlimits.cpu_cores
-        )
-
-    with tempfile.TemporaryDirectory(dir=benchmark.config.scratchdir) as tempdir:
+    with tempfile.TemporaryDirectory(dir=benchmark.config.scratchdir, delete=not benchmark.config.generate_only) as tempdir:
         batch_lines = ["#!/bin/bash"]
 
-        for setting in get_resource_limits(benchmark, tempdir):
+        for setting in get_resource_limits(benchmark, benchmark.config.concurrency_factor, math.ceil(benchmark.config.aggregation_factor * 1.0 / benchmark.config.concurrency_factor)):
             batch_lines.extend(["\n#SBATCH " + str(setting)])
 
         batch_lines.extend(
@@ -326,67 +318,39 @@ def execute_batch(
                 bins[i % number_of_bins] = []
             bins[i % number_of_bins].append((i, run))
 
-        if use_concurrency:
-            batch_lines.extend(["\n\n" + get_cpus])
-            batch_lines.extend(["\n\ncase $SLURM_ARRAY_TASK_ID in"])
-            for bin in bins:
-                lock_cpus, unlock_cpus = lock_cpu_cmds(
-                    benchmark.config.concurrency_factor, tempdir, bin
-                )
-                batch_lines.extend(["\n" + str(bin) + ") "])
-                taskfile_name = f"bin{str(bin)}.tasks"
-                taskfile = os.path.join(tempdir, taskfile_name)
-                with open(taskfile, "w") as f:
-                    task_lines = []
-                    for i, run in bins[bin]:
-                        task_lines.extend(
-                            [
-                                lock_cpus
-                                + " && "
-                                + str(
-                                    get_run_cli(
-                                        benchmark,
-                                        run.cmdline(),
-                                        os.path.join("$TMPDIR", str(i)),
-                                        os.path.join(tempdir, str(i)),
-                                    )
-                                )
-                                + "; "
-                                + unlock_cpus
-                                + "\n"
-                            ]
-                        )
-                    f.writelines(task_lines)
-                batch_lines.extend(
-                    f'\n while read -r x; do /bin/sh -c "$x" & done < {taskfile}'
-                )
-                batch_lines.extend("\n wait")
-                batch_lines.extend(["\n;;"])
-        else:
-            batch_lines.extend(["\n\ncase $SLURM_ARRAY_TASK_ID in"])
-            for bin in bins:
-                batch_lines.extend(["\n" + str(bin) + ") "])
+        batch_lines.extend(["\n\ncase $SLURM_ARRAY_TASK_ID in"])
+        for bin in bins:
+            batch_lines.extend(["\n" + str(bin) + ") "])
+            taskfile_name = f"bin{str(bin)}.tasks"
+            taskfile = os.path.join(tempdir, taskfile_name)
+            with open(taskfile, "w") as f:
+                task_lines = []
                 for i, run in bins[bin]:
-                    batch_lines.extend(
-                        [
-                            "\n  "
-                            + str(
+                    task_lines.extend(
+                        [str(
                                 get_run_cli(
                                     benchmark,
                                     run.cmdline(),
-                                    os.path.join("$TMPDIR", str(i)),
                                     os.path.join(tempdir, str(i)),
                                 )
-                            )
+                            )+ "\n"
                         ]
                     )
-                batch_lines.extend(["\n;;"])
+                f.writelines(task_lines)
+            batch_lines.extend(
+                f'\n while read -r x; do /bin/sh -c "$x" & done < {taskfile}'
+            )
+            batch_lines.extend("\n wait")
+            batch_lines.extend(["\n;;"])
 
         batch_lines.extend(["\nesac"])
 
         batchfile = os.path.join(tempdir, "array.sbatch")
         with open(batchfile, "w") as f:
             f.writelines(batch_lines)
+
+        if benchmark.config.generate_only:
+            return
 
         try:
             sbatch_cmd = ["sbatch", "--wait", str(batchfile)]
@@ -396,7 +360,6 @@ def execute_batch(
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
             )
-
         except KeyboardInterrupt:
             STOPPED_BY_INTERRUPT = True
 
@@ -466,26 +429,21 @@ def stop():
     STOPPED_BY_INTERRUPT = True
 
 
-def get_resource_limits(benchmark, tempdir):
+def get_resource_limits(benchmark, parallel_factor=1, sequential_factor=1):
     timelimit = int(
         max(
-            int(benchmark.rlimits.cputime if benchmark.rlimits.cputime else -1),
-            int(benchmark.rlimits.walltime if benchmark.rlimits.walltime else -1),
+            int(benchmark.rlimits.cputime if benchmark.rlimits.cputime else 0),
+            int(benchmark.rlimits.walltime if benchmark.rlimits.walltime else 0),
             int(
-                benchmark.rlimits.cputime_hard if benchmark.rlimits.cputime_hard else -1
+                benchmark.rlimits.cputime_hard if benchmark.rlimits.cputime_hard else 0
             ),
-        )  # safe overapprox
-        * math.ceil(
-            benchmark.config.aggregation_factor / benchmark.config.concurrency_factor
-        )
-        * 1.5  # to let all processes finish, we add 50%
+        ) * benchmark.config.overtime_factor * sequential_factor
     )
     assert timelimit > 0, "Either cputime, cputime_hard, or walltime should be given."
-    cpus = benchmark.rlimits.cpu_cores * benchmark.config.concurrency_factor
+    cpus = benchmark.rlimits.cpu_cores * parallel_factor
     memory = (
-        benchmark.rlimits.memory * benchmark.config.concurrency_factor * 1.5
-    )  # so that runexec catches the OOM, not SLURM (other stuff runs in the container as well)
-    os.makedirs(os.path.join(tempdir, "logs"), exist_ok=True)
+            benchmark.rlimits.memory * parallel_factor
+    )
 
     srun_timelimit_h = int(timelimit / 3600)
     srun_timelimit_m = int((timelimit % 3600) / 60)
@@ -495,7 +453,6 @@ def get_resource_limits(benchmark, tempdir):
     )
 
     ret = [
-        f"--output={tempdir}/logs/%A_%a.out",
         "--time=" + str(srun_timelimit),
         "--cpus-per-task=" + str(cpus),
         "--mem=" + str(int(memory / 1000000)) + "M",
@@ -506,70 +463,19 @@ def get_resource_limits(benchmark, tempdir):
     return ret
 
 
-def get_run_cli(benchmark, args, tempdir, resultdir):
+def get_run_cli(benchmark, args, resultdir):
     os.makedirs(resultdir)
     cli = []
     basedir = os.path.abspath(os.path.dirname(singularity))
 
-    runexec = [
-        "runexec",
-        "--full-access-dir",
-        "/sys/fs/cgroup",
-        "--read-only-dir",
-        "/",
-        "--overlay-dir",
-        "$tooldir" if benchmark.config.copy_tool else os.getcwd(),
-        "--hidden-dir",
-        "/home",
-        "--output-directory",
-        "/results",
-        "--output",
-        "/results/output.log",
-        "--result-files",
-        "**/*witness*",
-    ]
-    if benchmark.config.copy_tool:
-        runexec.extend(["--full-access-dir", "/tmp"])
-    if benchmark.rlimits.cputime_hard:
-        runexec.extend(["--timelimit", str(benchmark.rlimits.cputime_hard)])
-    if benchmark.rlimits.cputime:
-        runexec.extend(["--softtimelimit", str(benchmark.rlimits.cputime)])
-    if benchmark.rlimits.walltime:
-        runexec.extend(["--walltimelimit", str(benchmark.rlimits.walltime)])
-    if benchmark.config.concurrency_factor != 1:
-        runexec.extend(["--cores", "$CPUSET"])
-    if benchmark.rlimits.memory:
-        runexec.extend(["--memlimit", str(benchmark.rlimits.memory)])
+    base_cmd = ["srun", "--exclusive", *get_resource_limits(benchmark, 1, 1)]
 
-    need_copy = []
-    if benchmark.config.copy_tool:
-
-        def map_arg(arg):
-            if (
-                os.path.exists(arg)
-                and os.path.isfile(arg)
-                and not str(os.path.abspath(arg)).startswith(
-                    str(os.path.abspath(os.getcwd()))
-                )
-            ):
-                new_arg = os.path.join("/tmp", os.path.basename(arg))
-                need_copy.append(arg)
-                return new_arg
-            else:
-                return arg
-
-        args = [map_arg(arg) for arg in args]
-
-    args = [*runexec, "--", *args]
-
-    cli.extend(
+    base_cmd.extend(
         [
             "singularity",
             "exec",
-            "--fakeroot",
-            "--contain",
             "-B",
-            "/sys/fs/cgroup:/sys/fs/cgroup:rw",
+            "/sys/fs/cgroup:/sys/fs/cgroup:ro",
             "-B",
             f"{basedir}:/lower:ro",
             "-B",
@@ -580,24 +486,28 @@ def get_run_cli(benchmark, args, tempdir, resultdir):
             singularity,
         ]
     )
-    cli.extend(
+    base_cmd.extend(
         [
-            "sh",
+            "bash", # bash is needed for ${PIPESTATUS[0]}
             "-c",
-            "unset TMPDIR; "
-            + (
-                f"tooldir=$(mktemp -d -p {os.path.dirname(os.getcwd())}); cp -vr {os.getcwd()}/. $tooldir/; cd $tooldir; cp -vr {' '.join(need_copy)} /tmp/; "
-                if benchmark.config.copy_tool
-                else f"cd {os.getcwd()}; "
-            )
-            + f"{shlex.join(['echo', 'Running command: ', *args])}; "
-            f"{shlex.join(args)} 2>&1 | tee /results/log; ",
+            f"cd {os.getcwd()}; "
+            "start=$(date +%s.%N); "
+            "CG_CPU=$(awk -F: \"$2 ~ /cpu/ {print $3;exit}\" /proc/self/cgroup); "
+            "CG_MEM=$(awk -F: \"$2 ~ /memory/ {print $3;exit}\" /proc/self/cgroup); "
+            "BASE_CPU=\"/sys/fs/cgroup/cpu$CG_CPU\"; "
+            "BASE_MEM=\"/sys/fs/cgroup/memory$CG_MEM\"; "
+            "before_cpu=$(cat $BASE_CPU/cpuacct.usage 2>/dev/null); "
+            f"{shlex.join(['echo', 'Running command: ', *args])}; "
+            f"{shlex.join(args)} 2>&1 | tee /results/log; "
+            "rv=${PIPESTATUS[0]}; "
+            "end=$(date +%s.%N); "
+            "after_cpu=$(cat $BASE_CPU/cpuacct.usage 2>/dev/null); "
+            "mem=$(cat $BASE_MEM/memory.max_usage_in_bytes 2>/dev/null || cat $BASE_MEM/memory.usage_in_bytes 2>/dev/null); "
+            "awk -v start=\"$start\" -v end=\"$end\" -v before_cpu=\"$before_cpu\" -v after_cpu=\"$after_cpu\" -v mem=\"$mem\" -v rv=\"$rv\" \"BEGIN { walltime=end-start;cputime=(after_cpu-before_cpu)/1e9; printf \\\"walltime=%.3fs\\ncputime=%.3fs\\nmemory=%dB\\nreturnvalue=%d\\n\\\", walltime, cputime, mem, rv }\"' >/results/output.log",
         ]
     )
 
-    cli = shlex.join(cli)
-    cli = cli.replace("'\"'\"'$CPUSET'\"'\"'", "'$CPUSET'")
-    cli = cli.replace("'\"'\"'$tooldir'\"'\"'", "$tooldir")
+    cli = shlex.join(base_cmd)
     logging.debug("Command to run: %s", cli)
 
     return cli

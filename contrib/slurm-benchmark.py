@@ -14,6 +14,8 @@ import logging
 import os
 import sys
 
+from esphome.cpp_types import double
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 import benchexec.benchexec
@@ -94,6 +96,13 @@ class Benchmark(benchexec.benchexec.BenchExec):
             help="Run this many tasks at once in one job.",
         )
         slurm_args.add_argument(
+            "--overtime-factor",
+            dest="overtime_factor",
+            type=float,
+            default="1.1",
+            help="Factor which by to scale timelimits to overapproximate CPU time limit with walltime limit.",
+        )
+        slurm_args.add_argument(
             "--continue-interrupted",
             dest="continue_interrupted",
             action="store_true",
@@ -104,6 +113,12 @@ class Benchmark(benchexec.benchexec.BenchExec):
             dest="copy_tool",
             action="store_true",
             help="Make a copy of the tool folder in the container.",
+        )
+        slurm_args.add_argument(
+            "--generate-only",
+            dest="generate_only",
+            action="store_true",
+            help="Only generate the SLURM array description, don't run it.",
         )
 
         return parser
