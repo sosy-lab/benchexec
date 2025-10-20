@@ -14,8 +14,6 @@ import logging
 import os
 import sys
 
-from esphome.cpp_types import double
-
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 import benchexec.benchexec
