@@ -11,7 +11,7 @@ import benchexec.tools.template
 
 class Tool(benchexec.tools.template.BaseTool2):
     """
-    Tool info for FuncTion.
+    Tool info for FuncTion-Res.
     """
 
     def executable(self, tool_locator):
@@ -21,13 +21,13 @@ class Tool(benchexec.tools.template.BaseTool2):
         return self._version_from_tool(executable, arg="--version")
 
     def name(self):
-        return "FuncTion"
+        return "function-res"
 
     def project_url(self):
-        return "https://github.com/naim-mr/function"
+        return "https://github.com/naim-mr/function-res"
 
     def cmdline(self, executable, options, task, rlimits):
-        cmd = [executable] + [" ", task.single_input_file]
+        cmd = [executable] + [task.single_input_file] + options
         return cmd
 
     def determine_result(self, run):
