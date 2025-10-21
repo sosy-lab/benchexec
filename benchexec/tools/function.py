@@ -22,7 +22,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         return tool_locator.find_executable("function.exe")
 
     def version(self, executable):
-        return self._version_from_tool(executable,arg="--version")
+        return self._version_from_tool(executable, arg="--version")
 
     def name(self):
         return "FuncTion"
@@ -37,7 +37,7 @@ class Tool(benchexec.tools.template.BaseTool2):
             "--validate_yaml_witness",
             TaskFilesConsidered.INPUT_FILES,
         )
-        cmd = [executable] + input_files 
+        cmd = [executable] + input_files
         return cmd + list(options)
 
     def determine_result(self, run):
