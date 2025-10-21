@@ -6,7 +6,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from benchexec.tools.symbiotic import Tool as SymbioticTool
-import benchexec.result as result
 
 
 class Tool(SymbioticTool):
