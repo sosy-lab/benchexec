@@ -21,7 +21,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         return self._version_from_tool(executable, arg="--version")
 
     def name(self):
-        return "function-res"
+        return "FuncTion-Res"
 
     def project_url(self):
         return "https://github.com/naim-mr/function-res"
