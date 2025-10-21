@@ -26,9 +26,7 @@ class Tool(BaseTool2):
         return tool_locator.find_executable("seal-entrypoint.py")
 
     def cmdline(self, executable, options, task, rlimits):
-        machdep = get_data_model_from_task(
-            task, {ILP32: "x86_32", LP64: "x86_64"}
-        )
+        machdep = get_data_model_from_task(task, {ILP32: "x86_32", LP64: "x86_64"})
         machdep_opt = ["-machdep", machdep] if machdep is not None else []
 
         return [executable] + machdep_opt + options + list(task.input_files)
