@@ -27,7 +27,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         return "Fizzer"
 
     def project_url(self):
-        return "https://github.com/staticafi/sbt-fizzer"
+        return "https://github.com/staticafi/fizzer"
 
     def executable(self, tool_locator):
         """
@@ -39,7 +39,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         @param tool_locator: an instance of class ToolLocator
         @return a string pointing to an executable file
         """
-        return tool_locator.find_executable("sbt-fizzer.py")
+        return tool_locator.find_executable("fizzer.py")
 
     def version(self, executable):
         """
