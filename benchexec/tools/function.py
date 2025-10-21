@@ -22,7 +22,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         return tool_locator.find_executable("function.exe")
 
     def version(self, executable):
-        return self._version_from_tool(executable)
+        return self._version_from_tool(executable,arg="--version")
 
     def name(self):
         return "FuncTion"
@@ -44,7 +44,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         if run.was_timeout:
             return result.RESULT_TIMEOUT
         if not run.output:
-         return result.RESULT_ERROR
+            return result.RESULT_ERROR
         r = run.output[-1] or run.output[-2]  # last non-empty line
         if "Final Analaysis Result: TRUE" in r:
             return result.RESULT_TRUE_PROP
