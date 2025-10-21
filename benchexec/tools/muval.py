@@ -61,31 +61,24 @@ class Tool(benchexec.tools.template.BaseTool2):
         if run.exit_code.value != 0:
             return result.RESULT_ERROR
 
-        output = "\n".join(run.output)
-
-        # Parse output for verdicts
         for line in run.output:
             line = line.strip()
 
-            # Termination verdicts
             if line == "YES":
                 return result.RESULT_TRUE_PROP
             elif line == "NO":
                 return result.RESULT_FALSE_TERMINATION
 
-            # Reachability verdicts
             elif line == "TRUE":
                 return result.RESULT_TRUE_PROP
             elif line == "FALSE":
                 return result.RESULT_FALSE_REACH
 
-            # Unknown/Timeout
             elif line == "UNKNOWN":
                 return result.RESULT_UNKNOWN
             elif line == "TIMEOUT":
                 return result.RESULT_TIMEOUT
 
-        # No clear verdict found
         return result.RESULT_ERROR
 
     def project_url(self):
