@@ -20,7 +20,6 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def executable(self, tool_locator):
         exe = tool_locator.find_executable("iekke")
-        self.ver = self.version(exe)
         return exe
 
     def name(self):
@@ -28,16 +27,6 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def project_url(self):
         return "https://github.com/paolo-di-biase/Lazy-PO"
-
-    def version_geq(self, version_str1, version_str2):
-        version1 = version_str1.split(".")
-        version2 = version_str2.split(".")
-        for i in range(len(version1)):
-            if int(version1[i]) > int(version2[i]):
-                return True
-            if int(version1[i]) < int(version2[i]):
-                return False
-        return True
 
     def cmdline(self, executable, options, task, rlimits):
         data_model_param = get_data_model_from_task(task, {ILP32: "--32", LP64: "--64"})
