@@ -82,4 +82,4 @@ class Tool(benchexec.tools.template.BaseTool2):
         return result.RESULT_ERROR
 
     def project_url(self):
-        return "https://bitbucket.org/uhiro/fptprove"
+        return "https://github.com/hiroshi-unno/coar"
