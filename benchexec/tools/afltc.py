@@ -12,7 +12,6 @@ import benchexec.tools.template
 
 
 class Tool(benchexec.tools.template.BaseTool2):
-
     # Required paths are relative to the executable directory.
     REQUIRED_PATHS = ["../afl-distribution", "../harness/", "../seeds", "fuzz-to-tc"]
 
@@ -20,13 +19,17 @@ class Tool(benchexec.tools.template.BaseTool2):
         return tool_locator.find_executable("afl-tc", subdir="bin")
 
     def version(self, executable):
-        return self._version_from_tool(executable, arg="--version", line_prefix="afl-tc version")
+        return self._version_from_tool(
+            executable, arg="--version", line_prefix="afl-tc version"
+        )
 
     def environment(self, executable):
-        return {"newEnv" :{
-            "AFL_SKIP_CPUFREQ": "1", # Required to run on BenchCloud
-        }}
-        
+        return {
+            "newEnv": {
+                "AFL_SKIP_CPUFREQ": "1",  # Required to run on BenchCloud
+            }
+        }
+
     def name(self):
         return "afl-tc"
 
@@ -34,20 +37,21 @@ class Tool(benchexec.tools.template.BaseTool2):
         return "https://gitlab.com/sosy-lab/software/test-to-witness"
 
     def cmdline(self, executable, options, task, rlimits):
-        
         data_model = task.options.get("data_model")
         if data_model:
-            data_model_option = {"ILP32": "32bit", "LP64": "64bit"}.get(data_model) or "64bit"
+            data_model_option = {"ILP32": "32bit", "LP64": "64bit"}.get(
+                data_model
+            ) or "64bit"
         else:
             data_model_option = "64bit"
-        
+
         return [executable, task.single_input_file, data_model_option]
 
     def determine_result(self, run):
-        ansi_escape = re.compile(r'\x1B\[[0-?]*[ -/]*[@-~]')
+        ansi_escape = re.compile(r"\x1B\[[0-?]*[ -/]*[@-~]")
         for line in reversed(run.output):
             # Remove ANSI escape sequences (terminal control characters)
-            clean_line = ansi_escape.sub('', line)
+            clean_line = ansi_escape.sub("", line)
             if "Processing complete. Results available" in clean_line:
                 return result.RESULT_DONE
 
