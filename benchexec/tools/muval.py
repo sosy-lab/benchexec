@@ -15,7 +15,7 @@ class Tool(benchexec.tools.template.BaseTool2):
     REQUIRED_PATHS = ["solver", "coar", "llvm2kittel", "Ptr2Arr"]
 
     def executable(self, tool_locator):
-        return tool_locator.find_executable("solver")
+        return tool_locator.find_executable("solver", subdir="bin")
 
     def name(self):
         return "MuVal"
