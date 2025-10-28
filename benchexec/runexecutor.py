@@ -1147,7 +1147,7 @@ def _reduce_file_size_if_necessary(fileName, maxSize):
     We remove only the middle part of a file,
     the file-start and the file-end remain unchanged.
     """
-# ----hyphen is stdout
+    # ----hyphen is stdout
     if fileName == "-":
         return
 
@@ -1181,7 +1181,7 @@ def _get_debug_output_after_crash(output_filename, base_path):
     @param output_filename name of log file with tool output
     @param base_path string that needs to be preprended to paths for lookup of files
     """
-# ----hyphen is stdout
+    # ----hyphen is stdout
     if output_filename == "-":
         return
 
