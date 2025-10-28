@@ -140,7 +140,7 @@ class BaseExecutor(object):
                 CPU = cgroups.read_cputime()
                 WC = time.monotonic()-parent_setup[1]
                 print(f"{CPU:.4f}/{WC:.4f}\t",end='',file=stdout)
-            print(f"EOF",file=stdout)
+            print("EOF",file=stdout)
 
         def wait_and_get_result():
             exitcode, ru_child = self._wait_for_process(p.pid, args[0])
