@@ -43,12 +43,16 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def cmdline(self, executable, options, task, rlimits):
         data_model = task.options.get("data_model")
-        if data_model:
-            data_model_option = {"ILP32": "32bit", "LP64": "64bit"}.get(
-                data_model
-            ) or "64bit"
-        else:
-            data_model_option = "64bit"
+
+        if data_model is None:
+            raise ValueError("The 'data_model' option must be specified for afl-tc.")
+
+        data_model_option = {"ILP32": "32bit", "LP64": "64bit"}.get(data_model)
+
+        if data_model_option is None:
+            raise ValueError(
+                "The 'data_model' option must be either 'ILP32' or 'LP64'."
+            )
 
         return [executable, task.single_input_file, data_model_option]
 
