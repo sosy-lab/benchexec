@@ -120,8 +120,6 @@ class BaseExecutor(object):
             stdin=stdin,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-#            stdout=stdout,
-#            stderr=stderr,
             env=env,
             cwd=cwd,
             close_fds=True,
@@ -132,15 +130,15 @@ class BaseExecutor(object):
         for line in p.stdout:
             if timestamp:
                 CPU = cgroups.read_cputime()
-                WC = time.monotonic()-parent_setup[1]
-                print(f"{CPU:.4f}/{WC:.4f}\t",end='',file=stdout)
-            print(f"{line.strip()}",file=stdout)
+                WC = time.monotonic() - parent_setup[1]
+                print(f"{CPU:.4f}/{WC:.4f}\t",end="", file=stdout)
+            print(f"{line.strip()}", file=stdout)
         if addeof:
             if timestamp:
                 CPU = cgroups.read_cputime()
-                WC = time.monotonic()-parent_setup[1]
-                print(f"{CPU:.4f}/{WC:.4f}\t",end='',file=stdout)
-            print("EOF",file=stdout)
+                WC = time.monotonic() - parent_setup[1]
+                print(f"{CPU:.4f}/{WC:.4f}\t",end="", file=stdout)
+            print("EOF", file=stdout)
 
         def wait_and_get_result():
             exitcode, ru_child = self._wait_for_process(p.pid, args[0])

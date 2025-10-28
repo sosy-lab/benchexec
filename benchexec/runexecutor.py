@@ -151,7 +151,7 @@ def main(argv=None):
         "--add-eof",
         action="store_true",
         dest="addeof",
-        help="add an \"EOF\" line after the end of the stdout/stderr from the tool",
+        help='add an "EOF" line after the end of the stdout/stderr from the tool',
     )
 
     container_args = parser.add_argument_group("optional arguments for run container")
