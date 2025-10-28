@@ -105,7 +105,7 @@ def main(argv=None):
         "--output",
         default="output.log",
         metavar="FILE",
-        help="name of file where command output (stdout and stderr) is written",
+        help="name of file where command output (stdout and stderr) is written; use - for stdout passthrough",
     )
     io_args.add_argument(
         "--maxOutputSize",
@@ -545,13 +545,16 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         """Open and prepare output file."""
         # write command line into outputFile
         # (without environment variables, they are documented by benchexec)
-        try:
-            parent_dir = os.path.dirname(output_filename)
-            if parent_dir:
-                os.makedirs(parent_dir, exist_ok=True)
-            output_file = open(output_filename, "w")  # override existing file
-        except OSError as e:
-            sys.exit("Could not write to output file: " + str(e))
+        if output_filename == "-":
+            output_file = sys.stdout
+        else:
+            try:
+                parent_dir = os.path.dirname(output_filename)
+                if parent_dir:
+                    os.makedirs(parent_dir, exist_ok=True)
+                output_file = open(output_filename, "w")  # override existing file
+            except OSError as e:
+                sys.exit("Could not write to output file: " + str(e))
 
         if write_header:
             output_file.write(shlex.join(args) + "\n\n\n" + "-" * 80 + "\n\n\n")
@@ -990,7 +993,8 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 tool_cgroups.kill_all_tasks()
 
             # normally subprocess closes file, we do this again after all tasks terminated
-            outputFile.close()
+            if outputFile is not sys.stdout:
+                outputFile.close()
             if errorFile is not outputFile:
                 errorFile.close()
 
@@ -1143,6 +1147,10 @@ def _reduce_file_size_if_necessary(fileName, maxSize):
     We remove only the middle part of a file,
     the file-start and the file-end remain unchanged.
     """
+#----hyphen is stdout
+    if fileName == "-":
+        return
+
     fileSize = os.path.getsize(fileName)
 
     if maxSize is None:
@@ -1173,6 +1181,10 @@ def _get_debug_output_after_crash(output_filename, base_path):
     @param output_filename name of log file with tool output
     @param base_path string that needs to be preprended to paths for lookup of files
     """
+#----hyphen is stdout
+    if output_filename == "-":
+        return
+
     logging.debug("Analysing output for crash info.")
     foundDumpFile = False
     try:

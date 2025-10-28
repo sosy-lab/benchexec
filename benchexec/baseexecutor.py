@@ -119,7 +119,7 @@ class BaseExecutor(object):
             args,
             stdin=stdin,
             stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
             env=env,
             cwd=cwd,
             close_fds=True,
@@ -127,20 +127,22 @@ class BaseExecutor(object):
             text=True,
         )
 
-        for line in p.stdout:
-            if timestamp:
-                CPU = cgroups.read_cputime()
-                WC = time.monotonic() - parent_setup[1]
-                print(f"{CPU:.4f}/{WC:.4f}\t", end="", file=stdout)
-            print(f"{line.strip()}", file=stdout)
-        if addeof:
-            if timestamp:
-                CPU = cgroups.read_cputime()
-                WC = time.monotonic() - parent_setup[1]
-                print(f"{CPU:.4f}/{WC:.4f}\t", end="", file=stdout)
-            print("EOF", file=stdout)
+        def add_timestamps_and_EOF():
+            for line in p.stdout:
+                if timestamp:
+                    CPU = cgroups.read_cputime()
+                    WC = time.monotonic() - parent_setup[1]
+                    print(f"{CPU:.4f}/{WC:.4f}\t", end="", file=stdout)
+                print(f"{line.strip()}", file=stdout)
+            if addeof:
+                if timestamp:
+                    CPU = cgroups.read_cputime()
+                    WC = time.monotonic() - parent_setup[1]
+                    print(f"{CPU:.4f}/{WC:.4f}\t", end="", file=stdout)
+                print("EOF", file=stdout)
 
         def wait_and_get_result():
+            add_timestamps_and_EOF()
             exitcode, ru_child = self._wait_for_process(p.pid, args[0])
             p.poll()
 
