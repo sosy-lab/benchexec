@@ -102,6 +102,12 @@ def main(argv=None):
         "(default: /dev/null; use - for stdin passthrough)",
     )
     io_args.add_argument(
+        "--statistics-output-file",
+        default="-",
+        metavar="FILE",
+        help="name of file where run statistics are written; use - for stdout passthrough",
+    )
+    io_args.add_argument(
         "--output",
         default="output.log",
         metavar="FILE",
@@ -303,6 +309,17 @@ def main(argv=None):
     # exit_code is a util.ProcessExitCode instance
     exit_code = cast(Optional[util.ProcessExitCode], result.pop("exitcode", None))
 
+    if options.statistics_output_file != "-":
+        try:
+            parent_dir = os.path.dirname(options.statistics_output_file)
+            if parent_dir:
+                os.makedirs(parent_dir, exist_ok=True)
+            statsFile = open(options.statistics_output_file, "w")  # override existing file
+        except OSError as e:
+            sys.exit("Could not write to statistics file: " + str(e))
+    else:
+        statsFile = sys.stdout
+
     def print_optional_result(key, unit=""):
         if key in result:
             value = result[key]
@@ -312,20 +329,20 @@ def main(argv=None):
                 format_fn = datetime.datetime.isoformat
             else:
                 format_fn = str
-            print(f"{key}={format_fn(value)}{unit}")
+            print(f"{key}={format_fn(value)}{unit}", file=statsFile)
 
     # output results
     print_optional_result("starttime", unit="")
     print_optional_result("terminationreason")
     if exit_code is not None and exit_code.value is not None:
-        print(f"returnvalue={exit_code.value}")
+        print(f"returnvalue={exit_code.value}", file=statsFile)
     if exit_code is not None and exit_code.signal is not None:
-        print(f"exitsignal={exit_code.signal}")
+        print(f"exitsignal={exit_code.signal}", file=statsFile)
     print_optional_result("walltime", "s")
     print_optional_result("cputime", "s")
     for key in sorted(result.keys()):
         if key.startswith("cputime-"):
-            print(f"{key}={result[key]:.9f}s")
+            print(f"{key}={result[key]:.9f}s", file=statsFile)
     print_optional_result("memory", "B")
     print_optional_result("blkio-read", "B")
     print_optional_result("blkio-write", "B")
@@ -334,8 +351,10 @@ def main(argv=None):
     print_optional_result("pressure-memory-some", "s")
     energy = intel_cpu_energy.format_energy_results(result.get("cpuenergy"))
     for energy_key, energy_value in energy.items():
-        print(f"{energy_key}={energy_value}J")
+        print(f"{energy_key}={energy_value}J", file=statsFile)
 
+    if statsFile is not sys.stdout:
+        statsFile.close()
 
 class RunExecutor(containerexecutor.ContainerExecutor):
     # --- object initialization ---
