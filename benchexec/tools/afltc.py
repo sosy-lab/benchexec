@@ -13,7 +13,7 @@ import benchexec.tools.template
 
 class Tool(benchexec.tools.template.BaseTool2):
     # Required paths are relative to the executable directory.
-    REQUIRED_PATHS = ["../afl-distribution", "../harness/", "../seeds", "fuzz-to-tc"]
+    REQUIRED_PATHS = ["afl-distribution/", "harness/", "seeds/", "bin/fuzz-to-tc"]
 
     def executable(self, tool_locator):
         return tool_locator.find_executable("afl-tc", subdir="bin")
@@ -21,6 +21,11 @@ class Tool(benchexec.tools.template.BaseTool2):
     def version(self, executable):
         return self._version_from_tool(
             executable, arg="--version", line_prefix="afl-tc version"
+        )
+
+    def program_files(self, executable):
+        return self._program_files_from_executable(
+            executable=executable, required_paths=self.REQUIRED_PATHS, parent_dir=True
         )
 
     def environment(self, executable):
