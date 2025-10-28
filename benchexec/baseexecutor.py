@@ -114,7 +114,7 @@ class BaseExecutor(object):
         logging.debug("Executing run with $HOME and $TMPDIR below %s.", temp_dir)
 
         parent_setup = parent_setup_fn()
-        
+
         p = subprocess.Popen(
             args,
             stdin=stdin,
@@ -131,13 +131,13 @@ class BaseExecutor(object):
             if timestamp:
                 CPU = cgroups.read_cputime()
                 WC = time.monotonic() - parent_setup[1]
-                print(f"{CPU:.4f}/{WC:.4f}\t",end="", file=stdout)
+                print(f"{CPU:.4f}/{WC:.4f}\t", end="", file=stdout)
             print(f"{line.strip()}", file=stdout)
         if addeof:
             if timestamp:
                 CPU = cgroups.read_cputime()
                 WC = time.monotonic() - parent_setup[1]
-                print(f"{CPU:.4f}/{WC:.4f}\t",end="", file=stdout)
+                print(f"{CPU:.4f}/{WC:.4f}\t", end="", file=stdout)
             print("EOF", file=stdout)
 
         def wait_and_get_result():
