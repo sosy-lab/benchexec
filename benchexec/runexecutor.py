@@ -133,6 +133,27 @@ def main(argv=None):
         help="do not delete files created by the tool in temp directory",
     )
 
+    io_args.add_argument(
+        "--no-output-header",
+        action="store_true",
+        dest="nowriteheader",
+        help="suppress header in tool output log",
+    )
+
+    io_args.add_argument(
+        "--timestamp",
+        action="store_true",
+        dest="timestamp",
+        help="timestamp each line of stdout/stderr from the tool",
+    )
+
+    io_args.add_argument(
+        "--add-eof",
+        action="store_true",
+        dest="addeof",
+        help="add an \"EOF\" line after the end of the stdout/stderr from the tool",
+    )
+
     container_args = parser.add_argument_group("optional arguments for run container")
     container_on_args = container_args.add_mutually_exclusive_group()
     container_on_args.add_argument(
@@ -197,6 +218,8 @@ def main(argv=None):
     else:
         container_options = {}
         container_output_options = {}
+        if options.nowriteheader:
+            container_output_options["write_header"] = False
 
     if options.input == "-":
         stdin = sys.stdin
@@ -257,6 +280,8 @@ def main(argv=None):
         result = executor.execute_run(
             args=options.args,
             output_filename=options.output,
+            timestamp=options.timestamp,
+            addeof=options.addeof,
             stdin=stdin,
             hardtimelimit=options.timelimit,
             softtimelimit=options.softtimelimit,
@@ -600,6 +625,8 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         self,
         args,
         output_filename,
+        timestamp,
+        addeof,
         stdin=None,
         hardtimelimit=None,
         softtimelimit=None,
@@ -745,6 +772,8 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 args,
                 output_filename,
                 error_filename,
+                timestamp,
+                addeof,
                 stdin,
                 write_header,
                 hardtimelimit,
@@ -780,6 +809,8 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         args,
         output_filename,
         error_filename,
+        timestamp,
+        addeof,
         stdin,
         write_header,
         hardtimelimit,
@@ -900,6 +931,8 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 stdin=stdin,
                 stdout=outputFile,
                 stderr=errorFile,
+                timestamp=timestamp,
+                addeof=addeof,
                 env=run_environment,
                 cwd=workingDir,
                 temp_dir=temp_dir,

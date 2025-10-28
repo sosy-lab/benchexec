@@ -8,6 +8,7 @@
 import errno
 import logging
 import os
+import time
 import subprocess
 import sys
 import threading
@@ -66,6 +67,8 @@ class BaseExecutor(object):
         stdin,
         stdout,
         stderr,
+        timestamp,
+        addeof,
         env,
         cwd,
         temp_dir,
@@ -75,6 +78,7 @@ class BaseExecutor(object):
         parent_cleanup_fn,
     ):
         """Actually start the tool and the measurements.
+        @param args: the command line to run
         @param parent_setup_fn a function without parameters that is called in the parent process
             immediately before the tool is started
         @param child_setup_fn a function without parameters that is called in the child process
@@ -110,17 +114,33 @@ class BaseExecutor(object):
         logging.debug("Executing run with $HOME and $TMPDIR below %s.", temp_dir)
 
         parent_setup = parent_setup_fn()
-
+        
         p = subprocess.Popen(
             args,
             stdin=stdin,
-            stdout=stdout,
-            stderr=stderr,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+#            stdout=stdout,
+#            stderr=stderr,
             env=env,
             cwd=cwd,
             close_fds=True,
             preexec_fn=pre_subprocess,
+            text=True,
         )
+
+        for line in p.stdout:
+            if timestamp:
+                CPU = cgroups.read_cputime()
+                WC = time.monotonic()-parent_setup[1]
+                print(f"{CPU:.4f}/{WC:.4f}\t",end='',file=stdout)
+            print(f"{line.strip()}",file=stdout)
+        if addeof:
+            if timestamp:
+                CPU = cgroups.read_cputime()
+                WC = time.monotonic()-parent_setup[1]
+                print(f"{CPU:.4f}/{WC:.4f}\t",end='',file=stdout)
+            print(f"EOF",file=stdout)
 
         def wait_and_get_result():
             exitcode, ru_child = self._wait_for_process(p.pid, args[0])
