@@ -12,7 +12,7 @@ import benchexec.tools.template
 
 
 class Tool(benchexec.tools.template.BaseTool2):
-    # Required paths are relative to the executable directory.
+    # Required paths are relative to the tool directory.
     REQUIRED_PATHS = ["afl-distribution/", "harness/", "seeds/", "bin/fuzz-to-tc"]
 
     def executable(self, tool_locator):
