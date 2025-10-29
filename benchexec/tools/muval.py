@@ -12,10 +12,10 @@ import benchexec.tools.template
 class Tool(benchexec.tools.template.BaseTool2):
     """Tool-info for MuVal"""
 
-    REQUIRED_PATHS = ["coar", "coar/bin", "llvm2kittel", "Ptr2Arr"]
+    REQUIRED_PATHS = ["coar", "llvm2kittel", "Ptr2Arr"]
 
     def executable(self, tool_locator):
-        return tool_locator.find_executable("solver")
+        return tool_locator.find_executable("solver", subdir="bin")
 
     def name(self):
         return "MuVal"
