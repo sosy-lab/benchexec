@@ -118,8 +118,8 @@ class BaseExecutor(object):
         p = subprocess.Popen(
             args,
             stdin=stdin,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
+            stdout=(subprocess.PIPE if timestamp else stdout),
+            stderr=(subprocess.STDOUT if timestamp else stderr),
             env=env,
             cwd=cwd,
             close_fds=True,
@@ -128,18 +128,15 @@ class BaseExecutor(object):
         )
 
         def add_timestamps_and_EOF():
-            for line in p.stdout:
-                if timestamp:
+            if timestamp:
+                for line in p.stdout:
                     CPU = cgroups.read_cputime()
                     WC = time.monotonic() - parent_setup[1]
-                    print(f"{CPU:.4f}/{WC:.4f}\t", end="", file=stdout)
-                print(f"{line.strip()}", file=stdout)
-            if addeof:
-                if timestamp:
+                    print(f"{CPU:.4f}/{WC:.4f}\t{line.strip()}", file=stdout)
+                if addeof:
                     CPU = cgroups.read_cputime()
                     WC = time.monotonic() - parent_setup[1]
-                    print(f"{CPU:.4f}/{WC:.4f}\t", end="", file=stdout)
-                print("EOF", file=stdout)
+                    print(f"{CPU:.4f}/{WC:.4f}\tEOF", file=stdout)
 
         def wait_and_get_result():
             add_timestamps_and_EOF()

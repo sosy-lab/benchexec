@@ -102,16 +102,16 @@ def main(argv=None):
         "(default: /dev/null; use - for stdin passthrough)",
     )
     io_args.add_argument(
-        "--statistics-output-file",
-        default="-",
-        metavar="FILE",
-        help="name of file where run statistics are written; use - for stdout passthrough",
-    )
-    io_args.add_argument(
         "--output",
         default="output.log",
         metavar="FILE",
         help="name of file where command output (stdout and stderr) is written; use - for stdout passthrough",
+    )
+    io_args.add_argument(
+        "--statistics-file",
+        default="-",
+        metavar="FILE",
+        help="name of file where run statistics are written; use - for stdout passthrough",
     )
     io_args.add_argument(
         "--maxOutputSize",
@@ -157,7 +157,7 @@ def main(argv=None):
         "--add-eof",
         action="store_true",
         dest="addeof",
-        help='add an "EOF" line after the end of the stdout/stderr from the tool',
+        help='add an "EOF" line after the stdout/stderr from the tool; only if timestamp is set',
     )
 
     container_args = parser.add_argument_group("optional arguments for run container")
@@ -224,8 +224,8 @@ def main(argv=None):
     else:
         container_options = {}
         container_output_options = {}
-        if options.nowriteheader:
-            container_output_options["write_header"] = False
+    if options.nowriteheader:
+        container_output_options["write_header"] = False
 
     if options.input == "-":
         stdin = sys.stdin
@@ -309,13 +309,13 @@ def main(argv=None):
     # exit_code is a util.ProcessExitCode instance
     exit_code = cast(Optional[util.ProcessExitCode], result.pop("exitcode", None))
 
-    if options.statistics_output_file != "-":
+    if options.statistics_file != "-":
         try:
-            parent_dir = os.path.dirname(options.statistics_output_file)
+            parent_dir = os.path.dirname(options.statistics_file)
             if parent_dir:
                 os.makedirs(parent_dir, exist_ok=True)
             statsFile = open(
-                options.statistics_output_file, "w"
+                options.statistics_file, "w"
             )  # override existing file
         except OSError as e:
             sys.exit("Could not write to statistics file: " + str(e))
