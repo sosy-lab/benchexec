@@ -314,7 +314,9 @@ def main(argv=None):
             parent_dir = os.path.dirname(options.statistics_output_file)
             if parent_dir:
                 os.makedirs(parent_dir, exist_ok=True)
-            statsFile = open(options.statistics_output_file, "w")  # override existing file
+            statsFile = open(
+                options.statistics_output_file, "w"
+            )  # override existing file
         except OSError as e:
             sys.exit("Could not write to statistics file: " + str(e))
     else:
@@ -355,6 +357,7 @@ def main(argv=None):
 
     if statsFile is not sys.stdout:
         statsFile.close()
+
 
 class RunExecutor(containerexecutor.ContainerExecutor):
     # --- object initialization ---
