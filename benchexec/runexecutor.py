@@ -321,9 +321,7 @@ def main(argv=None):
             parent_dir = os.path.dirname(options.statistics_file)
             if parent_dir:
                 os.makedirs(parent_dir, exist_ok=True)
-            statsFile = open(
-                options.statistics_file, "w"
-            )  # override existing file
+            statsFile = open(options.statistics_file, "w")  # override existing file
         except OSError as e:
             sys.exit("Could not write to statistics file: " + str(e))
     else:
@@ -748,7 +746,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
 
         if softwalltimelimit is not None:
             if softwalltimelimit <= 0:
-                sys.exit(f"Invalid soft wall time limit {wallsofttimelimit}.")
+                sys.exit(f"Invalid soft wall time limit {softtwallimelimit}.")
             if walltimelimit and (softwalltimelimit > walltimelimit):
                 sys.exit("Soft wall time limit cannot be larger than the wall time limit.")
 
@@ -1324,7 +1322,7 @@ class _TimelimitThread(threading.Thread):
             self.softwalltimelimit,
             self.latestKillTime,
         )
-        
+
         self.pid_to_kill = pid_to_kill
         self.callback = callbackFn
 
