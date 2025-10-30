@@ -8,6 +8,7 @@
 import errno
 import logging
 import os
+import time
 import subprocess
 import sys
 import threading
@@ -66,6 +67,8 @@ class BaseExecutor(object):
         stdin,
         stdout,
         stderr,
+        timestamp,
+        addeof,
         env,
         cwd,
         temp_dir,
@@ -75,6 +78,7 @@ class BaseExecutor(object):
         parent_cleanup_fn,
     ):
         """Actually start the tool and the measurements.
+        @param args: the command line to run
         @param parent_setup_fn a function without parameters that is called in the parent process
             immediately before the tool is started
         @param child_setup_fn a function without parameters that is called in the child process
@@ -114,15 +118,18 @@ class BaseExecutor(object):
         p = subprocess.Popen(
             args,
             stdin=stdin,
-            stdout=stdout,
-            stderr=stderr,
+            stdout=(subprocess.PIPE if timestamp else stdout),
+            stderr=(subprocess.STDOUT if timestamp else stderr),
             env=env,
             cwd=cwd,
             close_fds=True,
             preexec_fn=pre_subprocess,
+            text=True,
         )
 
         def wait_and_get_result():
+            if timestamp:
+                self._add_timestamps_and_EOF(cgroups,p.stdout,parent_setup[1],addeof)
             exitcode, ru_child = self._wait_for_process(p.pid, args[0])
             p.poll()
 
@@ -132,6 +139,16 @@ class BaseExecutor(object):
             return exitcode, ru_child, parent_cleanup
 
         return p.pid, cgroups, wait_and_get_result
+
+    def _add_timestamps_and_EOF(self,cgroups,tool_stdout,time_started,addeof):
+        for line in tool_stdout:
+            CPU = cgroups.read_cputime()
+            WC = time.monotonic() - time_started
+            print(f"{CPU:.4f}/{WC:.4f}\t{line.strip()}")
+        if addeof:
+            CPU = cgroups.read_cputime()
+            WC = time.monotonic() - time_started
+            print(f"{CPU:.4f}/{WC:.4f}\tEOF")
 
     def _wait_for_process(self, pid, name):
         """Wait for the given process to terminate.
