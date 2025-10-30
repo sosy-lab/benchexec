@@ -127,19 +127,9 @@ class BaseExecutor(object):
             text=True,
         )
 
-        def add_timestamps_and_EOF():
-            if timestamp:
-                for line in p.stdout:
-                    CPU = cgroups.read_cputime()
-                    WC = time.monotonic() - parent_setup[1]
-                    print(f"{CPU:.4f}/{WC:.4f}\t{line.strip()}", file=stdout)
-                if addeof:
-                    CPU = cgroups.read_cputime()
-                    WC = time.monotonic() - parent_setup[1]
-                    print(f"{CPU:.4f}/{WC:.4f}\tEOF", file=stdout)
-
         def wait_and_get_result():
-            add_timestamps_and_EOF()
+            if timestamp:
+                self._add_timestamps_and_EOF(cgroups,p.stdout,parent_setup[1],addeof)
             exitcode, ru_child = self._wait_for_process(p.pid, args[0])
             p.poll()
 
@@ -149,6 +139,16 @@ class BaseExecutor(object):
             return exitcode, ru_child, parent_cleanup
 
         return p.pid, cgroups, wait_and_get_result
+
+    def _add_timestamps_and_EOF(self,cgroups,tool_stdout,time_started,addeof):
+        for line in tool_stdout:
+            CPU = cgroups.read_cputime()
+            WC = time.monotonic() - time_started
+            print(f"{CPU:.4f}/{WC:.4f}\t{line.strip()}")
+        if addeof:
+            CPU = cgroups.read_cputime()
+            WC = time.monotonic() - time_started
+            print(f"{CPU:.4f}/{WC:.4f}\tEOF")
 
     def _wait_for_process(self, pid, name):
         """Wait for the given process to terminate.

@@ -680,7 +680,6 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 raise
             finally:
                 # close remaining ends of pipe
-# ZZZZZ
                 os.close(stdout_from_grandchild)
                 os.close(from_parent)
                 os.close(to_parent)
@@ -715,7 +714,6 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                     stdin,
                     stdout,
                     stderr,
-# ZZZZ
                     stdout_to_grandparent,
                 } - {None}
                 container.close_open_fds(keep_files=necessary_fds)
@@ -794,7 +792,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 except (OSError, RuntimeError) as e:
                     logging.critical("Cannot start process: %s", e)
                     return CHILD_OSERROR
-# ZZZZZ
+
                 # stdout_from_grandchild was closed earlier
                 os.close(stdout_to_grandparent)
 
@@ -1021,21 +1019,11 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             os.close(from_grandchild)
             os.close(to_grandchild)
 
-        def add_timestamps_and_EOF():
+        def wait_for_grandchild():   # This is in the parent
             if timestamp:
                 read_from_grandchild = os.fdopen(stdout_from_grandchild, 'r', encoding='utf-8')
-                for line in read_from_grandchild:
-                    CPU = cgroups.read_cputime()
-                    WC = time.monotonic() - parent_setup[1]
-                    print(f"{CPU:.4f}/{WC:.4f}\t{line.strip()}", file=stdout)
-                if addeof:
-                    CPU = cgroups.read_cputime()
-                    WC = time.monotonic() - parent_setup[1]
-                    print(f"{CPU:.4f}/{WC:.4f}\tEOF", file=stdout)
+                self._add_timestamps_and_EOF(cgroups,read_from_grandchild,parent_setup[1],addeof)
                 os.close(stdout_from_grandchild)
-
-        def wait_for_grandchild():   # This is in the parent
-            add_timestamps_and_EOF()
             # 1024 bytes ought to be enough for everyone^Wour pickled result
             try:
                 received = os.read(from_grandchild_copy, 1024)
