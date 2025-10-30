@@ -558,8 +558,6 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         stdin,
         stdout,
         stderr,
-        timestamp,
-        addeof,
         env,
         root_dir,
         cwd,
@@ -779,9 +777,8 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                     grandchild_proc = subprocess.Popen(
                         args,
                         stdin=stdin,
-                        stdout=(subprocess.PIPE if timestamp else stdout),
-                        stderr=(subprocess.STDOUT if timestamp else stderr),
-# ZZZZZZZ
+                        stdout=stdout,
+                        stderr=stderr,
                         env=env,
                         close_fds=False,
                         preexec_fn=grandchild,
@@ -1012,20 +1009,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             os.close(from_grandchild)
             os.close(to_grandchild)
 
-        def add_timestamps_and_EOF():
-            if timestamp:
-# ZZZZZZZ Here is where I need grandchild_proc, but it lost in the layers.
-                for line in grandchild_proc.stdout:
-                    CPU = cgroups.read_cputime()
-                    WC = time.monotonic() - parent_setup[1]
-                    print(f"{CPU:.4f}/{WC:.4f}\t{line.strip()}", file=stdout)
-                if addeof:
-                    CPU = cgroups.read_cputime()
-                    WC = time.monotonic() - parent_setup[1]
-                    print(f"{CPU:.4f}/{WC:.4f}\tEOF", file=stdout)
-
         def wait_for_grandchild():
-            add_timestamps_and_EOF()
             # 1024 bytes ought to be enough for everyone^Wour pickled result
             try:
                 received = os.read(from_grandchild_copy, 1024)
