@@ -746,7 +746,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
 
         if softwalltimelimit is not None:
             if softwalltimelimit <= 0:
-                sys.exit(f"Invalid soft wall time limit {softtwallimelimit}.")
+                sys.exit(f"Invalid soft wall time limit {softtwalltimelimit}.")
             if walltimelimit and (softwalltimelimit > walltimelimit):
                 sys.exit("Soft wall time limit cannot be larger than the wall time limit.")
 
