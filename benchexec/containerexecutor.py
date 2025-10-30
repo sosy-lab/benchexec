@@ -21,6 +21,7 @@ import subprocess
 import sys
 import tempfile
 import traceback
+import time
 
 from benchexec import __version__
 from benchexec import baseexecutor
@@ -612,6 +613,8 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         from_parent, to_grandchild = os.pipe()
         # "upstream" pipe grandchild/child->parent
         from_grandchild, to_parent = os.pipe()
+        # "upstream" stdout/stderr pipe grandchild/child->parent
+        stdout_from_grandchild, stdout_to_grandparent = os.pipe()
 
         # The protocol for these pipes is that first the parent sends the marker for
         # user mappings, then the grand child sends its outer PID back,
@@ -646,7 +649,6 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 # and reading /proc/self in the outer procfs instance
                 # (that's what we do).
                 my_outer_pid = container.get_my_pid_from_procfs()
-
                 container.mount_proc(self._container_system_config)
                 container.reset_signal_handling()
                 child_setup_fn()  # Do some other setup the caller wants.
@@ -678,6 +680,8 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 raise
             finally:
                 # close remaining ends of pipe
+# ZZZZZ
+                os.close(stdout_from_grandchild)
                 os.close(from_parent)
                 os.close(to_parent)
             # here Python will exec() the tool for us
@@ -711,6 +715,8 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                     stdin,
                     stdout,
                     stderr,
+# ZZZZ
+                    stdout_to_grandparent,
                 } - {None}
                 container.close_open_fds(keep_files=necessary_fds)
 
@@ -776,12 +782,11 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 container.setup_seccomp_filter()
 
                 try:
-                    grandchild_proc = subprocess.Popen(
+                    grandchild_proc = subprocess.Popen(    # This is in the child
                         args,
                         stdin=stdin,
-                        stdout=(subprocess.PIPE if timestamp else stdout),
+                        stdout=(stdout_to_grandparent if timestamp else stdout),
                         stderr=(subprocess.STDOUT if timestamp else stderr),
-# ZZZZZZZ
                         env=env,
                         close_fds=False,
                         preexec_fn=grandchild,
@@ -789,6 +794,9 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 except (OSError, RuntimeError) as e:
                     logging.critical("Cannot start process: %s", e)
                     return CHILD_OSERROR
+# ZZZZZ
+                # stdout_from_grandchild was closed earlier
+                os.close(stdout_to_grandparent)
 
                 # keep capability for unmount if necessary later
                 necessary_capabilities = (
@@ -933,6 +941,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             # if all other processes have terminated.
             os.close(from_parent)
             os.close(to_parent)
+            os.close(stdout_to_grandparent)
 
             container.setup_user_mapping(child_pid, uid=self._uid, gid=self._gid)
             # signal child to continue
@@ -1014,8 +1023,8 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
 
         def add_timestamps_and_EOF():
             if timestamp:
-# ZZZZZZZ Here is where I need grandchild_proc, but it lost in the layers.
-                for line in grandchild_proc.stdout:
+                read_from_grandchild = os.fdopen(stdout_from_grandchild, 'r', encoding='utf-8')
+                for line in read_from_grandchild:
                     CPU = cgroups.read_cputime()
                     WC = time.monotonic() - parent_setup[1]
                     print(f"{CPU:.4f}/{WC:.4f}\t{line.strip()}", file=stdout)
@@ -1023,8 +1032,9 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                     CPU = cgroups.read_cputime()
                     WC = time.monotonic() - parent_setup[1]
                     print(f"{CPU:.4f}/{WC:.4f}\tEOF", file=stdout)
+                os.close(stdout_from_grandchild)
 
-        def wait_for_grandchild():
+        def wait_for_grandchild():   # This is in the parent
             add_timestamps_and_EOF()
             # 1024 bytes ought to be enough for everyone^Wour pickled result
             try:
