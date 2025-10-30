@@ -144,21 +144,18 @@ def main(argv=None):
         dest="cleanup",
         help="do not delete files created by the tool in temp directory",
     )
-
     io_args.add_argument(
         "--no-output-header",
         action="store_true",
         dest="nowriteheader",
         help="suppress header in tool output log",
     )
-
     io_args.add_argument(
         "--timestamp",
         action="store_true",
         dest="timestamp",
         help="timestamp each line of stdout/stderr from the tool",
     )
-
     io_args.add_argument(
         "--add-eof",
         action="store_true",
@@ -244,6 +241,9 @@ def main(argv=None):
             parser.error(str(e))
     else:
         stdin = None
+
+    if options.addeof and not options.timestamp:
+        parser.error("Cannot add EOF without timestamps.")
 
     cgroup_subsystems = set(options.require_cgroup_subsystem)
     cgroup_values = {}
