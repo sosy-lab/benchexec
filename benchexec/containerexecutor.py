@@ -21,7 +21,6 @@ import subprocess
 import sys
 import tempfile
 import traceback
-import time
 
 from benchexec import __version__
 from benchexec import baseexecutor
