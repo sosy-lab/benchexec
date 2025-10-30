@@ -73,13 +73,19 @@ def main(argv=None):
         "--softtimelimit",
         type=util.parse_timespan_value,
         metavar="SECONDS",
-        help='"soft" CPU time limit in seconds (command will be send the TERM signal at this time)',
+        help="soft CPU time limit in seconds (program will be sent the TERM signal at this time)",
     )
     resource_args.add_argument(
         "--walltimelimit",
         type=util.parse_timespan_value,
         metavar="SECONDS",
         help="wall time limit in seconds (default is CPU time limit plus a few seconds)",
+    )
+    resource_args.add_argument(
+        "--softwalltimelimit",
+        type=util.parse_timespan_value,
+        metavar="SECONDS",
+        help="soft wall time limit in seconds (program will be sent the TERM signal at this time)",
     )
     resource_args.add_argument(
         "--cores",
@@ -292,6 +298,7 @@ def main(argv=None):
             hardtimelimit=options.timelimit,
             softtimelimit=options.softtimelimit,
             walltimelimit=options.walltimelimit,
+            softwalltimelimit=options.softwalltimelimit,
             cores=options.cores,
             memlimit=options.memlimit,
             memory_nodes=options.memoryNodes,
@@ -585,18 +592,19 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         return output_file
 
     def _setup_cgroup_time_limit(
-        self, hardtimelimit, softtimelimit, walltimelimit, cgroups, cores, pid_to_kill
+        self, hardtimelimit, softtimelimit, walltimelimit, softwalltimelimit, cgroups, cores, pid_to_kill
     ):
         """Start time-limit handler.
         @return None or the time-limit handler for calling cancel()
         """
-        if any([hardtimelimit, softtimelimit, walltimelimit]):
+        if any([hardtimelimit, softtimelimit, walltimelimit, softwalltimelimit]):
             # Start a timer to periodically check timelimit
             timelimitThread = _TimelimitThread(
                 cgroups=cgroups,
                 hardtimelimit=hardtimelimit,
                 softtimelimit=softtimelimit,
                 walltimelimit=walltimelimit,
+                softwalltimelimit=softwalltimelimit,
                 pid_to_kill=pid_to_kill,
                 cores=cores,
                 callbackFn=self._set_termination_reason,
@@ -656,6 +664,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         hardtimelimit=None,
         softtimelimit=None,
         walltimelimit=None,
+        softwalltimelimit=None,
         cores=None,
         memlimit=None,
         memory_nodes=None,
@@ -684,6 +693,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         @param hardtimelimit: None or the CPU time in seconds after which the tool is forcefully killed.
         @param softtimelimit: None or the CPU time in seconds after which the tool is sent a kill signal.
         @param walltimelimit: None or the wall time in seconds after which the tool is forcefully killed (default: hardtimelimit + a few seconds)
+        @param softwalltimelimit: None or the CPU time in seconds after which the tool is sent a kill signal.
         @param cores: None or a list of the CPU cores to use
         @param memlimit: None or memory limit in bytes
         @param memory_nodes: None or a list of memory nodes in a NUMA system to use
@@ -713,6 +723,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             if self.cgroups.CPU not in self.cgroups:
                 logging.error("Time limit cannot be specified without cpuacct cgroup.")
                 critical_cgroups.add(self.cgroups.CPU)
+
         if softtimelimit is not None:
             if softtimelimit <= 0:
                 sys.exit(f"Invalid soft time limit {softtimelimit}.")
@@ -724,14 +735,22 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 )
                 critical_cgroups.add(self.cgroups.CPU)
 
-        if walltimelimit is None:
+        if walltimelimit is not None:
+            if walltimelimit <= 0:
+                sys.exit(f"Invalid wall time limit {walltimelimit}.")
+        else:
             if hardtimelimit is not None:
                 walltimelimit = hardtimelimit + _WALLTIME_LIMIT_DEFAULT_OVERHEAD
             elif softtimelimit is not None:
                 walltimelimit = softtimelimit + _WALLTIME_LIMIT_DEFAULT_OVERHEAD
-        else:
-            if walltimelimit <= 0:
-                sys.exit(f"Invalid wall time limit {walltimelimit}.")
+            elif softwalltimelimit is not None:
+                walltimelimit = softwalltimelimit + _WALLTIME_LIMIT_DEFAULT_OVERHEAD
+
+        if softwalltimelimit is not None:
+            if softwalltimelimit <= 0:
+                sys.exit(f"Invalid soft wall time limit {wallsofttimelimit}.")
+            if walltimelimit and (softwalltimelimit > walltimelimit):
+                sys.exit("Soft wall time limit cannot be larger than the wall time limit.")
 
         if cores is not None:
             if self.cpus is None:
@@ -804,6 +823,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 hardtimelimit,
                 softtimelimit,
                 walltimelimit,
+                softwalltimelimit,
                 memlimit,
                 cores,
                 memory_nodes,
@@ -841,6 +861,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         hardtimelimit,
         softtimelimit,
         walltimelimit,
+        softwalltimelimit,
         memlimit,
         cores,
         memory_nodes,
@@ -977,6 +998,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 hardtimelimit,
                 softtimelimit,
                 walltimelimit,
+                softwalltimelimit,
                 tool_cgroups,
                 cores,
                 tool_pid,
@@ -1265,6 +1287,7 @@ class _TimelimitThread(threading.Thread):
         hardtimelimit,
         softtimelimit,
         walltimelimit,
+        softwalltimelimit,
         pid_to_kill,
         cores,
         callbackFn=lambda reason: None,
@@ -1288,8 +1311,20 @@ class _TimelimitThread(threading.Thread):
         self.cgroups = cgroups
         # set timelimits to large dummy value if no limit is given
         self.timelimit = hardtimelimit or (60 * 60 * 24 * 365 * 100)
-        self.softtimelimit = softtimelimit or (60 * 60 * 24 * 365 * 100)
+        self.softtimelimit = softtimelimit or self.timelimit
+        self.walltimelimit = walltimelimit or self.timelimit
+        self.softwalltimelimit = softwalltimelimit or self.walltimelimit
         self.latestKillTime = time.monotonic() + walltimelimit
+        logging.debug(
+            "TimelimitThread timelimit: %s, softtimelimit: %s, "
+            "walltimelimit: %s, softwalltimelimit: %s, latestKillTime %s.",
+            self.timelimit,
+            self.softtimelimit,
+            self.walltimelimit,
+            self.softwalltimelimit,
+            self.latestKillTime,
+        )
+        
         self.pid_to_kill = pid_to_kill
         self.callback = callbackFn
 
@@ -1307,14 +1342,18 @@ class _TimelimitThread(threading.Thread):
             remainingCpuTime = self.timelimit - usedCpuTime
             remainingSoftCpuTime = self.softtimelimit - usedCpuTime
             remainingWallTime = self.latestKillTime - time.monotonic()
+            remainingSoftWallTime = remainingWallTime - (self.walltimelimit - self.softwalltimelimit)
             logging.debug(
-                "TimelimitThread for process %s: used CPU time: %s, remaining CPU time: %s, "
-                "remaining soft CPU time: %s, remaining wall time: %s.",
+                "TimelimitThread for process %s: latest kill time: %s, used CPU time: %s, "
+                "remaining CPU time: %s, remaining soft CPU time: %s, remaining wall time: %s, "
+                "remaining soft wall time %s.",
                 self.pid_to_kill,
+                self.latestKillTime,
                 usedCpuTime,
                 remainingCpuTime,
                 remainingSoftCpuTime,
                 remainingWallTime,
+                remainingSoftWallTime,
             )
             if remainingCpuTime <= 0:
                 self.callback("cputime")
@@ -1324,6 +1363,7 @@ class _TimelimitThread(threading.Thread):
                 util.kill_process(self.pid_to_kill)
                 self.finished.set()
                 return
+
             if remainingWallTime <= 0:
                 self.callback("walltime")
                 logging.warning(
@@ -1337,12 +1377,17 @@ class _TimelimitThread(threading.Thread):
                 self.callback("cputime-soft")
                 # soft time limit violated, ask process to terminate
                 util.kill_process(self.pid_to_kill, signal.SIGTERM)
-                self.softtimelimit = self.timelimit
+
+            if remainingSoftWallTime <= 0:
+                self.callback("walltime-soft")
+                # soft time limit violated, ask process to terminate
+                util.kill_process(self.pid_to_kill, signal.SIGTERM)
 
             remainingTime = min(
                 remainingCpuTime / self.cpuCount,
                 remainingSoftCpuTime / self.cpuCount,
                 remainingWallTime,
+                remainingSoftWallTime,
             )
             self.finished.wait(remainingTime + 1)
 
