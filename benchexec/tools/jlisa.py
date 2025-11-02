@@ -35,29 +35,10 @@ class Tool(benchexec.tools.template.BaseTool2):
     def determine_result(self, run):
         if len(run.output) > 0:
             jlisa_output = run.output[-1]
-            # ASSERT
-            if jlisa_output == "ASSERT HOLDS FOR SOME CASES BUT NOT FOR OTHERS":
-                return result.RESULT_UNKNOWN
-            if jlisa_output == "ASSERT DOES HOLD":
+            if "TRUE" in jlisa_output:
                 return result.RESULT_TRUE_PROP
-            if jlisa_output == "ASSERT DOES NOT HOLD":
-                return result.RESULT_UNKNOWN
-            if jlisa_output == "ASSERT POSSIBLY HOLDS":
-                return result.RESULT_UNKNOWN
-            if jlisa_output == "NO ASSERT WARNING":
-                return result.RESULT_UNKNOWN
-
-            # RUNTIME
-            if jlisa_output == "RUNTIME HOLDS FOR SOME CASES BUT NOT FOR OTHERS":
-                return result.RESULT_UNKNOWN
-            if jlisa_output == "RUNTIME DOES HOLD":
-                return result.RESULT_TRUE_PROP
-            if jlisa_output == "RUNTIME DOES NOT HOLD":
+            if "FALSE" in jlisa_output:
                 return result.RESULT_FALSE_PROP
-            if jlisa_output == "RUNTIME POSSIBLY HOLDS":
+            if "UNKNOWN" in jlisa_output:
                 return result.RESULT_UNKNOWN
-            if jlisa_output == "NO RUNTIME WARNING":
-                return result.RESULT_TRUE_PROP
-
-        # UNKNOWN otherwise.
         return result.RESULT_UNKNOWN
