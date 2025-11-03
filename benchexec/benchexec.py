@@ -179,7 +179,7 @@ class BenchExec(object):
             dest="timelimit",
             default=None,
             help="""
-                Time limit for each run, e.g. "90s"
+                CPU-time limit for each run, e.g. "90s"
                 (overwrites time limit and hard time limit from XML file,
                 use "-1" to disable time limits completely)
             """,
@@ -192,9 +192,9 @@ class BenchExec(object):
             dest="walltimelimit",
             default=None,
             help="""
-                Wall time limit for each run, e.g. "90s"
+                Wall-time limit for each run, e.g. "90s"
                 (overwrites wall time limit from XML file,
-                use "-1" to use CPU time limit plus a few seconds,
+                use "-1" to use CPU-time limit plus a few seconds,
                 such value is also used by default)
             """,
             metavar="SECONDS",
@@ -234,8 +234,9 @@ class BenchExec(object):
             default=None,
             type=util.parse_int_list,
             help="""
-                Limit the set of cores BenchExec will use for all runs "
-                (Applied only if the number of CPU cores is limited).
+                Limit the set of cores BenchExec will use for all runs
+                to the given set of cores
+                (applied only if the number of CPU cores is limited).
             """,
             metavar="N,M-K",
         )
