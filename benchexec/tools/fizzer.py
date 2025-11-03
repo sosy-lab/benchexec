@@ -70,8 +70,13 @@ class Tool(benchexec.tools.template.BaseTool2):
         data_model = get_data_model_from_task(task, {ILP32: ["--m32"], LP64: []})
         if data_model is None:
             data_model = []
+        prp = ["--testcomp"]
+        if task.property_file:
+            prp.append(task.property_file)
+        else:
+            prp.append("branches")
         return (
-            [executable, "--input_file", task.single_input_file] + options + data_model
+            [executable, "--input_file", task.single_input_file] + options + data_model + prp
         )
 
     def determine_result(self, run):
