@@ -76,7 +76,10 @@ class Tool(benchexec.tools.template.BaseTool2):
         else:
             prp.append("branches")
         return (
-            [executable, "--input_file", task.single_input_file] + options + data_model + prp
+            [executable, "--input_file", task.single_input_file]
+            + options
+            + data_model
+            + prp
         )
 
     def determine_result(self, run):
