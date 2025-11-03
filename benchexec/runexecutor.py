@@ -73,13 +73,19 @@ def main(argv=None):
         "--softtimelimit",
         type=util.parse_timespan_value,
         metavar="SECONDS",
-        help='"soft" CPU time limit in seconds (command will be send the TERM signal at this time)',
+        help="soft CPU time limit in seconds (program will be sent the TERM signal at this time)",
     )
     resource_args.add_argument(
         "--walltimelimit",
         type=util.parse_timespan_value,
         metavar="SECONDS",
         help="wall time limit in seconds (default is CPU time limit plus a few seconds)",
+    )
+    resource_args.add_argument(
+        "--softwalltimelimit",
+        type=util.parse_timespan_value,
+        metavar="SECONDS",
+        help="soft wall time limit in seconds (program will be sent the TERM signal at this time)",
     )
     resource_args.add_argument(
         "--cores",
@@ -105,7 +111,13 @@ def main(argv=None):
         "--output",
         default="output.log",
         metavar="FILE",
-        help="name of file where command output (stdout and stderr) is written",
+        help="name of file where command output (stdout and stderr) is written; use - for stdout passthrough",
+    )
+    io_args.add_argument(
+        "--statistics-file",
+        default="-",
+        metavar="FILE",
+        help="name of file where run statistics are written; use - for stdout passthrough",
     )
     io_args.add_argument(
         "--maxOutputSize",
@@ -131,6 +143,24 @@ def main(argv=None):
         action="store_false",
         dest="cleanup",
         help="do not delete files created by the tool in temp directory",
+    )
+    io_args.add_argument(
+        "--no-output-header",
+        action="store_true",
+        dest="nowriteheader",
+        help="suppress header in tool output log",
+    )
+    io_args.add_argument(
+        "--timestamp",
+        action="store_true",
+        dest="timestamp",
+        help="timestamp each line of stdout/stderr from the tool",
+    )
+    io_args.add_argument(
+        "--add-eof",
+        action="store_true",
+        dest="addeof",
+        help='add an "EOF" line after the stdout/stderr from the tool; only if timestamp is set',
     )
 
     container_args = parser.add_argument_group("optional arguments for run container")
@@ -197,6 +227,8 @@ def main(argv=None):
     else:
         container_options = {}
         container_output_options = {}
+    if options.nowriteheader:
+        container_output_options["write_header"] = False
 
     if options.input == "-":
         stdin = sys.stdin
@@ -209,6 +241,9 @@ def main(argv=None):
             parser.error(str(e))
     else:
         stdin = None
+
+    if options.addeof and not options.timestamp:
+        parser.error("Cannot add EOF without timestamps.")
 
     cgroup_subsystems = set(options.require_cgroup_subsystem)
     cgroup_values = {}
@@ -257,10 +292,13 @@ def main(argv=None):
         result = executor.execute_run(
             args=options.args,
             output_filename=options.output,
+            timestamp=options.timestamp,
+            addeof=options.addeof,
             stdin=stdin,
             hardtimelimit=options.timelimit,
             softtimelimit=options.softtimelimit,
             walltimelimit=options.walltimelimit,
+            softwalltimelimit=options.softwalltimelimit,
             cores=options.cores,
             memlimit=options.memlimit,
             memory_nodes=options.memoryNodes,
@@ -278,6 +316,17 @@ def main(argv=None):
     # exit_code is a util.ProcessExitCode instance
     exit_code = cast(Optional[util.ProcessExitCode], result.pop("exitcode", None))
 
+    if options.statistics_file != "-":
+        try:
+            parent_dir = os.path.dirname(options.statistics_file)
+            if parent_dir:
+                os.makedirs(parent_dir, exist_ok=True)
+            statsFile = open(options.statistics_file, "w")  # override existing file
+        except OSError as e:
+            sys.exit("Could not write to statistics file: " + str(e))
+    else:
+        statsFile = sys.stdout
+
     def print_optional_result(key, unit=""):
         if key in result:
             value = result[key]
@@ -287,20 +336,20 @@ def main(argv=None):
                 format_fn = datetime.datetime.isoformat
             else:
                 format_fn = str
-            print(f"{key}={format_fn(value)}{unit}")
+            print(f"{key}={format_fn(value)}{unit}", file=statsFile)
 
     # output results
     print_optional_result("starttime", unit="")
     print_optional_result("terminationreason")
     if exit_code is not None and exit_code.value is not None:
-        print(f"returnvalue={exit_code.value}")
+        print(f"returnvalue={exit_code.value}", file=statsFile)
     if exit_code is not None and exit_code.signal is not None:
-        print(f"exitsignal={exit_code.signal}")
+        print(f"exitsignal={exit_code.signal}", file=statsFile)
     print_optional_result("walltime", "s")
     print_optional_result("cputime", "s")
     for key in sorted(result.keys()):
         if key.startswith("cputime-"):
-            print(f"{key}={result[key]:.9f}s")
+            print(f"{key}={result[key]:.9f}s", file=statsFile)
     print_optional_result("memory", "B")
     print_optional_result("blkio-read", "B")
     print_optional_result("blkio-write", "B")
@@ -309,7 +358,10 @@ def main(argv=None):
     print_optional_result("pressure-memory-some", "s")
     energy = intel_cpu_energy.format_energy_results(result.get("cpuenergy"))
     for energy_key, energy_value in energy.items():
-        print(f"{energy_key}={energy_value}J")
+        print(f"{energy_key}={energy_value}J", file=statsFile)
+
+    if statsFile is not sys.stdout:
+        statsFile.close()
 
 
 class RunExecutor(containerexecutor.ContainerExecutor):
@@ -520,13 +572,16 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         """Open and prepare output file."""
         # write command line into outputFile
         # (without environment variables, they are documented by benchexec)
-        try:
-            parent_dir = os.path.dirname(output_filename)
-            if parent_dir:
-                os.makedirs(parent_dir, exist_ok=True)
-            output_file = open(output_filename, "w")  # override existing file
-        except OSError as e:
-            sys.exit("Could not write to output file: " + str(e))
+        if output_filename == "-":
+            output_file = sys.stdout
+        else:
+            try:
+                parent_dir = os.path.dirname(output_filename)
+                if parent_dir:
+                    os.makedirs(parent_dir, exist_ok=True)
+                output_file = open(output_filename, "w")  # override existing file
+            except OSError as e:
+                sys.exit("Could not write to output file: " + str(e))
 
         if write_header:
             output_file.write(shlex.join(args) + "\n\n\n" + "-" * 80 + "\n\n\n")
@@ -535,18 +590,19 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         return output_file
 
     def _setup_cgroup_time_limit(
-        self, hardtimelimit, softtimelimit, walltimelimit, cgroups, cores, pid_to_kill
+        self, hardtimelimit, softtimelimit, walltimelimit, softwalltimelimit, cgroups, cores, pid_to_kill
     ):
         """Start time-limit handler.
         @return None or the time-limit handler for calling cancel()
         """
-        if any([hardtimelimit, softtimelimit, walltimelimit]):
+        if any([hardtimelimit, softtimelimit, walltimelimit, softwalltimelimit]):
             # Start a timer to periodically check timelimit
             timelimitThread = _TimelimitThread(
                 cgroups=cgroups,
                 hardtimelimit=hardtimelimit,
                 softtimelimit=softtimelimit,
                 walltimelimit=walltimelimit,
+                softwalltimelimit=softwalltimelimit,
                 pid_to_kill=pid_to_kill,
                 cores=cores,
                 callbackFn=self._set_termination_reason,
@@ -600,10 +656,13 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         self,
         args,
         output_filename,
+        timestamp,
+        addeof,
         stdin=None,
         hardtimelimit=None,
         softtimelimit=None,
         walltimelimit=None,
+        softwalltimelimit=None,
         cores=None,
         memlimit=None,
         memory_nodes=None,
@@ -632,6 +691,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         @param hardtimelimit: None or the CPU time in seconds after which the tool is forcefully killed.
         @param softtimelimit: None or the CPU time in seconds after which the tool is sent a kill signal.
         @param walltimelimit: None or the wall time in seconds after which the tool is forcefully killed (default: hardtimelimit + a few seconds)
+        @param softwalltimelimit: None or the CPU time in seconds after which the tool is sent a kill signal.
         @param cores: None or a list of the CPU cores to use
         @param memlimit: None or memory limit in bytes
         @param memory_nodes: None or a list of memory nodes in a NUMA system to use
@@ -661,6 +721,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             if self.cgroups.CPU not in self.cgroups:
                 logging.error("Time limit cannot be specified without cpuacct cgroup.")
                 critical_cgroups.add(self.cgroups.CPU)
+
         if softtimelimit is not None:
             if softtimelimit <= 0:
                 sys.exit(f"Invalid soft time limit {softtimelimit}.")
@@ -672,14 +733,22 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 )
                 critical_cgroups.add(self.cgroups.CPU)
 
-        if walltimelimit is None:
+        if walltimelimit is not None:
+            if walltimelimit <= 0:
+                sys.exit(f"Invalid wall time limit {walltimelimit}.")
+        else:
             if hardtimelimit is not None:
                 walltimelimit = hardtimelimit + _WALLTIME_LIMIT_DEFAULT_OVERHEAD
             elif softtimelimit is not None:
                 walltimelimit = softtimelimit + _WALLTIME_LIMIT_DEFAULT_OVERHEAD
-        else:
-            if walltimelimit <= 0:
-                sys.exit(f"Invalid wall time limit {walltimelimit}.")
+            elif softwalltimelimit is not None:
+                walltimelimit = softwalltimelimit + _WALLTIME_LIMIT_DEFAULT_OVERHEAD
+
+        if softwalltimelimit is not None:
+            if softwalltimelimit <= 0:
+                sys.exit(f"Invalid soft wall time limit {softwalltimelimit}.")
+            if walltimelimit and (softwalltimelimit > walltimelimit):
+                sys.exit("Soft wall time limit cannot be larger than the wall time limit.")
 
         if cores is not None:
             if self.cpus is None:
@@ -745,11 +814,14 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 args,
                 output_filename,
                 error_filename,
+                timestamp,
+                addeof,
                 stdin,
                 write_header,
                 hardtimelimit,
                 softtimelimit,
                 walltimelimit,
+                softwalltimelimit,
                 memlimit,
                 cores,
                 memory_nodes,
@@ -780,11 +852,14 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         args,
         output_filename,
         error_filename,
+        timestamp,
+        addeof,
         stdin,
         write_header,
         hardtimelimit,
         softtimelimit,
         walltimelimit,
+        softwalltimelimit,
         memlimit,
         cores,
         memory_nodes,
@@ -900,6 +975,8 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 stdin=stdin,
                 stdout=outputFile,
                 stderr=errorFile,
+                timestamp=timestamp,
+                addeof=addeof,
                 env=run_environment,
                 cwd=workingDir,
                 temp_dir=temp_dir,
@@ -919,6 +996,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 hardtimelimit,
                 softtimelimit,
                 walltimelimit,
+                softwalltimelimit,
                 tool_cgroups,
                 cores,
                 tool_pid,
@@ -957,7 +1035,8 @@ class RunExecutor(containerexecutor.ContainerExecutor):
                 tool_cgroups.kill_all_tasks()
 
             # normally subprocess closes file, we do this again after all tasks terminated
-            outputFile.close()
+            if outputFile is not sys.stdout:
+                outputFile.close()
             if errorFile is not outputFile:
                 errorFile.close()
 
@@ -1110,6 +1189,10 @@ def _reduce_file_size_if_necessary(fileName, maxSize):
     We remove only the middle part of a file,
     the file-start and the file-end remain unchanged.
     """
+    # ----hyphen is stdout
+    if fileName == "-":
+        return
+
     fileSize = os.path.getsize(fileName)
 
     if maxSize is None:
@@ -1140,6 +1223,10 @@ def _get_debug_output_after_crash(output_filename, base_path):
     @param output_filename name of log file with tool output
     @param base_path string that needs to be preprended to paths for lookup of files
     """
+    # ----hyphen is stdout
+    if output_filename == "-":
+        return
+
     logging.debug("Analysing output for crash info.")
     foundDumpFile = False
     try:
@@ -1198,6 +1285,7 @@ class _TimelimitThread(threading.Thread):
         hardtimelimit,
         softtimelimit,
         walltimelimit,
+        softwalltimelimit,
         pid_to_kill,
         cores,
         callbackFn=lambda reason: None,
@@ -1221,8 +1309,20 @@ class _TimelimitThread(threading.Thread):
         self.cgroups = cgroups
         # set timelimits to large dummy value if no limit is given
         self.timelimit = hardtimelimit or (60 * 60 * 24 * 365 * 100)
-        self.softtimelimit = softtimelimit or (60 * 60 * 24 * 365 * 100)
+        self.softtimelimit = softtimelimit or self.timelimit
+        self.walltimelimit = walltimelimit or self.timelimit
+        self.softwalltimelimit = softwalltimelimit or self.walltimelimit
         self.latestKillTime = time.monotonic() + walltimelimit
+        logging.debug(
+            "TimelimitThread timelimit: %s, softtimelimit: %s, "
+            "walltimelimit: %s, softwalltimelimit: %s, latestKillTime %s.",
+            self.timelimit,
+            self.softtimelimit,
+            self.walltimelimit,
+            self.softwalltimelimit,
+            self.latestKillTime,
+        )
+
         self.pid_to_kill = pid_to_kill
         self.callback = callbackFn
 
@@ -1240,14 +1340,18 @@ class _TimelimitThread(threading.Thread):
             remainingCpuTime = self.timelimit - usedCpuTime
             remainingSoftCpuTime = self.softtimelimit - usedCpuTime
             remainingWallTime = self.latestKillTime - time.monotonic()
+            remainingSoftWallTime = remainingWallTime - (self.walltimelimit - self.softwalltimelimit)
             logging.debug(
-                "TimelimitThread for process %s: used CPU time: %s, remaining CPU time: %s, "
-                "remaining soft CPU time: %s, remaining wall time: %s.",
+                "TimelimitThread for process %s: latest kill time: %s, used CPU time: %s, "
+                "remaining CPU time: %s, remaining soft CPU time: %s, remaining wall time: %s, "
+                "remaining soft wall time %s.",
                 self.pid_to_kill,
+                self.latestKillTime,
                 usedCpuTime,
                 remainingCpuTime,
                 remainingSoftCpuTime,
                 remainingWallTime,
+                remainingSoftWallTime,
             )
             if remainingCpuTime <= 0:
                 self.callback("cputime")
@@ -1257,6 +1361,7 @@ class _TimelimitThread(threading.Thread):
                 util.kill_process(self.pid_to_kill)
                 self.finished.set()
                 return
+
             if remainingWallTime <= 0:
                 self.callback("walltime")
                 logging.warning(
@@ -1270,12 +1375,17 @@ class _TimelimitThread(threading.Thread):
                 self.callback("cputime-soft")
                 # soft time limit violated, ask process to terminate
                 util.kill_process(self.pid_to_kill, signal.SIGTERM)
-                self.softtimelimit = self.timelimit
+
+            if remainingSoftWallTime <= 0:
+                self.callback("walltime-soft")
+                # soft time limit violated, ask process to terminate
+                util.kill_process(self.pid_to_kill, signal.SIGTERM)
 
             remainingTime = min(
                 remainingCpuTime / self.cpuCount,
                 remainingSoftCpuTime / self.cpuCount,
                 remainingWallTime,
+                remainingSoftWallTime,
             )
             self.finished.wait(remainingTime + 1)
 
