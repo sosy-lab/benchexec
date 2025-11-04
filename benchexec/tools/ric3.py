@@ -33,7 +33,9 @@ class Tool(benchexec.tools.template.BaseTool2):
         return "https://github.com/gipsyh/rIC3"
 
     def cmdline(self, executable, options, task, rlimits):
-        return [executable] + options + [task.single_input_file]
+        # rIC3 accepts an optional positional argument for specifying certificate path,
+        # which comes after the input file.
+        return [executable, task.single_input_file, *options]
 
     def determine_result(self, run):
         for line in run.output[::-1]:
