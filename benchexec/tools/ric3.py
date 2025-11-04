@@ -39,11 +39,19 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def determine_result(self, run):
         for line in run.output[::-1]:
+            line = line.lower().strip()
             # skip the lines that do not contain verification result
             if not line.startswith("result:"):
                 continue
-            if "true" in line:
+            res = line[len("result:") :].strip()
+            # rIC3 has changed its output over time
+            # - in v1.2: true/false
+            # - in v1.3: safe/unsafe
+            # - in v1.5: unsat/sat
+            if res in {"true", "safe", "unsat"}:
                 return result.RESULT_TRUE_PROP
-            elif "false" in line:
+            elif res in {"false", "unsafe", "sat"}:
                 return result.RESULT_FALSE_PROP
+            elif res == "unknown":
+                return result.RESULT_UNKNOWN
         return result.RESULT_ERROR
