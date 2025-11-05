@@ -95,7 +95,7 @@ class Tool(benchexec.tools.template.BaseTool2):
                     return "ASSERTION"
                 else:
                     m = re.search(
-                        r"Fatal error: exception (Stack overflow|Out of memory|[A-Za-z._]+)",
+                        r"Fatal error: exception (Stack overflow|Out of memory|[A-Za-z0-9._]+)",
                         line,
                     )
                     if m:
