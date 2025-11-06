@@ -7,7 +7,8 @@
 
 import { memo, useEffect, useRef, useState } from "react";
 
-const numericPattern = "([+-]?[0-9]*(\\.[0-9]*)?)(:[+-]?[0-9]*(\\.[0-9]*)?)?";
+const numericPattern =
+  "([+\\-]?[0-9]*(\\.[0-9]*)?)(:[+\\-]?[0-9]*(\\.[0-9]*)?)?";
 
 /**
  * Filter input field for numeric columns with min and max values.
