@@ -512,7 +512,7 @@ exports[`Render ReactTable for benchmark-example-true.2019-11-06_0932.results.no
          className="filter-field"
          defaultValue=""
          id="0_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -535,7 +535,7 @@ exports[`Render ReactTable for benchmark-example-true.2019-11-06_0932.results.no
          className="filter-field"
          defaultValue=""
          id="0_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -558,7 +558,7 @@ exports[`Render ReactTable for benchmark-example-true.2019-11-06_0932.results.no
          className="filter-field"
          defaultValue=""
          id="0_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -581,7 +581,7 @@ exports[`Render ReactTable for benchmark-example-true.2019-11-06_0932.results.no
          className="filter-field"
          defaultValue=""
          id="0_cpuenergy_4_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -5334,7 +5334,7 @@ exports[`Render ReactTable for big-table.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -5357,7 +5357,7 @@ exports[`Render ReactTable for big-table.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -5380,7 +5380,7 @@ exports[`Render ReactTable for big-table.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -5403,7 +5403,7 @@ exports[`Render ReactTable for big-table.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_energy-core_4_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -5426,7 +5426,7 @@ exports[`Render ReactTable for big-table.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_energy-cpu_5_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -5449,7 +5449,7 @@ exports[`Render ReactTable for big-table.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_energy-external_6_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -5472,7 +5472,7 @@ exports[`Render ReactTable for big-table.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_energy-uncore_7_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -5592,7 +5592,7 @@ exports[`Render ReactTable for big-table.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -5615,7 +5615,7 @@ exports[`Render ReactTable for big-table.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -5638,7 +5638,7 @@ exports[`Render ReactTable for big-table.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -5735,7 +5735,7 @@ exports[`Render ReactTable for big-table.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="2_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -5758,7 +5758,7 @@ exports[`Render ReactTable for big-table.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="2_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -5781,7 +5781,7 @@ exports[`Render ReactTable for big-table.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="2_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -18312,7 +18312,7 @@ exports[`Render ReactTable for cbmc.2015-12-11_1211.results.Simple.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -18335,7 +18335,7 @@ exports[`Render ReactTable for cbmc.2015-12-11_1211.results.Simple.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -18358,7 +18358,7 @@ exports[`Render ReactTable for cbmc.2015-12-11_1211.results.Simple.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -25071,7 +25071,7 @@ exports[`Render ReactTable for multi-table.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -25094,7 +25094,7 @@ exports[`Render ReactTable for multi-table.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -25117,7 +25117,7 @@ exports[`Render ReactTable for multi-table.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -25214,7 +25214,7 @@ exports[`Render ReactTable for multi-table.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -25237,7 +25237,7 @@ exports[`Render ReactTable for multi-table.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -25260,7 +25260,7 @@ exports[`Render ReactTable for multi-table.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -25347,7 +25347,7 @@ exports[`Render ReactTable for multi-table.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="2_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -25370,7 +25370,7 @@ exports[`Render ReactTable for multi-table.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="2_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -25393,7 +25393,7 @@ exports[`Render ReactTable for multi-table.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="2_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -25490,7 +25490,7 @@ exports[`Render ReactTable for multi-table.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="3_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -25513,7 +25513,7 @@ exports[`Render ReactTable for multi-table.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="3_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -25536,7 +25536,7 @@ exports[`Render ReactTable for multi-table.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="3_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -27839,7 +27839,7 @@ exports[`Render ReactTable for multi-table.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -27862,7 +27862,7 @@ exports[`Render ReactTable for multi-table.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -27885,7 +27885,7 @@ exports[`Render ReactTable for multi-table.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -27993,7 +27993,7 @@ exports[`Render ReactTable for multi-table.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -28016,7 +28016,7 @@ exports[`Render ReactTable for multi-table.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -28039,7 +28039,7 @@ exports[`Render ReactTable for multi-table.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -28137,7 +28137,7 @@ exports[`Render ReactTable for multi-table.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="2_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -28160,7 +28160,7 @@ exports[`Render ReactTable for multi-table.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="2_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -28183,7 +28183,7 @@ exports[`Render ReactTable for multi-table.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="2_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -28291,7 +28291,7 @@ exports[`Render ReactTable for multi-table.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="3_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -28314,7 +28314,7 @@ exports[`Render ReactTable for multi-table.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="3_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -28337,7 +28337,7 @@ exports[`Render ReactTable for multi-table.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="3_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -31980,7 +31980,7 @@ exports[`Render ReactTable for multi-table-only-columns.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_cputime_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -32003,7 +32003,7 @@ exports[`Render ReactTable for multi-table-only-columns.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_setup_4_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -32049,7 +32049,7 @@ exports[`Render ReactTable for multi-table-only-columns.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_SMT time_6_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -32215,7 +32215,7 @@ exports[`Render ReactTable for multi-table-only-columns.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_cputime_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -32238,7 +32238,7 @@ exports[`Render ReactTable for multi-table-only-columns.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_setup_4_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -32307,7 +32307,7 @@ exports[`Render ReactTable for multi-table-only-columns.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_variable count_7_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -32440,7 +32440,7 @@ exports[`Render ReactTable for multi-table-only-columns.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="2_cputime_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -32463,7 +32463,7 @@ exports[`Render ReactTable for multi-table-only-columns.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="2_setup_4_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -32509,7 +32509,7 @@ exports[`Render ReactTable for multi-table-only-columns.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="2_SMT time_6_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -32675,7 +32675,7 @@ exports[`Render ReactTable for multi-table-only-columns.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="3_cputime_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -32698,7 +32698,7 @@ exports[`Render ReactTable for multi-table-only-columns.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="3_setup_4_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -32767,7 +32767,7 @@ exports[`Render ReactTable for multi-table-only-columns.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="3_variable count_7_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -36320,7 +36320,7 @@ exports[`Render ReactTable for multi-table-only-columns.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_cputime_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -36343,7 +36343,7 @@ exports[`Render ReactTable for multi-table-only-columns.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_setup_4_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -36389,7 +36389,7 @@ exports[`Render ReactTable for multi-table-only-columns.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_SMT time_6_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -36566,7 +36566,7 @@ exports[`Render ReactTable for multi-table-only-columns.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_cputime_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -36589,7 +36589,7 @@ exports[`Render ReactTable for multi-table-only-columns.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_setup_4_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -36658,7 +36658,7 @@ exports[`Render ReactTable for multi-table-only-columns.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_variable count_7_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -36802,7 +36802,7 @@ exports[`Render ReactTable for multi-table-only-columns.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="2_cputime_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -36825,7 +36825,7 @@ exports[`Render ReactTable for multi-table-only-columns.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="2_setup_4_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -36871,7 +36871,7 @@ exports[`Render ReactTable for multi-table-only-columns.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="2_SMT time_6_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -37048,7 +37048,7 @@ exports[`Render ReactTable for multi-table-only-columns.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="3_cputime_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -37071,7 +37071,7 @@ exports[`Render ReactTable for multi-table-only-columns.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="3_setup_4_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -37140,7 +37140,7 @@ exports[`Render ReactTable for multi-table-only-columns.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="3_variable count_7_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -41741,7 +41741,7 @@ exports[`Render ReactTable for multi-table-with-columns.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_cputime_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -41764,7 +41764,7 @@ exports[`Render ReactTable for multi-table-with-columns.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_setup_4_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -41810,7 +41810,7 @@ exports[`Render ReactTable for multi-table-with-columns.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_SMT time_6_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -41976,7 +41976,7 @@ exports[`Render ReactTable for multi-table-with-columns.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_cputime_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -41999,7 +41999,7 @@ exports[`Render ReactTable for multi-table-with-columns.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_setup_4_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -42068,7 +42068,7 @@ exports[`Render ReactTable for multi-table-with-columns.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_variable count_7_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -42201,7 +42201,7 @@ exports[`Render ReactTable for multi-table-with-columns.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="2_cputime_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -42224,7 +42224,7 @@ exports[`Render ReactTable for multi-table-with-columns.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="2_analysis_4_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -42270,7 +42270,7 @@ exports[`Render ReactTable for multi-table-with-columns.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="2_SMT time_6_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -42413,7 +42413,7 @@ exports[`Render ReactTable for multi-table-with-columns.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="3_cputime_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -42436,7 +42436,7 @@ exports[`Render ReactTable for multi-table-with-columns.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="3_analysis_4_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -42482,7 +42482,7 @@ exports[`Render ReactTable for multi-table-with-columns.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="3_variable count_6_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -45889,7 +45889,7 @@ exports[`Render ReactTable for multi-table-with-columns.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_cputime_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -45912,7 +45912,7 @@ exports[`Render ReactTable for multi-table-with-columns.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_setup_4_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -45958,7 +45958,7 @@ exports[`Render ReactTable for multi-table-with-columns.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_SMT time_6_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -46135,7 +46135,7 @@ exports[`Render ReactTable for multi-table-with-columns.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_cputime_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -46158,7 +46158,7 @@ exports[`Render ReactTable for multi-table-with-columns.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_setup_4_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -46227,7 +46227,7 @@ exports[`Render ReactTable for multi-table-with-columns.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_variable count_7_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -46371,7 +46371,7 @@ exports[`Render ReactTable for multi-table-with-columns.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="2_cputime_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -46394,7 +46394,7 @@ exports[`Render ReactTable for multi-table-with-columns.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="2_analysis_4_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -46440,7 +46440,7 @@ exports[`Render ReactTable for multi-table-with-columns.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="2_SMT time_6_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -46594,7 +46594,7 @@ exports[`Render ReactTable for multi-table-with-columns.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="3_cputime_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -46617,7 +46617,7 @@ exports[`Render ReactTable for multi-table-with-columns.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="3_analysis_4_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -46663,7 +46663,7 @@ exports[`Render ReactTable for multi-table-with-columns.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="3_variable count_6_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -51229,7 +51229,7 @@ exports[`Render ReactTable for multi-table-with-diff-over-column.diff.html 1`] =
          className="filter-field"
          defaultValue=""
          id="0_cputime_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -51252,7 +51252,7 @@ exports[`Render ReactTable for multi-table-with-diff-over-column.diff.html 1`] =
          className="filter-field"
          defaultValue=""
          id="0_setup_4_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -51298,7 +51298,7 @@ exports[`Render ReactTable for multi-table-with-diff-over-column.diff.html 1`] =
          className="filter-field"
          defaultValue=""
          id="0_SMT time_6_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -51470,7 +51470,7 @@ exports[`Render ReactTable for multi-table-with-diff-over-column.diff.html 1`] =
          className="filter-field"
          defaultValue=""
          id="1_cputime_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -51493,7 +51493,7 @@ exports[`Render ReactTable for multi-table-with-diff-over-column.diff.html 1`] =
          className="filter-field"
          defaultValue=""
          id="1_setup_4_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -51562,7 +51562,7 @@ exports[`Render ReactTable for multi-table-with-diff-over-column.diff.html 1`] =
          className="filter-field"
          defaultValue=""
          id="1_variable count_7_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -51706,7 +51706,7 @@ exports[`Render ReactTable for multi-table-with-diff-over-column.diff.html 1`] =
          className="filter-field"
          defaultValue=""
          id="2_cputime_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -51729,7 +51729,7 @@ exports[`Render ReactTable for multi-table-with-diff-over-column.diff.html 1`] =
          className="filter-field"
          defaultValue=""
          id="2_setup_4_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -51775,7 +51775,7 @@ exports[`Render ReactTable for multi-table-with-diff-over-column.diff.html 1`] =
          className="filter-field"
          defaultValue=""
          id="2_SMT time_6_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -51947,7 +51947,7 @@ exports[`Render ReactTable for multi-table-with-diff-over-column.diff.html 1`] =
          className="filter-field"
          defaultValue=""
          id="3_cputime_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -51970,7 +51970,7 @@ exports[`Render ReactTable for multi-table-with-diff-over-column.diff.html 1`] =
          className="filter-field"
          defaultValue=""
          id="3_setup_4_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -52039,7 +52039,7 @@ exports[`Render ReactTable for multi-table-with-diff-over-column.diff.html 1`] =
          className="filter-field"
          defaultValue=""
          id="3_variable count_7_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -56194,7 +56194,7 @@ exports[`Render ReactTable for multi-table-with-diff-over-column.table.html 1`] 
          className="filter-field"
          defaultValue=""
          id="0_cputime_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -56217,7 +56217,7 @@ exports[`Render ReactTable for multi-table-with-diff-over-column.table.html 1`] 
          className="filter-field"
          defaultValue=""
          id="0_setup_4_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -56263,7 +56263,7 @@ exports[`Render ReactTable for multi-table-with-diff-over-column.table.html 1`] 
          className="filter-field"
          defaultValue=""
          id="0_SMT time_6_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -56440,7 +56440,7 @@ exports[`Render ReactTable for multi-table-with-diff-over-column.table.html 1`] 
          className="filter-field"
          defaultValue=""
          id="1_cputime_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -56463,7 +56463,7 @@ exports[`Render ReactTable for multi-table-with-diff-over-column.table.html 1`] 
          className="filter-field"
          defaultValue=""
          id="1_setup_4_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -56532,7 +56532,7 @@ exports[`Render ReactTable for multi-table-with-diff-over-column.table.html 1`] 
          className="filter-field"
          defaultValue=""
          id="1_variable count_7_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -56676,7 +56676,7 @@ exports[`Render ReactTable for multi-table-with-diff-over-column.table.html 1`] 
          className="filter-field"
          defaultValue=""
          id="2_cputime_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -56699,7 +56699,7 @@ exports[`Render ReactTable for multi-table-with-diff-over-column.table.html 1`] 
          className="filter-field"
          defaultValue=""
          id="2_setup_4_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -56745,7 +56745,7 @@ exports[`Render ReactTable for multi-table-with-diff-over-column.table.html 1`] 
          className="filter-field"
          defaultValue=""
          id="2_SMT time_6_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -56922,7 +56922,7 @@ exports[`Render ReactTable for multi-table-with-diff-over-column.table.html 1`] 
          className="filter-field"
          defaultValue=""
          id="3_cputime_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -56945,7 +56945,7 @@ exports[`Render ReactTable for multi-table-with-diff-over-column.table.html 1`] 
          className="filter-field"
          defaultValue=""
          id="3_setup_4_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -57014,7 +57014,7 @@ exports[`Render ReactTable for multi-table-with-diff-over-column.table.html 1`] 
          className="filter-field"
          defaultValue=""
          id="3_variable count_7_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -61055,7 +61055,7 @@ exports[`Render ReactTable for multi-table-with-wildcards.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -61078,7 +61078,7 @@ exports[`Render ReactTable for multi-table-with-wildcards.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -61101,7 +61101,7 @@ exports[`Render ReactTable for multi-table-with-wildcards.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -61188,7 +61188,7 @@ exports[`Render ReactTable for multi-table-with-wildcards.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -61211,7 +61211,7 @@ exports[`Render ReactTable for multi-table-with-wildcards.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -61234,7 +61234,7 @@ exports[`Render ReactTable for multi-table-with-wildcards.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -61331,7 +61331,7 @@ exports[`Render ReactTable for multi-table-with-wildcards.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="2_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -61354,7 +61354,7 @@ exports[`Render ReactTable for multi-table-with-wildcards.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="2_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -61377,7 +61377,7 @@ exports[`Render ReactTable for multi-table-with-wildcards.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="2_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -61474,7 +61474,7 @@ exports[`Render ReactTable for multi-table-with-wildcards.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="3_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -61497,7 +61497,7 @@ exports[`Render ReactTable for multi-table-with-wildcards.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="3_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -61520,7 +61520,7 @@ exports[`Render ReactTable for multi-table-with-wildcards.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="3_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -63823,7 +63823,7 @@ exports[`Render ReactTable for multi-table-with-wildcards.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -63846,7 +63846,7 @@ exports[`Render ReactTable for multi-table-with-wildcards.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -63869,7 +63869,7 @@ exports[`Render ReactTable for multi-table-with-wildcards.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -63967,7 +63967,7 @@ exports[`Render ReactTable for multi-table-with-wildcards.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -63990,7 +63990,7 @@ exports[`Render ReactTable for multi-table-with-wildcards.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -64013,7 +64013,7 @@ exports[`Render ReactTable for multi-table-with-wildcards.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -64121,7 +64121,7 @@ exports[`Render ReactTable for multi-table-with-wildcards.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="2_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -64144,7 +64144,7 @@ exports[`Render ReactTable for multi-table-with-wildcards.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="2_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -64167,7 +64167,7 @@ exports[`Render ReactTable for multi-table-with-wildcards.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="2_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -64275,7 +64275,7 @@ exports[`Render ReactTable for multi-table-with-wildcards.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="3_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -64298,7 +64298,7 @@ exports[`Render ReactTable for multi-table-with-wildcards.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="3_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -64321,7 +64321,7 @@ exports[`Render ReactTable for multi-table-with-wildcards.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="3_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -66960,7 +66960,7 @@ exports[`Render ReactTable for nan_and_inf.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -66983,7 +66983,7 @@ exports[`Render ReactTable for nan_and_inf.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -67006,7 +67006,7 @@ exports[`Render ReactTable for nan_and_inf.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -67029,7 +67029,7 @@ exports[`Render ReactTable for nan_and_inf.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_Aliasing_4_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -67052,7 +67052,7 @@ exports[`Render ReactTable for nan_and_inf.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_Arrays_5_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -67075,7 +67075,7 @@ exports[`Render ReactTable for nan_and_inf.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_Boolean_6_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -67098,7 +67098,7 @@ exports[`Render ReactTable for nan_and_inf.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_Composite types_7_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -67144,7 +67144,7 @@ exports[`Render ReactTable for nan_and_inf.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_Floats_9_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -67167,7 +67167,7 @@ exports[`Render ReactTable for nan_and_inf.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_Loops_10_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -68741,7 +68741,7 @@ exports[`Render ReactTable for predicateAnalysis.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -68764,7 +68764,7 @@ exports[`Render ReactTable for predicateAnalysis.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -68787,7 +68787,7 @@ exports[`Render ReactTable for predicateAnalysis.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -68885,7 +68885,7 @@ exports[`Render ReactTable for predicateAnalysis.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -68908,7 +68908,7 @@ exports[`Render ReactTable for predicateAnalysis.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -68931,7 +68931,7 @@ exports[`Render ReactTable for predicateAnalysis.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -70751,7 +70751,7 @@ exports[`Render ReactTable for predicateAnalysis-reverse.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -70774,7 +70774,7 @@ exports[`Render ReactTable for predicateAnalysis-reverse.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -70797,7 +70797,7 @@ exports[`Render ReactTable for predicateAnalysis-reverse.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -70895,7 +70895,7 @@ exports[`Render ReactTable for predicateAnalysis-reverse.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -70918,7 +70918,7 @@ exports[`Render ReactTable for predicateAnalysis-reverse.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -70941,7 +70941,7 @@ exports[`Render ReactTable for predicateAnalysis-reverse.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -72834,7 +72834,7 @@ exports[`Render ReactTable for rows-with-scores.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -72857,7 +72857,7 @@ exports[`Render ReactTable for rows-with-scores.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -72880,7 +72880,7 @@ exports[`Render ReactTable for rows-with-scores.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -72903,7 +72903,7 @@ exports[`Render ReactTable for rows-with-scores.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_cpuenergy_4_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -72996,7 +72996,7 @@ exports[`Render ReactTable for rows-with-scores.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -73019,7 +73019,7 @@ exports[`Render ReactTable for rows-with-scores.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -73042,7 +73042,7 @@ exports[`Render ReactTable for rows-with-scores.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -73065,7 +73065,7 @@ exports[`Render ReactTable for rows-with-scores.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_cpuenergy_4_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -77990,7 +77990,7 @@ exports[`Render ReactTable for simple-table-with-columns.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_CPU Time_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -78013,7 +78013,7 @@ exports[`Render ReactTable for simple-table-with-columns.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_setup_4_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -79357,7 +79357,7 @@ exports[`Render ReactTable for simple-table-with-links.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -80626,7 +80626,7 @@ exports[`Render ReactTable for simple-table-with-numberOfDigits.table.html 1`] =
          className="filter-field"
          defaultValue=""
          id="0_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -80649,7 +80649,7 @@ exports[`Render ReactTable for simple-table-with-numberOfDigits.table.html 1`] =
          className="filter-field"
          defaultValue=""
          id="0_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -80672,7 +80672,7 @@ exports[`Render ReactTable for simple-table-with-numberOfDigits.table.html 1`] =
          className="filter-field"
          defaultValue=""
          id="0_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -82033,7 +82033,7 @@ exports[`Render ReactTable for simple-table-with-scaling.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -82056,7 +82056,7 @@ exports[`Render ReactTable for simple-table-with-scaling.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_cputime-h_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -82079,7 +82079,7 @@ exports[`Render ReactTable for simple-table-with-scaling.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_walltime_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -82102,7 +82102,7 @@ exports[`Render ReactTable for simple-table-with-scaling.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_walltime_4_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -82125,7 +82125,7 @@ exports[`Render ReactTable for simple-table-with-scaling.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_walltime_5_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -82148,7 +82148,7 @@ exports[`Render ReactTable for simple-table-with-scaling.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_memory_6_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -82171,7 +82171,7 @@ exports[`Render ReactTable for simple-table-with-scaling.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_memory-GB_7_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -84111,7 +84111,7 @@ exports[`Render ReactTable for smt.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_cputime_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -84134,7 +84134,7 @@ exports[`Render ReactTable for smt.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_walltime_4_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -84157,7 +84157,7 @@ exports[`Render ReactTable for smt.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_memory_5_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -84306,7 +84306,7 @@ exports[`Render ReactTable for smt.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_cputime_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -84329,7 +84329,7 @@ exports[`Render ReactTable for smt.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_walltime_4_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -84352,7 +84352,7 @@ exports[`Render ReactTable for smt.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_memory_5_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -86130,7 +86130,7 @@ exports[`Render ReactTable for smt.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_cputime_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -86153,7 +86153,7 @@ exports[`Render ReactTable for smt.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_walltime_4_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -86176,7 +86176,7 @@ exports[`Render ReactTable for smt.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_memory_5_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -86325,7 +86325,7 @@ exports[`Render ReactTable for smt.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_cputime_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -86348,7 +86348,7 @@ exports[`Render ReactTable for smt.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_walltime_4_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -86371,7 +86371,7 @@ exports[`Render ReactTable for smt.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_memory_5_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -88270,7 +88270,7 @@ exports[`Render ReactTable for task-def-files.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -88293,7 +88293,7 @@ exports[`Render ReactTable for task-def-files.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -88316,7 +88316,7 @@ exports[`Render ReactTable for task-def-files.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -88339,7 +88339,7 @@ exports[`Render ReactTable for task-def-files.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_cpuenergy_4_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -88432,7 +88432,7 @@ exports[`Render ReactTable for task-def-files.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -88455,7 +88455,7 @@ exports[`Render ReactTable for task-def-files.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -88478,7 +88478,7 @@ exports[`Render ReactTable for task-def-files.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -88501,7 +88501,7 @@ exports[`Render ReactTable for task-def-files.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_cpuenergy_4_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -90697,7 +90697,7 @@ exports[`Render ReactTable for test.2015-03-03_1613.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -90720,7 +90720,7 @@ exports[`Render ReactTable for test.2015-03-03_1613.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -90743,7 +90743,7 @@ exports[`Render ReactTable for test.2015-03-03_1613.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -90840,7 +90840,7 @@ exports[`Render ReactTable for test.2015-03-03_1613.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -90863,7 +90863,7 @@ exports[`Render ReactTable for test.2015-03-03_1613.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -90886,7 +90886,7 @@ exports[`Render ReactTable for test.2015-03-03_1613.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -92167,7 +92167,7 @@ exports[`Render ReactTable for test.2015-03-03_1613.results.predicateAnalysis.al
          className="filter-field"
          defaultValue=""
          id="0_cputime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -92190,7 +92190,7 @@ exports[`Render ReactTable for test.2015-03-03_1613.results.predicateAnalysis.al
          className="filter-field"
          defaultValue=""
          id="0_walltime_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -92213,7 +92213,7 @@ exports[`Render ReactTable for test.2015-03-03_1613.results.predicateAnalysis.al
          className="filter-field"
          defaultValue=""
          id="0_memory_4_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -92236,7 +92236,7 @@ exports[`Render ReactTable for test.2015-03-03_1613.results.predicateAnalysis.al
          className="filter-field"
          defaultValue=""
          id="0_exitcode_5_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -93601,7 +93601,7 @@ exports[`Render ReactTable for test.2015-03-03_1613.results.predicateAnalysis.co
          className="filter-field"
          defaultValue=""
          id="0_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -93624,7 +93624,7 @@ exports[`Render ReactTable for test.2015-03-03_1613.results.predicateAnalysis.co
          className="filter-field"
          defaultValue=""
          id="0_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -93647,7 +93647,7 @@ exports[`Render ReactTable for test.2015-03-03_1613.results.predicateAnalysis.co
          className="filter-field"
          defaultValue=""
          id="0_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -94859,7 +94859,7 @@ exports[`Render ReactTable for test.2015-03-03_1613.results.predicateAnalysis.cu
          className="filter-field"
          defaultValue=""
          id="0_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -94882,7 +94882,7 @@ exports[`Render ReactTable for test.2015-03-03_1613.results.predicateAnalysis.cu
          className="filter-field"
          defaultValue=""
          id="0_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -94905,7 +94905,7 @@ exports[`Render ReactTable for test.2015-03-03_1613.results.predicateAnalysis.cu
          className="filter-field"
          defaultValue=""
          id="0_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -94928,7 +94928,7 @@ exports[`Render ReactTable for test.2015-03-03_1613.results.predicateAnalysis.cu
          className="filter-field"
          defaultValue=""
          id="0_score_4_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -95923,7 +95923,7 @@ exports[`Render ReactTable for test.2015-03-03_1613.results.predicateAnalysis.ht
          className="filter-field"
          defaultValue=""
          id="0_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -95946,7 +95946,7 @@ exports[`Render ReactTable for test.2015-03-03_1613.results.predicateAnalysis.ht
          className="filter-field"
          defaultValue=""
          id="0_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -95969,7 +95969,7 @@ exports[`Render ReactTable for test.2015-03-03_1613.results.predicateAnalysis.ht
          className="filter-field"
          defaultValue=""
          id="0_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -97179,7 +97179,7 @@ exports[`Render ReactTable for test.2015-03-03_1613.results.valueAnalysis.html 1
          className="filter-field"
          defaultValue=""
          id="0_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -97202,7 +97202,7 @@ exports[`Render ReactTable for test.2015-03-03_1613.results.valueAnalysis.html 1
          className="filter-field"
          defaultValue=""
          id="0_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -97225,7 +97225,7 @@ exports[`Render ReactTable for test.2015-03-03_1613.results.valueAnalysis.html 1
          className="filter-field"
          defaultValue=""
          id="0_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -98311,7 +98311,7 @@ exports[`Render ReactTable for test.2015-03-03_1613.results.valueAnalysis.table.
          className="filter-field"
          defaultValue=""
          id="0_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -98334,7 +98334,7 @@ exports[`Render ReactTable for test.2015-03-03_1613.results.valueAnalysis.table.
          className="filter-field"
          defaultValue=""
          id="0_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -98357,7 +98357,7 @@ exports[`Render ReactTable for test.2015-03-03_1613.results.valueAnalysis.table.
          className="filter-field"
          defaultValue=""
          id="0_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -99658,7 +99658,7 @@ exports[`Render ReactTable for test.2015-03-03_1613.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -99681,7 +99681,7 @@ exports[`Render ReactTable for test.2015-03-03_1613.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -99704,7 +99704,7 @@ exports[`Render ReactTable for test.2015-03-03_1613.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -99812,7 +99812,7 @@ exports[`Render ReactTable for test.2015-03-03_1613.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -99835,7 +99835,7 @@ exports[`Render ReactTable for test.2015-03-03_1613.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -99858,7 +99858,7 @@ exports[`Render ReactTable for test.2015-03-03_1613.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -101652,7 +101652,7 @@ exports[`Render ReactTable for test.2015-03-03_1613-common.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -101675,7 +101675,7 @@ exports[`Render ReactTable for test.2015-03-03_1613-common.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -101698,7 +101698,7 @@ exports[`Render ReactTable for test.2015-03-03_1613-common.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -101790,7 +101790,7 @@ exports[`Render ReactTable for test.2015-03-03_1613-common.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -101813,7 +101813,7 @@ exports[`Render ReactTable for test.2015-03-03_1613-common.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -101836,7 +101836,7 @@ exports[`Render ReactTable for test.2015-03-03_1613-common.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -103052,7 +103052,7 @@ exports[`Render ReactTable for test.2015-03-03_1613-common.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -103075,7 +103075,7 @@ exports[`Render ReactTable for test.2015-03-03_1613-common.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -103098,7 +103098,7 @@ exports[`Render ReactTable for test.2015-03-03_1613-common.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -103201,7 +103201,7 @@ exports[`Render ReactTable for test.2015-03-03_1613-common.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -103224,7 +103224,7 @@ exports[`Render ReactTable for test.2015-03-03_1613-common.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -103247,7 +103247,7 @@ exports[`Render ReactTable for test.2015-03-03_1613-common.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -104853,7 +104853,7 @@ exports[`Render ReactTable for test.2015-03-03_1613-correct-only.diff.html 1`] =
          className="filter-field"
          defaultValue=""
          id="0_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -104876,7 +104876,7 @@ exports[`Render ReactTable for test.2015-03-03_1613-correct-only.diff.html 1`] =
          className="filter-field"
          defaultValue=""
          id="0_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -104899,7 +104899,7 @@ exports[`Render ReactTable for test.2015-03-03_1613-correct-only.diff.html 1`] =
          className="filter-field"
          defaultValue=""
          id="0_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -104996,7 +104996,7 @@ exports[`Render ReactTable for test.2015-03-03_1613-correct-only.diff.html 1`] =
          className="filter-field"
          defaultValue=""
          id="1_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -105019,7 +105019,7 @@ exports[`Render ReactTable for test.2015-03-03_1613-correct-only.diff.html 1`] =
          className="filter-field"
          defaultValue=""
          id="1_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -105042,7 +105042,7 @@ exports[`Render ReactTable for test.2015-03-03_1613-correct-only.diff.html 1`] =
          className="filter-field"
          defaultValue=""
          id="1_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -106422,7 +106422,7 @@ exports[`Render ReactTable for test.2015-03-03_1613-correct-only.table.html 1`] 
          className="filter-field"
          defaultValue=""
          id="0_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -106445,7 +106445,7 @@ exports[`Render ReactTable for test.2015-03-03_1613-correct-only.table.html 1`] 
          className="filter-field"
          defaultValue=""
          id="0_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -106468,7 +106468,7 @@ exports[`Render ReactTable for test.2015-03-03_1613-correct-only.table.html 1`] 
          className="filter-field"
          defaultValue=""
          id="0_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -106576,7 +106576,7 @@ exports[`Render ReactTable for test.2015-03-03_1613-correct-only.table.html 1`] 
          className="filter-field"
          defaultValue=""
          id="1_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -106599,7 +106599,7 @@ exports[`Render ReactTable for test.2015-03-03_1613-correct-only.table.html 1`] 
          className="filter-field"
          defaultValue=""
          id="1_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -106622,7 +106622,7 @@ exports[`Render ReactTable for test.2015-03-03_1613-correct-only.table.html 1`] 
          className="filter-field"
          defaultValue=""
          id="1_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -108378,7 +108378,7 @@ exports[`Render ReactTable for test.2015-03-03_1613-reverse.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -108401,7 +108401,7 @@ exports[`Render ReactTable for test.2015-03-03_1613-reverse.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -108424,7 +108424,7 @@ exports[`Render ReactTable for test.2015-03-03_1613-reverse.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -108511,7 +108511,7 @@ exports[`Render ReactTable for test.2015-03-03_1613-reverse.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -108534,7 +108534,7 @@ exports[`Render ReactTable for test.2015-03-03_1613-reverse.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -108557,7 +108557,7 @@ exports[`Render ReactTable for test.2015-03-03_1613-reverse.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -109971,7 +109971,7 @@ exports[`Render ReactTable for test.2015-03-03_1613-reverse.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -109994,7 +109994,7 @@ exports[`Render ReactTable for test.2015-03-03_1613-reverse.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -110017,7 +110017,7 @@ exports[`Render ReactTable for test.2015-03-03_1613-reverse.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -110115,7 +110115,7 @@ exports[`Render ReactTable for test.2015-03-03_1613-reverse.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -110138,7 +110138,7 @@ exports[`Render ReactTable for test.2015-03-03_1613-reverse.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -110161,7 +110161,7 @@ exports[`Render ReactTable for test.2015-03-03_1613-reverse.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -111955,7 +111955,7 @@ exports[`Render ReactTable for test-error.2015-03-03_1613.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -111978,7 +111978,7 @@ exports[`Render ReactTable for test-error.2015-03-03_1613.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -112001,7 +112001,7 @@ exports[`Render ReactTable for test-error.2015-03-03_1613.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -112098,7 +112098,7 @@ exports[`Render ReactTable for test-error.2015-03-03_1613.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -112121,7 +112121,7 @@ exports[`Render ReactTable for test-error.2015-03-03_1613.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -112144,7 +112144,7 @@ exports[`Render ReactTable for test-error.2015-03-03_1613.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -113548,7 +113548,7 @@ exports[`Render ReactTable for test-error.2015-03-03_1613.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -113571,7 +113571,7 @@ exports[`Render ReactTable for test-error.2015-03-03_1613.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -113594,7 +113594,7 @@ exports[`Render ReactTable for test-error.2015-03-03_1613.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -113702,7 +113702,7 @@ exports[`Render ReactTable for test-error.2015-03-03_1613.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -113725,7 +113725,7 @@ exports[`Render ReactTable for test-error.2015-03-03_1613.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -113748,7 +113748,7 @@ exports[`Render ReactTable for test-error.2015-03-03_1613.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -115542,7 +115542,7 @@ exports[`Render ReactTable for union-table.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -115565,7 +115565,7 @@ exports[`Render ReactTable for union-table.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -115588,7 +115588,7 @@ exports[`Render ReactTable for union-table.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -115685,7 +115685,7 @@ exports[`Render ReactTable for union-table.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -115708,7 +115708,7 @@ exports[`Render ReactTable for union-table.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -115731,7 +115731,7 @@ exports[`Render ReactTable for union-table.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -117135,7 +117135,7 @@ exports[`Render ReactTable for union-table.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -117158,7 +117158,7 @@ exports[`Render ReactTable for union-table.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -117181,7 +117181,7 @@ exports[`Render ReactTable for union-table.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -117289,7 +117289,7 @@ exports[`Render ReactTable for union-table.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -117312,7 +117312,7 @@ exports[`Render ReactTable for union-table.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -117335,7 +117335,7 @@ exports[`Render ReactTable for union-table.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -119129,7 +119129,7 @@ exports[`Render ReactTable for union-table-duplicate-results.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -119152,7 +119152,7 @@ exports[`Render ReactTable for union-table-duplicate-results.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -119175,7 +119175,7 @@ exports[`Render ReactTable for union-table-duplicate-results.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -119272,7 +119272,7 @@ exports[`Render ReactTable for union-table-duplicate-results.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -119295,7 +119295,7 @@ exports[`Render ReactTable for union-table-duplicate-results.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -119318,7 +119318,7 @@ exports[`Render ReactTable for union-table-duplicate-results.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -120722,7 +120722,7 @@ exports[`Render ReactTable for union-table-duplicate-results.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -120745,7 +120745,7 @@ exports[`Render ReactTable for union-table-duplicate-results.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -120768,7 +120768,7 @@ exports[`Render ReactTable for union-table-duplicate-results.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -120876,7 +120876,7 @@ exports[`Render ReactTable for union-table-duplicate-results.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -120899,7 +120899,7 @@ exports[`Render ReactTable for union-table-duplicate-results.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -120922,7 +120922,7 @@ exports[`Render ReactTable for union-table-duplicate-results.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -122936,7 +122936,7 @@ exports[`Render ReactTable for union-table-mixed.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -122959,7 +122959,7 @@ exports[`Render ReactTable for union-table-mixed.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -122982,7 +122982,7 @@ exports[`Render ReactTable for union-table-mixed.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -123079,7 +123079,7 @@ exports[`Render ReactTable for union-table-mixed.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -123102,7 +123102,7 @@ exports[`Render ReactTable for union-table-mixed.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -123125,7 +123125,7 @@ exports[`Render ReactTable for union-table-mixed.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -123212,7 +123212,7 @@ exports[`Render ReactTable for union-table-mixed.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="2_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -123235,7 +123235,7 @@ exports[`Render ReactTable for union-table-mixed.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="2_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -123258,7 +123258,7 @@ exports[`Render ReactTable for union-table-mixed.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="2_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -125119,7 +125119,7 @@ exports[`Render ReactTable for union-table-mixed.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -125142,7 +125142,7 @@ exports[`Render ReactTable for union-table-mixed.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -125165,7 +125165,7 @@ exports[`Render ReactTable for union-table-mixed.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -125273,7 +125273,7 @@ exports[`Render ReactTable for union-table-mixed.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -125296,7 +125296,7 @@ exports[`Render ReactTable for union-table-mixed.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -125319,7 +125319,7 @@ exports[`Render ReactTable for union-table-mixed.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -125417,7 +125417,7 @@ exports[`Render ReactTable for union-table-mixed.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="2_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -125440,7 +125440,7 @@ exports[`Render ReactTable for union-table-mixed.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="2_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -125463,7 +125463,7 @@ exports[`Render ReactTable for union-table-mixed.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="2_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -127652,7 +127652,7 @@ exports[`Render ReactTable for union-table-multiple-results.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -127675,7 +127675,7 @@ exports[`Render ReactTable for union-table-multiple-results.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -127698,7 +127698,7 @@ exports[`Render ReactTable for union-table-multiple-results.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -127795,7 +127795,7 @@ exports[`Render ReactTable for union-table-multiple-results.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -127818,7 +127818,7 @@ exports[`Render ReactTable for union-table-multiple-results.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -127841,7 +127841,7 @@ exports[`Render ReactTable for union-table-multiple-results.diff.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -129869,7 +129869,7 @@ exports[`Render ReactTable for union-table-multiple-results.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -129892,7 +129892,7 @@ exports[`Render ReactTable for union-table-multiple-results.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -129915,7 +129915,7 @@ exports[`Render ReactTable for union-table-multiple-results.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -130023,7 +130023,7 @@ exports[`Render ReactTable for union-table-multiple-results.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -130046,7 +130046,7 @@ exports[`Render ReactTable for union-table-multiple-results.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -130069,7 +130069,7 @@ exports[`Render ReactTable for union-table-multiple-results.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="1_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -132699,7 +132699,7 @@ exports[`Render ReactTable for union-table-predicateAnalysis.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -132722,7 +132722,7 @@ exports[`Render ReactTable for union-table-predicateAnalysis.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -132745,7 +132745,7 @@ exports[`Render ReactTable for union-table-predicateAnalysis.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -133955,7 +133955,7 @@ exports[`Render ReactTable for union-table-valueAnalysis.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_cputime_1_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -133978,7 +133978,7 @@ exports[`Render ReactTable for union-table-valueAnalysis.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_walltime_2_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
@@ -134001,7 +134001,7 @@ exports[`Render ReactTable for union-table-valueAnalysis.table.html 1`] = `
          className="filter-field"
          defaultValue=""
          id="0_memory_3_filter"
-         pattern="([+-]?[0-9]*(\\\\.[0-9]*)?)(:[+-]?[0-9]*(\\\\.[0-9]*)?)?"
+         pattern="([+\\\\-]?[0-9]*(\\\\.[0-9]*)?)(:[+\\\\-]?[0-9]*(\\\\.[0-9]*)?)?"
          placeholder="Min:Max"
          type="search"
         />
