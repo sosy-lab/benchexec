@@ -486,6 +486,255 @@ class BenchExecIntegrationTests(unittest.TestCase):
             txt_name="",
         )
 
+    def test_generated_files_per_rundef_tags_single_names_all(self):
+        self.run_benchexec_and_compare_expected_files(
+            "--results-per-rundefinition",
+            test_file=os.path.join(here, "tags-single-names-all.xml"),
+            test_name="tags-single-names-all",
+            raw_result_files=["r"],
+            txt_name="",
+        )
+
+    def test_generated_files_per_rundef_tags_single_names_rundefinition(self):
+        self.run_benchexec_and_compare_expected_files(
+            "--results-per-rundefinition",
+            test_file=os.path.join(here, "tags-single-names-rundefinition.xml"),
+            test_name="tags-single-names-rundefinition",
+            raw_result_files=["r"],
+            txt_name="",
+        )
+
+    def test_generated_files_per_rundef_tags_single_names_tasks(self):
+        self.run_benchexec_and_compare_expected_files(
+            "--results-per-rundefinition",
+            test_file=os.path.join(here, "tags-single-names-tasks.xml"),
+            test_name="tags-single-names-tasks",
+            raw_result_files=[""],
+            txt_name="",
+        )
+
+    def test_generated_files_per_rundef_tags_single_names_none(self):
+        self.run_benchexec_and_compare_expected_files(
+            "--results-per-rundefinition",
+            test_file=os.path.join(here, "tags-single-names-none.xml"),
+            test_name="tags-single-names-none",
+            raw_result_files=[""],
+            txt_name="",
+        )
+
+    def test_generated_files_per_rundef_tags_many_names_all(self):
+        self.run_benchexec_and_compare_expected_files(
+            "--results-per-rundefinition",
+            test_file=os.path.join(here, "tags-many-names-all.xml"),
+            test_name="tags-many-names-all",
+            raw_result_files=["r1", "r2", "r3"],
+            txt_name="",
+        )
+
+    def test_generated_files_per_rundef_tags_many_names_partial_rundefinition(self):
+        try:
+            self.run_benchexec_and_compare_expected_files(
+                "--results-per-rundefinition",
+                test_file=os.path.join(
+                    here, "tags-many-names-partial-rundefinition.xml"
+                ),
+            )
+        except subprocess.CalledProcessError as e:
+            self.assertIn("Mix of named and unnamed run definitions", e.output)
+
+    def test_generated_files_per_rundef_tags_many_names_partial_tasks(self):
+        self.run_benchexec_and_compare_expected_files(
+            "--results-per-rundefinition",
+            test_file=os.path.join(here, "tags-many-names-partial-tasks.xml"),
+            test_name="tags-many-names-partial-tasks",
+            raw_result_files=["r1", "r2", "r3"],
+            txt_name="",
+        )
+
+    def test_generated_files_per_rundef_tags_many_names_duplicate_tasks(self):
+        self.run_benchexec_and_compare_expected_files(
+            "--results-per-rundefinition",
+            test_file=os.path.join(here, "tags-many-names-duplicate-tasks.xml"),
+            test_name="tags-many-names-duplicate-tasks",
+            raw_result_files=[""],
+            txt_name="",
+        )
+
+    def test_generated_files_per_taskset_tags_single_names_all(self):
+        self.run_benchexec_and_compare_expected_files(
+            "--results-per-taskset",
+            test_file=os.path.join(here, "tags-single-names-all.xml"),
+            test_name="tags-single-names-all",
+            raw_result_files=["r.t"],
+            txt_name="",
+        )
+
+    def test_generated_files_per_taskset_tags_single_names_rundefinition(self):
+        try:
+            self.run_benchexec_and_compare_expected_files(
+                "--results-per-taskset",
+                test_file=os.path.join(here, "tags-single-names-rundefinition.xml"),
+            )
+        except subprocess.CalledProcessError as e:
+            self.assertIn("Unnamed task set found", e.output)
+
+    def test_generated_files_per_taskset_tags_single_names_tasks(self):
+        self.run_benchexec_and_compare_expected_files(
+            "--results-per-taskset",
+            test_file=os.path.join(here, "tags-single-names-tasks.xml"),
+            test_name="tags-single-names-tasks",
+            raw_result_files=["t"],
+            txt_name="",
+        )
+
+    def test_generated_files_per_taskset_tags_single_names_none(self):
+        try:
+            self.run_benchexec_and_compare_expected_files(
+                "--results-per-taskset",
+                test_file=os.path.join(here, "tags-single-names-none.xml"),
+            )
+        except subprocess.CalledProcessError as e:
+            self.assertIn("Unnamed task set found", e.output)
+
+    def test_generated_files_per_taskset_tags_many_names_all(self):
+        self.run_benchexec_and_compare_expected_files(
+            "--results-per-taskset",
+            test_file=os.path.join(here, "tags-many-names-all.xml"),
+            test_name="tags-many-names-all",
+            raw_result_files=[
+                "r1.t1",
+                "r1.t2",
+                "r2.t1",
+                "r2.t2",
+                "r3.t1",
+                "r3.t2",
+                "r3.t3",
+            ],
+            txt_name="",
+        )
+
+    def test_generated_files_per_taskset_tags_many_names_partial_rundefinition(self):
+        try:
+            self.run_benchexec_and_compare_expected_files(
+                "--results-per-taskset",
+                test_file=os.path.join(
+                    here, "tags-many-names-partial-rundefinition.xml"
+                ),
+            )
+        except subprocess.CalledProcessError as e:
+            self.assertIn("Mix of named and unnamed run definitions", e.output)
+
+    def test_generated_files_per_taskset_tags_many_names_partial_tasks(self):
+        try:
+            self.run_benchexec_and_compare_expected_files(
+                "--results-per-taskset",
+                test_file=os.path.join(here, "tags-many-names-partial-tasks.xml"),
+            )
+        except subprocess.CalledProcessError as e:
+            self.assertIn("Unnamed task set found", e.output)
+
+    def test_generated_files_per_taskset_tags_many_names_duplicate_tasks(self):
+        try:
+            self.run_benchexec_and_compare_expected_files(
+                "--results-per-taskset",
+                test_file=os.path.join(here, "tags-many-names-duplicate-tasks.xml"),
+            )
+        except subprocess.CalledProcessError as e:
+            self.assertIn("task sets with the following duplicate names", e.output)
+
+    def test_generated_files_both_tags_single_names_all(self):
+        self.run_benchexec_and_compare_expected_files(
+            "--results-per-rundefinition",
+            "--results-per-taskset",
+            test_file=os.path.join(here, "tags-single-names-all.xml"),
+            test_name="tags-single-names-all",
+            raw_result_files=["r", "r.t"],
+            txt_name="",
+        )
+
+    def test_generated_files_both_tags_single_names_rundefinition(self):
+        try:
+            self.run_benchexec_and_compare_expected_files(
+                "--results-per-rundefinition",
+                "--results-per-taskset",
+                test_file=os.path.join(here, "tags-single-names-rundefinition.xml"),
+            )
+        except subprocess.CalledProcessError as e:
+            self.assertIn("Unnamed task set found", e.output)
+
+    def test_generated_files_both_tags_single_names_tasks(self):
+        self.run_benchexec_and_compare_expected_files(
+            "--results-per-rundefinition",
+            "--results-per-taskset",
+            test_file=os.path.join(here, "tags-single-names-tasks.xml"),
+            test_name="tags-single-names-tasks",
+            raw_result_files=["", "t"],
+            txt_name="",
+        )
+
+    def test_generated_files_both_tags_single_names_none(self):
+        try:
+            self.run_benchexec_and_compare_expected_files(
+                "--results-per-rundefinition",
+                "--results-per-taskset",
+                test_file=os.path.join(here, "tags-single-names-none.xml"),
+            )
+        except subprocess.CalledProcessError as e:
+            self.assertIn("Unnamed task set found", e.output)
+
+    def test_generated_files_both_tags_many_names_all(self):
+        self.run_benchexec_and_compare_expected_files(
+            "--results-per-rundefinition",
+            "--results-per-taskset",
+            test_file=os.path.join(here, "tags-many-names-all.xml"),
+            test_name="tags-many-names-all",
+            raw_result_files=[
+                "r1",
+                "r1.t1",
+                "r1.t2",
+                "r2",
+                "r2.t1",
+                "r2.t2",
+                "r3",
+                "r3.t1",
+                "r3.t2",
+                "r3.t3",
+            ],
+            txt_name="",
+        )
+
+    def test_generated_files_both_tags_many_names_partial_rundefinition(self):
+        try:
+            self.run_benchexec_and_compare_expected_files(
+                "--results-per-rundefinition",
+                "--results-per-taskset",
+                test_file=os.path.join(
+                    here, "tags-many-names-partial-rundefinition.xml"
+                ),
+            )
+        except subprocess.CalledProcessError as e:
+            self.assertIn("Mix of named and unnamed run definitions", e.output)
+
+    def test_generated_files_both_tags_many_names_partial_tasks(self):
+        try:
+            self.run_benchexec_and_compare_expected_files(
+                "--results-per-rundefinition",
+                "--results-per-taskset",
+                test_file=os.path.join(here, "tags-many-names-partial-tasks.xml"),
+            )
+        except subprocess.CalledProcessError as e:
+            self.assertIn("Unnamed task set found", e.output)
+
+    def test_generated_files_both_tags_many_names_duplicate_tasks(self):
+        try:
+            self.run_benchexec_and_compare_expected_files(
+                "--results-per-rundefinition",
+                "--results-per-taskset",
+                test_file=os.path.join(here, "tags-many-names-duplicate-tasks.xml"),
+            )
+        except subprocess.CalledProcessError as e:
+            self.assertIn("task sets with the following duplicate names", e.output)
+
     def test_description(self):
         test_description = """
             äöüß     This tests non-ASCII characters, line breaks, whitespace, and
