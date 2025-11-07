@@ -70,7 +70,11 @@ class Tool(benchexec.tools.template.BaseTool2):
         data_model = get_data_model_from_task(task, {ILP32: ["--m32"], LP64: []})
         if data_model is None:
             data_model = []
-        prp = ["--property", task.property_file] if task.property_file and self.version(executable) == "1.2.3" else []
+        prp = (
+            ["--property", task.property_file]
+            if task.property_file and self.version(executable) == "1.2.3"
+            else []
+        )
         return (
             [executable, "--input_file", task.single_input_file]
             + options
@@ -99,7 +103,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         try:
             mark = "--- TestCompResult ---"
             txt = run.output.text
-            return txt[txt.index(mark) + len(mark):].strip()
+            return txt[txt.index(mark) + len(mark) :].strip()
         except Exception as _:
             pass
 
