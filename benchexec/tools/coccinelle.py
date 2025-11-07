@@ -16,7 +16,7 @@ class Tool(BaseTool2):
     The provided template dictates if a fault is to be injected into the program, and at which position in the code.
     """
 
-    REQUIRED_PATHS = ["standard.h" "ocaml" "standard.iso"]
+    REQUIRED_PATHS = ["standard.h", "ocaml", "standard.iso"]
 
     def name(self):
         return "Coccinelle"

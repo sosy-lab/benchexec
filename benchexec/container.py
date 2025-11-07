@@ -461,8 +461,7 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
             # anyway. In none of the two cases this loop needs to mark special_dir as
             # mountpoint. This avoids useless creation of nested overlay instances.
             logging.debug(
-                "Skipping directory mount for %s "
-                "because parent already has same mode.",
+                "Skipping directory mount for %s because parent already has same mode.",
                 special_dir,
             )
             continue

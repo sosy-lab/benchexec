@@ -439,9 +439,9 @@ class CgroupsV2(Cgroups):
         self._delegate_controllers()
         child_cgroup = self.create_fresh_child_cgroup(self.subsystems.keys(), prefix)
         assert isinstance(child_cgroup, CgroupsV2)
-        assert (
-            self.subsystems.keys() == child_cgroup.subsystems.keys()
-        ), "delegation failed for at least one controller"
+        assert self.subsystems.keys() == child_cgroup.subsystems.keys(), (
+            "delegation failed for at least one controller"
+        )
         self._delegated_to = child_cgroup
 
         if self.MEMORY in child_cgroup:
@@ -718,9 +718,9 @@ class CgroupsV2(Cgroups):
         # arbitrary nested child cgroup, but not for the main process itself.
         # But if we have delegated, then our own cgroup has no processes and OOM count
         # would remain zero, so we have to read it from the child cgroup.
-        assert (
-            not self._delegated_to
-        ), "Reading OOM kill count does not make sense for delegated cgroups"
+        assert not self._delegated_to, (
+            "Reading OOM kill count does not make sense for delegated cgroups"
+        )
 
         for k, v in self.get_key_value_pairs(self.MEMORY, "events.local"):
             if k == "oom_kill":

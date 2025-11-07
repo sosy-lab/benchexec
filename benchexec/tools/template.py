@@ -363,9 +363,9 @@ class BaseTool2(object, metaclass=ABCMeta):
         namedtuple("ToolLocator", ["tool_directory", "use_path", "use_current"])
     ):
         def find_executable(self, executable_name, subdir=""):
-            assert (
-                os.path.basename(executable_name) == executable_name
-            ), "Executable needs to be a simple file name"
+            assert os.path.basename(executable_name) == executable_name, (
+                "Executable needs to be a simple file name"
+            )
             dirs = []
             if self.tool_directory:
                 # join automatically handles the case where subdir is the empty string
@@ -432,7 +432,7 @@ class BaseTool2(object, metaclass=ABCMeta):
         def __new__(cls, input_files, identifier, property_file, options):
             input_files = tuple(input_files)  # make input_files immutable
             assert bool(input_files) != bool(identifier), (
-                f"exactly one is required: " f"{input_files=!r} {identifier=!r}"
+                f"exactly one is required: {input_files=!r} {identifier=!r}"
             )
             options = copy.deepcopy(options)  # defensive copy because not immutable
             return super().__new__(cls, input_files, identifier, property_file, options)

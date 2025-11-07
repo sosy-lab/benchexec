@@ -14,6 +14,7 @@ from benchexec.tools.sv_benchmarks_util import (
     get_witness_options,
     get_non_witness_input_files,
 )
+from benchexec.tools.template import ToolNotFoundException
 
 
 class Tool(benchexec.tools.template.BaseTool2):
@@ -22,7 +23,10 @@ class Tool(benchexec.tools.template.BaseTool2):
     """
 
     def executable(self, tool_locator):
-        return tool_locator.find_executable("goblint")
+        try:
+            return tool_locator.find_executable("goblint_runner.py")
+        except ToolNotFoundException:
+            return tool_locator.find_executable("goblint")
 
     def version(self, executable):
         return self._version_from_tool(executable, line_prefix="Goblint version: ")
@@ -91,7 +95,7 @@ class Tool(benchexec.tools.template.BaseTool2):
                     return "ASSERTION"
                 else:
                     m = re.search(
-                        r"Fatal error: exception (Stack overflow|Out of memory|[A-Za-z._]+)",
+                        r"Fatal error: exception (Stack overflow|Out of memory|[A-Za-z0-9._]+)",
                         line,
                     )
                     if m:

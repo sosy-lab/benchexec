@@ -556,9 +556,9 @@ def parse_aws_run_result(values):
     def set_exitcode(new):
         if "exitcode" in result_values:
             old = result_values["exitcode"]
-            assert (
-                old == new
-            ), f"Inconsistent exit codes {old} and {new} from AWS execution"
+            assert old == new, (
+                f"Inconsistent exit codes {old} and {new} from AWS execution"
+            )
         else:
             result_values["exitcode"] = new
 

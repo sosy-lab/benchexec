@@ -16,7 +16,6 @@ from benchexec import util
 
 
 class TestParse(unittest.TestCase):
-
     def assertEqualNumberAndUnit(self, value, number, unit):
         self.assertEqual(util.split_number_and_unit(value), (number, unit))
 
@@ -96,7 +95,6 @@ class TestParse(unittest.TestCase):
 
 
 class TestProcessExitCode(unittest.TestCase):
-
     def ProcessExitCode_with_value(self, value):
         return ProcessExitCode(raw=value << 8, value=value, signal=None)
 

@@ -130,7 +130,6 @@ class Column(object):
         display_title=None,
     ):
         with decimal.localcontext(DECIMAL_CONTEXT):
-
             # If scaling on the variables is performed, a display unit must be defined, explicitly
             if scale_factor is not None and scale_factor != 1 and unit is None:
                 raise util.TableDefinitionError(
@@ -190,7 +189,6 @@ class Column(object):
         @return: a formatted String representation of the given value.
         """
         with decimal.localcontext(DECIMAL_CONTEXT):
-
             # Only format counts and measures
             if (
                 self.type.type != ColumnType.count
@@ -321,7 +319,6 @@ def _format_number_align(formattedValue, max_number_of_dec_digits):
 
 def _get_significant_digits(value):
     with decimal.localcontext(DECIMAL_CONTEXT):
-
         if not Decimal(value).is_finite():
             return 0
 
@@ -370,7 +367,6 @@ def _format_number(
     optionally aligned at the decimal point.
     """
     with decimal.localcontext(DECIMAL_CONTEXT):
-
         assert format_target in POSSIBLE_FORMAT_TARGETS, (
             "Invalid format " + format_target
         )
@@ -530,9 +526,9 @@ def _get_column_type_heur(
                     f"{scaled_value:.{max_number_of_dec_digits_after_scale}f}"
                 )
                 scaled_value_match = REGEX_MEASURE.match(scaled_value)
-                assert (
-                    scaled_value_match
-                ), "unexpected output format for number formatting"
+                assert scaled_value_match, (
+                    "unexpected output format for number formatting"
+                )
 
                 curr_dec_digits = _get_decimal_digits(
                     scaled_value_match, column.number_of_significant_digits
@@ -606,7 +602,6 @@ def _get_decimal_digits(decimal_number_match, number_of_significant_digits):
         the number to the required amount of significant digits
     """
     with decimal.localcontext(DECIMAL_CONTEXT):
-
         # check that only decimal notation is used
         assert "e" not in decimal_number_match.group()
 

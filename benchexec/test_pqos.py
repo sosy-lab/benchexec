@@ -8,6 +8,7 @@
 """
 Unit tests for pqos module
 """
+
 import json
 import copy
 import unittest

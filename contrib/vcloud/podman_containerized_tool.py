@@ -170,9 +170,9 @@ class PodmanContainerizedTool(ContainerizedTool):
     container_id: Optional[str]
 
     def __init__(self, tool_module, config, image):
-        assert (
-            config.tool_directory
-        ), "Tool directory must be set when using podman for tool info module."
+        assert config.tool_directory, (
+            "Tool directory must be set when using podman for tool info module."
+        )
 
         self.tool_directory = config.tool_directory
         self.image = image

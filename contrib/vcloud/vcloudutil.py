@@ -25,9 +25,9 @@ def parse_vcloud_run_result(values):
     def set_exitcode(new):
         if "exitcode" in result_values:
             old = result_values["exitcode"]
-            assert (
-                old == new
-            ), f"Inconsistent exit codes {old} and {new} from VerifierCloud"
+            assert old == new, (
+                f"Inconsistent exit codes {old} and {new} from VerifierCloud"
+            )
         else:
             result_values["exitcode"] = new
 

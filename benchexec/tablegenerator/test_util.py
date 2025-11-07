@@ -12,7 +12,6 @@ from benchexec.tablegenerator import util
 
 
 class TestUnit(unittest.TestCase):
-
     def assertEqualNumberAndUnit(self, value, number, unit):
         self.assertEqual(util.split_number_and_unit(value), (number, unit))
         self.assertEqual(util.split_string_at_suffix(value, False), (number, unit))

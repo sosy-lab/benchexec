@@ -56,5 +56,20 @@ class Tool(benchexec.tools.template.BaseTool2):
             return result.RESULT_UNKNOWN
         elif r.startswith("error"):
             return result.RESULT_ERROR + r[len("ERROR") :]
+        # for false cases, same implementation as Symbiotic:
+        elif r.startswith("false(valid-deref)"):
+            return result.RESULT_FALSE_DEREF
+        elif r.startswith("false(valid-free)"):
+            return result.RESULT_FALSE_FREE
+        elif r.startswith("false(valid-memtrack)"):
+            return result.RESULT_FALSE_MEMTRACK
+        elif r.startswith("false(valid-memcleanup)"):
+            return result.RESULT_FALSE_MEMCLEANUP
+        elif r.startswith("false(no-overflow)"):
+            return result.RESULT_FALSE_OVERFLOW
+        elif r.startswith("false(termination)"):
+            return result.RESULT_FALSE_TERMINATION
+        elif r.startswith("false"):
+            return result.RESULT_FALSE_REACH
         else:
             return result.RESULT_ERROR + "(unknown)"

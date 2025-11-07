@@ -67,19 +67,19 @@ def main(argv=None):
         "--timelimit",
         type=util.parse_timespan_value,
         metavar="SECONDS",
-        help="CPU time limit in seconds",
+        help="CPU-time limit in seconds",
     )
     resource_args.add_argument(
         "--softtimelimit",
         type=util.parse_timespan_value,
         metavar="SECONDS",
-        help='"soft" CPU time limit in seconds (command will be send the TERM signal at this time)',
+        help='"soft" CPU-time limit in seconds (command will be send the TERM signal at this time)',
     )
     resource_args.add_argument(
         "--walltimelimit",
         type=util.parse_timespan_value,
         metavar="SECONDS",
-        help="wall time limit in seconds (default is CPU time limit plus a few seconds)",
+        help="wall-time limit in seconds (default is CPU-time limit plus a few seconds)",
     )
     resource_args.add_argument(
         "--cores",
