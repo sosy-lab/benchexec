@@ -482,8 +482,7 @@ class BenchExecIntegrationTests(unittest.TestCase):
         self.run_benchexec_and_compare_expected_files(
             test_file=os.path.join(here, "tags-many-names-duplicate-tasks.xml"),
             test_name="tags-many-names-duplicate-tasks",
-            # TODO: Here BenchExec writes t1 twice, overwriting its own results!
-            raw_result_files=["", "t1"],
+            raw_result_files=[""],
             txt_name="",
         )
 
