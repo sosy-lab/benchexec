@@ -81,6 +81,7 @@ class BenchExecIntegrationTests(unittest.TestCase):
             "/",
             "--read-only-dir",
             os.path.normpath(base_dir),
+            "--keep-system-config",
             "--outputpath",
             self.output_dir,
             "--startTime",

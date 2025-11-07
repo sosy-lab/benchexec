@@ -34,21 +34,24 @@ SPDX-License-Identifier: Apache-2.0
   <!-- <tasks> defines a set of tasks:
        we define three sets of some arbitrary example files here. -->
   <tasks name="DTD files">
-    <include>../../doc/*.dtd</include>
+    <include>../../doc/benchmark.dtd</include>
+    <include>../../doc/table.dtd</include>
   </tasks>
 
   <tasks name="Markdown files">
-    <include>../../doc/*.md</include>
+    <include>../../doc/benchexec.md</include>
+    <include>../../doc/table-generator.md</include>
   </tasks>
 
   <tasks name="XML files">
-    <include>../../doc/*.xml</include>
+    <include>../../doc/benchmark.xml</include>
+    <include>../../doc/table-generator.xml</include>
   </tasks>
 
   <!-- YAML files can be used as template files from which tasks
        can be created. Each YAML file will produce one task. -->
   <tasks name="Tasks from templates">
-    <include>../../doc/*.yml</include>
+    <include>../../doc/task-definition-example.yml</include>
   </tasks>
 
   <!-- <tasks> with <withoutfile> allows to define tasks without input files,
@@ -56,6 +59,5 @@ SPDX-License-Identifier: Apache-2.0
   <tasks name="Dummy tasks">
     <withoutfile>dummy task 1</withoutfile>
     <withoutfile>dummy task 2</withoutfile>
-    <withoutfile>dummy task 3</withoutfile>
   </tasks>
 </benchmark>
