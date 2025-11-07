@@ -21,7 +21,7 @@ SPDX-License-Identifier: Apache-2.0
            threads="*optional number of parallel tool executions (default: 1)*">
 
   <!-- <rundefinition> defines a tool configuration to benchmark (can appear multiple times). -->
-  <rundefinition name="*optional name for tool configuration*">
+  <rundefinition name="*name for tool configuration, optional if there is only one such tag*">
 
     <!-- <option> defines command-line arguments (can appear multiple times). -->
     <option name="*command-line argument for tool*">*optional value for command-line argument*</option>

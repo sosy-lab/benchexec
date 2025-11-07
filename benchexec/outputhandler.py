@@ -11,6 +11,8 @@ import collections
 import datetime
 import decimal
 import io
+import logging
+import math
 import os
 import shlex
 import threading
@@ -74,12 +76,14 @@ class OutputHandler(object):
 
     print_lock = threading.Lock()
 
-    def __init__(self, benchmark, sysinfo, compress_results):
+    def __init__(self, benchmark, sysinfo, config):
         """
         The constructor of OutputHandler collects information about the benchmark and the computer.
         """
 
-        self.compress_results = compress_results
+        self.compress_results = config.compress_results
+        self.results_per_rundefinition = config.results_per_rundefinition
+        self.results_per_taskset = config.results_per_taskset
         self.all_created_files = set()
         self.benchmark = benchmark
         self.statistics = Statistics()
@@ -116,7 +120,7 @@ class OutputHandler(object):
             )
         self.xml_file_names = []
 
-        if compress_results:
+        if self.compress_results:
             self.log_zip = zipfile.ZipFile(
                 benchmark.log_zip, mode="w", compression=zipfile.ZIP_DEFLATED
             )
@@ -228,7 +232,12 @@ class OutputHandler(object):
         run_sets = [
             runSet for runSet in self.benchmark.run_sets if runSet.should_be_executed()
         ]
-        if len(run_sets) == 1:
+        if (
+            not self.results_per_taskset
+            and not self.results_per_rundefinition
+            and len(run_sets) == 1
+        ):
+            # for now follow old default:
             # in case there is only a single run set to to execute, we can use its name
             runSetName = run_sets[0].name
 
@@ -259,7 +268,9 @@ class OutputHandler(object):
             )
             + format_line("benchmark definition", self.benchmark.benchmark_file)
             + format_line("name", self.benchmark.name)
-            + format_line("run sets", ", ".join(run_set.name for run_set in run_sets))
+            + format_line(
+                "run sets", ", ".join(run_set.name or "" for run_set in run_sets)
+            )
             + format_line(
                 "date", self.benchmark.start_time.strftime("%a, %Y-%m-%d %H:%M:%S %Z")
             )
@@ -391,12 +402,16 @@ class OutputHandler(object):
         elif not self.benchmark.config.start_time:
             runSet.xml.set("starttime", util.read_local_time().isoformat())
 
-        # write (empty) results to XML
-        runSet.xml_file_name = xml_file_name
-        self._write_rough_result_xml_to_file(runSet.xml, runSet.xml_file_name)
-        runSet.xml_file_last_modified_time = time.monotonic()
-        self.all_created_files.add(runSet.xml_file_name)
-        self.xml_file_names.append(runSet.xml_file_name)
+        # write (empty) results to XML if we have a file for the rundefinition
+        if self.results_per_rundefinition or not self.results_per_taskset:
+            runSet.xml_file_name = xml_file_name
+            self._write_rough_result_xml_to_file(runSet.xml, runSet.xml_file_name)
+            runSet.xml_file_last_modified_time = time.monotonic()
+            self.all_created_files.add(runSet.xml_file_name)
+            self.xml_file_names.append(runSet.xml_file_name)
+        else:
+            # make sure to never write intermediate files
+            runSet.xml_file_last_modified_time = math.inf
 
     def output_for_skipping_run_set(self, runSet, reason=None):
         """
@@ -591,10 +606,26 @@ class OutputHandler(object):
 
         # Write results to files. This overwrites the intermediate files written
         # from output_after_run with the proper results.
-        self._write_pretty_result_xml_to_file(runSet.xml, runSet.xml_file_name)
+        if self.results_per_rundefinition or not self.results_per_taskset:
+            self._write_pretty_result_xml_to_file(runSet.xml, runSet.xml_file_name)
 
-        if len(runSet.blocks) > 1:
+        if self.results_per_taskset or (
+            not self.results_per_rundefinition and len(runSet.blocks) > 1
+        ):
+            block_names = collections.Counter(block.name for block in runSet.blocks)
+            duplicate_block_names = {
+                block_name for block_name, count in block_names.items() if count > 1
+            }
+            if duplicate_block_names:
+                logging.warning(
+                    "For run definition '%s' the following task-set names are not unique "
+                    "and will not have separate result files: %s",
+                    runSet.name,
+                    ", ".join(duplicate_block_names),
+                )
             for block in runSet.blocks:
+                if block.name in duplicate_block_names:
+                    continue
                 blockFileName = self.get_filename(runSet.name, block.name + ".xml")
                 block_xml = self.runs_to_xml(runSet, block.runs, block.name)
                 block_xml.set("starttime", runSet.xml.get("starttime"))
