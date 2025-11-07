@@ -103,11 +103,10 @@ class Tool(benchexec.tools.template.BaseTool2):
             return result.RESULT_UNKNOWN
 
         mark = "--- TestCompResult ---"
-        txt:str = run.output.text
+        txt = run.output.text
         mark_idx = txt.find(mark)
         if mark_idx != -1:
             return txt[mark_idx + len(mark) :].strip().splitlines()[-1]
-
 
         compilation = None
         instrumentation = None
