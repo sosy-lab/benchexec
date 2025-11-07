@@ -112,7 +112,9 @@ class BenchExecIntegrationTests(unittest.TestCase):
         rundefs=benchmark_test_rundefs,
         test_name=benchmark_test_name,
         test_file=None,
+        txt_name=None,
         compress=False,
+        raw_result_files=None,
     ):
         if not test_file:  # Assign default test file
             test_file = self.benchmark_test_file
@@ -128,21 +130,32 @@ class BenchExecIntegrationTests(unittest.TestCase):
         else:
             expected_files = ["logfiles.zip" if compress else "logfiles"]
 
-        if rundefs is None or len(rundefs) != 1:
-            expected_files += ["results.txt"]
+        if txt_name is not None:
+            expected_files += [f"results{'.' + txt_name if txt_name else ''}.txt"]
         else:
-            expected_files += [f"results.{rundefs[0]}.txt"]
+            if rundefs is None or len(rundefs) != 1:
+                expected_files += ["results.txt"]
+            else:
+                expected_files += [f"results.{rundefs[0]}.txt"]
 
-        if rundefs is None:
-            expected_files += [f"results.{task}{xml_suffix}" for task in tasks]
-            expected_files += [f"results{xml_suffix}"]
-        else:
+        if raw_result_files:
             expected_files += [
-                f"results.{rundef}.{task}{xml_suffix}"
-                for task in tasks
-                for rundef in rundefs
+                f"results{'.' + file if file else ''}{xml_suffix}"
+                for file in raw_result_files
             ]
-            expected_files += [f"results.{rundef}{xml_suffix}" for rundef in rundefs]
+        else:
+            if rundefs is None:
+                expected_files += [f"results.{task}{xml_suffix}" for task in tasks]
+                expected_files += [f"results{xml_suffix}"]
+            else:
+                expected_files += [
+                    f"results.{rundef}.{task}{xml_suffix}"
+                    for task in tasks
+                    for rundef in rundefs
+                ]
+                expected_files += [
+                    f"results.{rundef}{xml_suffix}" for rundef in rundefs
+                ]
 
         if name is None:
             basename = f"{test_name}.2015-01-01_00-00-00."
@@ -375,6 +388,104 @@ class BenchExecIntegrationTests(unittest.TestCase):
         )
 
         self.assertSameRunResults(actual_xml, expected_xml)
+
+    def test_generated_files_default_tags_single_names_all(self):
+        self.run_benchexec_and_compare_expected_files(
+            test_file=os.path.join(here, "tags-single-names-all.xml"),
+            test_name="tags-single-names-all",
+            raw_result_files=["r.t"],
+            txt_name="r.t",
+        )
+
+    def test_generated_files_default_tags_single_names_rundefinition(self):
+        self.run_benchexec_and_compare_expected_files(
+            test_file=os.path.join(here, "tags-single-names-rundefinition.xml"),
+            test_name="tags-single-names-rundefinition",
+            raw_result_files=["r"],
+            txt_name="r",
+        )
+
+    def test_generated_files_default_tags_single_names_tasks(self):
+        self.run_benchexec_and_compare_expected_files(
+            test_file=os.path.join(here, "tags-single-names-tasks.xml"),
+            test_name="tags-single-names-tasks",
+            raw_result_files=["t"],
+            txt_name="t",
+        )
+
+    def test_generated_files_default_tags_single_names_none(self):
+        self.run_benchexec_and_compare_expected_files(
+            test_file=os.path.join(here, "tags-single-names-none.xml"),
+            test_name="tags-single-names-none",
+            raw_result_files=[""],
+            txt_name="",
+        )
+
+    def test_generated_files_default_tags_many_names_all(self):
+        self.run_benchexec_and_compare_expected_files(
+            test_file=os.path.join(here, "tags-many-names-all.xml"),
+            test_name="tags-many-names-all",
+            raw_result_files=[
+                "r1",
+                "r1.t1",
+                "r1.t2",
+                "r2",
+                "r2.t1",
+                "r2.t2",
+                "r3",
+                "r3.t1",
+                "r3.t2",
+                "r3.t3",
+            ],
+            txt_name="",
+        )
+
+    def test_generated_files_default_tags_many_names_partial_rundefinition(self):
+        self.run_benchexec_and_compare_expected_files(
+            test_file=os.path.join(here, "tags-many-names-partial-rundefinition.xml"),
+            test_name="tags-many-names-partial-rundefinition",
+            raw_result_files=[
+                "r1",
+                "r1.t1",
+                "r1.t2",
+                "",
+                "t1",
+                "t2",
+                "r3",
+                "r3.t1",
+                "r3.t2",
+                "r3.t3",
+            ],
+            txt_name="",
+        )
+
+    def test_generated_files_default_tags_many_names_partial_tasks(self):
+        self.run_benchexec_and_compare_expected_files(
+            test_file=os.path.join(here, "tags-many-names-partial-tasks.xml"),
+            test_name="tags-many-names-partial-tasks",
+            raw_result_files=[
+                "r1",
+                "r1.t1",
+                "r1.1",
+                "r2",
+                "r2.t1",
+                "r2.1",
+                "r3",
+                "r3.t1",
+                "r3.1",
+                "r3.2",
+            ],
+            txt_name="",
+        )
+
+    def test_generated_files_default_tags_many_names_duplicate_tasks(self):
+        self.run_benchexec_and_compare_expected_files(
+            test_file=os.path.join(here, "tags-many-names-duplicate-tasks.xml"),
+            test_name="tags-many-names-duplicate-tasks",
+            # TODO: Here BenchExec writes t1 twice, overwriting its own results!
+            raw_result_files=["", "t1"],
+            txt_name="",
+        )
 
     def test_description(self):
         test_description = """
