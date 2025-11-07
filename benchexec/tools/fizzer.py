@@ -102,12 +102,12 @@ class Tool(benchexec.tools.template.BaseTool2):
         if not run.output:
             return result.RESULT_UNKNOWN
 
-        try:
-            mark = "--- TestCompResult ---"
-            txt = run.output.text
-            return txt[txt.index(mark) + len(mark) :].strip()
-        except Exception as _:
-            pass
+        mark = "--- TestCompResult ---"
+        txt:str = run.output.text
+        mark_idx = txt.find(mark)
+        if mark_idx != -1:
+            return txt[mark_idx + len(mark) :].strip().splitlines()[-1]
+
 
         compilation = None
         instrumentation = None
