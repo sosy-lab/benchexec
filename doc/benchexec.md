@@ -186,12 +186,25 @@ the following command-line is equivalent to the one above:
 ### BenchExec Results
 `benchexec` produces as output the results and resource measurements
 of all the individual tool executions in (compressed) XML files
-from which tables can be created using `table-generator`.
-There is one file per run definition/tool configuration,
-and additional files for each subset of tasks
-(all by default in directory `./result/`).
+from which tables can be created using [`table-generator`](table-generator.md).
 A document-type definition with a formal specification of such result files can be found in
-[doc/result.dtd](result.dtd), and a description under [Run Results](run-results.md).
+[doc/result.dtd](result.dtd), and a description of the individual values under [Run Results](run-results.md).
+Unless specified otherwise, all result files are placed in the directory `./results/`.
+
+By default, `benchexec` currently writes one XML file per run definition/tool configuration,
+and additional files for each subset of tasks,
+each having a file-name suffix composed of the respective `name`
+attributes of the `<rundefinition>` and `<tasks>` tags in the benchmark definition
+that they contain the results for.
+However, there are some exceptions in cases where only one run definition or task set is executed,
+and this default will change to a more consistent behavior in the next major version of BenchExec.
+
+To let `benchexec` already now write consistently one result file per run definition,
+use `--results-per-rundefinition` (this requires unique names per `<rundefinition>` tag in case there are several).
+To make it consistently write one result file per combination of run definition and task set,
+use `--results-per-taskset` (this requires unique names per `<rundefinition>` and `<tasks>` tag in case there are several).
+Both parameters can also be used at the same time
+to get both sets of result files (then every run result will be written to two files).
 
 The output of the tool executions is stored in separate log files
 in a ZIP archive beside the XML files.
