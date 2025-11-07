@@ -5,6 +5,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import functools
 import benchexec.tools.template
 import benchexec.result as result
 from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, LP64
@@ -41,6 +42,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         """
         return tool_locator.find_executable("sbt-fizzer.py")
 
+    @functools.lru_cache(maxsize=None)
     def version(self, executable):
         """
         Determine a version string for this tool, if available.
