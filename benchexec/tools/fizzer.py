@@ -15,7 +15,7 @@ class Tool(benchexec.tools.template.BaseTool2):
     Tool info for fizzer.
     """
 
-    REQUIRED_PATHS = ["lib", "lib32", "tools"]
+    REQUIRED_PATHS = ["lib", "lib32", "tools", "fizzer"]
 
     def name(self):
         """
@@ -70,8 +70,12 @@ class Tool(benchexec.tools.template.BaseTool2):
         data_model = get_data_model_from_task(task, {ILP32: ["--m32"], LP64: []})
         if data_model is None:
             data_model = []
+        prp = ["--property", task.property_file] if task.property_file and self.version(executable) == "1.2.3" else []
         return (
-            [executable, "--input_file", task.single_input_file] + options + data_model
+            [executable, "--input_file", task.single_input_file]
+            + options
+            + data_model
+            + prp
         )
 
     def determine_result(self, run):
@@ -91,6 +95,13 @@ class Tool(benchexec.tools.template.BaseTool2):
         """
         if not run.output:
             return result.RESULT_UNKNOWN
+
+        try:
+            mark = "--- TestCompResult ---"
+            txt = run.output.text
+            return txt[txt.index(mark) + len(mark):].strip()
+        except Exception as _:
+            pass
 
         compilation = None
         instrumentation = None
