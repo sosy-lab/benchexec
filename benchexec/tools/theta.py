@@ -122,12 +122,5 @@ class Tool(benchexec.tools.template.BaseTool2):
                 endPosition = line.find("(", startPosition)
                 if endPosition == -1:
                     endPosition = len(line)
-                if match is not None:
-                    logging.warning(
-                        "Overwriting repeated match for identifier '%s' (old value '%s'): '%s'",
-                        identifier,
-                        match,
-                        line,
-                    )
                 match = line[startPosition:endPosition].strip()
         return match
