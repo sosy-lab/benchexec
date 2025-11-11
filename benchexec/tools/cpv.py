@@ -51,8 +51,12 @@ class Tool(benchexec.tools.template.BaseTool2):
             if line.startswith("INFO: Verification result:"):
                 if "TRUE" in line:
                     return result.RESULT_TRUE_PROP
-                if "FALSE" in line:
+                if "FALSE(unreach-call)" in line:
                     return result.RESULT_FALSE_REACH
+                if "FALSE(termination)" in line:
+                    return result.RESULT_FALSE_TERMINATION
+                if "FALSE" in line:
+                    return result.RESULT_FALSE_PROP
                 if "UNKNOWN" in line:
                     return result.RESULT_UNKNOWN
                 if "ERROR" in line:
