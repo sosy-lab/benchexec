@@ -298,6 +298,12 @@ class Tool(benchexec.tools.template.BaseTool2):
             )
 
     def version(self, executable):
+        """
+        Get version string from the tool output.
+        This version string is cached after the first call.
+        It cannot be cached using @functools.lru_cache because the
+        executable is an argument, which can be None.
+        """
         if self._cached_version is None:
             stdout = self._version_from_tool(executable, "--version")
             self._cached_version = stdout.splitlines()[0].strip()

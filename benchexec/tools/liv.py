@@ -102,6 +102,12 @@ class Tool(BaseTool2):
         self._metaval_liv = MetavalVersionGreaterThanOrEqualTwo()
 
     def version(self, executable):
+        """
+        Get version string from the tool output.
+        This version string is cached after the first call.
+        It cannot be cached using @functools.lru_cache because the
+        executable is an argument, which can be None.
+        """
         if self._cached_version is None:
             self._cached_version = self._version_from_tool(executable, "--version")
 
