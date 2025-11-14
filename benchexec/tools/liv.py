@@ -96,6 +96,21 @@ class LivVersionLessThanTwo:
 class Tool(BaseTool2):
     """
     Tool info for LIV.
+
+    After the first development version of LIV (version 0.x),
+    realization came that it share a large part of the codebase with MetaVal.
+    Therefore, LIV version 2.0 and later is implemented inside MetaVal,
+    using its command line interface and output format.
+    This Tool module delegates calls to the appropriate implementation
+    depending on the detected LIV version.
+
+    In addition, it was desired that both LIV and MetaVal run independently
+    at SV-COMP, i.e., both tools should be run independently.
+
+    Since meeting these requirements in a single Tool module is not possible
+    due to technical limitations of FM-Tools,
+    this Tool module uses delegation to two different implementations
+    depending on the detected LIV version.
     """
 
     def __init__(self):
