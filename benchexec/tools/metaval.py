@@ -6,17 +6,21 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import argparse
-import benchexec.tools.template
 import os
 import re
 import threading
+from typing import Optional
 
-from benchexec.tools.template import BaseTool2
-from benchexec.tools.template import UnsupportedFeatureException
+import benchexec.tools.template
 from benchexec.tools.sv_benchmarks_util import (
     get_witness,
     get_single_non_witness_input_file,
     WITNESS_INPUT_FILE_IDENTIFIER,
+)
+from benchexec.tools.template import (
+    BaseTool2,
+    UnsupportedFeatureException,
+    ToolNotFoundException,
 )
 
 
@@ -41,18 +45,33 @@ class Tool(benchexec.tools.template.BaseTool2):
         "ultimateautomizer": "UAutomizer-linux",
     }
     PATH_TO_TOOL_MAP = {v: k for k, v in TOOL_TO_PATH_MAP.items()}
-    REQUIRED_PATHS = list(TOOL_TO_PATH_MAP.values()) + [
-        "VERSION.txt",
-        "metaval.py",
-        "metaval.sh",
-    ]
 
     def __init__(self):
         self.lock = threading.Lock()
         self.wrappedTools = {}
+        self._cached_version: Optional[str] = None
 
-    def executable(self, toolLocator):
-        return toolLocator.find_executable("metaval.sh")
+    def executable(self, tool_locator):
+        try:
+            return tool_locator.find_executable("metaval.sh")
+        except ToolNotFoundException as e1:
+            try:
+                return tool_locator.find_executable("metaval.py")
+            except ToolNotFoundException:
+                raise e1
+
+    def program_files_version_less_two(self, executable):
+        return [
+            "VERSION.txt",
+            "metaval.py",
+            "metaval.sh",
+        ] + [
+            self._resource(executable, path) for path in self.PATH_TO_TOOL_MAP.values()
+        ]
+
+    def program_files(self, executable):
+        if self.is_version_less_than_two(executable):
+            return self.program_files_version_less_two(executable)
 
     def name(self):
         return "MetaVal"
@@ -60,7 +79,15 @@ class Tool(benchexec.tools.template.BaseTool2):
     def project_url(self):
         return "https://gitlab.com/sosy-lab/software/metaval"
 
-    def determine_result(self, run):
+    def is_version_less_than_two(self, executable):
+        version_string = self.version(executable)
+        major_version_match = re.match(r"(\d+)\..*", version_string)
+        if major_version_match:
+            major_version = int(major_version_match.group(1))
+            return major_version < 2
+        return False
+
+    def determine_result_version_less_two(self, run):
         verifierDir = None
         regex = re.compile("verifier used in MetaVal is (.*)")
         for line in run.output[:20]:
@@ -82,7 +109,11 @@ class Tool(benchexec.tools.template.BaseTool2):
         )
         return tool.determine_result(run)
 
-    def cmdline(self, executable, options, task, rlimits):
+    def determine_result(self, run):
+        if self.is_version_less_than_two(None):
+            return self.determine_result_version_less_two(run)
+
+    def cmdline_version_less_two(self, executable, options, task, rlimits):
         if not task.property_file:
             raise UnsupportedFeatureException(
                 f"Execution without property file is not supported by {self.name()}!"
@@ -163,10 +194,18 @@ class Tool(benchexec.tools.template.BaseTool2):
             + wrappedOptions
         )
 
+    def cmdline(self, executable, options, task, rlimits):
+        if self.is_version_less_than_two(executable):
+            return self.cmdline_version_less_two(executable, options, task, rlimits)
+
     def _resource(self, executable, relpath):
         return os.path.join(os.path.dirname(executable), relpath)
 
     def version(self, executable):
+        if self._cached_version is not None:
+            return self._cached_version
+
         stdout = self._version_from_tool(executable, "--version")
-        metavalVersion = stdout.splitlines()[0].strip()
-        return metavalVersion
+        metaval_version = stdout.splitlines()[0].strip()
+        self._cached_version = metaval_version
+        return metaval_version
