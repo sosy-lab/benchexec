@@ -163,6 +163,9 @@ class MetavalVersionLessThanTwo:
             + wrappedOptions
         )
 
+    def get_value_from_output(self, output, identifier):
+        return None
+
 
 class MetavalVersionGreaterThanOrEqualTwo:
     def program_files(self, executable):
@@ -234,8 +237,7 @@ class MetavalVersionGreaterThanOrEqualTwo:
         return None
 
 
-def is_version_less_than_two(tool, executable):
-    version_string = tool.version(executable)
+def is_version_less_than_two(tool, version_string):
     major_version_match = re.match(r"(\d+)\..*", version_string)
     if major_version_match:
         major_version = int(major_version_match.group(1))
@@ -256,9 +258,9 @@ class Tool(benchexec.tools.template.BaseTool2):
     """
 
     def __init__(self):
-        self._cached_version: Optional[str] = None
-        self.metaval_version_less_two_tool = MetavalVersionLessThanTwo()
-        self.metaval_version_geq_two_tool = MetavalVersionGreaterThanOrEqualTwo()
+        self._delegate: Optional[
+            MetavalVersionLessThanTwo | MetavalVersionGreaterThanOrEqualTwo
+        ] = None
 
     def executable(self, tool_locator):
         try:
@@ -270,10 +272,7 @@ class Tool(benchexec.tools.template.BaseTool2):
                 raise e1
 
     def program_files(self, executable):
-        if is_version_less_than_two(self, executable):
-            return self.metaval_version_less_two_tool.program_files(executable)
-        else:
-            return self.metaval_version_geq_two_tool.program_files(executable)
+        return self._delegate.program_files(executable)
 
     def name(self):
         return "MetaVal"
@@ -282,39 +281,20 @@ class Tool(benchexec.tools.template.BaseTool2):
         return "https://gitlab.com/sosy-lab/software/metaval"
 
     def determine_result(self, run):
-        if is_version_less_than_two(self, None):
-            return self.metaval_version_less_two_tool.determine_result(run)
-        else:
-            return self.metaval_version_geq_two_tool.determine_result(run)
+        return self._delegate.determine_result(run)
 
     def cmdline(self, executable, options, task, rlimits):
-        if is_version_less_than_two(self, executable):
-            return self.metaval_version_less_two_tool.cmdline(
-                executable, options, task, rlimits
-            )
-        else:
-            return self.metaval_version_geq_two_tool.cmdline(
-                executable, options, task, rlimits
-            )
+        return self._delegate.cmdline(executable, options, task, rlimits)
 
     def version(self, executable):
-        """
-        Get version string from the tool output.
-        This version string is cached after the first call.
-        It cannot be cached using @functools.lru_cache because the
-        executable is an argument, which can be None.
-        """
-        if self._cached_version is None:
-            stdout = self._version_from_tool(executable, "--version")
-            self._cached_version = stdout.splitlines()[0].strip()
-
-        return self._cached_version
+        stdout = self._version_from_tool(executable, "--version")
+        version = stdout.splitlines()[0].strip()
+        self._delegate = (
+            MetavalVersionLessThanTwo()
+            if is_version_less_than_two(self, version)
+            else MetavalVersionGreaterThanOrEqualTwo()
+        )
+        return version
 
     def get_value_from_output(self, output, identifier):
-        if is_version_less_than_two(self, None):
-            # Not implemented for versions less than 2
-            return None
-
-        return self.metaval_version_geq_two_tool.get_value_from_output(
-            output, identifier
-        )
+        return self._delegate.get_value_from_output(output, identifier)

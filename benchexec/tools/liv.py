@@ -97,21 +97,19 @@ class Tool(BaseTool2):
     """
 
     def __init__(self):
-        self._cached_version: Optional[str] = None
-        self._original_liv = LivVersionLessThanTwo()
-        self._metaval_liv = MetavalVersionGreaterThanOrEqualTwo()
+        self._delegate: Optional[
+            LivVersionLessThanTwo | MetavalVersionGreaterThanOrEqualTwo
+        ] = None
 
     def version(self, executable):
-        """
-        Get version string from the tool output.
-        This version string is cached after the first call.
-        It cannot be cached using @functools.lru_cache because the
-        executable is an argument, which can be None.
-        """
-        if self._cached_version is None:
-            self._cached_version = self._version_from_tool(executable, "--version")
-
-        return self._cached_version
+        stdout = self._version_from_tool(executable, "--version")
+        version = stdout.splitlines()[0].strip()
+        self._delegate = (
+            LivVersionLessThanTwo()
+            if is_version_less_than_two(self, version)
+            else MetavalVersionGreaterThanOrEqualTwo()
+        )
+        return version
 
     def executable(self, tool_locator: BaseTool2.ToolLocator):
         try:
@@ -123,9 +121,7 @@ class Tool(BaseTool2):
                 raise e1
 
     def program_files(self, executable):
-        return [executable] + self._program_files_from_executable(
-            executable, self.REQUIRED_PATHS, parent_dir=True
-        )
+        return self._delegate.program_files(executable)
 
     def name(self):
         return "LIV"
@@ -134,19 +130,10 @@ class Tool(BaseTool2):
         return "https://gitlab.com/sosy-lab/software/liv"
 
     def cmdline(self, executable, options, task, rlimits):
-        if is_version_less_than_two(self, executable):
-            return self._original_liv.cmdline(executable, options, task, rlimits)
-        else:
-            return self._metaval_liv.cmdline(executable, options, task, rlimits)
+        return self._delegate.cmdline(executable, options, task, rlimits)
 
     def determine_result(self, run):
-        if is_version_less_than_two(self, None):
-            return self._original_liv.determine_result(run)
-        else:
-            return self._metaval_liv.determine_result(run)
+        return self._delegate.determine_result(run)
 
     def get_value_from_output(self, output, identifier):
-        if is_version_less_than_two(self, None):
-            return self._original_liv.get_value_from_output(output, identifier)
-        else:
-            return self._metaval_liv.get_value_from_output(output, identifier)
+        return self._delegate.get_value_from_output(output, identifier)
