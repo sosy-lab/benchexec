@@ -35,6 +35,9 @@ class Tool(BaseTool2):
         if run.exit_code.value != 0:
             return result.RESULT_ERROR
 
+        if run.output.any_line_contains("Unknown_result"):
+            return result.RESULT_UNKNOWN
+
         if run.output.any_line_contains("Invalid_deref"):
             return result.RESULT_FALSE_DEREF
 
@@ -43,9 +46,6 @@ class Tool(BaseTool2):
 
         if run.output.any_line_contains("Invalid_memtrack"):
             return result.RESULT_FALSE_MEMTRACK
-
-        if run.output.any_line_contains("Unknown_result"):
-            return result.RESULT_UNKNOWN
 
         if run.output.any_line_contains("Successful_verification"):
             return result.RESULT_TRUE_PROP
