@@ -81,9 +81,6 @@ class MetaVal1:
         )
         return tool.determine_result(run)
 
-    def name(self):
-        return "MetaVal"
-
     def cmdline(self, executable, options, task, rlimits):
         if not task.property_file:
             raise UnsupportedFeatureException(
