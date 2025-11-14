@@ -15,7 +15,6 @@ class Tool(benchexec.tools.template.BaseTool2):
     """
 
     REQUIRED_PATHS = [
-        "jayhorn",
         "jayhorn.jar",
         "EnumEliminator-assembly-0.1.jar",
     ]
@@ -37,9 +36,6 @@ class Tool(benchexec.tools.template.BaseTool2):
             options = options + ["--propertyfile", task.property_file]
 
         return [executable] + options + [task.single_input_file]
-
-    def program_files(self, executable):
-        return self._program_files_from_executable(executable, self.REQUIRED_PATHS)
 
     def determine_result(self, run):
         # parse output
