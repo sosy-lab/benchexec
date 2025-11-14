@@ -44,6 +44,9 @@ class MetavalVersionLessThanTwo:
         self.lock = threading.Lock()
         self.wrappedTools = {}
 
+    def executable(self, tool_locator):
+        return tool_locator.find_executable("metaval.sh")
+
     def program_files(self, executable):
         return [
             executable,
@@ -173,6 +176,9 @@ class MetavalVersionGreaterThanOrEqualTwo:
             executable, ["lib", "src", "config"]
         )
 
+    def executable(self, tool_locator):
+        return tool_locator.find_executable("metaval.py")
+
     def cmdline(self, executable, options, task, rlimits):
         if task.property_file:
             options = options + ["--property", task.property_file]
@@ -237,14 +243,6 @@ class MetavalVersionGreaterThanOrEqualTwo:
         return None
 
 
-def is_version_less_than_two(tool, version_string):
-    major_version_match = re.match(r"(\d+)\..*", version_string)
-    if major_version_match:
-        major_version = int(major_version_match.group(1))
-        return major_version < 2
-    return False
-
-
 class Tool(benchexec.tools.template.BaseTool2):
     """
     This is the tool info module for MetaVal.
@@ -260,14 +258,15 @@ class Tool(benchexec.tools.template.BaseTool2):
     def __init__(self):
         self._delegate: Optional[
             MetavalVersionLessThanTwo | MetavalVersionGreaterThanOrEqualTwo
-        ] = None
+        ] = MetavalVersionLessThanTwo()
 
     def executable(self, tool_locator):
         try:
-            return tool_locator.find_executable("metaval.sh")
+            return self._delegate.executable(tool_locator)
         except ToolNotFoundException as e1:
             try:
-                return tool_locator.find_executable("metaval.py")
+                self._delegate = MetavalVersionGreaterThanOrEqualTwo()
+                return self._delegate.executable(tool_locator)
             except ToolNotFoundException:
                 raise e1
 
@@ -288,13 +287,7 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def version(self, executable):
         stdout = self._version_from_tool(executable, "--version")
-        version = stdout.splitlines()[0].strip()
-        self._delegate = (
-            MetavalVersionLessThanTwo()
-            if is_version_less_than_two(self, version)
-            else MetavalVersionGreaterThanOrEqualTwo()
-        )
-        return version
+        return stdout.splitlines()[0].strip()
 
     def get_value_from_output(self, output, identifier):
         return self._delegate.get_value_from_output(output, identifier)

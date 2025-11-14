@@ -12,7 +12,6 @@ from typing import Optional
 import benchexec.result
 from benchexec.tools.metaval import (
     MetavalVersionGreaterThanOrEqualTwo,
-    is_version_less_than_two,
 )
 from benchexec.tools.template import BaseTool2, ToolNotFoundException
 from benchexec.tools.sv_benchmarks_util import (
@@ -26,6 +25,9 @@ from benchexec.tools.sv_benchmarks_util import (
 
 class LivVersionLessThanTwo:
     REQUIRED_PATHS = ["liv", "lib", "bin", "actors", ".venv"]
+
+    def executable(self, tool_locator: BaseTool2.ToolLocator):
+        return tool_locator.find_executable("liv", subdir="bin")
 
     def program_files(self, executable):
         return [executable] + BaseTool2._program_files_from_executable(
@@ -99,24 +101,20 @@ class Tool(BaseTool2):
     def __init__(self):
         self._delegate: Optional[
             LivVersionLessThanTwo | MetavalVersionGreaterThanOrEqualTwo
-        ] = None
+        ] = LivVersionLessThanTwo()
 
     def version(self, executable):
         stdout = self._version_from_tool(executable, "--version")
         version = stdout.splitlines()[0].strip()
-        self._delegate = (
-            LivVersionLessThanTwo()
-            if is_version_less_than_two(self, version)
-            else MetavalVersionGreaterThanOrEqualTwo()
-        )
         return version
 
     def executable(self, tool_locator: BaseTool2.ToolLocator):
         try:
-            return tool_locator.find_executable("liv", subdir="bin")
+            return self._delegate.executable(tool_locator)
         except ToolNotFoundException as e1:
             try:
-                return tool_locator.find_executable("metaval.py")
+                self._delegate = MetavalVersionGreaterThanOrEqualTwo()
+                return self._delegate.executable(tool_locator)
             except ToolNotFoundException:
                 raise e1
 
