@@ -234,6 +234,15 @@ class MetavalVersionGreaterThanOrEqualTwo:
         return None
 
 
+def is_version_less_than_two(tool, executable):
+    version_string = tool.version(executable)
+    major_version_match = re.match(r"(\d+)\..*", version_string)
+    if major_version_match:
+        major_version = int(major_version_match.group(1))
+        return major_version < 2
+    return False
+
+
 class Tool(benchexec.tools.template.BaseTool2):
     """
     This is the tool info module for MetaVal.
@@ -261,7 +270,7 @@ class Tool(benchexec.tools.template.BaseTool2):
                 raise e1
 
     def program_files(self, executable):
-        if self.is_version_less_than_two(executable):
+        if is_version_less_than_two(self, executable):
             return self.metaval_version_less_two_tool.program_files(executable)
         else:
             return self.metaval_version_geq_two_tool.program_files(executable)
@@ -272,22 +281,14 @@ class Tool(benchexec.tools.template.BaseTool2):
     def project_url(self):
         return "https://gitlab.com/sosy-lab/software/metaval"
 
-    def is_version_less_than_two(self, executable):
-        version_string = self.version(executable)
-        major_version_match = re.match(r"(\d+)\..*", version_string)
-        if major_version_match:
-            major_version = int(major_version_match.group(1))
-            return major_version < 2
-        return False
-
     def determine_result(self, run):
-        if self.is_version_less_than_two(None):
+        if is_version_less_than_two(self, None):
             return self.metaval_version_less_two_tool.determine_result(run)
         else:
             return self.metaval_version_geq_two_tool.determine_result(run)
 
     def cmdline(self, executable, options, task, rlimits):
-        if self.is_version_less_than_two(executable):
+        if is_version_less_than_two(self, executable):
             return self.metaval_version_less_two_tool.cmdline(
                 executable, options, task, rlimits
             )
@@ -297,16 +298,14 @@ class Tool(benchexec.tools.template.BaseTool2):
             )
 
     def version(self, executable):
-        if self._cached_version is not None:
-            return self._cached_version
+        if self._cached_version is None:
+            stdout = self._version_from_tool(executable, "--version")
+            self._cached_version = stdout.splitlines()[0].strip()
 
-        stdout = self._version_from_tool(executable, "--version")
-        metaval_version = stdout.splitlines()[0].strip()
-        self._cached_version = metaval_version
-        return metaval_version
+        return self._cached_version
 
     def get_value_from_output(self, output, identifier):
-        if self.is_version_less_than_two(None):
+        if is_version_less_than_two(self, None):
             # Not implemented for versions less than 2
             return None
 

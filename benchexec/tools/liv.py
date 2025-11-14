@@ -7,8 +7,14 @@
 
 import logging
 import re
+from typing import Optional
+
 import benchexec.result
-from benchexec.tools.template import BaseTool2
+from benchexec.tools.metaval import (
+    MetavalVersionGreaterThanOrEqualTwo,
+    is_version_less_than_two,
+)
+from benchexec.tools.template import BaseTool2, ToolNotFoundException
 from benchexec.tools.sv_benchmarks_util import (
     ILP32,
     LP64,
@@ -18,29 +24,13 @@ from benchexec.tools.sv_benchmarks_util import (
 )
 
 
-class Tool(BaseTool2):
-    """
-    Tool info for LIV.
-    """
-
+class LivVersionLessThanTwo:
     REQUIRED_PATHS = ["liv", "lib", "bin", "actors", ".venv"]
 
-    def executable(self, tool_locator: BaseTool2.ToolLocator):
-        return tool_locator.find_executable("liv", subdir="bin")
-
     def program_files(self, executable):
-        return [executable] + self._program_files_from_executable(
+        return [executable] + BaseTool2._program_files_from_executable(
             executable, self.REQUIRED_PATHS, parent_dir=True
         )
-
-    def version(self, executable):
-        return self._version_from_tool(executable)
-
-    def name(self):
-        return "LIV"
-
-    def project_url(self):
-        return "https://gitlab.com/sosy-lab/software/liv"
 
     def cmdline(self, executable, options, task, rlimits):
         if task.property_file:
@@ -99,3 +89,58 @@ class Tool(BaseTool2):
                         line,
                     )
         return match
+
+
+class Tool(BaseTool2):
+    """
+    Tool info for LIV.
+    """
+
+    def __init__(self):
+        self._cached_version: Optional[str] = None
+        self._original_liv = LivVersionLessThanTwo()
+        self._metaval_liv = MetavalVersionGreaterThanOrEqualTwo()
+
+    def version(self, executable):
+        if self._cached_version is None:
+            self._cached_version = self._version_from_tool(executable, "--version")
+
+        return self._cached_version
+
+    def executable(self, tool_locator: BaseTool2.ToolLocator):
+        try:
+            return tool_locator.find_executable("liv", subdir="bin")
+        except ToolNotFoundException as e1:
+            try:
+                return tool_locator.find_executable("metaval.py")
+            except ToolNotFoundException:
+                raise e1
+
+    def program_files(self, executable):
+        return [executable] + self._program_files_from_executable(
+            executable, self.REQUIRED_PATHS, parent_dir=True
+        )
+
+    def name(self):
+        return "LIV"
+
+    def project_url(self):
+        return "https://gitlab.com/sosy-lab/software/liv"
+
+    def cmdline(self, executable, options, task, rlimits):
+        if is_version_less_than_two(self, executable):
+            return self._original_liv.cmdline(executable, options, task, rlimits)
+        else:
+            return self._metaval_liv.cmdline(executable, options, task, rlimits)
+
+    def determine_result(self, run):
+        if is_version_less_than_two(self, None):
+            return self._original_liv.determine_result(run)
+        else:
+            return self._metaval_liv.determine_result(run)
+
+    def get_value_from_output(self, output, identifier):
+        if is_version_less_than_two(self, None):
+            return self._original_liv.get_value_from_output(output, identifier)
+        else:
+            return self._metaval_liv.get_value_from_output(output, identifier)
