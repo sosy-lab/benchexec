@@ -26,7 +26,9 @@ class Tool(BaseTool2):
         return tool_locator.find_executable("seal-entrypoint.py")
 
     def cmdline(self, executable, options, task, rlimits):
-        machdep = get_data_model_from_task(task, {ILP32: "x86_32", LP64: "x86_64"})
+        machdep = get_data_model_from_task(
+            task, {ILP32: "gcc_x86_32", LP64: "gcc_x86_64"}
+        )
         machdep_opt = ["-machdep", machdep] if machdep is not None else []
 
         return [executable] + machdep_opt + options + [task.single_input_file]
@@ -34,6 +36,9 @@ class Tool(BaseTool2):
     def determine_result(self, run):
         if run.exit_code.value != 0:
             return result.RESULT_ERROR
+
+        if run.output.any_line_contains("Unknown_result"):
+            return result.RESULT_UNKNOWN
 
         if run.output.any_line_contains("Invalid_deref"):
             return result.RESULT_FALSE_DEREF
@@ -43,9 +48,6 @@ class Tool(BaseTool2):
 
         if run.output.any_line_contains("Invalid_memtrack"):
             return result.RESULT_FALSE_MEMTRACK
-
-        if run.output.any_line_contains("Unknown_result"):
-            return result.RESULT_UNKNOWN
 
         if run.output.any_line_contains("Successful_verification"):
             return result.RESULT_TRUE_PROP
