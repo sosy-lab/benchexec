@@ -14,7 +14,6 @@ class Tool(benchexec.tools.template.BaseTool2):
     Tool info for JayHorn.
     """
 
-    
     REQUIRED_PATHS = [
         "jayhorn",
         "jayhorn.jar",
@@ -37,12 +36,10 @@ class Tool(benchexec.tools.template.BaseTool2):
         if task.property_file:
             options = options + ["--propertyfile", task.property_file]
 
-        return [executable] + options + list(task.input_files_or_identifier)
-    
+        return [executable] + options + [task.single_input_file]
+
     def program_files(self, executable):
-        return self._program_files_from_executable(
-            executable, self.REQUIRED_PATHS, parent_dir=True
-        )
+        return self._program_files_from_executable(executable, self.REQUIRED_PATHS)
 
     def determine_result(self, run):
         # parse output
