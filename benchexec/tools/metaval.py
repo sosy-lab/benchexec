@@ -9,7 +9,6 @@ import argparse
 import os
 import re
 import threading
-from typing import Optional
 
 import benchexec.tools.template
 from benchexec.tools.sv_benchmarks_util import (
@@ -29,7 +28,7 @@ from benchexec.tools.template import (
 )
 
 
-class MetavalVersionLessThanTwo:
+class MetaVal1:
     TOOL_TO_PATH_MAP = {
         "cpachecker-metaval": "CPAchecker-frontend",
         "cpachecker": "CPAchecker",
@@ -170,7 +169,7 @@ class MetavalVersionLessThanTwo:
         return None
 
 
-class MetavalVersionGreaterThanOrEqualTwo:
+class MetaVal2:
     def program_files(self, executable):
         return [executable] + BaseTool2._program_files_from_executable(
             executable, ["lib", "src", "config"]
@@ -256,16 +255,14 @@ class Tool(benchexec.tools.template.BaseTool2):
     """
 
     def __init__(self):
-        self._delegate: Optional[
-            MetavalVersionLessThanTwo | MetavalVersionGreaterThanOrEqualTwo
-        ] = MetavalVersionLessThanTwo()
+        self._delegate: MetaVal1 | MetaVal2 = MetaVal1()
 
     def executable(self, tool_locator):
         try:
             return self._delegate.executable(tool_locator)
         except ToolNotFoundException as e1:
             try:
-                self._delegate = MetavalVersionGreaterThanOrEqualTwo()
+                self._delegate = MetaVal2()
                 return self._delegate.executable(tool_locator)
             except ToolNotFoundException:
                 raise e1
