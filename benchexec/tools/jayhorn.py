@@ -5,18 +5,23 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import benchexec.util as util
 import benchexec.tools.template
 import benchexec.result as result
 
 
-class Tool(benchexec.tools.template.BaseTool):
+class Tool(benchexec.tools.template.BaseTool2):
     """
     Tool info for JayHorn.
     """
 
-    def executable(self):
-        return util.find_executable("jayhorn")
+    REQUIRED_PATHS = [
+        "jayhorn",
+        "jayhorn.jar",
+        "EnumEliminator-assembly-0.1.jar",
+    ]
+
+    def executable(self, tool_locator):
+        return tool_locator.find_executable("jayhorn")
 
     def version(self, executable):
         return self._version_from_tool(executable)
@@ -27,15 +32,20 @@ class Tool(benchexec.tools.template.BaseTool):
     def project_url(self):
         return "https://github.com/jayhorn/jayhorn"
 
-    def cmdline(self, executable, options, tasks, propertyfile, rlimits):
-        options = options + ["--propertyfile", propertyfile]
-        return [executable] + options + tasks
+    def cmdline(self, executable, options, task, rlimits):
+        if task.property_file:
+            options = options + ["--propertyfile", task.property_file]
 
-    def determine_result(self, returncode, returnsignal, output, isTimeout):
+        return [executable] + options + [task.single_input_file]
+
+    def program_files(self, executable):
+        return self._program_files_from_executable(executable, self.REQUIRED_PATHS)
+
+    def determine_result(self, run):
         # parse output
         status = result.RESULT_UNKNOWN
 
-        for line in output:
+        for line in run.output:
             if "UNSAFE" in line:
                 status = result.RESULT_FALSE_PROP
             elif "SAFE" in line:
