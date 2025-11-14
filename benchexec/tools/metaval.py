@@ -39,6 +39,11 @@ class MetaVal1:
     }
     PATH_TO_TOOL_MAP = {v: k for k, v in TOOL_TO_PATH_MAP.items()}
 
+    REQUIRED_PATHS = [
+        "VERSION.txt",
+        "metaval.py",
+    ]
+
     def __init__(self):
         self.lock = threading.Lock()
         self.wrappedTools = {}
@@ -47,14 +52,16 @@ class MetaVal1:
         return tool_locator.find_executable("metaval.sh")
 
     def program_files(self, executable):
-        return [
-            executable,
-            "VERSION.txt",
-            "metaval.py",
-            "metaval.sh",
-        ] + [
-            self._resource(executable, path) for path in self.PATH_TO_TOOL_MAP.values()
-        ]
+        return (
+            [executable]
+            + BaseTool2._program_files_from_executable(
+                executable, self.REQUIRED_PATHS, parent_dir=True
+            )
+            + [
+                self._resource(executable, path)
+                for path in self.PATH_TO_TOOL_MAP.values()
+            ]
+        )
 
     def _resource(self, executable, relpath):
         return os.path.join(os.path.dirname(executable), relpath)
