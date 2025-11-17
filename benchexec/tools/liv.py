@@ -7,8 +7,12 @@
 
 import logging
 import re
+
 import benchexec.result
-from benchexec.tools.template import BaseTool2
+from benchexec.tools.metaval import (
+    MetaVal2,
+)
+from benchexec.tools.template import BaseTool2, ToolNotFoundException
 from benchexec.tools.sv_benchmarks_util import (
     ILP32,
     LP64,
@@ -18,29 +22,16 @@ from benchexec.tools.sv_benchmarks_util import (
 )
 
 
-class Tool(BaseTool2):
-    """
-    Tool info for LIV.
-    """
-
+class Liv0:
     REQUIRED_PATHS = ["liv", "lib", "bin", "actors", ".venv"]
 
     def executable(self, tool_locator: BaseTool2.ToolLocator):
         return tool_locator.find_executable("liv", subdir="bin")
 
     def program_files(self, executable):
-        return [executable] + self._program_files_from_executable(
+        return [executable] + BaseTool2._program_files_from_executable(
             executable, self.REQUIRED_PATHS, parent_dir=True
         )
-
-    def version(self, executable):
-        return self._version_from_tool(executable)
-
-    def name(self):
-        return "LIV"
-
-    def project_url(self):
-        return "https://gitlab.com/sosy-lab/software/liv"
 
     def cmdline(self, executable, options, task, rlimits):
         if task.property_file:
@@ -99,3 +90,60 @@ class Tool(BaseTool2):
                         line,
                     )
         return match
+
+
+class Tool(BaseTool2):
+    """
+    Tool info for LIV.
+
+    After the first development version of LIV (version 0.x),
+    realization came that it share a large part of the codebase with MetaVal.
+    Therefore, LIV version 2.0 and later is implemented inside MetaVal,
+    using its command line interface and output format.
+    This Tool module delegates calls to the appropriate implementation
+    depending on the detected LIV version.
+
+    In addition, it was desired that both LIV and MetaVal run independently
+    at SV-COMP, i.e., both tools should be run independently.
+
+    Since meeting these requirements in a single Tool module is not possible
+    due to technical limitations of FM-Tools,
+    this Tool module uses delegation to two different implementations
+    depending on the detected LIV version.
+    """
+
+    def __init__(self):
+        self._delegate: Liv0 | MetaVal2 = Liv0()
+
+    def version(self, executable):
+        stdout = self._version_from_tool(executable, "--version")
+        version = stdout.splitlines()[0].strip()
+        return version
+
+    def executable(self, tool_locator: BaseTool2.ToolLocator):
+        try:
+            return self._delegate.executable(tool_locator)
+        except ToolNotFoundException as e1:
+            try:
+                self._delegate = MetaVal2()
+                return self._delegate.executable(tool_locator)
+            except ToolNotFoundException:
+                raise e1
+
+    def program_files(self, executable):
+        return self._delegate.program_files(executable)
+
+    def name(self):
+        return "LIV"
+
+    def project_url(self):
+        return "https://gitlab.com/sosy-lab/software/liv"
+
+    def cmdline(self, executable, options, task, rlimits):
+        return self._delegate.cmdline(executable, options, task, rlimits)
+
+    def determine_result(self, run):
+        return self._delegate.determine_result(run)
+
+    def get_value_from_output(self, output, identifier):
+        return self._delegate.get_value_from_output(output, identifier)
