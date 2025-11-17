@@ -41,7 +41,7 @@ class SystemInfo(object):
 
         # get info about CPU
         cpuInfo = {}
-        self.cpu_max_frequency = "unknown"
+        self.cpu_max_frequency = None
         cpuInfoFilename = "/proc/cpuinfo"
         self.cpu_number_of_cores = "unknown"
         if os.path.isfile(cpuInfoFilename) and os.access(cpuInfoFilename, os.R_OK):

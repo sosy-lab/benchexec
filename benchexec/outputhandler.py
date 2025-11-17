@@ -144,25 +144,21 @@ class OutputHandler(object):
                 return
 
         osElem = ElementTree.Element("os", name=opSystem)
-        if cpu_max_frequency == "unknown":
-            cpu_frequency_str = None
+        
+        if cpu_max_frequency is not None:
+            cpuElem = ElementTree.Element(
+                "cpu",
+                model=cpu_model,
+                cores=cpu_number_of_cores,
+                frequency=str(cpu_max_frequency) + "Hz",
+            )
         else:
-            cpu_frequency_str = str(cpu_max_frequency) + "Hz"
-
-        cpuElem = (
-            ElementTree.Element(
-                "cpu",
-                model=cpu_model,
-                cores=cpu_number_of_cores,
-                frequency=cpu_frequency_str,  # this cannot be None, ElementTree will error
-            )
-            if cpu_frequency_str is not None
-            else ElementTree.Element(
+            cpuElem = ElementTree.Element(
                 "cpu",
                 model=cpu_model,
                 cores=cpu_number_of_cores,
             )
-        )
+        
         if cpu_turboboost is not None:
             cpuElem.set("turboboostActive", str(cpu_turboboost).lower())
         ramElem = ElementTree.Element("ram", size=str(memory) + "B")
@@ -315,24 +311,19 @@ class OutputHandler(object):
         )
 
         if sysinfo:
-            if sysinfo.cpu_max_frequency == "unknown":
-                cpu_frequency_str = None
-            else:
-                cpu_frequency_str = (
-                    str(sysinfo.cpu_max_frequency / 1000 / 1000) + " MHz"
+            header += "   SYSTEM INFORMATION\n"
+            header += format_line("host", sysinfo.hostname)
+            header += format_line("os", sysinfo.os)
+            header += format_line("cpu", sysinfo.cpu_model)
+            header += format_line("- cores", sysinfo.cpu_number_of_cores)
+            if sysinfo.cpu_max_frequency is not None:
+                header += format_line(
+                    "- max frequency",
+                    str(sysinfo.cpu_max_frequency / 1000 / 1000) + " MHz",
                 )
-
-            header += (
-                "   SYSTEM INFORMATION\n"
-                + format_line("host", sysinfo.hostname)
-                + format_line("os", sysinfo.os)
-                + format_line("cpu", sysinfo.cpu_model)
-                + format_line("- cores", sysinfo.cpu_number_of_cores)
-                + format_line("- max frequency", cpu_frequency_str or "unknown")
-                + format_line("- turbo boost enabled", sysinfo.cpu_turboboost)
-                + format_byte("ram", sysinfo.memory)
-                + simpleLine
-            )
+            header += format_line("- turbo boost enabled", sysinfo.cpu_turboboost)
+            header += format_byte("ram", sysinfo.memory)
+            header += simpleLine
 
         self.description = header
 

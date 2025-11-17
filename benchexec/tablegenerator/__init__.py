@@ -1099,8 +1099,6 @@ def format_run_set_attributes_nicely(runSetResults):
             elif key == "freq":
 
                 def round_to_MHz(value):
-                    if value is None:
-                        return "not available"
                     number, unit = util.split_number_and_unit(value)
                     if unit and unit != "Hz":
                         return value
