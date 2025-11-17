@@ -144,7 +144,7 @@ class OutputHandler(object):
                 return
 
         osElem = ElementTree.Element("os", name=opSystem)
-        
+
         if cpu_max_frequency is not None:
             cpuElem = ElementTree.Element(
                 "cpu",
@@ -158,7 +158,7 @@ class OutputHandler(object):
                 model=cpu_model,
                 cores=cpu_number_of_cores,
             )
-        
+
         if cpu_turboboost is not None:
             cpuElem.set("turboboostActive", str(cpu_turboboost).lower())
         ramElem = ElementTree.Element("ram", size=str(memory) + "B")

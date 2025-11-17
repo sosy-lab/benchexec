@@ -154,17 +154,17 @@ def _prepare_benchmark_setup_data(
             parts.append(f"CPU: {cpu}")
         cores = attributes.get("cores")
         if cores:
-            parts.append(f"cores: {cores}")        
-        freq = attributes.get('freq')
+            parts.append(f"cores: {cores}")
+        freq = attributes.get("freq")
         if freq:
             parts.append(f"frequency: {freq}")
-        
-        turbo = attributes.get('turbo')
+
+        turbo = attributes.get("turbo")
         if turbo:
             parts.append(f"Turbo Boost: {turbo}")
         parts_str = ", ".join(parts)
-        
-        ram = attributes.get('ram')
+
+        ram = attributes.get("ram")
         if ram:
             parts_str += f"; RAM: {attributes.get('ram', '')}"
         return parts_str
