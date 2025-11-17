@@ -166,7 +166,7 @@ def _prepare_benchmark_setup_data(
 
         ram = attributes.get("ram")
         if ram:
-            parts_str += f"; RAM: {attributes.get('ram', '')}"
+            parts_str += f"; RAM: {ram}"
         return parts_str
 
     def get_row(
