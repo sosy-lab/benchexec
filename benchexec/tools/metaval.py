@@ -42,7 +42,7 @@ class MetaVal1:
     REQUIRED_PATHS = [
         "VERSION.txt",
         "metaval.py",
-    ]
+    ] + list(TOOL_TO_PATH_MAP.values())
 
     def __init__(self):
         self.lock = threading.Lock()
@@ -52,15 +52,8 @@ class MetaVal1:
         return tool_locator.find_executable("metaval.sh")
 
     def program_files(self, executable):
-        return (
-            [executable]
-            + BaseTool2._program_files_from_executable(
-                executable, self.REQUIRED_PATHS, parent_dir=True
-            )
-            + [
-                self._resource(executable, path)
-                for path in self.PATH_TO_TOOL_MAP.values()
-            ]
+        return [executable] + BaseTool2._program_files_from_executable(
+            executable, self.REQUIRED_PATHS
         )
 
     def _resource(self, executable, relpath):
