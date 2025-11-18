@@ -91814,7 +91814,13 @@ exports[`Render Summary for test-error.2015-03-03_1613.diff.html 1`] = `
      </th>
      <td
       className="header__tool-rowfalse"
-      colSpan={8}
+      colSpan={4}
+     >
+      CPU: Intel Core i7-2600 CPU @ 3.40GHz, cores: 8; RAM: 16389384 kB
+     </td>
+     <td
+      className="header__tool-rowfalse"
+      colSpan={4}
      >
       CPU: Intel Core i7-2600 CPU @ 3.40GHz, cores: 8, frequency: 3401 MHz; RAM: 16389384 kB
      </td>
@@ -93925,7 +93931,13 @@ exports[`Render Summary for test-error.2015-03-03_1613.table.html 1`] = `
      </th>
      <td
       className="header__tool-rowfalse"
-      colSpan={8}
+      colSpan={4}
+     >
+      CPU: Intel Core i7-2600 CPU @ 3.40GHz, cores: 8; RAM: 16389384 kB
+     </td>
+     <td
+      className="header__tool-rowfalse"
+      colSpan={4}
      >
       CPU: Intel Core i7-2600 CPU @ 3.40GHz, cores: 8, frequency: 3401 MHz; RAM: 16389384 kB
      </td>
