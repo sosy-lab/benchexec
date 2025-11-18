@@ -146,6 +146,29 @@ def _prepare_benchmark_setup_data(
         keys = ["tool", "version", "project_url", "version_url"]
         return {k: str(attributes[k]) for k in keys if attributes.get(k)}
 
+    def system_info_cell(attributes):
+        """Format system information, conditionally, depending on what information is available."""
+        parts = []
+        cpu = attributes.get("cpu")
+        if cpu:
+            parts.append(f"CPU: {cpu}")
+        cores = attributes.get("cores")
+        if cores:
+            parts.append(f"cores: {cores}")
+        freq = attributes.get("freq")
+        if freq:
+            parts.append(f"frequency: {freq}")
+
+        turbo = attributes.get("turbo")
+        if turbo:
+            parts.append(f"Turbo Boost: {turbo}")
+        parts_str = ", ".join(parts)
+
+        ram = attributes.get("ram")
+        if ram:
+            parts_str += f"; RAM: {ram}"
+        return parts_str
+
     def get_row(
         rowName,
         *format_args,
@@ -205,9 +228,8 @@ def _prepare_benchmark_setup_data(
         "os": get_row("OS", "{os}", collapse=True, onlyIf="os"),
         "system": get_row(
             "System",
-            "CPU: {cpu}, cores: {cores}, frequency: {freq}{turbo}; RAM: {ram}",
+            cell_format=system_info_cell,
             collapse=True,
-            onlyIf="cpu",
         ),
         "date": get_row("Date of execution", "{date}", collapse=True),
         "runset": get_row("Run set", "{niceName}"),

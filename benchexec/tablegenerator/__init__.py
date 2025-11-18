@@ -550,7 +550,9 @@ class RunSetResult(object):
             attributes["os"].append(systemTag.find("os").get("name"))
             attributes["cpu"].append(cpuTag.get("model"))
             attributes["cores"].append(cpuTag.get("cores"))
-            attributes["freq"].append(cpuTag.get("frequency"))
+            freq = cpuTag.get("frequency")
+            if freq:
+                attributes["freq"].append(freq)
             attributes["turbo"].append(cpuTag.get("turboboostActive"))
             attributes["ram"].append(systemTag.find("ram").get("size"))
             attributes["host"].append(systemTag.get("hostname", "unknown"))
@@ -1068,9 +1070,7 @@ def format_run_set_attributes_nicely(runSetResults):
                     turbo = "disabled"
                 else:
                     turbo = None
-                runSetResult.attributes["turbo"] = (
-                    f", Turbo Boost: {turbo}" if turbo else ""
-                )
+                runSetResult.attributes["turbo"] = turbo
 
             elif key == "timelimit":
 

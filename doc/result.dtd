@@ -33,7 +33,7 @@ SPDX-License-Identifier: Apache-2.0
 <!ATTLIST os name CDATA #REQUIRED>
 <!ELEMENT cpu EMPTY>
 <!ATTLIST cpu cores CDATA #REQUIRED
-              frequency CDATA #REQUIRED
+              frequency CDATA #IMPLIED
               turboboostActive CDATA #IMPLIED
               model CDATA #REQUIRED>
 <!ELEMENT ram EMPTY>

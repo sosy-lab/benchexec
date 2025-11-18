@@ -7,7 +7,7 @@
   </columns>
   <systeminfo hostname="tortuga">
     <os name="Linux 3.13.0-45-generic x86_64"/>
-    <cpu cores="8" frequency="3401 MHz" model="Intel Core i7-2600 CPU @ 3.40GHz"/>
+    <cpu cores="8" model="Intel Core i7-2600 CPU @ 3.40GHz"/>
     <ram size="16389384 kB"/>
   </systeminfo>
   <run files="[test/programs/simple/bitvectors/implicitunsignedconversion_false-unreach-label.i]" name="test/programs/simple/bitvectors/implicitunsignedconversion_false-unreach-label.i" properties="unreach-label">
