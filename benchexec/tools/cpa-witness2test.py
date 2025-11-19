@@ -41,7 +41,14 @@ class Tool(cpachecker.Tool):
                 raise e1
 
     def version(self, executable):
-        stdout = self._version_from_tool(executable, "-version")
+        stdout = ""
+        if executable.endswith(".py"):
+            # if the executable is a python script,
+            # it is likely that CPA-witness2test is an older version that takes `-version`
+            stdout = self._version_from_tool(executable, "-version")
+        if not stdout:
+            # try the newer version flag
+            stdout = self._version_from_tool(executable, "--version")
         version = stdout.split("(")[0].strip()
         return version
 
