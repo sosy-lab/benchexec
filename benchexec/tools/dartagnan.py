@@ -55,6 +55,8 @@ class Tool(benchexec.tools.template.BaseTool2):
                 status = result.RESULT_FALSE_REACH
             elif "data race found" in line:
                 status = result.RESULT_FALSE_DATARACE
+            elif "Untrackable object found" in line:
+                status = result.RESULT_FALSE_MEMTRACK
             elif "Termination violation found" in line:
                 status = result.RESULT_FALSE_TERMINATION
         return status
