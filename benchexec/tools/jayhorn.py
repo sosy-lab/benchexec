@@ -35,7 +35,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         if task.property_file:
             options = options + ["--propertyfile", task.property_file]
 
-        return [executable] + options + [task.single_input_file]
+        return [executable] + options + list(task.input_files)
 
     def determine_result(self, run):
         # parse output
