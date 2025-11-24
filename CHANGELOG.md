@@ -9,9 +9,46 @@ SPDX-License-Identifier: Apache-2.0
 
 # BenchExec Changelog
 
-## Changes since BenchExec 3.30
+## BenchExec 3.31 - 2025-11-24
 
 BenchExec now requires Python 3.10 or newer.
+
+- Provide command-line arguments for choosing result files of `benchexec`.  
+  So far `benchexec` writes result files for every `<rundefinition>` and `<tasks>` tag.
+  This can be convenient but also redundant,
+  and there is an inconsistency in case of a run definition with a single task set.
+  To solve this, we introduce two new command-line arguments:
+  - `--results-per-rundefinition`
+  - `--results-per-taskset`
+
+  Using them allows one to choose the desired result files,
+  either only one set of files or both.
+  If none of the arguments is given the previous default behavior is used,
+  though in BenchExec 4.0 we will change the default behavior to a more consistent one.
+- Duplicate names of `<rundefinition>` tags in the benchmark definition are now forbidden.  
+  It was an oversight that this was allowed,
+  because it would lead to output files with duplicate names,
+  i.e., some results overwriting other results.
+  Now `benchexec` detects and prevents this.
+  Until the next major release duplicate run-definition names are still allowed
+  in cases where it does not cause actual problems
+  (e.g., because only one of them is selected for execution).
+  In BenchExec 4.0 we will likely forbid such duplicate names completely.
+- Prevent overwriting results when `<tasks>` tags with duplicate names exist in the benchmark definition.  
+  Such cases lead to output files with duplicate names,
+  i.e. some results overwriting other results.
+  Now `benchexec` detects this, warns about it, and skips writing the files with duplicate names.
+  In BenchExec 4.0 we will likely forbid such duplicate names completely.
+- Fix crash on VMs where the CPU frequency is unknown.  
+  It seems this happens on some VMs on ARM Macs.
+  Thanks to [@leventeBajczi](https://github.com/leventeBajczi) for reporting and fixing this!
+- Fix crash in special cases of cgroupsv2 systems
+  with a memory limit defined outside of BenchExec
+  (e.g., by the system administrator).
+- Fix crash in case of running BenchExec inside a container
+  with an incomplete cgroupsv2 setup where we are in an out-of-tree cgroup.
+- Some performance improvements for large benchmark definitions that include task definitions more than once.
+- Many new and improved tool-info modules.
 
 ## BenchExec 3.30 - 2025-06-06
 
