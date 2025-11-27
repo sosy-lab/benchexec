@@ -133,7 +133,7 @@ if ! [[ $REPLY =~ ^[Yy]$ ]]; then
   exit 0
 fi
 
-git push --tags
+git push --follow-tags
 twine upload "$DIST_DIR/benchexec-$VERSION"*.{whl,whl.asc,tar.gz,tar.gz.asc}
 dput ppa:sosy-lab/benchmarking "$DIST_DIR/benchexec_$VERSION-1_source.changes"
 
@@ -143,6 +143,7 @@ while [[ $REPLY = "" ]]; do
 done
 sed -e "s/^__version__ = .*/__version__ = \"$REPLY\"/" -i benchexec/__init__.py
 git commit benchexec/__init__.py -m"Prepare version number for next development cycle."
+git push
 
 
 echo

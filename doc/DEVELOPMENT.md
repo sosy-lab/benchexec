@@ -119,7 +119,7 @@ GitHub Actions and AppVeyor also run a subset of checks
 
  * Push commits and tag to GitHub:
 
-        git push --tags
+        git push --follow-tags
 
  * On GitHub, create a release from the tag with a description of the changes
    (from `CHANGELOG.md`), and upload all files from `dist/`.
