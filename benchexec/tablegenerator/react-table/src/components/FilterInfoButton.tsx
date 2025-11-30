@@ -10,6 +10,7 @@ import { isNil } from "../utils/utils";
 import { faFilter } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 export default class FilterInfoButton extends React.Component {
+	public props: any;
   render = () => (
     <button
       className={this.props.className || "reset"}

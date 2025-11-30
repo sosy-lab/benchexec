@@ -15,6 +15,18 @@ import { decodeFilter, isNil } from "../../utils/utils";
 const classNames = require("classnames");
 
 export default class FilterBox extends React.PureComponent {
+	public listeners: any;
+	public resetFilterHook: any;
+	public state: any;
+	public props: any;
+	public setState: any;
+	public filtered: any;
+	public id: any;
+	public value: any;
+	public tool: any;
+	public title: any;
+	public column: any;
+
   constructor(props) {
     super(props);
 

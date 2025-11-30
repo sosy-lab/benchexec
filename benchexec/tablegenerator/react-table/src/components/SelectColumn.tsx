@@ -12,6 +12,10 @@ import { faClose } from "@fortawesome/free-solid-svg-icons";
 import { getRunSetName, setURLParameter } from "../utils/utils";
 
 export default class SelectColumn extends React.Component {
+	public state: any;
+	public props: any;
+	public setState: any;
+
   constructor(props) {
     super(props);
 

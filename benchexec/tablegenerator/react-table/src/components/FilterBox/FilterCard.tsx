@@ -26,6 +26,25 @@ const numericInputDebounce = 500;
 let debounceHandler = setTimeout(() => {}, numericInputDebounce);
 
 export default class FilterCard extends React.PureComponent {
+	public state: any;
+	public props: any;
+	public setState: any;
+	public numericMinTimeout: any;
+	public numericMaxTimeout: any;
+	public values: any;
+	public min: any;
+	public max: any;
+	public type: any;
+	public significantDigits: any;
+	public categories: any;
+	public propMin: any;
+	public propMax: any;
+	public filter: any;
+	public editable: any;
+	public availableFilters: any;
+	public title: any;
+	public statuses: any;
+
   constructor(props) {
     super(props);
     const {

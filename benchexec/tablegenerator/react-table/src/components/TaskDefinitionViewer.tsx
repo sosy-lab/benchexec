@@ -10,6 +10,10 @@ import yamlParser from "yaml";
 
 /** Special view for YAML files in the LinkOverlay component. */
 export default class TaskDefinitionViewer extends React.Component {
+	public state: any;
+	public props: any;
+	public setState: any;
+
   constructor(props) {
     super(props);
     this.state = {
