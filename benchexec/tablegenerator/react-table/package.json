@@ -78,6 +78,11 @@
     ]
   },
   "devDependencies": {
+    "@types/deep-equal": "^1.0.4",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^24.10.1",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
     "enzyme": "^3.11.0",
     "enzyme-adapter-react-16": "^1.15.6",
     "eslint-config-prettier": "^8.5.0",

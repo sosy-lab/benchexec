@@ -5,7 +5,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { PureComponent } from "react";
+import React, { JSX, PureComponent } from "react";
 import FilterCard from "./FilterCard";
 import equals from "deep-equal";
 
@@ -18,6 +18,7 @@ interface Filter {
     type?: string;
     categories?: string[];
     statuses?: string[];
+    idx: number;
 }
 
 interface FilterContainerProps {
@@ -79,7 +80,7 @@ export default class FilterContainer extends PureComponent<FilterContainerProps,
     addFilter(idx:number): void {
         const { filters:newFilterState, numCards } = this.state;
 
-        const newFilter = { filtering:true, numCards:numCards, touched:0 };
+        const newFilter = { filtering:true, numCards:numCards, touched:0, values:[] as string[] };
 
         if (newFilterState[idx].type === "status") {
             newFilter.values = [
@@ -180,7 +181,7 @@ export default class FilterContainer extends PureComponent<FilterContainerProps,
                 {filters.length >0 &&
                     filters.map((filter , idx)=>(
                         <FilterCard
-                            onFilterUpdate={(val)=>this.setFilter(val , filter.idx)}
+                            onFilterUpdate={(val: any)=>this.setFilter(val , filter.idx)}
                             title={filter.display_title}
                             removeFilter={()=>this.removeFilter(filter.idx , filter.display_title)}
                             filter={filter}
@@ -193,8 +194,8 @@ export default class FilterContainer extends PureComponent<FilterContainerProps,
                         availableFilters={availableFilters}
                         editable="true"
                         style={{ marginBottom :20 }}
-                        addFilter={(idx)=>this.addFilter(idx)}
-                        onFilterUpdate={(vals)=>this.setFilter(vals)}
+                        addFilter={(idx: any)=>this.addFilter(idx)}
+                        onFilterUpdate={(vals: any, idx: any)=>this.setFilter(vals, idx)}
                     />
                 )) || undefined}
 

@@ -5,7 +5,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { PureComponent, ChangeEvent } from "react";
+import React, { PureComponent, ChangeEvent, JSX } from "react";
 import equals from "deep-equal";
 import { pathOr } from "../../utils/utils";
 import "rc-slider/assets/index.css";
