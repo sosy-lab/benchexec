@@ -30,7 +30,7 @@ export default class FilterBox extends React.PureComponent {
     };
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps: { filtered: any[] }) {
     if (!equals(prevProps.filtered, this.props.filtered)) {
       this.setState({
         filters: this.createFiltersFromReactTableStructure(this.props.filtered),
@@ -44,8 +44,8 @@ export default class FilterBox extends React.PureComponent {
     this.resetIdFilters();
   }
 
-  resetIdFilters() {
-    const empty = null; //Object.keys(this.props.ids).map(() => null);
+  resetIdFilters(): void {
+    const empty: null = null; // Object.keys(this.props.ids).map(() => null);
     this.setState({ idFilters: empty });
     this.sendFilters({ filter: this.state.filters, idFilter: empty });
   }
