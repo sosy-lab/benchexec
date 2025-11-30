@@ -8,6 +8,10 @@ import benchexec.result as result
 import benchexec.tools.template
 import functools
 import re
+from benchexec.tools.sv_benchmarks_util import (
+    handle_witness_of_task,
+    TaskFilesConsidered,
+)
 
 
 class Tool(benchexec.tools.template.BaseTool2):
@@ -49,7 +53,11 @@ class Tool(benchexec.tools.template.BaseTool2):
             if rlimits.memory:
                 options += ["--memlimit", str(rlimits.memory)]  # memory in Bytes
 
-        return [executable, task.single_input_file] + options
+        input_file, witness_options = handle_witness_of_task(
+            task, options, "--witness", TaskFilesConsidered.SINGLE_INPUT_FILE
+        )
+
+        return [executable] + input_file + options + witness_options
 
     def determine_result(self, run):
         if run.was_terminated:
