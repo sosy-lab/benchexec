@@ -9,19 +9,23 @@
 import React from "react";
 import renderer from "react-test-renderer";
 
-// enzyme
-import { shallow, configure } from "enzyme";
-import Adapter from "enzyme-adapter-react-16";
+// Testing Library
+import { render, screen, fireEvent } from "@testing-library/react";
 
 // components
 import Reset from "../components/FilterInfoButton.js";
 
-configure({ adapter: new Adapter() });
-
+// NOTE:
+// The original Enzyme test rendered the reset button, checked its text and
+// then did `expect(resetBtn).toEqual({})`, which did not assert any real
+// runtime behavior. After migrating to React Testing Library, we keep the
+// meaningful part (render + text check + click). However, we intentionally do not add
+// stronger assertions (e.g., about resetFilters), because the component itself
+// does not call resetFilters and the old test never verified that either.
 test("Click on reset button stops button from rendering", () => {
   let isFiltered = true;
 
-  const resetBtn = shallow(
+  render(
     <Reset
       isFiltered={isFiltered}
       filteredCount="23"
@@ -30,11 +34,10 @@ test("Click on reset button stops button from rendering", () => {
     />,
   );
 
-  expect(resetBtn.text()).toContain("Showing 23 of 42 tasks");
+  const button = screen.getByRole("button");
+  expect(button).toHaveTextContent("Showing 23 of 42 tasks");
 
-  resetBtn.simulate("click");
-
-  expect(resetBtn).toEqual({});
+  fireEvent.click(button);
 });
 
 it("Render reset button", () => {

@@ -7,9 +7,11 @@
 
 import React from "react";
 import renderer from "react-test-renderer";
-import FilterCard from "../components/FilterBox/FilterCard.js";
 
-import { shallow } from "enzyme";
+import { render } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+
+import FilterCard from "../components/FilterBox/FilterCard.js";
 
 const createFilterCard = (props) => <FilterCard {...props} />;
 
@@ -95,7 +97,13 @@ describe("FilterCard tests", () => {
     expect(renderer.create(Card)).toMatchSnapshot();
   });
 
-  test("FilterCard should send correct updates on selection of filters", () => {
+  // NOTE:
+  // This test used to rely on Enzyme's shallow rendering and .simulate().
+  // It now uses React Testing Library to render into a real DOM container
+  // and triggers the change via a user-like click on the checkbox. This
+  // makes the test closer to actual runtime behavior and allows us to
+  // drop the Enzyme dependency.
+  test("FilterCard should send correct updates on selection of filters", async () => {
     let response = {};
 
     const handler = (obj) => {
@@ -112,15 +120,13 @@ describe("FilterCard tests", () => {
       filter,
       onFilterUpdate: handler,
     });
-    const wrapper = shallow(Card);
+    const { container } = render(Card);
 
-    const checkBox = wrapper.findWhere(
-      (node) => node.type() === "input" && node.props().name === "stat-true",
-    );
+    const checkBox = container.querySelector('input[name="stat-true"]');
 
-    expect(checkBox).toHaveLength(1);
+    expect(checkBox).not.toBeNull();
 
-    checkBox.simulate("change", { target: { checked: true } });
+    await userEvent.click(checkBox);
 
     expect(response).toEqual({ values: ["true"], title: "Status" });
   });
