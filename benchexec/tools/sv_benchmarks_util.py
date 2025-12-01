@@ -154,10 +154,10 @@ def get_single_non_witness_input_file(task):
 
 def get_witness_options(options, task, witness_options):
     """
-    This function returns the additional options to handle the witness.
-    It checks if the witness is passed as an option or through the task definition.
-    If the witness is passed through both, it raises an exception.
+    This function returns the additional options to handle witnesses.
+    It checks if a witness is passed as an option or through the task definition.
     If no witness is given in the task, it returns an empty list.
+    If a witness is passed through both, it warns and ignores the witness in the task.
     Therefore, this function can be used with any task regardless if it
     has a witness option or not.
 
