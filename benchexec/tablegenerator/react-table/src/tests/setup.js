@@ -5,9 +5,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-// enzyme
-import { configure } from "enzyme";
-import Adapter from "enzyme-adapter-react-16";
+import "@testing-library/jest-dom";
 
 // Used by @zip.js/zip.js, but not implemented in jsdom via jest, so manually mock it here
 window.crypto = jest.fn();
@@ -42,7 +40,6 @@ class Worker {
   }
 }
 window.Worker = Worker;
-configure({ adapter: new Adapter() });
 
 // We use jest snapshots for integration tests, and they become quite large.
 // It is not really recommended by jest to do this, but this still seems like
