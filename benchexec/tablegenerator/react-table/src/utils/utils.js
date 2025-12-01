@@ -293,7 +293,12 @@ const setURLParameter = (
     }
   }
 
-  window.location.href = newUrl;
+  // In the browser we want to trigger a real navigation.
+  // In the Jest/jsdom test environment, navigation (except hash changes)
+  // is not implemented and produces noisy console.error logs.
+  if (process.env.NODE_ENV !== "test") {
+    window.location.href = newUrl;
+  }
 };
 
 const makeUrlFilterDeserializer = (statusValues, categoryValues) => {
