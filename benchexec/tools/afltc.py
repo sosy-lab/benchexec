@@ -54,7 +54,15 @@ class Tool(benchexec.tools.template.BaseTool2):
                 "The 'data_model' option must be either 'ILP32' or 'LP64'."
             )
 
-        return [executable, task.single_input_file, data_model_option]
+        if task.property_file is None:
+            raise ValueError("A property file must be specified for afl-tc.")
+
+        return [
+            executable,
+            task.single_input_file,
+            data_model_option,
+            task.property_file,
+        ]
 
     def determine_result(self, run):
         ansi_escape = re.compile(r"\x1B\[[0-?]*[ -/]*[@-~]")
