@@ -42,7 +42,10 @@ class Tool(benchexec.tools.template.BaseTool2):
         return "https://gitlab.com/sosy-lab/software/test-to-witness"
 
     def cmdline(self, executable, options, task, rlimits):
-        data_model = task.options.get("data_model")
+        try:
+            data_model = task.options.get("data_model")
+        except AttributeError:
+            data_model = None
 
         if data_model is None:
             raise ValueError("The 'data_model' option must be specified for afl-tc.")
@@ -54,15 +57,20 @@ class Tool(benchexec.tools.template.BaseTool2):
                 "The 'data_model' option must be either 'ILP32' or 'LP64'."
             )
 
-        if task.property_file is None:
-            raise ValueError("A property file must be specified for afl-tc.")
+        command_line = [executable, task.single_input_file, data_model_option]
 
-        return [
-            executable,
-            task.single_input_file,
-            data_model_option,
-            task.property_file,
-        ]
+        # The first version(s) (all denoted as "0.1.0") did not support property files
+        version = self.version(executable)
+        if version == "0.1.0":
+            return command_line
+
+        if task.property_file is None:
+            raise ValueError(
+                "For versions not being 0.1.0 a property file must be specified for afl-tc."
+            )
+
+        command_line += [task.property_file]
+        return command_line
 
     def determine_result(self, run):
         ansi_escape = re.compile(r"\x1B\[[0-?]*[ -/]*[@-~]")
