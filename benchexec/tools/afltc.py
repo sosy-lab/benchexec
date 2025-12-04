@@ -6,6 +6,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import re
+from functools import cache
 
 import benchexec.result as result
 import benchexec.tools.template
@@ -18,6 +19,7 @@ class Tool(benchexec.tools.template.BaseTool2):
     def executable(self, tool_locator):
         return tool_locator.find_executable("afl-tc", subdir="bin")
 
+    @cache
     def version(self, executable):
         return self._version_from_tool(
             executable, arg="--version", line_prefix="afl-tc version"
@@ -42,10 +44,11 @@ class Tool(benchexec.tools.template.BaseTool2):
         return "https://gitlab.com/sosy-lab/software/test-to-witness"
 
     def cmdline(self, executable, options, task, rlimits):
-        try:
-            data_model = task.options.get("data_model")
-        except AttributeError:
-            data_model = None
+        task_options = task.options or {}
+
+        data_model = None
+        if isinstance(task_options, dict):
+            data_model = task_options.get("data_model", None)
 
         if data_model is None:
             raise ValueError("The 'data_model' option must be specified for afl-tc.")
