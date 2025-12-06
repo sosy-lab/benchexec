@@ -23,24 +23,76 @@ import { statusForEmptyRows } from "../../utils/filters";
 const Range = createSliderWithTooltip(Slider.Range);
 
 const numericInputDebounce = 500;
-let debounceHandler = setTimeout(() => {}, numericInputDebounce);
+let debounceHandler: number = window.setTimeout(() => {}, numericInputDebounce);
 
-export default class FilterCard extends React.PureComponent {
-  numericMaxTimeout: any;
-  numericMinTimeout: any;
-  constructor(props: any) {
+type FilterType = "status" | "text" | "measure" | "number" | string;
+
+interface FilterDefinition {
+  idx?: number;
+  title?: string;
+  display_title: string;
+  type: FilterType;
+  unit?: string;
+  categories?: string[];
+  statuses?: string[];
+  values?: string[];
+  min?: number;
+  max?: number;
+  number_of_significant_digits?: number;
+  touched: number;
+  filtering: boolean;
+  numCards: number;
+}
+
+interface FilterCardProps {
+  filter?: FilterDefinition;
+  title?: string;
+  name?: string;
+  onFilterUpdate: (val: { values: string[]; title: string }) => void;
+  removeFilter?: () => void;
+  availableFilters?: Array<{
+    idx: number;
+    title: string;
+    display_title: string;
+  }>;
+  addFilter?: (idx: number) => void;
+  editable?: boolean | string;
+  style?: React.CSSProperties;
+}
+
+interface FilterCardState {
+  title: string;
+  values: string[];
+  idx: number;
+  active: boolean;
+  selectedDistinct: string[];
+  sliderMin: number | string;
+  sliderMax: number | string;
+  numericMin: number | null;
+  numericMax: number | null;
+}
+
+export default class FilterCard extends React.PureComponent<FilterCardProps, FilterCardState> {
+  numericMaxTimeout: number | null = null;
+  numericMinTimeout: number | null = null;
+
+  constructor(props: FilterCardProps) {
     super(props);
     const {
-      values,
+      values = [],
       min,
       max,
       type,
       number_of_significant_digits: significantDigits,
-    } = props.filter || { values: [] };
-    let sliderMin = 0;
-    let sliderMax = 0;
+    } = props.filter || { values: [] as string[] };
+
+    let sliderMin: number | string = 0;
+    let sliderMax: number | string = 0;
+
     if (type === "measure" || type === "number") {
-      const builder = new NumberFormatterBuilder(significantDigits).build();
+      const builder = new NumberFormatterBuilder(
+        significantDigits,
+      ).build() as (n: number | undefined) => number | string;
       sliderMin = builder(min);
       sliderMax = builder(max);
       const value = values && values[0];
@@ -50,6 +102,7 @@ export default class FilterCard extends React.PureComponent {
         sliderMax = res.max;
       }
     }
+
     this.state = {
       title:
         props.availableFilters && props.availableFilters.length
@@ -58,7 +111,7 @@ export default class FilterCard extends React.PureComponent {
       values: [],
       idx: pathOr(["availableFilters", 0, "idx"], 0, props),
       active: true,
-      selectedDistincts: [],
+      selectedDistinct: [],
       sliderMin,
       sliderMax,
       numericMin: null,
@@ -66,64 +119,69 @@ export default class FilterCard extends React.PureComponent {
     };
   }
 
-  sendFilterUpdate(values: any) {
-    // @ts-expect-error TS(2339): Property 'filter' does not exist on type 'Readonly... Remove this comment to see the full error message
-    const { type, categories } = this.props.filter;
+  private get effectiveTitle(): string {
+    const { filter, title: propsTitle } = this.props;
+    return this.state.title || propsTitle || filter?.title || "";
+  }
+
+  sendFilterUpdate(values: string[]) {
+    const { filter } = this.props;
+    const type = filter?.type;
+    const categories = filter?.categories;
+
+    let newValues = values;
+
     if (
       categories &&
       categories.includes("empty ") &&
-      !values.includes(statusForEmptyRows)
+      !newValues.includes(statusForEmptyRows)
     ) {
-      values = values.concat(statusForEmptyRows);
+      newValues = newValues.concat(statusForEmptyRows);
     }
-    if (values.length === 0 && type === "status") {
-      // @ts-expect-error TS(2339): Property 'onFilterUpdate' does not exist on type '... Remove this comment to see the full error message
+
+    const title = this.effectiveTitle;
+
+    if (newValues.length === 0 && type === "status") {
       this.props.onFilterUpdate({
         values: [emptyStateValue],
-        // @ts-expect-error TS(2339): Property 'title' does not exist on type 'Readonly<... Remove this comment to see the full error message
-        title: this.state.title || this.props.title,
+        title,
       });
     } else {
-      // @ts-expect-error TS(2339): Property 'onFilterUpdate' does not exist on type '... Remove this comment to see the full error message
       this.props.onFilterUpdate({
-        values,
-        // @ts-expect-error TS(2339): Property 'title' does not exist on type 'Readonly<... Remove this comment to see the full error message
-        title: this.state.title || this.props.title,
+        values: newValues,
+        title,
       });
     }
   }
 
-  // @ts-expect-error TS(6133): 'prevState' is declared but its value is never rea... Remove this comment to see the full error message
-  componentDidUpdate(prevProps: any, prevState: any) {
-    // @ts-expect-error TS(2339): Property 'filter' does not exist on type 'Readonly... Remove this comment to see the full error message
-    if (!this.props.filter) {
+  componentDidUpdate(prevProps: FilterCardProps) {
+    const currentFilter = this.props.filter;
+    if (!currentFilter) {
       return;
     }
-    if (
-      !prevProps.filter ||
-      // @ts-expect-error TS(2339): Property 'filter' does not exist on type 'Readonly... Remove this comment to see the full error message
-      prevProps.filter.values !== this.props.filter.values
-    ) {
-      const { values, number_of_significant_digits: significantDigits } =
-        // @ts-expect-error TS(2339): Property 'filter' does not exist on type 'Readonly... Remove this comment to see the full error message
-        this.props.filter;
+
+    if (!prevProps.filter || prevProps.filter.values !== currentFilter.values) {
+      const {
+        values = [],
+        number_of_significant_digits: significantDigits
+      } = currentFilter;
       const [value] = values;
       if (value && value.includes(":")) {
         const { min, max } = this.handleMinMaxValue(value, significantDigits);
         this.setState({
           sliderMin: min,
           sliderMax: max,
-          numericMin: min,
-          numericMax: max,
+          numericMin: Number(min),
+          numericMax: Number(max),
         });
       }
     }
   }
 
-  handleMinMaxValue(value: any, significantDigits: any) {
-    const builder = new NumberFormatterBuilder(significantDigits).build();
-    // @ts-expect-error TS(2339): Property 'filter' does not exist on type 'Readonly... Remove this comment to see the full error message
-    const { min: propMin, max: propMax } = this.props.filter || {
+  handleMinMaxValue(value: string, significantDigits?: number) {
+    const builder = new NumberFormatterBuilder(significantDigits).build() as (n: number | undefined) => number | string;
+    const { filter } = this.props;
+    const { min: propMin = 0, max: propMax = Infinity } = filter || {
       min: 0,
       max: Infinity,
     };
@@ -134,64 +192,66 @@ export default class FilterCard extends React.PureComponent {
     };
   }
 
-  handleNumberChange(min: any, max: any) {
-    const newState = {};
-    // @ts-expect-error TS(2339): Property 'sliderMin' does not exist on type '{}'.
-    newState.sliderMin = Number(this.state.numericMin ?? this.state.sliderMin);
-    // @ts-expect-error TS(2339): Property 'sliderMax' does not exist on type '{}'.
-    newState.sliderMax = Number(this.state.numericMax ?? this.state.sliderMax);
-    // @ts-expect-error TS(2339): Property 'sliderMin' does not exist on type '{}'.
-    if (newState.sliderMin > newState.sliderMax) {
-      // @ts-expect-error TS(2339): Property 'sliderMax' does not exist on type '{}'.
-      const temp = newState.sliderMax;
-      // @ts-expect-error TS(2339): Property 'sliderMax' does not exist on type '{}'.
-      newState.sliderMax = newState.sliderMin;
-      // @ts-expect-error TS(2339): Property 'sliderMin' does not exist on type '{}'.
-      newState.sliderMin = temp;
+  handleNumberChange(min: number | string, max: number | string) {
+    const currentMin = Number(this.state.numericMin ?? this.state.sliderMin);
+    const currentMax = Number(this.state.numericMax ?? this.state.sliderMax);
+
+    let sliderMin = currentMin;
+    let sliderMax = currentMax;
+
+    if (sliderMin > sliderMax) {
+      const temp = sliderMax;
+      sliderMax = sliderMin;
+      sliderMin = temp;
     }
-    // defaulting to an empty string per side, if the values exceeds
-    // or is less than the min/max thresholds
-    const stringRepMin =
-      // @ts-expect-error TS(2339): Property 'sliderMin' does not exist on type '{}'.
-      newState.sliderMin <= Number(min) ? "" : newState.sliderMin;
-    const stringRepMax =
-      // @ts-expect-error TS(2339): Property 'sliderMax' does not exist on type '{}'.
-      newState.sliderMax >= Number(max) ? "" : newState.sliderMax;
-    // @ts-expect-error TS(2339): Property 'values' does not exist on type '{}'.
-    newState.values = [`${stringRepMin}:${stringRepMax}`];
-    this.setState(newState);
-    // @ts-expect-error TS(2339): Property 'values' does not exist on type '{}'.
-    this.sendFilterUpdate(newState.values);
+
+    // defaulting to an empty string per side if the values exceed
+    // or are less than the min/max thresholds
+    const numericMin = sliderMin;
+    const numericMax = sliderMax;
+
+    const stringRepMin = numericMin <= Number(min) ? "" : numericMin.toString();
+    const stringRepMax = numericMax >= Number(max) ? "" : numericMax.toString();
+
+    const values = [`${stringRepMin}:${stringRepMax}`];
+
+    this.setState({
+      sliderMin,
+      sliderMax,
+      numericMin,
+      numericMax,
+      values,
+    });
+
+    this.sendFilterUpdate(values);
   }
 
   render() {
-    // @ts-expect-error TS(2339): Property 'filter' does not exist on type 'Readonly... Remove this comment to see the full error message
-    const { filter, editable, availableFilters } = this.props;
-    const selectRef = React.createRef();
+    const { filter, editable, availableFilters, style } = this.props;
+    const selectRef = React.createRef<HTMLSelectElement>();
+
     const filterAddSelection = () => (
       <>
         <span style={{ marginLeft: "12px" }}>Add filter for: </span>
         <select
           className="filter-selection"
           defaultValue="-1"
-          // @ts-expect-error TS(2322): Type 'RefObject<unknown>' is not assignable to typ... Remove this comment to see the full error message
           ref={selectRef}
           onChange={({ target: { value: idx } }) => {
-            // @ts-expect-error TS(2367): This condition will always return 'false' since th... Remove this comment to see the full error message
-            if (idx === -1) {
+            if (idx === "-1") {
               return;
             }
             this.setState({ idx: -1, active: true });
-            // @ts-expect-error TS(2571): Object is of type 'unknown'.
-            selectRef.current.value = "-1"; // Reset preselected option to "Column"
-            // @ts-expect-error TS(2339): Property 'addFilter' does not exist on type 'Reado... Remove this comment to see the full error message
-            this.props.addFilter(idx);
+            if (selectRef.current) {
+              selectRef.current.value = "-1"; // Reset the preselected option to "Column"
+            }
+            this.props.addFilter?.(Number(idx));
           }}
         >
           <option value="-1" disabled>
             Column
           </option>
-          {availableFilters.map(({ idx, display_title }: any) => (
+          {(availableFilters || []).map(({ idx, display_title }: any) => (
             <option key={idx} value={idx}>
               {display_title}
             </option>
@@ -200,12 +260,11 @@ export default class FilterCard extends React.PureComponent {
       </>
     );
 
-    // @ts-expect-error TS(6133): 'name' is declared but its value is never read.
-    const makeHeader = (name: any, editable: any) => (
+    const makeHeader = () => (
       <div className="filter-card--header">
         {editable ? (
           filterAddSelection()
-        ) : (
+        ) : filter ? (
           <>
             <h4 className="title">{`${filter.display_title} ${
               filter.unit ? "(" + filter.unit + ")" : ""
@@ -214,57 +273,49 @@ export default class FilterCard extends React.PureComponent {
               className="delete-button"
               icon={faTrash}
               onClick={() => {
-                // @ts-expect-error TS(2339): Property 'removeFilter' does not exist on type 'Re... Remove this comment to see the full error message
-                this.props.removeFilter();
+                this.props.removeFilter?.();
               }}
             />
           </>
-        )}
+        ) : null }
       </div>
     );
 
-    const makeFilterBody = (filter: any) => {
-      if (!filter) {
+    const makeFilterBody = (currentFilter?: FilterDefinition) => {
+      if (!currentFilter) {
         return null;
       }
+
       const {
         title,
         type,
         number_of_significant_digits: significantDigits,
-        categories,
-        statuses,
+        categories = [],
+        statuses = [],
         values = [],
-      } = filter;
-      let { min, max } = filter;
-      let body;
-      const emptyRowRef = React.createRef();
+      } = currentFilter;
+      let body: React.ReactNode;
+      const emptyRowRef = React.createRef<HTMLInputElement>();
+
       if (type === "status") {
         body = (
           <>
-            // @ts-expect-error TS(2339): Property 'filter' does not exist on type 'Readonly... Remove this comment to see the full error message
-            {this.props.filter.categories &&
-              // @ts-expect-error TS(2339): Property 'filter' does not exist on type 'Readonly... Remove this comment to see the full error message
+            {this.props.filter?.categories &&
               this.props.filter.categories.includes("empty ") && (
                 <div className="filter-card--body--empty-rows">
                   Empty rows{" "}
                   <input
                     type="checkbox"
-                    name={`empty-rows`}
-                    // @ts-expect-error TS(2322): Type 'RefObject<unknown>' is not assignable to typ... Remove this comment to see the full error message
+                    name="empty-rows"
                     ref={emptyRowRef}
                     checked={values.includes("empty ")}
                     onChange={({ target: { checked } }) => {
                       const emptyValue = "empty ";
-                      if (checked) {
-                        const newValues = [...values, emptyValue];
-                        this.setState({ values: newValues });
-                        this.sendFilterUpdate(newValues);
-                      } else {
-                        const newValues = without(emptyValue, values);
-
-                        this.setState({ values: newValues });
-                        this.sendFilterUpdate(newValues);
-                      }
+                      const newValues = checked
+                        ? [...values, emptyValue]
+                        : without(emptyValue, values);
+                      this.setState({ values: newValues });
+                      this.sendFilterUpdate(newValues);
                     }}
                   />
                 </div>
@@ -272,35 +323,28 @@ export default class FilterCard extends React.PureComponent {
             Category
             <ul className="filter-card--body--list">
               {categories
-                .filter((category: any) => category !== "empty ")
+                .filter((category) => category !== "empty ")
                 .sort()
-                .map((category: any) => {
-                  const ref = React.createRef();
+                .map((category) => {
+                  const ref = React.createRef<HTMLInputElement>();
                   return (
                     <li key={category}>
                       <input
                         type="checkbox"
                         name={`cat-${category}`}
                         checked={values.includes(category)}
-                        // @ts-expect-error TS(2322): Type 'RefObject<unknown>' is not assignable to typ... Remove this comment to see the full error message
                         ref={ref}
                         onChange={({ target: { checked } }) => {
-                          if (checked) {
-                            const newValues = [...values, category];
-                            this.setState({ values: newValues });
-                            this.sendFilterUpdate(newValues);
-                          } else {
-                            const newValues = without(category, values);
-
-                            this.setState({ values: newValues });
-                            this.sendFilterUpdate(newValues);
-                          }
+                          const newValues = checked
+                            ? [...values, category]
+                            : without(category, values);
+                          this.setState({ values: newValues });
+                          this.sendFilterUpdate(newValues);
                         }}
                       />
                       <label
                         htmlFor={`cat-${category}`}
-                        // @ts-expect-error TS(2571): Object is of type 'unknown'.
-                        onClick={() => ref.current.click()}
+                        onClick={() => ref.current?.click()}
                         className={category}
                       >
                         {category}
@@ -311,32 +355,26 @@ export default class FilterCard extends React.PureComponent {
             </ul>
             Status
             <ul className="filter-card--body--list">
-              {statuses.sort().map((status: any) => {
-                const ref = React.createRef();
+              {statuses.sort().map((status) => {
+                const ref = React.createRef<HTMLInputElement>();
                 return (
                   <li key={status}>
                     <input
                       type="checkbox"
                       name={`stat-${status}`}
-                      // @ts-expect-error TS(2322): Type 'RefObject<unknown>' is not assignable to typ... Remove this comment to see the full error message
                       ref={ref}
                       checked={values.includes(status)}
                       onChange={({ target: { checked } }) => {
-                        if (checked) {
-                          const newValues = [...values, status];
-                          this.setState({ values: newValues });
-                          this.sendFilterUpdate(newValues);
-                        } else {
-                          const newValues = without(status, values);
-                          this.setState({ values: newValues });
-                          this.sendFilterUpdate(newValues);
-                        }
+                        const newValues = checked
+                          ? [...values, status]
+                          : without(status, values);
+                        this.setState({ values: newValues });
+                        this.sendFilterUpdate(newValues);
                       }}
                     />
                     <label
                       htmlFor={`stat-${status}`}
-                      // @ts-expect-error TS(2571): Object is of type 'unknown'.
-                      onClick={() => ref.current.click()}
+                      onClick={() => ref.current?.click()}
                     >
                       {status}
                     </label>
@@ -347,7 +385,7 @@ export default class FilterCard extends React.PureComponent {
           </>
         );
       } else if (type === "text") {
-        const [value] = values;
+        const [value = ""] = values;
 
         body = (
           <input
@@ -358,22 +396,32 @@ export default class FilterCard extends React.PureComponent {
             onChange={({ target: { value: textValue } }) => {
               clearTimeout(debounceHandler);
               this.setState({ values: [textValue] });
-              debounceHandler = setTimeout(() => {
+              debounceHandler = window.setTimeout(() => {
                 this.sendFilterUpdate([textValue]);
               }, numericInputDebounce);
             }}
           />
         );
       } else {
-        const builder = new NumberFormatterBuilder(significantDigits).build();
-        min = builder(min);
-        max = builder(max);
-        const minStep = getStep(min);
-        const maxStep = getStep(max);
+        const builder = new NumberFormatterBuilder(significantDigits).build() as (n: number | undefined) => number | string;
+
+        let { min, max } = currentFilter as { min?: number | string, max?: number | string };
+
+        min = builder(typeof min === "number" ? min : Number(min));
+        max = builder(typeof max === "number" ? max : Number(max));
+
+        const minStepRaw = getStep(min as number | string);
+        const maxStepRaw = getStep(max as number | string);
+
+        const minStepStr = String(minStepRaw);
+        const maxStepStr = String(maxStepRaw);
 
         // get the bigger step by length of string (== smaller step)
-        // @ts-expect-error TS(2339): Property 'length' does not exist on type 'string |... Remove this comment to see the full error message
-        const step = minStep.length > maxStep.length ? minStep : maxStep;
+        const stepStr =
+          minStepStr.length > maxStepStr.length
+            ? minStepStr
+            : maxStepStr;
+        const step = Number(stepStr) || 1;
 
         //shift the decimal
         body = (
@@ -385,13 +433,10 @@ export default class FilterCard extends React.PureComponent {
             <Range
               min={Number(min)}
               max={Number(max)}
-              // @ts-expect-error TS(2769): No overload matches this call.
               step={step}
               defaultValue={[Number(min), Number(max)]}
               value={[
-                // @ts-expect-error TS(2339): Property 'sliderMin' does not exist on type 'Reado... Remove this comment to see the full error message
                 Number(this.state.sliderMin),
-                // @ts-expect-error TS(2339): Property 'sliderMax' does not exist on type 'Reado... Remove this comment to see the full error message
                 Number(this.state.sliderMax),
               ]}
               onChange={([nMin, nMax]) => {
@@ -405,14 +450,15 @@ export default class FilterCard extends React.PureComponent {
                 const fMax = builder(nMax);
                 const stringRepMin = fMin === min ? "" : fMin;
                 const stringRepMax = fMax === max ? "" : fMax;
+                const newValues = [`${stringRepMin}:${stringRepMax}`];
                 this.setState({
                   sliderMin: fMin,
                   sliderMax: fMax,
                   numericMin: nMin,
                   numericMax: nMax,
-                  values: [`${stringRepMin}:${stringRepMax}`],
+                  values: newValues,
                 });
-                this.sendFilterUpdate([`${stringRepMin}:${stringRepMax}`]);
+                this.sendFilterUpdate(newValues);
               }}
             />
             <div className="filter-card--range-input-fields">
@@ -432,11 +478,8 @@ export default class FilterCard extends React.PureComponent {
                 type="number"
                 name={`inp-${title}-min`}
                 value={
-                  // @ts-expect-error TS(2339): Property 'numericMin' does not exist on type 'Read... Remove this comment to see the full error message
                   this.state.numericMin !== null
-                    // @ts-expect-error TS(2339): Property 'numericMin' does not exist on type 'Read... Remove this comment to see the full error message
                     ? this.state.numericMin
-                    // @ts-expect-error TS(2339): Property 'sliderMin' does not exist on type 'Reado... Remove this comment to see the full error message
                     : this.state.sliderMin
                 }
                 lang="en-US"
@@ -445,9 +488,9 @@ export default class FilterCard extends React.PureComponent {
                   if (this.numericMinTimeout) {
                     clearTimeout(this.numericMinTimeout);
                   }
-                  this.setState({ numericMin: value });
-                  this.numericMinTimeout = setTimeout(
-                    () => this.handleNumberChange(min, max),
+                  this.setState({ numericMin: Number(value) });
+                  this.numericMinTimeout = window.setTimeout(
+                    () => this.handleNumberChange(min!, max!),
                     numericInputDebounce,
                   );
                 }}
@@ -458,20 +501,17 @@ export default class FilterCard extends React.PureComponent {
                 step={step}
                 lang="en-US"
                 value={
-                  // @ts-expect-error TS(2339): Property 'numericMax' does not exist on type 'Read... Remove this comment to see the full error message
                   this.state.numericMax !== null
-                    // @ts-expect-error TS(2339): Property 'numericMax' does not exist on type 'Read... Remove this comment to see the full error message
                     ? this.state.numericMax
-                    // @ts-expect-error TS(2339): Property 'sliderMax' does not exist on type 'Reado... Remove this comment to see the full error message
                     : this.state.sliderMax
                 }
                 onChange={({ target: { value } }) => {
-                  if (this.numericMaxTimeout) {
+                  if (this.numericMaxTimeout !== null) {
                     clearTimeout(this.numericMaxTimeout);
                   }
-                  this.setState({ numericMax: value });
-                  this.numericMaxTimeout = setTimeout(
-                    () => this.handleNumberChange(min, max),
+                  this.setState({ numericMax: Number(value) });
+                  this.numericMaxTimeout = window.setTimeout(
+                    () => this.handleNumberChange(min!, max!),
                     numericInputDebounce,
                   );
                 }}
@@ -484,11 +524,9 @@ export default class FilterCard extends React.PureComponent {
     };
 
     return (
-      <div className="filter-card">
-        // @ts-expect-error TS(2339): Property 'name' does not exist on type 'Readonly<{... Remove this comment to see the full error message
-        {makeHeader(this.props.name, editable)}
-        // @ts-expect-error TS(2339): Property 'filter' does not exist on type 'Readonly... Remove this comment to see the full error message
-        {makeFilterBody(this.props.filter)}
+      <div className="filter-card" style={style}>
+        {makeHeader()}
+        {makeFilterBody(filter)}
       </div>
     );
   }
