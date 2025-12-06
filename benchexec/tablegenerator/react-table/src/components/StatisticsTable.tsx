@@ -5,6 +5,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+// @ts-expect-error TS(6133): 'React' is declared but its value is never read.
 import React, { useState, useMemo, useEffect } from "react";
 
 import {
@@ -12,6 +13,7 @@ import {
   useFilters,
   useResizeColumns,
   useFlexLayout,
+  // @ts-expect-error TS(7016): Could not find a declaration file for module 'reac... Remove this comment to see the full error message
 } from "react-table";
 import { useSticky } from "react-table-sticky";
 import {
@@ -31,7 +33,7 @@ const isTestEnv = process.env.NODE_ENV === "test";
 
 const titleColWidth = window.innerWidth * 0.15;
 
-const renderTooltip = (cell) =>
+const renderTooltip = (cell: any) =>
   Object.keys(cell)
     .filter((key) => cell[key] && key !== "sum")
     .map((key) => `${key}: ${cell[key]}`)
@@ -46,7 +48,7 @@ const StatisticsTable = ({
   onStatsReady,
   stats: defaultStats,
   filtered = false,
-}) => {
+}: any) => {
   // We want to skip stat calculation in a test environment if not
   // specifically wanted (signaled by a passed onStatsReady callback function)
   const skipStats = isTestEnv && !onStatsReady;
@@ -78,11 +80,11 @@ const StatisticsTable = ({
     }
   }, [tools, tableData, onStatsReady, skipStats, defaultStats, filtered]);
 
-  const renderTableHeaders = (headerGroups) => (
+  const renderTableHeaders = (headerGroups: any) => (
     <div className="table-header">
-      {headerGroups.map((headerGroup) => (
+      {headerGroups.map((headerGroup: any) => (
         <div className="tr headergroup" {...headerGroup.getHeaderGroupProps()}>
-          {headerGroup.headers.map((header) => (
+          {headerGroup.headers.map((header: any) => (
             <div
               {...header.getHeaderProps({
                 className: `th header ${header.headers ? "outer " : ""}${
@@ -106,13 +108,13 @@ const StatisticsTable = ({
     </div>
   );
 
-  const renderTableData = (rows) => (
+  const renderTableData = (rows: any) => (
     <div {...getTableBodyProps()} className="table-body body">
-      {rows.map((row) => {
+      {rows.map((row: any) => {
         prepareRow(row);
         return (
           <div {...row.getRowProps()} className="tr">
-            {row.cells.map((cell) => (
+            {row.cells.map((cell: any) => (
               <div
                 {...cell.getCellProps({
                   className: "td " + (cell.column.className || ""),
@@ -127,7 +129,7 @@ const StatisticsTable = ({
     </div>
   );
 
-  const renderTable = (headerGroups, rows) => {
+  const renderTable = (headerGroups: any, rows: any) => {
     if (filtered && stats.length === 0) {
       return (
         <p id="statistics-placeholder">
@@ -151,28 +153,35 @@ const StatisticsTable = ({
 
   const columns = useMemo(() => {
     const createColumnBuilder =
-      ({ switchToQuantile, hiddenCols }) =>
+      ({ switchToQuantile, hiddenCols }: any) =>
+      // @ts-expect-error TS(7006): Parameter 'runSetIdx' implicitly has an 'any' type... Remove this comment to see the full error message
       (runSetIdx, column, columnIdx) => ({
         id: `${runSetIdx}_${column.display_title}_${columnIdx}`,
+
         Header: (
           <StandardColumnHeader
             column={column}
             className="header-data clickable"
             title="Show Quantile Plot of this column"
-            onClick={(e) => switchToQuantile(column)}
+            // @ts-expect-error TS(6133): 'e' is declared but its value is never read.
+            onClick={(e: any) => switchToQuantile(column)}
           />
         ),
+
         hidden:
           hiddenCols[runSetIdx].includes(column.colIdx) ||
           !(isNumericColumn(column) || column.type === "status"),
+
         width: determineColumnWidth(
           column,
           null,
           column.type === "status" ? 6 : null,
         ),
+
         minWidth: 30,
-        accessor: (row) => row.content[runSetIdx][columnIdx],
-        Cell: (cell) => {
+        accessor: (row: any) => row.content[runSetIdx][columnIdx],
+
+        Cell: (cell: any) => {
           let valueToRender = cell.value?.sum;
           // We handle status differently as the main aggregation (denoted "sum")
           // is of type "count" for this column type.
@@ -235,18 +244,21 @@ const StatisticsTable = ({
           width: titleColWidth,
           minWidth: 100,
           Header: <SelectColumnsButton handler={selectColumn} />,
-          Cell: (cell) => (
+          Cell: (cell: any) => (
             <div
               dangerouslySetInnerHTML={{
                 __html:
                   (cell.row.original.title ||
                     "&nbsp;".repeat(
+                      // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
                       4 * statisticsRows[cell.row.original.id].indent,
+                      // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
                     ) + statisticsRows[cell.row.original.id].title) +
                   (filtered ? " of selected rows" : ""),
               }}
               title={
                 cell.row.original.description ||
+                // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
                 statisticsRows[cell.row.original.id].description
               }
               className="row-title"
@@ -257,7 +269,7 @@ const StatisticsTable = ({
     });
 
     const statColumns = tools
-      .map((runSet, runSetIdx) =>
+      .map((runSet: any, runSetIdx: any) =>
         createRunSetColumns(
           runSet,
           runSetIdx,

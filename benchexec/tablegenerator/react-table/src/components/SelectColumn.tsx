@@ -12,24 +12,25 @@ import { faClose } from "@fortawesome/free-solid-svg-icons";
 import { getRunSetName, setURLParameter } from "../utils/utils";
 
 export default class SelectColumn extends React.Component {
-  constructor(props) {
+  constructor(props: any) {
     super(props);
 
     // All unique display_titles of the columns of all runsets
     const selectableCols = props.tools
-      .map((tool) => tool.columns)
+      .map((tool: any) => tool.columns)
       .flat()
       .filter(
-        (col, idx, arr) =>
+        (col: any, idx: any, arr: any) =>
           idx ===
           arr.findIndex(
-            (otherCol) => otherCol.display_title === col.display_title,
+            (otherCol: any) => otherCol.display_title === col.display_title,
           ),
       )
-      .map((col) => col.display_title);
+      .map((col: any) => col.display_title);
 
     this.state = {
       isButtonOnDeselect: true,
+      // @ts-expect-error TS(2339): Property 'hiddenCols' does not exist on type 'Read... Remove this comment to see the full error message
       hiddenCols: this.props.hiddenCols,
       selectableCols,
     };
@@ -37,45 +38,58 @@ export default class SelectColumn extends React.Component {
 
   componentDidMount() {
     window.history.pushState({}, "", "");
+    // @ts-expect-error TS(2339): Property 'close' does not exist on type 'Readonly<... Remove this comment to see the full error message
     window.addEventListener("popstate", this.props.close, false);
   }
 
   componentWillUnmount() {
+    // @ts-expect-error TS(2339): Property 'close' does not exist on type 'Readonly<... Remove this comment to see the full error message
     window.removeEventListener("popstate", this.props.close, false);
 
     const hiddenParams = {};
-    const hiddenRunsets = [];
+    const hiddenRunsets: any = [];
 
+    // @ts-expect-error TS(2339): Property 'hiddenCols' does not exist on type 'Read... Remove this comment to see the full error message
     Object.entries(this.state.hiddenCols).forEach(([toolIdx, cols]) => {
       // If all columns of the runset are hidden, the runset will be added to the "hidden" parameter
+      // @ts-expect-error TS(2339): Property 'tools' does not exist on type 'Readonly<... Remove this comment to see the full error message
       const colsOfTool = this.props.tools.find(
-        (tool) => tool.toolIdx === parseInt(toolIdx),
+        (tool: any) => tool.toolIdx === parseInt(toolIdx),
       ).columns;
+      // @ts-expect-error TS(2571): Object is of type 'unknown'.
       if (cols.length === colsOfTool.length) {
         hiddenRunsets.push(toolIdx);
         // Hidden columns of runset X will be added to the "hiddenX" parameter if not the entire runset is hidden yet
+        // @ts-expect-error TS(2571): Object is of type 'unknown'.
       } else if (cols.length > 0) {
+        // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
         hiddenParams["hidden" + toolIdx] = cols.toString();
       } else {
+        // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
         hiddenParams["hidden" + toolIdx] = null;
       }
     });
 
     if (hiddenRunsets.length > 0) {
+      // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
       hiddenParams["hidden"] = hiddenRunsets.toString();
     } else {
+      // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
       hiddenParams["hidden"] = null;
     }
 
     setURLParameter(hiddenParams);
+    // @ts-expect-error TS(2339): Property 'updateParentStateOnClose' does not exist... Remove this comment to see the full error message
     this.props.updateParentStateOnClose();
   }
 
   // -------------------------Rendering-------------------------
   renderTools = () => {
-    return this.props.tools.map((tool) => {
+    // @ts-expect-error TS(2339): Property 'tools' does not exist on type 'Readonly<... Remove this comment to see the full error message
+    return this.props.tools.map((tool: any) => {
       const toolIdx = tool.toolIdx;
       const isVisible =
+        // @ts-expect-error TS(2339): Property 'hiddenCols' does not exist on type 'Read... Remove this comment to see the full error message
         this.state.hiddenCols[toolIdx].length !== tool.columns.length;
       const toolName = getRunSetName(tool);
       return (
@@ -97,19 +111,22 @@ export default class SelectColumn extends React.Component {
     });
   };
 
-  renderToolColumns = (toolIdx) => {
+  renderToolColumns = (toolIdx: any) => {
+    // @ts-expect-error TS(2339): Property 'tools' does not exist on type 'Readonly<... Remove this comment to see the full error message
     const currentTool = this.props.tools.find(
-      (tool) => tool.toolIdx === toolIdx,
+      (tool: any) => tool.toolIdx === toolIdx,
     );
-    return this.state.selectableCols.map((colTitle) => {
+    // @ts-expect-error TS(2339): Property 'selectableCols' does not exist on type '... Remove this comment to see the full error message
+    return this.state.selectableCols.map((colTitle: any) => {
       const hasToolCol = currentTool.columns.some(
-        (col) => col.display_title === colTitle,
+        (col: any) => col.display_title === colTitle,
       );
       if (hasToolCol) {
         const colIdxs = currentTool.columns
-          .filter((col) => col.display_title === colTitle)
-          .map((col) => col.colIdx);
-        const isVisible = !colIdxs.some((col) =>
+          .filter((col: any) => col.display_title === colTitle)
+          .map((col: any) => col.colIdx);
+        const isVisible = !colIdxs.some((col: any) =>
+          // @ts-expect-error TS(2339): Property 'hiddenCols' does not exist on type 'Read... Remove this comment to see the full error message
           this.state.hiddenCols[toolIdx].includes(col),
         );
         return (
@@ -137,20 +154,24 @@ export default class SelectColumn extends React.Component {
   };
 
   renderColumnHeaders = () => {
-    return this.state.selectableCols.map((colTitle) => {
+    // @ts-expect-error TS(2339): Property 'selectableCols' does not exist on type '... Remove this comment to see the full error message
+    return this.state.selectableCols.map((colTitle: any) => {
       // Column is visible if there is at least one runset that contains this col and this col is not hidden for
+      // @ts-expect-error TS(2339): Property 'hiddenCols' does not exist on type 'Read... Remove this comment to see the full error message
       const isVisible = Object.values(this.state.hiddenCols).some(
         (hiddenCols, idx) => {
+          // @ts-expect-error TS(2339): Property 'tools' does not exist on type 'Readonly<... Remove this comment to see the full error message
           const currentTool = this.props.tools.find(
-            (tool) => tool.toolIdx === idx,
+            (tool: any) => tool.toolIdx === idx,
           );
           const colIdxs = currentTool.columns
-            .filter((col) => col.display_title === colTitle)
-            .map((col) => col.colIdx);
+            .filter((col: any) => col.display_title === colTitle)
+            .map((col: any) => col.colIdx);
           return (
-            !colIdxs.some((col) => hiddenCols.includes(col)) &&
+            // @ts-expect-error TS(2571): Object is of type 'unknown'.
+            !colIdxs.some((col: any) => hiddenCols.includes(col)) &&
             currentTool.columns.some(
-              (toolCol) => toolCol.display_title === colTitle,
+              (toolCol: any) => toolCol.display_title === colTitle,
             )
           );
         },
@@ -179,54 +200,66 @@ export default class SelectColumn extends React.Component {
   // Toggles all columns of all runsets
   toggleAllColsHidden = () => {
     let hiddenCols = {};
-    this.props.tools.forEach((tool) => (hiddenCols[tool.toolIdx] = []));
+    // @ts-expect-error TS(2339): Property 'tools' does not exist on type 'Readonly<... Remove this comment to see the full error message
+    this.props.tools.forEach((tool: any) => (hiddenCols[tool.toolIdx] = []));
 
+    // @ts-expect-error TS(2339): Property 'isButtonOnDeselect' does not exist on ty... Remove this comment to see the full error message
     if (this.state.isButtonOnDeselect) {
-      this.props.tools.forEach((tool) => {
-        hiddenCols[tool.toolIdx] = tool.columns.map((column) => column.colIdx);
+      // @ts-expect-error TS(2339): Property 'tools' does not exist on type 'Readonly<... Remove this comment to see the full error message
+      this.props.tools.forEach((tool: any) => {
+        // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
+        hiddenCols[tool.toolIdx] = tool.columns.map(
+          (column: any) => column.colIdx,
+        );
       });
     }
 
     this.setState((prevState) => ({
+      // @ts-expect-error TS(2339): Property 'isButtonOnDeselect' does not exist on ty... Remove this comment to see the full error message
       isButtonOnDeselect: !prevState.isButtonOnDeselect,
       hiddenCols,
     }));
   };
 
   // Toggles all columns of the runset with the id of the target
-  toggleToolHidden = (toolIdx, { target }) => {
+  toggleToolHidden = (toolIdx: any, { target }: any) => {
     const isAlreadyHidden =
       target.type === "checkbox" ? target.checked : target.value;
     const newHiddenCols = isAlreadyHidden
       ? []
-      : this.props.tools
-          .find((tool) => tool.toolIdx === toolIdx)
-          .columns.map((col) => col.colIdx);
+      : // @ts-expect-error TS(2339): Property 'tools' does not exist on type 'Readonly<... Remove this comment to see the full error message
+        this.props.tools
+          .find((tool: any) => tool.toolIdx === toolIdx)
+          .columns.map((col: any) => col.colIdx);
     this.setHiddenColsForTool(toolIdx, newHiddenCols);
   };
 
   // Toggles all columns with the display title of the target within a single runset
-  toggleToolColHidden = (toolIdx, colTitle, { target }) => {
+  toggleToolColHidden = (toolIdx: any, colTitle: any, { target }: any) => {
     const isAlreadyHidden =
       target.type === "checkbox" ? target.checked : target.value;
+    // @ts-expect-error TS(2339): Property 'tools' does not exist on type 'Readonly<... Remove this comment to see the full error message
     const colIdxs = this.props.tools
-      .find((tool) => tool.toolIdx === toolIdx)
-      .columns.filter((col) => col.display_title === colTitle)
-      .map((col) => col.colIdx);
+      .find((tool: any) => tool.toolIdx === toolIdx)
+      .columns.filter((col: any) => col.display_title === colTitle)
+      .map((col: any) => col.colIdx);
     isAlreadyHidden
       ? this.removeFromHiddenCols(toolIdx, colIdxs)
       : this.addToHiddenCols(toolIdx, colIdxs);
   };
 
   // Toggles all columns with the display title of the target column in all runsets
-  toggleWholeColHidden = (colTitle, { target }) => {
+  toggleWholeColHidden = (colTitle: any, { target }: any) => {
     const isAlreadyHidden =
       target.type === "checkbox" ? target.checked : target.value;
 
-    this.props.tools.forEach((tool) => {
-      const cols = tool.columns.filter((col) => col.display_title === colTitle);
+    // @ts-expect-error TS(2339): Property 'tools' does not exist on type 'Readonly<... Remove this comment to see the full error message
+    this.props.tools.forEach((tool: any) => {
+      const cols = tool.columns.filter(
+        (col: any) => col.display_title === colTitle,
+      );
       if (cols.length > 0) {
-        const colIdxs = cols.map((col) => col.colIdx);
+        const colIdxs = cols.map((col: any) => col.colIdx);
         isAlreadyHidden
           ? this.removeFromHiddenCols(tool.toolIdx, colIdxs)
           : this.addToHiddenCols(tool.toolIdx, colIdxs);
@@ -235,24 +268,27 @@ export default class SelectColumn extends React.Component {
   };
 
   // Adds the given column indexes of the given runset to the hidden columns
-  addToHiddenCols = (toolIdx, colIdxs) => {
+  addToHiddenCols = (toolIdx: any, colIdxs: any) => {
     const newHiddenCols = [
+      // @ts-expect-error TS(2339): Property 'hiddenCols' does not exist on type 'Read... Remove this comment to see the full error message
       ...new Set(this.state.hiddenCols[toolIdx].concat(colIdxs)),
     ];
     this.setHiddenColsForTool(toolIdx, newHiddenCols);
   };
 
   // Removes the given column indexes of the given runset to the hidden columns
-  removeFromHiddenCols = (toolIdx, colIdxs) => {
+  removeFromHiddenCols = (toolIdx: any, colIdxs: any) => {
+    // @ts-expect-error TS(2339): Property 'hiddenCols' does not exist on type 'Read... Remove this comment to see the full error message
     const newHiddenCols = this.state.hiddenCols[toolIdx].filter(
-      (hiddenColIdx) => !colIdxs.includes(hiddenColIdx),
+      (hiddenColIdx: any) => !colIdxs.includes(hiddenColIdx),
     );
     this.setHiddenColsForTool(toolIdx, newHiddenCols);
   };
 
-  setHiddenColsForTool(toolIdx, newHiddenCols) {
+  setHiddenColsForTool(toolIdx: any, newHiddenCols: any) {
     this.setState((prevState) => ({
       hiddenCols: {
+        // @ts-expect-error TS(2339): Property 'hiddenCols' does not exist on type 'Read... Remove this comment to see the full error message
         ...prevState.hiddenCols,
         [toolIdx]: newHiddenCols,
       },
@@ -264,9 +300,12 @@ export default class SelectColumn extends React.Component {
   };
 
   render() {
+    // @ts-expect-error TS(2345): Argument of type 'HTMLElement | null' is not assig... Remove this comment to see the full error message
     ReactModal.setAppElement(document.getElementById("root"));
+    // @ts-expect-error TS(2339): Property 'tools' does not exist on type 'Readonly<... Remove this comment to see the full error message
     const areAllColsDisabled = this.props.tools.every(
-      (tool) =>
+      (tool: any) =>
+        // @ts-expect-error TS(2339): Property 'hiddenCols' does not exist on type 'Read... Remove this comment to see the full error message
         tool.columns.length === this.state.hiddenCols[tool.toolIdx].length,
     );
     return (
@@ -295,6 +334,8 @@ export default class SelectColumn extends React.Component {
         </table>
         <div className="overlay__buttons">
           <button className="btn" onClick={this.toggleAllColsHidden}>
+            // @ts-expect-error TS(2339): Property 'isButtonOnDeselect' does not
+            exist on ty... Remove this comment to see the full error message
             {this.state.isButtonOnDeselect ? "Deselect all" : "Select all"}
           </button>
           <button

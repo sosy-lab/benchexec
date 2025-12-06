@@ -5,6 +5,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+// @ts-expect-error TS(6133): 'React' is declared but its value is never read.
 import React from "react";
 import ReactDOM from "react-dom";
 import { act } from "react-dom/test-utils";
@@ -12,7 +13,7 @@ import App from "./App";
 
 it("renders without crashing", async () => {
   const div = document.createElement("div");
-  let statsResolver;
+  let statsResolver: any;
   const StatsReadyPromise = new Promise((resolve) => (statsResolver = resolve));
   await act(async () => {
     ReactDOM.render(<App onStatsReady={statsResolver} />, div);

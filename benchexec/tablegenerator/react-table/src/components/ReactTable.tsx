@@ -5,6 +5,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+// @ts-expect-error TS(6133): 'React' is declared but its value is never read.
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import {
   useTable,
@@ -13,6 +14,7 @@ import {
   usePagination,
   useResizeColumns,
   useFlexLayout,
+  // @ts-expect-error TS(7016): Could not find a declaration file for module 'reac... Remove this comment to see the full error message
 } from "react-table";
 import { useSticky } from "react-table-sticky";
 import { useLocation } from "react-router-dom";
@@ -44,9 +46,12 @@ const pageSizes = [50, 100, 250, 500, 1000, 2500];
 const initialPageSize = 250;
 
 const getSortingSettingsFromURL = () => {
+  // @ts-expect-error TS(2554): Expected 1 arguments, but got 0.
   const urlParams = getURLParameters();
+  // @ts-expect-error TS(2339): Property 'sort' does not exist on type '{}'.
   let settings = urlParams.sort
-    ? urlParams.sort.split(";").map((sortingEntry) => {
+    ? // @ts-expect-error TS(2339): Property 'sort' does not exist on type '{}'.
+      urlParams.sort.split(";").map((sortingEntry: any) => {
         const sortingParams = sortingEntry.split(",");
         const id = sortingParams[0];
         const desc = sortingParams[1] === "desc";
@@ -56,7 +61,7 @@ const getSortingSettingsFromURL = () => {
   return settings;
 };
 
-const Table = (props) => {
+const Table = (props: any) => {
   const [isFixed, setIsFixed] = useState(true);
   const [filteredColumnValues, setFilteredColumnValues] = useState(
     getNewFilteredColumnValues(),
@@ -123,14 +128,16 @@ const Table = (props) => {
         newFilter.isTableTabFilter = true;
       }
       let filters = [
-        ...props.filters.filter((propFilter) => propFilter.id !== newFilter.id),
+        ...props.filters.filter(
+          (propFilter: any) => propFilter.id !== newFilter.id,
+        ),
         newFilter,
       ];
       // Filters with empty values represent filters that should be removed
       filters = filters.filter((filter) => filter.value !== "");
       props.addTypeToFilter(filters);
 
-      let additionalFilters = [];
+      let additionalFilters: any = [];
 
       if (newFilter.type === "status") {
         const { tool, name, column } = decodeFilter(newFilter.id);
@@ -164,7 +171,7 @@ const Table = (props) => {
   const textFilterInputField = useCallback(
     (filterProps) => {
       const id = filterProps.column.id;
-      const setFilter = props.filters.find((filter) => filter.id === id);
+      const setFilter = props.filters.find((filter: any) => filter.id === id);
 
       return (
         <FilterInputField
@@ -183,7 +190,7 @@ const Table = (props) => {
   const minMaxFilterInputField = useCallback(
     (filterProps) => {
       const id = filterProps.column.id;
-      const setFilter = props.filters.find((filter) => filter.id === id);
+      const setFilter = props.filters.find((filter: any) => filter.id === id);
       return (
         <MinMaxFilterInputField
           id={id}
@@ -198,8 +205,13 @@ const Table = (props) => {
   );
 
   const columns = useMemo(() => {
-    const createStatusColumn = (runSetIdx, column, columnIdx) => {
+    const createStatusColumn = (
+      runSetIdx: any,
+      column: any,
+      columnIdx: any,
+    ) => {
       const columnId = `${runSetIdx}_${column.display_title}_${columnIdx}`;
+      // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
       const resizeWidth = columnsResizeValues[columnId];
 
       return {
@@ -208,9 +220,10 @@ const Table = (props) => {
         className: "reg-column",
         hidden: props.hiddenCols[runSetIdx].includes(column.colIdx),
         minWidth: 50,
+        // @ts-expect-error TS(2554): Expected 3 arguments, but got 2.
         width: resizeWidth || determineColumnWidth(column, 10),
-        accessor: (row) => row.results[runSetIdx].values[columnIdx],
-        Cell: (cell) => {
+        accessor: (row: any) => row.results[runSetIdx].values[columnIdx],
+        Cell: (cell: any) => {
           const category = cell.row.original.results[runSetIdx].category;
           let href = cell.row.original.results[runSetIdx].href;
           let tooltip;
@@ -234,11 +247,11 @@ const Table = (props) => {
             />
           );
         },
-        sortType: (rowA, rowB, columnID, _desc) =>
+        sortType: (rowA: any, rowB: any, columnID: any, _desc: any) =>
           textSortMethod(rowA.values[columnID], rowB.values[columnID]),
         // Don't let React-Table filter anything, we do it ourselves
-        filter: (rows) => rows,
-        Filter: (filter) => (
+        filter: (rows: any) => rows,
+        Filter: (filter: any) => (
           <StatusFilter
             {...filter}
             runSetIdx={runSetIdx}
@@ -252,12 +265,13 @@ const Table = (props) => {
       };
     };
 
-    const createColumn = (runSetIdx, column, columnIdx) => {
+    const createColumn = (runSetIdx: any, column: any, columnIdx: any) => {
       if (column.type === "status") {
         return createStatusColumn(runSetIdx, column, columnIdx);
       }
 
       const columnId = `${runSetIdx}_${column.display_title}_${columnIdx}`;
+      // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
       const resizeWidth = columnsResizeValues[columnId];
       const filterType = isNumericColumn(column)
         ? minMaxFilterInputField
@@ -269,18 +283,19 @@ const Table = (props) => {
         className: "reg-column",
         hidden: props.hiddenCols[runSetIdx].includes(column.colIdx),
         minWidth: 50,
+        // @ts-expect-error TS(2554): Expected 3 arguments, but got 1.
         width: resizeWidth || determineColumnWidth(column),
-        accessor: (row) => row.results[runSetIdx].values[columnIdx],
-        Cell: (cell) => (
+        accessor: (row: any) => row.results[runSetIdx].values[columnIdx],
+        Cell: (cell: any) => (
           <StandardCell
             cell={cell}
             toggleLinkOverlay={props.toggleLinkOverlay}
           />
         ),
         // Don't let React-Table actually filter anything, we do it ourselves
-        filter: (rows) => rows,
+        filter: (rows: any) => rows,
         Filter: filterType,
-        sortType: (rowA, rowB, columnID, _desc) =>
+        sortType: (rowA: any, rowB: any, columnID: any, _desc: any) =>
           isNumericColumn(column)
             ? numericSortMethod(rowA.values[columnID], rowB.values[columnID])
             : textSortMethod(rowA.values[columnID], rowB.values[columnID]),
@@ -310,7 +325,9 @@ const Table = (props) => {
         {
           width: window.innerWidth * 0.3,
           minWidth: 230,
+          // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
           ...(columnsResizeValues["id"] && {
+            // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
             width: columnsResizeValues["id"],
           }),
           Header: (
@@ -319,8 +336,8 @@ const Table = (props) => {
             </StandardColumnHeader>
           ),
           accessor: "id",
-          Cell: (cell) => {
-            const content = cell.row.original.id.map((id) => (
+          Cell: (cell: any) => {
+            const content = cell.row.original.id.map((id: any) => (
               <span key={id} className="row_id">
                 {id}
               </span>
@@ -341,7 +358,7 @@ const Table = (props) => {
             );
           },
           Filter: textFilterInputField,
-          sortType: (rowA, rowB, columnID, _desc) => {
+          sortType: (rowA: any, rowB: any, columnID: any, _desc: any) => {
             const aValue = Array.isArray(rowA.values[columnID])
               ? rowA.values[columnID].join()
               : rowA.values[columnID];
@@ -355,7 +372,7 @@ const Table = (props) => {
     });
 
     const resultColumns = props.tools
-      .map((runSet, runSetIdx) =>
+      .map((runSet: any, runSetIdx: any) =>
         createRunSetColumns(runSet, runSetIdx, createColumn),
       )
       .flat();
@@ -403,8 +420,10 @@ const Table = (props) => {
       defaultColumn,
       initialState: {
         sortBy: getSortingSettingsFromURL(),
+        // @ts-expect-error TS(2554): Expected 1 arguments, but got 0.
         pageIndex: parseInt(getURLParameters().page) - 1 || 0,
         hiddenColumns: getHiddenColIds(columns),
+        // @ts-expect-error TS(2554): Expected 1 arguments, but got 0.
         pageSize: parseInt(getURLParameters().pageSize) || initialPageSize,
       },
     },
@@ -420,7 +439,7 @@ const Table = (props) => {
   useEffect(() => {
     const sort = sortBy
       .map(
-        (sortingEntry) =>
+        (sortingEntry: any) =>
           sortingEntry.id + "," + (sortingEntry.desc ? "desc" : "asc"),
       )
       .join(";");
@@ -455,6 +474,7 @@ const Table = (props) => {
     for (const filter of props.filters) {
       const { value, id } = filter;
       const { tool: runset, column } = decodeFilter(id);
+      // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
       const currentRunsetFilters = newFilteredColumnValues[runset] || {};
 
       const isCategory =
@@ -470,6 +490,7 @@ const Table = (props) => {
         currentRunsetFilters[column] = filtersOfColumn;
       }
 
+      // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
       newFilteredColumnValues[runset] = currentRunsetFilters;
     }
     return newFilteredColumnValues;
@@ -479,7 +500,9 @@ const Table = (props) => {
   useEffect(() => {
     // To disable task text if any task filter is applied
     setDisableTaskText(
-      props.filters.some(({ id, values }) => id === "id" && !isNil(values)),
+      props.filters.some(
+        ({ id, values }: any) => id === "id" && !isNil(values),
+      ),
     );
 
     let newFilteredColumnValues = getNewFilteredColumnValues();
@@ -501,9 +524,12 @@ const Table = (props) => {
   // Update table relevant parameters after URL change
   const location = useLocation();
   useEffect(
-    (_location) => {
+    // @ts-expect-error TS(2345): Argument of type '(_location: any) => void' is not... Remove this comment to see the full error message
+    (_location: any) => {
+      // @ts-expect-error TS(2554): Expected 1 arguments, but got 0.
       setPageSize(getURLParameters().pageSize || initialPageSize);
       setSortBy(getSortingSettingsFromURL());
+      // @ts-expect-error TS(2554): Expected 1 arguments, but got 0.
       gotoPage(getURLParameters().page - 1 || 0);
     },
     // We have also added window.location.href to the dependency array to ensure that
@@ -512,9 +538,9 @@ const Table = (props) => {
     [location, setPageSize, setSortBy, gotoPage, window.location.href],
   );
 
-  const renderHeaderGroup = (headerGroup) => (
+  const renderHeaderGroup = (headerGroup: any) => (
     <div className="tr headergroup" {...headerGroup.getHeaderGroupProps()}>
-      {headerGroup.headers.map((header) => (
+      {headerGroup.headers.map((header: any) => (
         <div
           {...header.getHeaderProps({
             className: `th header ${header.headers ? "outer " : ""}${
@@ -548,22 +574,22 @@ const Table = (props) => {
     </div>
   );
 
-  const renderTableHeaders = (headerGroups) => {
+  const renderTableHeaders = (headerGroups: any) => {
     const runsetHeaderGroup = headerGroups[0];
-    const headerGroupsWithFilters = headerGroups.filter((headerGroup) =>
-      headerGroup.headers.some((header) => header.canFilter),
+    const headerGroupsWithFilters = headerGroups.filter((headerGroup: any) =>
+      headerGroup.headers.some((header: any) => header.canFilter),
     );
     return (
       <div className="table-header">
         {renderHeaderGroup(runsetHeaderGroup)}
         <div className="shadow-container">
           {headerGroups.slice(1).map(renderHeaderGroup)}
-          {headerGroupsWithFilters.map((headerGroup) => (
+          {headerGroupsWithFilters.map((headerGroup: any) => (
             <div
               className="tr headergroup filter"
               {...headerGroup.getHeaderGroupProps()}
             >
-              {headerGroup.headers.map((header) => (
+              {headerGroup.headers.map((header: any) => (
                 <div
                   {...header.getHeaderProps({
                     className: `th header filter ${
@@ -581,13 +607,14 @@ const Table = (props) => {
     );
   };
 
-  const renderTableData = (rows) => (
+  // @ts-expect-error TS(6133): 'rows' is declared but its value is never read.
+  const renderTableData = (rows: any) => (
     <div {...getTableBodyProps()} className="table-body body">
-      {page.map((row) => {
+      {page.map((row: any) => {
         prepareRow(row);
         return (
           <div {...row.getRowProps()} className="tr">
-            {row.cells.map((cell) => (
+            {row.cells.map((cell: any) => (
               <div
                 {...cell.getCellProps({
                   className: "td " + (cell.column.className || ""),

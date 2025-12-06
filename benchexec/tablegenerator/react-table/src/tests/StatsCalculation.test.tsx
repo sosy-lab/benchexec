@@ -5,9 +5,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+// @ts-expect-error TS(6133): 'React' is declared but its value is never read.
 import React from "react";
 import StatisticsTable from "../components/StatisticsTable.js";
 import fs from "fs";
+// @ts-expect-error TS(7016): Could not find a declaration file for module 'reac... Remove this comment to see the full error message
 import renderer from "react-test-renderer";
 import { getOverviewProps } from "./utils.js";
 import { computeStats, filterComputableStatistics } from "../utils/stats.js";
@@ -19,11 +21,12 @@ fs.readdirSync(testDir)
     describe("StatisticsTable for " + file, () => {
       let content;
       let data;
-      let overviewProps;
-      let jsStatComponent;
-      let pythonStatComponent;
+      let overviewProps: any;
+      let jsStatComponent: any;
+      let pythonStatComponent: any;
 
       beforeAll(async () => {
+        // @ts-expect-error TS(2769): No overload matches this call.
         content = fs.readFileSync(testDir + file, { encoding: "UTF-8" });
         data = JSON.parse(content);
         overviewProps = getOverviewProps(data);

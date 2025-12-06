@@ -10,11 +10,12 @@ import yamlParser from "yaml";
 
 /** Special view for YAML files in the LinkOverlay component. */
 export default class TaskDefinitionViewer extends React.Component {
-  constructor(props) {
+  constructor(props: any) {
     super(props);
     this.state = {
       splitterTag: "<splitter#9d81y23>",
       fileTag: "<file#092nt43>",
+      // @ts-expect-error TS(2339): Property 'yamlText' does not exist on type 'Readon... Remove this comment to see the full error message
       content: this.props.yamlText,
     };
   }
@@ -23,7 +24,8 @@ export default class TaskDefinitionViewer extends React.Component {
     this.prepareTextForRendering();
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps: any) {
+    // @ts-expect-error TS(2339): Property 'yamlText' does not exist on type 'Readon... Remove this comment to see the full error message
     if (prevProps.yamlText !== this.props.yamlText) {
       this.prepareTextForRendering();
     }
@@ -36,7 +38,9 @@ export default class TaskDefinitionViewer extends React.Component {
    * properties is a list of dicts, each with a "property_file" key
    */
   prepareTextForRendering = () => {
+    // @ts-expect-error TS(2339): Property 'yamlText' does not exist on type 'Readon... Remove this comment to see the full error message
     if (this.props.yamlText !== "") {
+      // @ts-expect-error TS(2339): Property 'yamlText' does not exist on type 'Readon... Remove this comment to see the full error message
       const yamlObj = yamlParser.parseDocument(this.props.yamlText, {
         prettyErrors: true,
       });
@@ -44,7 +48,7 @@ export default class TaskDefinitionViewer extends React.Component {
       const inputFiles = yamlObj.get("input_files");
       if (inputFiles) {
         if (Array.isArray(inputFiles.items)) {
-          inputFiles.items.forEach((inputFileItem) => {
+          inputFiles.items.forEach((inputFileItem: any) => {
             inputFileItem.value = this.encloseFileInTags(inputFileItem.value);
           });
         } else {
@@ -55,9 +59,9 @@ export default class TaskDefinitionViewer extends React.Component {
       const properties = yamlObj.get("properties");
       if (properties) {
         if (Array.isArray(properties.items)) {
-          properties.items.forEach((property) => {
+          properties.items.forEach((property: any) => {
             if (Array.isArray(property.items)) {
-              property.items.forEach((propertyItem) => {
+              property.items.forEach((propertyItem: any) => {
                 if (propertyItem.key.value === "property_file") {
                   propertyItem.value.value = this.encloseFileInTags(
                     propertyItem.value.value,
@@ -73,34 +77,44 @@ export default class TaskDefinitionViewer extends React.Component {
     }
   };
 
-  encloseFileInTags = (fileName) => {
+  encloseFileInTags = (fileName: any) => {
     return (
+      // @ts-expect-error TS(2339): Property 'splitterTag' does not exist on type 'Rea... Remove this comment to see the full error message
       this.state.splitterTag +
+      // @ts-expect-error TS(2339): Property 'fileTag' does not exist on type 'Readonl... Remove this comment to see the full error message
       this.state.fileTag +
       fileName +
+      // @ts-expect-error TS(2339): Property 'fileTag' does not exist on type 'Readonl... Remove this comment to see the full error message
       this.state.fileTag +
+      // @ts-expect-error TS(2339): Property 'splitterTag' does not exist on type 'Rea... Remove this comment to see the full error message
       this.state.splitterTag
     );
   };
 
-  loadFileInViewer = (event, contentPart) => {
+  loadFileInViewer = (event: any, contentPart: any) => {
     event.preventDefault();
+    // @ts-expect-error TS(2339): Property 'loadNewFile' does not exist on type 'Rea... Remove this comment to see the full error message
     this.props.loadNewFile(contentPart);
   };
 
   render() {
+    // @ts-expect-error TS(2339): Property 'content' does not exist on type 'Readonl... Remove this comment to see the full error message
     if (this.state.content.errors && this.state.content.errors.length > 0) {
       return (
         <>
           <div className="link-overlay-text">
             Errors parsing YAML file:
             <ul>
-              {this.state.content.errors.map((err, i) => (
+              // @ts-expect-error TS(2339): Property 'content' does not exist on
+              type 'Readonl... Remove this comment to see the full error message
+              {this.state.content.errors.map((err: any, i: any) => (
                 <li key={i}>
                   <pre>{err.message}</pre>
                 </li>
               ))}
             </ul>
+            // @ts-expect-error TS(2339): Property 'yamlText' does not exist on
+            type 'Readon... Remove this comment to see the full error message
             <pre>{this.props.yamlText}</pre>;
           </div>
         </>
@@ -108,16 +122,21 @@ export default class TaskDefinitionViewer extends React.Component {
     }
 
     // ugly: global override of YAML options, but we use it only here
+    // @ts-expect-error TS(2741): Property 'minContentWidth' is missing in type '{ l... Remove this comment to see the full error message
     yamlParser.scalarOptions.str.fold = { lineWidth: 0 };
+    // @ts-expect-error TS(2339): Property 'content' does not exist on type 'Readonl... Remove this comment to see the full error message
     const contentBySplitter = this.state.content
       .toString()
+      // @ts-expect-error TS(2339): Property 'splitterTag' does not exist on type 'Rea... Remove this comment to see the full error message
       .split(this.state.splitterTag);
-    const jsxContent = contentBySplitter.map((contentPart) => {
+    const jsxContent = contentBySplitter.map((contentPart: any) => {
       // If contentPart is enclosed with file tags (= if contentPart is a file which should be linked)
       if (
+        // @ts-expect-error TS(2339): Property 'fileTag' does not exist on type 'Readonl... Remove this comment to see the full error message
         contentPart.match(`^${this.state.fileTag}(?:.)+${this.state.fileTag}$`)
       ) {
         contentPart = contentPart.replace(
+          // @ts-expect-error TS(2339): Property 'fileTag' does not exist on type 'Readonl... Remove this comment to see the full error message
           new RegExp(this.state.fileTag, "g"),
           "",
         );
@@ -129,6 +148,7 @@ export default class TaskDefinitionViewer extends React.Component {
             onClick={(e) => this.loadFileInViewer(e, contentPart)}
             className="link-overlay-file-link"
             key={contentPart}
+            // @ts-expect-error TS(2339): Property 'createHref' does not exist on type 'Read... Remove this comment to see the full error message
             href={this.props.createHref(contentPart)}
           >
             {contentPart}

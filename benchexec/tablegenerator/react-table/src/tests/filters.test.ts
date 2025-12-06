@@ -117,16 +117,18 @@ const generalRows = [
 ];
 
 //Function to test filtering by regex for data set 'rows' (return number of truely returnd values)
-const getFilteredNumericalData = (regex) =>
+const getFilteredNumericalData = (regex: any) =>
   numericRows.filter((row) =>
+    // @ts-expect-error TS(2554): Expected 3 arguments, but got 2.
     applyNumericFilter({ id: "test", value: regex }, row),
   );
 
-const getFilteredDataWithMatcher = (filters) =>
+const getFilteredDataWithMatcher = (filters: any) =>
   applyMatcher(buildMatcher(filters))(generalRows);
 
 test("applyNumericFilter single entry without result", () => {
   expect(
+    // @ts-expect-error TS(2554): Expected 3 arguments, but got 2.
     applyNumericFilter(
       {
         id: "test",
@@ -176,7 +178,7 @@ test("applyNumericFilter with string", () => {
 });
 
 test("applyMatcher for all results", () => {
-  const filters = [];
+  const filters: any = [];
   expect(getFilteredDataWithMatcher(filters).length).toBe(generalRows.length);
 });
 
@@ -234,6 +236,6 @@ test("applyMatcher for no results", () => {
 });
 
 test("applyMatcher for all results", () => {
-  const filters = [];
+  const filters: any = [];
   expect(getFilteredDataWithMatcher(filters).length).toBe(5);
 });

@@ -28,7 +28,14 @@ import {
 import { renderResetButton, renderSetting } from "../utils/plot";
 
 export default class QuantilePlot extends React.Component {
-  constructor(props) {
+  defaultValues: any;
+  hasInvalidLog: any;
+  lineCount: any;
+  plotOptions: any;
+  possibleValues: any;
+  resultsOptions: any;
+  scalingOptions: any;
+  constructor(props: any) {
     super(props);
 
     this.plotOptions = {
@@ -61,15 +68,19 @@ export default class QuantilePlot extends React.Component {
   }
 
   setPlotData() {
+    // @ts-expect-error TS(2554): Expected 1 arguments, but got 0.
     const queryProps = getURLParameters();
 
-    let { selection, plot, scaling, results } = {
+    let { selection, plot, scaling, results }: any = {
       ...this.defaultValues,
       ...queryProps,
     };
 
     const initialSelection = selection;
-    const toolIdxes = this.props.tools.map((tool) => tool.toolIdx).join("");
+    // @ts-expect-error TS(2339): Property 'tools' does not exist on type 'Readonly<... Remove this comment to see the full error message
+    const toolIdxes = this.props.tools
+      .map((tool: any) => tool.toolIdx)
+      .join("");
     const runsetPattern = new RegExp("runset-[" + toolIdxes + "]");
 
     /* There are two versions of the plot:
@@ -93,12 +104,12 @@ export default class QuantilePlot extends React.Component {
     ) {
       this.setPossibleValues();
       let possibleCol = this.possibleValues.find(
-        (col) =>
+        (col: any) =>
           col.type !== "status" &&
           this.isInVisibleRunsetSupportingScore(col.display_title),
       );
       if (!possibleCol) {
-        possibleCol = this.possibleValues.find((col) =>
+        possibleCol = this.possibleValues.find((col: any) =>
           this.isInVisibleRunsetSupportingScore(col.display_title),
         );
       }
@@ -129,23 +140,28 @@ export default class QuantilePlot extends React.Component {
       any of the visible runsets, this selection will be returned. Otherwise the first visible column that is not of the
       type status of the first visible runset will be returned instead. In case there is no such column, the first column
       of the type status will be selected. */
-  getColumnSelection(selection) {
+  getColumnSelection(selection: any) {
     let selectedCol = selection
+      // @ts-expect-error TS(2339): Property 'tools' does not exist on type 'Readonly<... Remove this comment to see the full error message
       ? this.props.tools
-          .map((tool) => tool.columns)
+          .map((tool: any) => tool.columns)
           .flat()
-          .find((col) => col.display_title === selection)
+          .find((col: any) => col.display_title === selection)
+      // @ts-expect-error TS(2339): Property 'preSelection' does not exist on type 'Re... Remove this comment to see the full error message
       : this.props.preSelection;
     if (!selectedCol || !this.isColVisibleInAnyTool(selectedCol)) {
       const [firstVisibleTool, firstVisibleColumn] = getFirstVisibles(
+        // @ts-expect-error TS(2339): Property 'tools' does not exist on type 'Readonly<... Remove this comment to see the full error message
         this.props.tools,
+        // @ts-expect-error TS(2339): Property 'hiddenCols' does not exist on type 'Read... Remove this comment to see the full error message
         this.props.hiddenCols,
       );
       selectedCol =
         firstVisibleTool !== undefined
+          // @ts-expect-error TS(2339): Property 'tools' does not exist on type 'Readonly<... Remove this comment to see the full error message
           ? this.props.tools
-              .find((tool) => tool.toolIdx === firstVisibleTool)
-              .columns.find((col) => col.colIdx === firstVisibleColumn)
+              .find((tool: any) => tool.toolIdx === firstVisibleTool)
+              .columns.find((col: any) => col.colIdx === firstVisibleColumn)
           : undefined;
     }
 
@@ -154,16 +170,18 @@ export default class QuantilePlot extends React.Component {
 
   /** Returns the runset that will be shown in the plot. If the selected runset has no visible columns, i.e. the runset
       itself is hidden, the first visible runset will be returned instead. */
-  getRunsetSelection(selection) {
+  getRunsetSelection(selection: any) {
     let toolIdx = parseInt(selection.split("-")[1]);
+    // @ts-expect-error TS(2339): Property 'tools' does not exist on type 'Readonly<... Remove this comment to see the full error message
     const selectedTool = this.props.tools.find(
-      (tool) => tool.toolIdx === toolIdx,
+      (tool: any) => tool.toolIdx === toolIdx,
     );
-    const hasToolAnyVisibleCols = selectedTool.columns.some((col) =>
+    const hasToolAnyVisibleCols = selectedTool.columns.some((col: any) =>
       this.isColVisible(toolIdx, col.colIdx),
     );
 
     if (!hasToolAnyVisibleCols) {
+      // @ts-expect-error TS(2339): Property 'tools' does not exist on type 'Readonly<... Remove this comment to see the full error message
       toolIdx = getFirstVisibles(this.props.tools, this.props.hiddenCols)[0];
     }
     return toolIdx !== undefined ? "runset-" + toolIdx : undefined;
@@ -174,8 +192,9 @@ export default class QuantilePlot extends React.Component {
     will be set as default. */
   checkForScoreBasedPlot() {
     if (
+      // @ts-expect-error TS(2339): Property 'tools' does not exist on type 'Readonly<... Remove this comment to see the full error message
       this.props.tools.some(
-        (tool) => tool.scoreBased && this.isToolVisible(tool),
+        (tool: any) => tool.scoreBased && this.isToolVisible(tool),
       )
     ) {
       this.plotOptions = {
@@ -183,8 +202,9 @@ export default class QuantilePlot extends React.Component {
         ...this.plotOptions,
       };
       if (
+        // @ts-expect-error TS(2339): Property 'tools' does not exist on type 'Readonly<... Remove this comment to see the full error message
         this.props.tools.every(
-          (tool) => tool.scoreBased && this.isToolVisible(tool),
+          (tool: any) => tool.scoreBased && this.isToolVisible(tool),
         )
       ) {
         this.defaultValues.plot = this.plotOptions.scoreBased;
@@ -192,13 +212,15 @@ export default class QuantilePlot extends React.Component {
     }
   }
 
-  isColRelevantForTool = (colIdx, toolIdx) =>
+  isColRelevantForTool = (colIdx: any, toolIdx: any) =>
     this.isColVisible(toolIdx, colIdx) &&
     colIdx.type !== "text" &&
     colIdx.type !== "status";
 
-  isToolRelevantForCol = (tool, colName) => {
-    const colInTool = tool.columns.find((col) => col.display_title === colName);
+  isToolRelevantForCol = (tool: any, colName: any) => {
+    const colInTool = tool.columns.find(
+      (col: any) => col.display_title === colName,
+    );
     return (
       this.isToolVisible(tool) &&
       colInTool &&
@@ -206,29 +228,33 @@ export default class QuantilePlot extends React.Component {
     );
   };
 
-  isColVisibleInAnyTool = (column) =>
-    this.props.tools.some((tool) =>
+  isColVisibleInAnyTool = (column: any) =>
+    // @ts-expect-error TS(2339): Property 'tools' does not exist on type 'Readonly<... Remove this comment to see the full error message
+    this.props.tools.some((tool: any) =>
       tool.columns.some(
-        (col) =>
+        (col: any) =>
           col.colIdx === column.colIdx &&
           this.isColVisible(tool.toolIdx, col.colIdx),
       ),
     );
 
   // Checks whether the given column (defined by its display title) is part of any visible runset that supports a scoring scheme.
-  isInVisibleRunsetSupportingScore = (colTitle) =>
+  isInVisibleRunsetSupportingScore = (colTitle: any) =>
+    // @ts-expect-error TS(2339): Property 'tools' does not exist on type 'Readonly<... Remove this comment to see the full error message
     this.props.tools
-      .filter((tool) => this.isToolVisible(tool))
+      .filter((tool: any) => this.isToolVisible(tool))
       .some(
-        (tool) =>
+        (tool: any) =>
           tool.scoreBased &&
-          tool.columns.some((col) => col.display_title === colTitle),
+          tool.columns.some((col: any) => col.display_title === colTitle),
       );
 
-  isToolVisible = (tool) =>
+  isToolVisible = (tool: any) =>
+    // @ts-expect-error TS(2339): Property 'hiddenCols' does not exist on type 'Read... Remove this comment to see the full error message
     tool.columns.length !== this.props.hiddenCols[tool.toolIdx].length;
 
-  isColVisible = (toolIdx, colIdx) =>
+  isColVisible = (toolIdx: any, colIdx: any) =>
+    // @ts-expect-error TS(2339): Property 'hiddenCols' does not exist on type 'Read... Remove this comment to see the full error message
     !this.props.hiddenCols[toolIdx].includes(colIdx);
 
   // ----------------------resizer-------------------------------
@@ -254,29 +280,38 @@ export default class QuantilePlot extends React.Component {
 
   // --------------------rendering-----------------------------
   renderLegend = () => {
+    // @ts-expect-error TS(2339): Property 'isValue' does not exist on type 'Readonl... Remove this comment to see the full error message
     if (this.state.isValue) {
+      // @ts-expect-error TS(2339): Property 'tools' does not exist on type 'Readonly<... Remove this comment to see the full error message
       return this.props.tools
-        .filter((tool) => this.isToolRelevantForCol(tool, this.state.selection))
+        .filter((tool: any) =>
+          // @ts-expect-error TS(2339): Property 'selection' does not exist on type 'Reado... Remove this comment to see the full error message
+          this.isToolRelevantForCol(tool, this.state.selection),
+        )
         .map(getRunSetName)
-        .map((c) => {
+        .map((c: any) => {
           return {
             title: c,
-            disabled: this.state.isInvisible.some((el) => el === c),
+            // @ts-expect-error TS(2339): Property 'isInvisible' does not exist on type 'Rea... Remove this comment to see the full error message
+            disabled: this.state.isInvisible.some((el: any) => el === c),
             strokeWidth: 4,
           };
         });
     } else {
+      // @ts-expect-error TS(2339): Property 'tools' does not exist on type 'Readonly<... Remove this comment to see the full error message
       const tool = this.props.tools[this.state.selection.split("-")[1]];
+      // @ts-expect-error TS(2339): Property 'areAllColsHidden' does not exist on type... Remove this comment to see the full error message
       return !this.state.areAllColsHidden
         ? tool.columns
-            .filter((col) =>
+            .filter((col: any) =>
               this.isColRelevantForTool(col.colIdx, tool.toolIdx),
             )
-            .map((c) => {
+            .map((c: any) => {
               return {
                 title: c.display_title,
+                // @ts-expect-error TS(2339): Property 'isInvisible' does not exist on type 'Rea... Remove this comment to see the full error message
                 disabled: this.state.isInvisible.some(
-                  (el) => el === c.display_title,
+                  (el: any) => el === c.display_title,
                 ),
                 strokeWidth: 4,
               };
@@ -286,57 +321,71 @@ export default class QuantilePlot extends React.Component {
   };
 
   renderAll = () => {
+    // @ts-expect-error TS(2339): Property 'selection' does not exist on type 'Reado... Remove this comment to see the full error message
     const task = this.state.selection;
 
+    // @ts-expect-error TS(2339): Property 'isValue' does not exist on type 'Readonl... Remove this comment to see the full error message
     if (this.state.isValue) {
       /* Option 1: Compare different runsets on one value.
          If the score-based plot is selected, only runsets that support scoring schemes are shown. */
       const tools =
+        // @ts-expect-error TS(2339): Property 'plot' does not exist on type 'Readonly<{... Remove this comment to see the full error message
         this.state.plot === this.plotOptions.scoreBased
-          ? this.props.tools.filter((tool) => tool.scoreBased)
+          // @ts-expect-error TS(2339): Property 'tools' does not exist on type 'Readonly<... Remove this comment to see the full error message
+          ? this.props.tools.filter((tool: any) => tool.scoreBased)
+          // @ts-expect-error TS(2339): Property 'tools' does not exist on type 'Readonly<... Remove this comment to see the full error message
           : this.props.tools;
-      tools.forEach((tool) =>
+      tools.forEach((tool: any) =>
         this.renderData(task, tool.toolIdx, task + tool.toolIdx),
       );
     } else {
       /* Option 2: Compare different values on one runset. */
+      // @ts-expect-error TS(2339): Property 'areAllColsHidden' does not exist on type... Remove this comment to see the full error message
       if (!this.state.areAllColsHidden) {
+        // @ts-expect-error TS(2339): Property 'selection' does not exist on type 'Reado... Remove this comment to see the full error message
         const index = this.state.selection.split("-")[1];
+        // @ts-expect-error TS(2339): Property 'tools' does not exist on type 'Readonly<... Remove this comment to see the full error message
         const tool = this.props.tools[index];
         tool.columns
           .filter(
-            (col) =>
+            (col: any) =>
               this.isColRelevantForTool(col.colIdx, tool.toolIdx) &&
               this.isColVisible(tool.toolIdx, col.colIdx),
           )
-          .forEach((column) =>
+          .forEach((column: any) =>
             this.renderData(column.display_title, index, column.display_title),
           );
       }
     }
   };
 
-  renderData = (colTitle, toolIdx, field) => {
+  renderData = (colTitle: any, toolIdx: any, field: any) => {
+    // @ts-expect-error TS(2339): Property 'plot' does not exist on type 'Readonly<{... Remove this comment to see the full error message
     const isPlotScoreBased = this.state.plot === this.plotOptions.scoreBased;
     const isOrdinal = this.handleType() === "ordinal";
+    // @ts-expect-error TS(2339): Property 'tools' does not exist on type 'Readonly<... Remove this comment to see the full error message
     const colIdx = this.props.tools[toolIdx].columns.findIndex(
-      (value) => value.display_title === colTitle,
+      (value: any) => value.display_title === colTitle,
     );
     let arrayY = [];
     let scoreOfIncorrectResults = 0;
 
     if (
+      // @ts-expect-error TS(2339): Property 'isValue' does not exist on type 'Readonl... Remove this comment to see the full error message
       !this.state.isValue ||
       (colIdx >= 0 && this.isColVisible(toolIdx, colIdx))
     ) {
-      arrayY = this.props.table.map((runSet) => {
+      // @ts-expect-error TS(2339): Property 'table' does not exist on type 'Readonly<... Remove this comment to see the full error message
+      arrayY = this.props.table.map((runSet: any) => {
         // Get y value if it should be shown and normalize it.
         // For correct x values, arrayY needs to have same length as table.
         const runResult = runSet.results[toolIdx];
         let value = null;
         if (
           runResult.category === "correct" ||
+          // @ts-expect-error TS(2339): Property 'isResultSelectionDisabled' does not exis... Remove this comment to see the full error message
           (!this.state.isResultSelectionDisabled &&
+            // @ts-expect-error TS(2339): Property 'results' does not exist on type 'Readonl... Remove this comment to see the full error message
             this.state.results !== this.resultsOptions.correct)
         ) {
           value = runResult.values[colIdx].raw || null;
@@ -352,22 +401,25 @@ export default class QuantilePlot extends React.Component {
         }
         return {
           value,
+          // @ts-expect-error TS(2339): Property 'getRowName' does not exist on type 'Read... Remove this comment to see the full error message
           rowName: this.props.getRowName(runSet),
           score: runResult.score,
         };
       });
 
+      // @ts-expect-error TS(2339): Property 'plot' does not exist on type 'Readonly<{... Remove this comment to see the full error message
       if (this.state.plot !== this.plotOptions.direct) {
-        arrayY = arrayY.filter((dataObj) => dataObj.value !== null);
+        arrayY = arrayY.filter((dataObj: any) => dataObj.value !== null);
         arrayY = this.sortArray(arrayY, colTitle);
       }
     }
 
     this.hasInvalidLog = false;
-    const newArray = [];
+    const newArray: any = [];
     let xPosition = isPlotScoreBased ? scoreOfIncorrectResults : 0;
-    arrayY.forEach(({ value, rowName, score }) => {
+    arrayY.forEach(({ value, rowName, score }: any) => {
       const isLogAndInvalid =
+        // @ts-expect-error TS(2339): Property 'scaling' does not exist on type 'Readonl... Remove this comment to see the full error message
         this.state.scaling === this.scalingOptions.logarithmic && value <= 0;
       xPosition = xPosition + (isPlotScoreBased ? score : 1);
 
@@ -376,7 +428,9 @@ export default class QuantilePlot extends React.Component {
           x: xPosition,
           y: value,
           task: rowName,
+          // @ts-expect-error TS(2339): Property 'isValue' does not exist on type 'Readonl... Remove this comment to see the full error message
           series: this.state.isValue
+            // @ts-expect-error TS(2339): Property 'tools' does not exist on type 'Readonly<... Remove this comment to see the full error message
             ? getRunSetName(this.props.tools[toolIdx])
             : colTitle,
         });
@@ -386,28 +440,31 @@ export default class QuantilePlot extends React.Component {
         this.hasInvalidLog = true;
       }
     });
+    // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
     this[field] = newArray;
   };
 
-  sortArray = (array, column) => {
+  sortArray = (array: any, column: any) => {
     const currentValue = this.possibleValues.find(
-      (value) => value.display_title === column,
+      (value: any) => value.display_title === column,
     );
 
+    // @ts-expect-error TS(2339): Property 'isValue' does not exist on type 'Readonl... Remove this comment to see the full error message
     return this.state.isValue && ["text", "status"].includes(currentValue.type)
-      ? array.sort((a, b) =>
+      ? array.sort((a: any, b: any) =>
           a.value > b.value ? 1 : b.value > a.value ? -1 : 0,
         )
-      : array.sort((a, b) => +a.value - +b.value);
+      : array.sort((a: any, b: any) => +a.value - +b.value);
   };
 
   setPossibleValues() {
-    this.props.tools.forEach((tool) => {
-      tool.columns.forEach((col) => {
+    // @ts-expect-error TS(2339): Property 'tools' does not exist on type 'Readonly<... Remove this comment to see the full error message
+    this.props.tools.forEach((tool: any) => {
+      tool.columns.forEach((col: any) => {
         if (
           this.isColVisible(tool.toolIdx, col.colIdx) &&
           !this.possibleValues.some(
-            (value) => value.display_title === col.display_title,
+            (value: any) => value.display_title === col.display_title,
           )
         ) {
           this.possibleValues.push(col);
@@ -417,14 +474,16 @@ export default class QuantilePlot extends React.Component {
   }
 
   renderColumns = () => {
-    return this.possibleValues.map((value) => {
+    return this.possibleValues.map((value: any) => {
       const isDisabled =
+        // @ts-expect-error TS(2339): Property 'plot' does not exist on type 'Readonly<{... Remove this comment to see the full error message
         this.state.plot === this.plotOptions.scoreBased &&
         !this.isInVisibleRunsetSupportingScore(value.display_title);
       return (
         <option
           key={value.display_title}
           value={value.display_title}
+          // @ts-expect-error TS(2322): Type '{ children: any; key: any; value: any; name:... Remove this comment to see the full error message
           name={value.display_title}
           disabled={isDisabled}
           className={isDisabled ? "disabled" : ""}
@@ -442,19 +501,25 @@ export default class QuantilePlot extends React.Component {
         (this.lineCount - 1) % EXTENDED_DISCRETE_COLOR_RANGE.length
       ];
 
+    // @ts-expect-error TS(2339): Property 'isValue' does not exist on type 'Readonl... Remove this comment to see the full error message
     if (this.state.isValue) {
       return (
+        // @ts-expect-error TS(2339): Property 'tools' does not exist on type 'Readonly<... Remove this comment to see the full error message
         this.props.tools
           // Cannot use filter() because we need original value of i
-          .map((tool, i) => {
+          .map((tool: any, i: any) => {
             if (
+              // @ts-expect-error TS(2339): Property 'selection' does not exist on type 'Reado... Remove this comment to see the full error message
               !this.isToolRelevantForCol(tool, this.state.selection) ||
+              // @ts-expect-error TS(2339): Property 'plot' does not exist on type 'Readonly<{... Remove this comment to see the full error message
               (this.state.plot === this.plotOptions.scoreBased &&
                 !tool.scoreBased)
             ) {
               return null;
             }
+            // @ts-expect-error TS(2339): Property 'selection' does not exist on type 'Reado... Remove this comment to see the full error message
             const task = this.state.selection;
+            // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
             const data = this[task + i];
             const id = getRunSetName(tool);
             this.lineCount++;
@@ -465,23 +530,31 @@ export default class QuantilePlot extends React.Component {
                 key={id}
                 color={color()}
                 opacity={this.handleLineState(id)}
+                // @ts-expect-error TS(6133): 'event' is declared but its value is never read.
                 onValueMouseOver={(datapoint, event) =>
                   this.setState({ value: datapoint })
                 }
+                // @ts-expect-error TS(6133): 'datapoint' is declared but its value is never rea... Remove this comment to see the full error message
                 onValueMouseOut={(datapoint, event) =>
                   this.setState({ value: null })
                 }
               />
             );
           })
-          .filter((el) => !!el)
+          .filter((el: any) => !!el)
       );
+    // @ts-expect-error TS(2339): Property 'areAllColsHidden' does not exist on type... Remove this comment to see the full error message
     } else if (!this.state.areAllColsHidden) {
+      // @ts-expect-error TS(2339): Property 'selection' does not exist on type 'Reado... Remove this comment to see the full error message
       const index = this.state.selection.split("-")[1];
+      // @ts-expect-error TS(2339): Property 'tools' does not exist on type 'Readonly<... Remove this comment to see the full error message
       const tool = this.props.tools[index];
       return tool.columns
-        .filter((col) => this.isColRelevantForTool(col.colIdx, tool.toolIdx))
-        .map((column) => {
+        .filter((col: any) =>
+          this.isColRelevantForTool(col.colIdx, tool.toolIdx),
+        )
+        .map((column: any) => {
+          // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
           const data = this[column.display_title];
           this.lineCount++;
 
@@ -491,9 +564,11 @@ export default class QuantilePlot extends React.Component {
               key={column.display_title}
               color={color()}
               opacity={this.handleLineState(column.display_title)}
+              // @ts-expect-error TS(6133): 'event' is declared but its value is never read.
               onValueMouseOver={(datapoint, event) =>
                 this.setState({ value: datapoint })
               }
+              // @ts-expect-error TS(6133): 'datapoint' is declared but its value is never rea... Remove this comment to see the full error message
               onValueMouseOut={(datapoint, event) =>
                 this.setState({ value: null })
               }
@@ -505,6 +580,7 @@ export default class QuantilePlot extends React.Component {
 
   renderAllSettings() {
     const resultsTooltip =
+      // @ts-expect-error TS(2339): Property 'plot' does not exist on type 'Readonly<{... Remove this comment to see the full error message
       this.state.plot === this.plotOptions.scoreBased
         ? "Score-based Quantile Plots always show correct results offset by the score of wrong results. Any defined filters will still be applied."
         : "In addition to which results are selected here, any defined filters will still be applied.";
@@ -518,19 +594,23 @@ export default class QuantilePlot extends React.Component {
                 <select
                   className="setting-select"
                   name="setting-Selection"
+                  // @ts-expect-error TS(2339): Property 'selection' does not exist on type 'Reado... Remove this comment to see the full error message
                   value={this.state.selection}
                   onChange={(ev) =>
                     setURLParameter({ selection: ev.target.value })
                   }
                 >
                   <optgroup label="Runsets">
-                    {this.props.tools.map((tool, i) => {
+                    // @ts-expect-error TS(2339): Property 'tools' does not exist on type 'Readonly<... Remove this comment to see the full error message
+                    {this.props.tools.map((tool: any, i: any) => {
                       const isDisabled =
+                        // @ts-expect-error TS(2339): Property 'plot' does not exist on type 'Readonly<{... Remove this comment to see the full error message
                         this.state.plot === this.plotOptions.scoreBased;
                       return this.isToolVisible(tool) ? (
                         <option
                           key={"runset-" + i}
                           value={"runset-" + i}
+                          // @ts-expect-error TS(2322): Type '{ children: string; key: string; value: stri... Remove this comment to see the full error message
                           name={"Runset " + i}
                           disabled={isDisabled}
                           className={isDisabled ? "disabled" : ""}
@@ -543,26 +623,32 @@ export default class QuantilePlot extends React.Component {
                   <optgroup label="Columns">{this.renderColumns()}</optgroup>
                 </select>
               </div>
+              // @ts-expect-error TS(2554): Expected 6 arguments, but got 4.
               {renderSetting(
                 "Plot",
+                // @ts-expect-error TS(2339): Property 'plot' does not exist on type 'Readonly<{... Remove this comment to see the full error message
                 this.state.plot,
-                (ev) => setURLParameter({ plot: ev.target.value }),
+                (ev: any) => setURLParameter({ plot: ev.target.value }),
                 this.plotOptions,
               )}
             </div>
             <div className="settings-subcontainer">
+              // @ts-expect-error TS(2554): Expected 6 arguments, but got 4.
               {renderSetting(
                 "Scaling",
+                // @ts-expect-error TS(2339): Property 'scaling' does not exist on type 'Readonl... Remove this comment to see the full error message
                 this.state.scaling,
-                (ev) => setURLParameter({ scaling: ev.target.value }),
+                (ev: any) => setURLParameter({ scaling: ev.target.value }),
                 this.scalingOptions,
               )}
               {renderSetting(
                 "Results",
+                // @ts-expect-error TS(2339): Property 'results' does not exist on type 'Readonl... Remove this comment to see the full error message
                 this.state.results,
-                (ev) => setURLParameter({ results: ev.target.value }),
+                (ev: any) => setURLParameter({ results: ev.target.value }),
                 this.resultsOptions,
                 resultsTooltip,
+                // @ts-expect-error TS(2339): Property 'isResultSelectionDisabled' does not exis... Remove this comment to see the full error message
                 this.state.isResultSelectionDisabled,
               )}
               {renderResetButton(() =>
@@ -580,16 +666,20 @@ export default class QuantilePlot extends React.Component {
           <DiscreteColorLegend
             colors={EXTENDED_DISCRETE_COLOR_RANGE}
             items={this.renderLegend()}
-            onItemClick={(Object, item) => {
+            // @ts-expect-error TS(2322): Type '(Object: any, item: any) => void' is not ass... Remove this comment to see the full error message
+            onItemClick={(Object: any, item: any) => {
               let line = "";
               line = Object.title.toString();
+              // @ts-expect-error TS(2339): Property 'isInvisible' does not exist on type 'Rea... Remove this comment to see the full error message
               if (this.state.isInvisible.indexOf(line) < 0) {
                 this.setState({
+                  // @ts-expect-error TS(2339): Property 'isInvisible' does not exist on type 'Rea... Remove this comment to see the full error message
                   isInvisible: this.state.isInvisible.concat([line]),
                 });
               } else {
                 return this.setState({
-                  isInvisible: this.state.isInvisible.filter((l) => {
+                  // @ts-expect-error TS(2339): Property 'isInvisible' does not exist on type 'Rea... Remove this comment to see the full error message
+                  isInvisible: this.state.isInvisible.filter((l: any) => {
                     return l !== line;
                   }),
                 });
@@ -602,25 +692,30 @@ export default class QuantilePlot extends React.Component {
   }
 
   // ------------------------handeling----------------------------
-  handleLineState = (line) => {
+  handleLineState = (line: any) => {
+    // @ts-expect-error TS(2339): Property 'isInvisible' does not exist on type 'Rea... Remove this comment to see the full error message
     return this.state.isInvisible.indexOf(line) < 0 ? 1 : 0;
   };
 
-  toggleShow = ({ target }) => {
+  toggleShow = ({ target }: any) => {
     this.setState({
       [target.name]: target.checked,
     });
   };
 
   handleType = () => {
+    // @ts-expect-error TS(2339): Property 'selection' does not exist on type 'Reado... Remove this comment to see the full error message
     const { selection } = this.state;
     const index = this.possibleValues.findIndex(
-      (value) => value.display_title === selection,
+      (value: any) => value.display_title === selection,
     );
     const type =
+      // @ts-expect-error TS(2339): Property 'isValue' does not exist on type 'Readonl... Remove this comment to see the full error message
       this.state.isValue && index >= 0 ? this.possibleValues[index].type : null;
+    // @ts-expect-error TS(2339): Property 'isValue' does not exist on type 'Readonl... Remove this comment to see the full error message
     return this.state.isValue && (type === "text" || type === "status")
       ? "ordinal"
+      // @ts-expect-error TS(2339): Property 'scaling' does not exist on type 'Readonl... Remove this comment to see the full error message
       : this.state.scaling === this.scalingOptions.linear
       ? "linear"
       : "log";
@@ -629,7 +724,9 @@ export default class QuantilePlot extends React.Component {
   render() {
     this.setPossibleValues();
     this.renderAll();
+    // @ts-expect-error TS(2339): Property 'isFlexible' does not exist on type 'Read... Remove this comment to see the full error message
     const Plot = this.props.isFlexible ? FlexibleXYPlot : XYPlot;
+    // @ts-expect-error TS(2339): Property 'isFlexible' does not exist on type 'Read... Remove this comment to see the full error message
     const plotDimensions = this.props.isFlexible
       ? {
           height: window.innerHeight - 200,
@@ -640,7 +737,9 @@ export default class QuantilePlot extends React.Component {
         };
     return (
       <div className="quantilePlot">
+        // @ts-expect-error TS(2339): Property 'areAllColsHidden' does not exist on type... Remove this comment to see the full error message
         {!this.state.areAllColsHidden && this.renderAllSettings()}
+        // @ts-expect-error TS(2769): No overload matches this call.
         <Plot
           margin={{ left: 90 }}
           yType={this.handleType()}
@@ -650,9 +749,11 @@ export default class QuantilePlot extends React.Component {
           <HorizontalGridLines />
           <XAxis tickFormat={(value) => value} />
           <YAxis tickFormat={(value) => value} />
+          // @ts-expect-error TS(2339): Property 'value' does not exist on type 'Readonly<... Remove this comment to see the full error message
           {this.state.value ? <Hint value={this.state.value} /> : null}
           {this.renderLines()}
         </Plot>
+        // @ts-expect-error TS(2339): Property 'areAllColsHidden' does not exist on type... Remove this comment to see the full error message
         {this.state.areAllColsHidden ? (
           <div className="plot__noresults">No columns to show!</div>
         ) : (

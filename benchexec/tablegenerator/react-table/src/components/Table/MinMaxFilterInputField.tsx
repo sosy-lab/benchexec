@@ -20,7 +20,7 @@ function MinMaxFilterInputFieldComponent({
   setCustomFilters,
   focusedFilter,
   setFocusedFilter,
-}) {
+}: any) {
   const elementId = id + "_filter";
   const initFilterValue = setFilter ? setFilter.value : "";
 
@@ -30,17 +30,20 @@ function MinMaxFilterInputFieldComponent({
 
   useEffect(() => {
     if (focusedFilter === elementId) {
+      // @ts-expect-error TS(2531): Object is possibly 'null'.
       ref.current.focus();
     }
   }, [focusedFilter, elementId]);
 
-  const onChange = (event) => {
+  const onChange = (event: any) => {
     const newValue = event.target.value;
     setValue(newValue);
     clearTimeout(typingTimer);
     setTypingTimer(
+      // @ts-expect-error TS(2345): Argument of type 'Timeout' is not assignable to pa... Remove this comment to see the full error message
       setTimeout(() => {
         setCustomFilters({ id, value: newValue });
+        // @ts-expect-error TS(2531): Object is possibly 'null'.
         document.getElementById(elementId).focus();
       }, 500),
     );

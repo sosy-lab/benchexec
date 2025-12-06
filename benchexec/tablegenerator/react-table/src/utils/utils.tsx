@@ -12,7 +12,8 @@ import { faCopy } from "@fortawesome/free-regular-svg-icons";
 
 /* A DOM node that allows its content to be copied to the clipboard. */
 export class CopyableNode extends React.Component {
-  constructor(props) {
+  childRef: any;
+  constructor(props: any) {
     super(props);
     this.childRef = React.createRef();
   }
@@ -44,11 +45,11 @@ export class CopyableNode extends React.Component {
  * (after the last slash).
  * Protocol, query part and hash of the URL is dropped.
  */
-export const splitUrlPathForMatchingPrefix = (url1, url2) => {
+export const splitUrlPathForMatchingPrefix = (url1: any, url2: any) => {
   const path1 = url1.pathname.split("/");
   const path2 = url2.pathname.split("/");
   const firstDiffering = path1.findIndex(
-    (element, index) => element !== path2[index],
+    (element: any, index: any) => element !== path2[index],
   );
   return [
     path1.slice(0, firstDiffering).join("/"),
@@ -58,20 +59,35 @@ export const splitUrlPathForMatchingPrefix = (url1, url2) => {
 
 const emptyStateValue = "##########";
 
-const prepareTableData = ({ head, tools, rows, stats, props, initial }) => {
+const prepareTableData = ({
+  head,
+  tools,
+  rows,
+  stats,
+  props,
+  initial,
+}: any) => {
   return {
     tableHeader: head,
     taskIdNames: head.task_id_names,
+    // @ts-expect-error TS(7006): Parameter 'tool' implicitly has an 'any' type.
     tools: tools.map((tool, idx) => ({
       ...tool,
       toolIdx: idx,
+
+      // @ts-expect-error TS(7006): Parameter 'column' implicitly has an 'any' type.
       columns: tool.columns.map((column, idx) => ({
         ...column,
         colIdx: idx,
       })),
-      scoreBased: rows.every((row) => row.results[idx].score !== undefined),
+
+      scoreBased: rows.every(
+        (row: any) => row.results[idx].score !== undefined,
+      ),
     })),
-    columns: tools.map((tool) => tool.columns.map((column) => column.title)),
+    columns: tools.map((tool: any) =>
+      tool.columns.map((column: any) => column.title),
+    ),
     tableData: rows,
     stats: stats,
     properties: props,
@@ -79,21 +95,21 @@ const prepareTableData = ({ head, tools, rows, stats, props, initial }) => {
   };
 };
 
-const isNumericColumn = (column) =>
+const isNumericColumn = (column: any) =>
   column.type === "count" || column.type === "measure";
 
-const isNil = (data) => data === undefined || data === null;
+const isNil = (data: any) => data === undefined || data === null;
 
-const getRawOrDefault = (value, def) =>
+const getRawOrDefault = (value: any, def: any) =>
   isNil(value) || isNil(value.raw) ? def : value.raw;
 
-const numericSortMethod = (a, b) => {
+const numericSortMethod = (a: any, b: any) => {
   const aValue = getRawOrDefault(a, +Infinity);
   const bValue = getRawOrDefault(b, +Infinity);
   return aValue - bValue;
 };
 
-const textSortMethod = (a, b) => {
+const textSortMethod = (a: any, b: any) => {
   const aValue = getRawOrDefault(a, "").toLowerCase();
   const bValue = getRawOrDefault(b, "").toLowerCase();
   if (aValue === "") {
@@ -105,19 +121,20 @@ const textSortMethod = (a, b) => {
   return aValue > bValue ? 1 : aValue < bValue ? -1 : 0;
 };
 
-const isOkStatus = (status) => {
+const isOkStatus = (status: any) => {
   return status === 0 || status === 200;
 };
 
-const omit = (keys, data) => {
+const omit = (keys: any, data: any) => {
   const newKeys = Object.keys(data).filter((key) => !keys.includes(key));
   return newKeys.reduce((acc, key) => {
+    // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
     acc[key] = data[key];
     return acc;
   }, {});
 };
 
-const without = (value, array) => {
+const without = (value: any, array: any) => {
   const out = [];
   for (const item of array) {
     if (item !== value) {
@@ -128,7 +145,7 @@ const without = (value, array) => {
 };
 
 // Best-effort attempt for calculating a meaningful column width
-const determineColumnWidth = (column, min_width, max_width) => {
+const determineColumnWidth = (column: any, min_width: any, max_width: any) => {
   let width = column.max_width; // number of chars in column
   if (min_width) {
     width = Math.max(width, min_width);
@@ -143,7 +160,7 @@ const determineColumnWidth = (column, min_width, max_width) => {
   return width * 8 + 20;
 };
 
-const path = (pathArr, data) => {
+const path = (pathArr: any, data: any) => {
   let last = data;
   for (const p of pathArr) {
     last = last[p];
@@ -154,13 +171,13 @@ const path = (pathArr, data) => {
   return last;
 };
 
-const pathOr = (pathArr, fallback, data) => {
+const pathOr = (pathArr: any, fallback: any, data: any) => {
   const pathRes = path(pathArr, data);
 
   return pathRes === undefined ? fallback : pathRes;
 };
 
-const formatColumnTitle = (column) =>
+const formatColumnTitle = (column: any) =>
   column.unit ? (
     <>
       {column.display_title}
@@ -171,7 +188,7 @@ const formatColumnTitle = (column) =>
     column.display_title
   );
 
-const getRunSetName = ({ tool, date, niceName }) => {
+const getRunSetName = ({ tool, date, niceName }: any) => {
   return `${tool} ${date} ${niceName}`;
 };
 
@@ -208,7 +225,7 @@ const EXTENDED_DISCRETE_COLOR_RANGE = [
  * @param {string} - Optional string to parse. If not provided, parses the URL hash of the current document.
  * @returns {Object} - An object containing the parsed search parameters.
  */
-const getURLParameters = (str) => {
+const getURLParameters = (str: any) => {
   // Split the URL string into parts using "?" as a delimiter
   const urlParts = (str || window.location.href).split("?");
 
@@ -221,11 +238,12 @@ const getURLParameters = (str) => {
   }
 
   // Split the search string into key-value pairs and generate an object from them
-  const keyValuePairs = search.split("&").map((pair) => pair.split("="));
+  const keyValuePairs = search.split("&").map((pair: any) => pair.split("="));
   const out = {};
 
   // All parameters in the search string are decoded except filter to allow filter handling later on its own
   for (const [key, ...value] of keyValuePairs) {
+    // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
     out[decodeURI(key)] =
       key === "filter" ? value.join("=") : decodeURI(value.join("="));
   }
@@ -239,7 +257,7 @@ const getURLParameters = (str) => {
  * @param {Object} params - The parameters to be included in the query string. Any undefined or null values will be omitted.
  * @returns {string} - The constructed query string.
  */
-export const constructQueryString = (params) => {
+export const constructQueryString = (params: any) => {
   return Object.keys(params)
     .filter((key) => params[key] !== undefined && params[key] !== null)
     .map((key) => `${key}=${params[key]}`)
@@ -253,7 +271,7 @@ export const constructQueryString = (params) => {
  * @param {Object} params - The parameters to be included in the hash
  * @returns {string} - The constructed URL hash
  */
-export const constructHashURL = (url, params = {}) => {
+export const constructHashURL = (url: any, params = {}) => {
   const existingParams = getURLParameters(url);
   const mergedParams = { ...existingParams, ...params };
 
@@ -289,6 +307,7 @@ const setURLParameter = (
   const callbacks = options.callbacks;
   if (callbacks && callbacks.length > 0) {
     for (const callback of callbacks) {
+      // @ts-expect-error TS(2349): This expression is not callable.
       callback();
     }
   }
@@ -301,26 +320,33 @@ const setURLParameter = (
   }
 };
 
-const makeUrlFilterDeserializer = (statusValues, categoryValues) => {
+const makeUrlFilterDeserializer = (statusValues: any, categoryValues: any) => {
   const deserializer = makeFilterDeserializer({ categoryValues, statusValues });
-  return (str) => {
+  return (str: any) => {
     const params = getURLParameters(str);
+    // @ts-expect-error TS(2339): Property 'filter' does not exist on type '{}'.
     if (params.filter) {
+      // @ts-expect-error TS(2339): Property 'filter' does not exist on type '{}'.
       return deserializer(params.filter);
     }
     return null;
   };
 };
 
-const makeSerializedFilterValue = (filter) => {
+const makeSerializedFilterValue = (filter: any) => {
   const parts = [];
   for (const [key, values] of Object.entries(filter)) {
+    // @ts-expect-error TS(2571): Object is of type 'unknown'.
     parts.push(`${key}(${values.map(escape).join(",")})`);
   }
   return parts.join(",");
 };
 
-const createDistinctValueFilters = (selected, nominal, trim = false) => {
+const createDistinctValueFilters = (
+  selected: any,
+  nominal: any,
+  trim = false,
+) => {
   const filter = {};
   // we want to minimize the needed space to encode the filter
   // if we have more than half of all values selected, we encode all not selected
@@ -332,19 +358,21 @@ const createDistinctValueFilters = (selected, nominal, trim = false) => {
         exclusions.push(trim ? status.trim() : status);
       }
     }
+    // @ts-expect-error TS(2339): Property 'notIn' does not exist on type '{}'.
     filter.notIn = exclusions;
   } else {
-    filter.in = selected.map((val) => (trim ? val.trim() : val));
+    // @ts-expect-error TS(2339): Property 'in' does not exist on type '{}'.
+    filter.in = selected.map((val: any) => (trim ? val.trim() : val));
   }
   return makeSerializedFilterValue(filter);
 };
 
 function makeStatusColumnFilter(
-  filters,
-  allStatusValues,
-  tool,
-  columnId,
-  allCategoryValues,
+  filters: any,
+  allStatusValues: any,
+  tool: any,
+  columnId: any,
+  allCategoryValues: any,
 ) {
   const statusColumnFilter = [];
   const { statusValues, categoryValues } = filters;
@@ -378,14 +406,15 @@ function makeStatusColumnFilter(
   return statusColumnFilter.join(",");
 }
 
-function escapeParentheses(value) {
+function escapeParentheses(value: any) {
   if (typeof value !== "string") {
     throw new Error("Invalid value type");
   }
+  // @ts-expect-error TS(2550): Property 'replaceAll' does not exist on type 'stri... Remove this comment to see the full error message
   return value.replaceAll("(", "%28").replaceAll(")", "%29");
 }
 
-export const makeRegExp = (value) => {
+export const makeRegExp = (value: any) => {
   if (typeof value !== "string") {
     throw new Error("Invalid value type for converting to RegExp");
   }
@@ -400,7 +429,7 @@ export const makeRegExp = (value) => {
  * @returns {Object} The decoded filter ID
  * @throws {Error} If the filter ID is invalid
  */
-export const decodeFilter = (filterID) => {
+export const decodeFilter = (filterID: any) => {
   if (typeof filterID !== "string") {
     throw new Error("Invalid filter ID");
   }
@@ -417,115 +446,127 @@ export const decodeFilter = (filterID) => {
     tool: splitedArray[0],
     name:
       splitedArray.length > 2 ? splitedArray.slice(1, -1).join("_") : undefined,
+    // @ts-expect-error TS(2550): Property 'at' does not exist on type 'string[]'. D... Remove this comment to see the full error message
     column: splitedArray.length > 2 ? splitedArray.at(-1) : undefined,
   };
 };
 
 const makeFilterSerializer =
-  ({ statusValues: allStatusValues, categoryValues: allCategoryValues }) =>
-  (filter) => {
-    const groupedFilters = {};
-    const tableTabIdFilters = [];
-    for (const { id, value, values, isTableTabFilter } of filter) {
-      if (id === "id") {
-        if (values && values.length > 0) {
-          groupedFilters.ids = {
-            values: values.map((val) => (val ? val : "")),
-          };
-        } else if (isTableTabFilter) {
-          tableTabIdFilters.push({ id, value });
-        }
-        continue;
-      }
-      const { tool, name, column } = decodeFilter(id);
-      const toolBucket = groupedFilters[tool] || {};
-      const columnBucket = toolBucket[column] || { name: escape(name) };
+  // @ts-expect-error TS(7031): Binding element 'allStatusValues' implicitly has a... Remove this comment to see the full error message
 
-      if (allStatusValues[tool][column] || allCategoryValues[tool][column]) {
-        // we are processing a status column with checkboxes
-        if (value.endsWith(" ")) {
-          // category value
-          const selectedCategoryValues = columnBucket.categoryValues || [];
-          selectedCategoryValues.push(value);
-          columnBucket.categoryValues = selectedCategoryValues;
+
+    ({ statusValues: allStatusValues, categoryValues: allCategoryValues }) =>
+    (filter: any) => {
+      const groupedFilters = {};
+      const tableTabIdFilters = [];
+      for (const { id, value, values, isTableTabFilter } of filter) {
+        if (id === "id") {
+          if (values && values.length > 0) {
+            // @ts-expect-error TS(2339): Property 'ids' does not exist on type '{}'.
+            groupedFilters.ids = {
+              values: values.map((val: any) => (val ? val : "")),
+            };
+          } else if (isTableTabFilter) {
+            tableTabIdFilters.push({ id, value });
+          }
+          continue;
+        }
+        const { tool, name, column } = decodeFilter(id);
+        // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
+        const toolBucket = groupedFilters[tool] || {};
+        // @ts-expect-error TS(2345): Argument of type 'string | undefined' is not assig... Remove this comment to see the full error message
+        const columnBucket = toolBucket[column] || { name: escape(name) };
+
+        if (allStatusValues[tool][column] || allCategoryValues[tool][column]) {
+          // we are processing a status column with checkboxes
+          if (value.endsWith(" ")) {
+            // category value
+            const selectedCategoryValues = columnBucket.categoryValues || [];
+            selectedCategoryValues.push(value);
+            columnBucket.categoryValues = selectedCategoryValues;
+          } else {
+            // status value
+            const selectedStatusValues = columnBucket.statusValues || [];
+            selectedStatusValues.push(value);
+            columnBucket.statusValues = selectedStatusValues;
+          }
         } else {
-          // status value
-          const selectedStatusValues = columnBucket.statusValues || [];
-          selectedStatusValues.push(value);
-          columnBucket.statusValues = selectedStatusValues;
+          columnBucket.value = value;
         }
-      } else {
-        columnBucket.value = value;
+        toolBucket[column] = columnBucket;
+        // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
+        groupedFilters[tool] = toolBucket;
       }
-      toolBucket[column] = columnBucket;
-      groupedFilters[tool] = toolBucket;
-    }
-    // serialization part
-    // we want to transform our filters into the following format:
-    // [<idFilter>,]<runsetFilter>+
-    // with
-    // <idFilter> := id(values(<value>+))
-    // <runsetFilter> := <runsetId>(<columnFilter>+)[,]
-    // <columnFilter> := <columnId>*<name>*(<filter>)[,]
-    // <filter> := <valueFilter>|<statusColumnFilter>
-    // <valueFilter> := value(<value>)
-    // <statusColumnFilter> := <statusFilter>|<categoryFilter>|<statusFilter>,<categoryFilter>
-    // <statusFilter> := status(in(<value>+)|notIn(<value>+)|empty())
-    // <categoryFilter> := category(in(<value>+)|notIn(<value>+)|empty())
-    // <value> := <urlencodedTerminalValue>
+      // serialization part
+      // we want to transform our filters into the following format:
+      // [<idFilter>,]<runsetFilter>+
+      // with
+      // <idFilter> := id(values(<value>+))
+      // <runsetFilter> := <runsetId>(<columnFilter>+)[,]
+      // <columnFilter> := <columnId>*<name>*(<filter>)[,]
+      // <filter> := <valueFilter>|<statusColumnFilter>
+      // <valueFilter> := value(<value>)
+      // <statusColumnFilter> := <statusFilter>|<categoryFilter>|<statusFilter>,<categoryFilter>
+      // <statusFilter> := status(in(<value>+)|notIn(<value>+)|empty())
+      // <categoryFilter> := category(in(<value>+)|notIn(<value>+)|empty())
+      // <value> := <urlencodedTerminalValue>
 
-    // one transformed example would be
-    // 1(0*status*(statusFilter(notIn(true)),categoryFilter(in(correct,missing))),1*cputime*(value(%3A1120)))
+      // one transformed example would be
+      // 1(0*status*(statusFilter(notIn(true)),categoryFilter(in(correct,missing))),1*cputime*(value(%3A1120)))
 
-    const { ids, ...rest } = groupedFilters;
-    const runsetFilters = [];
-    if (ids) {
-      runsetFilters.push(
-        `id(values(${ids.values
-          .map((val) => escapeParentheses(encodeURIComponent(val)))
-          .join(",")}))`,
-      );
-    }
-    if (tableTabIdFilters) {
-      tableTabIdFilters.forEach((filter) => {
+      // @ts-expect-error TS(2339): Property 'ids' does not exist on type '{}'.
+      const { ids, ...rest } = groupedFilters;
+      const runsetFilters = [];
+      if (ids) {
         runsetFilters.push(
-          `id_any(value(${escapeParentheses(
-            encodeURIComponent(filter.value),
-          )}))`,
+          `id(values(${ids.values
+            .map((val: any) => escapeParentheses(encodeURIComponent(val)))
+            .join(",")}))`,
         );
-      });
-    }
-    for (const [tool, column] of Object.entries(rest)) {
-      const columnFilters = [];
-      for (const [columnId, filters] of Object.entries(column)) {
-        const columnFilterHeader = `${columnId}*${filters.name}*`;
-        let filter;
-        if (filters.statusValues || filters.categoryValues) {
-          // <statusColumnFilter>
-          filter = makeStatusColumnFilter(
-            filters,
-            allStatusValues,
-            tool,
-            columnId,
-            allCategoryValues,
+      }
+      if (tableTabIdFilters) {
+        tableTabIdFilters.forEach((filter) => {
+          runsetFilters.push(
+            `id_any(value(${escapeParentheses(
+              encodeURIComponent(filter.value),
+            )}))`,
           );
-        } else {
-          // <valueFilter>
-          filter = `value(${escape(filters.value)})`;
+        });
+      }
+      for (const [tool, column] of Object.entries(rest)) {
+        const columnFilters = [];
+        for (const [columnId, filters] of Object.entries(column)) {
+          // @ts-expect-error TS(2571): Object is of type 'unknown'.
+          const columnFilterHeader = `${columnId}*${filters.name}*`;
+          let filter;
+          // @ts-expect-error TS(2571): Object is of type 'unknown'.
+          if (filters.statusValues || filters.categoryValues) {
+            // <statusColumnFilter>
+            filter = makeStatusColumnFilter(
+              filters,
+              allStatusValues,
+              tool,
+              columnId,
+              allCategoryValues,
+            );
+          } else {
+            // <valueFilter>
+            // @ts-expect-error TS(2571): Object is of type 'unknown'.
+            filter = `value(${escape(filters.value)})`;
+          }
+          if (filter !== "") {
+            columnFilters.push(`${columnFilterHeader}(${filter})`);
+          }
         }
-        if (filter !== "") {
-          columnFilters.push(`${columnFilterHeader}(${filter})`);
+        if (columnFilters.length > 0) {
+          runsetFilters.push(`${tool}(${columnFilters.join(",")})`);
         }
       }
-      if (columnFilters.length > 0) {
-        runsetFilters.push(`${tool}(${columnFilters.join(",")})`);
-      }
-    }
-    const filterString = runsetFilters.join(",");
-    return filterString;
-  };
+      const filterString = runsetFilters.join(",");
+      return filterString;
+    };
 
-export const tokenizePart = (string, decodeValue = false) => {
+export const tokenizePart = (string: any, decodeValue = false) => {
   const out = {};
   let openBrackets = 0;
 
@@ -548,6 +589,7 @@ export const tokenizePart = (string, decodeValue = false) => {
           firstBracket + 1,
           buf.length - 1 - (firstBracket + 1),
         );
+        // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
         out[key] = decodeValue ? decodeURIComponent(value) : value;
       }
       continue;
@@ -562,28 +604,34 @@ export const tokenizePart = (string, decodeValue = false) => {
 };
 
 const handleStatusColumnFilter = (
-  token,
-  param,
-  statusValues,
-  categoryValues,
-  column,
+  token: any,
+  param: any,
+  statusValues: any,
+  categoryValues: any,
+  column: any,
 ) => {
   // "in(a,b,c)"
   const parts = tokenizePart(param);
   const out = [];
   for (const [method, stringItems] of Object.entries(parts)) {
     if (method === "in") {
+      // @ts-expect-error TS(2571): Object is of type 'unknown'.
       let items = stringItems.split(",").map(unescape);
       if (token === "category") {
-        items = items.map((item) => `${item} `);
+        items = items.map((item: any) => `${item} `);
       }
-      out.push(...items.map((item) => ({ value: item })));
+      out.push(
+        ...items.map((item: any) => ({
+          value: item,
+        })),
+      );
     }
     if (method === "notIn") {
+      // @ts-expect-error TS(2571): Object is of type 'unknown'.
       let items = stringItems.split(",").map(unescape);
       const itemsToPush = [];
       if (token === "category") {
-        items = items.map((item) => `${item} `);
+        items = items.map((item: any) => `${item} `);
 
         for (const cat of categoryValues[column]) {
           if (!items.includes(cat)) {
@@ -604,11 +652,11 @@ const handleStatusColumnFilter = (
 };
 
 const tokenHandlers = (
-  token,
-  param,
-  allStatusValues,
-  allCategoryValues,
-  column,
+  token: any,
+  param: any,
+  allStatusValues: any,
+  allCategoryValues: any,
+  column: any,
 ) => {
   if (token === "values") {
     // wrapping return in array to allow vararg spreading
@@ -629,88 +677,96 @@ const tokenHandlers = (
 };
 
 const makeFilterDeserializer =
-  ({ categoryValues: allCategoryValues, statusValues: allStatusValues }) =>
-  (filterString) => {
-    const runsetFilters = tokenizePart(filterString);
-    const out = [];
-    for (const [token, filter] of Object.entries(runsetFilters)) {
-      if (token === "id") {
-        const tokenized = tokenizePart(filter);
-        out.push({
-          id: "id",
-          ...tokenHandlers("values", tokenized["values"])[0],
-        });
-        continue;
-      } else if (token === "id_any") {
-        out.push({
-          id: "id",
-          ...tokenizePart(filter, true),
-          isTableTabFilter: true,
-        });
-        continue;
-      }
-      const runsetId = token;
+  // @ts-expect-error TS(7031): Binding element 'allCategoryValues' implicitly has... Remove this comment to see the full error message
 
-      const columnFilters = tokenizePart(filter);
-      const parsedColumnFilters = {};
-      for (const [key, columnFilter] of Object.entries(columnFilters)) {
-        const [columnId, columnTitle] = key.split("*");
-        const name = `${runsetId}_${decodeURIComponent(
-          columnTitle,
-        )}_${columnId}`;
-        const parsedFilters = parsedColumnFilters[name] || [];
-        const tokenizedFilter = tokenizePart(columnFilter);
 
-        for (const [filterToken, filterParam] of Object.entries(
-          tokenizedFilter,
-        )) {
-          parsedFilters.push(
-            ...tokenHandlers(
-              filterToken,
-              filterParam,
-              allStatusValues[runsetId],
-              allCategoryValues[runsetId],
-              columnId,
-            ),
-          );
+    ({ categoryValues: allCategoryValues, statusValues: allStatusValues }) =>
+    (filterString: any) => {
+      const runsetFilters = tokenizePart(filterString);
+      const out = [];
+      for (const [token, filter] of Object.entries(runsetFilters)) {
+        if (token === "id") {
+          const tokenized = tokenizePart(filter);
+          out.push({
+            id: "id",
+            // @ts-expect-error TS(2532): Object is possibly 'undefined'.
+            ...tokenHandlers("values", tokenized["values"])[0],
+          });
+          continue;
+        } else if (token === "id_any") {
+          out.push({
+            id: "id",
+            ...tokenizePart(filter, true),
+            isTableTabFilter: true,
+          });
+          continue;
         }
-        let hasStatus = false;
-        let hasCategory = false;
-        for (const token of Object.keys(tokenizedFilter)) {
-          if (token === "status") {
-            hasStatus = true;
-          } else if (token === "category") {
-            hasCategory = true;
-          }
-        }
-        if ((hasStatus && !hasCategory) || (!hasStatus && hasCategory)) {
-          // if we only have category or a status filter, it means that no
-          // filter has been set for the other. We need to fill up the values
-          if (!hasStatus) {
+        const runsetId = token;
+
+        const columnFilters = tokenizePart(filter);
+        const parsedColumnFilters = {};
+        for (const [key, columnFilter] of Object.entries(columnFilters)) {
+          const [columnId, columnTitle] = key.split("*");
+          const name = `${runsetId}_${decodeURIComponent(
+            columnTitle,
+          )}_${columnId}`;
+          // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
+          const parsedFilters = parsedColumnFilters[name] || [];
+          const tokenizedFilter = tokenizePart(columnFilter);
+
+          for (const [filterToken, filterParam] of Object.entries(
+            tokenizedFilter,
+          )) {
             parsedFilters.push(
-              ...allStatusValues[runsetId][columnId].map((status) => ({
-                value: status,
-              })),
-            );
-          } else {
-            parsedFilters.push(
-              ...allCategoryValues[runsetId][columnId].map((category) => ({
-                value: category,
-              })),
+              // @ts-expect-error TS(2488): Type 'any[] | undefined' must have a '[Symbol.iter... Remove this comment to see the full error message
+              ...tokenHandlers(
+                filterToken,
+                filterParam,
+                allStatusValues[runsetId],
+                allCategoryValues[runsetId],
+                columnId,
+              ),
             );
           }
-        }
-        for (const parsedFilter of parsedFilters) {
-          out.push({ id: name, ...parsedFilter });
+          let hasStatus = false;
+          let hasCategory = false;
+          for (const token of Object.keys(tokenizedFilter)) {
+            if (token === "status") {
+              hasStatus = true;
+            } else if (token === "category") {
+              hasCategory = true;
+            }
+          }
+          if ((hasStatus && !hasCategory) || (!hasStatus && hasCategory)) {
+            // if we only have category or a status filter, it means that no
+            // filter has been set for the other. We need to fill up the values
+            if (!hasStatus) {
+              parsedFilters.push(
+                ...allStatusValues[runsetId][columnId].map((status: any) => ({
+                  value: status,
+                })),
+              );
+            } else {
+              parsedFilters.push(
+                ...allCategoryValues[runsetId][columnId].map(
+                  (category: any) => ({
+                    value: category,
+                  }),
+                ),
+              );
+            }
+          }
+          for (const parsedFilter of parsedFilters) {
+            out.push({ id: name, ...parsedFilter });
+          }
         }
       }
-    }
-    return out;
-  };
+      return out;
+    };
 
-const makeUrlFilterSerializer = (statusValues, categoryValues) => {
+const makeUrlFilterSerializer = (statusValues: any, categoryValues: any) => {
   const serializer = makeFilterSerializer({ statusValues, categoryValues });
-  return (filter, options) => {
+  return (filter: any, options: any) => {
     if (!filter) {
       return setURLParameter({ filter: undefined }, options);
     }
@@ -725,15 +781,15 @@ const makeUrlFilterSerializer = (statusValues, categoryValues) => {
 };
 
 // Sets the URL parameters to the given string. Assumes that there is currently no hash or URL parameters defined.
-const setConstantHashSearch = (paramString) => {
+const setConstantHashSearch = (paramString: any) => {
   document.location.href = encodeURI(
     `${document.location.href}#${paramString}`,
   );
 };
 
-const stringAsBoolean = (str) => str === "true";
+const stringAsBoolean = (str: any) => str === "true";
 
-const deepEquals = (a, b) => {
+const deepEquals = (a: any, b: any) => {
   for (const key in a) {
     if (typeof a[key] === "function" && typeof b[key] === "function") {
       continue;
@@ -768,9 +824,13 @@ const deepEquals = (a, b) => {
  *
  * @param {*} rows - the rows array of the dataset
  */
-const getTaskIdParts = (rows, taskIdNames) =>
+const getTaskIdParts = (rows: any, taskIdNames: any) =>
   pathOr(["0", "id"], [], rows).reduce(
-    (acc, curr, idx) => ({ ...acc, [taskIdNames[idx]]: curr }),
+    // @ts-expect-error TS(7006): Parameter 'acc' implicitly has an 'any' type.
+    (acc, curr, idx) => ({
+      ...acc,
+      [taskIdNames[idx]]: curr,
+    }),
     {},
   );
 
@@ -783,7 +843,7 @@ const getTaskIdParts = (rows, taskIdNames) =>
  * @returns {Number} The result of the addition
  */
 // WHEN EDITING THIS FUNCTION, ALSO EDIT THE COPY OF THIS FUNCTION IN src/woerks/scrips/stats.worker.js
-const safeAdd = (a, b) => {
+const safeAdd = (a: any, b: any) => {
   let aNum = a;
   let bNum = b;
 
@@ -823,7 +883,11 @@ const characterSpaceHtml = "&#x2007;";
  * @param {Number} significantDigits - Number of significant digits for this column
  */
 class NumberFormatterBuilder {
-  constructor(significantDigits, name = "Unknown") {
+  maxNegativeDecimalPosition: any;
+  maxPositiveDecimalPosition: any;
+  name: any;
+  significantDigits: any;
+  constructor(significantDigits: any, name = "Unknown") {
     this.significantDigits = significantDigits;
     this.maxPositiveDecimalPosition = -1;
     this.maxNegativeDecimalPosition = -1;
@@ -834,10 +898,10 @@ class NumberFormatterBuilder {
     whitespaceFormat: false,
     html: false,
     leadingZero: true,
-    additionalFormatting: (x) => x,
+    additionalFormatting: (x: any) => x,
   };
 
-  addDataItem(item) {
+  addDataItem(item: any) {
     const formatted = this.format(item);
     const [positive, negative] = formatted.split(/\.|,/);
     this.maxPositiveDecimalPosition = Math.max(
@@ -850,7 +914,7 @@ class NumberFormatterBuilder {
     );
   }
 
-  format(number) {
+  format(number: any) {
     let stringNumber = number.toString();
     let prefix = "";
     let postfix = "";
@@ -917,7 +981,9 @@ class NumberFormatterBuilder {
       const attachDecimal = postfix[0] === ".";
       postfix = postfix.replace(/\./, "");
       postfix = `${postfix[0]}.${postfix.substr(1)}`;
+      // @ts-expect-error TS(2322): Type 'number' is not assignable to type 'string'.
       postfix = Math.round(Number(postfix));
+      // @ts-expect-error TS(2345): Argument of type 'string' is not assignable to par... Remove this comment to see the full error message
       postfix = isNaN(postfix) ? "" : postfix.toString();
       //handle carry
       if (postfix.length > 1 && postfix[0] !== ".") {
@@ -958,7 +1024,7 @@ class NumberFormatterBuilder {
   }
 
   build() {
-    return (number, options = {}) => {
+    return (number: any, options = {}) => {
       const { whitespaceFormat, html, leadingZero, additionalFormatting } = {
         ...this._defaultOptions,
         ...options,
@@ -969,10 +1035,12 @@ class NumberFormatterBuilder {
         maxDecimalInputLength: this.maxNegativeDecimalPosition,
       };
       if (isNil(this.significantDigits)) {
+        // @ts-expect-error TS(2554): Expected 1 arguments, but got 2.
         return additionalFormatting(number.toString(), ctx);
       }
       let out = this.format(number);
 
+      // @ts-expect-error TS(2554): Expected 1 arguments, but got 2.
       out = additionalFormatting(out, ctx);
 
       if (out === "NaN") {
@@ -1013,19 +1081,22 @@ class NumberFormatterBuilder {
  * Creates an object with an entry for each of the tools, identified by the index of the tool, that stores the hidden columns defined in the URL.
  * Each property contains an array of integers which represent the indexes of the columns of the corresponding runset that will be hidden.
  */
-const createHiddenColsFromURL = (tools) => {
+const createHiddenColsFromURL = (tools: any) => {
+  // @ts-expect-error TS(2554): Expected 1 arguments, but got 0.
   const urlParams = getURLParameters();
   // Object containing all hidden runsets from the URL (= param "hidden")
   let hiddenTools = [];
+  // @ts-expect-error TS(2339): Property 'hidden' does not exist on type '{}'.
   if (urlParams.hidden) {
+    // @ts-expect-error TS(2339): Property 'hidden' does not exist on type '{}'.
     hiddenTools = urlParams.hidden
       .split(",")
       .filter(
-        (hiddenTool) =>
+        (hiddenTool: any) =>
           Number.isInteger(parseInt(hiddenTool)) &&
-          tools.some((tool) => tool.toolIdx === parseInt(hiddenTool)),
+          tools.some((tool: any) => tool.toolIdx === parseInt(hiddenTool)),
       )
-      .map((hiddenTool) => parseInt(hiddenTool));
+      .map((hiddenTool: any) => parseInt(hiddenTool));
   }
 
   // Object containing all hidden columns from the URL with an individual entry for each runset (= params of the form "hiddenX" for runset X)
@@ -1035,29 +1106,33 @@ const createHiddenColsFromURL = (tools) => {
   );
   hiddenParams.forEach((hiddenParam) => {
     const toolIdx = parseInt(hiddenParam.replace("hidden", ""));
-    const tool = tools.find((tool) => tool.toolIdx === toolIdx);
+    const tool = tools.find((tool: any) => tool.toolIdx === toolIdx);
     if (Number.isInteger(toolIdx) && tool) {
+      // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
       hiddenCols[toolIdx] = urlParams[hiddenParam]
         .split(",")
         .filter(
-          (hiddenCol) =>
+          (hiddenCol: any) =>
             Number.isInteger(parseInt(hiddenCol)) &&
-            tool.columns.some((col) => col.colIdx === parseInt(hiddenCol)),
+            tool.columns.some((col: any) => col.colIdx === parseInt(hiddenCol)),
         )
-        .map((col) => parseInt(col));
+        .map((col: any) => parseInt(col));
     }
   });
 
   // Set all columns of a hidden runset to hidden
-  hiddenTools.forEach((hiddenToolIdx) => {
+  hiddenTools.forEach((hiddenToolIdx: any) => {
+    // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
     hiddenCols[hiddenToolIdx] = tools
-      .find((tool) => tool.toolIdx === hiddenToolIdx)
-      .columns.map((column) => column.colIdx);
+      .find((tool: any) => tool.toolIdx === hiddenToolIdx)
+      .columns.map((column: any) => column.colIdx);
   });
 
   // Leave hidden columns for not mentioned tools empty
-  tools.forEach((tool) => {
+  tools.forEach((tool: any) => {
+    // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
     if (!hiddenCols[tool.toolIdx]) {
+      // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
       hiddenCols[tool.toolIdx] = [];
     }
   });
@@ -1071,11 +1146,11 @@ const createHiddenColsFromURL = (tools) => {
  * that is not hidden, as well as the index of this column. In case there is also no such column, i.e. all columns of all runsets
  * are hidden, returns undefined for those values.
  **/
-const getFirstVisibles = (tools, hiddenCols) => {
+const getFirstVisibles = (tools: any, hiddenCols: any) => {
   let visibleCol;
-  let visibleTool = tools.find((tool) => {
+  let visibleTool = tools.find((tool: any) => {
     visibleCol = tool.columns.find(
-      (col) =>
+      (col: any) =>
         col.type !== "status" && !hiddenCols[tool.toolIdx].includes(col.colIdx),
     );
     return visibleCol;
@@ -1083,9 +1158,9 @@ const getFirstVisibles = (tools, hiddenCols) => {
 
   if (!visibleCol) {
     visibleTool = tools.find(
-      (tool) =>
+      (tool: any) =>
         (visibleCol = tool.columns.find(
-          (col) =>
+          (col: any) =>
             col.type === "status" &&
             !hiddenCols[tool.toolIdx].includes(col.colIdx),
         )),
@@ -1093,7 +1168,8 @@ const getFirstVisibles = (tools, hiddenCols) => {
   }
 
   return visibleTool && visibleCol
-    ? [visibleTool.toolIdx, visibleCol.colIdx]
+    ? // @ts-expect-error TS(2339): Property 'colIdx' does not exist on type 'never'.
+      [visibleTool.toolIdx, visibleCol.colIdx]
     : [undefined, undefined];
 };
 
@@ -1106,13 +1182,15 @@ const getFirstVisibles = (tools, hiddenCols) => {
  * @param {Any[]} compare The array to compare elements to
  * @param {Any[]} data The array to check
  */
-const hasSameEntries = (compare, data) => {
+const hasSameEntries = (compare: any, data: any) => {
   const compareObj = {};
 
   for (const elem of compare) {
+    // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
     compareObj[elem] = true;
   }
   for (const elem of data) {
+    // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
     if (isNil(compareObj[elem])) {
       return false;
     }
@@ -1126,7 +1204,7 @@ const hasSameEntries = (compare, data) => {
  * @param {string} item - the filter value
  * @returns {boolean} True if value is a category, else false
  */
-const isCategory = (item) => item && item[item.length - 1] === " ";
+const isCategory = (item: any) => item && item[item.length - 1] === " ";
 
 /**
  * This function uses string operations to get the smallest decimal part of a number.
@@ -1138,7 +1216,7 @@ const isCategory = (item) => item && item[item.length - 1] === " ";
  * @param {string} num - The number to check
  * @returns {string} - The smallest step
  */
-const getStep = (num) => {
+const getStep = (num: any) => {
   const stringRep = num.toString();
   const [, decimal] = stringRep.split(/,|\./);
   if (isNil(decimal) || decimal.length === 0) {
@@ -1152,18 +1230,21 @@ const getStep = (num) => {
   return out;
 };
 
-const identity = (x) => x;
+const identity = (x: any) => x;
 /**
  * Computes and returns all ids of the given columns that are hidden. Assumes that
  * the columns object is in the format that is used in the ReactTable and Summary component.
  */
-const getHiddenColIds = (columns) => {
-  const hiddenColIds = [];
+const getHiddenColIds = (columns: any) => {
+  const hiddenColIds: any = [];
   // Idx 0 is the title column and every uneven idx is the separator column, so only check for hidden cols in every even column entry greater than 0
-  columns = columns.filter((col, idx) => idx % 2 === 0 && idx !== 0);
-  columns.forEach((col) =>
+  // @ts-expect-error TS(6133): 'col' is declared but its value is never read.
+  columns = columns.filter((col: any, idx: any) => idx % 2 === 0 && idx !== 0);
+  columns.forEach((col: any) =>
     hiddenColIds.push(
-      col.columns.filter((column) => column.hidden).map((column) => column.id),
+      col.columns
+        .filter((column: any) => column.hidden)
+        .map((column: any) => column.id),
     ),
   );
   return hiddenColIds.flat();

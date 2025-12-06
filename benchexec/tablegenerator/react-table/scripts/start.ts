@@ -5,9 +5,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-"use strict";
-
+// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'fs'.
 const fs = require("fs");
+// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'path'.
 const path = require("path");
 
 const dataParam = process.argv[2];
@@ -18,7 +18,7 @@ if (dataParam) {
 
   fs.copyFileSync(
     path.resolve(__dirname, "../", dataParam),
-    path.resolve(process.env.DATA)
+    path.resolve(process.env.DATA),
   );
 }
 

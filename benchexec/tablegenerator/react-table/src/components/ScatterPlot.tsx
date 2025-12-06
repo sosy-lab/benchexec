@@ -34,12 +34,27 @@ import {
   getDataPointsOfRegression,
   renderResetButton,
 } from "../utils/plot";
+// @ts-expect-error TS(7016): Could not find a declaration file for module 'regr... Remove this comment to see the full error message
 import calcRegression from "regression";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faExchangeAlt } from "@fortawesome/free-solid-svg-icons";
 
 export default class ScatterPlot extends React.Component {
-  constructor(props) {
+  array: any;
+  dataArray: any;
+  defaultValues: any;
+  hasInvalidLog: any;
+  lineCount: any;
+  lineOptgroupOptions: any;
+  maxX: any;
+  maxY: any;
+  minX: any;
+  minY: any;
+  regressionData: any;
+  regressionOptions: any;
+  resultsOptions: any;
+  scalingOptions: any;
+  constructor(props: any) {
     super(props);
 
     this.scalingOptions = {
@@ -83,6 +98,7 @@ export default class ScatterPlot extends React.Component {
       scaling: this.scalingOptions.logarithmic,
       results: this.resultsOptions.correct,
       regression: this.regressionOptions.none,
+      // @ts-expect-error TS(2571): Object is of type 'unknown'.
       line: Object.values(this.lineOptgroupOptions)[0][11].value,
     };
 
@@ -94,19 +110,31 @@ export default class ScatterPlot extends React.Component {
 
   setup() {
     const defaultName =
+      // @ts-expect-error TS(2339): Property 'tools' does not exist on type 'Readonly<... Remove this comment to see the full error message
       getRunSetName(this.props.tools[0]) + " " + this.props.columns[0][1];
 
-    let { results, scaling, toolX, toolY, columnX, columnY, line, regression } =
-      {
-        ...this.defaultValues,
-        ...getURLParameters(),
-      };
+    let {
+      results,
+      scaling,
+      toolX,
+      toolY,
+      columnX,
+      columnY,
+      line,
+      regression,
+    }: any = {
+      ...this.defaultValues,
+      // @ts-expect-error TS(2554): Expected 1 arguments, but got 0.
+      ...getURLParameters(),
+    };
 
     let dataX, dataY, areAllColsHidden;
 
     if (isNil(toolX) || isNil(columnX)) {
       const [firstVisibleTool, firstVisibleColumn] = getFirstVisibles(
+        // @ts-expect-error TS(2339): Property 'tools' does not exist on type 'Readonly<... Remove this comment to see the full error message
         this.props.tools,
+        // @ts-expect-error TS(2339): Property 'hiddenCols' does not exist on type 'Read... Remove this comment to see the full error message
         this.props.hiddenCols,
       );
       areAllColsHidden = firstVisibleTool === undefined;
@@ -119,7 +147,9 @@ export default class ScatterPlot extends React.Component {
 
     if (isNil(toolY) || isNil(columnY)) {
       const [firstVisibleTool, firstVisibleColumn] = getFirstVisibles(
+        // @ts-expect-error TS(2339): Property 'tools' does not exist on type 'Readonly<... Remove this comment to see the full error message
         this.props.tools,
+        // @ts-expect-error TS(2339): Property 'hiddenCols' does not exist on type 'Read... Remove this comment to see the full error message
         this.props.hiddenCols,
       );
       areAllColsHidden = firstVisibleTool === undefined;
@@ -170,23 +200,32 @@ export default class ScatterPlot extends React.Component {
   };
 
   checkForNumericalSelections = () =>
+    // @ts-expect-error TS(2339): Property 'toolY' does not exist on type 'Readonly<... Remove this comment to see the full error message
     this.handleType(this.state.toolY, this.state.columnY) !== "ordinal" &&
+    // @ts-expect-error TS(2339): Property 'toolX' does not exist on type 'Readonly<... Remove this comment to see the full error message
     this.handleType(this.state.toolX, this.state.columnX) !== "ordinal";
 
   // --------------------rendering-----------------------------
   renderData = () => {
-    let array = [];
+    let array: any = [];
     this.hasInvalidLog = false;
 
+    // @ts-expect-error TS(2339): Property 'areAllColsHidden' does not exist on type... Remove this comment to see the full error message
     if (!this.state.areAllColsHidden) {
-      this.props.table.forEach((row) => {
+      // @ts-expect-error TS(2339): Property 'table' does not exist on type 'Readonly<... Remove this comment to see the full error message
+      this.props.table.forEach((row: any) => {
+        // @ts-expect-error TS(2339): Property 'toolX' does not exist on type 'Readonly<... Remove this comment to see the full error message
         const resX = row.results[this.state.toolX];
+        // @ts-expect-error TS(2339): Property 'toolY' does not exist on type 'Readonly<... Remove this comment to see the full error message
         const resY = row.results[this.state.toolY];
+        // @ts-expect-error TS(2339): Property 'columnX' does not exist on type 'Readonl... Remove this comment to see the full error message
         const x = resX.values[this.state.columnX].raw;
+        // @ts-expect-error TS(2339): Property 'columnY' does not exist on type 'Readonl... Remove this comment to see the full error message
         const y = resY.values[this.state.columnY].raw;
         const hasValues =
           x !== undefined && x !== null && y !== undefined && y !== null;
         const areOnlyCorrectResults =
+          // @ts-expect-error TS(2339): Property 'results' does not exist on type 'Readonl... Remove this comment to see the full error message
           this.state.results === this.resultsOptions.correct;
 
         if (
@@ -197,6 +236,7 @@ export default class ScatterPlot extends React.Component {
               resY.category === "correct"))
         ) {
           const isLogAndInvalid =
+            // @ts-expect-error TS(2339): Property 'scaling' does not exist on type 'Readonl... Remove this comment to see the full error message
             this.state.scaling === this.scalingOptions.logarithmic &&
             (x <= 0 || y <= 0);
 
@@ -206,6 +246,7 @@ export default class ScatterPlot extends React.Component {
             array.push({
               x: x,
               y: y,
+              // @ts-expect-error TS(2339): Property 'getRowName' does not exist on type 'Read... Remove this comment to see the full error message
               info: this.props.getRowName(row),
             });
           }
@@ -218,12 +259,14 @@ export default class ScatterPlot extends React.Component {
     this.dataArray = array;
 
     const isRegressionEnabled =
+      // @ts-expect-error TS(2339): Property 'regression' does not exist on type 'Read... Remove this comment to see the full error message
       this.state.regression !== this.regressionOptions.none;
     const areSelectionsNumerical = this.checkForNumericalSelections();
     if (isRegressionEnabled) {
       if (this.lineCount === 0 || !areSelectionsNumerical) {
         setURLParameter({ regression: this.regressionOptions.none });
       } else {
+        // @ts-expect-error TS(7006): Parameter 'data' implicitly has an 'any' type.
         const regressionDataArray = array.map((data) => [
           parseFloat(data.x),
           parseFloat(data.y),
@@ -244,16 +287,21 @@ export default class ScatterPlot extends React.Component {
           [this.maxX, regression.predict(this.maxX)[1]],
         ];
         regression.points = Array.from(
+          // @ts-expect-error TS(2769): No overload matches this call.
           new Set(regression.points.map(JSON.stringify)),
           JSON.parse,
         ).concat(endPoints);
 
         const unitX =
+          // @ts-expect-error TS(2339): Property 'tools' does not exist on type 'Readonly<... Remove this comment to see the full error message
           this.props.tools[this.state.toolX].columns[this.state.columnX].unit;
         const unitY =
+          // @ts-expect-error TS(2339): Property 'tools' does not exist on type 'Readonly<... Remove this comment to see the full error message
           this.props.tools[this.state.toolY].columns[this.state.columnY].unit;
         const helpText = `Estimation technique: ordinary least squares (OLS)
+                          // @ts-expect-error TS(2339): Property 'nameX' does not exist on type 'Readonly<... Remove this comment to see the full error message
                           Predictor variable (X-Axis) in ${unitX}: ${this.state.nameX}
+                          // @ts-expect-error TS(2339): Property 'nameY' does not exist on type 'Readonly<... Remove this comment to see the full error message
                           Response variable (Y-Axis) in ${unitY}: ${this.state.nameY}
                           Regression coefficient: ${regression.equation[0]}
                           Intercept: ${regression.equation[1]}
@@ -272,9 +320,9 @@ export default class ScatterPlot extends React.Component {
     }
   };
 
-  setMinMaxValues = (array) => {
-    const xValues = array.map((el) => el.x);
-    const yValues = array.map((el) => el.y);
+  setMinMaxValues = (array: any) => {
+    const xValues = array.map((el: any) => el.x);
+    const yValues = array.map((el: any) => el.y);
 
     this.maxX = this.findMaxValue(xValues);
     this.maxY = this.findMaxValue(yValues);
@@ -282,24 +330,28 @@ export default class ScatterPlot extends React.Component {
     this.minY = this.findMinValue(yValues);
   };
 
-  findMaxValue = (values) => {
+  findMaxValue = (values: any) => {
     const max = Math.max(...values);
     return max < 3 ? 3 : max;
   };
 
-  findMinValue = (values) => {
+  findMinValue = (values: any) => {
     const min = Math.min(...values);
     return min > 2 ? 1 : min;
   };
 
   renderAllSettings() {
+    // @ts-expect-error TS(2339): Property 'tools' does not exist on type 'Readonly<... Remove this comment to see the full error message
     const axisOptions = this.props.tools.reduce(
-      (acc, runset, runsetIdx) =>
+      (acc: any, runset: any, runsetIdx: any) =>
         Object.assign(acc, {
           [getRunSetName(runset)]: runset.columns
             .filter(
-              (col) => !this.props.hiddenCols[runsetIdx].includes(col.colIdx),
+              (col: any) =>
+                // @ts-expect-error TS(2339): Property 'hiddenCols' does not exist on type 'Read... Remove this comment to see the full error message
+                !this.props.hiddenCols[runsetIdx].includes(col.colIdx),
             )
+            // @ts-expect-error TS(7006): Parameter 'col' implicitly has an 'any' type.
             .map((col, j) => ({
               name: col.display_title,
               value: runsetIdx + "-" + col.colIdx,
@@ -311,10 +363,12 @@ export default class ScatterPlot extends React.Component {
       <div className="settings-container">
         <div className="settings-border-container">
           <div className="settings-subcontainer flexible-width">
+            // @ts-expect-error TS(2554): Expected 5 arguments, but got 4.
             {renderOptgroupsSetting(
               "X-Axis",
+              // @ts-expect-error TS(2339): Property 'dataX' does not exist on type 'Readonly<... Remove this comment to see the full error message
               this.state.dataX,
-              (ev) => this.setAxis(ev, "X"),
+              (ev: any) => this.setAxis(ev, "X"),
               axisOptions,
             )}
             <span className="setting icon">
@@ -323,42 +377,51 @@ export default class ScatterPlot extends React.Component {
                 onClick={() => this.swapAxes()}
               />
             </span>
+            // @ts-expect-error TS(2554): Expected 5 arguments, but got 4.
             {renderOptgroupsSetting(
               "Y-Axis",
+              // @ts-expect-error TS(2339): Property 'dataY' does not exist on type 'Readonly<... Remove this comment to see the full error message
               this.state.dataY,
-              (ev) => this.setAxis(ev, "Y"),
+              (ev: any) => this.setAxis(ev, "Y"),
               axisOptions,
             )}
           </div>
           <div className="settings-subcontainer">
+            // @ts-expect-error TS(2554): Expected 6 arguments, but got 4.
             {renderSetting(
               "Scaling",
+              // @ts-expect-error TS(2339): Property 'scaling' does not exist on type 'Readonl... Remove this comment to see the full error message
               this.state.scaling,
-              (ev) => setURLParameter({ scaling: ev.target.value }),
+              (ev: any) => setURLParameter({ scaling: ev.target.value }),
               this.scalingOptions,
             )}
+            // @ts-expect-error TS(2554): Expected 6 arguments, but got 5.
             {renderSetting(
               "Results",
+              // @ts-expect-error TS(2339): Property 'results' does not exist on type 'Readonl... Remove this comment to see the full error message
               this.state.results,
-              (ev) => setURLParameter({ results: ev.target.value }),
+              (ev: any) => setURLParameter({ results: ev.target.value }),
               this.resultsOptions,
               "In addition to which results are selected here, any filters will still be applied.",
             )}
             <div className="settings-subcontainer">
               {renderOptgroupsSetting(
                 "Aux. Lines",
+                // @ts-expect-error TS(2339): Property 'line' does not exist on type 'Readonly<{... Remove this comment to see the full error message
                 this.state.line,
-                (ev) => setURLParameter({ line: ev.target.value }),
+                (ev: any) => setURLParameter({ line: ev.target.value }),
                 this.lineOptgroupOptions,
                 "Adds the two auxiliary lines f(x) = cx and f(x) = x/c to the plot, with c being the chosen factor in the dropdown.",
               )}
             </div>
           </div>
           <div className="settings-subcontainer">
+            // @ts-expect-error TS(2554): Expected 6 arguments, but got 5.
             {renderSetting(
               "Regression",
+              // @ts-expect-error TS(2339): Property 'regression' does not exist on type 'Read... Remove this comment to see the full error message
               this.state.regression,
-              (ev) => {
+              (ev: any) => {
                 if (this.checkForNumericalSelections()) {
                   setURLParameter({ regression: ev.target.value });
                 } else {
@@ -368,6 +431,7 @@ export default class ScatterPlot extends React.Component {
                 }
               },
               this.regressionOptions,
+              // @ts-expect-error TS(2339): Property 'regression' does not exist on type 'Read... Remove this comment to see the full error message
               this.state.regression !== this.regressionOptions.none &&
                 this.regressionData
                 ? this.regressionData.text
@@ -412,7 +476,7 @@ export default class ScatterPlot extends React.Component {
     ];
   }
 
-  renderRegressionLine = (dataPoints) => {
+  renderRegressionLine = (dataPoints: any) => {
     const lineData = this.prepareRegressionLineData(dataPoints);
     return (
       <LineMarkSeries
@@ -422,16 +486,19 @@ export default class ScatterPlot extends React.Component {
           stroke: "green",
         }}
         key={"reg-line-" + dataPoints}
+        // @ts-expect-error TS(6133): 'event' is declared but its value is never read.
         onValueMouseOver={(datapoint, event) =>
           this.setState({ value: datapoint })
         }
+        // @ts-expect-error TS(6133): 'datapoint' is declared but its value is never rea... Remove this comment to see the full error message
         onValueMouseOut={(datapoint, event) => this.setState({ value: null })}
+        // @ts-expect-error TS(2769): No overload matches this call.
         opacity="0"
       />
     );
   };
 
-  renderConfidenceIntervalLine = (dataPoints, identifier) => {
+  renderConfidenceIntervalLine = (dataPoints: any, identifier: any) => {
     const lineData = this.prepareLineData(dataPoints);
     return (
       <LineSeries
@@ -445,10 +512,10 @@ export default class ScatterPlot extends React.Component {
     );
   };
 
-  prepareRegressionLineData = (dataPoints) =>
+  prepareRegressionLineData = (dataPoints: any) =>
     dataPoints
-      .sort((val1, val2) => val1[0] - val2[0])
-      .map((data, index) => {
+      .sort((val1: any, val2: any) => val1[0] - val2[0])
+      .map((data: any, index: any) => {
         const lowerBorderData =
           Math.round(
             this.regressionData.lowerConfidenceBorderData[index][1] * 100,
@@ -463,47 +530,51 @@ export default class ScatterPlot extends React.Component {
           "95% Confidence Interval": `[${lowerBorderData},${upperBorderData}]`,
         };
       })
-      .sort((val1, val2) => val1.x - val2.x);
+      .sort((val1: any, val2: any) => val1.x - val2.x);
 
-  prepareLineData = (dataPoints) =>
+  prepareLineData = (dataPoints: any) =>
     dataPoints
-      .map((data) => {
+      .map((data: any) => {
         return {
           x: data[0],
           y: data[1],
         };
       })
-      .sort((val1, val2) => val1.x - val2.x);
+      .sort((val1: any, val2: any) => val1.x - val2.x);
 
   // ------------------------handeling----------------------------
-  handleType = (tool, column) => {
+  handleType = (tool: any, column: any) => {
+    // @ts-expect-error TS(2339): Property 'tools' does not exist on type 'Readonly<... Remove this comment to see the full error message
     const colType = this.props.tools[tool].columns[column].type;
     if (colType === "text" || colType === "status") {
       return "ordinal";
     } else {
+      // @ts-expect-error TS(2339): Property 'scaling' does not exist on type 'Readonl... Remove this comment to see the full error message
       return this.state.scaling === this.scalingOptions.logarithmic
         ? "log"
         : "linear";
     }
   };
 
-  extractAxisInfoByName = (val, axis) => {
+  extractAxisInfoByName = (val: any, axis: any) => {
     let [toolIndex, colIdx] = val.split("-");
     return {
       [`data${axis}`]: val,
       [`tool${axis}`]: toolIndex,
       [`column${axis}`]: colIdx,
       [`name${axis}`]:
+        // @ts-expect-error TS(2339): Property 'tools' does not exist on type 'Readonly<... Remove this comment to see the full error message
         this.props.tools[toolIndex].columns.find(
-          (col) => col.colIdx === parseInt(colIdx),
+          (col: any) => col.colIdx === parseInt(colIdx),
         ).display_title +
         " (" +
+        // @ts-expect-error TS(2339): Property 'tools' does not exist on type 'Readonly<... Remove this comment to see the full error message
         getRunSetName(this.props.tools[toolIndex]) +
         ")",
     };
   };
 
-  setAxis = (ev, axis) => {
+  setAxis = (ev: any, axis: any) => {
     this.array = [];
     let [tool, column] = ev.target.value.split("-");
     column = column.replace("___", "-");
@@ -513,17 +584,24 @@ export default class ScatterPlot extends React.Component {
   swapAxes = () => {
     this.array = [];
     setURLParameter({
+      // @ts-expect-error TS(2339): Property 'toolY' does not exist on type 'Readonly<... Remove this comment to see the full error message
       toolX: this.state.toolY,
+      // @ts-expect-error TS(2339): Property 'toolX' does not exist on type 'Readonly<... Remove this comment to see the full error message
       toolY: this.state.toolX,
+      // @ts-expect-error TS(2339): Property 'columnY' does not exist on type 'Readonl... Remove this comment to see the full error message
       columnX: this.state.columnY,
+      // @ts-expect-error TS(2339): Property 'columnX' does not exist on type 'Readonl... Remove this comment to see the full error message
       columnY: this.state.columnX,
     });
   };
 
   render() {
     this.renderData();
+    // @ts-expect-error TS(2339): Property 'scaling' does not exist on type 'Readonl... Remove this comment to see the full error message
     const isLinear = this.state.scaling === this.scalingOptions.linear;
+    // @ts-expect-error TS(2339): Property 'isFlexible' does not exist on type 'Read... Remove this comment to see the full error message
     const Plot = this.props.isFlexible ? FlexibleXYPlot : XYPlot;
+    // @ts-expect-error TS(2339): Property 'isFlexible' does not exist on type 'Read... Remove this comment to see the full error message
     const plotDimensions = this.props.isFlexible
       ? {
           height: window.innerHeight - 200,
@@ -535,18 +613,24 @@ export default class ScatterPlot extends React.Component {
     const highestAxisValue = this.maxX > this.maxY ? this.maxX : this.maxY;
     return (
       <div className="scatterPlot">
+        // @ts-expect-error TS(2339): Property 'areAllColsHidden' does not exist on type... Remove this comment to see the full error message
         {!this.state.areAllColsHidden && this.renderAllSettings()}
+        // @ts-expect-error TS(2769): No overload matches this call.
         <Plot
           className="scatterPlot__plot"
           margin={{ left: 90 }}
+          // @ts-expect-error TS(2339): Property 'toolY' does not exist on type 'Readonly<... Remove this comment to see the full error message
           yType={this.handleType(this.state.toolY, this.state.columnY)}
+          // @ts-expect-error TS(2339): Property 'toolX' does not exist on type 'Readonly<... Remove this comment to see the full error message
           xType={this.handleType(this.state.toolX, this.state.columnX)}
           xDomain={
+            // @ts-expect-error TS(2339): Property 'toolX' does not exist on type 'Readonly<... Remove this comment to see the full error message
             this.handleType(this.state.toolX, this.state.columnX) !== "ordinal"
               ? [this.minX, this.maxX]
               : null
           }
           yDomain={
+            // @ts-expect-error TS(2339): Property 'toolY' does not exist on type 'Readonly<... Remove this comment to see the full error message
             this.handleType(this.state.toolY, this.state.columnY) !== "ordinal"
               ? [this.minY, this.maxY]
               : null
@@ -554,11 +638,15 @@ export default class ScatterPlot extends React.Component {
           {...plotDimensions}
         >
           <VerticalGridLines
+            // @ts-expect-error TS(2322): Type '{ yType: string; xType: string; }' is not as... Remove this comment to see the full error message
             yType={this.handleType(this.state.toolY, this.state.columnY)}
+            // @ts-expect-error TS(2339): Property 'toolX' does not exist on type 'Readonly<... Remove this comment to see the full error message
             xType={this.handleType(this.state.toolX, this.state.columnX)}
           />
           <HorizontalGridLines
+            // @ts-expect-error TS(2322): Type '{ yType: string; xType: string; }' is not as... Remove this comment to see the full error message
             yType={this.handleType(this.state.toolY, this.state.columnY)}
+            // @ts-expect-error TS(2339): Property 'toolX' does not exist on type 'Readonly<... Remove this comment to see the full error message
             xType={this.handleType(this.state.toolX, this.state.columnX)}
           />
 
@@ -574,6 +662,7 @@ export default class ScatterPlot extends React.Component {
             }}
             axisDomain={[0, 10000000000]}
             style={{
+              // @ts-expect-error TS(2769): No overload matches this call.
               ticks: { stroke: "#009440", opacity: 0 },
               text: {
                 stroke: "none",
@@ -585,12 +674,15 @@ export default class ScatterPlot extends React.Component {
           />
           <DecorativeAxis
             axisStart={{
+              // @ts-expect-error TS(2339): Property 'line' does not exist on type 'Readonly<{... Remove this comment to see the full error message
               x: isLinear ? 0 : this.state.line,
               y: isLinear ? 0 : 1,
             }}
+            // @ts-expect-error TS(2339): Property 'line' does not exist on type 'Readonly<{... Remove this comment to see the full error message
             axisEnd={{ x: this.maxX, y: this.maxX / this.state.line }}
             axisDomain={[0, 10000000000]}
             style={{
+              // @ts-expect-error TS(2769): No overload matches this call.
               ticks: { stroke: "#ADDDE1", opacity: 0 },
               text: {
                 stroke: "none",
@@ -603,11 +695,14 @@ export default class ScatterPlot extends React.Component {
           <DecorativeAxis
             axisStart={{
               x: isLinear ? 0 : 1,
+              // @ts-expect-error TS(2339): Property 'line' does not exist on type 'Readonly<{... Remove this comment to see the full error message
               y: isLinear ? 0 : this.state.line,
             }}
+            // @ts-expect-error TS(2339): Property 'line' does not exist on type 'Readonly<{... Remove this comment to see the full error message
             axisEnd={{ x: this.maxX, y: this.maxX * this.state.line }}
             axisDomain={[0, 10000000000]}
             style={{
+              // @ts-expect-error TS(2769): No overload matches this call.
               ticks: { stroke: "#ADDDE1", opacity: 0 },
               text: {
                 stroke: "none",
@@ -618,41 +713,54 @@ export default class ScatterPlot extends React.Component {
             }}
           />
           <XAxis
+            // @ts-expect-error TS(2339): Property 'nameX' does not exist on type 'Readonly<... Remove this comment to see the full error message
             title={this.state.nameX}
             tickFormat={(value) => value}
+            // @ts-expect-error TS(2322): Type '{ title: any; tickFormat: (value: any) => an... Remove this comment to see the full error message
             yType={this.handleType(this.state.toolY, this.state.columnY)}
+            // @ts-expect-error TS(2339): Property 'toolX' does not exist on type 'Readonly<... Remove this comment to see the full error message
             xType={this.handleType(this.state.toolX, this.state.columnX)}
           />
           <YAxis
+            // @ts-expect-error TS(2339): Property 'nameY' does not exist on type 'Readonly<... Remove this comment to see the full error message
             title={this.state.nameY}
             tickFormat={(value) => value}
+            // @ts-expect-error TS(2322): Type '{ title: any; tickFormat: (value: any) => an... Remove this comment to see the full error message
             yType={this.handleType(this.state.toolY, this.state.columnY)}
+            // @ts-expect-error TS(2339): Property 'toolX' does not exist on type 'Readonly<... Remove this comment to see the full error message
             xType={this.handleType(this.state.toolX, this.state.columnX)}
           />
           <MarkSeries
             data={this.dataArray}
+            // @ts-expect-error TS(6133): 'event' is declared but its value is never read.
             onValueMouseOver={(datapoint, event) =>
               this.setState({ value: datapoint })
             }
+            // @ts-expect-error TS(6133): 'datapoint' is declared but its value is never rea... Remove this comment to see the full error message
             onValueMouseOut={(datapoint, event) =>
               this.setState({ value: null })
             }
           />
+          // @ts-expect-error TS(2339): Property 'regression' does not exist on type 'Read... Remove this comment to see the full error message
           {this.state.regression !== this.regressionOptions.none &&
             this.checkForNumericalSelections() &&
             this.regressionData &&
             this.lineCount !== 0 &&
             this.renderRegressionAndConfidenceIntervals()}
+          // @ts-expect-error TS(2339): Property 'value' does not exist on type 'Readonly<... Remove this comment to see the full error message
           {this.state.value ? <Hint value={this.state.value} /> : null}
         </Plot>
+        // @ts-expect-error TS(2339): Property 'areAllColsHidden' does not exist on type... Remove this comment to see the full error message
         {this.state.areAllColsHidden ? (
           <div className="plot__noresults">No columns to show!</div>
         ) : (
           this.lineCount === 0 && (
             <div className="plot__noresults">
               No{" "}
+              // @ts-expect-error TS(2339): Property 'results' does not exist on type 'Readonl... Remove this comment to see the full error message
               {this.state.results === this.resultsOptions.correct && "correct"}{" "}
               results
+              // @ts-expect-error TS(2339): Property 'table' does not exist on type 'Readonly<... Remove this comment to see the full error message
               {this.props.table.length > 0 && " with valid data points"}
               {this.hasInvalidLog &&
                 " (negative values are not shown in logarithmic plot)"}

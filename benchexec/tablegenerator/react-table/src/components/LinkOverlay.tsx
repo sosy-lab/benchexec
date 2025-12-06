@@ -15,8 +15,10 @@ import {
   splitUrlPathForMatchingPrefix,
 } from "../utils/utils";
 import classNames from "classnames";
+// @ts-expect-error TS(7016): Could not find a declaration file for module 'path... Remove this comment to see the full error message
 import path from "path-browserify";
 import TaskDefinitionViewer from "./TaskDefinitionViewer.js";
+// @ts-expect-error TS(7016): Could not find a declaration file for module '@zip... Remove this comment to see the full error message
 import * as zip from "@zip.js/zip.js/lib/zip-no-worker-inflate";
 
 zip.configure({
@@ -26,7 +28,7 @@ zip.configure({
 const zipEntriesCache = {};
 
 export default class LinkOverlay extends React.Component {
-  constructor(props) {
+  constructor(props: any) {
     super(props);
     const isYAML = props.link ? this.isYAMLFile(props.link) : false;
     this.state = {
@@ -38,8 +40,10 @@ export default class LinkOverlay extends React.Component {
   }
 
   componentDidMount() {
+    // @ts-expect-error TS(2339): Property 'link' does not exist on type 'Readonly<{... Remove this comment to see the full error message
     this.loadFile(this.props.link);
     window.history.pushState({}, "", "");
+    // @ts-expect-error TS(2339): Property 'close' does not exist on type 'Readonly<... Remove this comment to see the full error message
     window.addEventListener("popstate", this.props.close, false);
   }
 
@@ -52,15 +56,17 @@ export default class LinkOverlay extends React.Component {
   }
 
   componentWillUnmount() {
+    // @ts-expect-error TS(2339): Property 'close' does not exist on type 'Readonly<... Remove this comment to see the full error message
     window.removeEventListener("popstate", this.props.close, false);
+    // @ts-expect-error TS(2339): Property 'close' does not exist on type 'Readonly<... Remove this comment to see the full error message
     window.removeEventListener("click", this.props.close, false);
   }
 
-  isYAMLFile(filePath) {
+  isYAMLFile(filePath: any) {
     return filePath.endsWith(".yml");
   }
 
-  loadNewFile = (relativeURL) => {
+  loadNewFile = (relativeURL: any) => {
     const newURL = this.createFileUrl(relativeURL);
     this.setState({
       isYAML: this.isYAMLFile(relativeURL),
@@ -72,21 +78,25 @@ export default class LinkOverlay extends React.Component {
 
   loadOriginalFile = () => {
     this.setState({
+      // @ts-expect-error TS(2339): Property 'link' does not exist on type 'Readonly<{... Remove this comment to see the full error message
       isYAML: this.isYAMLFile(this.props.link),
       isSecondLevel: false,
+      // @ts-expect-error TS(2339): Property 'link' does not exist on type 'Readonly<{... Remove this comment to see the full error message
       content: `loading file: ${this.props.link}`,
       error: undefined,
     });
+    // @ts-expect-error TS(2339): Property 'link' does not exist on type 'Readonly<{... Remove this comment to see the full error message
     this.loadFile(this.props.link);
   };
 
-  loadOriginalFileIfEnter = (e) => {
+  loadOriginalFileIfEnter = (e: any) => {
     if (e.key === "Enter") {
       this.loadOriginalFile();
     }
   };
 
-  createFileUrl = (fileUrl) => path.join(this.props.link, "../" + fileUrl);
+  // @ts-expect-error TS(2339): Property 'link' does not exist on type 'Readonly<{... Remove this comment to see the full error message
+  createFileUrl = (fileUrl: any) => path.join(this.props.link, "../" + fileUrl);
 
   /*
    * Loads the file of the given url. Four different approaches to load the file will be made in case the previous one fails:
@@ -102,7 +112,7 @@ export default class LinkOverlay extends React.Component {
    */
   loadFile = this.loadFileXMLHttpRequest;
 
-  async loadFileFetch(url) {
+  async loadFileFetch(url: any) {
     if (url) {
       this.setState({ currentFile: url });
       try {
@@ -119,7 +129,7 @@ export default class LinkOverlay extends React.Component {
     }
   }
 
-  loadFileXMLHttpRequest(url) {
+  loadFileXMLHttpRequest(url: any) {
     if (url) {
       try {
         this.setState({ currentFile: url });
@@ -142,7 +152,7 @@ export default class LinkOverlay extends React.Component {
   }
 
   /* Loads the file from a ZIP archive and stores the entries in a cache for faster future access. */
-  loadFileFromZip = (url) => {
+  loadFileFromZip = (url: any) => {
     const decodedUrl = decodeURIComponent(url);
     const folderSplitterSlash =
       decodedUrl.lastIndexOf("/") > decodedUrl.lastIndexOf("\\") ? "/" : "\\";
@@ -154,6 +164,7 @@ export default class LinkOverlay extends React.Component {
     }`;
 
     if (zipPath in zipEntriesCache) {
+      // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
       this.loadFileFromZipEntries(zipEntriesCache[zipPath], zipFile, zipPath);
     } else {
       this.readZipArchive(zipPath, zipFile);
@@ -161,26 +172,28 @@ export default class LinkOverlay extends React.Component {
   };
 
   /* Tries to read the file from a ZIP archive with a HTTP range request.  */
-  readZipArchive = (zipPath, zipFile) => {
+  readZipArchive = (zipPath: any, zipFile: any) => {
     const reader = new zip.ZipReader(new zip.HttpRangeReader(zipPath));
     reader.getEntries().then(
-      (entries) => {
+      (entries: any) => {
         this.handleZipEntries(entries, zipFile, zipPath);
       },
-      (error) => {
+      // @ts-expect-error TS(6133): 'error' is declared but its value is never read.
+      (error: any) => {
         this.readZipArchiveNoHttpRange(zipPath, zipFile);
       },
     );
   };
 
   /* Tries to read the file from a ZIP archive with a normal HTTP request.  */
-  readZipArchiveNoHttpRange = (zipPath, zipFile) => {
+  readZipArchiveNoHttpRange = (zipPath: any, zipFile: any) => {
     const reader = new zip.ZipReader(new zip.HttpReader(zipPath));
     reader.getEntries().then(
-      (entries) => {
+      (entries: any) => {
         this.handleZipEntries(entries, zipFile, zipPath);
       },
-      (error) => {
+      // @ts-expect-error TS(6133): 'error' is declared but its value is never read.
+      (error: any) => {
         this.readZipArchiveManually(zipPath, zipFile);
       },
     );
@@ -190,7 +203,7 @@ export default class LinkOverlay extends React.Component {
    * Loads a file from the zip archive with a HTTP request manually. This should only be necessary
    * for Google Chrome as a HTTP Reader does not work there.
    */
-  readZipArchiveManually = (zipPath, zipFile) => {
+  readZipArchiveManually = (zipPath: any, zipFile: any) => {
     try {
       const xhr = new XMLHttpRequest();
       xhr.responseType = "arraybuffer";
@@ -202,12 +215,14 @@ export default class LinkOverlay extends React.Component {
           reader
             .getEntries()
             .then(
-              (entries) => this.handleZipEntries(entries, zipFile, zipPath),
+              (entries: any) =>
+                this.handleZipEntries(entries, zipFile, zipPath),
               this.setError,
             );
         },
         false,
       );
+      // @ts-expect-error TS(2769): No overload matches this call.
       xhr.addEventListener("error", this.setError, false);
       xhr.open("GET", zipPath);
       xhr.send();
@@ -216,18 +231,20 @@ export default class LinkOverlay extends React.Component {
     }
   };
 
-  handleZipEntries = (entries, zipFile, zipPath) => {
+  handleZipEntries = (entries: any, zipFile: any, zipPath: any) => {
+    // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
     zipEntriesCache[zipPath] = entries;
     this.loadFileFromZipEntries(entries, zipFile, zipPath);
   };
 
-  loadFileFromZipEntries = (entries, zipFile, zipPath) => {
-    const entry = entries.find((entry) => entry.filename === zipFile);
+  loadFileFromZipEntries = (entries: any, zipFile: any, zipPath: any) => {
+    const entry = entries.find((entry: any) => entry.filename === zipFile);
     if (entry) {
-      entry.getData(new zip.TextWriter()).then((content) => {
+      entry.getData(new zip.TextWriter()).then((content: any) => {
         this.setState({ content });
       });
     } else {
+      // @ts-expect-error TS(2554): Expected 2 arguments, but got 1.
       this.setError(`Could not find the file "${zipFile}" in "${zipPath}"`);
     }
   };
@@ -237,7 +254,7 @@ export default class LinkOverlay extends React.Component {
    * error object is a plain string, this error object will be set for the message. Otherwise
    * the simple error message, i.e. the first parameter, will be set.
    */
-  setError = (errorMsg, errorObj) => {
+  setError = (errorMsg: any, errorObj: any) => {
     const error =
       errorObj && typeof errorObj === "string" ? errorObj : errorMsg;
     this.setState({ error: `${error}` });
@@ -245,6 +262,7 @@ export default class LinkOverlay extends React.Component {
 
   handlePopState = () => {
     window.history.back();
+    // @ts-expect-error TS(2339): Property 'close' does not exist on type 'Readonly<... Remove this comment to see the full error message
     window.addEventListener("click", this.props.close, false);
   };
 
@@ -291,6 +309,7 @@ export default class LinkOverlay extends React.Component {
     // and generate the necessary command for them such that this is easy.
     // We need the base directory of the HTTP server (document root)
     // that should contain both the table and the result files.
+    // @ts-expect-error TS(2339): Property 'currentFile' does not exist on type 'Rea... Remove this comment to see the full error message
     const absCurrentFile = new URL(this.state.currentFile, document.baseURI);
     let [baseDir, pathSuffix] = splitUrlPathForMatchingPrefix(
       window.location,
@@ -352,12 +371,14 @@ export default class LinkOverlay extends React.Component {
   };
 
   render() {
+    // @ts-expect-error TS(2345): Argument of type 'HTMLElement | null' is not assig... Remove this comment to see the full error message
     ReactModal.setAppElement(document.getElementById("root"));
     return (
       <ReactModal
         id="modal-container"
         ariaHideApp={false}
         className={classNames("overlay", {
+          // @ts-expect-error TS(2339): Property 'isSecondLevel' does not exist on type 'R... Remove this comment to see the full error message
           "second-level": this.state.isSecondLevel,
         })}
         isOpen={true}
@@ -369,9 +390,11 @@ export default class LinkOverlay extends React.Component {
             onClick={() => this.handlePopState()}
             className="closing"
           />
+          // @ts-expect-error TS(2339): Property 'isSecondLevel' does not exist on type 'R... Remove this comment to see the full error message
           {this.state.isSecondLevel ? (
             <span
               className="link-overlay-back-button"
+              // @ts-expect-error TS(2322): Type 'string' is not assignable to type 'number'.
               tabIndex="0"
               role="button"
               onClick={this.loadOriginalFile}
@@ -387,19 +410,24 @@ export default class LinkOverlay extends React.Component {
             ""
           )}
         </div>
+        // @ts-expect-error TS(2339): Property 'error' does not exist on type 'Readonly<... Remove this comment to see the full error message
         {!this.state.error ? (
+          // @ts-expect-error TS(2339): Property 'isYAML' does not exist on type 'Readonly... Remove this comment to see the full error message
           this.state.isYAML ? (
             <TaskDefinitionViewer
+              // @ts-expect-error TS(2322): Type '{ yamlText: any; createHref: (fileUrl: any) ... Remove this comment to see the full error message
               yamlText={this.state.content}
               createHref={this.createFileUrl}
               loadNewFile={this.loadNewFile}
             />
           ) : (
+            // @ts-expect-error TS(2339): Property 'content' does not exist on type 'Readonl... Remove this comment to see the full error message
             <pre className="link-overlay-text">{this.state.content}</pre>
           )
         ) : (
           <div className="link-overlay-text">
             <p style={{ marginTop: "0" }}>
+              // @ts-expect-error TS(2339): Property 'error' does not exist on type 'Readonly<... Remove this comment to see the full error message
               Error while loading content ({this.state.error}).
             </p>
             <p>
@@ -412,6 +440,7 @@ export default class LinkOverlay extends React.Component {
             {this.renderHelpMessageForLocalLogs()}
             <p>
               You can also try to download the file:{" "}
+              // @ts-expect-error TS(2339): Property 'currentFile' does not exist on type 'Rea... Remove this comment to see the full error message
               <a href={this.state.currentFile}>{this.state.currentFile}</a>
             </p>
           </div>

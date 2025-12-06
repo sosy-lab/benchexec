@@ -5,6 +5,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+// @ts-expect-error TS(6133): 'React' is declared but its value is never read.
 import React from "react";
 import Table from "../components/ReactTable.js";
 import { HashRouter as Router } from "react-router-dom";
@@ -14,13 +15,14 @@ import { test_snapshot_of } from "./utils.js";
 // Add a serializer that removes title attributes (irrelevant in our table)
 expect.addSnapshotSerializer({
   print: (val, serialize) => {
+    // @ts-expect-error TS(2571): Object is of type 'unknown'.
     delete val.props.title;
     return serialize(val);
   },
   test: (val) => val && val.props && val.props.hasOwnProperty("title"),
 });
 
-test_snapshot_of("Render ReactTable", (overview) => (
+test_snapshot_of("Render ReactTable", (overview: any) => (
   <Router>
     <Table
       tableHeader={overview.tableHeader}

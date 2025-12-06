@@ -39,6 +39,7 @@ describe("isStatusOk", () => {
     expect(isOkStatus({ a: "b" })).toBe(false);
   });
   test("should return false if nothing is passed", () => {
+    // @ts-expect-error TS(2554): Expected 1 arguments, but got 0.
     expect(isOkStatus()).toBe(false);
   });
 });
@@ -234,7 +235,7 @@ describe("makeRegExp", () => {
   });
 
   test("should throw error if value is not of type string", () => {
-    const value = [];
+    const value: any = [];
     expect(() => {
       makeRegExp(value);
     }).toThrow();
@@ -287,7 +288,7 @@ describe("tokenizePart", () => {
 });
 
 describe("serialization", () => {
-  let serializer;
+  let serializer: any;
   const statusValues = [
     [["true", "false", "TIMEOUT", "OOM", "false(reach)"]],
     [["true", "false", "TIMEOUT", "OOM", "false(reach)"]],
@@ -297,11 +298,11 @@ describe("serialization", () => {
     [["correct ", "wrong ", "missing ", "unknown "]],
   ];
 
-  const makeSelection = (selection, base) => {
+  const makeSelection = (selection: any, base: any) => {
     // the status column has id 0
-    return base[0].filter((item) =>
+    return base[0].filter((item: any) =>
       selection && selection.length > 0
-        ? selection.every((select) => item !== select)
+        ? selection.every((select: any) => item !== select)
         : true,
     );
   };
@@ -401,12 +402,12 @@ describe("serialization", () => {
     const selected = makeSelection(uncheckedBoxes, statusValues[0]);
     const standardCategories = makeSelection(null, categoryValues[0]);
 
-    const filter = selected.map((status) => ({
+    const filter = selected.map((status: any) => ({
       id: "0_status_0",
       value: status,
     }));
     filter.push(
-      ...standardCategories.map((category) => ({
+      ...standardCategories.map((category: any) => ({
         id: "0_status_0",
         value: category,
       })),
@@ -423,12 +424,12 @@ describe("serialization", () => {
     const selected = makeSelection(uncheckedBoxes, statusValues[0]);
     const standardCategories = makeSelection(null, categoryValues[0]);
 
-    const filter = selected.map((status) => ({
+    const filter = selected.map((status: any) => ({
       id: "0_status_0",
       value: status,
     }));
     filter.push(
-      ...standardCategories.map((category) => ({
+      ...standardCategories.map((category: any) => ({
         id: "0_status_0",
         value: category,
       })),
@@ -448,8 +449,8 @@ describe("serialization", () => {
     const selected2 = makeSelection(uncheckedBoxes2, statusValues[0]);
     const standardCategories = makeSelection(null, categoryValues[0]);
 
-    const makeStatus = (selection, runset) =>
-      selection.map((status) => ({
+    const makeStatus = (selection: any, runset: any) =>
+      selection.map((status: any) => ({
         id: `${runset}_status_0`,
         value: status,
       }));
@@ -457,14 +458,14 @@ describe("serialization", () => {
     const filter = [...makeStatus(selected1, 0), ...makeStatus(selected2, 1)];
 
     filter.push(
-      ...standardCategories.map((category) => ({
+      ...standardCategories.map((category: any) => ({
         id: "0_status_0",
         value: category,
       })),
     );
 
     filter.push(
-      ...standardCategories.map((category) => ({
+      ...standardCategories.map((category: any) => ({
         id: "1_status_0",
         value: category,
       })),
@@ -484,13 +485,13 @@ describe("serialization", () => {
 
     const standardStatus = makeSelection(null, statusValues[0]);
 
-    const filter = selected.map((status) => ({
+    const filter = selected.map((status: any) => ({
       id: "0_status_0",
       value: status,
     }));
 
     filter.push(
-      ...standardStatus.map((status) => ({
+      ...standardStatus.map((status: any) => ({
         id: "0_status_0",
         value: status,
       })),
@@ -507,13 +508,13 @@ describe("serialization", () => {
 
     const standardStatus = makeSelection(null, statusValues[0]);
 
-    const filter = selected.map((status) => ({
+    const filter = selected.map((status: any) => ({
       id: "0_status_0",
       value: status,
     }));
 
     filter.push(
-      ...standardStatus.map((status) => ({
+      ...standardStatus.map((status: any) => ({
         id: "0_status_0",
         value: status,
       })),
@@ -532,8 +533,8 @@ describe("serialization", () => {
 
     const standardStatus = makeSelection(null, statusValues[0]);
 
-    const makeStatus = (selection, runset) =>
-      selection.map((status) => ({
+    const makeStatus = (selection: any, runset: any) =>
+      selection.map((status: any) => ({
         id: `${runset}_status_0`,
         value: status,
       }));
@@ -541,14 +542,14 @@ describe("serialization", () => {
     const filter = [...makeStatus(selected1, 0), ...makeStatus(selected2, 1)];
 
     filter.push(
-      ...standardStatus.map((status) => ({
+      ...standardStatus.map((status: any) => ({
         id: "0_status_0",
         value: status,
       })),
     );
 
     filter.push(
-      ...standardStatus.map((status) => ({
+      ...standardStatus.map((status: any) => ({
         id: "1_status_0",
         value: status,
       })),
@@ -564,7 +565,7 @@ describe("serialization", () => {
     const uncheckedBoxes = ["correct ", "wrong "];
     const selected = makeSelection(uncheckedBoxes, categoryValues[0]);
 
-    const filter = selected.map((category) => ({
+    const filter = selected.map((category: any) => ({
       id: "0_status_0",
       value: category,
     }));
@@ -641,7 +642,7 @@ describe("serialization", () => {
 });
 
 describe("Filter deserialization", () => {
-  let deserializer;
+  let deserializer: any;
 
   const statusValues = [
     [["true", "false", "TIMEOUT", "OOM", "false(reach)"]],
@@ -652,9 +653,9 @@ describe("Filter deserialization", () => {
     [["correct ", "wrong ", "missing ", "unknown "]],
   ];
 
-  const makeStandardStatusValues = (id) =>
+  const makeStandardStatusValues = (id: any) =>
     statusValues[0][0].map((value) => ({ id, value }));
-  const makeStandardCategoryValues = (id) =>
+  const makeStandardCategoryValues = (id: any) =>
     categoryValues[0][0].map((value) => ({ id, value }));
 
   beforeEach(() => {
@@ -831,7 +832,7 @@ describe("Filter deserialization", () => {
 });
 
 describe("NumberFormatterBuilder", () => {
-  let builder;
+  let builder: any;
   beforeEach(() => {
     builder = new NumberFormatterBuilder(4);
   });
@@ -900,6 +901,7 @@ describe("NumberFormatterBuilder", () => {
   });
 
   test("should return number without rounding if no significant digits were provided", () => {
+    // @ts-expect-error TS(2554): Expected 1-2 arguments, but got 0.
     const newBuilder = new NumberFormatterBuilder();
     const formatter = newBuilder.build();
     const number = "123456789";
@@ -1104,13 +1106,13 @@ describe("NumberFormatterBuilder", () => {
 
   describe("additionalFormatting function", () => {
     test("Should correctly pass number of significant digits in context", async () => {
-      let resolve;
+      let resolve: any;
 
       const promise = new Promise((res) => {
         resolve = res;
       });
 
-      const additionalFormatting = (_, context) => {
+      const additionalFormatting = (_: any, context: any) => {
         expect(context.significantDigits).toBe(9);
         resolve();
       };
@@ -1124,13 +1126,13 @@ describe("NumberFormatterBuilder", () => {
     });
 
     test("Should correctly pass max length of decimals of input", async () => {
-      let resolve;
+      let resolve: any;
 
       const promise = new Promise((res) => {
         resolve = res;
       });
 
-      const additionalFormatting = (_, context) => {
+      const additionalFormatting = (_: any, context: any) => {
         expect(context.maxDecimalInputLength).toBe(4);
         resolve();
       };
@@ -1201,6 +1203,7 @@ describe(
     });
   },
 
+  // @ts-expect-error TS(2554): Expected 2 arguments, but got 3.
   describe("hasSameEntries", () => {
     test("should return true if the same arrays are passed", () => {
       const a = ["a", "b", "c"];
@@ -1233,14 +1236,14 @@ describe(
     });
 
     test("should return false if the first array is empty", () => {
-      const a = [];
+      const a: any = [];
       const b = ["a", "b", "c"];
       expect(hasSameEntries(a, b)).toBe(false);
     });
 
     test("should return true if the second array is empty", () => {
       const a = ["a", "b"];
-      const b = [];
+      const b: any = [];
       expect(hasSameEntries(a, b)).toBe(true);
     });
   }),

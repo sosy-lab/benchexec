@@ -5,6 +5,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+// @ts-expect-error TS(6133): 'React' is declared but its value is never read.
 import React from "react";
 import StatisticsTable from "./StatisticsTable";
 
@@ -22,18 +23,18 @@ const infos = [
   "property",
 ];
 
-const Summary = (props) => {
+const Summary = (props: any) => {
   /* ++++++++++++++ Helper functions ++++++++++++++ */
 
-  const renderOptions = (text) => {
-    return text.split(/[\s]+-/).map((option, i) => (
+  const renderOptions = (text: any) => {
+    return text.split(/[\s]+-/).map((option: any, i: any) => (
       <li key={option}>
         <code>{i === 0 ? option : `-${option}`}</code>
       </li>
     ));
   };
 
-  const externalLink = (url, text) => {
+  const externalLink = (url: any, text: any) => {
     if (url) {
       return (
         <a href={url} target="_blank" rel="noopener noreferrer">
@@ -50,7 +51,7 @@ const Summary = (props) => {
     version,
     project_url,
     version_url,
-  }) => {
+  }: any) => {
     return (
       <>
         {externalLink(project_url, tool)} {externalLink(version_url, version)}
@@ -60,7 +61,7 @@ const Summary = (props) => {
 
   /* ++++++++++++++ Table render functions ++++++++++++++ */
 
-  const renderRow = (row, text, colSpan, j) => {
+  const renderRow = (row: any, text: any, colSpan: any, j: any) => {
     const isOptionRow = row === "options";
     const isToolRow = row === "tool";
     return (
@@ -92,7 +93,7 @@ const Summary = (props) => {
               .map((row) => (
                 <tr key={"tr-" + row.id} className={row.id}>
                   <th key={"td-" + row.id}>{row.name}</th>
-                  {row.content.map((tool, j) =>
+                  {row.content.map((tool: any, j: any) =>
                     renderRow(row.id, tool[0], tool[1], j),
                   )}
                 </tr>
