@@ -5,37 +5,39 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'fs'.
-const fs = require("fs");
-// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'path'.
-const path = require("path");
+import fs from "fs";
+import path from "path";
 
 const workerFilePath = path.join(__dirname, "../src/workers/scripts");
 const dataUrlFile = path.join(__dirname, "../src/workers/dataUrls.js");
 
 const template = "data:text/plain;base64,";
 
-const workerFiles = fs
+const workerFiles: string[] = fs
   .readdirSync(workerFilePath)
-  .filter((name: any) => !name.startsWith("."));
+  .filter((name: string) => !name.startsWith("."));
 
 let output = `
 // This file is part of BenchExec, a framework for reliable benchmarking:
 // https://github.com/sosy-lab/benchexec
 //
 `;
-const workerNames = [];
+const workerNames: string[] = [];
 
 for (const worker of workerFiles) {
   const workerName = worker.split(".")[0];
   workerNames.push(workerName);
   const workerPath = path.join(workerFilePath, worker);
-  const workerScript = fs.readFileSync(workerPath);
-  output += workerScript
+  const workerScript: Buffer = fs.readFileSync(workerPath);
+  const headerMatches = workerScript
     .toString()
-    .match(/^ *\/\/\s?SPDX-.*?$/gim)
-    .join("\n//\n");
-  output += "\n\n";
+    .match(/^ *\/\/\s?SPDX-.*?$/gim);
+
+  if (headerMatches) {
+    output += headerMatches.join("\n//\n");
+    output += "\n\n";
+  }
+
   output += `const ${workerName} = "${template}${Buffer.from(
     workerScript,
   ).toString("base64")}";`;

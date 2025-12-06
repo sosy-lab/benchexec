@@ -5,15 +5,18 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-const checker = require("license-checker");
-// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'fs'.
-const fs = require("fs");
+import fs from "fs";
 
-const stripPrefix = (str: any, prefix: any) =>
+const checker = require("license-checker");
+
+type LicenseCheckerResult = Record<string, any>;
+
+const stripPrefix = (str: string, prefix: string) =>
   prefix && str.startsWith(prefix)
     ? str.substring(prefix.length).trimStart()
     : str;
-const stripUpTo = (str: any, token: any, removeToken = true) => {
+
+const stripUpTo = (str: string, token: string, removeToken = true) => {
   const start = str.indexOf(token);
   if (start >= 0) {
     str = str.substring(start);
@@ -46,7 +49,7 @@ checker.init(
       licenseText: "",
     },
   },
-  function (err: any, packages: any) {
+  function (err: Error, packages: LicenseCheckerResult) {
     if (err) {
       console.log(err);
       process.exit(1);
@@ -54,22 +57,30 @@ checker.init(
       // We store some metadata for each package, including its license.
       // Because licenses are large, we deduplicate them:
       // We store each occurring license in licensesTexts and refer to it via its index.
-      const licenseTextMapping = {};
-      const licenseTexts: any = [];
-      const licenseCounts = {};
-      const dependencies: any = [];
+      const licenseTextMapping: Record<string, number> = {};
+      const licenseTexts: string[] = [];
+      const licenseCounts: Record<string, number> = {};
+      const dependencies: Array<{
+        name: string;
+        version: string;
+        repository: string;
+        copyright: string;
+        licenses: string;
+        licenseId: number | undefined;
+      }> = [];
+
       Object.keys(packages).forEach((key) => {
         const dependency = packages[key];
 
         if (key === "toggle-selection@1.0.6") {
-          // package without proper license file, use data from other package from same author with same license
+          // package without a proper license file, use data from another package from same author with same license
           const depWithProperData = packages["copy-to-clipboard@3.3.1"];
           dependency.licenseText = depWithProperData.licenseText;
         }
 
-        var license = dependency.licenseText;
+        let license: string = dependency.licenseText ||"";
 
-        // Replace windows specific line endings with unix based ones so the bundled
+        // Replace windows-specific line endings with Unix-based ones so the bundled
         // files stay the same on any OS
         license = license.replace(/\r\n/g, "\n");
 
@@ -82,10 +93,10 @@ checker.init(
         if (dependency.licenses === "MIT*") {
           dependency.licenses = "MIT";
         }
-        if (dependency.copyright === "") {
-          const copyright = license.match(/\n(Copyright[^\n]*)\n/);
-          if (copyright !== null) {
-            dependency.copyright = copyright[1];
+        if (!dependency.copyright) {
+          const copyrightMatch = license.match(/\n(Copyright[^\n]*)\n/);
+          if (copyrightMatch !== null) {
+            dependency.copyright = copyrightMatch[1];
           }
         }
 
@@ -99,7 +110,7 @@ checker.init(
         // Because we show the copyright and the license name separately anyway,
         // we can remove such prefixes and increase the chance of deduplication.
         // This list is a heuristic of currently occuring prefixes.
-        [
+        const prefixes: string[] = [
           "The ISC License",
           "MIT License",
           "The MIT License",
@@ -114,8 +125,14 @@ checker.init(
           "For React software",
           "# " + dependency.name,
           // plus each sentence of copyright
-          ...dependency.copyright.split(/(\.)\.?[ *]/),
-        ].forEach((prefix) => (license = stripPrefix(license, prefix)));
+          ...(dependency.copyright || "").split(/(\.)\.?[ *]/),
+        ];
+
+        prefixes.forEach((prefix) => {
+          if (prefix) {
+            license = stripPrefix(license, prefix);
+          }
+        });
 
         // Furthermore, some license texts differ only in whitespace and
         // punctuation, so for deduplication, we normalize this.
@@ -123,22 +140,19 @@ checker.init(
           .replace(/[\s*]+/g, " ")
           .replace(/['"](Software|AS IS)['"]/g, "'$1'");
 
-        var licenseId;
+        let licenseId: number | undefined = undefined;
         if (normalizedLicense in licenseTextMapping) {
-          // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
           licenseId = licenseTextMapping[normalizedLicense];
         } else if (license) {
           licenseId = licenseTexts.push(license) - 1;
-          // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
           licenseTextMapping[normalizedLicense] = licenseId;
 
           // count variants per license
-          if (dependency.licenses in licenseCounts) {
-            // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
-            licenseCounts[dependency.licenses]++;
+          const licName: string = dependency.licenses;
+          if (licName in licenseCounts) {
+            licenseCounts[licName] += 1;
           } else {
-            // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
-            licenseCounts[dependency.licenses] = 1;
+            licenseCounts[licName] = 1;
           }
         }
 
@@ -151,14 +165,15 @@ checker.init(
           licenseId: licenseId,
         });
       });
+
       const dependencyData = JSON.stringify({
         dependencies: dependencies,
         licenses: licenseTexts,
       });
 
-      const prettyPrintLicense = (d: any) =>
-        // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
+      const prettyPrintLicense = (d: { licenses:string }): string =>
         `${d.licenses} (${licenseCounts[d.licenses]} variants)`;
+
       console.info(
         "Found %d dependencies under %s, adding %d bytes of metadata.",
         dependencies.length,
@@ -166,12 +181,16 @@ checker.init(
         dependencyData.length,
       );
 
-      fs.writeFile("src/data/dependencies.json", dependencyData, (err: any) => {
-        if (err) {
-          console.log(err);
-          process.exit(1);
-        }
-      });
+      fs.writeFile(
+        "src/data/dependencies.json",
+        dependencyData,
+        (err: NodeJS.ErrnoException | null) => {
+          if (err) {
+            console.log(err);
+            process.exit(1);
+          }
+        },
+      );
     }
   },
 );
