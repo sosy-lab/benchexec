@@ -81,6 +81,15 @@
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^12.1.5",
     "@testing-library/user-event": "^13.5.0",
+    "@types/classnames": "^2.3.4",
+    "@types/deep-equal": "^1.0.4",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^24.10.1",
+    "@types/react": "^17.0.90",
+    "@types/react-dom": "^17.0.26",
+    "@types/react-modal": "^3.16.3",
+    "@types/react-vis": "^1.11.15",
+    "@types/setimmediate": "^1.0.4",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.2.1",
     "license-checker": "^25.0.1",
@@ -88,6 +97,7 @@
     "react-app-rewired": "^2.2.1",
     "react-scripts": "5.0.1",
     "react-test-renderer": "^17.0.2",
-    "sass": "^1.53.0"
+    "sass": "^1.53.0",
+    "typescript": "^4.9.5"
   }
 }
