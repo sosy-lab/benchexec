@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    "target": "ES2019",                               // JS features to compile down to
+    "lib": ["ES2019", "DOM", "DOM.Iterable"],         // Built-in APIs available in the type system
+    "module": "ESNext",                               // Use ES modules
+    "moduleResolution": "Node",                       // How imports are resolved
+    "jsx": "react-jsx",                               // JSX transform for React 17+
+
+    "strict": true,                                   // Enable all strict type-checking options
+    "noImplicitAny": true,                            // Disallow values with an implicit 'any' type
+    "strictNullChecks": true,                         // 'null' and 'undefined' must be handled explicitly
+    "noUnusedLocals": true,                           // Error on unused local variables
+    "noUnusedParameters": true,                       // Error on unused function parameters
+    "noFallthroughCasesInSwitch": true,               // Prevent accidental fallthrough in switch statements
+
+    "allowJs": true,                                  // Allow .js files in the project
+    "checkJs": false,                                 // Do not type-check .js files
+    "resolveJsonModule": true,                        // Allow importing .json files as modules
+    "esModuleInterop": true,                          // Better interop with CommonJS modules
+    "allowSyntheticDefaultImports": true,             // Allow 'default' imports even if the module has no default export
+    "isolatedModules": true,                          // Each file treated as a separate module
+    "skipLibCheck": true,                             // Skip type checking of .d.ts in node_modules
+
+    "forceConsistentCasingInFileNames": true,         // Enforce consistent import casing across the project
+    "baseUrl": "src",                                 // Base path for non-relative imports
+    "types": ["jest", "node"]                         // Include typings for Jest tests and Node scripts
+  },
+  "include": ["src", "scripts"],
+  "exclude": ["node_modules", "build"]
+}
