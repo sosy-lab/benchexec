@@ -5,8 +5,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import fs from "fs";
-import path from "path";
+import type * as Fs from "fs";
+import type * as Path from "path";
+
+const fs: typeof Fs = require("fs");
+const path: typeof Path = require("path");
 
 const dataParam: string | undefined = process.argv[2];
 

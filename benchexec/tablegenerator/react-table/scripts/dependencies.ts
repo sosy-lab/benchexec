@@ -5,8 +5,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import fs from "fs";
+import type * as Fs from "fs";
 
+const fs: typeof Fs = require("fs");
 const checker = require("license-checker");
 
 type LicenseCheckerResult = Record<string, any>;

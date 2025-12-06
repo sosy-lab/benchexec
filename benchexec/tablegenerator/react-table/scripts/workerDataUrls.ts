@@ -5,8 +5,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import fs from "fs";
-import path from "path";
+import type Fs from "fs";
+import type Path from "path";
+
+const fs: typeof Fs = require("fs");
+const path: typeof Path = require("path");
 
 const workerFilePath = path.join(__dirname, "../src/workers/scripts");
 const dataUrlFile = path.join(__dirname, "../src/workers/dataUrls.js");
