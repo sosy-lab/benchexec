@@ -12,6 +12,9 @@ import { faCopy } from "@fortawesome/free-regular-svg-icons";
 
 /* A DOM node that allows its content to be copied to the clipboard. */
 export class CopyableNode extends React.Component {
+	public childRef: any;
+	public props: any;
+
   constructor(props) {
     super(props);
     this.childRef = React.createRef();
@@ -823,7 +826,16 @@ const characterSpaceHtml = "&#x2007;";
  * @param {Number} significantDigits - Number of significant digits for this column
  */
 class NumberFormatterBuilder {
-  constructor(significantDigits, name = "Unknown") {
+	public significantDigits: any;
+	public maxPositiveDecimalPosition: any;
+	public maxNegativeDecimalPosition: any;
+	public name: any;
+	public whitespaceFormat: any;
+	public html: any;
+	public leadingZero: any;
+	public additionalFormatting: any;
+
+  constructor(significantDigits?, name = "Unknown") {
     this.significantDigits = significantDigits;
     this.maxPositiveDecimalPosition = -1;
     this.maxNegativeDecimalPosition = -1;

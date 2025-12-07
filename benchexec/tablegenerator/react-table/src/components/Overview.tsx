@@ -61,6 +61,26 @@ const getActiveTab = () =>
   ).key;
 
 export default class Overview extends React.Component {
+	public props: any;
+	public originalTable: any;
+	public originalTools: any;
+	public taskIdNames: any;
+	public columns: any;
+	public stats: any;
+	public tableHeader: any;
+	public filteredData: any;
+	public state: any;
+	public statusValues: any;
+	public categoryValues: any;
+	public filterUrlSetter: any;
+	public filterUrlRetriever: any;
+	public lastFiltered: any;
+	public setState: any;
+	public lastImmediate: any;
+	public tools: any;
+	public tableData: any;
+	public initial: any;
+
   constructor(props) {
     super(props);
 

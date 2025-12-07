@@ -26,6 +26,10 @@ zip.configure({
 const zipEntriesCache = {};
 
 export default class LinkOverlay extends React.Component {
+	public state: any;
+	public props: any;
+	public setState: any;
+
   constructor(props) {
     super(props);
     const isYAML = props.link ? this.isYAMLFile(props.link) : false;

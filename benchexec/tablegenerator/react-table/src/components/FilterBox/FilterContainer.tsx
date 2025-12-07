@@ -10,6 +10,15 @@ import FilterCard from "./FilterCard";
 import equals from "deep-equal";
 
 export default class FilterContainer extends React.PureComponent {
+	public props: any;
+	public state: any;
+	public setState: any;
+	public filters: any;
+	public toolName: any;
+	public currentFilters: any;
+	public newFilterState: any;
+	public numCards: any;
+
   constructor(props) {
     super(props);
     const { filters, toolName, currentFilters } = props;
@@ -31,7 +40,7 @@ export default class FilterContainer extends React.PureComponent {
       .sort((a, b) => a.numCards - b.numCards);
   }
 
-  setFilter({ title, values, filtering = true }, idx) {
+  setFilter({ title, values, filtering = true }, idx?) {
     const prevFilters = this.state.filters;
     prevFilters[idx].values = values;
     prevFilters[idx].filtering = filtering;

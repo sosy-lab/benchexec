@@ -39,6 +39,32 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faExchangeAlt } from "@fortawesome/free-solid-svg-icons";
 
 export default class ScatterPlot extends React.Component {
+	public scalingOptions: any;
+	public resultsOptions: any;
+	public regressionOptions: any;
+	public lineOptgroupOptions: any;
+	public defaultValues: any;
+	public state: any;
+	public maxX: any;
+	public minX: any;
+	public lineCount: any;
+	public props: any;
+	public setState: any;
+	public hasInvalidLog: any;
+	public dataArray: any;
+	public regressionData: any;
+	public maxY: any;
+	public minY: any;
+	public array: any;
+	public results: any;
+	public scaling: any;
+	public toolX: any;
+	public toolY: any;
+	public columnX: any;
+	public columnY: any;
+	public line: any;
+	public regression: any;
+
   constructor(props) {
     super(props);
 

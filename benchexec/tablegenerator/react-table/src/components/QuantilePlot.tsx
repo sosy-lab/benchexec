@@ -28,6 +28,21 @@ import {
 import { renderResetButton, renderSetting } from "../utils/plot";
 
 export default class QuantilePlot extends React.Component {
+	public plotOptions: any;
+	public scalingOptions: any;
+	public resultsOptions: any;
+	public defaultValues: any;
+	public possibleValues: any;
+	public lineCount: any;
+	public state: any;
+	public props: any;
+	public setState: any;
+	public hasInvalidLog: any;
+	public selection: any;
+	public plot: any;
+	public scaling: any;
+	public results: any;
+
   constructor(props) {
     super(props);
 

@@ -14,6 +14,10 @@ window.crypto = jest.fn();
  * Worker mock
  */
 class Worker {
+	public url: any;
+	public cb: any;
+	public onmessageImpl: any;
+
   constructor(dataUrl) {
     this.url = dataUrl;
     const b = Buffer.from(dataUrl.split(",")[1], "base64");

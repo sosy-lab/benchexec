@@ -10,6 +10,7 @@ import React from "react";
 const dependencies = require("../data/dependencies.json");
 
 class Dependency extends React.Component {
+	public props: any;
   knownLicenses = ["BSD-3-Clause", "CC-BY-4.0", "ISC", "MIT", "Zlib"];
   linkifyLicense = (license) => (
     <a

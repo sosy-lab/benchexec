@@ -13,6 +13,10 @@ import "rc-slider/assets/index.css";
 let debounceHandler = setTimeout(() => {}, 500);
 
 export default class TaskFilterCard extends React.PureComponent {
+	public state: any;
+	public setState: any;
+	public props: any;
+
   constructor(props) {
     super(props);
     this.state = {
