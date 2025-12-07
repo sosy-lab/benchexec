@@ -5,11 +5,24 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { memo, useEffect, useRef, useState } from "react";
+import React, { memo, useEffect, useRef, useState } from "react";
+
+interface FilterValue {
+  value: string;
+}
+
+interface FilterInputFieldProps {
+  id: string;
+  setFilter?: FilterValue | null;
+  setCustomFilters: (args: { id:string; value: string }) => void;
+  disableTaskText: boolean;
+  focusedFilter: string | null;
+  setFocusedFilter: (id: string) => void;
+}
 
 /**
  * General filter input field for text columns.
- * This file default exports a memoized version of the FilterInputFieldComponent function.
+ * This file by default exports a memoized version of the FilterInputFieldComponent function.
  */
 function FilterInputFieldComponent({
   id,
@@ -18,17 +31,16 @@ function FilterInputFieldComponent({
   disableTaskText,
   focusedFilter,
   setFocusedFilter,
-}: any) {
+}: FilterInputFieldProps) {
   const elementId = id + "_filter";
   const initFilterValue = setFilter ? setFilter.value : "";
 
-  const ref = useRef(null);
-  let [typingTimer, setTypingTimer] = useState("");
-  let [value, setValue] = useState(initFilterValue);
+  const ref = useRef<HTMLInputElement | null>(null);
+  let [typingTimer, setTypingTimer] = useState<number | null>(null);
+  let [value, setValue] = useState<string>(initFilterValue);
 
   useEffect(() => {
-    if (focusedFilter === elementId) {
-      // @ts-expect-error TS(2531): Object is possibly 'null'.
+    if (focusedFilter === elementId && ref.current) {
       ref.current.focus();
     }
   }, [focusedFilter, elementId]);
@@ -38,18 +50,23 @@ function FilterInputFieldComponent({
       ? "To edit, please clear task filter in the sidebar"
       : "text";
 
-  const onChange = (event: any) => {
+  const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = event.target.value;
     setValue(newValue);
-    clearTimeout(typingTimer);
-    setTypingTimer(
-      // @ts-expect-error TS(2345): Argument of type 'Timeout' is not assignable to pa... Remove this comment to see the full error message
-      setTimeout(() => {
-        setCustomFilters({ id, value: newValue });
-        // @ts-expect-error TS(2531): Object is possibly 'null'.
-        document.getElementById(elementId).focus();
-      }, 500),
-    );
+
+    if (typingTimer !== null) {
+      clearTimeout(typingTimer);
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setCustomFilters({ id, value: newValue });
+      const el = document.getElementById(elementId) as
+        | HTMLInputElement
+        | null;
+      el?.focus();
+    }, 500);
+
+    setTypingTimer(timeoutId);
   };
 
   return (
