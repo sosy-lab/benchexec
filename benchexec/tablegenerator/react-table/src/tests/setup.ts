@@ -8,13 +8,17 @@
 import "@testing-library/jest-dom";
 
 // Used by @zip.js/zip.js, but not implemented in jsdom via jest, so manually mock it here
+// @ts-expect-error TS(2739): Type 'Mock<any, any, any>' is missing the followin... Remove this comment to see the full error message
 window.crypto = jest.fn();
 
 /**
  * Worker mock
  */
 class Worker {
-  constructor(dataUrl) {
+  cb: any;
+  onmessageImpl: any;
+  url: any;
+  constructor(dataUrl: any) {
     this.url = dataUrl;
     const b = Buffer.from(dataUrl.split(",")[1], "base64");
     let onmessage;
@@ -27,18 +31,19 @@ class Worker {
     this.onmessageImpl = onmessage;
   }
 
-  mockedPostMessage(data) {
+  mockedPostMessage(data: any) {
     this.cb({ data });
   }
-  postMessage(msg) {
+  postMessage(msg: any) {
     this.onmessageImpl({ data: { ...msg } });
   }
 
-  set onmessage(cb) {
+  set onmessage(cb: any) {
     this.cb = cb;
     this.mockedPostMessage = (data) => this.cb({ data });
   }
 }
+// @ts-expect-error TS(2322): Type 'typeof Worker' is not assignable to type '{ ... Remove this comment to see the full error message
 window.Worker = Worker;
 
 // We use jest snapshots for integration tests, and they become quite large.
@@ -49,6 +54,7 @@ window.Worker = Worker;
 // Top-level serializer that does post-processing on the final string
 expect.addSnapshotSerializer({
   print: (val, serialize) =>
+    // @ts-expect-error TS(2571): Object is of type 'unknown'.
     serialize(val.toJSON())
       .split("\n")
       // filter empty lines
@@ -68,20 +74,22 @@ expect.addSnapshotSerializer({
 // if all children are strings by joining the strings (better readable)
 expect.addSnapshotSerializer({
   print: (val, serialize) => {
-    val.children = [val.children.filter((s) => !s.match(/^ *$/)).join("")];
+    // @ts-expect-error TS(2571): Object is of type 'unknown'.
+    val.children = [val.children.filter((s: any) => !s.match(/^ *$/)).join("")];
     return serialize(val);
   },
   test: (val) =>
     val &&
     Array.isArray(val.children) &&
     val.children.length > 1 &&
-    val.children.every((o) => typeof o === "string"),
+    val.children.every((o: any) => typeof o === "string"),
 });
 
 // Serializer that simplifies HTML elements with one empty child
 // (normalizes <div></div> to <div />)
 expect.addSnapshotSerializer({
   print: (val, serialize) => {
+    // @ts-expect-error TS(2571): Object is of type 'unknown'.
     delete val.children;
     return serialize(val);
   },
@@ -94,6 +102,7 @@ expect.addSnapshotSerializer({
 
 // Serializer that simplies the dangerouslySetInnerHTML attribute
 expect.addSnapshotSerializer({
+  // @ts-expect-error TS(2571): Object is of type 'unknown'.
   print: (val, serialize) => serialize(val.__html),
   test: (val) => val && val.hasOwnProperty("__html"),
 });
@@ -101,6 +110,7 @@ expect.addSnapshotSerializer({
 // Serializer that hides empty style attributes.
 expect.addSnapshotSerializer({
   print: (val, serialize) => {
+    // @ts-expect-error TS(2571): Object is of type 'unknown'.
     delete val.props.style;
     return serialize(val);
   },

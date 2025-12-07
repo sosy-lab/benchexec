@@ -39,7 +39,7 @@ const createRelevantFilterLabel = ({
   statusFilters,
   categoryFilterValues,
   statusFilterValues,
-}) => {
+}: any) => {
   let out = [];
 
   if (!hasSameEntries(categoryFilters, categoryFilterValues)) {
@@ -68,7 +68,7 @@ function StatusFilter({
   allStatusValues,
   filteredColumnValues,
   setCustomFilters,
-}) {
+}: any) {
   const categoryValues = allCategoryValues[runSetIdx][columnIdx];
   const selectedCategoryFilters = pathOr(
     [runSetIdx, "categories"],
@@ -84,7 +84,7 @@ function StatusFilter({
   const selectedFilters = createRelevantFilterLabel({
     categoryFilters: selectedCategoryFilters,
     statusFilters: selectedStatusValues,
-    categoryFilterValues: categoryValues.map((item) => `${item} `),
+    categoryFilterValues: categoryValues.map((item: any) => `${item} `),
     statusFilterValues: allStatusValues[runSetIdx][columnIdx],
   });
 
@@ -106,36 +106,48 @@ function StatusFilter({
       {multipleSelected && (
         <option value="multiple" disabled>
           {selectedFilters
-            .map((x) => x.trim())
-            .filter((x) => x !== "all" && x !== emptyStateValue)
+            .map((x: any) => x.trim())
+            .filter((x: any) => x !== "all" && x !== emptyStateValue)
             .join(", ") || "No filters selected"}
         </option>
       )}
       <option value="all ">Show all</option>
       {categoryValues
-        .filter((category) => category in SPECIAL_CATEGORIES)
-        .map((category) => (
-          // category filters are marked with space at end
-          <option value={category + " "} key={category}>
-            {SPECIAL_CATEGORIES[category]}
-          </option>
-        ))}
+        .filter((category: any) => category in SPECIAL_CATEGORIES)
+        .map(
+          (
+            category: any, // category filters are marked with space at end
+          ) => (
+            <option value={category + " "} key={category}>
+              // @ts-expect-error TS(7053): Element implicitly has an 'any' type
+              because expre... Remove this comment to see the full error message
+              {SPECIAL_CATEGORIES[category]}
+            </option>
+          ),
+        )}
       <optgroup label="Category">
         {categoryValues
-          .filter((category) => !(category in SPECIAL_CATEGORIES))
+          .filter((category: any) => !(category in SPECIAL_CATEGORIES))
           .sort()
-          .map((category) => (
-            // category filters are marked with space at end
-            <option value={category + " "} key={category} className={category}>
-              {category}
-            </option>
-          ))}
+          .map(
+            (
+              category: any, // category filters are marked with space at end
+            ) => (
+              <option
+                value={category + " "}
+                key={category}
+                className={category}
+              >
+                {category}
+              </option>
+            ),
+          )}
       </optgroup>
       <optgroup label="Status">
         {allStatusValues[runSetIdx][columnIdx]
-          .filter((status) => status !== statusForEmptyRows)
+          .filter((status: any) => status !== statusForEmptyRows)
           .sort()
-          .map((status) => (
+          .map((status: any) => (
             <option value={status} key={status}>
               {status}
             </option>

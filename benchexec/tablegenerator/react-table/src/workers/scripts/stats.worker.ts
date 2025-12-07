@@ -14,7 +14,7 @@
  *
  * @returns {Number} The result of the addition
  */
-const safeAdd = (a, b) => {
+const safeAdd = (a: any, b: any) => {
   let aNum = a;
   let bNum = b;
 
@@ -41,13 +41,13 @@ const safeAdd = (a, b) => {
   return Number((aNum + bNum).toFixed(length));
 };
 
-const mathStringMax = (a, b) => {
+const mathStringMax = (a: any, b: any) => {
   const numA = Number(a);
   const numB = Number(b);
   return numA > numB ? a : b;
 };
 
-const mathStringMin = (a, b) => {
+const mathStringMin = (a: any, b: any) => {
   const numA = Number(a);
   const numB = Number(b);
   return numA < numB ? a : b;
@@ -63,7 +63,7 @@ const mathStringMin = (a, b) => {
  * @param {*} b
  * @param {String} type
  */
-const maybeAdd = (a, b, type) => {
+const maybeAdd = (a: any, b: any, type: any) => {
   if (Number(b)) {
     return safeAdd(a, b);
   }
@@ -72,7 +72,7 @@ const maybeAdd = (a, b, type) => {
   }
   return a;
 };
-const removeRoundOff = (num) => {
+const removeRoundOff = (num: any) => {
   const str = num.toString();
   if (str.match(/\..+?0{2,}\d$/)) {
     return Number(str.substr(0, str.length - 1));
@@ -80,7 +80,7 @@ const removeRoundOff = (num) => {
   return num;
 };
 
-const calculateMean = (values, allItems) => {
+const calculateMean = (values: any, allItems: any) => {
   const numMin = Number(values.min);
   const numMax = Number(values.max);
   if (numMin === -Infinity && numMax === Infinity) {
@@ -94,7 +94,7 @@ const calculateMean = (values, allItems) => {
   }
 };
 
-const calculateMedian = (values, allItems) => {
+const calculateMedian = (values: any, allItems: any) => {
   if (allItems.length % 2 === 0) {
     const idx = allItems.length / 2;
     values.median =
@@ -103,7 +103,12 @@ const calculateMedian = (values, allItems) => {
     values.median = allItems[Math.floor(allItems.length / 2.0)].column;
   }
 };
-const calculateStdev = (hasNegInf, hasPosInf, variance, size) => {
+const calculateStdev = (
+  hasNegInf: any,
+  hasPosInf: any,
+  variance: any,
+  size: any,
+) => {
   if (hasNegInf && hasPosInf) {
     return "NaN";
   }
@@ -113,8 +118,8 @@ const calculateStdev = (hasNegInf, hasPosInf, variance, size) => {
   return Math.sqrt(variance / size);
 };
 
-const parsePythonInfinityValues = (data) =>
-  data.map((item) => {
+const parsePythonInfinityValues = (data: any) =>
+  data.map((item: any) => {
     if (item.columnType === "status" || !item.column.endsWith("Inf")) {
       return item;
     }
@@ -125,7 +130,7 @@ const parsePythonInfinityValues = (data) =>
   });
 
 // If a bucket contains a NaN value, we can not perform any stat calculation
-const shouldSkipBucket = (bucketMeta, key) => {
+const shouldSkipBucket = (bucketMeta: any, key: any) => {
   if (bucketMeta[key] && bucketMeta[key].hasNaN) {
     return true;
   }
@@ -144,7 +149,7 @@ const shouldSkipBucket = (bucketMeta, key) => {
  *
  * @param {UpdateMaxDecimalMetaInfoParam} param
  */
-const updateMaxDecimalMetaInfo = ({ columnType, column, bucket }) => {
+const updateMaxDecimalMetaInfo = ({ columnType, column, bucket }: any) => {
   if (columnType !== "status") {
     const [, decimal] = column.split(".");
     bucket.meta.maxDecimals = Math.max(
@@ -202,6 +207,7 @@ onmessage = function (e) {
   // Copy of the template with all values replaced with NaN
   const nanObj = { ...defaultObj };
   for (const objKey of Object.keys(nanObj)) {
+    // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
     nanObj[objKey] = "NaN";
   }
 
@@ -245,9 +251,12 @@ onmessage = function (e) {
     const key = `${item.categoryType}_${item.resultType}`;
     const totalKey = `${item.categoryType}`;
     const { columnType: type, column, columnTitle: title } = item;
+    // @ts-expect-error TS(2339): Property 'title' does not exist on type '{ items: ... Remove this comment to see the full error message
     if (!total.title) {
+      // @ts-expect-error TS(2339): Property 'title' does not exist on type '{ items: ... Remove this comment to see the full error message
       total.title = title;
     }
+    // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
     const bucket = buckets[key] || {
       ...defaultObj,
       title,
@@ -255,6 +264,7 @@ onmessage = function (e) {
       meta: { ...metaTemplate },
     };
 
+    // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
     const subTotalBucket = buckets[totalKey] || {
       ...defaultObj,
       title,
@@ -267,11 +277,15 @@ onmessage = function (e) {
     // if one item is NaN we store that info so we can default all
     // calculated values for this bucket to NaN
     if (itemIsNaN) {
+      // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
       bucketNaNInfo[key] = { hasNaN: true };
+      // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
       bucketNaNInfo[totalKey] = { hasNaN: true };
 
       // set all values for this bucket to NaN
+      // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
       buckets[key] = { ...nanObj, title };
+      // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
       buckets[totalKey] = { ...nanObj, title };
       continue;
     }
@@ -307,6 +321,7 @@ onmessage = function (e) {
       try {
         bucket.items.push(item);
       } catch (e) {
+        // @ts-expect-error TS(2339): Property 'e' does not exist on type 'Console'.
         console.e({ bucket, bucketMeta: bucketNaNInfo, key });
       }
     }
@@ -314,11 +329,14 @@ onmessage = function (e) {
       try {
         subTotalBucket.items.push(item);
       } catch (e) {
+        // @ts-expect-error TS(2339): Property 'e' does not exist on type 'Console'.
         console.e({ subTotalBucket, bucketMeta: bucketNaNInfo, totalKey });
       }
     }
 
+    // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
     buckets[key] = bucket;
+    // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
     buckets[totalKey] = subTotalBucket;
   }
 
@@ -326,9 +344,12 @@ onmessage = function (e) {
     if (shouldSkipBucket(bucketNaNInfo, bucket)) {
       continue;
     }
+    // @ts-expect-error TS(2571): Object is of type 'unknown'.
     calculateMean(values, values.items);
 
+    // @ts-expect-error TS(2571): Object is of type 'unknown'.
     calculateMedian(values, values.items);
+    // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
     buckets[bucket] = values;
   }
   const totalHasNaN = totalNaNInfo.hasNaN;
@@ -348,7 +369,9 @@ onmessage = function (e) {
     const numCol = Number(column);
     const key = `${item.categoryType}_${item.resultType}`;
     const totalKey = `${item.categoryType}`;
+    // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
     const bucket = buckets[key];
+    // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
     const subTotalBucket = buckets[totalKey];
     const diffBucket = numCol - bucket.avg;
     const diffSubTotal = numCol - subTotalBucket.avg;
@@ -360,6 +383,7 @@ onmessage = function (e) {
 
   const totalHasNegInf = Number(total.min) === -Infinity;
   const totalHasPosInf = Number(total.max) === Infinity;
+  // @ts-expect-error TS(2322): Type 'number | "NaN"' is not assignable to type 'n... Remove this comment to see the full error message
   total.stdev = calculateStdev(
     totalHasNegInf,
     totalHasPosInf,
@@ -369,30 +393,42 @@ onmessage = function (e) {
 
   for (const [bucket, values] of Object.entries(buckets)) {
     if (shouldSkipBucket(bucketNaNInfo, bucket)) {
+      // @ts-expect-error TS(2769): No overload matches this call.
       for (const [key, val] of Object.entries(values)) {
+        // @ts-expect-error TS(2571): Object is of type 'unknown'.
         values[key] = val.toString();
       }
+      // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
       buckets[bucket] = values;
       continue;
     }
+    // @ts-expect-error TS(2571): Object is of type 'unknown'.
     const valuesHaveNegInf = Number(values.min) === -Infinity;
     const valuesHavePosInf = Number(total.max) === Infinity;
+    // @ts-expect-error TS(2571): Object is of type 'unknown'.
     values.stdev = calculateStdev(
       valuesHaveNegInf,
       valuesHavePosInf,
+      // @ts-expect-error TS(2571): Object is of type 'unknown'.
       values.variance,
+      // @ts-expect-error TS(2571): Object is of type 'unknown'.
       values.items.length,
     );
 
+    // @ts-expect-error TS(2769): No overload matches this call.
     for (const [key, val] of Object.entries(values)) {
       if (key === "meta") {
         continue;
       }
+      // @ts-expect-error TS(2571): Object is of type 'unknown'.
       values[key] = val.toString();
     }
     // clearing memory
+    // @ts-expect-error TS(2571): Object is of type 'unknown'.
     delete values.items;
+    // @ts-expect-error TS(2571): Object is of type 'unknown'.
     delete values.variance;
+    // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
     buckets[bucket] = values;
   }
 
@@ -400,19 +436,24 @@ onmessage = function (e) {
     if (key === "meta") {
       continue;
     }
+    // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
     total[key] = value.toString();
   }
 
+  // @ts-expect-error TS(2790): The operand of a 'delete' operator must be optiona... Remove this comment to see the full error message
   delete total.items;
+  // @ts-expect-error TS(2790): The operand of a 'delete' operator must be optiona... Remove this comment to see the full error message
   delete total.variance;
 
   const result = { columnType, total, ...buckets };
   postResult(result, transaction);
 };
 
-const postResult = (result, transaction) => {
+const postResult = (result: any, transaction: any) => {
   // handling in tests
+  // @ts-expect-error TS(7041): The containing arrow function captures the global ... Remove this comment to see the full error message
   if (this.mockedPostMessage) {
+    // @ts-expect-error TS(7041): The containing arrow function captures the global ... Remove this comment to see the full error message
     this.mockedPostMessage({ result, transaction });
     return;
   }

@@ -61,7 +61,20 @@ const getActiveTab = () =>
   ).key;
 
 export default class Overview extends React.Component {
-  constructor(props) {
+  categoryValues: any;
+  columns: any;
+  filterUrlRetriever: any;
+  filterUrlSetter: any;
+  filteredData: any;
+  lastFiltered: any;
+  lastImmediate: any;
+  originalTable: any;
+  originalTools: any;
+  stats: any;
+  statusValues: any;
+  tableHeader: any;
+  taskIdNames: any;
+  constructor(props: any) {
     super(props);
 
     // imported data
@@ -79,6 +92,7 @@ export default class Overview extends React.Component {
       setConstantHashSearch(initial);
     }
 
+    // @ts-expect-error TS(2339): Property 'data' does not exist on type 'Readonly<{... Remove this comment to see the full error message
     const filterable = getFilterableData(this.props.data);
     this.originalTable = tableData;
     this.originalTools = tools;
@@ -107,16 +121,18 @@ export default class Overview extends React.Component {
     };
     // Collect all status and category values for filter drop-down
     this.statusValues = this.findAllValuesOfColumn(
-      (_tool, column) => column.type === "status",
-      (_runResult, value) => getRawOrDefault(value),
+      (_tool: any, column: any) => column.type === "status",
+      // @ts-expect-error TS(2554): Expected 2 arguments, but got 1.
+      (_runResult: any, value: any) => getRawOrDefault(value),
     );
     // Add statusForEmptyRows to status values array if there is a corresponding empty row for the runset
-    this.originalTools.forEach((tool, j) =>
+    this.originalTools.forEach((tool: any, j: any) =>
       tool.columns
-        .filter((column) => column.type === "status")
-        .forEach((col, i) => {
+        .filter((column: any) => column.type === "status")
+        // @ts-expect-error TS(6133): 'col' is declared but its value is never read.
+        .forEach((col: any, i: any) => {
           const hasEmptyRow = this.originalTable.some(
-            (row) => row.results[j].category === "empty",
+            (row: any) => row.results[j].category === "empty",
           );
           if (hasEmptyRow) {
             this.statusValues[j][i].push(statusForEmptyRows);
@@ -124,14 +140,16 @@ export default class Overview extends React.Component {
         }),
     );
     this.categoryValues = this.findAllValuesOfColumn(
-      (_tool, column) => column.type === "status",
-      (runResult, _value) => runResult.category,
+      (_tool: any, column: any) => column.type === "status",
+      (runResult: any, _value: any) => runResult.category,
     );
 
     const categoryValuesWithTrailingSpace = this.categoryValues.map(
-      (tool) =>
+      (tool: any) =>
         tool &&
-        tool.map((column) => column && column.map((item) => `${item} `)),
+        tool.map(
+          (column: any) => column && column.map((item: any) => `${item} `),
+        ),
     );
 
     this.filterUrlSetter = makeUrlFilterSerializer(
@@ -156,12 +174,13 @@ export default class Overview extends React.Component {
     }
   }
 
-  addTypeToFilter = (filters) => {
+  addTypeToFilter = (filters: any) => {
     return filters
-      .filter((filter) => filter.id !== "id")
-      .forEach((filter) => {
+      .filter((filter: any) => filter.id !== "id")
+      .forEach((filter: any) => {
         const filterSplitArray = filter.id.split("_");
         const type =
+          // @ts-expect-error TS(2339): Property 'tools' does not exist on type 'Readonly<... Remove this comment to see the full error message
           this.state.tools[filterSplitArray[0]]["columns"][
             filterSplitArray.at(-1)
           ].type;
@@ -199,45 +218,48 @@ export default class Overview extends React.Component {
   updateState = () =>
     this.setState({
       active: getActiveTab(),
+      // @ts-expect-error TS(2339): Property 'tools' does not exist on type 'Readonly<... Remove this comment to see the full error message
       hiddenCols: createHiddenColsFromURL(this.state.tools),
     });
 
   // -----------------------SelectColumns-----------------------
-  toggleSelectColumns = (ev) => {
+  toggleSelectColumns = (ev: any) => {
     ev.stopPropagation();
 
     this.setState((prevState) => ({
+      // @ts-expect-error TS(2339): Property 'showSelectColumns' does not exist on typ... Remove this comment to see the full error message
       showSelectColumns: !prevState.showSelectColumns,
     }));
   };
 
   // -----------------------Link Overlay-----------------------
-  toggleLinkOverlay = (ev, hrefRow) => {
+  toggleLinkOverlay = (ev: any, hrefRow: any) => {
     ev.preventDefault();
 
     this.setState((prevState) => ({
+      // @ts-expect-error TS(2339): Property 'showLinkOverlay' does not exist on type ... Remove this comment to see the full error message
       showLinkOverlay: !prevState.showLinkOverlay,
       link: hrefRow,
     }));
   };
 
   // -----------------------Filter-----------------------
-  setFilter = (filteredData, raw = false) => {
+  setFilter = (filteredData: any, raw = false) => {
     if (raw) {
       this.filteredData = filteredData;
       return;
     }
-    this.filteredData = filteredData.map((row) => {
+    this.filteredData = filteredData.map((row: any) => {
       return row._original;
     });
   };
 
-  runFilter(filter) {
+  runFilter(filter: any) {
     const matcher = buildMatcher(filter);
     return applyMatcher(matcher)(this.originalTable);
   }
 
-  filterPlotData = (filter, runFilterLogic = true) => {
+  filterPlotData = (filter: any, runFilterLogic = true) => {
     // updating url filters on next tick to ensure that state is already set
     // when handler is called);
     if (this.lastImmediate) {
@@ -249,7 +271,7 @@ export default class Overview extends React.Component {
         callbacks: [this.updateFiltersFromUrl, this.updateState],
       });
       this.lastFiltered = filter.filter(
-        (item) => (item.values && item.values.length > 0) || item.value,
+        (item: any) => (item.values && item.values.length > 0) || item.value,
       );
     });
     if (runFilterLogic) {
@@ -269,21 +291,23 @@ export default class Overview extends React.Component {
   };
 
   // --------------React Table Setup -------------------------
-  findAllValuesOfColumn = (columnFilter, valueAccessor) =>
-    this.originalTools.map((tool, j) =>
-      tool.columns.map((column, i) => {
+  findAllValuesOfColumn = (columnFilter: any, valueAccessor: any) =>
+    this.originalTools.map((tool: any, j: any) =>
+      tool.columns.map((column: any, i: any) => {
         if (!columnFilter(tool, column)) {
           return undefined;
         }
         const values = this.originalTable
-          .map((row) => valueAccessor(row.results[j], row.results[j].values[i]))
+          .map((row: any) =>
+            valueAccessor(row.results[j], row.results[j].values[i]),
+          )
           .filter(Boolean);
         return [...new Set(values)].sort();
       }),
     );
 
   // -----------------------Common Functions-----------------------
-  getRowName = (row) => row.id.filter((s) => s).join(" | ");
+  getRowName = (row: any) => row.id.filter((s: any) => s).join(" | ");
 
   // Return URL params that are important across different tabs, i.e. hidden cols and filter. Returns an empty string if there are none.
   getRelevantUrlParams = () => {
@@ -297,21 +321,24 @@ export default class Overview extends React.Component {
   };
 
   // Open the quantile Plot with the given preselection
-  switchToQuantile = (quantilePreSelection) => {
+  switchToQuantile = (quantilePreSelection: any) => {
     this.setState({ quantilePreSelection });
     const urlParams = this.getRelevantUrlParams();
     document.location.hash = "#/quantile" + (urlParams ? "?" + urlParams : "");
   };
 
   render() {
-    const reset = ({ className, isReset = false, onClick, enabled }) => (
+    const reset = ({ className, isReset = false, onClick, enabled }: any) => (
       <FilterInfoButton
+        // @ts-expect-error TS(2769): No overload matches this call.
         className={className}
         showFilterText={isReset}
         onClick={onClick}
         enabled={enabled}
+        // @ts-expect-error TS(2339): Property 'filtered' does not exist on type 'Readon... Remove this comment to see the full error message
         isFiltered={!!this.state.filtered.length}
         resetFilters={this.resetFilters}
+        // @ts-expect-error TS(2339): Property 'tableData' does not exist on type 'Reado... Remove this comment to see the full error message
         filteredCount={this.state.tableData.length}
         totalCount={this.originalTable.length}
       />
@@ -324,19 +351,25 @@ export default class Overview extends React.Component {
         <div className="overview">
           <div className="overview-container">
             <FilterBox
+              // @ts-expect-error TS(2322): Type '{ headerComponent: Element; tableHeader: any... Remove this comment to see the full error message
               headerComponent={reset({
                 className: "filterBox--header--reset",
                 isReset: true,
                 enabled: false,
               })}
               tableHeader={this.tableHeader}
+              // @ts-expect-error TS(2339): Property 'tools' does not exist on type 'Readonly<... Remove this comment to see the full error message
               tools={this.state.tools}
               selectColumn={this.toggleSelectColumns}
+              // @ts-expect-error TS(2339): Property 'filterable' does not exist on type 'Read... Remove this comment to see the full error message
               filterable={this.state.filterable}
               setFilter={this.filterPlotData}
               resetFilters={this.resetFilters}
+              // @ts-expect-error TS(2339): Property 'filtered' does not exist on type 'Readon... Remove this comment to see the full error message
               filtered={this.state.filtered}
+              // @ts-expect-error TS(2339): Property 'filterBoxVisible' does not exist on type... Remove this comment to see the full error message
               visible={this.state.filterBoxVisible}
+              // @ts-expect-error TS(2339): Property 'hiddenCols' does not exist on type 'Read... Remove this comment to see the full error message
               hiddenCols={this.state.hiddenCols}
               hide={() => {
                 this.setState({ filterBoxVisible: false });
@@ -348,6 +381,7 @@ export default class Overview extends React.Component {
               {menuItems.map(({ key, title, path, icon }) => (
                 <Link
                   className={classNames("menu-item", {
+                    // @ts-expect-error TS(2339): Property 'active' does not exist on type 'Readonly... Remove this comment to see the full error message
                     selected: this.state.active === key,
                   })}
                   to={path + (urlParams ? "?" + urlParams : "")}
@@ -371,15 +405,21 @@ export default class Overview extends React.Component {
                   path="/"
                   element={
                     <Summary
+                      // @ts-expect-error TS(2339): Property 'tools' does not exist on type 'Readonly<... Remove this comment to see the full error message
                       tools={this.state.tools}
                       tableHeader={this.tableHeader}
+                      // @ts-expect-error TS(2339): Property 'data' does not exist on type 'Readonly<{... Remove this comment to see the full error message
                       version={this.props.data.version}
                       selectColumn={this.toggleSelectColumns}
                       stats={this.stats}
+                      // @ts-expect-error TS(2339): Property 'onStatsReady' does not exist on type 'Re... Remove this comment to see the full error message
                       onStatsReady={this.props.onStatsReady}
                       switchToQuantile={this.switchToQuantile}
+                      // @ts-expect-error TS(2339): Property 'tableData' does not exist on type 'Reado... Remove this comment to see the full error message
                       tableData={this.state.tableData}
+                      // @ts-expect-error TS(2339): Property 'hiddenCols' does not exist on type 'Read... Remove this comment to see the full error message
                       hiddenCols={this.state.hiddenCols}
+                      // @ts-expect-error TS(2339): Property 'filtered' does not exist on type 'Readon... Remove this comment to see the full error message
                       filtered={this.state.filtered.length > 0}
                     />
                   }
@@ -388,14 +428,18 @@ export default class Overview extends React.Component {
                   path="/table"
                   element={
                     <Table
+                      // @ts-expect-error TS(2339): Property 'tableData' does not exist on type 'Reado... Remove this comment to see the full error message
                       tableData={this.state.tableData}
+                      // @ts-expect-error TS(2339): Property 'tools' does not exist on type 'Readonly<... Remove this comment to see the full error message
                       tools={this.state.tools}
                       selectColumn={this.toggleSelectColumns}
                       filterPlotData={this.filterPlotData}
+                      // @ts-expect-error TS(2339): Property 'filtered' does not exist on type 'Readon... Remove this comment to see the full error message
                       filters={this.state.filtered}
                       toggleLinkOverlay={this.toggleLinkOverlay}
                       statusValues={this.statusValues}
                       categoryValues={this.categoryValues}
+                      // @ts-expect-error TS(2339): Property 'hiddenCols' does not exist on type 'Read... Remove this comment to see the full error message
                       hiddenCols={this.state.hiddenCols}
                       addTypeToFilter={this.addTypeToFilter}
                     />
@@ -405,11 +449,16 @@ export default class Overview extends React.Component {
                   path="/quantile"
                   element={
                     <QuantilePlot
+                      // @ts-expect-error TS(2322): Type '{ table: any; tools: any; preSelection: any;... Remove this comment to see the full error message
                       table={this.state.tableData}
+                      // @ts-expect-error TS(2339): Property 'tools' does not exist on type 'Readonly<... Remove this comment to see the full error message
                       tools={this.state.tools}
+                      // @ts-expect-error TS(2339): Property 'quantilePreSelection' does not exist on ... Remove this comment to see the full error message
                       preSelection={this.state.quantilePreSelection}
                       getRowName={this.getRowName}
+                      // @ts-expect-error TS(2339): Property 'hiddenCols' does not exist on type 'Read... Remove this comment to see the full error message
                       hiddenCols={this.state.hiddenCols}
+                      // @ts-expect-error TS(2339): Property 'renderPlotsFlexible' does not exist on t... Remove this comment to see the full error message
                       isFlexible={this.props.renderPlotsFlexible}
                     />
                   }
@@ -418,11 +467,15 @@ export default class Overview extends React.Component {
                   path="/scatter"
                   element={
                     <ScatterPlot
+                      // @ts-expect-error TS(2322): Type '{ table: any; columns: any; tools: any; getR... Remove this comment to see the full error message
                       table={this.state.tableData}
                       columns={this.columns}
+                      // @ts-expect-error TS(2339): Property 'tools' does not exist on type 'Readonly<... Remove this comment to see the full error message
                       tools={this.state.tools}
                       getRowName={this.getRowName}
+                      // @ts-expect-error TS(2339): Property 'hiddenCols' does not exist on type 'Read... Remove this comment to see the full error message
                       hiddenCols={this.state.hiddenCols}
+                      // @ts-expect-error TS(2339): Property 'renderPlotsFlexible' does not exist on t... Remove this comment to see the full error message
                       isFlexible={this.props.renderPlotsFlexible}
                     />
                   }
@@ -431,6 +484,7 @@ export default class Overview extends React.Component {
                   path="/info"
                   element={
                     <Info
+                      // @ts-expect-error TS(2339): Property 'data' does not exist on type 'Readonly<{... Remove this comment to see the full error message
                       version={this.props.data.version}
                       selectColumn={this.toggleSelectColumns}
                     />
@@ -440,12 +494,17 @@ export default class Overview extends React.Component {
             </div>
           </div>
           <div>
+            // @ts-expect-error TS(2339): Property 'showSelectColumns' does not
+            exist on typ... Remove this comment to see the full error message
             {this.state.showSelectColumns && (
               <SelectColumn
+                // @ts-expect-error TS(2322): Type '{ close: (ev: any) => void; currColumns: any... Remove this comment to see the full error message
                 close={this.toggleSelectColumns}
                 currColumns={this.columns}
                 tableHeader={this.tableHeader}
+                // @ts-expect-error TS(2339): Property 'tools' does not exist on type 'Readonly<... Remove this comment to see the full error message
                 tools={this.state.tools}
+                // @ts-expect-error TS(2339): Property 'hiddenCols' does not exist on type 'Read... Remove this comment to see the full error message
                 hiddenCols={this.state.hiddenCols}
                 updateParentStateOnClose={() => {
                   this.updateState();
@@ -453,9 +512,13 @@ export default class Overview extends React.Component {
                 }}
               />
             )}
+            // @ts-expect-error TS(2339): Property 'showLinkOverlay' does not
+            exist on type ... Remove this comment to see the full error message
             {this.state.showLinkOverlay && (
               <LinkOverlay
+                // @ts-expect-error TS(2322): Type '{ close: (ev: any, hrefRow: any) => void; li... Remove this comment to see the full error message
                 close={this.toggleLinkOverlay}
+                // @ts-expect-error TS(2339): Property 'link' does not exist on type 'Readonly<{... Remove this comment to see the full error message
                 link={this.state.link}
                 toggleLinkOverlay={this.toggleLinkOverlay}
               />

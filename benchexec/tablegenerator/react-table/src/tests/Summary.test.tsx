@@ -5,12 +5,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+// @ts-expect-error TS(6133): 'React' is declared but its value is never read.
 import React from "react";
 import Summary from "../components/Summary.js";
 
 import { test_snapshot_of_async } from "./utils.js";
 
-test_snapshot_of_async("Render Summary", (overview) => {
+test_snapshot_of_async("Render Summary", (overview: any) => {
   let statsResolver;
   const StatsReadyPromise = new Promise((resolve) => {
     statsResolver = resolve;

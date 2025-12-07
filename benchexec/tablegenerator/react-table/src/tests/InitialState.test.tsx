@@ -5,8 +5,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+// @ts-expect-error TS(6133): 'React' is declared but its value is never read.
 import React from "react";
 import Overview from "../components/Overview";
+// @ts-expect-error TS(7016): Could not find a declaration file for module 'reac... Remove this comment to see the full error message
 import renderer from "react-test-renderer";
 const fs = require("fs");
 
@@ -28,6 +30,7 @@ describe("Initial state parameter tests", () => {
       data.initial = parameter;
 
       const overviewInstance = renderer
+        // @ts-expect-error TS(2322): Type '{ data: any; }' is not assignable to type 'I... Remove this comment to see the full error message
         .create(<Overview data={data} />)
         .getInstance();
 
@@ -50,6 +53,7 @@ describe("Initial state parameter tests", () => {
         data.initial = parameter;
 
         const overviewInstance = renderer
+          // @ts-expect-error TS(2322): Type '{ data: any; }' is not assignable to type 'I... Remove this comment to see the full error message
           .create(<Overview data={data} />)
           .getInstance();
 
@@ -64,6 +68,7 @@ describe("Initial state parameter tests", () => {
     data.initial = "/non-existing";
 
     const overviewInstance = renderer
+      // @ts-expect-error TS(2322): Type '{ data: any; }' is not assignable to type 'I... Remove this comment to see the full error message
       .create(<Overview data={data} />)
       .getInstance();
 
@@ -75,6 +80,7 @@ describe("Initial state parameter tests", () => {
     data.initial = "/table";
 
     const overviewInstance = renderer
+      // @ts-expect-error TS(2322): Type '{ data: any; }' is not assignable to type 'I... Remove this comment to see the full error message
       .create(<Overview data={data} />)
       .getInstance();
 

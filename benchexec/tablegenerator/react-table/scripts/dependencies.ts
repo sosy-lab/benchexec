@@ -5,16 +5,15 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-"use strict";
-
 const checker = require("license-checker");
+// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'fs'.
 const fs = require("fs");
 
-const stripPrefix = (str, prefix) =>
+const stripPrefix = (str: any, prefix: any) =>
   prefix && str.startsWith(prefix)
     ? str.substring(prefix.length).trimStart()
     : str;
-const stripUpTo = (str, token, removeToken = true) => {
+const stripUpTo = (str: any, token: any, removeToken = true) => {
   const start = str.indexOf(token);
   if (start >= 0) {
     str = str.substring(start);
@@ -44,10 +43,10 @@ checker.init(
       licenses: "",
       copyright: "",
       repository: "",
-      licenseText: ""
-    }
+      licenseText: "",
+    },
   },
-  function(err, packages) {
+  function (err: any, packages: any) {
     if (err) {
       console.log(err);
       process.exit(1);
@@ -56,10 +55,10 @@ checker.init(
       // Because licenses are large, we deduplicate them:
       // We store each occurring license in licensesTexts and refer to it via its index.
       const licenseTextMapping = {};
-      const licenseTexts = [];
+      const licenseTexts: any = [];
       const licenseCounts = {};
-      const dependencies = [];
-      Object.keys(packages).forEach(key => {
+      const dependencies: any = [];
+      Object.keys(packages).forEach((key) => {
         const dependency = packages[key];
 
         if (key === "toggle-selection@1.0.6") {
@@ -93,7 +92,7 @@ checker.init(
         // For dependencies that have no license file but only a readme,
         // we remove the readme part until the start of the license section.
         ["\n## License\n", "\n## **License**\n"].forEach(
-          prefix => (license = stripUpTo(license, prefix))
+          (prefix) => (license = stripUpTo(license, prefix)),
         );
 
         // Many license texts differ only in a small header.
@@ -115,8 +114,8 @@ checker.init(
           "For React software",
           "# " + dependency.name,
           // plus each sentence of copyright
-          ...dependency.copyright.split(/(\.)\.?[ *]/)
-        ].forEach(prefix => (license = stripPrefix(license, prefix)));
+          ...dependency.copyright.split(/(\.)\.?[ *]/),
+        ].forEach((prefix) => (license = stripPrefix(license, prefix)));
 
         // Furthermore, some license texts differ only in whitespace and
         // punctuation, so for deduplication, we normalize this.
@@ -126,15 +125,19 @@ checker.init(
 
         var licenseId;
         if (normalizedLicense in licenseTextMapping) {
+          // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
           licenseId = licenseTextMapping[normalizedLicense];
         } else if (license) {
           licenseId = licenseTexts.push(license) - 1;
+          // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
           licenseTextMapping[normalizedLicense] = licenseId;
 
           // count variants per license
           if (dependency.licenses in licenseCounts) {
+            // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
             licenseCounts[dependency.licenses]++;
           } else {
+            // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
             licenseCounts[dependency.licenses] = 1;
           }
         }
@@ -145,29 +148,30 @@ checker.init(
           repository: dependency.repository,
           copyright: dependency.copyright,
           licenses: dependency.licenses,
-          licenseId: licenseId
+          licenseId: licenseId,
         });
       });
       const dependencyData = JSON.stringify({
         dependencies: dependencies,
-        licenses: licenseTexts
+        licenses: licenseTexts,
       });
 
-      const prettyPrintLicense = d =>
+      const prettyPrintLicense = (d: any) =>
+        // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
         `${d.licenses} (${licenseCounts[d.licenses]} variants)`;
       console.info(
         "Found %d dependencies under %s, adding %d bytes of metadata.",
         dependencies.length,
         [...new Set(dependencies.map(prettyPrintLicense))].join(", "),
-        dependencyData.length
+        dependencyData.length,
       );
 
-      fs.writeFile("src/data/dependencies.json", dependencyData, err => {
+      fs.writeFile("src/data/dependencies.json", dependencyData, (err: any) => {
         if (err) {
           console.log(err);
           process.exit(1);
         }
       });
     }
-  }
+  },
 );

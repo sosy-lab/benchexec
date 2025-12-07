@@ -5,7 +5,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+// @ts-expect-error TS(6133): 'React' is declared but its value is never read.
 import React from "react";
+// @ts-expect-error TS(7016): Could not find a declaration file for module 'reac... Remove this comment to see the full error message
 import renderer from "react-test-renderer";
 
 import { render } from "@testing-library/react";
@@ -13,7 +15,7 @@ import userEvent from "@testing-library/user-event";
 
 import FilterCard from "../components/FilterBox/FilterCard.js";
 
-const createFilterCard = (props) => <FilterCard {...props} />;
+const createFilterCard = (props: any) => <FilterCard {...props} />;
 
 describe("FilterCard tests", () => {
   test("FilterCard should allow selection of available filters", () => {
@@ -106,7 +108,7 @@ describe("FilterCard tests", () => {
   test("FilterCard should send correct updates on selection of filters", async () => {
     let response = {};
 
-    const handler = (obj) => {
+    const handler = (obj: any) => {
       response = obj;
     };
     const filter = {
@@ -126,6 +128,7 @@ describe("FilterCard tests", () => {
 
     expect(checkBox).not.toBeNull();
 
+    // @ts-expect-error TS(2345): Argument of type 'Element | null' is not assignabl... Remove this comment to see the full error message
     await userEvent.click(checkBox);
 
     expect(response).toEqual({ values: ["true"], title: "Status" });

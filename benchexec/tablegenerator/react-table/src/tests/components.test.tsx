@@ -6,7 +6,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 // react standard
+// @ts-expect-error TS(6133): 'React' is declared but its value is never read.
 import React from "react";
+// @ts-expect-error TS(7016): Could not find a declaration file for module 'reac... Remove this comment to see the full error message
 import renderer from "react-test-renderer";
 
 // Testing Library
@@ -27,6 +29,7 @@ test("Click on reset button stops button from rendering", () => {
 
   render(
     <Reset
+      // @ts-expect-error TS(2769): No overload matches this call.
       isFiltered={isFiltered}
       filteredCount="23"
       totalCount="42"
@@ -41,6 +44,7 @@ test("Click on reset button stops button from rendering", () => {
 });
 
 it("Render reset button", () => {
+  // @ts-expect-error TS(2769): No overload matches this call.
   const reset = <Reset filteredCount="23" totalCount="42" isFiltered={true} />;
 
   expect(renderer.create(reset)).toMatchInlineSnapshot(`
@@ -67,6 +71,7 @@ it("Render reset button", () => {
 });
 
 it("Hide reset button", () => {
+  // @ts-expect-error TS(2769): No overload matches this call.
   const reset = <Reset isFiltered={false} />;
 
   expect(renderer.create(reset)).toMatchInlineSnapshot(`

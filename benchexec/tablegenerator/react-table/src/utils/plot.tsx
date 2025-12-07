@@ -5,6 +5,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+// @ts-expect-error TS(6133): 'React' is declared but its value is never read.
 import React from "react";
 
 /**
@@ -18,12 +19,12 @@ import React from "react";
  * @param {boolean} isDisabled [OPTIONAL] whether or not the dropdown is disabled
  **/
 const renderSetting = (
-  name,
-  value,
-  changeHandler,
-  options,
-  tooltip,
-  isDisabled,
+  name: any,
+  value: any,
+  changeHandler: any,
+  options: any,
+  tooltip: any,
+  isDisabled: any,
 ) => {
   return (
     <div className={`setting${isDisabled ? " disabled" : ""}`} title={tooltip}>
@@ -38,11 +39,15 @@ const renderSetting = (
         disabled={isDisabled}
       >
         {Object.values(options).map((option) => (
+          // @ts-expect-error TS(2322): Type 'unknown' is not assignable to type 'string |... Remove this comment to see the full error message
           <option value={option} key={option} name={option + " " + name}>
+            // @ts-expect-error TS(2322): Type 'unknown' is not assignable to
+            type 'ReactNod... Remove this comment to see the full error message
             {option}
           </option>
         ))}
         {isDisabled ? (
+          // @ts-expect-error TS(2322): Type '{ children: string; value: string; name: str... Remove this comment to see the full error message
           <option value="disabled" name="disabled">
             ⸺
           </option>
@@ -59,7 +64,7 @@ const renderSetting = (
  *
  * @param {function} resetHandler handler function triggered by button click to reset plot modifications
  **/
-const renderResetButton = (resetHandler) => {
+const renderResetButton = (resetHandler: any) => {
   return (
     <button className="setting-button" onClick={() => resetHandler()}>
       Reset plot
@@ -78,11 +83,11 @@ const renderResetButton = (resetHandler) => {
  * @param {String} tooltip [OPTIONAL] tooltip for the whole setting
  **/
 const renderOptgroupsSetting = (
-  name,
-  value,
-  changeHandler,
-  options,
-  tooltip,
+  name: any,
+  value: any,
+  changeHandler: any,
+  options: any,
+  tooltip: any,
 ) => {
   return (
     <div className="setting" title={tooltip}>
@@ -98,10 +103,12 @@ const renderOptgroupsSetting = (
       >
         {Object.entries(options).map(([optgroup, selections]) => (
           <optgroup label={optgroup} key={optgroup}>
-            {selections.map((optionObj) => (
+            // @ts-expect-error TS(2571): Object is of type 'unknown'.
+            {selections.map((optionObj: any) => (
               <option
                 value={optionObj.value}
                 key={optionObj.value}
+                // @ts-expect-error TS(2322): Type '{ children: any; value: any; key: any; name:... Remove this comment to see the full error message
                 name={optionObj.name + " " + name}
               >
                 {optionObj.name}
@@ -125,30 +132,34 @@ const renderOptgroupsSetting = (
  * @param {int} maxX rightmost x value for the borders
  */
 function getConfidenceIntervalBorders(
-  actualData,
-  predictedData,
-  regressionFunction,
-  minX,
-  maxX,
+  actualData: any,
+  predictedData: any,
+  regressionFunction: any,
+  minX: any,
+  maxX: any,
 ) {
-  const getXValue = (data) => data[0];
-  const getYValue = (data) => data[1];
-  const sum = (x, y) => x + y;
+  const getXValue = (data: any) => data[0];
+  const getYValue = (data: any) => data[1];
+  const sum = (x: any, y: any) => x + y;
   minX = Math.floor(minX);
   maxX = Math.ceil(maxX);
   // Value of the t-statistic for a 95% confidence interval
   const tValue = 1.96;
   const stdErr = Math.sqrt(
     actualData
-      .map((data, index) => [getYValue(data), getYValue(predictedData[index])])
-      .map((yValues) => Math.pow(yValues[1] - yValues[0], 2))
+      .map((data: any, index: any) => [
+        getYValue(data),
+        getYValue(predictedData[index]),
+      ])
+      .map((yValues: any) => Math.pow(yValues[1] - yValues[0], 2))
       .reduce(sum) / actualData.length,
   );
   const meanOfX =
-    actualData.map((data) => getXValue(data)).reduce(sum) / actualData.length;
+    actualData.map((data: any) => getXValue(data)).reduce(sum) /
+    actualData.length;
   const stdOfX = Math.sqrt(
     actualData
-      .map((data) => Math.pow(getXValue(data) - meanOfX, 2))
+      .map((data: any) => Math.pow(getXValue(data) - meanOfX, 2))
       .reduce(sum) / actualData.length,
   );
 
@@ -160,7 +171,8 @@ function getConfidenceIntervalBorders(
 
   const diffMargins =
     stdErr === 0 || stdOfX === 0
-      ? dataPointsOfRegression.map((data) => 0)
+      ? // @ts-expect-error TS(6133): 'data' is declared but its value is never read.
+        dataPointsOfRegression.map((data) => 0)
       : dataPointsOfRegression.map((data) =>
           Number.parseFloat(
             (
@@ -189,12 +201,14 @@ function getConfidenceIntervalBorders(
 /* Computes the data points that will be plotted for a regression. The maximum
    number of data points will not exceed 10.000. If there were more, the lines
    will be plotted in intervals. */
-function getDataPointsOfRegression(minX, maxX, regF) {
+function getDataPointsOfRegression(minX: any, maxX: any, regF: any) {
   const thresholds = [100000000, 10000000, 1000000, 100000, 10000];
   const threshold = thresholds.find((threshold) => maxX > threshold);
   const numberPointsDivider = threshold ? threshold / 1000 : 1;
   const dataPointsOfRegression = Array(Math.ceil(maxX / numberPointsDivider))
+    // @ts-expect-error TS(2554): Expected 1-3 arguments, but got 0.
     .fill()
+    // @ts-expect-error TS(6133): 'x' is declared but its value is never read.
     .map((x, index) => index * numberPointsDivider);
 
   return dataPointsOfRegression

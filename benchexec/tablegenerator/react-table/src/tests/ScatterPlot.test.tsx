@@ -5,9 +5,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+// @ts-expect-error TS(6133): 'React' is declared but its value is never read.
 import React from "react";
 import ScatterPlot from "../components/ScatterPlot.js";
 import Overview from "../components/Overview";
+// @ts-expect-error TS(7016): Could not find a declaration file for module 'reac... Remove this comment to see the full error message
 import renderer from "react-test-renderer";
 import { constructHashURL } from "../utils/utils";
 const fs = require("fs");
@@ -20,12 +22,14 @@ const content = fs.readFileSync(
 );
 const data = JSON.parse(content);
 const overviewInstance = renderer
+  // @ts-expect-error TS(2322): Type '{ data: any; }' is not assignable to type 'I... Remove this comment to see the full error message
   .create(<Overview data={data} />)
   .getInstance();
 
 // Fixed width and height because the FlexibleXYPlot doesn't work well with the react-test-renderer
 const scatterPlotJSX = (
   <ScatterPlot
+    // @ts-expect-error TS(2322): Type '{ table: any; columns: any; tools: any; getR... Remove this comment to see the full error message
     table={overviewInstance.state.tableData}
     columns={overviewInstance.columns}
     tools={overviewInstance.state.tools}
@@ -38,23 +42,29 @@ const plot = renderer.create(scatterPlotJSX);
 const plotInstance = plot.getInstance();
 
 // Store a reference of the tool the column belongs to in the column object for later use
-const colsWithToolRef = plotInstance.props.tools.flatMap((tool) =>
-  tool.columns.map((col) => ({ ...col, toolIdx: tool.toolIdx })),
+const colsWithToolRef = plotInstance.props.tools.flatMap((tool: any) =>
+  tool.columns.map((col: any) => ({
+    ...col,
+    toolIdx: tool.toolIdx,
+  })),
 );
 
 describe("Scatter Plot with columns of same runset should match HTML snapshot", () => {
   /* Objects of all columns of the first runset of the format 0-{colIdx}.
      Overriding of toString() method is used for better identifying test cases. */
-  const selectionOptions = plotInstance.props.tools[0].columns.map((col) => ({
-    value: "0-" + col.colIdx,
-    toString: () => col.display_title,
-  }));
+  const selectionOptions = plotInstance.props.tools[0].columns.map(
+    (col: any) => ({
+      value: "0-" + col.colIdx,
+      toString: () => col.display_title,
+    }),
+  );
 
   // All combinations of the columns of the first runset with all result options.
   const selectionResultInput = getSelectionResultInput(selectionOptions);
 
   it.each(selectionResultInput)(
     "with X-Axis %s and Y-Axis %s and %s results",
+    // @ts-expect-error TS(2345): Argument of type '(xSelection: any, ySelection: an... Remove this comment to see the full error message
     (xSelection, ySelection, results) => {
       const params = getSelections(xSelection, ySelection);
       setUrlParams({ ...params, results });
@@ -64,12 +74,14 @@ describe("Scatter Plot with columns of same runset should match HTML snapshot", 
 });
 
 describe("Scatter Plot with columns of different runsets should match HTML snapshot", () => {
-  const toolIdxesOfCols = colsWithToolRef.map((col) => col.toolIdx);
+  const toolIdxesOfCols = colsWithToolRef.map((col: any) => col.toolIdx);
   /* Objects of all first occuring columns of all runsets of the format {runsetIdx}-{colIdx}.
      Overriding of toString() method is used for better identifying test cases. */
   const selectionOptions = colsWithToolRef
-    .filter((col, index) => toolIdxesOfCols.indexOf(col.toolIdx) === index)
-    .map((col) => ({
+    .filter(
+      (col: any, index: any) => toolIdxesOfCols.indexOf(col.toolIdx) === index,
+    )
+    .map((col: any) => ({
       value: col.toolIdx + "-" + col.colIdx,
       toString: () => col.display_title + " of runset " + col.toolIdx,
     }));
@@ -79,6 +91,7 @@ describe("Scatter Plot with columns of different runsets should match HTML snaps
 
   it.each(selectionResultInput)(
     "with X-Axis %s and Y-Axis %s and %s results",
+    // @ts-expect-error TS(2345): Argument of type '(xSelection: any, ySelection: an... Remove this comment to see the full error message
     (xSelection, ySelection, results) => {
       const params = getSelections(xSelection, ySelection);
       setUrlParams({ ...params, results });
@@ -88,12 +101,16 @@ describe("Scatter Plot with columns of different runsets should match HTML snaps
 });
 
 describe("Scatter Plot with columns of different types should match HTML snapshot", () => {
-  const typesOfCols = colsWithToolRef.map((col) => col.type);
+  const typesOfCols = colsWithToolRef.map((col: any) => col.type);
   /* Objects of all first occuring columns with an unique type attribute of the format {runsetIdx}-{colIdx}.
      Overriding of toString() method is used for better identifying test cases. */
   const selectionOptions = colsWithToolRef
-    .filter((col, index, self) => typesOfCols.indexOf(col.type) === index)
-    .map((col) => ({
+    .filter(
+      // @ts-expect-error TS(6133): 'self' is declared but its value is never read.
+      (col: any, index: any, self: any) =>
+        typesOfCols.indexOf(col.type) === index,
+    )
+    .map((col: any) => ({
       value: col.toolIdx + "-" + col.colIdx,
       toString: () => col.type,
     }));
@@ -103,7 +120,9 @@ describe("Scatter Plot with columns of different types should match HTML snapsho
 
   it.each(selectionResultInput)(
     "with X-Axis of the type %s and Y-Axis of the type %s and %s results",
+    // @ts-expect-error TS(2345): Argument of type '(xSelection: any, ySelection: an... Remove this comment to see the full error message
     (xSelection, ySelection, results) => {
+      // @ts-expect-error TS(2554): Expected 2 arguments, but got 3.
       const params = getSelections(xSelection, ySelection, results);
       setUrlParams({ ...params, results });
       expect(plot).toMatchSnapshot();
@@ -116,9 +135,10 @@ describe("Scatter Plot linear regression should match HTML snapshot", () => {
      Overriding of toString() method is used for better identifying test cases. */
   const selectionOptions = colsWithToolRef
     .filter(
-      (col) => plotInstance.handleType(col.toolIdx, col.colIdx) !== "ordinal",
+      (col: any) =>
+        plotInstance.handleType(col.toolIdx, col.colIdx) !== "ordinal",
     )
-    .map((col) => ({
+    .map((col: any) => ({
       value: col.toolIdx + "-" + col.colIdx,
       toString: () => col.display_title + " of runset " + col.toolIdx,
     }));
@@ -128,6 +148,7 @@ describe("Scatter Plot linear regression should match HTML snapshot", () => {
 
   it.each(selectionInput)(
     "with X-Axis of the type %s and Y-Axis of the type %s",
+    // @ts-expect-error TS(2345): Argument of type '(xSelection: any, ySelection: an... Remove this comment to see the full error message
     (xSelection, ySelection) => {
       const params = getSelections(xSelection, ySelection);
       setUrlParams({
@@ -140,18 +161,18 @@ describe("Scatter Plot linear regression should match HTML snapshot", () => {
 });
 
 // Creates an array of tuples of the selection for the X-axis and Y-axis
-function getSelectionInput(selectionOptions) {
-  return selectionOptions.flatMap((xAxis, i) =>
-    selectionOptions.slice(i).map((yAxis) => [xAxis, yAxis]),
+function getSelectionInput(selectionOptions: any) {
+  return selectionOptions.flatMap((xAxis: any, i: any) =>
+    selectionOptions.slice(i).map((yAxis: any) => [xAxis, yAxis]),
   );
 }
 
 // Creates an array of triples of the selection for the X-axis, Y-axis and shown results as test data
-function getSelectionResultInput(selectionOptions) {
-  return selectionOptions.flatMap((xAxis, i) =>
+function getSelectionResultInput(selectionOptions: any) {
+  return selectionOptions.flatMap((xAxis: any, i: any) =>
     selectionOptions
       .slice(i)
-      .flatMap((yAxis) =>
+      .flatMap((yAxis: any) =>
         Object.keys(plotInstance.resultsOptions).map((result) => [
           xAxis,
           yAxis,
@@ -161,7 +182,7 @@ function getSelectionResultInput(selectionOptions) {
   );
 }
 
-function getSelections(xSelection, ySelection) {
+function getSelections(xSelection: any, ySelection: any) {
   let [toolX, columnX] = xSelection.value.split("-");
   let [toolY, columnY] = ySelection.value.split("-");
   columnX = columnX.replace("___", "-");
@@ -169,7 +190,7 @@ function getSelections(xSelection, ySelection) {
   return { toolX, columnX, toolY, columnY };
 }
 
-function setUrlParams(params) {
+function setUrlParams(params: any) {
   const { newUrl } = constructHashURL(window.location.href, params);
   window.history.pushState({}, "Quantile Plot Test", newUrl);
   plotInstance.refreshUrlState();

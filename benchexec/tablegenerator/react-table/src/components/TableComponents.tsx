@@ -5,10 +5,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+// @ts-expect-error TS(6133): 'React' is declared but its value is never read.
 import React from "react";
 import { formatColumnTitle, getRunSetName } from "../utils/utils.js";
 
-export const SelectColumnsButton = ({ handler, ...other }) => (
+export const SelectColumnsButton = ({ handler, ...other }: any) => (
   <span onClick={handler} title="" className="selectColumns" {...other}>
     Click here to select columns
   </span>
@@ -19,13 +20,13 @@ export const StandardColumnHeader = ({
   title = "Click here to sort. Hold shift to multi-sort",
   children,
   ...other
-}) => (
+}: any) => (
   <div title={title} {...other}>
     {children || formatColumnTitle(column)}
   </div>
 );
 
-export const RunSetHeader = ({ runSet, ...other }) => (
+export const RunSetHeader = ({ runSet, ...other }: any) => (
   <span className="header__tool-infos" {...other} title={getRunSetName(runSet)}>
     {getRunSetName(runSet)}
   </span>
@@ -37,7 +38,7 @@ export const StandardCell = ({
   toggleLinkOverlay,
   force = false,
   ...other
-}) => {
+}: any) => {
   const html = cell.value.html;
   const raw = html ? undefined : cell.value.raw;
   if (!force && !(raw || html)) {
@@ -65,7 +66,7 @@ export const StandardCell = ({
   );
 };
 
-const createSeparatorColumn = (runSetIdx) =>
+const createSeparatorColumn = (runSetIdx: any) =>
   Object.freeze({
     Header: "",
     accessor: "separator" + runSetIdx,
@@ -80,11 +81,15 @@ const createSeparatorColumn = (runSetIdx) =>
     ],
   });
 
-export const createRunSetColumns = (runSet, runSetIdx, createColumn) => [
+export const createRunSetColumns = (
+  runSet: any,
+  runSetIdx: any,
+  createColumn: any,
+) => [
   createSeparatorColumn(runSetIdx),
   {
     Header: <RunSetHeader runSet={runSet} />,
-    columns: runSet.columns.map((column, columnIdx) =>
+    columns: runSet.columns.map((column: any, columnIdx: any) =>
       createColumn(runSetIdx, column, columnIdx),
     ),
     id: "runset-column",

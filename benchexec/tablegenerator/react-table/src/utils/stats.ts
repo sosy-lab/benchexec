@@ -66,8 +66,9 @@ export const statisticsRows = {
  * Remove all statistics rows for which the statistics worker cannot/will not
  * compute values (e.g., summary measurements, score).
  */
-export const filterComputableStatistics = (stats) =>
-  stats.filter((row) => statisticsRows[row.id]);
+export const filterComputableStatistics = (stats: any) =>
+  // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
+  stats.filter((row: any) => statisticsRows[row.id]);
 
 /**
  * This method gets called on the initial render or whenever there is a
@@ -78,13 +79,14 @@ export const filterComputableStatistics = (stats) =>
  * necessary transformation to bring the calculation results into the
  * required format.
  */
-export const computeStats = async ({ tools, tableData, stats }) => {
+export const computeStats = async ({ tools, tableData, stats }: any) => {
   const formatter = buildFormatter(tools);
   let res = await processData({ tools, tableData, formatter });
 
   const availableStats = stats
-    .map((row) => row.id)
-    .filter((id) => statisticsRows[id]);
+    .map((row: any) => row.id)
+    // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
+    .filter((id: any) => statisticsRows[id]);
   const cleaned = cleanupStats(res, formatter, availableStats);
 
   // fill up stat array to match column mapping
@@ -96,7 +98,7 @@ export const computeStats = async ({ tools, tableData, stats }) => {
   // In order to ensure a consistent layout we iterate through all columns
   // of the runset and append dummy objects until we reach a column that we
   // have calculated data for
-  res = cleaned.map((tool, toolIdx) => {
+  res = cleaned.map((tool: any, toolIdx: any) => {
     const out = [];
     const toolColumns = tools[toolIdx].columns;
     let pointer = 0;
@@ -123,8 +125,10 @@ export const computeStats = async ({ tools, tableData, stats }) => {
   });
 
   // Put new statistics in same "shape" as old ones.
-  return filterComputableStatistics(stats).map((row) => {
-    const content = row.content.map((tool, toolIdx) => {
+  return filterComputableStatistics(stats).map((row: any) => {
+    // @ts-expect-error TS(6133): 'tool' is declared but its value is never read.
+    const content = row.content.map((tool: any, toolIdx: any) => {
+      // @ts-expect-error TS(7006): Parameter 'col' implicitly has an 'any' type.
       return res[toolIdx].map((col) => col[row.id]);
     });
     return { ...row, content };
@@ -137,72 +141,75 @@ export const computeStats = async ({ tools, tableData, stats }) => {
  *
  * @param {object[]} tools
  */
-const buildFormatter = (tools) =>
-  tools.map((tool, tIdx) =>
-    tool.columns.map((column, cIdx) => {
+const buildFormatter = (tools: any) =>
+  tools.map((tool: any, tIdx: any) =>
+    tool.columns.map((column: any, cIdx: any) => {
       const { number_of_significant_digits: sigDigits } = column;
       return new NumberFormatterBuilder(sigDigits, `${tIdx}-${cIdx}`);
     }),
   );
 
 const maybeRound =
-  (key, maxDecimalInputLength, columnIdx) =>
-  (number, { significantDigits }) => {
-    const asNumber = Number(number);
-    const [integer, decimal] = number.split(".");
+  // @ts-expect-error TS(6133): 'columnIdx' is declared but its value is never rea... Remove this comment to see the full error message
 
-    if (["sum", "avg", "stdev"].includes(key)) {
-      // for cases when we have no significant digits defined,
-      // we want to pad avg and stdev to two digits
-      if (isNil(significantDigits) && key !== "sum") {
-        return asNumber.toFixed(2);
-      }
-      // integer value without leading 0
-      const cleanedInt = integer.replace(/^0+/, "");
-      // decimal value without leading 0, if cleanedInt is empty (evaluates to zero)
-      let cleanedDec = decimal || "";
-      if (cleanedInt === "") {
-        cleanedDec = cleanedDec.replace(/^0+/, "");
-      }
 
-      // differences in length between input value with maximal length and current value
-      const deltaInputLength = maxDecimalInputLength - (decimal?.length ?? 0);
+    (key: any, maxDecimalInputLength: any, columnIdx: any) =>
+    (number: any, { significantDigits }: any) => {
+      const asNumber = Number(number);
+      const [integer, decimal] = number.split(".");
 
-      // differences in length between num of significant digits and current value
-      const deltaSigDigLength =
-        significantDigits - (cleanedInt.length + cleanedDec.length);
+      if (["sum", "avg", "stdev"].includes(key)) {
+        // for cases when we have no significant digits defined,
+        // we want to pad avg and stdev to two digits
+        if (isNil(significantDigits) && key !== "sum") {
+          return asNumber.toFixed(2);
+        }
+        // integer value without leading 0
+        const cleanedInt = integer.replace(/^0+/, "");
+        // decimal value without leading 0, if cleanedInt is empty (evaluates to zero)
+        let cleanedDec = decimal || "";
+        if (cleanedInt === "") {
+          cleanedDec = cleanedDec.replace(/^0+/, "");
+        }
 
-      // if we have not yet filled the number of significant digits, we could decide to pad
-      const paddingPossible = deltaSigDigLength > 0;
+        // differences in length between input value with maximal length and current value
+        const deltaInputLength = maxDecimalInputLength - (decimal?.length ?? 0);
 
-      const missingDigits = (decimal?.length ?? 0) + deltaSigDigLength;
+        // differences in length between num of significant digits and current value
+        const deltaSigDigLength =
+          significantDigits - (cleanedInt.length + cleanedDec.length);
 
-      if (deltaInputLength > 0 && paddingPossible && key !== "stdev") {
-        if (deltaInputLength > deltaSigDigLength) {
-          // we want to pad to the smaller value (sigDigits vs maxDecimal)
+        // if we have not yet filled the number of significant digits, we could decide to pad
+        const paddingPossible = deltaSigDigLength > 0;
+
+        const missingDigits = (decimal?.length ?? 0) + deltaSigDigLength;
+
+        if (deltaInputLength > 0 && paddingPossible && key !== "stdev") {
+          if (deltaInputLength > deltaSigDigLength) {
+            // we want to pad to the smaller value (sigDigits vs maxDecimal)
+            return asNumber.toFixed(missingDigits);
+          }
+          return asNumber.toFixed(maxDecimalInputLength);
+        }
+
+        // if avg was previously padded to fill the number of significant digits,
+        // we want to make sure, that we don't go over the maximumDecimalDigits
+        if (
+          key === "avg" &&
+          !paddingPossible &&
+          deltaInputLength < 0 &&
+          number[number.length - 1] === "0"
+        ) {
+          return asNumber.toFixed(maxDecimalInputLength);
+        }
+
+        if (key === "stdev" && paddingPossible) {
           return asNumber.toFixed(missingDigits);
         }
-        return asNumber.toFixed(maxDecimalInputLength);
       }
 
-      // if avg was previously padded to fill the number of significant digits,
-      // we want to make sure, that we don't go over the maximumDecimalDigits
-      if (
-        key === "avg" &&
-        !paddingPossible &&
-        deltaInputLength < 0 &&
-        number[number.length - 1] === "0"
-      ) {
-        return asNumber.toFixed(maxDecimalInputLength);
-      }
-
-      if (key === "stdev" && paddingPossible) {
-        return asNumber.toFixed(missingDigits);
-      }
-    }
-
-    return number;
-  };
+      return number;
+    };
 
 /**
  * Used to apply formatting to calculated stats and to remove
@@ -211,9 +218,13 @@ const maybeRound =
  * @param {object[][]} stats
  * @param {Function[][]} formatter
  */
-const cleanupStats = (unfilteredStats, formatter, availableStats) => {
-  const stats = unfilteredStats.map((tool, toolIdx) =>
-    tool.map((col, colIdx) => {
+const cleanupStats = (
+  unfilteredStats: any,
+  formatter: any,
+  availableStats: any,
+) => {
+  const stats = unfilteredStats.map((tool: any, toolIdx: any) =>
+    tool.map((col: any, colIdx: any) => {
       const { columnType } = col;
       const out = { columnType };
 
@@ -222,6 +233,7 @@ const cleanupStats = (unfilteredStats, formatter, availableStats) => {
         if (!currentCol) {
           continue;
         }
+        // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
         out[visibleStats] = currentCol;
         if (currentCol?.sum ?? false) {
           formatter[toolIdx][colIdx].addDataItem(currentCol.sum);
@@ -238,9 +250,9 @@ const cleanupStats = (unfilteredStats, formatter, availableStats) => {
     }
   }
 
-  const cleaned = stats.map((tool, toolIdx) =>
+  const cleaned = stats.map((tool: any, toolIdx: any) =>
     tool
-      .map(({ columnType, ...column }, columnIdx) => {
+      .map(({ columnType, ...column }: any, columnIdx: any) => {
         const out = {};
         // if no total is calculated, then no values suitable for calculation were found
         if (column.total === undefined) {
@@ -248,7 +260,9 @@ const cleanupStats = (unfilteredStats, formatter, availableStats) => {
         }
         for (const [resultKey, result] of Object.entries(column)) {
           const rowRes = {};
+          // @ts-expect-error TS(2571): Object is of type 'unknown'.
           const meta = result?.meta;
+          // @ts-expect-error TS(2769): No overload matches this call.
           for (let [key, value] of Object.entries(result)) {
             // we ignore any of these defined keys
             if (keysToIgnore.includes(key)) {
@@ -260,17 +274,20 @@ const cleanupStats = (unfilteredStats, formatter, availableStats) => {
             // attach the title to the stat item
             // this will later be used to ensure correct ordering of columns
             if (key === "title") {
+              // @ts-expect-error TS(2339): Property 'title' does not exist on type '{}'.
               out.title = value;
               continue;
             }
             // if we have numeric values or 'NaN' we want to apply formatting
             if (
               !isNil(value) &&
+              // @ts-expect-error TS(2345): Argument of type 'unknown' is not assignable to pa... Remove this comment to see the full error message
               (!isNaN(value) || value === "NaN") &&
               formatter[toolIdx][columnIdx]
             ) {
               try {
                 if (key === "sum") {
+                  // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
                   rowRes[key] = formatter[toolIdx][columnIdx](value, {
                     leadingZero: false,
                     whitespaceFormat: true,
@@ -282,6 +299,7 @@ const cleanupStats = (unfilteredStats, formatter, availableStats) => {
                     ),
                   });
                 } else {
+                  // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
                   rowRes[key] = formatter[toolIdx][columnIdx](value, {
                     leadingZero: true,
                     whitespaceFormat: false,
@@ -304,12 +322,13 @@ const cleanupStats = (unfilteredStats, formatter, availableStats) => {
             }
           }
 
+          // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
           out[resultKey] = rowRes;
         }
 
         return out;
       })
-      .filter((i) => !isNil(i)),
+      .filter((i: any) => !isNil(i)),
   );
   return cleaned;
 };
@@ -326,7 +345,7 @@ const RESULT_CLASS_OTHER = "other";
 /**
  * @see result.py
  */
-const classifyResult = (result) => {
+const classifyResult = (result: any) => {
   if (isNil(result)) {
     return RESULT_CLASS_OTHER;
   }
@@ -344,13 +363,14 @@ const classifyResult = (result) => {
 };
 
 const prepareRows = (
-  rows,
-  toolIdx,
-  categoryAccessor,
-  statusAccessor,
-  formatter,
+  rows: any,
+  toolIdx: any,
+  categoryAccessor: any,
+  statusAccessor: any,
+  // @ts-expect-error TS(6133): 'formatter' is declared but its value is never rea... Remove this comment to see the full error message
+  formatter: any,
 ) => {
-  return rows.map((row) => {
+  return rows.map((row: any) => {
     const cat = categoryAccessor(toolIdx, row);
     const stat = statusAccessor(toolIdx, row);
 
@@ -371,23 +391,30 @@ const prepareRows = (
  *
  * @param {object[]} tools
  */
-const splitColumnsWithMeta = (tools) => (preppedRows, toolIdx) => {
-  const out = [];
-  for (const { row, categoryType, resultType } of preppedRows) {
-    for (const columnIdx in row) {
-      const column = row[columnIdx].raw;
-      const curr = out[columnIdx] || [];
-      // we attach extra meta information for later use in calculation and mapping
-      // of results
-      const { type: columnType, title: columnTitle } =
-        tools[toolIdx].columns[columnIdx];
+const splitColumnsWithMeta =
+  (tools: any) => (preppedRows: any, toolIdx: any) => {
+    const out: any = [];
+    for (const { row, categoryType, resultType } of preppedRows) {
+      for (const columnIdx in row) {
+        const column = row[columnIdx].raw;
+        const curr = out[columnIdx] || [];
+        // we attach extra meta information for later use in calculation and mapping
+        // of results
+        const { type: columnType, title: columnTitle } =
+          tools[toolIdx].columns[columnIdx];
 
-      curr.push({ categoryType, resultType, column, columnType, columnTitle });
-      out[columnIdx] = curr;
+        curr.push({
+          categoryType,
+          resultType,
+          column,
+          columnType,
+          columnTitle,
+        });
+        out[columnIdx] = curr;
+      }
     }
-  }
-  return out;
-};
+    return out;
+  };
 
 /**
  * Prepares the dataset for calculation, dispatches and collects calculations
@@ -395,10 +422,11 @@ const splitColumnsWithMeta = (tools) => (preppedRows, toolIdx) => {
  *
  * @param {object} options
  */
-const processData = async ({ tools, tableData, formatter }) => {
-  const catAccessor = (toolIdx, row) => row.results[toolIdx].category;
-  const statAccessor = (toolIdx, row) => row.results[toolIdx].values[0].raw;
-  const promises = [];
+const processData = async ({ tools, tableData, formatter }: any) => {
+  const catAccessor = (toolIdx: any, row: any) => row.results[toolIdx].category;
+  const statAccessor = (toolIdx: any, row: any) =>
+    row.results[toolIdx].values[0].raw;
+  const promises: any = [];
 
   const splitRows = [];
   for (const toolIdx in tools) {
@@ -411,6 +439,7 @@ const processData = async ({ tools, tableData, formatter }) => {
   const preparedData = splitRows.map(columnSplitter);
   // filter out non-relevant rows
   for (const toolIdx in preparedData) {
+    // @ts-expect-error TS(7006): Parameter 'i' implicitly has an 'any' type.
     preparedData[toolIdx] = preparedData[toolIdx].filter((i) => !isNil(i));
   }
 
@@ -424,6 +453,7 @@ const processData = async ({ tools, tableData, formatter }) => {
     promises[toolDataIdx] = subPromises;
   }
 
+  // @ts-expect-error TS(7006): Parameter 'p' implicitly has an 'any' type.
   const allPromises = promises.map((p) => Promise.all(p));
   const res = await Promise.all(allPromises);
 

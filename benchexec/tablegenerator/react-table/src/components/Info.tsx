@@ -11,7 +11,7 @@ const dependencies = require("../data/dependencies.json");
 
 class Dependency extends React.Component {
   knownLicenses = ["BSD-3-Clause", "CC-BY-4.0", "ISC", "MIT", "Zlib"];
-  linkifyLicense = (license) => (
+  linkifyLicense = (license: any) => (
     <a
       key={license}
       href={"https://spdx.org/licenses/" + license}
@@ -21,10 +21,10 @@ class Dependency extends React.Component {
       {license}
     </a>
   );
-  linkifyLicenses = (licensesString) =>
+  linkifyLicenses = (licensesString: any) =>
     licensesString
       .split(/([A-Za-z0-9.-]+)/)
-      .map((s) =>
+      .map((s: any) =>
         this.knownLicenses.includes(s) ? this.linkifyLicense(s) : s,
       );
 
@@ -34,41 +34,52 @@ class Dependency extends React.Component {
         <a
           href={
             "https://www.npmjs.com/package/" +
+            // @ts-expect-error TS(2339): Property 'name' does not exist on type 'Readonly<{... Remove this comment to see the full error message
             this.props.name +
             "/v/" +
+            // @ts-expect-error TS(2339): Property 'version' does not exist on type 'Readonl... Remove this comment to see the full error message
             this.props.version
           }
           target="_blank"
           rel="noopener noreferrer"
         >
+          // @ts-expect-error TS(2339): Property 'name' does not exist on type 'Readonly<{... Remove this comment to see the full error message
           {this.props.name} {this.props.version}
         </a>
       </h4>
+      // @ts-expect-error TS(2339): Property 'repository' does not exist on type 'Read... Remove this comment to see the full error message
       {this.props.repository && (
         <>
           Source:{" "}
           <a
+            // @ts-expect-error TS(2339): Property 'repository' does not exist on type 'Read... Remove this comment to see the full error message
             href={this.props.repository}
             target="_blank"
             rel="noopener noreferrer"
           >
+            // @ts-expect-error TS(2339): Property 'repository' does not exist on type 'Read... Remove this comment to see the full error message
             {this.props.repository}
           </a>
           <br />
         </>
       )}
+      // @ts-expect-error TS(2339): Property 'copyright' does not exist on type 'Reado... Remove this comment to see the full error message
       {this.props.copyright && (
         <>
+          // @ts-expect-error TS(2339): Property 'copyright' does not exist on type 'Reado... Remove this comment to see the full error message
           {this.props.copyright}
           <br />
         </>
       )}
+      // @ts-expect-error TS(2339): Property 'licenses' does not exist on type 'Readon... Remove this comment to see the full error message
       License: <>{this.linkifyLicenses(this.props.licenses)}</>
+      // @ts-expect-error TS(2339): Property 'licenseId' does not exist on type 'Reado... Remove this comment to see the full error message
       {this.props.licenseId !== undefined && (
         <>
           <br />
           <details>
             <summary>Full text of license</summary>
+            // @ts-expect-error TS(2339): Property 'licenseId' does not exist on type 'Reado... Remove this comment to see the full error message
             <pre>{dependencies.licenses[this.props.licenseId]}</pre>
           </details>
         </>
@@ -77,7 +88,7 @@ class Dependency extends React.Component {
   );
 }
 
-const Info = (props) => (
+const Info = (props: any) => (
   <div className="info">
     <div className="info-header">
       <h1>Info and Help</h1>
@@ -203,7 +214,7 @@ const Info = (props) => (
         This application includes third-party dependencies under different
         licenses. Click here to view them.
       </summary>
-      {dependencies.dependencies.map((dependency) => {
+      {dependencies.dependencies.map((dependency: any) => {
         return (
           <Dependency
             key={dependency.name + dependency.version}

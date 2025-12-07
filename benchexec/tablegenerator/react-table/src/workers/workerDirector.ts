@@ -9,6 +9,7 @@
 // deal with Chrome being unable to load WebWorkers when opened using
 // the file:// protocol https://stackoverflow.com/questions/21408510/chrome-cant-load-web-worker
 
+// @ts-expect-error TS(2307): Cannot find module './dataUrls' or its correspondi... Remove this comment to see the full error message
 import { stats as statsWorkerDataUrl } from "./dataUrls";
 require("setimmediate"); // provides setImmediate and clearImmediate
 
@@ -20,19 +21,22 @@ const WORKER_POOLS = [
   },
 ];
 
-const queue = [];
+const queue: any = [];
 
 // Store that maps callback functions to a worker transaction number
 const refTable = {};
 
 let transaction = 1;
 
-const handleWorkerMessage = ({ data: message }, worker) => {
+// @ts-expect-error TS(7031): Binding element 'message' implicitly has an 'any' ... Remove this comment to see the full error message
+const handleWorkerMessage = ({ data: message }, worker: any) => {
   const { transaction, result } = message;
+  // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
   const callback = refTable[transaction];
   worker.busy = false;
   callback(result);
   // clear entry
+  // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
   delete refTable[transaction];
 };
 
@@ -50,8 +54,9 @@ const workerPool = WORKER_POOLS.map(({ template, poolSize, name }) => {
 }).reduce((acc, { name, pool }) => ({ ...acc, [name]: pool }), {});
 
 // gets the first idle worker and reserves it for job dispatch
-const reserveWorker = (name) => {
-  const worker = workerPool[name].filter((w) => !w.busy)[0];
+const reserveWorker = (name: any) => {
+  // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
+  const worker = workerPool[name].filter((w: any) => !w.busy)[0];
   if (worker) {
     if (worker.busy) {
       return null;
@@ -79,6 +84,7 @@ const processQueue = () => {
       data: item.data,
       transaction: ourTransaction,
     };
+    // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
     refTable[ourTransaction] = item.callback;
     reservedWorker.worker.postMessage(meta);
     setImmediate(processQueue);
@@ -91,7 +97,7 @@ const processQueue = () => {
  *
  * @param {object} options
  */
-const enqueue = async ({ name, data }) =>
+const enqueue = async ({ name, data }: any) =>
   new Promise((resolve) => {
     queue.push({ name, data, callback: resolve });
     setImmediate(processQueue);

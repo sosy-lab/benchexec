@@ -13,7 +13,7 @@ import "rc-slider/assets/index.css";
 let debounceHandler = setTimeout(() => {}, 500);
 
 export default class TaskFilterCard extends React.PureComponent {
-  constructor(props) {
+  constructor(props: any) {
     super(props);
     this.state = {
       values: this.extractFilters(),
@@ -26,20 +26,24 @@ export default class TaskFilterCard extends React.PureComponent {
     this.sendFilterUpdate({});
   }
 
-  sendFilterUpdate(values) {
+  sendFilterUpdate(values: any) {
+    // @ts-expect-error TS(2339): Property 'updateFilters' does not exist on type 'R... Remove this comment to see the full error message
     this.props.updateFilters(values);
   }
 
   extractFilters() {
     let i = 0;
     const newVal = {};
+    // @ts-expect-error TS(2339): Property 'ids' does not exist on type 'Readonly<{}... Remove this comment to see the full error message
     for (const id of Object.keys(this.props.ids)) {
+      // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
       newVal[id] = pathOr(["filters", i++], "", this.props);
     }
     return newVal;
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps: any) {
+    // @ts-expect-error TS(2339): Property 'filters' does not exist on type 'Readonl... Remove this comment to see the full error message
     if (!equals(this.props.filters, prevProps.filters)) {
       const newVal = this.extractFilters();
       this.setState({ values: newVal });
@@ -47,6 +51,7 @@ export default class TaskFilterCard extends React.PureComponent {
   }
 
   render() {
+    // @ts-expect-error TS(2339): Property 'ids' does not exist on type 'Readonly<{}... Remove this comment to see the full error message
     const ids = this.props.ids || {};
     const makeHeader = () => (
       <div className="filter-card--header">
@@ -58,6 +63,7 @@ export default class TaskFilterCard extends React.PureComponent {
 
     const makeFilterBody = () => {
       const body = Object.entries(ids).map(([key, example]) => {
+        // @ts-expect-error TS(2339): Property 'values' does not exist on type 'Readonly... Remove this comment to see the full error message
         const value = this.state.values[key] || "";
         const id = `text-task-${key}`;
         return (
@@ -67,15 +73,18 @@ export default class TaskFilterCard extends React.PureComponent {
             <input
               type="text"
               name={id}
+              // @ts-expect-error TS(2322): Type 'unknown' is not assignable to type 'string |... Remove this comment to see the full error message
               placeholder={example}
               value={value}
               onChange={({ target: { value: textValue } }) => {
                 clearTimeout(debounceHandler);
                 const newState = {
+                  // @ts-expect-error TS(2339): Property 'values' does not exist on type 'Readonly... Remove this comment to see the full error message
                   values: { ...this.state.values, [key]: textValue },
                 };
                 debounceHandler = setTimeout(() => {
                   this.sendFilterUpdate({
+                    // @ts-expect-error TS(2339): Property 'values' does not exist on type 'Readonly... Remove this comment to see the full error message
                     ...this.state.values,
                     [key]: textValue,
                   });

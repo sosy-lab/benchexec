@@ -26,12 +26,12 @@ const statusForEmptyRows = "empty_row";
  *
  * @param {Object} data -  Data object received from json data
  */
-const getFilterableData = ({ tools, rows }) => {
-  const mapped = tools.map((tool, idx) => {
+const getFilterableData = ({ tools, rows }: any) => {
+  const mapped = tools.map((tool: any, idx: any) => {
     let statusIdx;
     const { tool: toolName, date, niceName } = tool;
     let name = `${toolName} ${date} ${niceName}`;
-    const columns = tool.columns.map((col, idx) => {
+    const columns = tool.columns.map((col: any, idx: any) => {
       if (!col) {
         return undefined;
       }
@@ -46,7 +46,9 @@ const getFilterableData = ({ tools, rows }) => {
     });
 
     if (!isNil(statusIdx)) {
+      // @ts-expect-error TS(2538): Type 'undefined' cannot be used as an index type.
       columns[statusIdx] = {
+        // @ts-expect-error TS(2538): Type 'undefined' cannot be used as an index type.
         ...columns[statusIdx],
         categories: {},
         statuses: {},
@@ -57,6 +59,7 @@ const getFilterableData = ({ tools, rows }) => {
       const result = row.results[idx];
       // convention as of writing this commit is to postfix categories with a space character
       if (!isNil(statusIdx)) {
+        // @ts-expect-error TS(2538): Type 'undefined' cannot be used as an index type.
         columns[statusIdx].categories[`${result.category} `] = true;
       }
 
@@ -81,25 +84,29 @@ const getFilterableData = ({ tools, rows }) => {
 
     return {
       name,
-      columns: columns.map(({ distincts, categories, statuses, ...col }) => {
-        if (distincts) {
-          return { ...col, distincts: Object.keys(distincts) };
-        }
-        if (categories) {
-          return {
-            ...col,
-            categories: Object.keys(categories),
-            statuses: Object.keys(statuses),
-          };
-        }
-        return col;
-      }),
+      columns: columns.map(
+        ({ distincts, categories, statuses, ...col }: any) => {
+          if (distincts) {
+            return { ...col, distincts: Object.keys(distincts) };
+          }
+          if (categories) {
+            return {
+              ...col,
+              categories: Object.keys(categories),
+              statuses: Object.keys(statuses),
+            };
+          }
+          return col;
+        },
+      ),
     };
   });
   return mapped;
 };
 
-const applyNumericFilter = (filter, row, cell) => {
+// @ts-expect-error TS(6133): 'cell' is declared but its value is never read.
+const applyNumericFilter = (filter: any, row: any, cell: any) => {
+  // @ts-expect-error TS(2554): Expected 2 arguments, but got 1.
   const raw = getRawOrDefault(row[filter.id]);
   if (raw === undefined) {
     // empty cells never match
@@ -122,7 +129,9 @@ const applyNumericFilter = (filter, row, cell) => {
   }
   return false;
 };
-const applyTextFilter = (filter, row, cell) => {
+// @ts-expect-error TS(6133): 'cell' is declared but its value is never read.
+const applyTextFilter = (filter: any, row: any, cell: any) => {
+  // @ts-expect-error TS(2554): Expected 2 arguments, but got 1.
   const raw = getRawOrDefault(row[filter.id]);
   if (raw === undefined) {
     // empty cells never match
@@ -153,8 +162,8 @@ const applyTextFilter = (filter, row, cell) => {
  *
  * @param {Array<Object>} filters - List of filters
  */
-const buildMatcher = (filters) => {
-  const out = filters.reduce((acc, { id, value, type, values }) => {
+const buildMatcher = (filters: any) => {
+  const out = filters.reduce((acc: any, { id, value, type, values }: any) => {
     if (
       (isNil(value) && isNil(values)) ||
       (typeof value === "string" && value.trim() === "all")
@@ -212,7 +221,7 @@ const buildMatcher = (filters) => {
  * @param {matcher} matcher - the pre-compiled matcher
  * @returns {MatchingFunction} - the built matching function. It requires
  */
-const applyMatcher = (matcher) => (data) => {
+const applyMatcher = (matcher: any) => (data: any) => {
   let diffd = [...data];
   if (matcher.diff) {
     diffd = diffd.filter((row) => {
@@ -220,7 +229,9 @@ const applyMatcher = (matcher) => (data) => {
         const vals = {};
         for (const tool of row.results) {
           const val = tool.values[col].raw;
+          // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
           if (!vals[val]) {
+            // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
             vals[val] = true;
           }
         }
@@ -237,26 +248,30 @@ const applyMatcher = (matcher) => (data) => {
       // pre computing RegExp of idValue after excaping the special characters
       let regexToCompare = makeRegExp(idValue);
       diffd = diffd.filter(({ id }) =>
-        id.some((idName) => idName === idValue || regexToCompare.test(idName)),
+        id.some(
+          (idName: any) => idName === idValue || regexToCompare.test(idName),
+        ),
       );
     } else {
       // pre computing RegExp of each element of idValues array after excaping the special characters
-      let idValuesWithRegex = idValues.map((filterValue) => ({
+      let idValuesWithRegex = idValues.map((filterValue: any) => ({
         filterRegex: makeRegExp(filterValue),
         filterValue: filterValue,
       }));
 
       diffd = diffd.filter(({ id }) =>
-        idValuesWithRegex.every(({ filterRegex, filterValue }, idx) => {
-          const idName = id[idx];
-          if (isNil(filterValue) || filterValue === "") {
-            return true;
-          }
-          if (isNil(idName) || idName === "") {
-            return false;
-          }
-          return idName === filterValue || filterRegex.test(idName);
-        }),
+        idValuesWithRegex.every(
+          ({ filterRegex, filterValue }: any, idx: any) => {
+            const idName = id[idx];
+            if (isNil(filterValue) || filterValue === "") {
+              return true;
+            }
+            if (isNil(idName) || idName === "") {
+              return false;
+            }
+            return idName === filterValue || filterRegex.test(idName);
+          },
+        ),
       );
     }
   }

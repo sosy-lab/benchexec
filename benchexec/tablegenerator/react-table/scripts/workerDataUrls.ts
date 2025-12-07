@@ -5,7 +5,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'fs'.
 const fs = require("fs");
+// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'path'.
 const path = require("path");
 
 const workerFilePath = path.join(__dirname, "../src/workers/scripts");
@@ -13,7 +15,9 @@ const dataUrlFile = path.join(__dirname, "../src/workers/dataUrls.js");
 
 const template = "data:text/plain;base64,";
 
-const workerFiles = fs.readdirSync(workerFilePath).filter((name) => !name.startsWith("."));
+const workerFiles = fs
+  .readdirSync(workerFilePath)
+  .filter((name: any) => !name.startsWith("."));
 
 let output = `
 // This file is part of BenchExec, a framework for reliable benchmarking:
