@@ -5,15 +5,19 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-const checker = require("license-checker");
-// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'fs'.
-const fs = require("fs");
+import type * as Fs from "fs";
 
-const stripPrefix = (str: any, prefix: any) =>
+const fs: typeof Fs = require("fs");
+const checker = require("license-checker");
+
+type LicenseCheckerResult = Record<string, any>;
+
+const stripPrefix = (str: string, prefix: string) =>
   prefix && str.startsWith(prefix)
     ? str.substring(prefix.length).trimStart()
     : str;
-const stripUpTo = (str: any, token: any, removeToken = true) => {
+
+const stripUpTo = (str: string, token: string, removeToken = true) => {
   const start = str.indexOf(token);
   if (start >= 0) {
     str = str.substring(start);
@@ -32,7 +36,7 @@ checker.init(
     production: true,
     excludePrivatePackages: true,
     // The following is the list of currently allowed licenses for bundled code.
-    // We can add other free licenses, but must adjust the licences for
+    // We can add other free licenses, but must adjust the licenses for
     // build/vendors.min* in ../../../.reuse/dep5, the linkification code in
     // src/components/Info.js and pyproject.toml accordingly,
     // and run "reuse download --all".
@@ -46,7 +50,7 @@ checker.init(
       licenseText: "",
     },
   },
-  function (err: any, packages: any) {
+  function (err: Error, packages: LicenseCheckerResult) {
     if (err) {
       console.log(err);
       process.exit(1);
@@ -54,22 +58,30 @@ checker.init(
       // We store some metadata for each package, including its license.
       // Because licenses are large, we deduplicate them:
       // We store each occurring license in licensesTexts and refer to it via its index.
-      const licenseTextMapping = {};
-      const licenseTexts: any = [];
-      const licenseCounts = {};
-      const dependencies: any = [];
+      const licenseTextMapping: Record<string, number> = {};
+      const licenseTexts: string[] = [];
+      const licenseCounts: Record<string, number> = {};
+      const dependencies: Array<{
+        name: string;
+        version: string;
+        repository: string;
+        copyright: string;
+        licenses: string;
+        licenseId: number | undefined;
+      }> = [];
+
       Object.keys(packages).forEach((key) => {
         const dependency = packages[key];
 
         if (key === "toggle-selection@1.0.6") {
-          // package without proper license file, use data from other package from same author with same license
+          // package without a proper license file, use data from another package from same author with same license
           const depWithProperData = packages["copy-to-clipboard@3.3.1"];
           dependency.licenseText = depWithProperData.licenseText;
         }
 
-        var license = dependency.licenseText;
+        let license = dependency.licenseText || "";
 
-        // Replace windows specific line endings with unix based ones so the bundled
+        // Replace windows-specific line endings with Unix-based ones so the bundled
         // files stay the same on any OS
         license = license.replace(/\r\n/g, "\n");
 
@@ -98,7 +110,7 @@ checker.init(
         // Many license texts differ only in a small header.
         // Because we show the copyright and the license name separately anyway,
         // we can remove such prefixes and increase the chance of deduplication.
-        // This list is a heuristic of currently occuring prefixes.
+        // This list is a heuristic of currently occurring prefixes.
         [
           "The ISC License",
           "MIT License",
@@ -123,21 +135,17 @@ checker.init(
           .replace(/[\s*]+/g, " ")
           .replace(/['"](Software|AS IS)['"]/g, "'$1'");
 
-        var licenseId;
+        let licenseId: number | undefined = undefined;
         if (normalizedLicense in licenseTextMapping) {
-          // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
           licenseId = licenseTextMapping[normalizedLicense];
         } else if (license) {
           licenseId = licenseTexts.push(license) - 1;
-          // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
           licenseTextMapping[normalizedLicense] = licenseId;
 
           // count variants per license
           if (dependency.licenses in licenseCounts) {
-            // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
             licenseCounts[dependency.licenses]++;
           } else {
-            // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
             licenseCounts[dependency.licenses] = 1;
           }
         }
@@ -156,8 +164,7 @@ checker.init(
         licenses: licenseTexts,
       });
 
-      const prettyPrintLicense = (d: any) =>
-        // @ts-expect-error TS(7053): Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
+      const prettyPrintLicense = (d: { licenses: string }) =>
         `${d.licenses} (${licenseCounts[d.licenses]} variants)`;
       console.info(
         "Found %d dependencies under %s, adding %d bytes of metadata.",
@@ -166,7 +173,7 @@ checker.init(
         dependencyData.length,
       );
 
-      fs.writeFile("src/data/dependencies.json", dependencyData, (err: any) => {
+      fs.writeFile("src/data/dependencies.json", dependencyData, (err: NodeJS.ErrnoException | null) => {
         if (err) {
           console.log(err);
           process.exit(1);

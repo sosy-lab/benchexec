@@ -5,10 +5,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'fs'.
-const fs = require("fs");
-// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'path'.
-const path = require("path");
+import type * as Fs from "fs";
+import type * as Path from "path";
+
+const fs: typeof Fs = require("fs");
+const path: typeof Path = require("path");
 
 const dataParam = process.argv[2];
 

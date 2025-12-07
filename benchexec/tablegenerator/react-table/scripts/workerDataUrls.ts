@@ -5,17 +5,18 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'fs'.
-const fs = require("fs");
-// @ts-expect-error TS(2451): Cannot redeclare block-scoped variable 'path'.
-const path = require("path");
+import type Fs from "fs";
+import type Path from "path";
+
+const fs: typeof Fs = require("fs");
+const path: typeof Path = require("path");
 
 const workerFilePath = path.join(__dirname, "../src/workers/scripts");
 const dataUrlFile = path.join(__dirname, "../src/workers/dataUrls.js");
 
 const template = "data:text/plain;base64,";
 
-const workerFiles = fs
+const workerFiles: string[] = fs
   .readdirSync(workerFilePath)
   .filter((name: any) => !name.startsWith("."));
 
@@ -24,18 +25,22 @@ let output = `
 // https://github.com/sosy-lab/benchexec
 //
 `;
-const workerNames = [];
+const workerNames: string[] = [];
 
 for (const worker of workerFiles) {
   const workerName = worker.split(".")[0];
   workerNames.push(workerName);
   const workerPath = path.join(workerFilePath, worker);
   const workerScript = fs.readFileSync(workerPath);
-  output += workerScript
+  const headerMatches = workerScript
     .toString()
-    .match(/^ *\/\/\s?SPDX-.*?$/gim)
-    .join("\n//\n");
-  output += "\n\n";
+    .match(/^ *\/\/\s?SPDX-.*?$/gim);
+
+  if (headerMatches) {
+    output += headerMatches.join("\n//\n");
+    output += "\n\n";
+  }
+
   output += `const ${workerName} = "${template}${Buffer.from(
     workerScript,
   ).toString("base64")}";`;
