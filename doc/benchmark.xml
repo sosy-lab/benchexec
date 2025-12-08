@@ -13,9 +13,9 @@ SPDX-License-Identifier: Apache-2.0
 <!-- Example file for benchmark definition for BenchExec. -->
 <benchmark tool="*tool to benchmark (name of tool-info module for BenchExec)*"
            displayName="*human-readable name as description of this benchmark*"
-           timelimit="*optional CPU time limit, use unit 's', 'min', etc. (default: none)*"
+           timelimit="*optional CPU-time limit, use unit 's', 'min', etc. (defines when a result is counted as timeout; default: none)*"
            walltimelimit="*optional wall-time limit, use unit 's', 'min', etc. (default: CPU time plus a few seconds)*"
-           hardtimelimit="*optional hard CPU time limit, use unit 's', 'min', etc. (tool will be forcefully killed, otherwise identical with timelimit)"
+           hardtimelimit="*optional hard CPU-time limit, use unit 's', 'min', etc. (defines when the tool will be forcefully killed, by default it is the same as timelimit but setting hardtimelimit to a larger value than timelimit gives the tool a grace period for terminating itself)"
            memlimit="*optional memory limit, use unit 'B', 'kB', 'MB' etc. (default: none)*"
            cpuCores="*optional CPU core limit (default: none)*"
            threads="*optional number of parallel tool executions (default: 1)*">
