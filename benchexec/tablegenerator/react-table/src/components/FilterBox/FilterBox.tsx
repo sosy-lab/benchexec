@@ -12,16 +12,64 @@ import { faClose, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import equals from "deep-equal";
 import { decodeFilter, isNil } from "../../utils/utils";
-const classNames = require("classnames");
+import classNames from "classnames";
 
-export default class FilterBox extends React.PureComponent {
-  constructor(props) {
+/* ---------------------------------------------------------
+ * TYPES
+ * --------------------------------------------------------- */
+
+export interface ReactTableFilter {
+  id: string;
+  value?: string;
+  values?: string[];
+}
+
+export interface FilterableColumn {
+  name: string;
+  columns: { title: string; column: number }[];
+}
+
+interface FilterBoxProps {
+  filtered: ReactTableFilter[];
+  filterable: FilterableColumn[];
+  ids: Record<string, any>;
+  hiddenCols?: boolean[][];
+  visible: boolean;
+  headerComponent?: React.ReactNode;
+
+  hide: () => void;
+  addTypeToFilter: (filter: any[]) => void;
+  setFilter: (filter: any[], update: boolean) => void;
+}
+
+interface SingleColumnFilter {
+  title: string;
+  values: any[];
+}
+
+type ToolFilter = Array<SingleColumnFilter | undefined>;
+
+interface FilterBoxState {
+  filters: ToolFilter[];
+  idFilters: any[] | null | undefined;
+}
+
+/* ---------------------------------------------------------
+ * COMPONENT
+ * --------------------------------------------------------- */
+
+export default class FilterBox extends React.PureComponent<
+  FilterBoxProps,
+  FilterBoxState
+> {
+  private listeners: Array<() => void>;
+
+  constructor(props: FilterBoxProps) {
     super(props);
 
     const { filtered } = props;
 
     this.listeners = [];
-
     this.resetFilterHook = (fun) => this.listeners.push(fun);
 
     this.state = {
@@ -30,7 +78,13 @@ export default class FilterBox extends React.PureComponent {
     };
   }
 
-  componentDidUpdate(prevProps) {
+  /* ---------------------------------------------------------
+   * RESET BEHAVIOR
+   * --------------------------------------------------------- */
+
+  resetFilterHook: (fun: () => void) => void;
+
+  componentDidUpdate(prevProps: FilterBoxProps) {
     if (!equals(prevProps.filtered, this.props.filtered)) {
       this.setState({
         filters: this.createFiltersFromReactTableStructure(this.props.filtered),
@@ -44,41 +98,47 @@ export default class FilterBox extends React.PureComponent {
     this.resetIdFilters();
   }
 
-  resetIdFilters() {
-    const empty = null; //Object.keys(this.props.ids).map(() => null);
-    this.setState({ idFilters: empty });
-    this.sendFilters({ filter: this.state.filters, idFilter: empty });
-  }
-
   resetAllContainers() {
     this.listeners.forEach((fun) => fun());
   }
 
-  retrieveIdFilters(filters) {
-    const possibleIdFilter = filters.find((filter) => filter.id === "id");
+  resetIdFilters() {
+    const empty = null;
+    this.setState({ idFilters: empty });
+    this.sendFilters({ filter: this.state.filters, idFilter: empty });
+  }
+
+  /* ---------------------------------------------------------
+   * FILTER PARSING
+   * --------------------------------------------------------- */
+
+  retrieveIdFilters(filters: ReactTableFilter[]) {
+    const possibleIdFilter = filters.find((f) => f.id === "id");
     return possibleIdFilter ? possibleIdFilter.values : [];
   }
 
-  createFiltersFromReactTableStructure(filters) {
+  createFiltersFromReactTableStructure(filters: ReactTableFilter[]) {
     if (!filters || !filters.length) {
       return [];
     }
 
-    const out = [];
+    const out: ToolFilter[] = [];
 
     for (const { id, value } of filters.flat()) {
-      if (id === "id") {
-        continue;
-      }
+      if (id === "id") continue;
+
       const { tool, name: title, column } = decodeFilter(id);
       const toolArr = out[tool] || [];
+
       if (!toolArr[column]) {
         toolArr[column] = { title, values: [value] };
       } else {
-        toolArr[column].values.push(value);
+        toolArr[column]!.values.push(value);
       }
+
       out[tool] = toolArr;
     }
+
     return out;
   }
 
@@ -86,23 +146,33 @@ export default class FilterBox extends React.PureComponent {
     return Object.values(Object.values(this.state.filters));
   }
 
-  sendFilters({ filter, idFilter }) {
-    const newFilter = [
+  /* ---------------------------------------------------------
+   * FILTER UPDATE FUNCTIONS
+   * --------------------------------------------------------- */
+
+  sendFilters({
+                filter,
+                idFilter,
+              }: {
+    filter: ToolFilter[];
+    idFilter?: any[] | null;
+  }) {
+    const newFilter: any[] = [
       ...filter
         .map((tool, toolIdx) => {
-          if (tool === null || tool === undefined) {
-            return null;
-          }
+          if (tool == null) return null;
+
           return tool.map((col, colIdx) => {
-            return col.values.map((val) => ({
+            return col?.values.map((val) => ({
               id: `${toolIdx}_${col.title}_${colIdx}`,
               value: val,
             }));
           });
         })
         .flat(3)
-        .filter((i) => i !== null && i !== undefined),
+        .filter((x) => x != null),
     ];
+
     if (idFilter && idFilter.length > 0) {
       newFilter.push({ id: "id", values: idFilter });
     }
@@ -111,20 +181,21 @@ export default class FilterBox extends React.PureComponent {
     this.props.setFilter(newFilter, true);
   }
 
-  updateFilters(toolIdx, columnIdx, data) {
-    //this.props.setFilter(newFilter);
+  updateFilters(toolIdx: number, columnIdx: number, data: any) {
     const newFilters = [...this.state.filters];
     const idFilter = this.state.idFilters;
-    newFilters[toolIdx] = newFilters[toolIdx] || [];
+
+    newFilters[toolIdx] ??= [];
     newFilters[toolIdx][columnIdx] = data;
+
     this.setState({ filters: newFilters });
     this.sendFilters({ filter: newFilters, idFilter });
   }
 
-  updateIdFilters(data) {
+  updateIdFilters(data: Record<string, any>) {
     const mapped = Object.keys(this.props.ids).map((i) => data[i]);
 
-    const newFilter = mapped.some((item) => item !== "" && !isNil(item))
+    const newFilter = mapped.some((i) => i !== "" && !isNil(i))
       ? mapped
       : undefined;
 
@@ -133,8 +204,13 @@ export default class FilterBox extends React.PureComponent {
     this.sendFilters({ filter: this.state.filters, idFilter: newFilter });
   }
 
+  /* ---------------------------------------------------------
+   * RENDER
+   * --------------------------------------------------------- */
+
   render() {
     const hiddenCols = this.props.hiddenCols || [];
+
     return (
       <div
         className={classNames("filterBox", {
@@ -162,21 +238,20 @@ export default class FilterBox extends React.PureComponent {
             resetFilterHook={this.resetFilterHook}
             filters={this.state.idFilters}
           />
-          {this.props.filterable.map((tool, idx) => {
-            return (
-              <FilterContainer
-                resetFilterHook={this.resetFilterHook}
-                updateFilters={(data, columnIndex) =>
-                  this.updateFilters(idx, columnIndex, data)
-                }
-                currentFilters={this.state.filters[idx] || []}
-                toolName={tool.name}
-                filters={tool.columns}
-                hiddenCols={hiddenCols[idx]}
-                key={`filtercontainer-${idx}`}
-              />
-            );
-          })}
+
+          {this.props.filterable.map((tool, idx) => (
+            <FilterContainer
+              key={`filtercontainer-${idx}`}
+              resetFilterHook={this.resetFilterHook}
+              updateFilters={(data, columnIndex) =>
+                this.updateFilters(idx, columnIndex, data)
+              }
+              currentFilters={this.state.filters[idx] || []}
+              toolName={tool.name}
+              filters={tool.columns}
+              hiddenCols={hiddenCols[idx]}
+            />
+          ))}
         </div>
       </div>
     );
