@@ -1,3 +1,9 @@
+benchexec (3.32-1) noble; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Tue, 09 Dec 2025 15:17:58 +0100
+
 benchexec (3.31-1) noble; urgency=medium
 
   * New upstream version.
