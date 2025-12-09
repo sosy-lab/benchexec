@@ -9,6 +9,10 @@ SPDX-License-Identifier: Apache-2.0
 
 # BenchExec Changelog
 
+## BenchExec 3.32 - 2025-12-09
+
+- Updated tool-info modules for SV-COMP'26 and Test-Comp'26.
+
 ## BenchExec 3.31 - 2025-11-24
 
 BenchExec now requires Python 3.10 or newer.
