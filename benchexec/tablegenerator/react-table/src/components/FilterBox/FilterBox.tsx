@@ -127,7 +127,11 @@ export default class FilterBox extends React.PureComponent<
     for (const { id, value } of filters.flat()) {
       if (id === "id") continue;
 
-      const { tool, name: title, column } = decodeFilter(id);
+      const { tool, name: title, column } = decodeFilter(id) as {
+        tool: number;
+        name: string;
+        column: number;
+      };
       const toolArr = out[tool] || [];
 
       if (!toolArr[column]) {
@@ -234,7 +238,7 @@ export default class FilterBox extends React.PureComponent<
         <div className="filter-card--container">
           <TaskFilterCard
             ids={this.props.ids}
-            updateFilters={(data) => this.updateIdFilters(data)}
+            updateFilters={(data: any) => this.updateIdFilters(data)}
             resetFilterHook={this.resetFilterHook}
             filters={this.state.idFilters}
           />
@@ -243,7 +247,7 @@ export default class FilterBox extends React.PureComponent<
             <FilterContainer
               key={`filtercontainer-${idx}`}
               resetFilterHook={this.resetFilterHook}
-              updateFilters={(data, columnIndex) =>
+              updateFilters={(data: any, columnIndex: number) =>
                 this.updateFilters(idx, columnIndex, data)
               }
               currentFilters={this.state.filters[idx] || []}
