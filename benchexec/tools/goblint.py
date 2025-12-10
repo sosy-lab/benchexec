@@ -117,9 +117,25 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def get_value_from_output(self, output, identifier):
         regex = re.compile(identifier)
+        if regex.groups == 0:
+            logging.error("no capture group in identifier '%s'", identifier)
+            return None
+        elif regex.groups > 1:
+            logging.warning(
+                "multiple capture groups in identifier '%s', using only first",
+                identifier,
+            )
+
+        first = "first" in regex.groupindex and regex.groupindex["first"] == 1
+        last = "last" in regex.groupindex and regex.groupindex["last"] == 1
+        # first and last are exclusive by construction
+
+        result = None
         for line in output:
             match = regex.search(line)
-            if match and len(match.groups()) > 0:
-                return match.group(1)
-        logging.debug("Did not find a match with regex %s", identifier)
-        return None
+            if match:
+                if result is None or last:
+                    result = match.group(1)
+                elif not first:
+                    logging.warning("repeated match of identifier '%s', using first")
+        return result
