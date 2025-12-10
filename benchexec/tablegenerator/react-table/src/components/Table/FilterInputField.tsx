@@ -1,4 +1,13 @@
-// This file is part of BenchExec, a framework for reliable benchmarking:
+
+
+interface FilterInputFieldComponentProps {
+id: any;
+setFilter: any;
+disableTaskText: boolean;
+setCustomFilters: (newFilter: any) => void;
+focusedFilter: null;
+setFocusedFilter: Dispatch<SetStateAction<null>>;
+}// This file is part of BenchExec, a framework for reliable benchmarking:
 // https://github.com/sosy-lab/benchexec
 //
 // SPDX-FileCopyrightText: 2019-2020 Dirk Beyer <https://www.sosy-lab.org>
@@ -18,7 +27,7 @@ function FilterInputFieldComponent({
   disableTaskText,
   focusedFilter,
   setFocusedFilter,
-}) {
+}: FilterInputFieldComponentProps) {
   const elementId = id + "_filter";
   const initFilterValue = setFilter ? setFilter.value : "";
 

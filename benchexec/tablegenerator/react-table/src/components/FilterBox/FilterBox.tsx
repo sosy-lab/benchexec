@@ -14,7 +14,23 @@ import equals from "deep-equal";
 import { decodeFilter, isNil } from "../../utils/utils";
 const classNames = require("classnames");
 
-export default class FilterBox extends React.PureComponent {
+interface FilterBoxProps {
+headerComponent: Element | JSX.Element;
+tableHeader: any;
+tools: any;
+selectColumn: (ev: any) => void;
+filterable: any;
+setFilter: (filter: any, runFilterLogic?: boolean) => void;
+resetFilters: () => void;
+filtered: any[];
+visible: boolean;
+hiddenCols: {};
+hide: () => void;
+ids: any;
+addTypeToFilter: (filters: any) => any;
+}
+
+export default class FilterBox extends React.PureComponent<FilterBoxProps> {
   constructor(props) {
     super(props);
 
@@ -87,7 +103,7 @@ export default class FilterBox extends React.PureComponent {
   }
 
   sendFilters({ filter, idFilter }) {
-    const newFilter = [
+    const newFilter: ({ id: string; values: any; })[] = [
       ...filter
         .map((tool, toolIdx) => {
           if (tool === null || tool === undefined) {
