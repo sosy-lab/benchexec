@@ -13,7 +13,7 @@ import Info from "./Info.js";
 import SelectColumn from "./SelectColumn.js";
 import ScatterPlot from "./ScatterPlot.js";
 import QuantilePlot from "./QuantilePlot.js";
-import FilterBox from "./FilterBox/FilterBox.js";
+import FilterBox from "./FilterBox/FilterBox.tsx";
 import LinkOverlay from "./LinkOverlay.js";
 import classNames from "classnames";
 import FilterInfoButton from "./FilterInfoButton.js";
