@@ -6,7 +6,7 @@ setFilter: any;
 disableTaskText: boolean;
 setCustomFilters: (newFilter: any) => void;
 focusedFilter: null;
-setFocusedFilter: Dispatch<SetStateAction<null>>;
+setFocusedFilter: Dispatch<SetStateAction<string | null>>;
 }// This file is part of BenchExec, a framework for reliable benchmarking:
 // https://github.com/sosy-lab/benchexec
 //
@@ -14,7 +14,7 @@ setFocusedFilter: Dispatch<SetStateAction<null>>;
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { memo, useEffect, useRef, useState } from "react";
+import { Dispatch, memo, SetStateAction, useEffect, useRef, useState } from "react";
 
 /**
  * General filter input field for text columns.
@@ -31,13 +31,13 @@ function FilterInputFieldComponent({
   const elementId = id + "_filter";
   const initFilterValue = setFilter ? setFilter.value : "";
 
-  const ref = useRef(null);
-  let [typingTimer, setTypingTimer] = useState("");
+  const ref = useRef<HTMLInputElement | null>(null);
+  const [typingTimer, setTypingTimer] = useState<number | undefined>(undefined);
   let [value, setValue] = useState(initFilterValue);
 
   useEffect(() => {
     if (focusedFilter === elementId) {
-      ref.current.focus();
+      ref.current?.focus();
     }
   }, [focusedFilter, elementId]);
 
@@ -46,16 +46,17 @@ function FilterInputFieldComponent({
       ? "To edit, please clear task filter in the sidebar"
       : "text";
 
-  const onChange = (event) => {
+  const onChange = (event: any) => {
     const newValue = event.target.value;
     setValue(newValue);
-    clearTimeout(typingTimer);
-    setTypingTimer(
-      setTimeout(() => {
-        setCustomFilters({ id, value: newValue });
-        document.getElementById(elementId).focus();
-      }, 500),
-    );
+    if (typingTimer !== undefined) {
+      clearTimeout(typingTimer);
+    }
+    const timerId = window.setTimeout(() => {
+      setCustomFilters({ id, value: newValue });
+      document.getElementById(elementId)?.focus();
+    }, 500);
+    setTypingTimer(timerId);
   };
 
   return (
