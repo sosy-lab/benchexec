@@ -15,14 +15,32 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import equals from "deep-equal";
 import { decodeFilter, isNil } from "../../utils/utils";
 
+interface FilterBoxProps {
+  filtered: any[];
+  ids: Record<string, any>;
+  addTypeToFilter: (filter: any[]) => void;
+  setFilter: (filter: any[], flag: boolean) => void;
+  hide: () => void;
+  visible: boolean;
+  headerComponent?: JSX.Element;
+  filterable: Array<{ name: string; columns: any[] }>;
+  hiddenCols?: any[];
+}
 
-export default class FilterBox extends React.PureComponent {
+interface FilterBoxState {
+  filters: any[];
+  idFilters: (string | null)[];
+}
+
+export default class FilterBox extends React.PureComponent<FilterBoxProps, FilterBoxState> {
+  private listeners: (() => void)[] = [];
+  private resetFilterHook(fun: () => void): void {
+    this.listeners.push(fun);
+  };
   constructor(props: any) {
     super(props);
 
     const { filtered } = props;
-
-    this.listeners = [];
 
     this.resetFilterHook = (fun: any) => this.listeners.push(fun);
 
@@ -47,7 +65,7 @@ export default class FilterBox extends React.PureComponent {
   }
 
   resetIdFilters() {
-    const empty = null; //Object.keys(this.props.ids).map(() => null);
+    const empty: (string | null)[] = []; //Object.keys(this.props.ids).map(() => null);
     this.setState({ idFilters: empty });
     this.sendFilters({ filter: this.state.filters, idFilter: empty });
   }
@@ -72,8 +90,12 @@ export default class FilterBox extends React.PureComponent {
       if (id === "id") {
         continue;
       }
-      const { tool, name: title, column } = decodeFilter(id);
-      const toolArr = out[tool] || [];
+      const { tool, name: title, column } = decodeFilter(id) as {
+        tool: number;
+        name: string;
+        column: number;
+      };
+      const toolArr: any = out[tool] || [];
       if (!toolArr[column]) {
         toolArr[column] = { title, values: [value] };
       } else {
@@ -88,7 +110,7 @@ export default class FilterBox extends React.PureComponent {
     return Object.values(Object.values(this.state.filters));
   }
 
-  sendFilters({ filter, idFilter }) {
+  sendFilters({ filter, idFilter }: { filter: any[]; idFilter: (string | null)[] }) {
     const newFilter = [
     ...filter.
     map((tool: Record<string, any>, toolIdx: any) => {
@@ -113,7 +135,7 @@ export default class FilterBox extends React.PureComponent {
     this.props.setFilter(newFilter, true);
   }
 
-  updateFilters(toolIdx: Record<string, any>, columnIdx: Record<string, any>, data: any) {
+  updateFilters(toolIdx: number, columnIdx: number, data: any) {
     //this.props.setFilter(newFilter);
     const newFilters = [...this.state.filters];
     const idFilter = this.state.idFilters;
@@ -124,11 +146,10 @@ export default class FilterBox extends React.PureComponent {
   }
 
   updateIdFilters(data: Record<string, any>) {
-    const mapped = Object.keys(this.props.ids).map((i: Record<string, any>) => data[i]);
+    const mapped = Object.keys(this.props.ids).map((i) => data[i]);
 
-    const newFilter = mapped.some((item: any) => item !== "" && !isNil(item)) ?
-    mapped :
-    undefined;
+    const newFilter: (string | null)[] = mapped.some((item) => item !== "" && !isNil(item)) ?
+    mapped : [];
 
     this.setState({ idFilters: newFilter });
 
@@ -164,7 +185,7 @@ export default class FilterBox extends React.PureComponent {
             resetFilterHook={this.resetFilterHook}
             filters={this.state.idFilters} />
           
-          {this.props.filterable.map((tool: Record<string, any>, idx: Record<string, any>) => {
+          {this.props.filterable.map((tool, idx) => {
             return (
               <FilterContainer
                 resetFilterHook={this.resetFilterHook}

@@ -7,7 +7,16 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import { memo, useEffect, useRef, useState } from "react";
+import { ChangeEvent, memo, useEffect, useRef, useState } from "react";
+
+interface FilterInputFieldProps {
+  id: string,
+  setFilter: any,
+  setCustomFilters: (filter: { id: string, value: string }) => void;
+  disableTaskText: boolean,
+  focusedFilter?: string,
+  setFocusedFilter: (id: string) => void;
+}
 
 /**
  * General filter input field for text columns.
@@ -20,17 +29,17 @@ function FilterInputFieldComponent({
   disableTaskText,
   focusedFilter,
   setFocusedFilter
-}) {
+}: FilterInputFieldProps) {
   const elementId = id + "_filter";
   const initFilterValue = setFilter ? setFilter.value : "";
 
-  const ref = useRef(null);
-  let [typingTimer, setTypingTimer] = useState("");
-  let [value, setValue] = useState(initFilterValue);
+  const ref = useRef<HTMLInputElement | null>(null);
+  const [typingTimer, setTypingTimer] = useState<number | undefined>(undefined);
+  const [value, setValue] = useState(initFilterValue);
 
   useEffect(() => {
     if (focusedFilter === elementId) {
-      ref.current.focus();
+      ref.current?.focus();
     }
   }, [focusedFilter, elementId]);
 
@@ -39,16 +48,17 @@ function FilterInputFieldComponent({
   "To edit, please clear task filter in the sidebar" :
   "text";
 
-  const onChange = (event: Record<string, any>) => {
+  const onChange = (event: ChangeEvent<HTMLInputElement>) => {
     const newValue = event.target.value;
     setValue(newValue);
-    clearTimeout(typingTimer);
-    setTypingTimer(
-      setTimeout(() => {
-        setCustomFilters({ id, value: newValue });
-        document.getElementById(elementId).focus();
-      }, 500)
-    );
+    if (typingTimer !== undefined) {
+      window.clearTimeout(typingTimer);
+    }
+    const timerId = window.setTimeout(() => {
+      setCustomFilters({ id, value: newValue });
+      document.getElementById(elementId)?.focus();
+    }, 500);
+    setTypingTimer(timerId);
   };
 
   return (
