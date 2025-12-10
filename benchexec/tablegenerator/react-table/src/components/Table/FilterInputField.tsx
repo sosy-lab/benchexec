@@ -11,24 +11,25 @@ import { memo, useEffect, useRef, useState } from "react";
  * General filter input field for text columns.
  * This file default exports a memoized version of the FilterInputFieldComponent function.
  */
-function FilterInputFieldComponent({
-  id,
-  setFilter,
-  setCustomFilters,
-  disableTaskText,
-  focusedFilter,
-  setFocusedFilter,
-}) {
+function FilterInputFieldComponent(props: any){
+  const {
+    id,
+    setFilter,
+    setCustomFilters,
+    disableTaskText,
+    focusedFilter,
+    setFocusedFilter,
+  } = props;
   const elementId = id + "_filter";
   const initFilterValue = setFilter ? setFilter.value : "";
 
-  const ref = useRef(null);
-  let [typingTimer, setTypingTimer] = useState("");
-  let [value, setValue] = useState(initFilterValue);
+  const ref = useRef<HTMLInputElement | null>(null);
+  const [typingTimer, setTypingTimer] = useState<number | undefined>(undefined);
+  const [value, setValue] = useState(initFilterValue);
 
   useEffect(() => {
     if (focusedFilter === elementId) {
-      ref.current.focus();
+      ref.current?.focus();
     }
   }, [focusedFilter, elementId]);
 
@@ -37,16 +38,17 @@ function FilterInputFieldComponent({
       ? "To edit, please clear task filter in the sidebar"
       : "text";
 
-  const onChange = (event) => {
+  const onChange = (event: any) => {
     const newValue = event.target.value;
     setValue(newValue);
-    clearTimeout(typingTimer);
-    setTypingTimer(
-      setTimeout(() => {
-        setCustomFilters({ id, value: newValue });
-        document.getElementById(elementId).focus();
-      }, 500),
-    );
+    if (typingTimer !== undefined) {
+      clearTimeout(typingTimer);
+    }
+    const timerId = window.setTimeout(() => {
+      setCustomFilters({ id, value: newValue });
+      document.getElementById(elementId)?.focus();
+    }, 500);
+    setTypingTimer(timerId);
   };
 
   return (
