@@ -5,7 +5,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-import React, { FC } from "react";
+import React from "react";
 import FilterContainer from "./FilterContainer";
 import TaskFilterCard from "./TaskFilterCard";
 import { faClose, faTrash } from "@fortawesome/free-solid-svg-icons";
@@ -33,7 +33,7 @@ interface FilterBoxState {
 
 export default class FilterBox extends React.PureComponent<FilterBoxProps, FilterBoxState> {
   private listeners: (() => void)[] = [];
-
+  private resetFilterHook: (fun: () => void) => void;
   constructor(props: FilterBoxProps) {
     super(props);
 
@@ -62,7 +62,7 @@ export default class FilterBox extends React.PureComponent<FilterBoxProps, Filte
   }
 
   resetIdFilters(): void {
-    const empty = null;
+    const empty: (string | null)[] = [];
     this.setState({ idFilters: empty });
     this.sendFilters({ filter: this.state.filters, idFilter: empty });
   }
@@ -81,13 +81,17 @@ export default class FilterBox extends React.PureComponent<FilterBoxProps, Filte
       return [];
     }
 
-    const out = [];
+    const out: any[] = [];
 
     for (const { id, value } of filters.flat()) {
       if (id === "id") {
         continue;
       }
-      const { tool, name:title, column } = decodeFilter(id);
+      const { tool, name: title, column } = decodeFilter(id) as {
+        tool: number;
+        name: string;
+        column: number;
+      };
       const toolArr = out[tool] || [];
       if (!toolArr[column]) {
         toolArr[column] = { title, values:[value] };
@@ -111,7 +115,7 @@ export default class FilterBox extends React.PureComponent<FilterBoxProps, Filte
           if (tool === null || tool === undefined) {
             return null;
           }
-          return tool.map((col, colIdx) => col.values.map((val) => ({
+          return tool.map((col: any, colIdx: any) => col.values.map((val: any) => ({
             id:`${toolIdx}_${col.title}_${colIdx}`,
             value : val,
           })));
@@ -129,24 +133,24 @@ export default class FilterBox extends React.PureComponent<FilterBoxProps, Filte
 
   updateFilters(toolIdx:number,columnIdx:number,data:any):void{
     const newFilters=[...this.state.filters];
-    const idFilte=this.state.idFilters;
+    const idFilter=this.state.idFilters;
     newFilters[toolIdx]=newFilters[toolIdx]||[];
     newFilters[toolIdx][columnIdx]=data;
 
     this.setState({filters:newFilters});
-    this.sendFilters({filter:newFilters,idFilte});
+    this.sendFilters({filter:newFilters,idFilter});
   }
 
   updateIdFilters(data:any):void{
     const mapped=Object.keys(this.props.ids).map((i)=>data[i]);
 
-    const newFIlter=mapped.some(item=>item!==""&&!isNil(item))
+    const newFilter=mapped.some(item=>item!==""&&!isNil(item))
       ?mapped
-      :undefined;
+      :[];
 
-    this.setState({idFilte:newFIlter});
+    this.setState({idFilters:newFilter});
 
-    this.sendFiltters({filter:this.state.filters,idFilte:newFIlter});
+    this.sendFilters({filter:this.state.filters,idFilter:newFilter});
   }
 
   render():JSX.Element{
@@ -157,14 +161,14 @@ export default class FilterBox extends React.PureComponent<FilterBoxProps, Filte
         <div className="filterBox--header">
           <FontAwesomeIcon icon={faClose} className="filterBox--header--icon" onClick={this.props.hide}/>
           {this.props.headerComponent}
-          <FontAwesomeIcon icon={faTrash} className="filterBox--header--reset-icon" onClick={() =>this.resetAllFliters()}/>
+          <FontAwesomeIcon icon={faTrash} className="filterBox--header--reset-icon" onClick={() =>this.resetAllFilters()}/>
         </div>
 
         <div className="filter-card--container">
-          <TaskFIlterCard ids={this.props.ids} updateFiltres={(data)=>this.updateIdFiltres(data)} resetFiltHook={this.resetFiltHook} filters={this.state.idFiltes}/>
+          <TaskFilterCard ids={this.props.ids} updateFilters={(data: any)=>this.updateIdFilters(data)} resetFilterHook={this.resetFilterHook} filters={this.state.idFilters}/>
           {this.props.filterable.map((tool , idx)=>{
             return(
-              <FIlterContainer resetFiltHook={this.resetFiltHook} updateFiltres={(data,columnIndex)=>this.updateFlters(idx,columnIndex,data)} currentFIltres={this.state.filters[idx]||[]} toolNmae={tool.name} filters={tool.columns} hiddenCols={hiddenCols[idx]} key={`filcon-${idx}`}/>
+              <FilterContainer resetFilterHook={this.resetFilterHook} updateFilters={(data: any,columnIndex: any)=>this.updateFilters(idx,columnIndex,data)} currentFilters={this.state.filters[idx]||[]} toolName={tool.name} filters={tool.columns} hiddenCols={hiddenCols[idx]} key={`filcon-${idx}`}/>
             );
           })}
         </div>
