@@ -137,5 +137,7 @@ class Tool(benchexec.tools.template.BaseTool2):
                 if result is None or last:
                     result = match.group(1)
                 elif not first:
-                    logging.warning("repeated match of identifier '%s', using first")
+                    logging.warning(
+                        "repeated match of identifier '%s', using first", identifier
+                    )
         return result
