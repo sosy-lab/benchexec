@@ -51,10 +51,10 @@ class Tool(benchexec.tools.template.BaseTool2):
             if "correct" == line:
                 return result.RESULT_TRUE_PROP
             elif "incorrect" == line:
-                return result.RESULT_FALSE_REACH
+                return result.RESULT_FALSE_PROP
 
         # We could not find a definitive result in the output
-        if run.returncode == 0:
+        if run.exit_code.value == 0:
             return result.RESULT_DONE
         else:
             return result.RESULT_ERROR
