@@ -47,20 +47,14 @@ class Tool(benchexec.tools.template.BaseTool2):
         """
         @return: status of PySvLib after executing a run
         """
-
-        status = None
-
         for line in reversed(run.output):
             if "correct" == line:
-                status = result.RESULT_TRUE_PROP
-                break
+                return result.RESULT_TRUE_PROP
             elif "incorrect" == line:
-                status = result.RESULT_FALSE_REACH
-                break
+                return result.RESULT_FALSE_REACH
 
-        if not status:
-            if run.returncode == 0:
-                status = result.RESULT_DONE
-            else:
-                status = result.RESULT_ERROR
-        return status
+        # We could not find a definitive result in the output
+        if run.returncode == 0:
+            return result.RESULT_DONE
+        else:
+            return result.RESULT_ERROR
