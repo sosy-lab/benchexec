@@ -287,7 +287,7 @@ class _Worker(threading.Thread):
                 logging.critical(e)
             except BenchExecException as e:
                 logging.critical(e)
-            except BaseException:
+            except BaseException:  # noqa: B036
                 logging.exception("Exception during run execution")
             self.run_finished_callback()
             _Worker.working_queue.task_done()

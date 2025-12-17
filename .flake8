@@ -50,9 +50,7 @@ ignore =
     # several scripts use print() for their output, so allow it
     T001,T201,
     # only relevant if pytest is used
-    PT,T003,
-    # new warnings from flake8-bugbear in flake8 7.x, pre-existing issues to be fixed separately
-    B026,B036,B042,F824
+    PT,T003
 per-file-ignores =
     # references to /tmp are for other reasons
     benchexec/containerexecutor.py:S108

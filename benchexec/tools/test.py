@@ -34,7 +34,7 @@ class ToolInfoModuleTest(unittest.TestCase):
                 logging.warning(
                     "Cannot load tool-info module %s: %s", tool_info_name, e
                 )
-            except BaseException as e:
+            except BaseException as e:  # noqa: B036
                 self.fail(f"Loading tool-info module {tool_info_name} failed: {e}")
 
 
