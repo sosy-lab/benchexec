@@ -59,9 +59,7 @@ class Tool(benchexec.tools.template.BaseTool2):
                 break
 
         if not status:
-            if run.was_timeout():
-                status = result.RESULT_TIMEOUT
-            elif run.returncode == 0:
+            if run.returncode == 0:
                 status = result.RESULT_DONE
             else:
                 status = result.RESULT_ERROR
