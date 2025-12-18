@@ -4,6 +4,7 @@
 # SPDX-FileCopyrightText: 2007-2024 Dirk Beyer <https://www.sosy-lab.org>
 #
 # SPDX-License-Identifier: Apache-2.0
+import logging
 
 import benchexec.tools.template
 from benchexec.tools.sv_benchmarks_util import (
@@ -43,6 +44,27 @@ class Tool(benchexec.tools.template.BaseTool2):
 
         return [executable, *options, *mapping_options, *input_files]
 
+    def get_value_from_output(self, output, identifier):
+        # search for the text in output and get its value,
+        # search the first line, that starts with the searched text
+        # warn if there are more lines
+        match = None
+        for line in output:
+            if line.lstrip().startswith(identifier):
+                startPosition = line.find(":") + 1
+                endPosition = line.find("(", startPosition)
+                if endPosition == -1:
+                    endPosition = len(line)
+                if match is None:
+                    match = line[startPosition:endPosition].strip()
+                else:
+                    logging.warning(
+                        "skipping repeated match for identifier '%s': '%s'",
+                        identifier,
+                        line,
+                    )
+        return match
+
     def determine_result(self, run):
         """
         @return: status of PySvLib after executing a run
@@ -51,10 +73,10 @@ class Tool(benchexec.tools.template.BaseTool2):
             if "correct" == line:
                 return result.RESULT_TRUE_PROP
             elif "incorrect" == line:
-                return result.RESULT_FALSE_REACH
+                return result.RESULT_FALSE_PROP
 
         # We could not find a definitive result in the output
-        if run.returncode == 0:
+        if run.exit_code.value == 0:
             return result.RESULT_DONE
         else:
             return result.RESULT_ERROR
