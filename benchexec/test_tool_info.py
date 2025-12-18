@@ -92,7 +92,7 @@ def log_if_unsupported(msg):
     """Catch any exception in block and log it with a message about an unsupported feature"""
     try:
         yield  # call code block to be executed
-    except BaseException as e:
+    except BaseException as e:  # noqa: B036
         logging.warning(
             "Tool-info module does not support %s: “%s”",
             msg,
@@ -134,7 +134,7 @@ def print_tool_info(tool, tool_locator):
     version = None
     try:
         version = tool.version(executable)
-    except BaseException:
+    except BaseException:  # noqa: B036
         logging.warning("Determining version failed:", exc_info=1)
     if version:
         print_value("Version", tool.version(executable))
@@ -327,7 +327,7 @@ def analyze_tool_output(tool, file, dummy_cmdline):
             result,
             extra_line=True,
         )
-    except BaseException:
+    except BaseException:  # noqa: B036
         logging.warning(
             "Tool module failed to analyze result in “%s”:", file.name, exc_info=1
         )

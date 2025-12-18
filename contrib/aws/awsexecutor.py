@@ -255,7 +255,6 @@ def execute_benchmark(benchmark, output_handler):
 
 
 def stop():
-    global event_handler
     event_handler.set()
     global STOPPED_BY_INTERRUPT
     STOPPED_BY_INTERRUPT = True
