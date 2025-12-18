@@ -43,6 +43,12 @@ class Tool(benchexec.tools.template.BaseTool2):
 
         return [executable, *options, *mapping_options, *input_files]
 
+    def get_value_from_output(self, output, identifier):
+        for line in output:
+            if line.startswith(identifier):
+                return line.split(":", maxsplit=1)[-1].strip()
+        return None
+
     def determine_result(self, run):
         """
         @return: status of PySvLib after executing a run
