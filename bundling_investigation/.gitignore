@@ -1,0 +1,20 @@
+# Build artifacts
+build/
+dist/
+*.spec.bak
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Logs
+*.log
+
+# PyInstaller
+*.manifest
+*.spec.bak
+
+# Test outputs
+output.log
