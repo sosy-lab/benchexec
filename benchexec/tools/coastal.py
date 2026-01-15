@@ -7,7 +7,6 @@
 
 import benchexec.result as result
 import benchexec.tools.template
-import benchexec.util as util
 
 
 class Tool(benchexec.tools.template.BaseTool2):
