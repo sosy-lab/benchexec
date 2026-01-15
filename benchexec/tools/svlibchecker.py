@@ -74,6 +74,8 @@ class Tool(benchexec.tools.template.BaseTool2):
                     return result.RESULT_TRUE_PROP
                 elif "incorrect" == line:
                     return result.RESULT_FALSE_PROP
+            elif line.startswith("Error:"):
+                return result.RESULT_ERROR + " (" + line[len("Error:") :].strip() + ")"
 
         # if no result was found, return error
         return result.RESULT_ERROR
