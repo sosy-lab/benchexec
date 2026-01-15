@@ -74,6 +74,10 @@ class Tool(benchexec.tools.template.BaseTool2):
                     return result.RESULT_TRUE_PROP
                 elif "incorrect" == line:
                     return result.RESULT_FALSE_PROP
+                elif "unknown" == line:
+                    return result.RESULT_UNKNOWN
+                else:
+                    logging.warning("unrecognized verification result: '%s'", line)
             elif line.startswith("Error:"):
                 return result.RESULT_ERROR + " (" + line[len("Error:") :].strip() + ")"
 
