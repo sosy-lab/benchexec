@@ -951,7 +951,9 @@ class TestRunExecutorWithContainer(TestRunExecutor):
 
     def execute_run(self, *args, **kwargs):
         return super(TestRunExecutorWithContainer, self).execute_run(
-            workingDir="/tmp", *args, **kwargs
+            workingDir="/tmp",
+            *args,  # noqa: B026
+            **kwargs,
         )
 
     def test_home_and_tmp_is_separate(self):
