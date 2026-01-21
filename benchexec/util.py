@@ -845,3 +845,31 @@ def is_child_process_of_us(pid: int) -> bool:
         return is_child_process_of_us(ppid)
     else:
         return False
+
+
+def pidfd_open(pid, flags=0):
+    """
+    Return a file descriptor that refers to the process whose PID is specified in pid
+    @param pid a process id which the function refers to
+    @param flags either has the value 0, or contains the PIDFD_NONBLOCK (Linux >= 5.10)
+    @return: a file descriptor that referes to the `pid` process
+    """
+    if hasattr(os, "pidfd_open"):
+        # Use the built-in function if available (Python 3.9+ on Linux 5.3+)
+        try:
+            return os.pidfd_open(pid, flags)
+        except OSError as e:
+            raise RuntimeError(f"os.pidfd_open failed: {e}") from e
+    else:
+        libc = ctypes.CDLL("libc.so.6", use_errno=True)
+
+        # syscall number for pidfd_open on x86_64
+        SYS_pidfd_open = 434
+
+        fd = libc.syscall(SYS_pidfd_open, pid, flags)
+
+        if fd == -1:
+            err = ctypes.get_errno()
+            raise OSError(err, os.strerror(err))
+
+        return fd
