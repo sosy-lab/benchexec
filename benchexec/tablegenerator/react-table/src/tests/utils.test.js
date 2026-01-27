@@ -1270,7 +1270,7 @@ describe("splitUrlPathForMatchingPrefix", () => {
       "bar.html",
     ]);
   });
-  test("should work if first URL starts with second URL (terminating slash)", () => {
+  test("should work if first URL starts with second URL (second has terminating slash)", () => {
     const a = new URL("file:///home/foo/bar.html");
     const b = new URL("file:///home/foo/");
     expect(splitUrlPathForMatchingPrefix(a, b)).toStrictEqual([

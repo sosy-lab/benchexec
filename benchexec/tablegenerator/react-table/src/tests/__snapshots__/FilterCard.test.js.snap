@@ -185,6 +185,7 @@ exports[`FilterCard tests FilterCard should correctly reflect already set status
    <li>
     <input
      checked={false}
+     id="cat-cat1"
      name="cat-cat1"
      type="checkbox"
     />
@@ -198,6 +199,7 @@ exports[`FilterCard tests FilterCard should correctly reflect already set status
    <li>
     <input
      checked={false}
+     id="cat-correct"
      name="cat-correct"
      type="checkbox"
     />
@@ -211,6 +213,7 @@ exports[`FilterCard tests FilterCard should correctly reflect already set status
    <li>
     <input
      checked={false}
+     id="cat-wrong"
      name="cat-wrong"
      type="checkbox"
     />
@@ -229,6 +232,7 @@ exports[`FilterCard tests FilterCard should correctly reflect already set status
    <li>
     <input
      checked={false}
+     id="stat-false(reach)"
      name="stat-false(reach)"
      type="checkbox"
     />
@@ -241,6 +245,7 @@ exports[`FilterCard tests FilterCard should correctly reflect already set status
    <li>
     <input
      checked={true}
+     id="stat-true"
      name="stat-true"
      type="checkbox"
     />
@@ -310,6 +315,7 @@ exports[`FilterCard tests FilterCard should display checkboxes for status filter
    <li>
     <input
      checked={false}
+     id="cat-cat1"
      name="cat-cat1"
      type="checkbox"
     />
@@ -323,6 +329,7 @@ exports[`FilterCard tests FilterCard should display checkboxes for status filter
    <li>
     <input
      checked={false}
+     id="cat-correct"
      name="cat-correct"
      type="checkbox"
     />
@@ -336,6 +343,7 @@ exports[`FilterCard tests FilterCard should display checkboxes for status filter
    <li>
     <input
      checked={false}
+     id="cat-wrong"
      name="cat-wrong"
      type="checkbox"
     />
@@ -354,6 +362,7 @@ exports[`FilterCard tests FilterCard should display checkboxes for status filter
    <li>
     <input
      checked={false}
+     id="stat-false(reach)"
      name="stat-false(reach)"
      type="checkbox"
     />
@@ -366,6 +375,7 @@ exports[`FilterCard tests FilterCard should display checkboxes for status filter
    <li>
     <input
      checked={false}
+     id="stat-true"
      name="stat-true"
      type="checkbox"
     />

@@ -6,17 +6,15 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from "react";
-import ReactDOM from "react-dom";
-import { act } from "react-dom/test-utils";
 import App from "./App";
+import { render } from "@testing-library/react";
 
 it("renders without crashing", async () => {
-  const div = document.createElement("div");
   let statsResolver;
   const StatsReadyPromise = new Promise((resolve) => (statsResolver = resolve));
-  await act(async () => {
-    ReactDOM.render(<App onStatsReady={statsResolver} />, div);
-    await StatsReadyPromise;
-  });
-  ReactDOM.unmountComponentAtNode(div);
+
+  const { unmount } = render(<App onStatsReady={statsResolver} />);
+
+  await StatsReadyPromise;
+  unmount();
 });

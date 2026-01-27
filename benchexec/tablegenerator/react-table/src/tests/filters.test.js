@@ -233,7 +233,7 @@ test("applyMatcher for no results", () => {
   expect(getFilteredDataWithMatcher(filters).length).toBe(0);
 });
 
-test("applyMatcher for all results", () => {
+test("applyMatcher for all results (without last row)", () => {
   const filters = [];
   expect(getFilteredDataWithMatcher(filters).length).toBe(5);
 });

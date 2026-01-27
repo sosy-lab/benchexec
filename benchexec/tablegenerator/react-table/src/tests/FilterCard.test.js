@@ -8,7 +8,7 @@
 import React from "react";
 import renderer from "react-test-renderer";
 
-import { render } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import FilterCard from "../components/FilterBox/FilterCard.js";
@@ -120,12 +120,10 @@ describe("FilterCard tests", () => {
       filter,
       onFilterUpdate: handler,
     });
-    const { container } = render(Card);
 
-    const checkBox = container.querySelector('input[name="stat-true"]');
+    render(Card);
 
-    expect(checkBox).not.toBeNull();
-
+    const checkBox = screen.getByLabelText("true");
     await userEvent.click(checkBox);
 
     expect(response).toEqual({ values: ["true"], title: "Status" });

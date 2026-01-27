@@ -248,6 +248,7 @@ export default class FilterCard extends React.PureComponent {
                     <li key={category}>
                       <input
                         type="checkbox"
+                        id={`cat-${category}`}
                         name={`cat-${category}`}
                         checked={values.includes(category)}
                         ref={ref}
@@ -283,6 +284,7 @@ export default class FilterCard extends React.PureComponent {
                   <li key={status}>
                     <input
                       type="checkbox"
+                      id={`stat-${status}`}
                       name={`stat-${status}`}
                       ref={ref}
                       checked={values.includes(status)}
