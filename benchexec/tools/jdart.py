@@ -5,18 +5,17 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import benchexec.util as util
-import benchexec.tools.template
 import benchexec.result as result
+import benchexec.tools.template
 
 
-class Tool(benchexec.tools.template.BaseTool):
+class Tool(benchexec.tools.template.BaseTool2):
     """
     Tool info for JDart modified by TU Dortmund
     """
 
-    def executable(self):
-        return util.find_executable("run-jdart.sh")
+    def executable(self, tool_locator):
+        return tool_locator.find_executable("run-jdart.sh")
 
     def version(self, executable):
         return self._version_from_tool(executable, arg="-v")
@@ -27,18 +26,18 @@ class Tool(benchexec.tools.template.BaseTool):
     def project_url(self):
         return "https://github.com/tudo-aqua/jdart"
 
-    def cmdline(self, executable, options, tasks, propertyfile, rlimits):
+    def cmdline(self, executable, options, task, rlimits):
         cmd = [executable]
         if options:
             cmd = cmd + options
-        if propertyfile:
-            cmd.append(propertyfile)
-        return cmd + tasks
+        if task.property_file:
+            cmd.append(task.property_file)
+        return cmd + list(task.input_files_or_identifier)
 
-    def determine_result(self, returncode, returnsignal, output, isTimeout):
+    def determine_result(self, run):
         # parse output
         status = result.RESULT_UNKNOWN
-        for line in output:
+        for line in run.output:
             if "== ERROR" in line:
                 status = result.RESULT_FALSE_PROP
             elif "== OK" in line:
