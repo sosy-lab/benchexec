@@ -133,3 +133,10 @@ Developers are expected to use the following commands:
 
 This ensures a consistent development workflow independent of the
 editor or IDE used.
+
+---
+
+## Step 7: API Type Generation (N/A)
+
+The project does not use generated API clients (e.g., OpenAPI/Swagger, GraphQL codegen).
+Therefore, no API type generation step was required.
