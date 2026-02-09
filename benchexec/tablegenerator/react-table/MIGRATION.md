@@ -156,3 +156,15 @@ Each automated conversion was followed by:
 
 This approach ensures a clear separation between automated and manual
 changes and improves the reproducibility of the migration process.
+
+## Step 9: Migration Checklist
+
+**Order (bottom-up):**
+- [ ] `src/utils/` (utils.js, filters.js, stats.js, plot.js)
+- [ ] `src/workers/` (workerDirector.js, dataUrls.js)
+- [ ] `src/components/` (leaf components → central components)
+    - [ ] `src/components/FilterBox/`
+    - [ ] `src/components/Table/`
+- [ ] Entry points (`src/App.js`, `src/index.js`)
+- [ ] Tests as needed (`src/tests/**`, `src/App.test.js`)
+- [ ] Node scripts (`scripts/*.js`) 
