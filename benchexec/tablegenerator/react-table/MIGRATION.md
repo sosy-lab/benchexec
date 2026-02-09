@@ -35,7 +35,7 @@ The sudden strategy was chosen for the following reasons:
 - The migration is performed in a controlled environment and not during
   active feature development.
 
-Although the strategy is classified as *sudden*, a short technical
+Although the strategy is classified as _sudden_, a short technical
 transition phase is allowed using `allowJs` in the TypeScript
 configuration to enable incremental conversion of files.
 
@@ -84,7 +84,6 @@ the following commit sequence is used:
 3. **Manual cleanup**
    refactor: cleanup &lt;file>
 
-
 This separation makes it explicit which changes were automated and
 which were manual improvements.
 
@@ -106,12 +105,31 @@ This order minimizes cascading type errors and simplifies refactoring.
 ## 5. Goals and Non-Goals
 
 ### Goals
+
 - Fully typed TypeScript codebase
 - Strict type checking
 - Clear distinction between automated and manual changes
 - Reproducible migration process
 
 ### Non-Goals
+
 - Functional changes to application behavior
 - Refactoring unrelated to type safety
 - Introduction of new features during migration
+
+---
+
+## Step 6: Development Environment
+
+No specific IDE or editor is required for this project.
+TypeScript support is provided via the TypeScript compiler and ESLint,
+which are executed through npm scripts.
+
+Developers are expected to use the following commands:
+
+- `npm run typecheck` – perform standalone TypeScript type checking
+- `npm run lint` – check code style and potential issues
+- `npm run lint:fix` – automatically fix lint and formatting issues
+
+This ensures a consistent development workflow independent of the
+editor or IDE used.
