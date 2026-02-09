@@ -134,9 +134,25 @@ Developers are expected to use the following commands:
 This ensures a consistent development workflow independent of the
 editor or IDE used.
 
----
-
 ## Step 7: API Type Generation (N/A)
 
 The project does not use generated API clients (e.g., OpenAPI/Swagger, GraphQL codegen).
 Therefore, no API type generation step was required.
+
+## Step 8: Use of Migration Tools
+
+Due to the size of the codebase, automated tools were used to support
+the migration from JavaScript to TypeScript.
+
+ChatGPT was used as an auxiliary tool to perform initial conversions
+of JavaScript files to TypeScript. The tool-generated output was not
+used directly without review.
+
+Each automated conversion was followed by:
+
+1. A commit containing only the tool-generated output
+2. A commit fixing TypeScript compilation errors
+3. A commit performing manual cleanup and refactoring
+
+This approach ensures a clear separation between automated and manual
+changes and improves the reproducibility of the migration process.
