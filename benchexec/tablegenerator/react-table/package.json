@@ -38,14 +38,37 @@
     "start": "(test -f src/data/dependencies.json || node scripts/dependencies.js) && npm run injectWorkers && node scripts/start.js",
     "build": "node scripts/dependencies.js && npm run injectWorkers  && react-app-rewired build",
     "test": "(test -f src/data/dependencies.json || node scripts/dependencies.js) && npm run injectWorkers && react-app-rewired test",
-    "lint:fix": "(test -f src/data/dependencies.json || node scripts/dependencies.js) && eslint --fix --ignore-path .lintignores $(pwd)'/**/*.js' && prettier --ignore-path .lintignores --write $(pwd)'/**/*.+(css|scss|json)'",
-    "lint": "(test -f src/data/dependencies.json || node scripts/dependencies.js) &&  eslint --max-warnings 0 --ignore-path .lintignores . && prettier --ignore-path .lintignores --check $(pwd)'/**/*.+(css|scss|json)'"
+    "lint:fix": "(test -f src/data/dependencies.json || node scripts/dependencies.js) && eslint --fix --ignore-path .lintignores --ext .js,.jsx,.ts,.tsx . && prettier --ignore-path .lintignores --write \"**/*.{css,scss,json}\"",
+    "lint": "(test -f src/data/dependencies.json || node scripts/dependencies.js) &&  eslint --max-warnings 0 --ignore-path .lintignores --ext .js,.jsx,.ts,.tsx . && prettier --ignore-path .lintignores --check \"**/*.{css,scss,json}\""
   },
   "eslintConfig": {
     "extends": [
       "react-app",
       "plugin:prettier/recommended",
       "prettier"
+    ],
+    "overrides": [
+      {
+        "files": [
+          "**/*.ts",
+          "**/*.tsx"
+        ],
+        "parser": "@typescript-eslint/parser",
+        "plugins": [
+          "@typescript-eslint"
+        ],
+        "extends": [
+          "plugin:@typescript-eslint/recommended"
+        ],
+        "rules": {
+          "@typescript-eslint/no-unused-vars": [
+            "error",
+            {
+              "argsIgnorePattern": "^_"
+            }
+          ]
+        }
+      }
     ],
     "rules": {
       "prettier/prettier": "warn"
@@ -55,7 +78,8 @@
     "src/vendor/"
   ],
   "prettier": {
-    "trailingComma": "all"
+    "trailingComma": "all",
+    "endOfLine": "auto"
   },
   "browserslist": {
     "production": [
@@ -85,6 +109,8 @@
     "@types/node": "^18.19.130",
     "@types/react": "^17.0.91",
     "@types/react-dom": "^17.0.26",
+    "@typescript-eslint/eslint-plugin": "^5.62.0",
+    "@typescript-eslint/parser": "^5.62.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.2.1",
     "license-checker": "^25.0.1",
