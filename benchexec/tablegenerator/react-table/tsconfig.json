@@ -8,7 +8,7 @@
 {
   "compilerOptions": {
     "target": "ES2019", // JS features to compile down to
-    "lib": ["ES2019", "DOM", "DOM.Iterable"], // Built-in APIs available in the type system
+    "lib": ["ES2021", "DOM", "DOM.Iterable"], // Built-in APIs available in the type system
 
     "module": "ESNext", // Use ES modules
     "moduleResolution": "Node", // How imports are resolved

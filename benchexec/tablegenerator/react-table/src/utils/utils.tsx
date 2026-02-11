@@ -11,10 +11,12 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCopy } from "@fortawesome/free-regular-svg-icons";
 
 /* A DOM node that allows its content to be copied to the clipboard. */
-export class CopyableNode extends React.Component<React.PropsWithChildren> {
+export class CopyableNode extends React.Component<
+  React.PropsWithChildren<Record<string, never>>
+> {
   private readonly childRef: React.RefObject<HTMLSpanElement>;
 
-  constructor(props: React.PropsWithChildren) {
+  constructor(props: React.PropsWithChildren<Record<string, never>>) {
     super(props);
     this.childRef = React.createRef<HTMLSpanElement>();
   }
@@ -403,7 +405,7 @@ const makeUrlFilterDeserializer = (
   const deserializer = makeFilterDeserializer({ categoryValues, statusValues });
   return (
     str: string,
-  ): ReturnType<ReturnType<typeof makeFilterDeserializer>> => {
+  ): ReturnType<ReturnType<typeof makeFilterDeserializer>> | null => {
     const params = getURLParameters(str);
     if (params.filter) {
       return deserializer(params.filter);
@@ -580,7 +582,7 @@ const makeFilterSerializer =
       const { tool, name, column } = decodeFilter(id);
       const toolBucket = groupedFilters[tool] || {};
       const colKey = column ?? "";
-      const columnBucket = toolBucket[colKey] || { name: escape(name) };
+      const columnBucket = toolBucket[colKey] || { name: escape(name ?? "") };
 
       if (
         allStatusValues[tool]?.[colKey] ||
@@ -639,7 +641,7 @@ const makeFilterSerializer =
           );
         } else {
           // <valueFilter>
-          filterStr = `value(${escape(filters.value)})`;
+          filterStr = `value(${escape(filters.value ?? "")})`;
         }
         if (filterStr !== "") {
           columnFilters.push(`${columnFilterHeader}(${filterStr})`);
@@ -1094,8 +1096,8 @@ class NumberFormatterBuilder {
       const attachDecimal = postfix[0] === ".";
       postfix = postfix.replace(/\./, "");
       postfix = `${postfix[0]}.${postfix.substr(1)}`;
-      postfix = Math.round(Number(postfix));
-      postfix = isNaN(postfix as unknown as number) ? "" : postfix.toString();
+      const roundedPostfix = Math.round(Number(postfix));
+      postfix = Number.isNaN(roundedPostfix) ? "" : String(roundedPostfix);
       //handle carry
       if (postfix.length > 1 && postfix[0] !== ".") {
         const overflow = postfix[0];
@@ -1314,7 +1316,7 @@ const hasSameEntries = (
  * @returns {boolean} True if value is a category, else false
  */
 const isCategory = (item: string): boolean =>
-  item && item[item.length - 1] === " ";
+  item.length > 0 && item[item.length - 1] === " ";
 
 /**
  * This function uses string operations to get the smallest decimal part of a number.
