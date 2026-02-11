@@ -69,14 +69,6 @@ export const splitUrlPathForMatchingPrefix = (
 
 const emptyStateValue = "##########";
 
-type ColumnLike = {
-  type?: string;
-  unit?: string;
-  display_title?: React.ReactNode;
-  title?: string;
-  max_width?: number;
-};
-
 type ToolLike = {
   columns: Array<Record<string, unknown> & { title?: string }>;
 };
@@ -139,7 +131,6 @@ const getRawOrDefault = <TDefault,>(
 const numericSortMethod = (a: RawCellLike, b: RawCellLike): number => {
   const aValue = getRawOrDefault(a, +Infinity);
   const bValue = getRawOrDefault(b, +Infinity);
-  // keep behavior: subtraction as in JS (works for numbers, yields NaN otherwise)
   return (aValue as number) - (bValue as number);
 };
 
@@ -208,14 +199,7 @@ const path = (
 ): unknown => {
   let last: unknown = data;
   for (const p of pathArr) {
-    if (isNil(last)) {
-      return undefined;
-    }
-    if (typeof last !== "object") {
-      return undefined;
-    }
-    const obj = last as Record<string | number, unknown>;
-    last = obj[p];
+    last = (last as Record<string | number, unknown>)[p];
     if (isNil(last)) {
       return undefined;
     }
@@ -231,6 +215,14 @@ const pathOr = <TFallback,>(
   const pathRes = path(pathArr, data);
 
   return pathRes === undefined ? fallback : pathRes;
+};
+
+type ColumnLike = {
+  type?: string;
+  unit?: string;
+  display_title?: React.ReactNode;
+  title?: string;
+  max_width?: number;
 };
 
 const formatColumnTitle = (column: ColumnLike): React.ReactNode =>
@@ -309,7 +301,7 @@ const getURLParameters = (str?: string): Record<string, string> => {
   for (const [key, ...value] of keyValuePairs) {
     const decodedKey = decodeURI(key);
     out[decodedKey] =
-      decodedKey === "filter" ? value.join("=") : decodeURI(value.join("="));
+      key === "filter" ? value.join("=") : decodeURI(value.join("="));
   }
 
   return out;
@@ -414,14 +406,12 @@ const makeUrlFilterDeserializer = (
   };
 };
 
-type SerializedFilter = Record<string, { in?: string[]; notIn?: string[] }>;
+type SerializedFilterValue = Partial<Record<"in" | "notIn", string[]>>;
 
-const makeSerializedFilterValue = (filter: SerializedFilter): string => {
+const makeSerializedFilterValue = (filter: SerializedFilterValue): string => {
   const parts: string[] = [];
   for (const [key, values] of Object.entries(filter)) {
-    parts.push(
-      `${key}(${(values.in ?? values.notIn ?? []).map(escape).join(",")})`,
-    );
+    parts.push(`${key}(${values.map(escape).join(",")})`);
   }
   return parts.join(",");
 };
@@ -431,7 +421,7 @@ const createDistinctValueFilters = (
   nominal: string[],
   trim = false,
 ): string => {
-  const filter: { in?: string[]; notIn?: string[] } = {};
+  const filter: SerializedFilterValue = {};
   // we want to minimize the needed space to encode the filter
   // if we have more than half of all values selected, we encode all not selected
   // values in "notIn", otherwise we encode all selected values in "in"
@@ -446,10 +436,7 @@ const createDistinctValueFilters = (
   } else {
     filter.in = selected.map((val) => (trim ? val.trim() : val));
   }
-  // keep existing encoding behavior
-  return makeSerializedFilterValue({
-    [Object.keys(filter)[0] ?? "in"]: filter as never,
-  } as never);
+  return makeSerializedFilterValue(filter);
 };
 
 function makeStatusColumnFilter(
@@ -606,6 +593,23 @@ const makeFilterSerializer =
       toolBucket[colKey] = columnBucket;
       groupedFilters[tool] = toolBucket;
     }
+
+    // serialization part
+    // we want to transform our filters into the following format:
+    // [<idFilter>,]<runsetFilter>+
+    // with
+    // <idFilter> := id(values(<value>+))
+    // <runsetFilter> := <runsetId>(<columnFilter>+)[,]
+    // <columnFilter> := <columnId>*<name>*(<filter>)[,]
+    // <filter> := <valueFilter>|<statusColumnFilter>
+    // <valueFilter> := value(<value>)
+    // <statusColumnFilter> := <statusFilter>|<categoryFilter>|<statusFilter>,<categoryFilter>
+    // <statusFilter> := status(in(<value>+)|notIn(<value>+)|empty())
+    // <categoryFilter> := category(in(<value>+)|notIn(<value>+)|empty())
+    // <value> := <urlencodedTerminalValue>
+
+    // one transformed example would be
+    // 1(0*status*(statusFilter(notIn(true)),categoryFilter(in(correct,missing))),1*cputime*(value(%3A1120)))
 
     const { ids, ...rest } = groupedFilters;
     const runsetFilters: string[] = [];
@@ -916,7 +920,6 @@ const deepEquals = (
       }
     } else {
       if (a[key] !== b[key]) {
-        // eslint-disable-next-line no-console
         console.log(`${String(a[key])} !== ${String(b[key])}`);
         return false;
       }
@@ -1168,6 +1171,9 @@ class NumberFormatterBuilder {
         integer = integer || "";
         decimal = decimal || "";
         const decimalPoint = decimal ? "." : decSpace;
+        /*         while (integer.length < this.maxPositiveDecimalPosition) {
+          integer = ` ${integer}`;
+        } */
         while (decimal.length < this.maxNegativeDecimalPosition) {
           decimal += " ";
         }
