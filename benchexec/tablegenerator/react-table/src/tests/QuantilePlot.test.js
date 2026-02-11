@@ -14,7 +14,7 @@ const fs = require("fs");
 
 /*
  * A testing utility function to set the URL parameters for the test.
- * This is used instead of the setURLParameter function from the utils.js file
+ * This is used instead of the setURLParameter function from the utils.tsx file
  * because the latter doesn't work well with the react-test-renderer.
  *
  * @param {Object} params - The parameters to set in the URL

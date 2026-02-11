@@ -5,7 +5,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-// COPY OF utils.js, as imports will not work here
+// COPY OF utils.tsx, as imports will not work here
 /**
  * Function to safely add two numbers in a way that should mitigate errors
  * caused by inaccurate floating point operations in javascript
