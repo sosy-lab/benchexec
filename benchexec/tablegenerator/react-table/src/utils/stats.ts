@@ -8,9 +8,15 @@
 import { isNil, NumberFormatterBuilder } from "./utils";
 import { enqueue } from "../workers/workerDirector";
 
-const keysToIgnore = ["meta"];
+const keysToIgnore = ["meta"] as const;
 
-export const statisticsRows = {
+type StatisticRowDef = {
+  title: string;
+  indent?: number;
+  description?: string;
+};
+
+export const statisticsRows: Record<string, StatisticRowDef> = {
   total: { title: "all results" },
   correct: {
     indent: 1,
@@ -62,12 +68,81 @@ export const statisticsRows = {
   },
 };
 
+type RawCell = { raw: string };
+type TableRowResult = {
+  category: string;
+  values: RawCell[];
+};
+type TableRow = {
+  results: TableRowResult[];
+};
+
+type ToolColumn = {
+  type?: string;
+  title: string;
+  number_of_significant_digits?: number;
+};
+
+type Tool = {
+  columns: ToolColumn[];
+};
+
+type StatRow = {
+  id: string;
+  content: unknown[][];
+};
+
+type NumberFormatterBuilderLike = {
+  addDataItem: (value: unknown) => void;
+  build: () => FormatterFn;
+};
+
+type FormatterOptions = {
+  leadingZero: boolean;
+  whitespaceFormat: boolean;
+  html: boolean;
+  additionalFormatting: (
+    value: string,
+    opts: { significantDigits?: number },
+  ) => string;
+};
+
+type FormatterFn = (value: unknown, options: FormatterOptions) => string;
+
+type FormatterMatrix = Array<Array<NumberFormatterBuilderLike | FormatterFn>>;
+
+type ComputedStatEntry = Record<string, unknown> & {
+  meta?: { maxDecimals?: number };
+  sum?: unknown;
+};
+
+type UnfilteredColumnStats = Record<string, unknown> & {
+  columnType?: unknown;
+};
+
+type PreppedRow = {
+  categoryType: string;
+  resultType: string;
+  row: RawCell[];
+};
+
+type SplitColumnItem = {
+  categoryType: string;
+  resultType: string;
+  column: string;
+  columnType?: string;
+  columnTitle: string;
+};
+
+const asRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null;
+
 /**
  * Remove all statistics rows for which the statistics worker cannot/will not
  * compute values (e.g., summary measurements, score).
  */
-export const filterComputableStatistics = (stats) =>
-  stats.filter((row) => statisticsRows[row.id]);
+export const filterComputableStatistics = (stats: StatRow[]): StatRow[] =>
+  stats.filter((row) => Boolean(statisticsRows[row.id]));
 
 /**
  * This method gets called on the initial render or whenever there is a
@@ -78,13 +153,21 @@ export const filterComputableStatistics = (stats) =>
  * necessary transformation to bring the calculation results into the
  * required format.
  */
-export const computeStats = async ({ tools, tableData, stats }) => {
+export const computeStats = async ({
+  tools,
+  tableData,
+  stats,
+}: {
+  tools: Tool[];
+  tableData: TableRow[];
+  stats: StatRow[];
+}): Promise<StatRow[]> => {
   const formatter = buildFormatter(tools);
   let res = await processData({ tools, tableData, formatter });
 
   const availableStats = stats
     .map((row) => row.id)
-    .filter((id) => statisticsRows[id]);
+    .filter((id) => Boolean(statisticsRows[id]));
   const cleaned = cleanupStats(res, formatter, availableStats);
 
   // fill up stat array to match column mapping
@@ -97,14 +180,14 @@ export const computeStats = async ({ tools, tableData, stats }) => {
   // of the runset and append dummy objects until we reach a column that we
   // have calculated data for
   res = cleaned.map((tool, toolIdx) => {
-    const out = [];
-    const toolColumns = tools[toolIdx].columns;
+    const out: Array<Record<string, unknown>> = [];
+    const toolColumns = tools[toolIdx]?.columns ?? [];
     let pointer = 0;
     let curr = toolColumns[pointer];
 
     for (const col of tool) {
       const { title } = col;
-      while (pointer < toolColumns.length && title !== curr.title) {
+      while (pointer < toolColumns.length && title !== curr?.title) {
         // irrelevant column
         out.push({});
         pointer++;
@@ -125,7 +208,8 @@ export const computeStats = async ({ tools, tableData, stats }) => {
   // Put new statistics in same "shape" as old ones.
   return filterComputableStatistics(stats).map((row) => {
     const content = row.content.map((tool, toolIdx) => {
-      return res[toolIdx].map((col) => col[row.id]);
+      const toolCols = res[toolIdx] ?? [];
+      return toolCols.map((col) => (col as Record<string, unknown>)[row.id]);
     });
     return { ...row, content };
   });
@@ -137,19 +221,26 @@ export const computeStats = async ({ tools, tableData, stats }) => {
  *
  * @param {object[]} tools
  */
-const buildFormatter = (tools) =>
+const buildFormatter = (tools: Tool[]): FormatterMatrix =>
   tools.map((tool, tIdx) =>
     tool.columns.map((column, cIdx) => {
       const { number_of_significant_digits: sigDigits } = column;
-      return new NumberFormatterBuilder(sigDigits, `${tIdx}-${cIdx}`);
+      return new NumberFormatterBuilder(
+        sigDigits,
+        `${tIdx}-${cIdx}`,
+      ) as unknown as NumberFormatterBuilderLike;
     }),
   );
 
 const maybeRound =
-  (key, maxDecimalInputLength, columnIdx) =>
-  (number, { significantDigits }) => {
+  (key: string, maxDecimalInputLength: number, columnIdx: number) =>
+  (
+    number: string,
+    { significantDigits }: { significantDigits?: number },
+  ): string => {
     const asNumber = Number(number);
     const [integer, decimal] = number.split(".");
+    void columnIdx;
 
     if (["sum", "avg", "stdev"].includes(key)) {
       // for cases when we have no significant digits defined,
@@ -169,8 +260,8 @@ const maybeRound =
       const deltaInputLength = maxDecimalInputLength - (decimal?.length ?? 0);
 
       // differences in length between num of significant digits and current value
-      const deltaSigDigLength =
-        significantDigits - (cleanedInt.length + cleanedDec.length);
+      const sig = Number(significantDigits);
+      const deltaSigDigLength = sig - (cleanedInt.length + cleanedDec.length);
 
       // if we have not yet filled the number of significant digits, we could decide to pad
       const paddingPossible = deltaSigDigLength > 0;
@@ -211,20 +302,34 @@ const maybeRound =
  * @param {object[][]} stats
  * @param {Function[][]} formatter
  */
-const cleanupStats = (unfilteredStats, formatter, availableStats) => {
+const cleanupStats = (
+  unfilteredStats: unknown[][],
+  formatter: FormatterMatrix,
+  availableStats: string[],
+): Array<Array<Record<string, unknown>>> => {
   const stats = unfilteredStats.map((tool, toolIdx) =>
-    tool.map((col, colIdx) => {
-      const { columnType } = col;
-      const out = { columnType };
+    (Array.isArray(tool) ? tool : []).map((col, colIdx) => {
+      const colRec = asRecord(col) ? col : ({} as Record<string, unknown>);
+      const { columnType } = colRec as UnfilteredColumnStats;
+      const out: Record<string, unknown> = { columnType };
 
       for (const visibleStats of availableStats) {
-        const currentCol = col[visibleStats];
+        const currentCol = (colRec as Record<string, unknown>)[visibleStats];
         if (!currentCol) {
           continue;
         }
         out[visibleStats] = currentCol;
-        if (currentCol?.sum ?? false) {
-          formatter[toolIdx][colIdx].addDataItem(currentCol.sum);
+        if (
+          asRecord(currentCol) &&
+          "sum" in currentCol &&
+          ((currentCol as ComputedStatEntry).sum ?? false)
+        ) {
+          const f = formatter[toolIdx]?.[colIdx];
+          if (f && "addDataItem" in f) {
+            (f as NumberFormatterBuilderLike).addDataItem(
+              (currentCol as ComputedStatEntry).sum,
+            );
+          }
         }
       }
       return out;
@@ -234,24 +339,34 @@ const cleanupStats = (unfilteredStats, formatter, availableStats) => {
   for (const to in formatter) {
     for (const co in formatter[to]) {
       // we build all formatters which makes them ready to use
-      formatter[to][co] = formatter[to][co].build();
+      const f = formatter[to][co];
+      if (f && "build" in f) {
+        formatter[to][co] = (f as NumberFormatterBuilderLike).build();
+      }
     }
   }
 
   const cleaned = stats.map((tool, toolIdx) =>
     tool
       .map(({ columnType, ...column }, columnIdx) => {
-        const out = {};
+        void columnType;
+        const out: Record<string, unknown> = {};
         // if no total is calculated, then no values suitable for calculation were found
-        if (column.total === undefined) {
+        if ((column as Record<string, unknown>).total === undefined) {
           return undefined;
         }
         for (const [resultKey, result] of Object.entries(column)) {
-          const rowRes = {};
-          const meta = result?.meta;
-          for (let [key, value] of Object.entries(result)) {
+          const rowRes: Record<string, unknown> = {};
+          const resultRec = asRecord(result)
+            ? (result as Record<string, unknown>)
+            : {};
+          const meta = asRecord(resultRec.meta)
+            ? (resultRec.meta as { maxDecimals?: number })
+            : undefined;
+
+          for (const [key, value] of Object.entries(resultRec)) {
             // we ignore any of these defined keys
-            if (keysToIgnore.includes(key)) {
+            if ((keysToIgnore as readonly string[]).includes(key)) {
               continue;
             }
 
@@ -263,15 +378,20 @@ const cleanupStats = (unfilteredStats, formatter, availableStats) => {
               out.title = value;
               continue;
             }
+            const valueIsNumberLike =
+              !isNil(value) &&
+              (typeof value === "number" || typeof value === "string") &&
+              (!Number.isNaN(Number(value)) || value === "NaN");
+
             // if we have numeric values or 'NaN' we want to apply formatting
             if (
-              !isNil(value) &&
-              (!isNaN(value) || value === "NaN") &&
-              formatter[toolIdx][columnIdx]
+              valueIsNumberLike &&
+              typeof formatter[toolIdx]?.[columnIdx] === "function"
             ) {
               try {
+                const fmt = formatter[toolIdx][columnIdx] as FormatterFn;
                 if (key === "sum") {
-                  rowRes[key] = formatter[toolIdx][columnIdx](value, {
+                  rowRes[key] = fmt(value, {
                     leadingZero: false,
                     whitespaceFormat: true,
                     html: true,
@@ -282,7 +402,7 @@ const cleanupStats = (unfilteredStats, formatter, availableStats) => {
                     ),
                   });
                 } else {
-                  rowRes[key] = formatter[toolIdx][columnIdx](value, {
+                  rowRes[key] = fmt(value, {
                     leadingZero: true,
                     whitespaceFormat: false,
                     html: false,
@@ -293,7 +413,7 @@ const cleanupStats = (unfilteredStats, formatter, availableStats) => {
                     ),
                   });
                 }
-              } catch (e) {
+              } catch (e: unknown) {
                 console.error({
                   key,
                   value,
@@ -309,7 +429,7 @@ const cleanupStats = (unfilteredStats, formatter, availableStats) => {
 
         return out;
       })
-      .filter((i) => !isNil(i)),
+      .filter((i): i is Record<string, unknown> => !isNil(i)),
   );
   return cleaned;
 };
@@ -326,7 +446,7 @@ const RESULT_CLASS_OTHER = "other";
 /**
  * @see result.py
  */
-const classifyResult = (result) => {
+const classifyResult = (result: unknown): string => {
   if (isNil(result)) {
     return RESULT_CLASS_OTHER;
   }
@@ -336,7 +456,11 @@ const classifyResult = (result) => {
   if (result === RESULT_FALSE_PROP) {
     return RESULT_CLASS_FALSE;
   }
-  if (result.startsWith(`${RESULT_FALSE_PROP}(`) && result.endsWith(")")) {
+  if (
+    typeof result === "string" &&
+    result.startsWith(`${RESULT_FALSE_PROP}(`) &&
+    result.endsWith(")")
+  ) {
     return RESULT_CLASS_FALSE;
   }
 
@@ -344,12 +468,13 @@ const classifyResult = (result) => {
 };
 
 const prepareRows = (
-  rows,
-  toolIdx,
-  categoryAccessor,
-  statusAccessor,
-  formatter,
-) => {
+  rows: TableRow[],
+  toolIdx: number,
+  categoryAccessor: (toolIdx: number, row: TableRow) => string,
+  statusAccessor: (toolIdx: number, row: TableRow) => string,
+  formatter: FormatterMatrix,
+): PreppedRow[] => {
+  void formatter;
   return rows.map((row) => {
     const cat = categoryAccessor(toolIdx, row);
     const stat = statusAccessor(toolIdx, row);
@@ -371,23 +496,32 @@ const prepareRows = (
  *
  * @param {object[]} tools
  */
-const splitColumnsWithMeta = (tools) => (preppedRows, toolIdx) => {
-  const out = [];
-  for (const { row, categoryType, resultType } of preppedRows) {
-    for (const columnIdx in row) {
-      const column = row[columnIdx].raw;
-      const curr = out[columnIdx] || [];
-      // we attach extra meta information for later use in calculation and mapping
-      // of results
-      const { type: columnType, title: columnTitle } =
-        tools[toolIdx].columns[columnIdx];
+const splitColumnsWithMeta =
+  (tools: Tool[]) =>
+  (preppedRows: PreppedRow[], toolIdx: number): SplitColumnItem[][] => {
+    const out: SplitColumnItem[][] = [];
+    for (const { row, categoryType, resultType } of preppedRows) {
+      for (const columnIdx in row) {
+        const cIdx = Number(columnIdx);
+        const column = row[cIdx]?.raw ?? "";
+        const curr = out[cIdx] || [];
+        // we attach extra meta information for later use in calculation and mapping
+        // of results
+        const { type: columnType, title: columnTitle } =
+          tools[toolIdx].columns[cIdx];
 
-      curr.push({ categoryType, resultType, column, columnType, columnTitle });
-      out[columnIdx] = curr;
+        curr.push({
+          categoryType,
+          resultType,
+          column,
+          columnType,
+          columnTitle,
+        });
+        out[cIdx] = curr;
+      }
     }
-  }
-  return out;
-};
+    return out;
+  };
 
 /**
  * Prepares the dataset for calculation, dispatches and collects calculations
@@ -395,33 +529,49 @@ const splitColumnsWithMeta = (tools) => (preppedRows, toolIdx) => {
  *
  * @param {object} options
  */
-const processData = async ({ tools, tableData, formatter }) => {
-  const catAccessor = (toolIdx, row) => row.results[toolIdx].category;
-  const statAccessor = (toolIdx, row) => row.results[toolIdx].values[0].raw;
-  const promises = [];
+const processData = async ({
+  tools,
+  tableData,
+  formatter,
+}: {
+  tools: Tool[];
+  tableData: TableRow[];
+  formatter: FormatterMatrix;
+}): Promise<unknown[][]> => {
+  const catAccessor = (toolIdx: number, row: TableRow) =>
+    row.results[toolIdx].category;
+  const statAccessor = (toolIdx: number, row: TableRow) =>
+    row.results[toolIdx].values[0].raw;
+  const promises: Array<Array<Promise<unknown>>> = [];
 
-  const splitRows = [];
+  const splitRows: PreppedRow[][] = [];
   for (const toolIdx in tools) {
+    const tIdx = Number(toolIdx);
     splitRows.push(
-      prepareRows(tableData, toolIdx, catAccessor, statAccessor, formatter),
+      prepareRows(tableData, tIdx, catAccessor, statAccessor, formatter),
     );
   }
   const columnSplitter = splitColumnsWithMeta(tools);
 
-  const preparedData = splitRows.map(columnSplitter);
+  const preparedData = splitRows.map((rows, idx) => columnSplitter(rows, idx));
   // filter out non-relevant rows
   for (const toolIdx in preparedData) {
-    preparedData[toolIdx] = preparedData[toolIdx].filter((i) => !isNil(i));
+    const tIdx = Number(toolIdx);
+    preparedData[tIdx] = preparedData[tIdx].filter((i) => !isNil(i));
   }
 
   for (const toolDataIdx in preparedData) {
-    const toolData = preparedData[toolDataIdx];
-    const subPromises = [];
+    const tIdx = Number(toolDataIdx);
+    const toolData = preparedData[tIdx];
+    const subPromises: Array<Promise<unknown>> = [];
     for (const columnIdx in toolData) {
-      const columns = toolData[columnIdx];
-      subPromises.push(enqueue({ name: "stats", data: columns }));
+      const cIdx = Number(columnIdx);
+      const columns = toolData[cIdx];
+      subPromises.push(
+        enqueue({ name: "stats", data: columns }) as Promise<unknown>,
+      );
     }
-    promises[toolDataIdx] = subPromises;
+    promises[tIdx] = subPromises;
   }
 
   const allPromises = promises.map((p) => Promise.all(p));
