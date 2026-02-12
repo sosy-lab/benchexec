@@ -8,7 +8,7 @@
 import { isNil, NumberFormatterBuilder } from "./utils";
 import { enqueue } from "../workers/workerDirector";
 
-const keysToIgnore = ["meta"] as const;
+const keysToIgnore = new Set(["meta"] as const);
 
 type StatisticRowDef = {
   title: string;
@@ -16,7 +16,7 @@ type StatisticRowDef = {
   description?: string;
 };
 
-export const statisticsRows: Record<string, StatisticRowDef> = {
+export const statisticsRows = {
   total: { title: "all results" },
   correct: {
     indent: 1,
@@ -66,7 +66,13 @@ export const statisticsRows: Record<string, StatisticRowDef> = {
     title: "incorrect false",
     description: "property holds + result is false",
   },
-};
+} as const;
+
+const _statisticsRowsTypeCheck: Record<string, StatisticRowDef> =
+  statisticsRows;
+void _statisticsRowsTypeCheck;
+
+type StatisticRowId = keyof typeof statisticsRows;
 
 type RawCell = { raw: string };
 type TableRowResult = {
@@ -88,7 +94,7 @@ type Tool = {
 };
 
 type StatRow = {
-  id: string;
+  id: StatisticRowId;
   content: unknown[][];
 };
 
@@ -109,7 +115,8 @@ type FormatterOptions = {
 
 type FormatterFn = (value: unknown, options: FormatterOptions) => string;
 
-type FormatterMatrix = Array<Array<NumberFormatterBuilderLike | FormatterFn>>;
+type FormatterCell = NumberFormatterBuilderLike | FormatterFn;
+type FormatterMatrix = FormatterCell[][];
 
 type ComputedStatEntry = Record<string, unknown> & {
   meta?: { maxDecimals?: number };
@@ -167,7 +174,7 @@ export const computeStats = async ({
 
   const availableStats = stats
     .map((row) => row.id)
-    .filter((id) => Boolean(statisticsRows[id]));
+    .filter((id): id is StatisticRowId => Boolean(statisticsRows[id]));
   const cleaned = cleanupStats(res, formatter, availableStats);
 
   // fill up stat array to match column mapping
@@ -305,7 +312,7 @@ const maybeRound =
 const cleanupStats = (
   unfilteredStats: unknown[][],
   formatter: FormatterMatrix,
-  availableStats: string[],
+  availableStats: readonly StatisticRowId[],
 ): Array<Array<Record<string, unknown>>> => {
   const stats = unfilteredStats.map((tool, toolIdx) =>
     (Array.isArray(tool) ? tool : []).map((col, colIdx) => {
@@ -313,22 +320,21 @@ const cleanupStats = (
       const { columnType } = colRec as UnfilteredColumnStats;
       const out: Record<string, unknown> = { columnType };
 
-      for (const visibleStats of availableStats) {
-        const currentCol = (colRec as Record<string, unknown>)[visibleStats];
+      for (const visibleStat of availableStats) {
+        const currentCol = colRec[visibleStat];
         if (!currentCol) {
           continue;
         }
-        out[visibleStats] = currentCol;
+        out[visibleStat] = currentCol;
+
         if (
           asRecord(currentCol) &&
           "sum" in currentCol &&
           ((currentCol as ComputedStatEntry).sum ?? false)
         ) {
           const f = formatter[toolIdx]?.[colIdx];
-          if (f && "addDataItem" in f) {
-            (f as NumberFormatterBuilderLike).addDataItem(
-              (currentCol as ComputedStatEntry).sum,
-            );
+          if (f && typeof f === "object" && "addDataItem" in f) {
+            f.addDataItem((currentCol as ComputedStatEntry).sum);
           }
         }
       }
@@ -336,12 +342,11 @@ const cleanupStats = (
     }),
   );
 
-  for (const to in formatter) {
-    for (const co in formatter[to]) {
-      // we build all formatters which makes them ready to use
-      const f = formatter[to][co];
-      if (f && "build" in f) {
-        formatter[to][co] = (f as NumberFormatterBuilderLike).build();
+  for (let t = 0; t < formatter.length; t += 1) {
+    for (let c = 0; c < (formatter[t]?.length ?? 0); c += 1) {
+      const f = formatter[t][c];
+      if (f && typeof f === "object" && "build" in f) {
+        formatter[t][c] = f.build();
       }
     }
   }
@@ -351,22 +356,19 @@ const cleanupStats = (
       .map(({ columnType, ...column }, columnIdx) => {
         void columnType;
         const out: Record<string, unknown> = {};
-        // if no total is calculated, then no values suitable for calculation were found
         if ((column as Record<string, unknown>).total === undefined) {
           return undefined;
         }
+
         for (const [resultKey, result] of Object.entries(column)) {
           const rowRes: Record<string, unknown> = {};
-          const resultRec = asRecord(result)
-            ? (result as Record<string, unknown>)
-            : {};
+          const resultRec = asRecord(result) ? result : {};
           const meta = asRecord(resultRec.meta)
             ? (resultRec.meta as { maxDecimals?: number })
             : undefined;
 
           for (const [key, value] of Object.entries(resultRec)) {
-            // we ignore any of these defined keys
-            if ((keysToIgnore as readonly string[]).includes(key)) {
+            if (keysToIgnore.has(key as "meta")) {
               continue;
             }
 
@@ -378,20 +380,17 @@ const cleanupStats = (
               out.title = value;
               continue;
             }
+
             const valueIsNumberLike =
               !isNil(value) &&
               (typeof value === "number" || typeof value === "string") &&
               (!Number.isNaN(Number(value)) || value === "NaN");
 
-            // if we have numeric values or 'NaN' we want to apply formatting
-            if (
-              valueIsNumberLike &&
-              typeof formatter[toolIdx]?.[columnIdx] === "function"
-            ) {
+            const fmtCell = formatter[toolIdx]?.[columnIdx];
+            if (valueIsNumberLike && typeof fmtCell === "function") {
               try {
-                const fmt = formatter[toolIdx][columnIdx] as FormatterFn;
                 if (key === "sum") {
-                  rowRes[key] = fmt(value, {
+                  rowRes[key] = fmtCell(value, {
                     leadingZero: false,
                     whitespaceFormat: true,
                     html: true,
@@ -402,7 +401,7 @@ const cleanupStats = (
                     ),
                   });
                 } else {
-                  rowRes[key] = fmt(value, {
+                  rowRes[key] = fmtCell(value, {
                     leadingZero: true,
                     whitespaceFormat: false,
                     html: false,
@@ -417,7 +416,7 @@ const cleanupStats = (
                 console.error({
                   key,
                   value,
-                  formatter: formatter[toolIdx][columnIdx],
+                  formatter: fmtCell,
                   e,
                 });
               }
@@ -431,6 +430,7 @@ const cleanupStats = (
       })
       .filter((i): i is Record<string, unknown> => !isNil(i)),
   );
+
   return cleaned;
 };
 
