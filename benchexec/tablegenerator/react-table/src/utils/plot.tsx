@@ -9,9 +9,7 @@ import React from "react";
 
 type DropdownOptions = Record<string, string>;
 
-type SelectChangeHandler = (
-  event: React.ChangeEvent<HTMLSelectElement>,
-) => void;
+type SelectChangeHandler = React.ChangeEventHandler<HTMLSelectElement>;
 
 type ResetHandler = () => void;
 
@@ -19,9 +17,14 @@ type DataPoint = readonly [number, number];
 
 type RegressionFunction = (x: number) => DataPoint;
 
-type OptgroupSelection = { name: string; value: string };
+type OptgroupSelection = Readonly<{ name: string; value: string }>;
 
-type OptgroupOptions = Record<string, OptgroupSelection[]>;
+type OptgroupOptions = Record<string, ReadonlyArray<OptgroupSelection>>;
+
+type ConfidenceIntervalBorders = {
+  upperBorderData: DataPoint[];
+  lowerBorderData: DataPoint[];
+};
 
 /**
  * Renders a setting (= a dropdown menu with its label) for one of the plots.
@@ -141,17 +144,19 @@ const renderOptgroupsSetting = (
  * @param {int} maxX rightmost x value for the borders
  */
 function getConfidenceIntervalBorders(
-  actualData: readonly DataPoint[],
-  predictedData: readonly DataPoint[],
+  actualData: ReadonlyArray<DataPoint>,
+  predictedData: ReadonlyArray<DataPoint>,
   regressionFunction: RegressionFunction,
   minX: number,
   maxX: number,
-): { upperBorderData: DataPoint[]; lowerBorderData: DataPoint[] } {
+): ConfidenceIntervalBorders {
   const getXValue = (data: DataPoint): number => data[0];
   const getYValue = (data: DataPoint): number => data[1];
   const sum = (x: number, y: number): number => x + y;
-  minX = Math.floor(minX);
-  maxX = Math.ceil(maxX);
+
+  const flooredMinX = Math.floor(minX);
+  const ceiledMaxX = Math.ceil(maxX);
+
   // Value of the t-statistic for a 95% confidence interval
   const tValue = 1.96;
   const stdErr = Math.sqrt(
@@ -172,8 +177,8 @@ function getConfidenceIntervalBorders(
   );
 
   const dataPointsOfRegression = getDataPointsOfRegression(
-    minX,
-    maxX,
+    flooredMinX,
+    ceiledMaxX,
     regressionFunction,
   );
 
@@ -213,7 +218,7 @@ function getDataPointsOfRegression(
   maxX: number,
   regF: RegressionFunction,
 ): DataPoint[] {
-  const thresholds = [100000000, 10000000, 1000000, 100000, 10000];
+  const thresholds = [100000000, 10000000, 1000000, 100000, 10000] as const;
   const threshold = thresholds.find((threshold) => maxX > threshold);
   const numberPointsDivider = threshold ? threshold / 1000 : 1;
   const dataPointsOfRegression = Array(Math.ceil(maxX / numberPointsDivider))
