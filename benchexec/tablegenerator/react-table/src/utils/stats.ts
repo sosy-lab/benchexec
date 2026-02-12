@@ -503,7 +503,8 @@ const splitColumnsWithMeta =
     for (const { row, categoryType, resultType } of preppedRows) {
       for (const columnIdx in row) {
         const cIdx = Number(columnIdx);
-        const column = row[cIdx]?.raw ?? "";
+        const rawCell = row[cIdx];
+        const column = rawCell?.raw;
         const curr = out[cIdx] || [];
         // we attach extra meta information for later use in calculation and mapping
         // of results

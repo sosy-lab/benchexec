@@ -986,7 +986,10 @@ type NumberFormatterOptions = {
   leadingZero?: boolean;
   additionalFormatting?: (
     x: string,
-    ctx: { significantDigits: number; maxDecimalInputLength: number },
+    ctx: {
+      significantDigits: number | undefined;
+      maxDecimalInputLength: number;
+    },
   ) => string;
 };
 
@@ -1000,12 +1003,12 @@ type NumberFormatterOptions = {
  * @param {Number} significantDigits - Number of significant digits for this column
  */
 class NumberFormatterBuilder {
-  private readonly significantDigits: number;
+  private readonly significantDigits: number | undefined;
   private maxPositiveDecimalPosition: number;
   private maxNegativeDecimalPosition: number;
   private readonly name: string;
 
-  constructor(significantDigits: number, name = "Unknown") {
+  constructor(significantDigits: number | undefined, name = "Unknown") {
     this.significantDigits = significantDigits;
     this.maxPositiveDecimalPosition = -1;
     this.maxNegativeDecimalPosition = -1;
@@ -1033,6 +1036,9 @@ class NumberFormatterBuilder {
   }
 
   format(number: number): string {
+    if (isNil(this.significantDigits)) {
+      return number.toString();
+    }
     let stringNumber = number.toString();
     let prefix = "";
     let postfix = "";
