@@ -7,6 +7,22 @@
 
 import React from "react";
 
+type DropdownOptions = Record<string, string>;
+
+type SelectChangeHandler = (
+  event: React.ChangeEvent<HTMLSelectElement>,
+) => void;
+
+type ResetHandler = () => void;
+
+type DataPoint = readonly [number, number];
+
+type RegressionFunction = (x: number) => DataPoint;
+
+type OptgroupSelection = { name: string; value: string };
+
+type OptgroupOptions = Record<string, OptgroupSelection[]>;
+
 /**
  * Renders a setting (= a dropdown menu with its label) for one of the plots.
  *
@@ -18,13 +34,13 @@ import React from "react";
  * @param {boolean} isDisabled [OPTIONAL] whether or not the dropdown is disabled
  **/
 const renderSetting = (
-  name,
-  value,
-  changeHandler,
-  options,
-  tooltip,
-  isDisabled,
-) => {
+  name: string,
+  value: string,
+  changeHandler: SelectChangeHandler,
+  options: DropdownOptions,
+  tooltip?: string,
+  isDisabled?: boolean,
+): JSX.Element => {
   return (
     <div className={`setting${isDisabled ? " disabled" : ""}`} title={tooltip}>
       <span className={`setting-label${tooltip ? " with-tooltip" : ""}`}>
@@ -59,7 +75,7 @@ const renderSetting = (
  *
  * @param {function} resetHandler handler function triggered by button click to reset plot modifications
  **/
-const renderResetButton = (resetHandler) => {
+const renderResetButton = (resetHandler: ResetHandler): JSX.Element => {
   return (
     <button className="setting-button" onClick={() => resetHandler()}>
       Reset plot
@@ -74,16 +90,16 @@ const renderResetButton = (resetHandler) => {
  * @param {String} value default value that will be selected in the dropdown
  * @param {function} changeHandler handler function that will be called when an option was selected
  * @param {Object} options object containing the name of the optgroup as key and an array of objects representing the selections
-   with their display name and their value property
+ with their display name and their value property
  * @param {String} tooltip [OPTIONAL] tooltip for the whole setting
  **/
 const renderOptgroupsSetting = (
-  name,
-  value,
-  changeHandler,
-  options,
-  tooltip,
-) => {
+  name: string,
+  value: string,
+  changeHandler: SelectChangeHandler,
+  options: OptgroupOptions,
+  tooltip?: string,
+): JSX.Element => {
   return (
     <div className="setting" title={tooltip}>
       <span className={`setting-label${tooltip ? " with-tooltip" : ""}`}>
@@ -125,22 +141,25 @@ const renderOptgroupsSetting = (
  * @param {int} maxX rightmost x value for the borders
  */
 function getConfidenceIntervalBorders(
-  actualData,
-  predictedData,
-  regressionFunction,
-  minX,
-  maxX,
-) {
-  const getXValue = (data) => data[0];
-  const getYValue = (data) => data[1];
-  const sum = (x, y) => x + y;
+  actualData: readonly DataPoint[],
+  predictedData: readonly DataPoint[],
+  regressionFunction: RegressionFunction,
+  minX: number,
+  maxX: number,
+): { upperBorderData: DataPoint[]; lowerBorderData: DataPoint[] } {
+  const getXValue = (data: DataPoint): number => data[0];
+  const getYValue = (data: DataPoint): number => data[1];
+  const sum = (x: number, y: number): number => x + y;
   minX = Math.floor(minX);
   maxX = Math.ceil(maxX);
   // Value of the t-statistic for a 95% confidence interval
   const tValue = 1.96;
   const stdErr = Math.sqrt(
     actualData
-      .map((data, index) => [getYValue(data), getYValue(predictedData[index])])
+      .map(
+        (data, index) =>
+          [getYValue(data), getYValue(predictedData[index] ?? data)] as const,
+      )
       .map((yValues) => Math.pow(yValues[1] - yValues[0], 2))
       .reduce(sum) / actualData.length,
   );
@@ -160,7 +179,7 @@ function getConfidenceIntervalBorders(
 
   const diffMargins =
     stdErr === 0 || stdOfX === 0
-      ? dataPointsOfRegression.map((data) => 0)
+      ? dataPointsOfRegression.map(() => 0)
       : dataPointsOfRegression.map((data) =>
           Number.parseFloat(
             (
@@ -189,13 +208,17 @@ function getConfidenceIntervalBorders(
 /* Computes the data points that will be plotted for a regression. The maximum
    number of data points will not exceed 10.000. If there were more, the lines
    will be plotted in intervals. */
-function getDataPointsOfRegression(minX, maxX, regF) {
+function getDataPointsOfRegression(
+  minX: number,
+  maxX: number,
+  regF: RegressionFunction,
+): DataPoint[] {
   const thresholds = [100000000, 10000000, 1000000, 100000, 10000];
   const threshold = thresholds.find((threshold) => maxX > threshold);
   const numberPointsDivider = threshold ? threshold / 1000 : 1;
   const dataPointsOfRegression = Array(Math.ceil(maxX / numberPointsDivider))
-    .fill()
-    .map((x, index) => index * numberPointsDivider);
+    .fill(0)
+    .map((_, index) => index * numberPointsDivider);
 
   return dataPointsOfRegression
     .filter((int) => int >= minX)
