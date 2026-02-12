@@ -54,12 +54,12 @@ const renderSetting = (
         disabled={isDisabled}
       >
         {Object.values(options).map((option) => (
-          <option value={option} key={option} name={option + " " + name}>
+          <option value={option} key={option} data-name={option + " " + name}>
             {option}
           </option>
         ))}
         {isDisabled ? (
-          <option value="disabled" name="disabled">
+          <option value="disabled" data-name="disabled">
             ⸺
           </option>
         ) : (
@@ -118,7 +118,7 @@ const renderOptgroupsSetting = (
               <option
                 value={optionObj.value}
                 key={optionObj.value}
-                name={optionObj.name + " " + name}
+                data-name={optionObj.name + " " + name}
               >
                 {optionObj.name}
               </option>
