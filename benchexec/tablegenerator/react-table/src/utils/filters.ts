@@ -53,19 +53,22 @@ type InputData = {
 };
 
 type FilterableStatusColumn = ToolColumn & {
-  type?: "status";
+  kind: "status";
+  type: "status";
   idx: number;
   categories: Record<string, true>;
   statuses: Record<string, true>;
 };
 
 type FilterableTextColumn = ToolColumn & {
-  type?: "text";
+  kind: "text";
+  type: "text";
   idx: number;
   distincts: Record<string, true>;
 };
 
 type FilterableNumericColumn = ToolColumn & {
+  kind: "numeric";
   idx: number;
   min: number;
   max: number;
@@ -109,35 +112,37 @@ const getFilterableData = ({ tools, rows }: InputData): FilterableTool[] => {
           statusIdx = colIdx;
           return {
             ...col,
+            kind: "status",
+            type: "status",
             categories: {},
             statuses: {},
             idx: colIdx,
-          } as FilterableStatusColumn;
+          };
         }
         if (col.type === "text") {
           return {
             ...col,
+            kind: "text",
+            type: "text",
             distincts: {},
             idx: colIdx,
-          } as FilterableTextColumn;
+          };
         }
         return {
           ...col,
+          kind: "numeric",
           min: Infinity,
           max: -Infinity,
           idx: colIdx,
-        } as FilterableNumericColumn;
+        };
       },
     );
 
     if (!isNil(statusIdx)) {
       const existing = columns[statusIdx];
-      if (existing) {
-        columns[statusIdx] = {
-          ...existing,
-          categories: {},
-          statuses: {},
-        } as FilterableStatusColumn;
+      if (existing && existing.kind === "status") {
+        existing.categories = {};
+        existing.statuses = {};
       }
     }
 
@@ -146,35 +151,26 @@ const getFilterableData = ({ tools, rows }: InputData): FilterableTool[] => {
       // convention as of writing this commit is to postfix categories with a space character
       if (!isNil(statusIdx)) {
         const statusCol = columns[statusIdx];
-        if (statusCol && "categories" in statusCol) {
-          (statusCol as FilterableStatusColumn).categories[
-            `${result.category} `
-          ] = true;
+        if (statusCol?.kind === "status") {
+          statusCol.categories[`${result.category} `] = true;
         }
       }
 
       for (const colIdx in result.values) {
-        const col = result.values[colIdx];
-        const { raw } = col;
+        const { raw } = result.values[colIdx];
         const filterCol = columns[Number(colIdx)];
         if (!filterCol || isNil(raw)) {
           continue;
         }
 
-        if (filterCol.type === "status") {
-          (filterCol as FilterableStatusColumn).statuses[String(raw)] = true;
-        } else if (filterCol.type === "text") {
-          (filterCol as FilterableTextColumn).distincts[String(raw)] = true;
+        if (filterCol.kind === "status") {
+          filterCol.statuses[String(raw)] = true;
+        } else if (filterCol.kind === "text") {
+          filterCol.distincts[String(raw)] = true;
         } else {
           const num = Number(raw);
-          (filterCol as FilterableNumericColumn).min = Math.min(
-            (filterCol as FilterableNumericColumn).min,
-            num,
-          );
-          (filterCol as FilterableNumericColumn).max = Math.max(
-            (filterCol as FilterableNumericColumn).max,
-            num,
-          );
+          filterCol.min = Math.min(filterCol.min, num);
+          filterCol.max = Math.max(filterCol.max, num);
         }
       }
     }
@@ -185,23 +181,22 @@ const getFilterableData = ({ tools, rows }: InputData): FilterableTool[] => {
         if (!column) {
           return undefined;
         }
-        const { distincts, categories, statuses, ...col } = column as {
-          distincts?: Record<string, true>;
-          categories?: Record<string, true>;
-          statuses?: Record<string, true>;
-        } & FilterableColumn;
 
-        if (distincts) {
-          return { ...col, distincts: Object.keys(distincts) };
-        }
-        if (categories) {
+        if (column.kind === "status") {
+          const { categories, statuses, ...rest } = column;
           return {
-            ...col,
+            ...rest,
             categories: Object.keys(categories),
-            statuses: Object.keys(statuses ?? {}),
+            statuses: Object.keys(statuses),
           };
         }
-        return col as FilterableNumericColumn;
+
+        if (column.kind === "text") {
+          const { distincts, ...rest } = column;
+          return { ...rest, distincts: Object.keys(distincts) };
+        }
+
+        return column;
       }),
     };
   });
