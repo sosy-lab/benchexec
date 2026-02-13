@@ -107,12 +107,26 @@ const getFilterableData = ({ tools, rows }: InputData): FilterableTool[] => {
         }
         if (col.type === "status") {
           statusIdx = colIdx;
-          return { ...col, categories: {}, statuses: {}, idx: colIdx };
+          return {
+            ...col,
+            categories: {},
+            statuses: {},
+            idx: colIdx,
+          } as FilterableStatusColumn;
         }
         if (col.type === "text") {
-          return { ...col, distincts: {}, idx: colIdx };
+          return {
+            ...col,
+            distincts: {},
+            idx: colIdx,
+          } as FilterableTextColumn;
         }
-        return { ...col, min: Infinity, max: -Infinity, idx: colIdx };
+        return {
+          ...col,
+          min: Infinity,
+          max: -Infinity,
+          idx: colIdx,
+        } as FilterableNumericColumn;
       },
     );
 
@@ -133,7 +147,9 @@ const getFilterableData = ({ tools, rows }: InputData): FilterableTool[] => {
       if (!isNil(statusIdx)) {
         const statusCol = columns[statusIdx];
         if (statusCol && "categories" in statusCol) {
-          statusCol.categories[`${result.category} `] = true;
+          (statusCol as FilterableStatusColumn).categories[
+            `${result.category} `
+          ] = true;
         }
       }
 
@@ -205,7 +221,10 @@ const applyNumericFilter = (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   cell: unknown,
 ): boolean | undefined => {
-  const raw = getRawOrDefault(row[filter.id]);
+  const raw = getRawOrDefault(
+    row[filter.id] as { raw?: unknown } | null | undefined,
+    undefined,
+  );
   if (raw === undefined) {
     // empty cells never match
     return undefined;
@@ -234,7 +253,10 @@ const applyTextFilter = (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   cell: unknown,
 ): boolean | undefined => {
-  const raw = getRawOrDefault(row[filter.id]);
+  const raw = getRawOrDefault(
+    row[filter.id] as { raw?: unknown } | null | undefined,
+    undefined,
+  );
   if (raw === undefined) {
     // empty cells never match
     return undefined;
@@ -303,10 +325,14 @@ const buildMatcher = (filters: FilterInput[]): Matcher => {
       acc.id = { value, values };
       return acc;
     }
-    const { tool, column: columnIdx } = decodeFilter(id) as {
-      tool: number;
-      column: number;
-    };
+    const { tool, column } = decodeFilter(id);
+    const toolIdx = Number(tool);
+    const columnIdx = Number(column);
+
+    if (Number.isNaN(toolIdx) || Number.isNaN(columnIdx)) {
+      return acc;
+    }
+
     if (value === "diff") {
       // this branch is noop as of now
       if (!acc.diff) {
