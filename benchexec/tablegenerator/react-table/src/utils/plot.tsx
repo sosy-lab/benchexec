@@ -13,27 +13,29 @@ import React from "react";
 
 type SelectChangeHandler = React.ChangeEventHandler<HTMLSelectElement>;
 
-type StringOptionsMap = Record<string, string>;
+type StringOptionsMap = Readonly<Record<string, string>>;
 
-type OptgroupSelectionOption = {
+type OptgroupSelectionOption = Readonly<{
   name: string;
   value: string;
-};
+}>;
 
-type OptgroupOptionsMap = Record<string, OptgroupSelectionOption[]>;
+type OptgroupOptionsMap = Readonly<
+  Record<string, ReadonlyArray<OptgroupSelectionOption>>
+>;
 
 /* =======================
    Regression-related types
    ======================= */
 
-type XYPoint = [number, number];
+type XYPoint = readonly [number, number];
 
 type RegressionFunction = (x: number) => XYPoint;
 
-type ConfidenceIntervalBorders = {
-  upperBorderData: XYPoint[];
-  lowerBorderData: XYPoint[];
-};
+type ConfidenceIntervalBorders = Readonly<{
+  upperBorderData: ReadonlyArray<XYPoint>;
+  lowerBorderData: ReadonlyArray<XYPoint>;
+}>;
 
 /**
  * Renders a setting (= a dropdown menu with its label) for one of the plots.
@@ -66,15 +68,19 @@ const renderSetting = (
         disabled={isDisabled}
       >
         {Object.values(options).map((option) => (
+          // NOTE (JS->TS): Changed from "name" to "data-name" because "option" does not support a "name" attribute in React/TS typings.
           <option value={option} key={option} data-name={option + " " + name}>
             {option}
           </option>
         ))}
-        {isDisabled ? (
-          <option value="disabled" data-name="disabled">
-            ⸺
-          </option>
-        ) : null}
+        {
+          isDisabled ? (
+            // NOTE (JS->TS): Changed from "name" to "data-name" because "option" does not support a "name" attribute in React/TS typings.
+            <option value="disabled" data-name="disabled">
+              ⸺
+            </option>
+          ) : null /* NOTE (JS->TS): Changed from "" to null to avoid rendering an empty text node. */
+        }
       </select>
     </div>
   );
@@ -128,6 +134,7 @@ const renderOptgroupsSetting = (
               <option
                 value={optionObj.value}
                 key={optionObj.value}
+                // NOTE (JS->TS): Changed from "name" to "data-name" because "option" does not support a "name" attribute in React/TS typings.
                 data-name={optionObj.name + " " + name}
               >
                 {optionObj.name}
@@ -151,8 +158,8 @@ const renderOptgroupsSetting = (
  * @param {int} maxX rightmost x value for the borders
  */
 function getConfidenceIntervalBorders(
-  actualData: XYPoint[],
-  predictedData: XYPoint[],
+  actualData: ReadonlyArray<XYPoint>,
+  predictedData: ReadonlyArray<XYPoint>,
   regressionFunction: RegressionFunction,
   minX: number,
   maxX: number,
@@ -160,10 +167,13 @@ function getConfidenceIntervalBorders(
   const getXValue = (data: XYPoint) => data[0];
   const getYValue = (data: XYPoint) => data[1];
   const sum = (x: number, y: number) => x + y;
-  minX = Math.floor(minX);
-  maxX = Math.ceil(maxX);
+
+  const minXInt = Math.floor(minX);
+  const maxXInt = Math.ceil(maxX);
+
   // Value of the t-statistic for a 95% confidence interval
   const tValue = 1.96;
+
   const stdErr = Math.sqrt(
     actualData
       .map(
@@ -171,19 +181,25 @@ function getConfidenceIntervalBorders(
           [getYValue(data), getYValue(predictedData[index])] as const,
       )
       .map((yValues) => Math.pow(yValues[1] - yValues[0], 2))
-      .reduce(sum) / actualData.length,
+      // NOTE (JS->TS): Initial value avoids reduce() on an empty array and keeps typing/inference straightforward.
+      .reduce(sum, 0) / actualData.length,
   );
+
   const meanOfX =
-    actualData.map((data) => getXValue(data)).reduce(sum) / actualData.length;
+    // NOTE (JS->TS): Initial value avoids reduce() on an empty array and keeps typing/inference straightforward.
+    actualData.map((data) => getXValue(data)).reduce(sum, 0) /
+    actualData.length;
+
   const stdOfX = Math.sqrt(
     actualData
       .map((data) => Math.pow(getXValue(data) - meanOfX, 2))
-      .reduce(sum) / actualData.length,
+      // NOTE (JS->TS): Initial value avoids reduce() on an empty array and keeps typing/inference straightforward.
+      .reduce(sum, 0) / actualData.length,
   );
 
   const dataPointsOfRegression = getDataPointsOfRegression(
-    minX,
-    maxX,
+    minXInt,
+    maxXInt,
     regressionFunction,
   );
 
@@ -215,6 +231,7 @@ function getConfidenceIntervalBorders(
     ]),
   };
 }
+
 /* Computes the data points that will be plotted for a regression. The maximum
    number of data points will not exceed 10.000. If there were more, the lines
    will be plotted in intervals. */
@@ -223,12 +240,15 @@ function getDataPointsOfRegression(
   maxX: number,
   regF: RegressionFunction,
 ): XYPoint[] {
-  const thresholds = [100000000, 10000000, 1000000, 100000, 10000];
+  const thresholds = [100000000, 10000000, 1000000, 100000, 10000] as const;
   const threshold = thresholds.find((t) => maxX > t);
   const numberPointsDivider = threshold ? threshold / 1000 : 1;
-  const dataPointsOfRegression = Array(Math.ceil(maxX / numberPointsDivider))
-    .fill(undefined)
-    .map((_, index) => index * numberPointsDivider);
+
+  // NOTE (JS->TS): Avoids intermediate "undefined" fillers, and TS often infers types more cleanly.
+  const dataPointsOfRegression = Array.from(
+    { length: Math.ceil(maxX / numberPointsDivider) },
+    (_, index) => index * numberPointsDivider,
+  );
 
   return dataPointsOfRegression
     .filter((int) => int >= minX)
