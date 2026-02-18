@@ -83,6 +83,9 @@ the following commit sequence is used:
    tool: convert &lt;file>
 3. **Minimal fixes**
    fix: make &lt;file> compile
+
+   (Only required if the automated conversion does not compile.)
+
 4. **Manual cleanup**
    refactor: cleanup &lt;file>
 
