@@ -18,16 +18,18 @@ type CustomFilterUpdate = {
 
 type SetCustomFilters = (update: CustomFilterUpdate) => void;
 
-type SetFocusedFilter = (filterId: string) => void;
+type FilterElementId = `${string}_filter`;
 
-type FilterInputFieldProps = {
+type SetFocusedFilter = (filterId: FilterElementId) => void;
+
+type FilterInputFieldProps = Readonly<{
   id: string;
-  setFilter?: FilterValueState | null;
+  setFilter: FilterValueState;
   setCustomFilters: SetCustomFilters;
   disableTaskText: boolean;
   focusedFilter: string;
   setFocusedFilter: SetFocusedFilter;
-};
+}>;
 
 /**
  * General filter input field for text columns.
@@ -41,8 +43,8 @@ function FilterInputFieldComponent({
   focusedFilter,
   setFocusedFilter,
 }: FilterInputFieldProps) {
-  const elementId = id + "_filter";
-  const initFilterValue = setFilter ? setFilter.value : "";
+  const elementId: FilterElementId = `${id}_filter`;
+  const initFilterValue = setFilter?.value ?? "";
 
   const ref = useRef<HTMLInputElement | null>(null);
   // NOTE (JS->TS): Changed from string to timeout handle type because setTimeout/clearTimeout work with a timer id, not text.
