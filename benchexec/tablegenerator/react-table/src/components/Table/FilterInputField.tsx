@@ -7,6 +7,28 @@
 
 import { memo, useEffect, useRef, useState } from "react";
 
+type FilterValueState = {
+  value: string;
+};
+
+type CustomFilterUpdate = {
+  id: string;
+  value: string;
+};
+
+type SetCustomFilters = (update: CustomFilterUpdate) => void;
+
+type SetFocusedFilter = (filterId: string) => void;
+
+type FilterInputFieldProps = {
+  id: string;
+  setFilter?: FilterValueState | null;
+  setCustomFilters: SetCustomFilters;
+  disableTaskText: boolean;
+  focusedFilter: string;
+  setFocusedFilter: SetFocusedFilter;
+};
+
 /**
  * General filter input field for text columns.
  * This file default exports a memoized version of the FilterInputFieldComponent function.
@@ -18,17 +40,21 @@ function FilterInputFieldComponent({
   disableTaskText,
   focusedFilter,
   setFocusedFilter,
-}) {
+}: FilterInputFieldProps) {
   const elementId = id + "_filter";
   const initFilterValue = setFilter ? setFilter.value : "";
 
-  const ref = useRef(null);
-  let [typingTimer, setTypingTimer] = useState("");
-  let [value, setValue] = useState(initFilterValue);
+  const ref = useRef<HTMLInputElement | null>(null);
+  // NOTE (JS->TS): Changed from string to timeout handle type because setTimeout/clearTimeout work with a timer id, not text.
+  const [typingTimer, setTypingTimer] = useState<
+    ReturnType<typeof setTimeout> | undefined
+  >(undefined);
+  const [value, setValue] = useState<string>(initFilterValue);
 
   useEffect(() => {
     if (focusedFilter === elementId) {
-      ref.current.focus();
+      // NOTE (JS->TS): Optional chaining prevents a crash if the ref is not set yet.
+      ref.current?.focus();
     }
   }, [focusedFilter, elementId]);
 
@@ -37,14 +63,22 @@ function FilterInputFieldComponent({
       ? "To edit, please clear task filter in the sidebar"
       : "text";
 
-  const onChange = (event) => {
+  const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = event.target.value;
     setValue(newValue);
-    clearTimeout(typingTimer);
+    if (typingTimer !== undefined) {
+      clearTimeout(typingTimer);
+    }
     setTypingTimer(
       setTimeout(() => {
         setCustomFilters({ id, value: newValue });
-        document.getElementById(elementId).focus();
+        // NOTE (JS->TS): document.getElementById may return a non-input element or null, so we guard before focusing.
+        const el = document.getElementById(elementId);
+        if (el instanceof HTMLInputElement) {
+          el.focus();
+        } else {
+          ref.current?.focus();
+        }
       }, 500),
     );
   };
