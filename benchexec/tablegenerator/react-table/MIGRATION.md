@@ -77,11 +77,13 @@ chore: step &lt;n> &lt;short description>
 When migrating individual files or modules using automated tools,
 the following commit sequence is used:
 
-1. **Tool output**
+1. **Rename File**
+   rename: &lt;file>.js to &lt;file>.ts/.tsx
+2. **Tool output**
    tool: convert &lt;file>
-2. **Minimal fixes**
+3. **Minimal fixes**
    fix: make &lt;file> compile
-3. **Manual cleanup**
+4. **Manual cleanup**
    refactor: cleanup &lt;file>
 
 This separation makes it explicit which changes were automated and
