@@ -10,6 +10,27 @@ import { memo, useEffect, useRef, useState } from "react";
 const numericPattern =
   "([+\\-]?[0-9]*(\\.[0-9]*)?)(:[+\\-]?[0-9]*(\\.[0-9]*)?)?";
 
+type FilterValueState = {
+  value: string;
+};
+
+type CustomFilterUpdate = {
+  id: string;
+  value: string;
+};
+
+type SetCustomFilters = (update: CustomFilterUpdate) => void;
+
+type SetFocusedFilter = (filterId: string) => void;
+
+type MinMaxFilterInputFieldProps = {
+  id: string;
+  setFilter?: FilterValueState | null;
+  setCustomFilters: SetCustomFilters;
+  focusedFilter: string;
+  setFocusedFilter: SetFocusedFilter;
+};
+
 /**
  * Filter input field for numeric columns with min and max values.
  * This file default exports a memoized version of the MinMaxFilterInputFieldComponent function.
@@ -20,28 +41,41 @@ function MinMaxFilterInputFieldComponent({
   setCustomFilters,
   focusedFilter,
   setFocusedFilter,
-}) {
+}: MinMaxFilterInputFieldProps) {
   const elementId = id + "_filter";
   const initFilterValue = setFilter ? setFilter.value : "";
 
-  const ref = useRef(null);
-  let [typingTimer, setTypingTimer] = useState("");
-  let [value, setValue] = useState(initFilterValue);
+  const ref = useRef<HTMLInputElement | null>(null);
+  // NOTE (JS->TS): Use the proper timer handle type for setTimeout/clearTimeout instead of a string.
+  const [typingTimer, setTypingTimer] = useState<
+    ReturnType<typeof setTimeout> | undefined
+  >(undefined);
+  const [value, setValue] = useState<string>(initFilterValue);
 
   useEffect(() => {
     if (focusedFilter === elementId) {
-      ref.current.focus();
+      // NOTE (JS->TS): Guard against null ref during initial render.
+      ref.current?.focus();
     }
   }, [focusedFilter, elementId]);
 
-  const onChange = (event) => {
+  const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = event.target.value;
     setValue(newValue);
-    clearTimeout(typingTimer);
+    if (typingTimer !== undefined) {
+      clearTimeout(typingTimer);
+    }
     setTypingTimer(
       setTimeout(() => {
         setCustomFilters({ id, value: newValue });
-        document.getElementById(elementId).focus();
+
+        // NOTE (JS->TS): document.getElementById can return null or a non-input element, so guard before focusing.
+        const el = document.getElementById(elementId);
+        if (el instanceof HTMLInputElement) {
+          el.focus();
+        } else {
+          ref.current?.focus();
+        }
       }, 500),
     );
   };
