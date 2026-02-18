@@ -12,7 +12,54 @@
 import { stats as statsWorkerDataUrl } from "./dataUrls";
 require("setimmediate"); // provides setImmediate and clearImmediate
 
-const WORKER_POOLS = [
+// ===============
+// Worker Director Types
+// ===============
+
+type WorkerPoolName = "stats";
+
+type DataUrlString = string;
+
+interface WorkerPoolConfig {
+  template: DataUrlString;
+  poolSize: number;
+  name: WorkerPoolName;
+}
+
+interface WorkerWrapper {
+  worker: Worker;
+  busy: boolean;
+}
+
+interface WorkerPoolsByName {
+  stats: WorkerWrapper[];
+}
+
+/** Result returned by a worker. */
+type WorkerResult = unknown;
+
+interface WorkerIncomingMessage {
+  transaction: number;
+  result: WorkerResult;
+}
+
+interface WorkerOutgoingMessage<TData> {
+  data: TData;
+  transaction: number;
+}
+
+interface QueueItem<TData> {
+  name: WorkerPoolName;
+  data: TData;
+  callback: (result: WorkerResult) => void;
+}
+
+interface EnqueueOptions<TData> {
+  name: WorkerPoolName;
+  data: TData;
+}
+
+const WORKER_POOLS: WorkerPoolConfig[] = [
   {
     template: statsWorkerDataUrl,
     poolSize: 8,
@@ -20,37 +67,48 @@ const WORKER_POOLS = [
   },
 ];
 
-const queue = [];
+const queue: Array<QueueItem<unknown>> = [];
 
 // Store that maps callback functions to a worker transaction number
-const refTable = {};
+const refTable = new Map<number, (result: WorkerResult) => void>();
 
 let transaction = 1;
 
-const handleWorkerMessage = ({ data: message }, worker) => {
-  const { transaction, result } = message;
-  const callback = refTable[transaction];
+const handleWorkerMessage = (
+  { data: message }: MessageEvent<WorkerIncomingMessage>,
+  worker: WorkerWrapper,
+): void => {
+  const { transaction: messageTransaction, result } = message;
+  const callback = refTable.get(messageTransaction);
   worker.busy = false;
-  callback(result);
-  // clear entry
-  delete refTable[transaction];
+
+  if (callback) {
+    callback(result);
+    // clear entry
+    refTable.delete(messageTransaction);
+  }
 };
 
 // Pool population
-const workerPool = WORKER_POOLS.map(({ template, poolSize, name }) => {
-  const pool = [];
-  for (let i = 0; i < poolSize; i += 1) {
-    const worker = new Worker(template);
-    const workerObj = { worker, busy: false };
-    worker.onmessage = (msg) => handleWorkerMessage(msg, workerObj);
+const workerPool: WorkerPoolsByName = WORKER_POOLS.map(
+  ({ template, poolSize, name }) => {
+    const pool: WorkerWrapper[] = [];
+    for (let i = 0; i < poolSize; i += 1) {
+      const worker = new Worker(template);
+      const workerObj: WorkerWrapper = { worker, busy: false };
+      worker.onmessage = (msg) => handleWorkerMessage(msg, workerObj);
 
-    pool.push(workerObj);
-  }
-  return { name, pool };
-}).reduce((acc, { name, pool }) => ({ ...acc, [name]: pool }), {});
+      pool.push(workerObj);
+    }
+    return { name, pool };
+  },
+).reduce(
+  (acc, { name, pool }) => ({ ...acc, [name]: pool }),
+  {} as WorkerPoolsByName,
+);
 
 // gets the first idle worker and reserves it for job dispatch
-const reserveWorker = (name) => {
+const reserveWorker = (name: WorkerPoolName): WorkerWrapper | null => {
   const worker = workerPool[name].filter((w) => !w.busy)[0];
   if (worker) {
     if (worker.busy) {
@@ -62,7 +120,7 @@ const reserveWorker = (name) => {
   return null;
 };
 
-const processQueue = () => {
+const processQueue = (): void => {
   const item = queue.shift();
   if (item) {
     const reservedWorker = reserveWorker(item.name);
@@ -75,11 +133,11 @@ const processQueue = () => {
     }
     const ourTransaction = transaction;
     transaction += 1;
-    const meta = {
+    const meta: WorkerOutgoingMessage<unknown> = {
       data: item.data,
       transaction: ourTransaction,
     };
-    refTable[ourTransaction] = item.callback;
+    refTable.set(ourTransaction, item.callback);
     reservedWorker.worker.postMessage(meta);
     setImmediate(processQueue);
   }
@@ -91,9 +149,12 @@ const processQueue = () => {
  *
  * @param {object} options
  */
-const enqueue = async ({ name, data }) =>
+const enqueue = async <TData, TResult = WorkerResult>({
+  name,
+  data,
+}: EnqueueOptions<TData>): Promise<TResult> =>
   new Promise((resolve) => {
-    queue.push({ name, data, callback: resolve });
+    queue.push({ name, data, callback: resolve as (r: WorkerResult) => void });
     setImmediate(processQueue);
   });
 
