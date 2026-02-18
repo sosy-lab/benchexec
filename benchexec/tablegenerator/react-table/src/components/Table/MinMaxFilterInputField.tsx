@@ -6,30 +6,23 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { memo, useEffect, useRef, useState } from "react";
+import type {
+  FilterElementId,
+  FilterValueState,
+  SetCustomFilters,
+  SetFocusedFilter,
+} from "./types";
 
 const numericPattern =
   "([+\\-]?[0-9]*(\\.[0-9]*)?)(:[+\\-]?[0-9]*(\\.[0-9]*)?)?";
 
-type FilterValueState = {
-  value: string;
-};
-
-type CustomFilterUpdate = {
+type MinMaxFilterInputFieldProps = Readonly<{
   id: string;
-  value: string;
-};
-
-type SetCustomFilters = (update: CustomFilterUpdate) => void;
-
-type SetFocusedFilter = (filterId: string) => void;
-
-type MinMaxFilterInputFieldProps = {
-  id: string;
-  setFilter?: FilterValueState | null;
+  setFilter?: FilterValueState;
   setCustomFilters: SetCustomFilters;
   focusedFilter: string;
   setFocusedFilter: SetFocusedFilter;
-};
+}>;
 
 /**
  * Filter input field for numeric columns with min and max values.
@@ -42,8 +35,8 @@ function MinMaxFilterInputFieldComponent({
   focusedFilter,
   setFocusedFilter,
 }: MinMaxFilterInputFieldProps) {
-  const elementId = id + "_filter";
-  const initFilterValue = setFilter ? setFilter.value : "";
+  const elementId: FilterElementId = `${id}_filter`;
+  const initFilterValue = setFilter?.value ?? "";
 
   const ref = useRef<HTMLInputElement | null>(null);
   // NOTE (JS->TS): Use the proper timer handle type for setTimeout/clearTimeout instead of a string.

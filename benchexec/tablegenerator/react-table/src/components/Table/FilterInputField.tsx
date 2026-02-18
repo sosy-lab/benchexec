@@ -6,21 +6,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { memo, useEffect, useRef, useState } from "react";
-
-type FilterValueState = {
-  value: string;
-};
-
-type CustomFilterUpdate = {
-  id: string;
-  value: string;
-};
-
-type SetCustomFilters = (update: CustomFilterUpdate) => void;
-
-type FilterElementId = `${string}_filter`;
-
-type SetFocusedFilter = (filterId: FilterElementId) => void;
+import type {
+  FilterElementId,
+  FilterValueState,
+  SetCustomFilters,
+  SetFocusedFilter,
+} from "./types";
 
 type FilterInputFieldProps = Readonly<{
   id: string;
