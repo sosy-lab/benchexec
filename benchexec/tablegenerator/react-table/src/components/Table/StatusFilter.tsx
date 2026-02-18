@@ -12,18 +12,39 @@ import { pathOr, emptyStateValue, hasSameEntries } from "../../utils/utils";
 // Special markers we use as category for empty run results
 const RUN_ABORTED = "aborted"; // Result tag was present but empty (failure)
 const RUN_EMPTY = "empty"; // Result tag was not present in results XML
-const SPECIAL_CATEGORIES = {
+const SPECIAL_CATEGORIES: Record<string, string> = {
   [RUN_EMPTY]: "Empty rows",
   [RUN_ABORTED]: "—",
 };
 
-/**
- * @typedef {Object} RelevantFilterParam
- * @property {string[]} categoryFilters - The category filters that are currently selected
- * @property {string[]} statusFilters - The status filters that are currently selected
- * @property {string[]} categoryFilterValues - All selectable category filter values
- * @property {string[]} statusFilterValues - All selectable status filter values
- */
+/* ============================================================================
+ * Types: Filter Helpers
+ * ========================================================================== */
+
+type RelevantFilterParam = {
+  categoryFilters: string[];
+  statusFilters: string[];
+  categoryFilterValues: string[];
+  statusFilterValues: string[];
+};
+
+/* ============================================================================
+ * Types: Component Props
+ * ========================================================================== */
+
+type ColumnWithId = {
+  id: string;
+};
+
+type StatusFilterProps = {
+  column: ColumnWithId;
+  runSetIdx: number;
+  columnIdx: number;
+  allCategoryValues: string[][][];
+  allStatusValues: string[][][];
+  filteredColumnValues: unknown;
+  setCustomFilters: (update: { id: string; value: string }) => void;
+};
 
 /**
  * Function to extract the label of relevant filters to display.
@@ -39,8 +60,8 @@ const createRelevantFilterLabel = ({
   statusFilters,
   categoryFilterValues,
   statusFilterValues,
-}) => {
-  let out = [];
+}: RelevantFilterParam): string[] => {
+  let out: string[] = [];
 
   if (!hasSameEntries(categoryFilters, categoryFilterValues)) {
     // If categoryFilters is a superset of categoryFilterValues,
@@ -68,18 +89,24 @@ function StatusFilter({
   allStatusValues,
   filteredColumnValues,
   setCustomFilters,
-}) {
+}: StatusFilterProps) {
   const categoryValues = allCategoryValues[runSetIdx][columnIdx];
+  // NOTE (JS->TS): Keep `filteredColumnValues` as `unknown` and cast only at the boundary for `pathOr`.
+  const filteredColumnValuesRecord = filteredColumnValues as Record<
+    string,
+    unknown
+  >;
+
   const selectedCategoryFilters = pathOr(
     [runSetIdx, "categories"],
     [],
-    filteredColumnValues,
-  );
+    filteredColumnValuesRecord,
+  ) as string[];
   const selectedStatusValues = pathOr(
     [runSetIdx, columnIdx],
     [],
-    filteredColumnValues,
-  );
+    filteredColumnValuesRecord,
+  ) as string[];
 
   const selectedFilters = createRelevantFilterLabel({
     categoryFilters: selectedCategoryFilters,
@@ -100,7 +127,9 @@ function StatusFilter({
   return (
     <select
       className="filter-field"
-      onChange={(event) => setCustomFilters({ id, value: event.target.value })}
+      onChange={(event: React.ChangeEvent<HTMLSelectElement>) =>
+        setCustomFilters({ id, value: event.target.value })
+      }
       value={selectValue}
     >
       {multipleSelected && (
