@@ -16,14 +16,65 @@ require("setimmediate"); // provides setImmediate and clearImmediate
 // Worker Director Types
 // ===============
 
-type WorkerPoolName = "stats";
+/**
+ * Data item sent to the stats worker.
+ * (Derived from what stats.worker.js reads: categoryType, resultType, column, columnType, columnTitle)
+ */
+type StatsWorkerItem = {
+  categoryType: string;
+  resultType: string;
+  column: number | string;
+  columnType: string;
+  columnTitle: string;
+};
+
+type StatsBucketMeta = {
+  type: string | null;
+  maxDecimals: number;
+};
+
+/**
+ * Note: stats.worker.js stringifies almost everything before posting back.
+ * So the numeric stats arrive as strings ("NaN", "Infinity", "42.0", ...).
+ */
+type StatsBucket = Partial<{
+  title: string;
+  sum: string;
+  avg: string;
+  max: string;
+  median: string;
+  min: string;
+  stdev: string;
+  meta: StatsBucketMeta;
+}>;
+
+type StatsWorkerResult =
+  | {
+      columnType: string;
+      total: StatsBucket | undefined;
+      [bucketKey: string]: unknown; // narrowed below via access patterns
+    }
+  | Record<string, unknown>;
+
+/**
+ * Map pool name -> (data shape, result shape).
+ */
+type WorkerJobMap = {
+  stats: {
+    data: StatsWorkerItem[];
+    result: StatsWorkerResult &
+      Record<string, StatsBucket | string | undefined>;
+  };
+};
+
+type WorkerPoolName = keyof WorkerJobMap;
 
 type DataUrlString = string;
 
-interface WorkerPoolConfig {
+interface WorkerPoolConfig<N extends WorkerPoolName = WorkerPoolName> {
   template: DataUrlString;
   poolSize: number;
-  name: WorkerPoolName;
+  name: N;
 }
 
 interface WorkerWrapper {
@@ -31,33 +82,30 @@ interface WorkerWrapper {
   busy: boolean;
 }
 
-interface WorkerPoolsByName {
-  stats: WorkerWrapper[];
-}
+type WorkerPoolsByName = {
+  [N in WorkerPoolName]: WorkerWrapper[];
+};
 
-/** Result returned by a worker. */
-type WorkerResult = unknown;
-
-interface WorkerIncomingMessage {
+type WorkerIncomingMessage<N extends WorkerPoolName> = {
   transaction: number;
-  result: WorkerResult;
-}
+  result: WorkerJobMap[N]["result"];
+};
 
-interface WorkerOutgoingMessage<TData> {
-  data: TData;
+type WorkerOutgoingMessage<N extends WorkerPoolName> = {
+  data: WorkerJobMap[N]["data"];
   transaction: number;
-}
+};
 
-interface QueueItem<TData> {
-  name: WorkerPoolName;
-  data: TData;
-  callback: (result: WorkerResult) => void;
-}
+type QueueItem<N extends WorkerPoolName> = {
+  name: N;
+  data: WorkerJobMap[N]["data"];
+  callback: (result: WorkerJobMap[N]["result"]) => void;
+};
 
-interface EnqueueOptions<TData> {
-  name: WorkerPoolName;
-  data: TData;
-}
+type EnqueueOptions<N extends WorkerPoolName> = {
+  name: N;
+  data: WorkerJobMap[N]["data"];
+};
 
 const WORKER_POOLS: WorkerPoolConfig[] = [
   {
@@ -67,15 +115,15 @@ const WORKER_POOLS: WorkerPoolConfig[] = [
   },
 ];
 
-const queue: Array<QueueItem<unknown>> = [];
+const queue: Array<QueueItem<WorkerPoolName>> = [];
 
 // Store that maps callback functions to a worker transaction number
-const refTable = new Map<number, (result: WorkerResult) => void>();
+const refTable = new Map<number, (result: unknown) => void>();
 
 let transaction = 1;
 
-const handleWorkerMessage = (
-  { data: message }: MessageEvent<WorkerIncomingMessage>,
+const handleWorkerMessage = <N extends WorkerPoolName>(
+  { data: message }: MessageEvent<WorkerIncomingMessage<N>>,
   worker: WorkerWrapper,
 ): void => {
   const { transaction: messageTransaction, result } = message;
@@ -90,8 +138,8 @@ const handleWorkerMessage = (
 };
 
 // Pool population
-const workerPool: WorkerPoolsByName = WORKER_POOLS.map(
-  ({ template, poolSize, name }) => {
+const workerPool: WorkerPoolsByName = Object.fromEntries(
+  WORKER_POOLS.map(({ template, poolSize, name }) => {
     const pool: WorkerWrapper[] = [];
     for (let i = 0; i < poolSize; i += 1) {
       const worker = new Worker(template);
@@ -100,24 +148,23 @@ const workerPool: WorkerPoolsByName = WORKER_POOLS.map(
 
       pool.push(workerObj);
     }
-    return { name, pool };
-  },
-).reduce(
-  (acc, { name, pool }) => ({ ...acc, [name]: pool }),
-  {} as WorkerPoolsByName,
-);
+    return [name, pool] as const;
+  }),
+) as WorkerPoolsByName;
+// NOTE (JS->TS): Object.fromEntries expresses "build an object from key/value pairs" directly,
+// avoids the repeated object spreads of a reduce-based implementation, and is typically
+// more readable and efficient.
 
 // gets the first idle worker and reserves it for job dispatch
 const reserveWorker = (name: WorkerPoolName): WorkerWrapper | null => {
-  const worker = workerPool[name].filter((w) => !w.busy)[0];
-  if (worker) {
-    if (worker.busy) {
-      return null;
-    }
-    worker.busy = true;
-    return worker;
+  const worker = workerPool[name].find((w) => !w.busy);
+  // NOTE (JS->TS): find() communicates intent ("first matching worker") and avoids allocating
+  // an intermediate array like filter(...)[0].
+  if (!worker) {
+    return null;
   }
-  return null;
+  worker.busy = true;
+  return worker;
 };
 
 const processQueue = (): void => {
@@ -133,11 +180,11 @@ const processQueue = (): void => {
     }
     const ourTransaction = transaction;
     transaction += 1;
-    const meta: WorkerOutgoingMessage<unknown> = {
+    const meta: WorkerOutgoingMessage<typeof item.name> = {
       data: item.data,
       transaction: ourTransaction,
     };
-    refTable.set(ourTransaction, item.callback);
+    refTable.set(ourTransaction, item.callback as (result: unknown) => void);
     reservedWorker.worker.postMessage(meta);
     setImmediate(processQueue);
   }
@@ -149,12 +196,12 @@ const processQueue = (): void => {
  *
  * @param {object} options
  */
-const enqueue = async <TData, TResult = WorkerResult>({
+const enqueue = async <N extends WorkerPoolName>({
   name,
   data,
-}: EnqueueOptions<TData>): Promise<TResult> =>
+}: EnqueueOptions<N>): Promise<WorkerJobMap[N]["result"]> =>
   new Promise((resolve) => {
-    queue.push({ name, data, callback: resolve as (r: WorkerResult) => void });
+    queue.push({ name, data, callback: resolve });
     setImmediate(processQueue);
   });
 
