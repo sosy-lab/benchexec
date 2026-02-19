@@ -19,7 +19,7 @@ import {
   SelectColumnsButton,
   StandardColumnHeader,
 } from "./TableComponents";
-import { computeStats, statisticsRows } from "../utils/stats.js";
+import { computeStats, statisticsRows } from "../utils/stats.ts";
 import {
   determineColumnWidth,
   isNumericColumn,
