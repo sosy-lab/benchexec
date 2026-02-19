@@ -8,7 +8,7 @@
 import { isNil, NumberFormatterBuilder } from "./utils";
 import { enqueue } from "../workers/workerDirector";
 
-const keysToIgnore = new Set(["meta"] as const);
+const keysToIgnore = new Set<string>(["meta"]);
 
 /* ============================================================
  * Types: Statistic Rows (UI metadata)
@@ -263,7 +263,11 @@ const buildFormatter = (tools: Tool[]): FormatterMatrix =>
   );
 
 const maybeRound =
-  (key: string, maxDecimalInputLength: number, columnIdx: number) =>
+  (
+    key: "sum" | "avg" | "stdev" | string,
+    maxDecimalInputLength: number,
+    columnIdx: number,
+  ) =>
   (
     number: string,
     { significantDigits }: { significantDigits?: number },
@@ -397,7 +401,7 @@ const cleanupStats = (
             : undefined;
 
           for (const [key, value] of Object.entries(resultRec)) {
-            if (keysToIgnore.has(key as "meta")) {
+            if (keysToIgnore.has(key)) {
               continue;
             }
 
@@ -472,10 +476,15 @@ const RESULT_CLASS_TRUE = "true";
 const RESULT_CLASS_FALSE = "false";
 const RESULT_CLASS_OTHER = "other";
 
+type ResultClass =
+  | typeof RESULT_CLASS_TRUE
+  | typeof RESULT_CLASS_FALSE
+  | typeof RESULT_CLASS_OTHER;
+
 /**
  * @see result.py
  */
-const classifyResult = (result: unknown): string => {
+const classifyResult = (result: unknown): ResultClass => {
   if (isNil(result)) {
     return RESULT_CLASS_OTHER;
   }
@@ -530,9 +539,8 @@ const splitColumnsWithMeta =
   (preppedRows: PreppedRow[], toolIdx: number): SplitColumnItem[][] => {
     const out: SplitColumnItem[][] = [];
     for (const { row, categoryType, resultType } of preppedRows) {
-      for (const columnIdx in row) {
-        const cIdx = Number(columnIdx);
-        const rawCell = row[cIdx];
+      // NOTE (JS->TS): forEach-Loop replaces the need to cast for..in string keys to numbers for safe array indexing.
+      row.forEach((rawCell, cIdx) => {
         const column = rawCell?.raw;
         const curr = out[cIdx] || [];
         // we attach extra meta information for later use in calculation and mapping
@@ -548,7 +556,7 @@ const splitColumnsWithMeta =
           columnTitle,
         });
         out[cIdx] = curr;
-      }
+      });
     }
     return out;
   };
@@ -572,43 +580,30 @@ const processData = async ({
     row.results[toolIdx].category;
   const statAccessor = (toolIdx: number, row: TableRow) =>
     row.results[toolIdx].values[0].raw;
-  const promises: Array<Array<Promise<unknown>>> = [];
 
-  const splitRows: PreppedRow[][] = [];
-  for (const toolIdx in tools) {
-    const tIdx = Number(toolIdx);
+  // NOTE (JS->TS): Replaced for..in iteration over tools with Array.map
+  // to avoid string index coercion and improve type safety for array indexing.
+  const splitRows = tools.map((_, tIdx) =>
+    prepareRows(tableData, tIdx, catAccessor, statAccessor, formatter),
+  );
 
-    // NOTE (JS->TS): Convert for..in string keys to numbers for safe array indexing.
-    splitRows.push(
-      prepareRows(tableData, tIdx, catAccessor, statAccessor, formatter),
-    );
-  }
   const columnSplitter = splitColumnsWithMeta(tools);
 
-  const preparedData = splitRows.map((rows, idx) => columnSplitter(rows, idx));
-  // filter out non-relevant rows
-  for (const toolIdx in preparedData) {
-    const tIdx = Number(toolIdx);
+  // NOTE (JS->TS): Combined column splitting and filtering into a map-chain
+  // to replace imperative mutation loops and ensure type-safe array processing.
+  const preparedData = splitRows
+    .map((rows, idx) => columnSplitter(rows, idx))
+    .map((toolData) => toolData.filter((i) => !isNil(i)));
 
-    // NOTE (JS->TS): Convert for..in string keys to numbers for safe array indexing.
-    preparedData[tIdx] = preparedData[tIdx].filter((i) => !isNil(i));
-  }
-
-  for (const toolDataIdx in preparedData) {
-    const tIdx = Number(toolDataIdx);
-    const toolData = preparedData[tIdx];
-    const subPromises: Array<Promise<unknown>> = [];
-    for (const columnIdx in toolData) {
-      const cIdx = Number(columnIdx);
-
-      // NOTE (JS->TS): Convert for..in string keys to numbers for safe array indexing.
-      const columns = toolData[cIdx];
-      subPromises.push(
+  // NOTE (JS->TS): Replaced nested for..in loops with nested Array.map
+  // to preserve ordering while avoiding string index conversions and
+  // improving readability and type safety.
+  const promises = preparedData.map((toolData) =>
+    toolData.map(
+      (columns) =>
         enqueue({ name: "stats", data: columns }) as Promise<unknown>,
-      );
-    }
-    promises[tIdx] = subPromises;
-  }
+    ),
+  );
 
   const allPromises = promises.map((p) => Promise.all(p));
   const res = await Promise.all(allPromises);
