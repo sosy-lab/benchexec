@@ -304,10 +304,12 @@ const omit = <T extends Record<string, unknown>, K extends keyof T>(
   const newKeys = (Object.keys(data) as Array<keyof T>).filter(
     (key) => !keys.includes(key as K),
   );
-  return newKeys.reduce((acc, key) => {
-    acc[key] = data[key];
-    return acc;
-  }, {} as Omit<T, K>);
+  // NOTE (JS->TS): Replaced reduce with a loop and Partial<T> to avoid indexing issues with Omit types.
+  const result = {} as Partial<T>;
+  for (const key of newKeys) {
+    result[key] = data[key];
+  }
+  return result as Omit<T, K>;
 };
 
 const without = <T,>(value: T, array: readonly T[]): T[] => {
@@ -545,14 +547,16 @@ const makeUrlFilterDeserializer = (
   };
 };
 
-const makeSerializedFilterValue = (
-  filter: Record<string, { in?: string[]; notIn?: string[] }>,
-): string => {
+const makeSerializedFilterValue = (filter: {
+  in?: string[];
+  notIn?: string[];
+}): string => {
   const parts: string[] = [];
-  for (const [key, values] of Object.entries(filter)) {
-    // NOTE (JS->TS): In TS, Object.values({ in?: string[]; notIn?: string[] }) can include undefined,
-    // so after .flat() the element type becomes (string | undefined). We must narrow to string before calling escape().
-    parts.push(`${key}(${Object.values(values).flat().map(escape).join(",")})`);
+  if (filter.in !== undefined) {
+    parts.push(`in(${filter.in.map(escape).join(",")})`);
+  }
+  if (filter.notIn !== undefined) {
+    parts.push(`notIn(${filter.notIn.map(escape).join(",")})`);
   }
   return parts.join(",");
 };
@@ -577,7 +581,7 @@ const createDistinctValueFilters = (
   } else {
     filter.in = selected.map((val) => (trim ? val.trim() : val));
   }
-  return makeSerializedFilterValue({ values: filter });
+  return makeSerializedFilterValue(filter);
 };
 
 function makeStatusColumnFilter(
@@ -623,7 +627,8 @@ function escapeParentheses(value: unknown): string {
   if (typeof value !== "string") {
     throw new Error("Invalid value type");
   }
-  return value.replaceAll("(", "%28").replaceAll(")", "%29");
+  // NOTE (JS->TS): Replaced replaceAll with replace and a global regex for better compatibility.
+  return value.replace(/\(/g, "%28").replace(/\)/g, "%29");
 }
 
 export const makeRegExp = (value: unknown): RegExp => {
@@ -1033,7 +1038,10 @@ const makeUrlFilterSerializer = (
   categoryValues: DistinctValuesByRunset,
 ) => {
   const serializer = makeFilterSerializer({ statusValues, categoryValues });
-  return (filter: FilterItem[] | null | undefined, options: SetURLParameterOptions): void => {
+  return (
+    filter: FilterItem[] | null | undefined,
+    options: SetURLParameterOptions,
+  ): void => {
     if (!filter) {
       return setURLParameter({ filter: undefined }, options);
     }
@@ -1056,7 +1064,10 @@ const setConstantHashSearch = (paramString: string): void => {
 
 const stringAsBoolean = (str: string): boolean => str === "true";
 
-const deepEquals = (a: Record<string, unknown>, b: Record<string, unknown>): boolean => {
+const deepEquals = (
+  a: Record<string, unknown>,
+  b: Record<string, unknown>,
+): boolean => {
   for (const key in a) {
     if (typeof a[key] === "function" && typeof b[key] === "function") {
       continue;
@@ -1064,7 +1075,12 @@ const deepEquals = (a: Record<string, unknown>, b: Record<string, unknown>): boo
     if (typeof a[key] !== typeof b[key]) {
       return false;
     } else if (Array.isArray(a[key]) || typeof a[key] === "object") {
-      if (!deepEquals(a[key] as Record<string, unknown>, b[key] as Record<string, unknown>)) {
+      if (
+        !deepEquals(
+          a[key] as Record<string, unknown>,
+          b[key] as Record<string, unknown>,
+        )
+      ) {
         return false;
       }
     } else {
@@ -1091,11 +1107,20 @@ const deepEquals = (a: Record<string, unknown>, b: Record<string, unknown>): boo
  *
  * @param {*} rows - the rows array of the dataset
  */
-const getTaskIdParts = (rows: unknown, taskIdNames: string[]): Record<string, unknown> =>
-  pathOr<Array<unknown>>(["0", "id"], [], rows).reduce(
-    (acc, curr, idx) => ({ ...acc, [taskIdNames[idx]]: curr }),
-    {} as Record<string, unknown>,
+const getTaskIdParts = (
+  rows: unknown,
+  taskIdNames: string[],
+): Record<string, unknown> => {
+  const ids = pathOr<unknown[]>(["0", "id"], [], rows);
+  return ids.reduce(
+    // NOTE (JS->TS): Explicitly typed the reducer for safe dynamic property access.
+    (acc: Record<string, unknown>, curr: unknown, idx: number) => ({
+      ...acc,
+      [taskIdNames[idx]]: curr,
+    }),
+    {},
   );
+};
 
 /**
  * Function to safely add two numbers in a way that should mitigate errors
@@ -1107,8 +1132,8 @@ const getTaskIdParts = (rows: unknown, taskIdNames: string[]): Record<string, un
  */
 // WHEN EDITING THIS FUNCTION, ALSO EDIT THE COPY OF THIS FUNCTION IN src/woerks/scrips/stats.worker.js
 const safeAdd = (a: number | string, b: number | string): number => {
-  let aNum: number = typeof a === "string" ? Number(a) : a;
-  let bNum: number = typeof b === "string" ? Number(b) : b;
+  const aNum: number = typeof a === "string" ? Number(a) : a;
+  const bNum: number = typeof b === "string" ? Number(b) : b;
 
   if (Number.isInteger(aNum) || Number.isInteger(bNum)) {
     return aNum + bNum;
@@ -1238,8 +1263,9 @@ class NumberFormatterBuilder {
       const attachDecimal = postfix[0] === ".";
       postfix = postfix.replace(/\./, "");
       postfix = `${postfix[0]}.${postfix.substr(1)}`;
-      postfix = Math.round(Number(postfix));
-      postfix = isNaN(postfix) ? "" : postfix.toString();
+      // NOTE (JS->TS): Introduced intermediate variable to avoid type mismatch during numeric conversion and rounding.
+      const rounded = Math.round(Number(postfix));
+      postfix = isNaN(rounded) ? "" : rounded.toString();
       //handle carry
       if (postfix.length > 1 && postfix[0] !== ".") {
         const overflow = postfix[0];
@@ -1278,7 +1304,10 @@ class NumberFormatterBuilder {
     return `${prefix}${postfix}`;
   }
 
-  build(): (number: number, options?: Partial<NumberFormatterOptions>) => string {
+  build(): (
+    number: number,
+    options?: Partial<NumberFormatterOptions>,
+  ) => string {
     return (number, options = {}) => {
       const { whitespaceFormat, html, leadingZero, additionalFormatting } = {
         ...this._defaultOptions,
@@ -1335,7 +1364,12 @@ class NumberFormatterBuilder {
  * Each property contains an array of integers which represent the indexes of the columns of the corresponding runset that will be hidden.
  */
 const createHiddenColsFromURL = (
-  tools: Array<ToolLike & { toolIdx: number; columns: Array<ToolColumnLike & { colIdx: number }> }>,
+  tools: Array<
+    ToolLike & {
+      toolIdx: number;
+      columns: Array<ToolColumnLike & { colIdx: number }>;
+    }
+  >,
 ): Record<number, number[]> => {
   const urlParams = getURLParameters();
   // Object containing all hidden runsets from the URL (= param "hidden")
@@ -1377,7 +1411,9 @@ const createHiddenColsFromURL = (
     // NOTE (JS->TS): Added defensive null check because Array.find may return
     // undefined under strict typing. The original JS assumed the tool exists.
     if (tool) {
-      hiddenCols[hiddenToolIdx] = tool.columns.map((column) => column.colIdx);
+      hiddenCols[hiddenToolIdx] = tool.columns.map(
+        (column) => column.colIdx as number,
+      );
     }
   });
 
@@ -1398,27 +1434,33 @@ const createHiddenColsFromURL = (
  * are hidden, returns undefined for those values.
  **/
 const getFirstVisibles = (
-  tools: Array<ToolLike & { toolIdx: number; columns: Array<ToolColumnLike & { colIdx: number }> }>,
+  tools: Array<
+    ToolLike & {
+      toolIdx: number;
+      columns: Array<ToolColumnLike & { colIdx: number }>;
+    }
+  >,
   hiddenCols: Record<number, number[]>,
 ): [number | undefined, number | undefined] => {
   let visibleCol: (ToolColumnLike & { colIdx: number }) | undefined;
   let visibleTool = tools.find((tool) => {
     visibleCol = tool.columns.find(
       (col) =>
-        col.type !== "status" && !hiddenCols[tool.toolIdx].includes(col.colIdx),
-    );
+        col.type !== "status" &&
+        !hiddenCols[tool.toolIdx].includes(col.colIdx as number),
+    ) as (ToolColumnLike & { colIdx: number }) | undefined;
     return visibleCol;
   });
 
   if (!visibleCol) {
-    visibleTool = tools.find(
-      (tool) =>
-        (visibleCol = tool.columns.find(
-          (col) =>
-            col.type === "status" &&
-            !hiddenCols[tool.toolIdx].includes(col.colIdx),
-        )),
-    );
+    visibleTool = tools.find((tool) => {
+      visibleCol = tool.columns.find(
+        (col) =>
+          col.type === "status" &&
+          !hiddenCols[tool.toolIdx].includes(col.colIdx as number),
+      ) as (ToolColumnLike & { colIdx: number }) | undefined;
+      return visibleCol;
+    });
   }
 
   return visibleTool && visibleCol
@@ -1435,7 +1477,10 @@ const getFirstVisibles = (
  * @param {Any[]} compare The array to compare elements to
  * @param {Any[]} data The array to check
  */
-const hasSameEntries = (compare: Array<string | number | boolean>, data: Array<string | number | boolean>): boolean => {
+const hasSameEntries = (
+  compare: Array<string | number | boolean>,
+  data: Array<string | number | boolean>,
+): boolean => {
   const compareObj: Record<string, true> = {};
 
   for (const elem of compare) {
@@ -1455,7 +1500,9 @@ const hasSameEntries = (compare: Array<string | number | boolean>, data: Array<s
  * @param {string} item - the filter value
  * @returns {boolean} True if value is a category, else false
  */
-const isCategory = (item: string): boolean => item && item[item.length - 1] === " ";
+// NOTE (JS->TS): Explicit boolean cast to satisfy the return type.
+const isCategory = (item: string): boolean =>
+  !!(item && item[item.length - 1] === " ");
 
 /**
  * This function uses string operations to get the smallest decimal part of a number.
@@ -1497,7 +1544,12 @@ const getHiddenColIds = (
       col.columns.filter((column) => column.hidden).map((column) => column.id),
     ),
   );
-  return hiddenColIds.flat().filter((id): id is string => typeof id === "string");
+  return (
+    hiddenColIds
+      .flat()
+      // NOTE (JS->TS): Added type guard to ensure result is strictly string[].
+      .filter((id): id is string => typeof id === "string")
+  );
 };
 
 export {
