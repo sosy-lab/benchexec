@@ -104,6 +104,30 @@ type Matcher = {
   diff?: DiffMatcherItem[];
 } & Record<string, ToolMatcher | IdMatcher | DiffMatcherItem[] | undefined>;
 
+type IntermediateStatusColumn = ToolColumn & {
+  type: "status";
+  categories: Record<string, true>;
+  statuses: Record<string, true>;
+  idx: number;
+};
+
+type IntermediateTextColumn = ToolColumn & {
+  type: "text";
+  distincts: Record<string, true>;
+  idx: number;
+};
+
+type IntermediateNumericColumn = ToolColumn & {
+  min: number;
+  max: number;
+  idx: number;
+};
+
+type IntermediateColumn =
+  | IntermediateStatusColumn
+  | IntermediateTextColumn
+  | IntermediateNumericColumn;
+
 const asRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null;
 
@@ -126,80 +150,80 @@ const getFilterableData = ({ tools, rows }: Dataset) => {
     const { tool: toolName, date, niceName } = tool;
     const name = `${toolName} ${date} ${niceName}`;
 
-    const columns = tool.columns.map((col, colIdx) => {
-      if (!col) {
-        return undefined;
-      }
-      if (col.type === "status") {
-        statusIdx = colIdx;
+    const columns = tool.columns.map(
+      (col, colIdx): IntermediateColumn | undefined => {
+        if (!col) {
+          return undefined;
+        }
+        if (col.type === "status") {
+          statusIdx = colIdx;
+          return {
+            ...col,
+            type: "status",
+            categories: {},
+            statuses: {},
+            idx: colIdx,
+          };
+        }
+        if (col.type === "text") {
+          return {
+            ...col,
+            type: "text",
+            distincts: {},
+            idx: colIdx,
+          };
+        }
         return {
           ...col,
-          categories: {} as Record<string, true>,
-          statuses: {} as Record<string, true>,
+          min: Infinity,
+          max: -Infinity,
           idx: colIdx,
         };
-      }
-      if (col.type === "text") {
-        return { ...col, distincts: {} as Record<string, true>, idx: colIdx };
-      }
-      return { ...col, min: Infinity, max: -Infinity, idx: colIdx };
-    });
+      },
+    );
 
     if (!isNil(statusIdx)) {
       const current = columns[statusIdx];
-      if (current) {
+      if (current && current.type === "status") {
         // NOTE (JS->TS): Added defensive check because columns entries may be undefined.
         columns[statusIdx] = {
           ...current,
-          categories: {} as Record<string, true>,
-          statuses: {} as Record<string, true>,
+          categories: {},
+          statuses: {},
         };
       }
     }
 
-    for (const row of rows) {
+    rows.forEach((row) => {
       const result = row.results[idx];
       // convention as of writing this commit is to postfix categories with a space character
       if (!isNil(statusIdx)) {
-        const statusCol = columns[statusIdx];
-        if (statusCol && "categories" in statusCol) {
-          (statusCol.categories as Record<string, true>)[
-            `${result.category} `
-          ] = true;
+        const statusCol = columns[statusIdx] as
+          | IntermediateStatusColumn
+          | undefined;
+        if (statusCol) {
+          statusCol.categories[`${result.category} `] = true;
         }
       }
 
-      for (const colIdxStr in result.values) {
-        // NOTE (JS->TS): Convert for..in string keys to numbers for safe array indexing.
-        const colIdx = Number(colIdxStr);
-
-        const col = result.values[colIdx];
+      result.values.forEach((col, colIdx) => {
         const { raw } = col;
         const filterCol = columns[colIdx];
         if (!filterCol || isNil(raw)) {
-          continue;
+          return;
         }
 
         if (filterCol.type === "status") {
-          (filterCol as { statuses: Record<string, true> }).statuses[
-            String(raw)
-          ] = true;
+          (filterCol as IntermediateStatusColumn).statuses[String(raw)] = true;
         } else if (filterCol.type === "text") {
-          (filterCol as { distincts: Record<string, true> }).distincts[
-            String(raw)
-          ] = true;
-        } else {
-          (filterCol as { min: number; max: number }).min = Math.min(
-            (filterCol as { min: number }).min,
-            Number(raw),
-          );
-          (filterCol as { min: number; max: number }).max = Math.max(
-            (filterCol as { max: number }).max,
-            Number(raw),
-          );
+          (filterCol as IntermediateTextColumn).distincts[String(raw)] = true;
+        } else if ("min" in filterCol && "max" in filterCol) {
+          const numCol = filterCol as IntermediateNumericColumn;
+          numCol.min = Math.min(numCol.min, Number(raw));
+          numCol.max = Math.max(numCol.max, Number(raw));
         }
-      }
-    }
+      });
+    });
 
     return {
       name,
@@ -208,29 +232,25 @@ const getFilterableData = ({ tools, rows }: Dataset) => {
           return undefined;
         }
 
-        const colRec = c as Record<string, unknown>;
-        const distincts = colRec.distincts as Record<string, true> | undefined;
-        const categories = colRec.categories as
-          | Record<string, true>
-          | undefined;
-        const statuses = colRec.statuses as Record<string, true> | undefined;
+        const { idx: _idx, ...rest } = c;
 
-        const rest = { ...colRec };
-
-        // NOTE (JS->TS): Explicitly remove internal aggregation fields instead of
-        // using unused destructuring bindings to satisfy ESLint no-unused-vars rule.
-        delete (rest as Record<string, unknown>).distincts;
-        delete (rest as Record<string, unknown>).categories;
-        delete (rest as Record<string, unknown>).statuses;
-
-        if (distincts) {
-          return { ...rest, distincts: Object.keys(distincts) };
-        }
-        if (categories) {
+        if (c.type === "status") {
+          const statusCol = c as IntermediateStatusColumn;
+          const { categories, statuses, ...restOfCol } = statusCol;
+          void restOfCol;
           return {
             ...rest,
             categories: Object.keys(categories),
-            statuses: Object.keys(statuses ?? {}),
+            statuses: Object.keys(statuses),
+          };
+        }
+        if (c.type === "text") {
+          const textCol = c as IntermediateTextColumn;
+          const { distincts, ...restOfCol } = textCol;
+          void restOfCol;
+          return {
+            ...rest,
+            distincts: Object.keys(distincts),
           };
         }
         return rest;
@@ -243,10 +263,7 @@ const getFilterableData = ({ tools, rows }: Dataset) => {
 const applyNumericFilter = (
   filter: { id: string; value: string },
   row: Record<string, unknown>,
-  cell: unknown,
 ) => {
-  void cell;
-
   // NOTE (JS->TS): Pass explicit default value for compatibility with typed signature.
   const raw = getRawOrDefault(row[filter.id] as unknown, undefined);
   if (raw === undefined) {
@@ -275,10 +292,7 @@ const applyNumericFilter = (
 const applyTextFilter = (
   filter: { id: string; value: string },
   row: Record<string, unknown>,
-  cell: unknown,
 ) => {
-  void cell;
-
   // NOTE (JS->TS): Pass explicit default value for compatibility with typed signature.
   const raw = getRawOrDefault(row[filter.id] as unknown, undefined);
   if (raw === undefined) {
@@ -464,40 +478,29 @@ const applyMatcher = (matcher: Matcher) => (data: TableRow[]) => {
         const columnIdx = Number(columnKey);
 
         for (const filter of columnFilters) {
-          if (!asRecord(filter)) {
-            continue;
-          }
-
-          const value = filter.value;
-          const min = filter.min;
-          const max = filter.max;
-          const category = filter.category;
-          const status = filter.status;
-
-          if (!isNil(min) && !isNil(max)) {
+          if ("min" in filter && "max" in filter) {
             const rawValue = row.results[toolIdx]?.values[columnIdx]?.raw;
             if (isNil(rawValue)) {
               columnPass = false;
               continue;
             }
             const num = Number(rawValue);
-            columnPass =
-              columnPass || (num >= Number(min) && num <= Number(max));
-          } else if (!isNil(category)) {
+            columnPass = columnPass || (num >= filter.min && num <= filter.max);
+          } else if ("category" in filter) {
             categoryPass =
-              row.results[toolIdx]?.category === String(category) ||
+              row.results[toolIdx]?.category === String(filter.category) ||
               categoryPass;
             columnPass = categoryPass && statusPass;
-          } else if (!isNil(status)) {
+          } else if ("status" in filter) {
             const emptyRowPass =
               row.results[toolIdx]?.category === "empty" &&
-              String(status) === statusForEmptyRows;
+              String(filter.status) === statusForEmptyRows;
             statusPass =
-              row.results[toolIdx]?.values[columnIdx]?.raw === status ||
+              row.results[toolIdx]?.values[columnIdx]?.raw === filter.status ||
               statusPass ||
               emptyRowPass;
             columnPass = categoryPass && statusPass;
-          } else {
+          } else if ("value" in filter) {
             const rawValue = row.results[toolIdx]?.values[columnIdx]?.raw;
             if (isNil(rawValue)) {
               columnPass = false;
@@ -506,8 +509,8 @@ const applyMatcher = (matcher: Matcher) => (data: TableRow[]) => {
             const rawStr = String(rawValue);
             columnPass =
               columnPass ||
-              String(value) === rawStr ||
-              rawStr.includes(String(value));
+              String(filter.value) === rawStr ||
+              rawStr.includes(String(filter.value));
           }
 
           if (columnPass) {
