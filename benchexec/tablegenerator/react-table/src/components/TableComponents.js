@@ -6,7 +6,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from "react";
-import { formatColumnTitle, getRunSetName } from "../utils/utils.js";
+import { formatColumnTitle, getRunSetName } from "../utils/utils.tsx";
 
 export const SelectColumnsButton = ({ handler, ...other }) => (
   <span onClick={handler} title="" className="selectColumns" {...other}>
