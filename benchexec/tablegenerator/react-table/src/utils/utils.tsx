@@ -10,11 +10,177 @@ import copy from "copy-to-clipboard";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCopy } from "@fortawesome/free-regular-svg-icons";
 
+/* ============================================================
+ * Types: React Components
+ * ============================================================ */
+
+interface CopyableNodeProps {
+  children?: React.ReactNode;
+}
+
+/* ============================================================
+ * Types: URL / Hash / Query Parameters
+ * ============================================================ */
+
+type UrlLike = Pick<Location, "pathname"> | Pick<URL, "pathname">;
+
+type URLParameters = Record<string, string>;
+
+interface SetURLParameterOptions {
+  callbacks: Array<() => void>;
+  pushState: boolean;
+}
+
+interface ConstructHashURLResult {
+  newUrl: string;
+  queryString: string;
+}
+
+/* ============================================================
+ * Types: Table Data Preparation
+ * ============================================================ */
+
+interface TableHeaderLike {
+  task_id_names: string[];
+  // other properties are passed through unchanged
+  [key: string]: unknown;
+}
+
+interface ToolColumnLike {
+  title: string;
+  type?: string;
+  unit?: string;
+  display_title?: string;
+  max_width?: number;
+  hidden?: boolean;
+  id?: string;
+
+  // augmented fields
+  colIdx?: number;
+
+  // other properties are passed through unchanged
+  [key: string]: unknown;
+}
+
+interface ToolLike {
+  columns: ToolColumnLike[];
+
+  // augmented fields
+  toolIdx?: number;
+  scoreBased?: boolean;
+
+  // other properties are passed through unchanged
+  [key: string]: unknown;
+}
+
+interface RowResultLike {
+  score?: unknown;
+  [key: string]: unknown;
+}
+
+interface RowLike {
+  results: RowResultLike[];
+  [key: string]: unknown;
+}
+
+interface PrepareTableDataInput {
+  head: TableHeaderLike;
+  tools: ToolLike[];
+  rows: RowLike[];
+  stats: unknown;
+  props: unknown;
+  initial: unknown;
+}
+
+interface PreparedTableData {
+  tableHeader: TableHeaderLike;
+  taskIdNames: string[];
+  tools: Array<
+    ToolLike & {
+      toolIdx: number;
+      columns: ToolColumnLike[];
+      scoreBased: boolean;
+    }
+  >;
+  columns: string[][];
+  tableData: RowLike[];
+  stats: unknown;
+  properties: unknown;
+  initial: unknown;
+}
+
+/* ============================================================
+ * Types: Sorting / Cell Values
+ * ============================================================ */
+
+interface RawValueLike {
+  raw?: unknown;
+}
+
+type SortCellValue = RawValueLike | null | undefined;
+
+/* ============================================================
+ * Types: Filter Serialization / Deserialization
+ * ============================================================ */
+
+type ColumnId = string;
+type RunsetId = string;
+
+type DistinctValuesByColumn = Record<ColumnId, string[]>;
+type DistinctValuesByRunset = Record<RunsetId, DistinctValuesByColumn>;
+
+interface StatusCategorySelection {
+  statusValues?: string[];
+  categoryValues?: string[];
+}
+
+interface FilterItem {
+  id: string;
+  value?: string;
+  values?: string[];
+  isTableTabFilter?: boolean;
+}
+
+type TokenizeResult = Record<string, string>;
+
+type TokenHandlerResult =
+  | { value: string }
+  | { values: string[] }
+  | { value: string; isTableTabFilter: true };
+
+/**
+ * Decoded form of a filter ID.
+ * `name` is the human-readable part encoded in the ID and may be missing for short IDs.
+ */
+interface DecodedFilterId {
+  tool: string;
+  name?: string;
+  column?: string;
+}
+
+/* ============================================================
+ * Types: Number Formatting
+ * ============================================================ */
+
+interface NumberFormattingContext {
+  significantDigits: number;
+  maxDecimalInputLength: number;
+}
+
+interface NumberFormatterOptions {
+  whitespaceFormat: boolean;
+  html: boolean;
+  leadingZero: boolean;
+  additionalFormatting: (x: string, ctx: NumberFormattingContext) => string;
+}
+
 /* A DOM node that allows its content to be copied to the clipboard. */
-export class CopyableNode extends React.Component {
-  constructor(props) {
+export class CopyableNode extends React.Component<CopyableNodeProps> {
+  private readonly childRef: React.RefObject<HTMLSpanElement>;
+
+  constructor(props: CopyableNodeProps) {
     super(props);
-    this.childRef = React.createRef();
+    this.childRef = React.createRef<HTMLSpanElement>();
   }
 
   render() {
@@ -25,7 +191,11 @@ export class CopyableNode extends React.Component {
           title="Copy to clipboard"
           style={{ margin: "1ex" }}
           onClick={() => {
-            copy(this.childRef.current.innerText, { format: "text/plain" });
+            const node = this.childRef.current;
+            // NOTE (JS->TS): Guard against null refs to satisfy strict typing and avoid runtime crashes.
+            if (node) {
+              copy(node.innerText, { format: "text/plain" });
+            }
           }}
         >
           <FontAwesomeIcon icon={faCopy} />
@@ -44,7 +214,10 @@ export class CopyableNode extends React.Component {
  * (after the last slash).
  * Protocol, query part and hash of the URL is dropped.
  */
-export const splitUrlPathForMatchingPrefix = (url1, url2) => {
+export const splitUrlPathForMatchingPrefix = (
+  url1: UrlLike,
+  url2: UrlLike,
+): [string, string] => {
   const path1 = url1.pathname.split("/");
   const path2 = url2.pathname.split("/");
   const firstDiffering = path1.findIndex(
@@ -58,20 +231,29 @@ export const splitUrlPathForMatchingPrefix = (url1, url2) => {
 
 const emptyStateValue = "##########";
 
-const prepareTableData = ({ head, tools, rows, stats, props, initial }) => {
+const prepareTableData = ({
+  head,
+  tools,
+  rows,
+  stats,
+  props,
+  initial,
+}: PrepareTableDataInput): PreparedTableData => {
   return {
     tableHeader: head,
     taskIdNames: head.task_id_names,
     tools: tools.map((tool, idx) => ({
       ...tool,
       toolIdx: idx,
-      columns: tool.columns.map((column, idx) => ({
+      columns: tool.columns.map((column, cIdx) => ({
         ...column,
-        colIdx: idx,
+        colIdx: cIdx,
       })),
-      scoreBased: rows.every((row) => row.results[idx].score !== undefined),
+      scoreBased: rows.every((row) => row.results[idx]?.score !== undefined),
     })),
-    columns: tools.map((tool) => tool.columns.map((column) => column.title)),
+    columns: tools.map((tool) =>
+      tool.columns.map((column) => String(column.title)),
+    ),
     tableData: rows,
     stats: stats,
     properties: props,
@@ -79,23 +261,29 @@ const prepareTableData = ({ head, tools, rows, stats, props, initial }) => {
   };
 };
 
-const isNumericColumn = (column) =>
+const isNumericColumn = (column: { type?: string }): boolean =>
   column.type === "count" || column.type === "measure";
 
-const isNil = (data) => data === undefined || data === null;
+const isNil = (data: unknown): data is null | undefined =>
+  data === undefined || data === null;
 
-const getRawOrDefault = (value, def) =>
-  isNil(value) || isNil(value.raw) ? def : value.raw;
+const getRawOrDefault = <T, D>(
+  value: T | (T & RawValueLike) | null | undefined,
+  def: D,
+): unknown | D =>
+  isNil(value) || isNil((value as RawValueLike).raw)
+    ? def
+    : (value as RawValueLike).raw;
 
-const numericSortMethod = (a, b) => {
+const numericSortMethod = (a: SortCellValue, b: SortCellValue): number => {
   const aValue = getRawOrDefault(a, +Infinity);
   const bValue = getRawOrDefault(b, +Infinity);
-  return aValue - bValue;
+  return Number(aValue) - Number(bValue);
 };
 
-const textSortMethod = (a, b) => {
-  const aValue = getRawOrDefault(a, "").toLowerCase();
-  const bValue = getRawOrDefault(b, "").toLowerCase();
+const textSortMethod = (a: SortCellValue, b: SortCellValue): number => {
+  const aValue = String(getRawOrDefault(a, "")).toLowerCase();
+  const bValue = String(getRawOrDefault(b, "")).toLowerCase();
   if (aValue === "") {
     return 1;
   }
@@ -105,20 +293,25 @@ const textSortMethod = (a, b) => {
   return aValue > bValue ? 1 : aValue < bValue ? -1 : 0;
 };
 
-const isOkStatus = (status) => {
+const isOkStatus = (status: unknown): boolean => {
   return status === 0 || status === 200;
 };
 
-const omit = (keys, data) => {
-  const newKeys = Object.keys(data).filter((key) => !keys.includes(key));
+const omit = <T extends Record<string, unknown>, K extends keyof T>(
+  keys: readonly K[],
+  data: T,
+): Omit<T, K> => {
+  const newKeys = (Object.keys(data) as Array<keyof T>).filter(
+    (key) => !keys.includes(key as K),
+  );
   return newKeys.reduce((acc, key) => {
     acc[key] = data[key];
     return acc;
-  }, {});
+  }, {} as Omit<T, K>);
 };
 
-const without = (value, array) => {
-  const out = [];
+const without = <T,>(value: T, array: readonly T[]): T[] => {
+  const out: T[] = [];
   for (const item of array) {
     if (item !== value) {
       out.push(item);
@@ -128,13 +321,17 @@ const without = (value, array) => {
 };
 
 // Best-effort attempt for calculating a meaningful column width
-const determineColumnWidth = (column, min_width, max_width) => {
+const determineColumnWidth = (
+  column: { max_width?: number },
+  min_width?: number,
+  max_width?: number,
+): number => {
   let width = column.max_width; // number of chars in column
   if (min_width) {
-    width = Math.max(width, min_width);
+    width = Math.max(width ?? 0, min_width);
   }
   if (max_width) {
-    width = Math.min(width, max_width);
+    width = Math.min(width ?? max_width, max_width);
   }
   if (!width) {
     width = 10;
@@ -143,10 +340,20 @@ const determineColumnWidth = (column, min_width, max_width) => {
   return width * 8 + 20;
 };
 
-const path = (pathArr, data) => {
-  let last = data;
+const path = (
+  pathArr: Array<string | number>,
+  data: unknown,
+): unknown | undefined => {
+  let last: unknown = data;
   for (const p of pathArr) {
-    last = last[p];
+    if (
+      isNil(last) ||
+      (typeof last !== "object" && typeof last !== "function")
+    ) {
+      return undefined;
+    }
+    const obj = last as Record<string, unknown>;
+    last = obj[String(p)];
     if (isNil(last)) {
       return undefined;
     }
@@ -154,13 +361,20 @@ const path = (pathArr, data) => {
   return last;
 };
 
-const pathOr = (pathArr, fallback, data) => {
+const pathOr = <T,>(
+  pathArr: Array<string | number>,
+  fallback: T,
+  data: unknown,
+): T => {
   const pathRes = path(pathArr, data);
 
-  return pathRes === undefined ? fallback : pathRes;
+  return pathRes === undefined ? fallback : (pathRes as T);
 };
 
-const formatColumnTitle = (column) =>
+const formatColumnTitle = (column: {
+  unit?: string;
+  display_title: React.ReactNode;
+}): React.ReactNode =>
   column.unit ? (
     <>
       {column.display_title}
@@ -171,7 +385,15 @@ const formatColumnTitle = (column) =>
     column.display_title
   );
 
-const getRunSetName = ({ tool, date, niceName }) => {
+const getRunSetName = ({
+  tool,
+  date,
+  niceName,
+}: {
+  tool: string;
+  date: string;
+  niceName: string;
+}): string => {
   return `${tool} ${date} ${niceName}`;
 };
 
@@ -208,7 +430,7 @@ const EXTENDED_DISCRETE_COLOR_RANGE = [
  * @param {string} - Optional string to parse. If not provided, parses the URL hash of the current document.
  * @returns {Object} - An object containing the parsed search parameters.
  */
-const getURLParameters = (str) => {
+const getURLParameters = (str?: string): URLParameters => {
   // Split the URL string into parts using "?" as a delimiter
   const urlParts = (str || window.location.href).split("?");
 
@@ -222,7 +444,7 @@ const getURLParameters = (str) => {
 
   // Split the search string into key-value pairs and generate an object from them
   const keyValuePairs = search.split("&").map((pair) => pair.split("="));
-  const out = {};
+  const out: URLParameters = {};
 
   // All parameters in the search string are decoded except filter to allow filter handling later on its own
   for (const [key, ...value] of keyValuePairs) {
@@ -239,10 +461,12 @@ const getURLParameters = (str) => {
  * @param {Object} params - The parameters to be included in the query string. Any undefined or null values will be omitted.
  * @returns {string} - The constructed query string.
  */
-export const constructQueryString = (params) => {
+export const constructQueryString = (
+  params: Record<string, unknown>,
+): string => {
   return Object.keys(params)
     .filter((key) => params[key] !== undefined && params[key] !== null)
-    .map((key) => `${key}=${params[key]}`)
+    .map((key) => `${key}=${String(params[key])}`)
     .join("&");
 };
 
@@ -253,9 +477,15 @@ export const constructQueryString = (params) => {
  * @param {Object} params - The parameters to be included in the hash
  * @returns {string} - The constructed URL hash
  */
-export const constructHashURL = (url, params = {}) => {
+export const constructHashURL = (
+  url: string,
+  params: Record<string, unknown> = {},
+): ConstructHashURLResult => {
   const existingParams = getURLParameters(url);
-  const mergedParams = { ...existingParams, ...params };
+  const mergedParams: Record<string, unknown> = {
+    ...existingParams,
+    ...params,
+  };
 
   const queryString = constructQueryString(mergedParams);
   const baseURL = url.split("?")[0];
@@ -277,9 +507,9 @@ export const constructHashURL = (url, params = {}) => {
  * @returns {void}
  */
 const setURLParameter = (
-  params = {},
-  options = { callbacks: [], pushState: false },
-) => {
+  params: Record<string, unknown> = {},
+  options: SetURLParameterOptions = { callbacks: [], pushState: false },
+): void => {
   const { newUrl } = constructHashURL(window.location.href, params);
 
   if (options.pushState) {
@@ -301,9 +531,12 @@ const setURLParameter = (
   }
 };
 
-const makeUrlFilterDeserializer = (statusValues, categoryValues) => {
+const makeUrlFilterDeserializer = (
+  statusValues: DistinctValuesByRunset,
+  categoryValues: DistinctValuesByRunset,
+) => {
   const deserializer = makeFilterDeserializer({ categoryValues, statusValues });
-  return (str) => {
+  return (str: string): FilterItem[] | null => {
     const params = getURLParameters(str);
     if (params.filter) {
       return deserializer(params.filter);
@@ -312,21 +545,29 @@ const makeUrlFilterDeserializer = (statusValues, categoryValues) => {
   };
 };
 
-const makeSerializedFilterValue = (filter) => {
-  const parts = [];
+const makeSerializedFilterValue = (
+  filter: Record<string, { in?: string[]; notIn?: string[] }>,
+): string => {
+  const parts: string[] = [];
   for (const [key, values] of Object.entries(filter)) {
-    parts.push(`${key}(${values.map(escape).join(",")})`);
+    // NOTE (JS->TS): In TS, Object.values({ in?: string[]; notIn?: string[] }) can include undefined,
+    // so after .flat() the element type becomes (string | undefined). We must narrow to string before calling escape().
+    parts.push(`${key}(${Object.values(values).flat().map(escape).join(",")})`);
   }
   return parts.join(",");
 };
 
-const createDistinctValueFilters = (selected, nominal, trim = false) => {
-  const filter = {};
+const createDistinctValueFilters = (
+  selected: string[],
+  nominal: string[],
+  trim = false,
+): string => {
+  const filter: { in?: string[]; notIn?: string[] } = {};
   // we want to minimize the needed space to encode the filter
   // if we have more than half of all values selected, we encode all not selected
   // values in "notIn", otherwise we encode all selected values in "in"
   if (selected.length > Math.floor(nominal.length / 2.0)) {
-    const exclusions = [];
+    const exclusions: string[] = [];
     for (const status of nominal) {
       if (!selected.includes(status)) {
         exclusions.push(trim ? status.trim() : status);
@@ -336,20 +577,20 @@ const createDistinctValueFilters = (selected, nominal, trim = false) => {
   } else {
     filter.in = selected.map((val) => (trim ? val.trim() : val));
   }
-  return makeSerializedFilterValue(filter);
+  return makeSerializedFilterValue({ values: filter });
 };
 
 function makeStatusColumnFilter(
-  filters,
-  allStatusValues,
-  tool,
-  columnId,
-  allCategoryValues,
-) {
-  const statusColumnFilter = [];
+  filters: StatusCategorySelection,
+  allStatusValues: DistinctValuesByRunset,
+  tool: string,
+  columnId: string,
+  allCategoryValues: DistinctValuesByRunset,
+): string {
+  const statusColumnFilter: string[] = [];
   const { statusValues, categoryValues } = filters;
-  const toolStatusValues = allStatusValues[tool][columnId];
-  const toolCategoryValues = allCategoryValues[tool][columnId];
+  const toolStatusValues = allStatusValues[tool]?.[columnId] ?? [];
+  const toolCategoryValues = allCategoryValues[tool]?.[columnId] ?? [];
 
   const hasStatusFilter = !!statusValues;
   const hasCategoryFilter = !!categoryValues;
@@ -378,18 +619,18 @@ function makeStatusColumnFilter(
   return statusColumnFilter.join(",");
 }
 
-function escapeParentheses(value) {
+function escapeParentheses(value: unknown): string {
   if (typeof value !== "string") {
     throw new Error("Invalid value type");
   }
   return value.replaceAll("(", "%28").replaceAll(")", "%29");
 }
 
-export const makeRegExp = (value) => {
+export const makeRegExp = (value: unknown): RegExp => {
   if (typeof value !== "string") {
     throw new Error("Invalid value type for converting to RegExp");
   }
-  let regexp = new RegExp(value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "ui");
+  const regexp = new RegExp(value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "ui");
 
   return regexp;
 };
@@ -400,7 +641,7 @@ export const makeRegExp = (value) => {
  * @returns {Object} The decoded filter ID
  * @throws {Error} If the filter ID is invalid
  */
-export const decodeFilter = (filterID) => {
+export const decodeFilter = (filterID: unknown): DecodedFilterId => {
   if (typeof filterID !== "string") {
     throw new Error("Invalid filter ID");
   }
@@ -422,44 +663,68 @@ export const decodeFilter = (filterID) => {
 };
 
 const makeFilterSerializer =
-  ({ statusValues: allStatusValues, categoryValues: allCategoryValues }) =>
-  (filter) => {
-    const groupedFilters = {};
-    const tableTabIdFilters = [];
+  ({
+    statusValues: allStatusValues,
+    categoryValues: allCategoryValues,
+  }: {
+    statusValues: DistinctValuesByRunset;
+    categoryValues: DistinctValuesByRunset;
+  }) =>
+  (filter: FilterItem[]): string => {
+    const groupedFilters: Record<string, unknown> = {};
+    const tableTabIdFilters: Array<{ id: string; value: string }> = [];
     for (const { id, value, values, isTableTabFilter } of filter) {
       if (id === "id") {
         if (values && values.length > 0) {
-          groupedFilters.ids = {
+          (groupedFilters as Record<string, unknown>).ids = {
             values: values.map((val) => (val ? val : "")),
           };
-        } else if (isTableTabFilter) {
+        } else if (isTableTabFilter && typeof value === "string") {
+          // NOTE (JS->TS): Added runtime type guard to ensure value is a string
+          // before using it, required due to stricter typing of FilterItem.
           tableTabIdFilters.push({ id, value });
         }
         continue;
       }
       const { tool, name, column } = decodeFilter(id);
-      const toolBucket = groupedFilters[tool] || {};
-      const columnBucket = toolBucket[column] || { name: escape(name) };
+      const toolBucket =
+        (groupedFilters as Record<string, unknown>)[tool] ??
+        ({} as Record<string, unknown>);
+      const toolBucketObj = toolBucket as Record<string, unknown>;
+      const colKey = String(column);
+      const columnBucket = (toolBucketObj[colKey] as
+        | Record<string, unknown>
+        | undefined) ?? {
+        name: escape(name ?? ""),
+      };
 
-      if (allStatusValues[tool][column] || allCategoryValues[tool][column]) {
+      if (
+        allStatusValues[tool]?.[colKey] ||
+        allCategoryValues[tool]?.[colKey]
+      ) {
         // we are processing a status column with checkboxes
-        if (value.endsWith(" ")) {
+        // NOTE (JS->TS): Added type guard to prevent calling endsWith on undefined.
+        if (typeof value === "string" && value.endsWith(" ")) {
           // category value
-          const selectedCategoryValues = columnBucket.categoryValues || [];
+          const selectedCategoryValues =
+            (columnBucket.categoryValues as string[] | undefined) ?? [];
           selectedCategoryValues.push(value);
           columnBucket.categoryValues = selectedCategoryValues;
-        } else {
+        } else if (typeof value === "string") {
+          // NOTE (JS->TS): Guard added to ensure safe string operations under strict typing.
           // status value
-          const selectedStatusValues = columnBucket.statusValues || [];
+          const selectedStatusValues =
+            (columnBucket.statusValues as string[] | undefined) ?? [];
           selectedStatusValues.push(value);
           columnBucket.statusValues = selectedStatusValues;
         }
       } else {
         columnBucket.value = value;
       }
-      toolBucket[column] = columnBucket;
-      groupedFilters[tool] = toolBucket;
+      toolBucketObj[colKey] = columnBucket;
+      (groupedFilters as Record<string, unknown>)[tool] = toolBucketObj;
     }
+
     // serialization part
     // we want to transform our filters into the following format:
     // [<idFilter>,]<runsetFilter>+
@@ -477,33 +742,59 @@ const makeFilterSerializer =
     // one transformed example would be
     // 1(0*status*(statusFilter(notIn(true)),categoryFilter(in(correct,missing))),1*cputime*(value(%3A1120)))
 
-    const { ids, ...rest } = groupedFilters;
-    const runsetFilters = [];
-    if (ids) {
-      runsetFilters.push(
-        `id(values(${ids.values
-          .map((val) => escapeParentheses(encodeURIComponent(val)))
-          .join(",")}))`,
-      );
+    const { ids, ...rest } = groupedFilters as Record<string, unknown>;
+    const runsetFilters: string[] = [];
+    // NOTE (JS->TS): Added defensive runtime checks because groupedFilters is
+    // dynamically constructed and typed as unknown. This ensures safe access
+    // to ids.values under strict typing.
+    if (ids && typeof ids === "object" && ids !== null) {
+      const values = (ids as { values?: unknown }).values;
+      if (Array.isArray(values)) {
+        // NOTE (JS->TS): Guard added to ensure values is an array before mapping.
+        runsetFilters.push(
+          `id(values(${values
+            .map((val) => escapeParentheses(encodeURIComponent(String(val))))
+            .join(",")}))`,
+        );
+      }
     }
     if (tableTabIdFilters) {
-      tableTabIdFilters.forEach((filter) => {
+      tableTabIdFilters.forEach((f) => {
         runsetFilters.push(
-          `id_any(value(${escapeParentheses(
-            encodeURIComponent(filter.value),
-          )}))`,
+          `id_any(value(${escapeParentheses(encodeURIComponent(f.value))}))`,
         );
       });
     }
     for (const [tool, column] of Object.entries(rest)) {
-      const columnFilters = [];
-      for (const [columnId, filters] of Object.entries(column)) {
-        const columnFilterHeader = `${columnId}*${filters.name}*`;
-        let filter;
-        if (filters.statusValues || filters.categoryValues) {
+      const columnFilters: string[] = [];
+      // NOTE (JS->TS): Defensive runtime check added because column is typed as unknown.
+      if (typeof column !== "object" || column === null) {
+        continue;
+      }
+      for (const [columnId, filters] of Object.entries(
+        column as Record<string, unknown>,
+      )) {
+        // NOTE (JS->TS): Added to satisfy strict type narrowing for dynamic object entries.
+        if (typeof filters !== "object" || filters === null) {
+          continue;
+        }
+        const f = filters as Record<string, unknown>;
+        const columnFilterHeader = `${columnId}*${String(f.name ?? "")}*`;
+        let filterPart = "";
+        if (Array.isArray(f.statusValues) || Array.isArray(f.categoryValues)) {
           // <statusColumnFilter>
-          filter = makeStatusColumnFilter(
-            filters,
+          // NOTE (JS->TS): Explicitly construct a StatusCategorySelection object to
+          // normalize dynamic filter data and satisfy strict typing. Previously,
+          // the raw filter object was passed directly.
+          filterPart = makeStatusColumnFilter(
+            {
+              statusValues: Array.isArray(f.statusValues)
+                ? (f.statusValues as string[])
+                : undefined,
+              categoryValues: Array.isArray(f.categoryValues)
+                ? (f.categoryValues as string[])
+                : undefined,
+            },
             allStatusValues,
             tool,
             columnId,
@@ -511,10 +802,10 @@ const makeFilterSerializer =
           );
         } else {
           // <valueFilter>
-          filter = `value(${escape(filters.value)})`;
+          filterPart = `value(${escape(String(f.value ?? ""))})`;
         }
-        if (filter !== "") {
-          columnFilters.push(`${columnFilterHeader}(${filter})`);
+        if (filterPart !== "") {
+          columnFilters.push(`${columnFilterHeader}(${filterPart})`);
         }
       }
       if (columnFilters.length > 0) {
@@ -525,8 +816,11 @@ const makeFilterSerializer =
     return filterString;
   };
 
-export const tokenizePart = (string, decodeValue = false) => {
-  const out = {};
+export const tokenizePart = (
+  string: string,
+  decodeValue = false,
+): TokenizeResult => {
+  const out: TokenizeResult = {};
   let openBrackets = 0;
 
   let buf = "";
@@ -562,15 +856,15 @@ export const tokenizePart = (string, decodeValue = false) => {
 };
 
 const handleStatusColumnFilter = (
-  token,
-  param,
-  statusValues,
-  categoryValues,
-  column,
-) => {
+  token: "status" | "category",
+  param: string,
+  statusValues: DistinctValuesByColumn,
+  categoryValues: DistinctValuesByColumn,
+  column: string,
+): Array<{ value: string }> => {
   // "in(a,b,c)"
   const parts = tokenizePart(param);
-  const out = [];
+  const out: Array<{ value: string }> = [];
   for (const [method, stringItems] of Object.entries(parts)) {
     if (method === "in") {
       let items = stringItems.split(",").map(unescape);
@@ -581,17 +875,17 @@ const handleStatusColumnFilter = (
     }
     if (method === "notIn") {
       let items = stringItems.split(",").map(unescape);
-      const itemsToPush = [];
+      const itemsToPush: Array<{ value: string }> = [];
       if (token === "category") {
         items = items.map((item) => `${item} `);
 
-        for (const cat of categoryValues[column]) {
+        for (const cat of categoryValues[column] ?? []) {
           if (!items.includes(cat)) {
             itemsToPush.push({ value: cat });
           }
         }
       } else {
-        for (const stat of statusValues[column]) {
+        for (const stat of statusValues[column] ?? []) {
           if (!items.includes(stat)) {
             itemsToPush.push({ value: stat });
           }
@@ -604,12 +898,12 @@ const handleStatusColumnFilter = (
 };
 
 const tokenHandlers = (
-  token,
-  param,
-  allStatusValues,
-  allCategoryValues,
-  column,
-) => {
+  token: string,
+  param: string,
+  allStatusValues: DistinctValuesByColumn,
+  allCategoryValues: DistinctValuesByColumn,
+  column: string,
+): TokenHandlerResult[] | undefined => {
   if (token === "values") {
     // wrapping return in array to allow vararg spreading
     return [{ values: param.split(",").map(unescape) }];
@@ -626,20 +920,40 @@ const tokenHandlers = (
       column,
     );
   }
+  return undefined;
 };
 
 const makeFilterDeserializer =
-  ({ categoryValues: allCategoryValues, statusValues: allStatusValues }) =>
-  (filterString) => {
+  ({
+    categoryValues: allCategoryValues,
+    statusValues: allStatusValues,
+  }: {
+    categoryValues: DistinctValuesByRunset;
+    statusValues: DistinctValuesByRunset;
+  }) =>
+  (filterString: string): FilterItem[] => {
     const runsetFilters = tokenizePart(filterString);
-    const out = [];
+    const out: FilterItem[] = [];
     for (const [token, filter] of Object.entries(runsetFilters)) {
       if (token === "id") {
         const tokenized = tokenizePart(filter);
-        out.push({
-          id: "id",
-          ...tokenHandlers("values", tokenized["values"])[0],
-        });
+        const handled = tokenHandlers(
+          "values",
+          tokenized["values"],
+          {},
+          {},
+          "",
+        );
+        // NOTE (JS->TS): Added runtime guard because tokenHandlers may now return
+        // undefined or different union variants under strict typing.
+        // We explicitly check that the result contains a "values" property
+        // before spreading it.
+        if (handled && "values" in handled[0]) {
+          out.push({
+            id: "id",
+            ...handled[0],
+          });
+        }
         continue;
       } else if (token === "id_any") {
         out.push({
@@ -652,7 +966,7 @@ const makeFilterDeserializer =
       const runsetId = token;
 
       const columnFilters = tokenizePart(filter);
-      const parsedColumnFilters = {};
+      const parsedColumnFilters: Record<string, FilterItem[]> = {};
       for (const [key, columnFilter] of Object.entries(columnFilters)) {
         const [columnId, columnTitle] = key.split("*");
         const name = `${runsetId}_${decodeURIComponent(
@@ -664,22 +978,27 @@ const makeFilterDeserializer =
         for (const [filterToken, filterParam] of Object.entries(
           tokenizedFilter,
         )) {
-          parsedFilters.push(
-            ...tokenHandlers(
-              filterToken,
-              filterParam,
-              allStatusValues[runsetId],
-              allCategoryValues[runsetId],
-              columnId,
-            ),
+          const handled = tokenHandlers(
+            filterToken,
+            filterParam,
+            allStatusValues[runsetId] ?? {},
+            allCategoryValues[runsetId] ?? {},
+            columnId,
           );
+          // NOTE (JS->TS): Fallback empty objects (?? {}) added to satisfy strict
+          // typing when accessing dynamic runset mappings.
+          // Additionally, handled is checked explicitly because tokenHandlers
+          // may return undefined under the stricter type definition.
+          if (handled) {
+            parsedFilters.push(...handled.map((h) => ({ id: name, ...h })));
+          }
         }
         let hasStatus = false;
         let hasCategory = false;
-        for (const token of Object.keys(tokenizedFilter)) {
-          if (token === "status") {
+        for (const t of Object.keys(tokenizedFilter)) {
+          if (t === "status") {
             hasStatus = true;
-          } else if (token === "category") {
+          } else if (t === "category") {
             hasCategory = true;
           }
         }
@@ -687,30 +1006,34 @@ const makeFilterDeserializer =
           // if we only have category or a status filter, it means that no
           // filter has been set for the other. We need to fill up the values
           if (!hasStatus) {
-            parsedFilters.push(
-              ...allStatusValues[runsetId][columnId].map((status) => ({
-                value: status,
-              })),
-            );
+            // NOTE (JS->TS): Optional chaining and fallback to empty array (?? [])
+            // added to prevent runtime errors when dynamic lookup paths are undefined.
+            for (const status of allStatusValues[runsetId]?.[columnId] ?? []) {
+              parsedFilters.push({ id: name, value: status });
+            }
           } else {
-            parsedFilters.push(
-              ...allCategoryValues[runsetId][columnId].map((category) => ({
-                value: category,
-              })),
-            );
+            // NOTE (JS->TS): Same defensive fallback applied for category values.
+            for (const category of allCategoryValues[runsetId]?.[columnId] ??
+              []) {
+              parsedFilters.push({ id: name, value: category });
+            }
           }
         }
+        parsedColumnFilters[name] = parsedFilters;
         for (const parsedFilter of parsedFilters) {
-          out.push({ id: name, ...parsedFilter });
+          out.push(parsedFilter);
         }
       }
     }
     return out;
   };
 
-const makeUrlFilterSerializer = (statusValues, categoryValues) => {
+const makeUrlFilterSerializer = (
+  statusValues: DistinctValuesByRunset,
+  categoryValues: DistinctValuesByRunset,
+) => {
   const serializer = makeFilterSerializer({ statusValues, categoryValues });
-  return (filter, options) => {
+  return (filter: FilterItem[] | null | undefined, options: SetURLParameterOptions): void => {
     if (!filter) {
       return setURLParameter({ filter: undefined }, options);
     }
@@ -725,15 +1048,15 @@ const makeUrlFilterSerializer = (statusValues, categoryValues) => {
 };
 
 // Sets the URL parameters to the given string. Assumes that there is currently no hash or URL parameters defined.
-const setConstantHashSearch = (paramString) => {
+const setConstantHashSearch = (paramString: string): void => {
   document.location.href = encodeURI(
     `${document.location.href}#${paramString}`,
   );
 };
 
-const stringAsBoolean = (str) => str === "true";
+const stringAsBoolean = (str: string): boolean => str === "true";
 
-const deepEquals = (a, b) => {
+const deepEquals = (a: Record<string, unknown>, b: Record<string, unknown>): boolean => {
   for (const key in a) {
     if (typeof a[key] === "function" && typeof b[key] === "function") {
       continue;
@@ -741,12 +1064,12 @@ const deepEquals = (a, b) => {
     if (typeof a[key] !== typeof b[key]) {
       return false;
     } else if (Array.isArray(a[key]) || typeof a[key] === "object") {
-      if (!deepEquals(a[key], b[key])) {
+      if (!deepEquals(a[key] as Record<string, unknown>, b[key] as Record<string, unknown>)) {
         return false;
       }
     } else {
       if (a[key] !== b[key]) {
-        console.log(`${a[key]} !== ${b[key]}`);
+        console.log(`${String(a[key])} !== ${String(b[key])}`);
         return false;
       }
     }
@@ -768,10 +1091,10 @@ const deepEquals = (a, b) => {
  *
  * @param {*} rows - the rows array of the dataset
  */
-const getTaskIdParts = (rows, taskIdNames) =>
-  pathOr(["0", "id"], [], rows).reduce(
+const getTaskIdParts = (rows: unknown, taskIdNames: string[]): Record<string, unknown> =>
+  pathOr<Array<unknown>>(["0", "id"], [], rows).reduce(
     (acc, curr, idx) => ({ ...acc, [taskIdNames[idx]]: curr }),
-    {},
+    {} as Record<string, unknown>,
   );
 
 /**
@@ -783,16 +1106,9 @@ const getTaskIdParts = (rows, taskIdNames) =>
  * @returns {Number} The result of the addition
  */
 // WHEN EDITING THIS FUNCTION, ALSO EDIT THE COPY OF THIS FUNCTION IN src/woerks/scrips/stats.worker.js
-const safeAdd = (a, b) => {
-  let aNum = a;
-  let bNum = b;
-
-  if (typeof a === "string") {
-    aNum = Number(a);
-  }
-  if (typeof b === "string") {
-    bNum = Number(b);
-  }
+const safeAdd = (a: number | string, b: number | string): number => {
+  let aNum: number = typeof a === "string" ? Number(a) : a;
+  let bNum: number = typeof b === "string" ? Number(b) : b;
 
   if (Number.isInteger(aNum) || Number.isInteger(bNum)) {
     return aNum + bNum;
@@ -823,21 +1139,26 @@ const characterSpaceHtml = "&#x2007;";
  * @param {Number} significantDigits - Number of significant digits for this column
  */
 class NumberFormatterBuilder {
-  constructor(significantDigits, name = "Unknown") {
+  significantDigits: number;
+  maxPositiveDecimalPosition: number;
+  maxNegativeDecimalPosition: number;
+  name: string;
+
+  constructor(significantDigits: number, name = "Unknown") {
     this.significantDigits = significantDigits;
     this.maxPositiveDecimalPosition = -1;
     this.maxNegativeDecimalPosition = -1;
     this.name = name;
   }
 
-  _defaultOptions = {
+  _defaultOptions: NumberFormatterOptions = {
     whitespaceFormat: false,
     html: false,
     leadingZero: true,
     additionalFormatting: (x) => x,
   };
 
-  addDataItem(item) {
+  addDataItem(item: number): void {
     const formatted = this.format(item);
     const [positive, negative] = formatted.split(/\.|,/);
     this.maxPositiveDecimalPosition = Math.max(
@@ -850,7 +1171,7 @@ class NumberFormatterBuilder {
     );
   }
 
-  format(number) {
+  format(number: number): string {
     let stringNumber = number.toString();
     let prefix = "";
     let postfix = "";
@@ -925,7 +1246,7 @@ class NumberFormatterBuilder {
         postfix = postfix[1];
         const oldLength = prefix.length;
         const [, decPart] = prefix.split(".");
-        let decimalLength = (decPart && decPart.length - 1) || 0;
+        const decimalLength = (decPart && decPart.length - 1) || 0;
         let toAdd = decPart ? "0." : "";
         let i = decimalLength;
         while (i > 0) {
@@ -957,14 +1278,14 @@ class NumberFormatterBuilder {
     return `${prefix}${postfix}`;
   }
 
-  build() {
+  build(): (number: number, options?: Partial<NumberFormatterOptions>) => string {
     return (number, options = {}) => {
       const { whitespaceFormat, html, leadingZero, additionalFormatting } = {
         ...this._defaultOptions,
         ...options,
       };
 
-      const ctx = {
+      const ctx: NumberFormattingContext = {
         significantDigits: this.significantDigits,
         maxDecimalInputLength: this.maxNegativeDecimalPosition,
       };
@@ -1013,10 +1334,12 @@ class NumberFormatterBuilder {
  * Creates an object with an entry for each of the tools, identified by the index of the tool, that stores the hidden columns defined in the URL.
  * Each property contains an array of integers which represent the indexes of the columns of the corresponding runset that will be hidden.
  */
-const createHiddenColsFromURL = (tools) => {
+const createHiddenColsFromURL = (
+  tools: Array<ToolLike & { toolIdx: number; columns: Array<ToolColumnLike & { colIdx: number }> }>,
+): Record<number, number[]> => {
   const urlParams = getURLParameters();
   // Object containing all hidden runsets from the URL (= param "hidden")
-  let hiddenTools = [];
+  let hiddenTools: number[] = [];
   if (urlParams.hidden) {
     hiddenTools = urlParams.hidden
       .split(",")
@@ -1029,13 +1352,13 @@ const createHiddenColsFromURL = (tools) => {
   }
 
   // Object containing all hidden columns from the URL with an individual entry for each runset (= params of the form "hiddenX" for runset X)
-  const hiddenCols = {};
+  const hiddenCols: Record<number, number[]> = {};
   const hiddenParams = Object.keys(urlParams).filter((param) =>
     /hidden[0-9]+/.test(param),
   );
   hiddenParams.forEach((hiddenParam) => {
     const toolIdx = parseInt(hiddenParam.replace("hidden", ""));
-    const tool = tools.find((tool) => tool.toolIdx === toolIdx);
+    const tool = tools.find((t) => t.toolIdx === toolIdx);
     if (Number.isInteger(toolIdx) && tool) {
       hiddenCols[toolIdx] = urlParams[hiddenParam]
         .split(",")
@@ -1050,9 +1373,12 @@ const createHiddenColsFromURL = (tools) => {
 
   // Set all columns of a hidden runset to hidden
   hiddenTools.forEach((hiddenToolIdx) => {
-    hiddenCols[hiddenToolIdx] = tools
-      .find((tool) => tool.toolIdx === hiddenToolIdx)
-      .columns.map((column) => column.colIdx);
+    const tool = tools.find((t) => t.toolIdx === hiddenToolIdx);
+    // NOTE (JS->TS): Added defensive null check because Array.find may return
+    // undefined under strict typing. The original JS assumed the tool exists.
+    if (tool) {
+      hiddenCols[hiddenToolIdx] = tool.columns.map((column) => column.colIdx);
+    }
   });
 
   // Leave hidden columns for not mentioned tools empty
@@ -1071,8 +1397,11 @@ const createHiddenColsFromURL = (tools) => {
  * that is not hidden, as well as the index of this column. In case there is also no such column, i.e. all columns of all runsets
  * are hidden, returns undefined for those values.
  **/
-const getFirstVisibles = (tools, hiddenCols) => {
-  let visibleCol;
+const getFirstVisibles = (
+  tools: Array<ToolLike & { toolIdx: number; columns: Array<ToolColumnLike & { colIdx: number }> }>,
+  hiddenCols: Record<number, number[]>,
+): [number | undefined, number | undefined] => {
+  let visibleCol: (ToolColumnLike & { colIdx: number }) | undefined;
   let visibleTool = tools.find((tool) => {
     visibleCol = tool.columns.find(
       (col) =>
@@ -1106,14 +1435,14 @@ const getFirstVisibles = (tools, hiddenCols) => {
  * @param {Any[]} compare The array to compare elements to
  * @param {Any[]} data The array to check
  */
-const hasSameEntries = (compare, data) => {
-  const compareObj = {};
+const hasSameEntries = (compare: Array<string | number | boolean>, data: Array<string | number | boolean>): boolean => {
+  const compareObj: Record<string, true> = {};
 
   for (const elem of compare) {
-    compareObj[elem] = true;
+    compareObj[String(elem)] = true;
   }
   for (const elem of data) {
-    if (isNil(compareObj[elem])) {
+    if (isNil(compareObj[String(elem)])) {
       return false;
     }
   }
@@ -1126,7 +1455,7 @@ const hasSameEntries = (compare, data) => {
  * @param {string} item - the filter value
  * @returns {boolean} True if value is a category, else false
  */
-const isCategory = (item) => item && item[item.length - 1] === " ";
+const isCategory = (item: string): boolean => item && item[item.length - 1] === " ";
 
 /**
  * This function uses string operations to get the smallest decimal part of a number.
@@ -1138,7 +1467,7 @@ const isCategory = (item) => item && item[item.length - 1] === " ";
  * @param {string} num - The number to check
  * @returns {string} - The smallest step
  */
-const getStep = (num) => {
+const getStep = (num: string | number): string | number => {
   const stringRep = num.toString();
   const [, decimal] = stringRep.split(/,|\./);
   if (isNil(decimal) || decimal.length === 0) {
@@ -1152,13 +1481,15 @@ const getStep = (num) => {
   return out;
 };
 
-const identity = (x) => x;
+const identity = <T,>(x: T): T => x;
 /**
  * Computes and returns all ids of the given columns that are hidden. Assumes that
  * the columns object is in the format that is used in the ReactTable and Summary component.
  */
-const getHiddenColIds = (columns) => {
-  const hiddenColIds = [];
+const getHiddenColIds = (
+  columns: Array<{ columns: Array<{ hidden?: boolean; id?: string }> }>,
+): string[] => {
+  const hiddenColIds: Array<string | undefined>[] = [];
   // Idx 0 is the title column and every uneven idx is the separator column, so only check for hidden cols in every even column entry greater than 0
   columns = columns.filter((col, idx) => idx % 2 === 0 && idx !== 0);
   columns.forEach((col) =>
@@ -1166,7 +1497,7 @@ const getHiddenColIds = (columns) => {
       col.columns.filter((column) => column.hidden).map((column) => column.id),
     ),
   );
-  return hiddenColIds.flat();
+  return hiddenColIds.flat().filter((id): id is string => typeof id === "string");
 };
 
 export {
