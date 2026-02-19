@@ -13,6 +13,100 @@ import {
   decodeFilter,
   makeRegExp,
 } from "./utils";
+
+/* ============================================================
+ * Types: Input data shapes
+ * ============================================================ */
+
+type RawCell = {
+  raw?: string | number | null;
+};
+
+type TableRowResult = {
+  category: string;
+  values: RawCell[];
+};
+
+type TableRow = {
+  id: string[];
+  results: TableRowResult[];
+};
+
+type ToolColumn = {
+  type?: string;
+  title: string;
+  [key: string]: unknown;
+};
+
+type Tool = {
+  tool: string;
+  date: string;
+  niceName: string;
+  columns: Array<ToolColumn | undefined>;
+};
+
+type Dataset = {
+  tools: Tool[];
+  rows: TableRow[];
+};
+
+/* ============================================================
+ * Types: Filter UI input
+ * ============================================================ */
+
+type FilterItem = {
+  id: string;
+  value?: string;
+  type?: string;
+  values?: string[];
+};
+
+/* ============================================================
+ * Types: Matcher (compiled filters)
+ * ============================================================ */
+
+type IdMatcher = {
+  value?: string;
+  values?: string[];
+};
+
+type DiffMatcherItem = {
+  col?: string;
+};
+
+type NumericRangeFilter = {
+  min: number;
+  max: number;
+};
+
+type CategoryFilter = {
+  category: string;
+};
+
+type StatusFilter = {
+  status: string;
+};
+
+type TextValueFilter = {
+  value: string;
+};
+
+type ColumnFilter =
+  | NumericRangeFilter
+  | CategoryFilter
+  | StatusFilter
+  | TextValueFilter;
+
+type ToolMatcher = Record<string, ColumnFilter[]>;
+
+type Matcher = {
+  id?: IdMatcher;
+  diff?: DiffMatcherItem[];
+} & Record<string, ToolMatcher | IdMatcher | DiffMatcherItem[] | undefined>;
+
+const asRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null;
+
 /* Status that will be used to identify whether empty rows should be shown. Currently,
    filtering for either categories or statuses creates filters for the other one as well.
    Since empty rows don't have a status, they will be filtered out all the time.
@@ -26,41 +120,59 @@ const statusForEmptyRows = "empty_row";
  *
  * @param {Object} data -  Data object received from json data
  */
-const getFilterableData = ({ tools, rows }) => {
+const getFilterableData = ({ tools, rows }: Dataset) => {
   const mapped = tools.map((tool, idx) => {
-    let statusIdx;
+    let statusIdx: number | undefined;
     const { tool: toolName, date, niceName } = tool;
-    let name = `${toolName} ${date} ${niceName}`;
-    const columns = tool.columns.map((col, idx) => {
+    const name = `${toolName} ${date} ${niceName}`;
+
+    const columns = tool.columns.map((col, colIdx) => {
       if (!col) {
         return undefined;
       }
       if (col.type === "status") {
-        statusIdx = idx;
-        return { ...col, categories: {}, statuses: {}, idx };
+        statusIdx = colIdx;
+        return {
+          ...col,
+          categories: {} as Record<string, true>,
+          statuses: {} as Record<string, true>,
+          idx: colIdx,
+        };
       }
       if (col.type === "text") {
-        return { ...col, distincts: {}, idx };
+        return { ...col, distincts: {} as Record<string, true>, idx: colIdx };
       }
-      return { ...col, min: Infinity, max: -Infinity, idx };
+      return { ...col, min: Infinity, max: -Infinity, idx: colIdx };
     });
 
     if (!isNil(statusIdx)) {
-      columns[statusIdx] = {
-        ...columns[statusIdx],
-        categories: {},
-        statuses: {},
-      };
+      const current = columns[statusIdx];
+      if (current) {
+        // NOTE (JS->TS): Added defensive check because columns entries may be undefined.
+        columns[statusIdx] = {
+          ...current,
+          categories: {} as Record<string, true>,
+          statuses: {} as Record<string, true>,
+        };
+      }
     }
 
     for (const row of rows) {
       const result = row.results[idx];
       // convention as of writing this commit is to postfix categories with a space character
       if (!isNil(statusIdx)) {
-        columns[statusIdx].categories[`${result.category} `] = true;
+        const statusCol = columns[statusIdx];
+        if (statusCol && "categories" in statusCol) {
+          (statusCol.categories as Record<string, true>)[
+            `${result.category} `
+          ] = true;
+        }
       }
 
-      for (const colIdx in result.values) {
+      for (const colIdxStr in result.values) {
+        // NOTE (JS->TS): Convert for..in string keys to numbers for safe array indexing.
+        const colIdx = Number(colIdxStr);
+
         const col = result.values[colIdx];
         const { raw } = col;
         const filterCol = columns[colIdx];
@@ -69,38 +181,74 @@ const getFilterableData = ({ tools, rows }) => {
         }
 
         if (filterCol.type === "status") {
-          filterCol.statuses[raw] = true;
+          (filterCol as { statuses: Record<string, true> }).statuses[
+            String(raw)
+          ] = true;
         } else if (filterCol.type === "text") {
-          filterCol.distincts[raw] = true;
+          (filterCol as { distincts: Record<string, true> }).distincts[
+            String(raw)
+          ] = true;
         } else {
-          filterCol.min = Math.min(filterCol.min, Number(raw));
-          filterCol.max = Math.max(filterCol.max, Number(raw));
+          (filterCol as { min: number; max: number }).min = Math.min(
+            (filterCol as { min: number }).min,
+            Number(raw),
+          );
+          (filterCol as { min: number; max: number }).max = Math.max(
+            (filterCol as { max: number }).max,
+            Number(raw),
+          );
         }
       }
     }
 
     return {
       name,
-      columns: columns.map(({ distincts, categories, statuses, ...col }) => {
+      columns: columns.map((c) => {
+        if (!c) {
+          return undefined;
+        }
+
+        const colRec = c as Record<string, unknown>;
+        const distincts = colRec.distincts as Record<string, true> | undefined;
+        const categories = colRec.categories as
+          | Record<string, true>
+          | undefined;
+        const statuses = colRec.statuses as Record<string, true> | undefined;
+
+        const rest = { ...colRec };
+
+        // NOTE (JS->TS): Explicitly remove internal aggregation fields instead of
+        // using unused destructuring bindings to satisfy ESLint no-unused-vars rule.
+        delete (rest as Record<string, unknown>).distincts;
+        delete (rest as Record<string, unknown>).categories;
+        delete (rest as Record<string, unknown>).statuses;
+
         if (distincts) {
-          return { ...col, distincts: Object.keys(distincts) };
+          return { ...rest, distincts: Object.keys(distincts) };
         }
         if (categories) {
           return {
-            ...col,
+            ...rest,
             categories: Object.keys(categories),
-            statuses: Object.keys(statuses),
+            statuses: Object.keys(statuses ?? {}),
           };
         }
-        return col;
+        return rest;
       }),
     };
   });
   return mapped;
 };
 
-const applyNumericFilter = (filter, row, cell) => {
-  const raw = getRawOrDefault(row[filter.id]);
+const applyNumericFilter = (
+  filter: { id: string; value: string },
+  row: Record<string, unknown>,
+  cell: unknown,
+) => {
+  void cell;
+
+  // NOTE (JS->TS): Pass explicit default value for compatibility with typed signature.
+  const raw = getRawOrDefault(row[filter.id] as unknown, undefined);
   if (raw === undefined) {
     // empty cells never match
     return;
@@ -118,17 +266,27 @@ const applyNumericFilter = (filter, row, cell) => {
   }
 
   if (filterParams.length === 1) {
-    return raw.startsWith(filterParams[0]);
+    // NOTE (JS->TS): Cast raw to string for safe string operations because raw may be non-string at runtime.
+    return String(raw).startsWith(filterParams[0]);
   }
   return false;
 };
-const applyTextFilter = (filter, row, cell) => {
-  const raw = getRawOrDefault(row[filter.id]);
+
+const applyTextFilter = (
+  filter: { id: string; value: string },
+  row: Record<string, unknown>,
+  cell: unknown,
+) => {
+  void cell;
+
+  // NOTE (JS->TS): Pass explicit default value for compatibility with typed signature.
+  const raw = getRawOrDefault(row[filter.id] as unknown, undefined);
   if (raw === undefined) {
     // empty cells never match
     return;
   }
-  return raw.includes(filter.value);
+  // NOTE (JS->TS): Cast raw to string for safe string operations because raw may be non-string at runtime.
+  return String(raw).includes(filter.value);
 };
 
 /**
@@ -153,8 +311,8 @@ const applyTextFilter = (filter, row, cell) => {
  *
  * @param {Array<Object>} filters - List of filters
  */
-const buildMatcher = (filters) => {
-  const out = filters.reduce((acc, { id, value, type, values }) => {
+const buildMatcher = (filters: FilterItem[]) => {
+  const out = filters.reduce<Matcher>((acc, { id, value, type, values }) => {
     if (
       (isNil(value) && isNil(values)) ||
       (typeof value === "string" && value.trim() === "all")
@@ -165,39 +323,54 @@ const buildMatcher = (filters) => {
       acc.id = { value, values };
       return acc;
     }
+
     const { tool, column: columnIdx } = decodeFilter(id);
+    // NOTE (JS->TS): Normalize possibly undefined decodeFilter output to a string key for dynamic matcher buckets.
+    const columnKey = String(columnIdx ?? "");
+
     if (value === "diff") {
       // this branch is noop as of now
       if (!acc.diff) {
         acc.diff = [];
       }
-      acc.diff.push({ col: columnIdx });
+      acc.diff.push({ col: columnKey });
       return acc;
     }
+
     if (!acc[tool]) {
       acc[tool] = {};
     }
-    let filter;
-    if (isNumericColumn({ type }) && value.includes(":")) {
-      let [minV, maxV] = value.split(":");
-      minV = minV === "" ? -Infinity : Number(minV);
-      maxV = maxV === "" ? Infinity : Number(maxV);
-      filter = { min: minV, max: maxV };
+
+    let filter: ColumnFilter;
+    if (
+      typeof value === "string" &&
+      isNumericColumn({ type }) &&
+      value.includes(":")
+    ) {
+      const [minV, maxV] = value.split(":");
+      const min = minV === "" ? -Infinity : Number(minV);
+      const max = maxV === "" ? Infinity : Number(maxV);
+      filter = { min, max };
     } else {
-      if (value[value.length - 1] === " ") {
-        filter = { category: value.substr(0, value.length - 1) };
+      const v = String(value ?? "");
+      if (v[v.length - 1] === " ") {
+        filter = { category: v.substr(0, v.length - 1) };
       } else if (type === "status") {
-        filter = { status: value };
+        filter = { status: v };
       } else {
-        filter = { value };
+        filter = { value: v };
       }
     }
-    if (!acc[tool][columnIdx]) {
-      acc[tool][columnIdx] = [];
+
+    const toolBucket = acc[tool] as ToolMatcher;
+    if (!toolBucket[columnKey]) {
+      toolBucket[columnKey] = [];
     }
-    acc[tool][columnIdx].push(filter);
+    toolBucket[columnKey].push(filter);
+
     return acc;
-  }, {});
+  }, {} as Matcher);
+
   return out;
 };
 
@@ -212,16 +385,19 @@ const buildMatcher = (filters) => {
  * @param {matcher} matcher - the pre-compiled matcher
  * @returns {MatchingFunction} - the built matching function. It requires
  */
-const applyMatcher = (matcher) => (data) => {
+const applyMatcher = (matcher: Matcher) => (data: TableRow[]) => {
   let diffd = [...data];
+
   if (matcher.diff) {
     diffd = diffd.filter((row) => {
-      for (const { col } of matcher.diff) {
-        const vals = {};
+      for (const { col } of matcher.diff ?? []) {
+        const colIdx = Number(col);
+        const vals: Record<string, true> = {};
         for (const tool of row.results) {
-          const val = tool.values[col].raw;
-          if (!vals[val]) {
-            vals[val] = true;
+          const val = tool.values[colIdx]?.raw;
+          const key = String(val);
+          if (!vals[key]) {
+            vals[key] = true;
           }
         }
         if (Object.keys(vals).length === 1) {
@@ -231,19 +407,20 @@ const applyMatcher = (matcher) => (data) => {
       return true;
     });
   }
+
   if (!isNil(matcher.id)) {
-    const { value: idValue, values: idValues } = matcher.id;
+    const { value: idValue, values: idValues } = matcher.id ?? {};
     if (idValue) {
       // pre computing RegExp of idValue after excaping the special characters
-      let regexToCompare = makeRegExp(idValue);
+      const regexToCompare = makeRegExp(idValue);
       diffd = diffd.filter(({ id }) =>
         id.some((idName) => idName === idValue || regexToCompare.test(idName)),
       );
-    } else {
+    } else if (Array.isArray(idValues)) {
       // pre computing RegExp of each element of idValues array after excaping the special characters
-      let idValuesWithRegex = idValues.map((filterValue) => ({
+      const idValuesWithRegex = idValues.map((filterValue) => ({
         filterRegex: makeRegExp(filterValue),
-        filterValue: filterValue,
+        filterValue,
       }));
 
       diffd = diffd.filter(({ id }) =>
@@ -260,44 +437,77 @@ const applyMatcher = (matcher) => (data) => {
       );
     }
   }
+
+  const toolsOnly = omit(["diff", "id"], matcher) as Record<string, unknown>;
   const out = diffd.filter((row) => {
-    for (const tool in omit(["diff", "id"], matcher)) {
-      for (const column in matcher[tool]) {
+    for (const toolKey in toolsOnly) {
+      const toolMatcher = toolsOnly[toolKey];
+      // NOTE (JS->TS): Added defensive runtime check because matcher buckets are dynamic and typed as unknown.
+      if (!asRecord(toolMatcher)) {
+        continue;
+      }
+
+      // NOTE (JS->TS): Convert dynamic tool keys to numbers for safe array indexing.
+      const toolIdx = Number(toolKey);
+
+      for (const columnKey in toolMatcher) {
         let columnPass = false;
         let categoryPass = false;
         let statusPass = false;
-        for (const filter of matcher[tool][column]) {
-          const { value, min, max, category, status } = filter;
+
+        const columnFilters = toolMatcher[columnKey];
+        if (!Array.isArray(columnFilters)) {
+          continue;
+        }
+
+        // NOTE (JS->TS): Convert dynamic column keys to numbers for safe array indexing.
+        const columnIdx = Number(columnKey);
+
+        for (const filter of columnFilters) {
+          if (!asRecord(filter)) {
+            continue;
+          }
+
+          const value = filter.value;
+          const min = filter.min;
+          const max = filter.max;
+          const category = filter.category;
+          const status = filter.status;
 
           if (!isNil(min) && !isNil(max)) {
-            const rawValue = row.results[tool].values[column].raw;
+            const rawValue = row.results[toolIdx]?.values[columnIdx]?.raw;
             if (isNil(rawValue)) {
               columnPass = false;
               continue;
             }
             const num = Number(rawValue);
-            columnPass = columnPass || (num >= min && num <= max);
+            columnPass =
+              columnPass || (num >= Number(min) && num <= Number(max));
           } else if (!isNil(category)) {
             categoryPass =
-              row.results[tool].category === category || categoryPass;
+              row.results[toolIdx]?.category === String(category) ||
+              categoryPass;
             columnPass = categoryPass && statusPass;
           } else if (!isNil(status)) {
             const emptyRowPass =
-              row.results[tool].category === "empty" &&
-              status === statusForEmptyRows;
+              row.results[toolIdx]?.category === "empty" &&
+              String(status) === statusForEmptyRows;
             statusPass =
-              row.results[tool].values[column].raw === status ||
+              row.results[toolIdx]?.values[columnIdx]?.raw === status ||
               statusPass ||
               emptyRowPass;
             columnPass = categoryPass && statusPass;
           } else {
-            const rawValue = row.results[tool].values[column].raw;
+            const rawValue = row.results[toolIdx]?.values[columnIdx]?.raw;
             if (isNil(rawValue)) {
               columnPass = false;
               continue;
             }
+            const rawStr = String(rawValue);
             columnPass =
-              columnPass || value === rawValue || rawValue.includes(value);
+              columnPass ||
+              String(value) === rawStr ||
+              rawStr.includes(String(value));
           }
 
           if (columnPass) {
@@ -306,6 +516,7 @@ const applyMatcher = (matcher) => (data) => {
             break;
           }
         }
+
         if (!columnPass) {
           // values of the same column are OR connected
           // multiple columns in the same row are AND connected
@@ -317,6 +528,7 @@ const applyMatcher = (matcher) => (data) => {
     // all filter requirements were satisfied
     return true;
   });
+
   return out;
 };
 
