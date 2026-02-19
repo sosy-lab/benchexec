@@ -40,18 +40,38 @@ interface ConstructHashURLResult {
  * Types: Table Data Preparation
  * ============================================================ */
 
+interface TableHeaderItem {
+  content: [unknown, number][];
+  id: string;
+  name: string;
+}
+
 interface TableHeaderLike {
   task_id_names: string[];
+  branch?: string | null;
+  date?: TableHeaderItem;
+  displayName?: TableHeaderItem;
+  host?: TableHeaderItem;
+  limit?: TableHeaderItem;
+  options?: TableHeaderItem;
+  os?: TableHeaderItem;
+  property?: string | null;
+  runset?: TableHeaderItem;
+  system?: TableHeaderItem;
+  title?: TableHeaderItem;
+  tool?: TableHeaderItem;
   // other properties are passed through unchanged
   [key: string]: unknown;
 }
 
 interface ToolColumnLike {
   title: string;
+  display_title?: string;
   type?: string;
   unit?: string;
-  display_title?: string;
   max_width?: number;
+  number_of_significant_digits?: number;
+  relevant_for_diff?: boolean;
   hidden?: boolean;
   id?: string;
 
@@ -64,6 +84,23 @@ interface ToolColumnLike {
 
 interface ToolLike {
   columns: ToolColumnLike[];
+  benchmarkname?: string;
+  name?: string;
+  niceName?: string;
+  tool?: string;
+  version?: string;
+  options?: string;
+  timelimit?: string;
+  memlimit?: string;
+  cpuCores?: string;
+  os?: string;
+  cpu?: string;
+  freq?: string;
+  ram?: string;
+  host?: string;
+  date?: string;
+  toolmodule?: string;
+  project_url?: string;
 
   // augmented fields
   toolIdx?: number;
@@ -73,21 +110,40 @@ interface ToolLike {
   [key: string]: unknown;
 }
 
+interface ResultValue {
+  raw: string | number | null;
+  html?: string;
+}
+
 interface RowResultLike {
-  score?: unknown;
+  category: string;
+  href: string;
+  values: ResultValue[];
+  score?: number | string | null;
+  // other properties are passed through unchanged
   [key: string]: unknown;
 }
 
 interface RowLike {
+  id: string[];
+  href: string;
   results: RowResultLike[];
+  // other properties are passed through unchanged
   [key: string]: unknown;
+}
+
+interface TableStats {
+  id: string;
+  content: Array<Array<Record<string, number | string | null> | null>>;
+  title?: string;
+  description?: string;
 }
 
 interface PrepareTableDataInput {
   head: TableHeaderLike;
   tools: ToolLike[];
   rows: RowLike[];
-  stats: unknown;
+  stats: TableStats[];
   props: unknown;
   initial: unknown;
 }
@@ -104,7 +160,7 @@ interface PreparedTableData {
   >;
   columns: string[][];
   tableData: RowLike[];
-  stats: unknown;
+  stats: TableStats[];
   properties: unknown;
   initial: unknown;
 }
@@ -464,7 +520,7 @@ const getURLParameters = (str?: string): URLParameters => {
  * @returns {string} - The constructed query string.
  */
 export const constructQueryString = (
-  params: Record<string, unknown>,
+  params: Record<string, string | number | boolean | null | undefined>,
 ): string => {
   return Object.keys(params)
     .filter((key) => params[key] !== undefined && params[key] !== null)
@@ -481,10 +537,13 @@ export const constructQueryString = (
  */
 export const constructHashURL = (
   url: string,
-  params: Record<string, unknown> = {},
+  params: Record<string, string | number | boolean | null | undefined> = {},
 ): ConstructHashURLResult => {
   const existingParams = getURLParameters(url);
-  const mergedParams: Record<string, unknown> = {
+  const mergedParams: Record<
+    string,
+    string | number | boolean | null | undefined
+  > = {
     ...existingParams,
     ...params,
   };
@@ -509,7 +568,7 @@ export const constructHashURL = (
  * @returns {void}
  */
 const setURLParameter = (
-  params: Record<string, unknown> = {},
+  params: Record<string, string | number | boolean | null | undefined> = {},
   options: SetURLParameterOptions = { callbacks: [], pushState: false },
 ): void => {
   const { newUrl } = constructHashURL(window.location.href, params);
@@ -676,12 +735,22 @@ const makeFilterSerializer =
     categoryValues: DistinctValuesByRunset;
   }) =>
   (filter: FilterItem[]): string => {
-    const groupedFilters: Record<string, unknown> = {};
+    interface GroupedColumn {
+      name: string;
+      categoryValues?: string[];
+      statusValues?: string[];
+      value?: string | string[];
+    }
+    const groupedRunsetFilters: Record<
+      string,
+      Record<string, GroupedColumn>
+    > = {};
+    let idsFilter: { values: string[] } | undefined = undefined;
     const tableTabIdFilters: Array<{ id: string; value: string }> = [];
     for (const { id, value, values, isTableTabFilter } of filter) {
       if (id === "id") {
         if (values && values.length > 0) {
-          (groupedFilters as Record<string, unknown>).ids = {
+          idsFilter = {
             values: values.map((val) => (val ? val : "")),
           };
         } else if (isTableTabFilter && typeof value === "string") {
@@ -692,14 +761,9 @@ const makeFilterSerializer =
         continue;
       }
       const { tool, name, column } = decodeFilter(id);
-      const toolBucket =
-        (groupedFilters as Record<string, unknown>)[tool] ??
-        ({} as Record<string, unknown>);
-      const toolBucketObj = toolBucket as Record<string, unknown>;
+      const toolBucket = groupedRunsetFilters[tool] ?? {};
       const colKey = String(column);
-      const columnBucket = (toolBucketObj[colKey] as
-        | Record<string, unknown>
-        | undefined) ?? {
+      const columnBucket = toolBucket[colKey] ?? {
         name: escape(name ?? ""),
       };
 
@@ -726,8 +790,8 @@ const makeFilterSerializer =
       } else {
         columnBucket.value = value;
       }
-      toolBucketObj[colKey] = columnBucket;
-      (groupedFilters as Record<string, unknown>)[tool] = toolBucketObj;
+      toolBucket[colKey] = columnBucket;
+      groupedRunsetFilters[tool] = toolBucket;
     }
 
     // serialization part
@@ -747,13 +811,9 @@ const makeFilterSerializer =
     // one transformed example would be
     // 1(0*status*(statusFilter(notIn(true)),categoryFilter(in(correct,missing))),1*cputime*(value(%3A1120)))
 
-    const { ids, ...rest } = groupedFilters as Record<string, unknown>;
     const runsetFilters: string[] = [];
-    // NOTE (JS->TS): Added defensive runtime checks because groupedFilters is
-    // dynamically constructed and typed as unknown. This ensures safe access
-    // to ids.values under strict typing.
-    if (ids && typeof ids === "object" && ids !== null) {
-      const values = (ids as { values?: unknown }).values;
+    if (idsFilter) {
+      const values = idsFilter.values;
       if (Array.isArray(values)) {
         // NOTE (JS->TS): Guard added to ensure values is an array before mapping.
         runsetFilters.push(
@@ -770,46 +830,35 @@ const makeFilterSerializer =
         );
       });
     }
-    for (const [tool, column] of Object.entries(rest)) {
+    for (const [tool, column] of Object.entries(groupedRunsetFilters)) {
       const columnFilters: string[] = [];
-      // NOTE (JS->TS): Defensive runtime check added because column is typed as unknown.
-      if (typeof column !== "object" || column === null) {
-        continue;
-      }
-      for (const [columnId, filters] of Object.entries(
-        column as Record<string, unknown>,
-      )) {
-        // NOTE (JS->TS): Added to satisfy strict type narrowing for dynamic object entries.
-        if (typeof filters !== "object" || filters === null) {
-          continue;
-        }
-        const f = filters as Record<string, unknown>;
-        const columnFilterHeader = `${columnId}*${String(f.name ?? "")}*`;
+      for (const [columnId, filters] of Object.entries(column)) {
+        const columnFilterHeader = `${columnId}*${String(filters.name)}*`;
         let filterPart = "";
-        if (Array.isArray(f.statusValues) || Array.isArray(f.categoryValues)) {
+        if (
+          Array.isArray(filters.statusValues) ||
+          Array.isArray(filters.categoryValues)
+        ) {
           // <statusColumnFilter>
           // NOTE (JS->TS): Explicitly construct a StatusCategorySelection object to
           // normalize dynamic filter data and satisfy strict typing. Previously,
           // the raw filter object was passed directly.
+          const statusSelection: StatusCategorySelection = {
+            statusValues: filters.statusValues,
+            categoryValues: filters.categoryValues,
+          };
           filterPart = makeStatusColumnFilter(
-            {
-              statusValues: Array.isArray(f.statusValues)
-                ? (f.statusValues as string[])
-                : undefined,
-              categoryValues: Array.isArray(f.categoryValues)
-                ? (f.categoryValues as string[])
-                : undefined,
-            },
+            statusSelection,
             allStatusValues,
             tool,
             columnId,
             allCategoryValues,
           );
-        } else {
+        } else if (filters.value !== undefined) {
           // <valueFilter>
-          filterPart = `value(${escape(String(f.value ?? ""))})`;
+          filterPart = `value(${escape(String(filters.value))})`;
         }
-        if (filterPart !== "") {
+        if (filterPart.length > 0) {
           columnFilters.push(`${columnFilterHeader}(${filterPart})`);
         }
       }
@@ -817,8 +866,7 @@ const makeFilterSerializer =
         runsetFilters.push(`${tool}(${columnFilters.join(",")})`);
       }
     }
-    const filterString = runsetFilters.join(",");
-    return filterString;
+    return runsetFilters.join(",");
   };
 
 export const tokenizePart = (
@@ -1108,13 +1156,13 @@ const deepEquals = (
  * @param {*} rows - the rows array of the dataset
  */
 const getTaskIdParts = (
-  rows: unknown,
+  rows: RowLike[],
   taskIdNames: string[],
-): Record<string, unknown> => {
-  const ids = pathOr<unknown[]>(["0", "id"], [], rows);
+): Record<string, string> => {
+  const ids = pathOr<string[]>(["0", "id"], [], rows);
   return ids.reduce(
     // NOTE (JS->TS): Explicitly typed the reducer for safe dynamic property access.
-    (acc: Record<string, unknown>, curr: unknown, idx: number) => ({
+    (acc: Record<string, string>, curr: string, idx: number) => ({
       ...acc,
       [taskIdNames[idx]]: curr,
     }),
