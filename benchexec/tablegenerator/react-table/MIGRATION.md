@@ -161,7 +161,7 @@ changes and improves the reproducibility of the migration process.
 
 **Order (bottom-up):**
 
-- [ ] `src/utils/` (utils.js, filters.js, stats.js, plot.js)
+- [x] `src/utils/` (utils.js, filters.js, stats.js, plot.js)
 - [ ] `src/workers/` (workerDirector.js, dataUrls.js)
 - [ ] `src/components/` (leaf components → central components)
   - [ ] `src/components/FilterBox/`
