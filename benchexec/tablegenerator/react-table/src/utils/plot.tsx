@@ -72,13 +72,11 @@ const renderSetting = (
             {option}
           </option>
         ))}
-        {
-          isDisabled ? (
-            <option value="disabled" data-name="disabled">
-              ⸺
-            </option>
-          ) : null
-        }
+        {isDisabled ? (
+          <option value="disabled" data-name="disabled">
+            ⸺
+          </option>
+        ) : null}
       </select>
     </div>
   );

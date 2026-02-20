@@ -1574,11 +1574,9 @@ const getHiddenColIds = (
       col.columns.filter((column) => column.hidden).map((column) => column.id),
     ),
   );
-  return (
-    hiddenColIds
-      .flat()
-      .filter((id): id is string => typeof id === "string")
-  );
+  return hiddenColIds
+    .flat()
+    .filter((id): id is string => typeof id === "string");
 };
 
 export {
