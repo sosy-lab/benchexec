@@ -543,7 +543,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                     memlimit=memlimit,
                     memory_nodes=memory_nodes,
                     result_files_patterns=result_files_patterns,
-                    *args,
+                    *args,  # noqa: B026
                     **kwargs,
                 )
                 if result is not None:
@@ -662,7 +662,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 if use_cgroup_ns:
                     container.setup_cgroup_namespace()
                 container.drop_capabilities()
-            except BaseException as e:
+            except BaseException as e:  # noqa: B036
                 # When using runexec, this logging will end up in the output.log file,
                 # where usually the tool output is. This is suboptimal, but probably
                 # better than swallowing it. (In cases where this logs something,
@@ -853,7 +853,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 else:
                     logging.exception("Error in child process of RunExecutor")
                 return CHILD_UNKNOWN_ERROR
-            except BaseException:
+            except BaseException:  # noqa: B036
                 # Need to catch everything because this method always needs to return an
                 # int (we are inside a C callback that requires returning int).
                 logging.exception("Error in child process of RunExecutor")

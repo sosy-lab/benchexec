@@ -127,7 +127,7 @@ flake8:
   stage: test
   image: python:3.10
   before_script:
-    - "pip install 'flake8<6' flake8-awesome"
+    - pip install setuptools flake8 flake8-awesome
   script:
     - flake8
   <<: *pip-cache
