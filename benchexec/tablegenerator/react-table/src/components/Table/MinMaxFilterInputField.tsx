@@ -39,7 +39,6 @@ function MinMaxFilterInputFieldComponent({
   const initFilterValue = setFilter?.value ?? "";
 
   const ref = useRef<HTMLInputElement | null>(null);
-  // NOTE (JS->TS): Use the proper timer handle type for setTimeout/clearTimeout instead of a string.
   const [typingTimer, setTypingTimer] = useState<
     ReturnType<typeof setTimeout> | undefined
   >(undefined);
@@ -47,7 +46,6 @@ function MinMaxFilterInputFieldComponent({
 
   useEffect(() => {
     if (focusedFilter === elementId) {
-      // NOTE (JS->TS): Guard against null ref during initial render.
       ref.current?.focus();
     }
   }, [focusedFilter, elementId]);
@@ -62,7 +60,6 @@ function MinMaxFilterInputFieldComponent({
       setTimeout(() => {
         setCustomFilters({ id, value: newValue });
 
-        // NOTE (JS->TS): document.getElementById can return null or a non-input element, so guard before focusing.
         const el = document.getElementById(elementId);
         if (el instanceof HTMLInputElement) {
           el.focus();

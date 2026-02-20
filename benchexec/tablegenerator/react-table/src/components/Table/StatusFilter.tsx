@@ -21,7 +21,6 @@ const SPECIAL_CATEGORIES: Record<SpecialCategory, string> = {
   [RUN_ABORTED]: "—",
 };
 
-// NOTE (JS->TS): Type guard for `SpecialCategory`
 function isSpecialCategory(x: string): x is SpecialCategory {
   return x in SPECIAL_CATEGORIES;
 }
@@ -33,10 +32,10 @@ type TrailingSpace = `${string} `;
  * ========================================================================== */
 
 type RelevantFilterParam = Readonly<{
-  categoryFilters: ReadonlyArray<string>;
-  statusFilters: ReadonlyArray<string>;
-  categoryFilterValues: ReadonlyArray<string>;
-  statusFilterValues: ReadonlyArray<string>;
+  categoryFilters: ReadonlyArray<string>; // The category filters that are currently selected
+  statusFilters: ReadonlyArray<string>; // The status filters that are currently selected
+  categoryFilterValues: ReadonlyArray<string>; // All selectable category filter values
+  statusFilterValues: ReadonlyArray<string>; // All selectable status filter values
 }>;
 
 /* ============================================================================
@@ -77,7 +76,6 @@ const createRelevantFilterLabel = ({
   if (!hasSameEntries(categoryFilters, categoryFilterValues)) {
     // If categoryFilters is a superset of categoryFilterValues,
     // we know that all categories are selected
-    // NOTE (JS->TS): Copy the array to avoid mutating the original
     out = [...categoryFilters];
   }
   if (!hasSameEntries(statusFilters, statusFilterValues)) {
@@ -103,7 +101,6 @@ function StatusFilter({
   setCustomFilters,
 }: StatusFilterProps): JSX.Element {
   const categoryValues = allCategoryValues[runSetIdx][columnIdx];
-  // NOTE (JS->TS): Keep `filteredColumnValues` as `unknown` and cast only at the boundary for `pathOr`.
   const filteredColumnValuesRecord = filteredColumnValues as Record<
     string,
     unknown
@@ -133,7 +130,6 @@ function StatusFilter({
   const multipleSelected =
     selectedFilters.length > 1 || selectedFilters[0] === emptyStateValue;
   const singleFilterValue = selectedFilters && selectedFilters[0];
-  // NOTE (JS->TS): Type guard for `selectValue`
   const selectValue: string =
     (allSelected && "all ") ||
     (multipleSelected && "multiple") ||
@@ -166,7 +162,6 @@ function StatusFilter({
       <optgroup label="Category">
         {categoryValues
           .filter((category) => !isSpecialCategory(category))
-          // NOTE (JS->TS): Slice to create a copy of the readonly array
           .slice()
           .sort()
           .map((category) => (
@@ -183,7 +178,6 @@ function StatusFilter({
       <optgroup label="Status">
         {allStatusValues[runSetIdx][columnIdx]
           .filter((status) => status !== statusForEmptyRows)
-          // NOTE (JS->TS): Slice to create a copy of the readonly array
           .slice()
           .sort()
           .map((status) => (

@@ -38,7 +38,6 @@ function FilterInputFieldComponent({
   const initFilterValue = setFilter?.value ?? "";
 
   const ref = useRef<HTMLInputElement | null>(null);
-  // NOTE (JS->TS): Changed from string to timeout handle type because setTimeout/clearTimeout work with a timer id, not text.
   const [typingTimer, setTypingTimer] = useState<
     ReturnType<typeof setTimeout> | undefined
   >(undefined);
@@ -46,7 +45,6 @@ function FilterInputFieldComponent({
 
   useEffect(() => {
     if (focusedFilter === elementId) {
-      // NOTE (JS->TS): Optional chaining prevents a crash if the ref is not set yet.
       ref.current?.focus();
     }
   }, [focusedFilter, elementId]);
@@ -65,7 +63,6 @@ function FilterInputFieldComponent({
     setTypingTimer(
       setTimeout(() => {
         setCustomFilters({ id, value: newValue });
-        // NOTE (JS->TS): document.getElementById may return a non-input element or null, so we guard before focusing.
         const el = document.getElementById(elementId);
         if (el instanceof HTMLInputElement) {
           el.focus();
