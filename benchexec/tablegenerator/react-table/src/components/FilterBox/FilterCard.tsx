@@ -23,17 +23,16 @@ import { statusForEmptyRows } from "../../utils/filters";
 const Range = createSliderWithTooltip(Slider.Range);
 
 const numericInputDebounce = 500;
-let debounceHandler: ReturnType<typeof setTimeout> = setTimeout(
-  () => {},
-  numericInputDebounce,
-);
+let debounceHandler: ReturnType<typeof setTimeout> = setTimeout(() => {
+  /* empty */
+}, numericInputDebounce);
 
 /* ============================================================
  * Domain Types
  * ============================================================
  */
 
-type FilterType = "status" | "text" | "measure" | "number" | (string & {});
+type FilterType = "status" | "text" | "measure" | "number";
 
 interface AvailableFilter {
   idx: number;
@@ -111,8 +110,11 @@ export default class FilterCard extends React.PureComponent<
     let sliderMax: string | number = 0;
 
     if (type === "measure" || type === "number") {
-      // NOTE (JS->TS): Provide numeric fallbacks for optional min/max to satisfy the formatter's number input type.
-      const builder = new NumberFormatterBuilder(significantDigits ?? 0).build();
+      // NOTE (JS->TS): Preserve JS behavior: if significantDigits is unset, do not format/round values.
+      const builder =
+        significantDigits === null || significantDigits === undefined
+          ? (n: number) => n.toString()
+          : new NumberFormatterBuilder(significantDigits).build();
       sliderMin = builder(min ?? 0);
       sliderMax = builder(max ?? 0);
       const value = values && values[0];
@@ -189,8 +191,11 @@ export default class FilterCard extends React.PureComponent<
     value: string,
     significantDigits?: number,
   ): { min: string | number; max: string | number } {
-    // NOTE (JS->TS): Ensure significantDigits is always a number to match NumberFormatterBuilder's constructor.
-    const builder = new NumberFormatterBuilder(significantDigits ?? 0).build();
+    // NOTE (JS->TS): Preserve JS behavior: if significantDigits is unset, do not format/round values.
+    const builder =
+      significantDigits === null || significantDigits === undefined
+        ? (n: number) => n.toString()
+        : new NumberFormatterBuilder(significantDigits).build();
     const { min: propMin, max: propMax } = this.props.filter || {
       min: 0,
       max: Infinity,
@@ -234,8 +239,8 @@ export default class FilterCard extends React.PureComponent<
           defaultValue="-1"
           ref={selectRef}
           onChange={({
-                       target: { value: idx },
-                     }: React.ChangeEvent<HTMLSelectElement>) => {
+            target: { value: idx },
+          }: React.ChangeEvent<HTMLSelectElement>) => {
             // NOTE (JS->TS): Select values are strings; normalize to number for correct comparisons and callback typing.
             const numericIdx = Number(idx);
             if (numericIdx === -1) {
@@ -260,7 +265,10 @@ export default class FilterCard extends React.PureComponent<
       </>
     );
 
-    const makeHeader = (name: string | undefined, isEditable: boolean | undefined) => (
+    const makeHeader = (
+      name: string | undefined,
+      isEditable: boolean | undefined,
+    ) => (
       <div className="filter-card--header">
         {isEditable ? (
           filterAddSelection()
@@ -294,7 +302,7 @@ export default class FilterCard extends React.PureComponent<
         values = [],
       } = currentFilter;
 
-      let { min = 0, max = 0 } = currentFilter;
+      const { min = 0, max = 0 } = currentFilter;
       let body: React.ReactNode;
 
       const emptyRowRef = React.createRef<HTMLInputElement>();
@@ -312,8 +320,8 @@ export default class FilterCard extends React.PureComponent<
                     ref={emptyRowRef}
                     checked={values.includes("empty ")}
                     onChange={({
-                                 target: { checked },
-                               }: React.ChangeEvent<HTMLInputElement>) => {
+                      target: { checked },
+                    }: React.ChangeEvent<HTMLInputElement>) => {
                       const emptyValue = "empty ";
                       if (checked) {
                         const newValues = [...values, emptyValue];
@@ -344,8 +352,8 @@ export default class FilterCard extends React.PureComponent<
                         checked={values.includes(category)}
                         ref={ref}
                         onChange={({
-                                     target: { checked },
-                                   }: React.ChangeEvent<HTMLInputElement>) => {
+                          target: { checked },
+                        }: React.ChangeEvent<HTMLInputElement>) => {
                           if (checked) {
                             const newValues = [...values, category];
                             this.setState({ values: newValues });
@@ -381,8 +389,8 @@ export default class FilterCard extends React.PureComponent<
                       ref={ref}
                       checked={values.includes(status)}
                       onChange={({
-                                   target: { checked },
-                                 }: React.ChangeEvent<HTMLInputElement>) => {
+                        target: { checked },
+                      }: React.ChangeEvent<HTMLInputElement>) => {
                         if (checked) {
                           const newValues = [...values, status];
                           this.setState({ values: newValues });
@@ -407,7 +415,7 @@ export default class FilterCard extends React.PureComponent<
           </>
         );
       } else if (type === "text") {
-        const [value = ""] = values;
+        const [value] = values;
 
         body = (
           <input
@@ -416,8 +424,8 @@ export default class FilterCard extends React.PureComponent<
             placeholder="Search for value"
             value={value}
             onChange={({
-                         target: { value: textValue },
-                       }: React.ChangeEvent<HTMLInputElement>) => {
+              target: { value: textValue },
+            }: React.ChangeEvent<HTMLInputElement>) => {
               clearTimeout(debounceHandler);
               this.setState({ values: [textValue] });
               debounceHandler = setTimeout(() => {
@@ -427,8 +435,11 @@ export default class FilterCard extends React.PureComponent<
           />
         );
       } else {
-        // NOTE (JS->TS): Provide numeric fallbacks for optional min/max to satisfy formatter input typing.
-        const builder = new NumberFormatterBuilder(significantDigits ?? 0).build();
+        // NOTE (JS->TS): Preserve JS behavior: if significantDigits is unset, do not format/round values.
+        const builder =
+          significantDigits === null || significantDigits === undefined
+            ? (n: number) => n.toString()
+            : new NumberFormatterBuilder(significantDigits).build();
         const fMin = builder(min ?? 0);
         const fMax = builder(max ?? 0);
 
@@ -436,7 +447,9 @@ export default class FilterCard extends React.PureComponent<
         const maxStep = getStep(fMax);
 
         // get the bigger step by length of string (== smaller step)
-        const step = minStep.length > maxStep.length ? minStep : maxStep;
+        const step =
+          String(minStep).length > String(maxStep).length ? minStep : maxStep;
+        const sliderStep = Math.min(Number(minStep), Number(maxStep)) || 1;
 
         //shift the decimal
         body = (
@@ -448,16 +461,21 @@ export default class FilterCard extends React.PureComponent<
             <Range
               min={Number(fMin)}
               max={Number(fMax)}
-              step={step}
+              step={sliderStep}
               defaultValue={[Number(fMin), Number(fMax)]}
-              value={[Number(this.state.sliderMin), Number(this.state.sliderMax)]}
-              onChange={([nMin, nMax]: [number, number]) => {
+              value={[
+                Number(this.state.sliderMin),
+                Number(this.state.sliderMax),
+              ]}
+              onChange={(value: number[]) => {
+                const [nMin, nMax] = value;
                 this.setState({
                   sliderMin: builder(nMin),
                   sliderMax: builder(nMax),
                 });
               }}
-              onAfterChange={([nMin, nMax]: [number, number]) => {
+              onAfterChange={(value: number[]) => {
+                const [nMin, nMax] = value;
                 const formattedMin = builder(nMin);
                 const formattedMax = builder(nMax);
                 const stringRepMin = formattedMin === fMin ? "" : formattedMin;
@@ -495,9 +513,11 @@ export default class FilterCard extends React.PureComponent<
                 }
                 lang="en-US"
                 step={step}
-                onChange={({ target: { value } }: React.ChangeEvent<HTMLInputElement>) => {
+                onChange={({
+                  target: { value },
+                }: React.ChangeEvent<HTMLInputElement>) => {
                   if (this.numericMinTimeout) {
-                    clearTimeout(this.numericMinTimeout);
+                    window.clearTimeout(this.numericMinTimeout);
                   }
                   // NOTE (JS->TS): Preserve runtime behavior; store the raw input string in state as before.
                   this.setState({ numericMin: value });
@@ -517,7 +537,9 @@ export default class FilterCard extends React.PureComponent<
                     ? this.state.numericMax
                     : this.state.sliderMax
                 }
-                onChange={({ target: { value } }: React.ChangeEvent<HTMLInputElement>) => {
+                onChange={({
+                  target: { value },
+                }: React.ChangeEvent<HTMLInputElement>) => {
                   if (this.numericMaxTimeout) {
                     clearTimeout(this.numericMaxTimeout);
                   }
