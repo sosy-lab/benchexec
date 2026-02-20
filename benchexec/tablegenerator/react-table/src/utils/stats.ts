@@ -252,7 +252,7 @@ const buildFormatter = (tools: Tool[]): FormatterMatrix =>
     tool.columns.map((column, cIdx) => {
       const { number_of_significant_digits: sigDigits } = column;
 
-      // NOTE (JS->TS): The formatter matrix stores builder instances first and
+      // The formatter matrix stores builder instances first and
       // later built formatter functions. We cast here to keep the existing
       // matrix-based control flow unchanged.
       return new NumberFormatterBuilder(
@@ -361,8 +361,6 @@ const cleanupStats = (
         ) {
           const f = formatter[toolIdx]?.[colIdx];
 
-          // NOTE (JS->TS): Added runtime narrowing because formatter cells are a
-          // union (builder | built function). Only builder-like cells support addDataItem.
           if (f && typeof f === "object" && "addDataItem" in f) {
             f.addDataItem((currentCol as ComputedStatEntry).sum);
           }
@@ -372,13 +370,9 @@ const cleanupStats = (
     }),
   );
 
-  for (let t = 0; t < formatter.length; t += 1) {
-    for (let c = 0; c < (formatter[t]?.length ?? 0); c += 1) {
-      const f = formatter[t][c];
-
+  for (const [t, row] of formatter.entries()) {
+    for (const [c, f] of (row ?? []).entries()) {
       // we build all formatters which makes them ready to use
-      // NOTE (JS->TS): Added runtime narrowing because formatter cells are a
-      // union (builder | built function). Only builder-like cells support build().
       if (f && typeof f === "object" && "build" in f) {
         formatter[t][c] = f.build();
       }
@@ -543,7 +537,6 @@ const splitColumnsWithMeta =
   (preppedRows: PreppedRow[], toolIdx: number): SplitColumnItem[][] => {
     const out: SplitColumnItem[][] = [];
     for (const { row, categoryType, resultType } of preppedRows) {
-      // NOTE (JS->TS): forEach-Loop replaces the need to cast for..in string keys to numbers for safe array indexing.
       row.forEach((rawCell, cIdx) => {
         const column = rawCell?.raw;
         const curr = out[cIdx] || [];
@@ -585,8 +578,6 @@ const processData = async ({
   const statAccessor = (toolIdx: number, row: TableRow) =>
     row.results[toolIdx].values[0].raw;
 
-  // NOTE (JS->TS): Replaced for..in iteration over tools with Array.map
-  // to avoid string index coercion and improve type safety for array indexing.
   const splitRows = tools.map((_, tIdx) =>
     prepareRows(tableData, tIdx, catAccessor, statAccessor, formatter),
   );
@@ -594,15 +585,10 @@ const processData = async ({
   const columnSplitter = splitColumnsWithMeta(tools);
 
   // filter out non-relevant rows
-  // NOTE (JS->TS): Combined column splitting and filtering into a map-chain
-  // to replace imperative mutation loops and ensure type-safe array processing.
   const preparedData = splitRows
     .map((rows, idx) => columnSplitter(rows, idx))
     .map((toolData) => toolData.filter((i) => !isNil(i)));
 
-  // NOTE (JS->TS): Replaced nested for..in loops with nested Array.map
-  // to preserve ordering while avoiding string index conversions and
-  // improving readability and type safety.
   const promises = preparedData.map((toolData) =>
     toolData.map(
       (columns) =>

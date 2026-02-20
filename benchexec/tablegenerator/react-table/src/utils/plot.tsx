@@ -68,18 +68,16 @@ const renderSetting = (
         disabled={isDisabled}
       >
         {Object.values(options).map((option) => (
-          // NOTE (JS->TS): Changed from "name" to "data-name" because "option" does not support a "name" attribute in React/TS typings.
           <option value={option} key={option} data-name={option + " " + name}>
             {option}
           </option>
         ))}
         {
           isDisabled ? (
-            // NOTE (JS->TS): Changed from "name" to "data-name" because "option" does not support a "name" attribute in React/TS typings.
             <option value="disabled" data-name="disabled">
               ⸺
             </option>
-          ) : null /* NOTE (JS->TS): Changed from "" to null to avoid rendering an empty text node. */
+          ) : null
         }
       </select>
     </div>
@@ -134,7 +132,6 @@ const renderOptgroupsSetting = (
               <option
                 value={optionObj.value}
                 key={optionObj.value}
-                // NOTE (JS->TS): Changed from "name" to "data-name" because "option" does not support a "name" attribute in React/TS typings.
                 data-name={optionObj.name + " " + name}
               >
                 {optionObj.name}
@@ -181,19 +178,16 @@ function getConfidenceIntervalBorders(
           [getYValue(data), getYValue(predictedData[index])] as const,
       )
       .map((yValues) => Math.pow(yValues[1] - yValues[0], 2))
-      // NOTE (JS->TS): Initial value avoids reduce() on an empty array and keeps typing/inference straightforward.
       .reduce(sum, 0) / actualData.length,
   );
 
   const meanOfX =
-    // NOTE (JS->TS): Initial value avoids reduce() on an empty array and keeps typing/inference straightforward.
     actualData.map((data) => getXValue(data)).reduce(sum, 0) /
     actualData.length;
 
   const stdOfX = Math.sqrt(
     actualData
       .map((data) => Math.pow(getXValue(data) - meanOfX, 2))
-      // NOTE (JS->TS): Initial value avoids reduce() on an empty array and keeps typing/inference straightforward.
       .reduce(sum, 0) / actualData.length,
   );
 
@@ -244,7 +238,6 @@ function getDataPointsOfRegression(
   const threshold = thresholds.find((t) => maxX > t);
   const numberPointsDivider = threshold ? threshold / 1000 : 1;
 
-  // NOTE (JS->TS): Avoids intermediate "undefined" fillers, and TS often infers types more cleanly.
   const dataPointsOfRegression = Array.from(
     { length: Math.ceil(maxX / numberPointsDivider) },
     (_, index) => index * numberPointsDivider,

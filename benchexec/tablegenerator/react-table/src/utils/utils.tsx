@@ -257,7 +257,6 @@ export class CopyableNode extends React.Component<CopyableNodeProps> {
           style={{ margin: "1ex" }}
           onClick={() => {
             const node = this.childRef.current;
-            // NOTE (JS->TS): Guard against null refs to satisfy strict typing and avoid runtime crashes.
             if (node) {
               copy(node.innerText, { format: "text/plain" });
             }
@@ -369,7 +368,6 @@ const omit = <T extends Record<string, unknown>, K extends keyof T>(
   const newKeys = (Object.keys(data) as Array<keyof T>).filter(
     (key) => !keys.includes(key as K),
   );
-  // NOTE (JS->TS): Replaced reduce with a loop and Partial<T> to avoid indexing issues with Omit types.
   const result = {} as Partial<T>;
   for (const key of newKeys) {
     result[key] = data[key];
@@ -695,7 +693,6 @@ function escapeParentheses(value: unknown): string {
   if (typeof value !== "string") {
     throw new Error("Invalid value type");
   }
-  // NOTE (JS->TS): Replaced replaceAll with replace and a global regex for better compatibility.
   return value.replace(/\(/g, "%28").replace(/\)/g, "%29");
 }
 
@@ -763,8 +760,6 @@ const makeFilterSerializer =
             values: values.map((val) => (val ? val : "")),
           };
         } else if (isTableTabFilter && typeof value === "string") {
-          // NOTE (JS->TS): Added runtime type guard to ensure value is a string
-          // before using it, required due to stricter typing of FilterItem.
           tableTabIdFilters.push({ id, value });
         }
         continue;
@@ -781,7 +776,6 @@ const makeFilterSerializer =
         allCategoryValues[tool]?.[colKey]
       ) {
         // we are processing a status column with checkboxes
-        // NOTE (JS->TS): Added type guard to prevent calling endsWith on undefined.
         if (typeof value === "string" && value.endsWith(" ")) {
           // category value
           const selectedCategoryValues =
@@ -789,7 +783,6 @@ const makeFilterSerializer =
           selectedCategoryValues.push(value);
           columnBucket.categoryValues = selectedCategoryValues;
         } else if (typeof value === "string") {
-          // NOTE (JS->TS): Guard added to ensure safe string operations under strict typing.
           // status value
           const selectedStatusValues =
             (columnBucket.statusValues as string[] | undefined) ?? [];
@@ -824,7 +817,6 @@ const makeFilterSerializer =
     if (idsFilter) {
       const values = idsFilter.values;
       if (Array.isArray(values)) {
-        // NOTE (JS->TS): Guard added to ensure values is an array before mapping.
         runsetFilters.push(
           `id(values(${values
             .map((val) => escapeParentheses(encodeURIComponent(String(val))))
@@ -849,9 +841,6 @@ const makeFilterSerializer =
           Array.isArray(filters.categoryValues)
         ) {
           // <statusColumnFilter>
-          // NOTE (JS->TS): Explicitly construct a StatusCategorySelection object to
-          // normalize dynamic filter data and satisfy strict typing. Previously,
-          // the raw filter object was passed directly.
           const statusSelection: StatusCategorySelection = {
             statusValues: filters.statusValues,
             categoryValues: filters.categoryValues,
@@ -1006,10 +995,6 @@ const makeFilterDeserializer =
           {},
           "",
         );
-        // NOTE (JS->TS): Added runtime guard because tokenHandlers may now return
-        // undefined or different union variants under strict typing.
-        // We explicitly check that the result contains a "values" property
-        // before spreading it.
         if (handled && "values" in handled[0]) {
           out.push({
             id: "id",
@@ -1047,10 +1032,6 @@ const makeFilterDeserializer =
             allCategoryValues[runsetId] ?? {},
             columnId,
           );
-          // NOTE (JS->TS): Fallback empty objects (?? {}) added to satisfy strict
-          // typing when accessing dynamic runset mappings.
-          // Additionally, handled is checked explicitly because tokenHandlers
-          // may return undefined under the stricter type definition.
           if (handled) {
             parsedFilters.push(...handled.map((h) => ({ id: name, ...h })));
           }
@@ -1068,13 +1049,10 @@ const makeFilterDeserializer =
           // if we only have category or a status filter, it means that no
           // filter has been set for the other. We need to fill up the values
           if (!hasStatus) {
-            // NOTE (JS->TS): Optional chaining and fallback to empty array (?? [])
-            // added to prevent runtime errors when dynamic lookup paths are undefined.
             for (const status of allStatusValues[runsetId]?.[columnId] ?? []) {
               parsedFilters.push({ id: name, value: status });
             }
           } else {
-            // NOTE (JS->TS): Same defensive fallback applied for category values.
             for (const category of allCategoryValues[runsetId]?.[columnId] ??
               []) {
               parsedFilters.push({ id: name, value: category });
@@ -1170,7 +1148,6 @@ const getTaskIdParts = (
 ): Record<string, string> => {
   const ids = pathOr<string[]>(["0", "id"], [], rows);
   return ids.reduce(
-    // NOTE (JS->TS): Explicitly typed the reducer for safe dynamic property access.
     (acc: Record<string, string>, curr: string, idx: number) => ({
       ...acc,
       [taskIdNames[idx]]: curr,
@@ -1320,7 +1297,6 @@ class NumberFormatterBuilder {
       const attachDecimal = postfix[0] === ".";
       postfix = postfix.replace(/\./, "");
       postfix = `${postfix[0]}.${postfix.substr(1)}`;
-      // NOTE (JS->TS): Introduced intermediate variable to avoid type mismatch during numeric conversion and rounding.
       const rounded = Math.round(Number(postfix));
       postfix = isNaN(rounded) ? "" : rounded.toString();
       //handle carry
@@ -1465,8 +1441,6 @@ const createHiddenColsFromURL = (
   // Set all columns of a hidden runset to hidden
   hiddenTools.forEach((hiddenToolIdx) => {
     const tool = tools.find((t) => t.toolIdx === hiddenToolIdx);
-    // NOTE (JS->TS): Added defensive null check because Array.find may return
-    // undefined under strict typing. The original JS assumed the tool exists.
     if (tool) {
       hiddenCols[hiddenToolIdx] = tool.columns.map(
         (column) => column.colIdx as number,
@@ -1557,7 +1531,6 @@ const hasSameEntries = (
  * @param {string} item - the filter value
  * @returns {boolean} True if value is a category, else false
  */
-// NOTE (JS->TS): Explicit boolean cast to satisfy the return type.
 const isCategory = (item: string): boolean =>
   !!(item && item[item.length - 1] === " ");
 
@@ -1604,7 +1577,6 @@ const getHiddenColIds = (
   return (
     hiddenColIds
       .flat()
-      // NOTE (JS->TS): Added type guard to ensure result is strictly string[].
       .filter((id): id is string => typeof id === "string")
   );
 };

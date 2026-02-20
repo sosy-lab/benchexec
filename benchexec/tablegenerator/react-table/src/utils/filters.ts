@@ -185,7 +185,6 @@ const getFilterableData = ({ tools, rows }: Dataset) => {
     if (!isNil(statusIdx)) {
       const current = columns[statusIdx];
       if (current && current.type === "status") {
-        // NOTE (JS->TS): Added defensive check because columns entries may be undefined.
         columns[statusIdx] = {
           ...current,
           categories: {},
@@ -264,7 +263,6 @@ const applyNumericFilter = (
   filter: { id: string; value: string },
   row: Record<string, unknown>,
 ) => {
-  // NOTE (JS->TS): Pass explicit default value for compatibility with typed signature.
   const raw = getRawOrDefault(row[filter.id] as unknown, undefined);
   if (raw === undefined) {
     // empty cells never match
@@ -283,7 +281,6 @@ const applyNumericFilter = (
   }
 
   if (filterParams.length === 1) {
-    // NOTE (JS->TS): Cast raw to string for safe string operations because raw may be non-string at runtime.
     return String(raw).startsWith(filterParams[0]);
   }
   return false;
@@ -293,13 +290,11 @@ const applyTextFilter = (
   filter: { id: string; value: string },
   row: Record<string, unknown>,
 ) => {
-  // NOTE (JS->TS): Pass explicit default value for compatibility with typed signature.
   const raw = getRawOrDefault(row[filter.id] as unknown, undefined);
   if (raw === undefined) {
     // empty cells never match
     return;
   }
-  // NOTE (JS->TS): Cast raw to string for safe string operations because raw may be non-string at runtime.
   return String(raw).includes(filter.value);
 };
 
@@ -339,7 +334,6 @@ const buildMatcher = (filters: FilterItem[]) => {
     }
 
     const { tool, column: columnIdx } = decodeFilter(id);
-    // NOTE (JS->TS): Normalize possibly undefined decodeFilter output to a string key for dynamic matcher buckets.
     const columnKey = String(columnIdx ?? "");
 
     if (value === "diff") {
@@ -456,12 +450,10 @@ const applyMatcher = (matcher: Matcher) => (data: TableRow[]) => {
   const out = diffd.filter((row) => {
     for (const toolKey in toolsOnly) {
       const toolMatcher = toolsOnly[toolKey];
-      // NOTE (JS->TS): Added defensive runtime check because matcher buckets are dynamic and typed as unknown.
       if (!asRecord(toolMatcher)) {
         continue;
       }
 
-      // NOTE (JS->TS): Convert dynamic tool keys to numbers for safe array indexing.
       const toolIdx = Number(toolKey);
 
       for (const columnKey in toolMatcher) {
@@ -474,7 +466,6 @@ const applyMatcher = (matcher: Matcher) => (data: TableRow[]) => {
           continue;
         }
 
-        // NOTE (JS->TS): Convert dynamic column keys to numbers for safe array indexing.
         const columnIdx = Number(columnKey);
 
         for (const filter of columnFilters) {
