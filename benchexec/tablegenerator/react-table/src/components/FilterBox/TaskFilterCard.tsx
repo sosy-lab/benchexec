@@ -25,7 +25,9 @@ interface TaskFilterCardState {
   values: TaskIdFilterValues;
 }
 
-let debounceHandler: ReturnType<typeof setTimeout> = setTimeout(() => {}, 500);
+let debounceHandler: ReturnType<typeof setTimeout> = setTimeout(() => {
+  /* empty */
+}, 500);
 
 export default class TaskFilterCard extends React.PureComponent<
   TaskFilterCardProps,
