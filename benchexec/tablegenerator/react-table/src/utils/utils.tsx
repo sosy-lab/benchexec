@@ -1505,12 +1505,12 @@ const getFirstVisibles = (
  * Only to be used with primitives. Objects will be compared by reference.
  *
  *
- * @param {Any[]} compare The array to compare elements to
- * @param {Any[]} data The array to check
+ * @param {ReadonlyArray<string>} compare The array to compare elements to
+ * @param {ReadonlyArray<string>} data The array to check
  */
 const hasSameEntries = (
-  compare: Array<string | number | boolean>,
-  data: Array<string | number | boolean>,
+  compare: ReadonlyArray<string>,
+  data: ReadonlyArray<string>,
 ): boolean => {
   const compareObj: Record<string, true> = {};
 

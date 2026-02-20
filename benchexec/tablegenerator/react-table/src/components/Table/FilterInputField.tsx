@@ -6,6 +6,21 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { memo, useEffect, useRef, useState } from "react";
+import type {
+  FilterElementId,
+  FilterValueState,
+  SetCustomFilters,
+  SetFocusedFilter,
+} from "./types";
+
+type FilterInputFieldProps = Readonly<{
+  id: string;
+  setFilter: FilterValueState;
+  setCustomFilters: SetCustomFilters;
+  disableTaskText: boolean;
+  focusedFilter: string;
+  setFocusedFilter: SetFocusedFilter;
+}>;
 
 /**
  * General filter input field for text columns.
@@ -18,17 +33,19 @@ function FilterInputFieldComponent({
   disableTaskText,
   focusedFilter,
   setFocusedFilter,
-}) {
-  const elementId = id + "_filter";
-  const initFilterValue = setFilter ? setFilter.value : "";
+}: FilterInputFieldProps) {
+  const elementId: FilterElementId = `${id}_filter`;
+  const initFilterValue = setFilter?.value ?? "";
 
-  const ref = useRef(null);
-  let [typingTimer, setTypingTimer] = useState("");
-  let [value, setValue] = useState(initFilterValue);
+  const ref = useRef<HTMLInputElement | null>(null);
+  const [typingTimer, setTypingTimer] = useState<
+    ReturnType<typeof setTimeout> | undefined
+  >(undefined);
+  const [value, setValue] = useState<string>(initFilterValue);
 
   useEffect(() => {
     if (focusedFilter === elementId) {
-      ref.current.focus();
+      ref.current?.focus();
     }
   }, [focusedFilter, elementId]);
 
@@ -37,14 +54,21 @@ function FilterInputFieldComponent({
       ? "To edit, please clear task filter in the sidebar"
       : "text";
 
-  const onChange = (event) => {
+  const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = event.target.value;
     setValue(newValue);
-    clearTimeout(typingTimer);
+    if (typingTimer !== undefined) {
+      clearTimeout(typingTimer);
+    }
     setTypingTimer(
       setTimeout(() => {
         setCustomFilters({ id, value: newValue });
-        document.getElementById(elementId).focus();
+        const el = document.getElementById(elementId);
+        if (el instanceof HTMLInputElement) {
+          el.focus();
+        } else {
+          ref.current?.focus();
+        }
       }, 500),
     );
   };
