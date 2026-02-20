@@ -10,6 +10,15 @@ import copy from "copy-to-clipboard";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCopy } from "@fortawesome/free-regular-svg-icons";
 
+/**
+ * Types ending with "Like" describe the structural shape of an object,
+ * not a full domain model.
+ *
+ * They intentionally represent only the minimal subset of properties
+ * required in a specific context. Any object that matches this shape
+ * is considered compatible.
+ */
+
 /* ============================================================
  * Types: React Components
  * ============================================================ */

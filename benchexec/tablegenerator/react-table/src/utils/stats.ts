@@ -376,6 +376,7 @@ const cleanupStats = (
     for (let c = 0; c < (formatter[t]?.length ?? 0); c += 1) {
       const f = formatter[t][c];
 
+      // we build all formatters which makes them ready to use
       // NOTE (JS->TS): Added runtime narrowing because formatter cells are a
       // union (builder | built function). Only builder-like cells support build().
       if (f && typeof f === "object" && "build" in f) {
@@ -389,6 +390,7 @@ const cleanupStats = (
       .map(({ columnType, ...column }, columnIdx) => {
         void columnType;
         const out: Record<string, unknown> = {};
+        // if no total is calculated, then no values suitable for calculation were found
         if ((column as Record<string, unknown>).total === undefined) {
           return undefined;
         }
@@ -401,6 +403,7 @@ const cleanupStats = (
             : undefined;
 
           for (const [key, value] of Object.entries(resultRec)) {
+            // we ignore any of these defined keys
             if (keysToIgnore.has(key)) {
               continue;
             }
@@ -414,6 +417,7 @@ const cleanupStats = (
               continue;
             }
 
+            // if we have numeric values or 'NaN' we want to apply formatting
             const valueIsNumberLike =
               !isNil(value) &&
               (typeof value === "number" || typeof value === "string") &&
@@ -589,6 +593,7 @@ const processData = async ({
 
   const columnSplitter = splitColumnsWithMeta(tools);
 
+  // filter out non-relevant rows
   // NOTE (JS->TS): Combined column splitting and filtering into a map-chain
   // to replace imperative mutation loops and ensure type-safe array processing.
   const preparedData = splitRows
