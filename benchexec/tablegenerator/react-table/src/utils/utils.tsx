@@ -1509,8 +1509,8 @@ const getFirstVisibles = (
  * @param {ReadonlyArray<string>} data The array to check
  */
 const hasSameEntries = (
-  compare: Array<string | number | boolean>,
-  data: Array<string | number | boolean>,
+  compare: ReadonlyArray<string>,
+  data: ReadonlyArray<string>,
 ): boolean => {
   const compareObj: Record<string, true> = {};
 
