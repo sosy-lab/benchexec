@@ -10,10 +10,28 @@ import equals from "deep-equal";
 import { pathOr } from "../../utils/utils";
 import "rc-slider/assets/index.css";
 
-let debounceHandler = setTimeout(() => {}, 500);
+type TaskIdExamples = Record<string, string>;
 
-export default class TaskFilterCard extends React.PureComponent {
-  constructor(props) {
+type TaskIdFilterValues = Record<string, string>;
+
+interface TaskFilterCardProps {
+  ids?: TaskIdExamples;
+  filters?: unknown;
+  updateFilters: (values: TaskIdFilterValues) => void;
+  resetFilterHook: (resetFn: () => void) => void;
+}
+
+interface TaskFilterCardState {
+  values: TaskIdFilterValues;
+}
+
+let debounceHandler: ReturnType<typeof setTimeout> = setTimeout(() => {}, 500);
+
+export default class TaskFilterCard extends React.PureComponent<
+  TaskFilterCardProps,
+  TaskFilterCardState
+> {
+  constructor(props: TaskFilterCardProps) {
     super(props);
     this.state = {
       values: this.extractFilters(),
@@ -21,33 +39,34 @@ export default class TaskFilterCard extends React.PureComponent {
     props.resetFilterHook(() => this.resetIdFilters());
   }
 
-  resetIdFilters() {
+  resetIdFilters(): void {
     this.setState({ values: {} });
     this.sendFilterUpdate({});
   }
 
-  sendFilterUpdate(values) {
+  sendFilterUpdate(values: TaskIdFilterValues): void {
     this.props.updateFilters(values);
   }
 
-  extractFilters() {
+  extractFilters(): TaskIdFilterValues {
     let i = 0;
-    const newVal = {};
-    for (const id of Object.keys(this.props.ids)) {
-      newVal[id] = pathOr(["filters", i++], "", this.props);
+    const newVal: TaskIdFilterValues = {};
+    const ids = this.props.ids ?? {};
+    for (const id of Object.keys(ids)) {
+      newVal[id] = pathOr(["filters", i++], "", this.props) as string;
     }
     return newVal;
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps: TaskFilterCardProps): void {
     if (!equals(this.props.filters, prevProps.filters)) {
       const newVal = this.extractFilters();
       this.setState({ values: newVal });
     }
   }
 
-  render() {
-    const ids = this.props.ids || {};
+  render(): React.ReactNode {
+    const ids = this.props.ids ?? {};
     const makeHeader = () => (
       <div className="filter-card--header">
         <>
@@ -58,7 +77,7 @@ export default class TaskFilterCard extends React.PureComponent {
 
     const makeFilterBody = () => {
       const body = Object.entries(ids).map(([key, example]) => {
-        const value = this.state.values[key] || "";
+        const value = this.state.values[key] ?? "";
         const id = `text-task-${key}`;
         return (
           <div key={id} className="task-id-filters">
@@ -69,9 +88,11 @@ export default class TaskFilterCard extends React.PureComponent {
               name={id}
               placeholder={example}
               value={value}
-              onChange={({ target: { value: textValue } }) => {
+              onChange={({
+                target: { value: textValue },
+              }: React.ChangeEvent<HTMLInputElement>) => {
                 clearTimeout(debounceHandler);
-                const newState = {
+                const newState: TaskFilterCardState = {
                   values: { ...this.state.values, [key]: textValue },
                 };
                 debounceHandler = setTimeout(() => {
