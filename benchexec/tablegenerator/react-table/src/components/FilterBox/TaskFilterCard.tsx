@@ -7,7 +7,6 @@
 
 import React from "react";
 import equals from "deep-equal";
-import { pathOr } from "../../utils/utils";
 import "rc-slider/assets/index.css";
 
 type TaskIdExamples = Record<string, string>;
@@ -16,7 +15,7 @@ type TaskIdFilterValues = Record<string, string>;
 
 interface TaskFilterCardProps {
   ids?: TaskIdExamples;
-  filters?: unknown;
+  filters?: string[] | null;
   updateFilters: (values: TaskIdFilterValues) => void;
   resetFilterHook: (resetFn: () => void) => void;
 }
@@ -25,14 +24,12 @@ interface TaskFilterCardState {
   values: TaskIdFilterValues;
 }
 
-let debounceHandler: ReturnType<typeof setTimeout> = setTimeout(() => {
-  /* empty */
-}, 500);
-
 export default class TaskFilterCard extends React.PureComponent<
-  TaskFilterCardProps,
-  TaskFilterCardState
+  Readonly<TaskFilterCardProps>,
+  Readonly<TaskFilterCardState>
 > {
+  private debounceHandler?: ReturnType<typeof setTimeout>;
+
   constructor(props: TaskFilterCardProps) {
     super(props);
     this.state = {
@@ -51,16 +48,18 @@ export default class TaskFilterCard extends React.PureComponent<
   }
 
   extractFilters(): TaskIdFilterValues {
-    let i = 0;
+    // NOTE (JS->TS): Directly access filters array and convert to TaskIdFilterValues object for better type safety and readability.
+    // Using forEach and optional chaining eliminates the need for external pathOr utility and manual type casting.
     const newVal: TaskIdFilterValues = {};
     const ids = this.props.ids ?? {};
-    for (const id of Object.keys(ids)) {
-      newVal[id] = pathOr(["filters", i++], "", this.props) as string;
-    }
+    const filters = this.props.filters;
+    Object.keys(ids).forEach((id, i) => {
+      newVal[id] = filters?.[i] ?? "";
+    });
     return newVal;
   }
 
-  componentDidUpdate(prevProps: TaskFilterCardProps): void {
+  componentDidUpdate(prevProps: Readonly<TaskFilterCardProps>): void {
     if (!equals(this.props.filters, prevProps.filters)) {
       const newVal = this.extractFilters();
       this.setState({ values: newVal });
@@ -93,11 +92,15 @@ export default class TaskFilterCard extends React.PureComponent<
               onChange={({
                 target: { value: textValue },
               }: React.ChangeEvent<HTMLInputElement>) => {
-                clearTimeout(debounceHandler);
+                // NOTE (JS->TS): Use a class-level debounce handler to avoid global side effects and ensure multiple instances
+                // of this component don't interfere with each other's timers.
+                if (this.debounceHandler) {
+                  clearTimeout(this.debounceHandler);
+                }
                 const newState: TaskFilterCardState = {
                   values: { ...this.state.values, [key]: textValue },
                 };
-                debounceHandler = setTimeout(() => {
+                this.debounceHandler = setTimeout(() => {
                   this.sendFilterUpdate({
                     ...this.state.values,
                     [key]: textValue,
