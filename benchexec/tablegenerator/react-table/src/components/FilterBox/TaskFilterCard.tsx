@@ -28,7 +28,7 @@ export default class TaskFilterCard extends React.PureComponent<
   Readonly<TaskFilterCardProps>,
   Readonly<TaskFilterCardState>
 > {
-  private debounceHandler?: ReturnType<typeof setTimeout>;
+  private debounceHandler: ReturnType<typeof setTimeout> | null = null;
 
   constructor(props: TaskFilterCardProps) {
     super(props);

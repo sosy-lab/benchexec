@@ -14,6 +14,7 @@ import classNames from "classnames";
 import FilterContainer from "./FilterContainer";
 import TaskFilterCard from "./TaskFilterCard";
 import { decodeFilter, isNil } from "../../utils/utils";
+import { CurrentFilterUpdate, FilterDefinition } from "./types";
 
 /* ============================================================
  * Domain Types
@@ -22,7 +23,13 @@ import { decodeFilter, isNil } from "../../utils/utils";
 
 type FilterableTool = {
   name: string;
-  columns: unknown;
+  columns: FilterDefinition[];
+};
+
+type IncomingFilterEntry = {
+  id: string;
+  value: string;
+  values?: string[];
 };
 
 type EncodedFilterEntry = {
@@ -32,7 +39,7 @@ type EncodedFilterEntry = {
 
 type IdFilterEntry = {
   id: "id";
-  values: unknown;
+  values: string[];
 };
 
 type OutgoingFilterEntry = EncodedFilterEntry | IdFilterEntry;
@@ -56,7 +63,7 @@ type ToolFilterData = Array<ColumnFilterData | undefined>;
  */
 
 type FilterBoxProps = {
-  filtered: Array<Array<{ id: string; value: string }>>;
+  filtered: IncomingFilterEntry[] | IncomingFilterEntry[][];
 
   ids: Record<string, string>;
   filterable: FilterableTool[];
@@ -73,7 +80,7 @@ type FilterBoxProps = {
 
 type FilterBoxState = {
   filters: Array<ToolFilterData | undefined>;
-  idFilters: string[] | null | unknown;
+  idFilters: string[] | null;
 };
 
 export default class FilterBox extends React.PureComponent<
@@ -123,16 +130,11 @@ export default class FilterBox extends React.PureComponent<
     this.listeners.forEach((fun) => fun());
   }
 
-  retrieveIdFilters(filters: FilterBoxProps["filtered"]): unknown {
-    const possibleIdFilter = filters.find((filter) =>
-      filter.some((f) => f.id === "id"),
-    );
-    if (!possibleIdFilter) {
-      return [];
-    }
-    const idEntry = possibleIdFilter.find((f) => f.id === "id");
-    // NOTE (JS->TS): Preserve original behavior; id filter values can be a non-string structure.
-    return (idEntry as unknown as { values: unknown }).values ?? [];
+  retrieveIdFilters(filters: FilterBoxProps["filtered"]): string[] | null {
+    const possibleIdFilter = filters
+      .flat()
+      .find((filter) => filter.id === "id");
+    return possibleIdFilter?.values ?? null;
   }
 
   createFiltersFromReactTableStructure(
@@ -164,8 +166,10 @@ export default class FilterBox extends React.PureComponent<
     return out;
   }
 
-  flattenFilterStructure(): unknown[] {
-    return Object.values(Object.values(this.state.filters));
+  flattenFilterStructure(): ColumnFilterData[] {
+    return this.state.filters
+      .flat()
+      .filter((f): f is ColumnFilterData => Boolean(f));
   }
 
   sendFilters({
@@ -173,7 +177,7 @@ export default class FilterBox extends React.PureComponent<
     idFilter,
   }: {
     filter: Array<ToolFilterData | undefined>;
-    idFilter: unknown;
+    idFilter: string[] | null;
   }): void {
     const newFilter: OutgoingFilterEntry[] = [
       ...filter
@@ -222,7 +226,7 @@ export default class FilterBox extends React.PureComponent<
 
     const newFilter = mapped.some((item) => item !== "" && !isNil(item))
       ? mapped
-      : undefined;
+      : null;
 
     this.setState({ idFilters: newFilter });
 
@@ -258,7 +262,7 @@ export default class FilterBox extends React.PureComponent<
               this.updateIdFilters(data)
             }
             resetFilterHook={this.resetFilterHook}
-            filters={this.state.idFilters as string[]}
+            filters={this.state.idFilters}
           />
           {this.props.filterable.map((tool, idx) => {
             return (
@@ -267,9 +271,14 @@ export default class FilterBox extends React.PureComponent<
                 updateFilters={(data: ColumnFilterData, columnIndex: number) =>
                   this.updateFilters(idx, columnIndex, data)
                 }
-                currentFilters={(this.state.filters[idx] as undefined) ?? []}
+                currentFilters={
+                  (this.state.filters[idx] as unknown as Record<
+                    number,
+                    CurrentFilterUpdate
+                  >) ?? []
+                }
                 toolName={tool.name}
-                filters={tool.columns as unknown as never}
+                filters={tool.columns}
                 hiddenCols={hiddenCols[idx]}
                 key={`filtercontainer-${idx}`}
               />

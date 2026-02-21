@@ -37,15 +37,18 @@ export default class FilterContainer extends React.PureComponent<
 > {
   constructor(props: FilterContainerProps) {
     super(props);
-    const { filters, toolName, currentFilters } = props;
+    const { toolName, currentFilters } = props;
+    const filters = props.filters.map((f) => ({ ...f }));
     for (const idxStr in currentFilters) {
       const idx = Number(idxStr);
-      filters[idx] = {
-        ...filters[idx],
-        ...currentFilters[idx],
-        touched: (filters[idx]?.touched ?? 0) + 1,
-        filtering: true,
-      };
+      if (filters[idx]) {
+        filters[idx] = {
+          ...filters[idx],
+          ...currentFilters[idx],
+          touched: (filters[idx]?.touched ?? 0) + 1,
+          filtering: true,
+        };
+      }
     }
 
     this.props.resetFilterHook(() => this.resetAllFilters());

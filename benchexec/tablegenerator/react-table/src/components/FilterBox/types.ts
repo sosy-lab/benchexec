@@ -50,8 +50,6 @@ export interface BaseFilterDefinition {
   statuses?: string[];
   min?: number;
   max?: number;
-
-  [key: string]: unknown;
 }
 
 export interface StatusFilter extends BaseFilterDefinition {
