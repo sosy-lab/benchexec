@@ -16,7 +16,7 @@ import {
 } from "../utils/utils";
 import classNames from "classnames";
 import path from "path-browserify";
-import TaskDefinitionViewer from "./TaskDefinitionViewer.js";
+import TaskDefinitionViewer from "./TaskDefinitionViewer.tsx";
 import * as zip from "@zip.js/zip.js/lib/zip-no-worker-inflate";
 
 zip.configure({

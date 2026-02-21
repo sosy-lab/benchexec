@@ -6,7 +6,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from "react";
-import TaskDefinitionViewer from "../components/TaskDefinitionViewer.js";
+import TaskDefinitionViewer from "../components/TaskDefinitionViewer.tsx";
 import fs from "fs";
 import renderer from "react-test-renderer";
 
