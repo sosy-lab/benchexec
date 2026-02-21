@@ -28,6 +28,7 @@ interface CurrentFilterUpdate {
 interface FilterDefinition {
   idx: number;
   type: FilterType;
+  title: string;
   display_title: string;
 
   // Only present for status filters.
@@ -230,7 +231,7 @@ export default class FilterContainer extends React.PureComponent<
           <FilterCard
             availableFilters={availableFilters}
             // NOTE (JS->TS): Preserve original prop shape; "editable" was passed as a string in JS.
-            editable="true"
+            editable={true}
             style={{ marginBottom: 20 }}
             addFilter={(idx: number) => this.addFilter(idx)}
             // NOTE (JS->TS): Preserve original call signature; idx is optional here (same as JS behavior).

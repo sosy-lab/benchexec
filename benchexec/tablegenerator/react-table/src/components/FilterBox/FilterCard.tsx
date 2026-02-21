@@ -63,14 +63,15 @@ interface FilterUpdatePayload {
 interface FilterCardProps {
   filter?: FilterDefinition;
   editable?: boolean;
-  availableFilters: AvailableFilter[];
+  availableFilters?: AvailableFilter[];
 
   title?: string;
   name?: string;
+  style?: React.CSSProperties;
 
   onFilterUpdate: (payload: FilterUpdatePayload) => void;
-  addFilter: (idx: number) => void;
-  removeFilter: () => void;
+  addFilter?: (idx: number) => void;
+  removeFilter?: () => void;
 }
 
 interface FilterCardState {
@@ -251,13 +252,13 @@ export default class FilterCard extends React.PureComponent<
             if (this.selectRef.current) {
               this.selectRef.current.value = "-1"; // Reset preselected option to "Column"
             }
-            this.props.addFilter(numericIdx);
+            this.props.addFilter?.(numericIdx);
           }}
         >
           <option value="-1" disabled>
             Column
           </option>
-          {availableFilters.map(({ idx, display_title }) => (
+          {availableFilters?.map(({ idx, display_title }) => (
             <option key={idx} value={idx}>
               {display_title}
             </option>
@@ -282,7 +283,7 @@ export default class FilterCard extends React.PureComponent<
               className="delete-button"
               icon={faTrash}
               onClick={() => {
-                this.props.removeFilter();
+                this.props.removeFilter?.();
               }}
             />
           </>
