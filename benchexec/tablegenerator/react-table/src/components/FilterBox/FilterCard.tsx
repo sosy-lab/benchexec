@@ -31,11 +31,6 @@ let debounceHandler: ReturnType<typeof setTimeout> = setTimeout(() => {
   /* empty */
 }, numericInputDebounce);
 
-// TODO: FilterCard currently supports two distinct usage modes
-//  (active filter card and add-filter card), both used only by FilterContainer.
-//  If this component is refactored in the future, consider splitting it into
-//  two separate components with dedicated prop types to simplify the API.
-//  type FilterCardProps = ActiveFilterCardProps | AddFilterCardProps;
 interface FilterCardProps {
   filter?: FilterDefinition;
   editable?: boolean;
