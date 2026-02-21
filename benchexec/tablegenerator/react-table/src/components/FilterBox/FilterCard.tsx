@@ -18,6 +18,11 @@ import {
   NumberFormatterBuilder,
 } from "../../utils/utils";
 import { statusForEmptyRows } from "../../utils/filters";
+import {
+  AvailableFilter,
+  FilterUpdatePayload,
+  FilterDefinition,
+} from "./types";
 
 const Range = createSliderWithTooltip(Slider.Range);
 
@@ -26,40 +31,11 @@ let debounceHandler: ReturnType<typeof setTimeout> = setTimeout(() => {
   /* empty */
 }, numericInputDebounce);
 
-/* ============================================================
- * Domain Types
- * ============================================================ */
-
-type FilterType = "status" | "text" | "measure" | "number";
-
-interface AvailableFilter {
-  idx: number;
-  display_title: string;
-  title: string;
-}
-
-interface FilterDefinition {
-  title: string;
-  display_title: string;
-  unit?: string;
-  type: FilterType;
-  number_of_significant_digits?: number;
-  categories?: string[];
-  statuses?: string[];
-  values?: string[];
-  min?: number;
-  max?: number;
-}
-
-/* ============================================================
- * Component Types
- * ============================================================ */
-
-interface FilterUpdatePayload {
-  values: string[];
-  title: string;
-}
-
+// TODO: FilterCard currently supports two distinct usage modes
+//  (active filter card and add-filter card), both used only by FilterContainer.
+//  If this component is refactored in the future, consider splitting it into
+//  two separate components with dedicated prop types to simplify the API.
+//  type FilterCardProps = ActiveFilterCardProps | AddFilterCardProps;
 interface FilterCardProps {
   filter?: FilterDefinition;
   editable?: boolean;
@@ -100,13 +76,16 @@ export default class FilterCard extends React.PureComponent<
 
   constructor(props: FilterCardProps) {
     super(props);
-    const { values, min, max, type } = props.filter || { values: [] };
+    const filter = props.filter;
+    const values = filter?.values ?? [];
+    const type = filter?.type;
 
     let sliderMin: string | number = 0;
     let sliderMax: string | number = 0;
 
-    if (type === "measure" || type === "number") {
+    if (filter && (type === "measure" || type === "number")) {
       const builder = this.getFormatter();
+      const { min, max } = filter;
       sliderMin = builder(min ?? 0);
       sliderMax = builder(max ?? 0);
       const value = values && values[0];

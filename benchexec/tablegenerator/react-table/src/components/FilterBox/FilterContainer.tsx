@@ -8,53 +8,11 @@
 import React from "react";
 import equals from "deep-equal";
 import FilterCard from "./FilterCard";
-
-/* ============================================================
- * Domain Types
- * ============================================================
- */
-
-type FilterType = "status" | "text" | "measure" | "number";
-
-/**
- * Describes the externally provided filter state (values/filtering).
- * This is merged into the internal filter definitions on updates.
- */
-interface CurrentFilterUpdate {
-  values: string[];
-  filtering?: boolean;
-}
-
-interface FilterDefinition {
-  idx: number;
-  type: FilterType;
-  title: string;
-  display_title: string;
-
-  // Only present for status filters.
-  categories?: string[];
-  statuses?: string[];
-
-  // Runtime state managed by FilterContainer.
-  values?: string[];
-  filtering?: boolean;
-  touched: number;
-  numCards: number;
-
-  // Other properties may exist and are forwarded to FilterCard.
-  // We keep this open to avoid breaking on additional filter metadata.
-  [key: string]: unknown;
-}
-
-/* ============================================================
- * Component Types
- * ============================================================
- */
-
-interface FilterUpdatePayload {
-  title: string;
-  values: string[];
-}
+import {
+  CurrentFilterUpdate,
+  FilterUpdatePayload,
+  FilterDefinition,
+} from "./types";
 
 interface FilterContainerProps {
   filters: FilterDefinition[];
@@ -80,9 +38,6 @@ export default class FilterContainer extends React.PureComponent<
   constructor(props: FilterContainerProps) {
     super(props);
     const { filters, toolName, currentFilters } = props;
-
-    // NOTE (JS->TS): Preserve original behavior (mutating the incoming filters array)
-    // to keep structure/functionality identical to the JS implementation.
     for (const idxStr in currentFilters) {
       const idx = Number(idxStr);
       filters[idx] = {
@@ -119,22 +74,34 @@ export default class FilterContainer extends React.PureComponent<
     this.props.updateFilters({ title, values }, idx);
   }
 
+  // NOTE (JS->TS): avoids mutating React state in-place, preserves the discriminated-union type narrowing
+  // by branching on filter.type, and builds a well-typed next FilterDefinition (including status default values)
+  // so TypeScript can verify correctness and React updates stay predictable.
   addFilter(idx: number): void {
-    const { filters: newFilterState, numCards } = this.state;
-    const newFilter: Partial<FilterDefinition> = {
+    const { numCards } = this.state;
+    const newFilterState = [...this.state.filters];
+    const prev = newFilterState[idx];
+
+    const commonUpdate = {
       filtering: true,
       numCards,
       touched: 0,
     };
 
-    if (newFilterState[idx].type === "status") {
-      // NOTE (JS->TS): Guard against optional arrays while preserving JS behavior.
-      const categories = newFilterState[idx].categories ?? [];
-      const statuses = newFilterState[idx].statuses ?? [];
-      newFilter.values = [...categories, ...statuses];
+    if (prev.type === "status") {
+      const categories = prev.categories ?? [];
+      const statuses = prev.statuses ?? [];
+      newFilterState[idx] = {
+        ...prev,
+        ...commonUpdate,
+        values: [...categories, ...statuses],
+      };
+    } else {
+      newFilterState[idx] = {
+        ...prev,
+        ...commonUpdate,
+      };
     }
-
-    newFilterState[idx] = { ...newFilterState[idx], ...newFilter };
 
     this.setState({
       filters: newFilterState,
@@ -186,7 +153,6 @@ export default class FilterContainer extends React.PureComponent<
           filtering: true,
         };
       }
-
       // remove all filters that are not currently filtered
       filters = filters.map((filter, idx) => {
         const toBeRemoved = Boolean(
@@ -198,7 +164,6 @@ export default class FilterContainer extends React.PureComponent<
           values: toBeRemoved ? filter.values : [],
         };
       });
-
       this.setState({ filters: [...filters] });
     }
   }
@@ -230,11 +195,9 @@ export default class FilterContainer extends React.PureComponent<
         {(availableFilters.length && (
           <FilterCard
             availableFilters={availableFilters}
-            // NOTE (JS->TS): Preserve original prop shape; "editable" was passed as a string in JS.
             editable={true}
             style={{ marginBottom: 20 }}
             addFilter={(idx: number) => this.addFilter(idx)}
-            // NOTE (JS->TS): Preserve original call signature; idx is optional here (same as JS behavior).
             onFilterUpdate={(vals: FilterUpdatePayload) =>
               this.setFilter(vals, 0)
             }
