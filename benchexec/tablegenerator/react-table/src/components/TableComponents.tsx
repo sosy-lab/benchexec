@@ -26,14 +26,19 @@ export type TableColumn = Readonly<{
  * Domain types
  * ========================================================================== */
 
-type RunSet = {
+type ColumnDefinition = {
+  unit?: string;
+  display_title: React.ReactNode;
+};
+
+type RunSetInfo = {
   tool: string;
   date: string;
   niceName: string;
-  columns: ReadonlyArray<{
-    unit?: string;
-    display_title: React.ReactNode;
-  }>;
+};
+
+type RunSet = RunSetInfo & {
+  columns: ReadonlyArray<ColumnDefinition>;
 };
 
 type CellValue = {
@@ -55,13 +60,13 @@ type SelectColumnsButtonProps = {
 } & Omit<React.HTMLAttributes<HTMLSpanElement>, "onClick">;
 
 type StandardColumnHeaderProps = {
-  column: { unit?: string; display_title: React.ReactNode };
+  column: ColumnDefinition;
   title?: string;
   children?: React.ReactNode;
 } & React.HTMLAttributes<HTMLDivElement>;
 
 type RunSetHeaderProps = {
-  runSet: { tool: string; date: string; niceName: string };
+  runSet: RunSetInfo;
 } & React.HTMLAttributes<HTMLSpanElement>;
 
 type StandardCellProps = {
