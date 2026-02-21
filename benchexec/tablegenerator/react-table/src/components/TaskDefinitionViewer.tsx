@@ -6,11 +6,64 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from "react";
-import yamlParser from "yaml";
+import yamlParser, { Document } from "yaml";
+
+type TaskDefinitionViewerProps = {
+  yamlText: string;
+  loadNewFile: (fileName: string) => void;
+  createHref: (fileName: string) => string;
+};
+
+type TaskDefinitionViewerState = {
+  splitterTag: string;
+  fileTag: string;
+  content: string | Document;
+};
+
+/* ============================================================================
+ * Internal helper types
+ * ========================================================================== */
+
+/** Minimal shape of a YAML sequence node that we need in this component. */
+type YamlSeqLike<TItem> = {
+  items: TItem[];
+};
+
+type YamlScalarLike<T> = {
+  value: T;
+};
+
+type YamlPairLike<TKey, TValue> = {
+  key: YamlScalarLike<TKey>;
+  value: YamlScalarLike<TValue>;
+};
+
+/* ============================================================================
+ * Type guards / helpers
+ * ========================================================================== */
+
+const hasItemsArray = <TItem,>(value: unknown): value is YamlSeqLike<TItem> =>
+  typeof value === "object" &&
+  value !== null &&
+  Array.isArray((value as { items?: unknown }).items);
+
+const isYamlDocument = (value: unknown): value is Document =>
+  typeof value === "object" &&
+  value !== null &&
+  "toString" in value &&
+  "errors" in value;
+
+const toText = (value: unknown): string => {
+  // NOTE (JS->TS): Keep behavior tolerant for YAML nodes and primitives by normalizing to string.
+  return typeof value === "string" ? value : String(value);
+};
 
 /** Special view for YAML files in the LinkOverlay component. */
-export default class TaskDefinitionViewer extends React.Component {
-  constructor(props) {
+export default class TaskDefinitionViewer extends React.Component<
+  TaskDefinitionViewerProps,
+  TaskDefinitionViewerState
+> {
+  constructor(props: TaskDefinitionViewerProps) {
     super(props);
     this.state = {
       splitterTag: "<splitter#9d81y23>",
@@ -19,11 +72,11 @@ export default class TaskDefinitionViewer extends React.Component {
     };
   }
 
-  componentDidMount() {
+  componentDidMount(): void {
     this.prepareTextForRendering();
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps: TaskDefinitionViewerProps): void {
     if (prevProps.yamlText !== this.props.yamlText) {
       this.prepareTextForRendering();
     }
@@ -35,32 +88,39 @@ export default class TaskDefinitionViewer extends React.Component {
    * input_files is either a string or a list of strings
    * properties is a list of dicts, each with a "property_file" key
    */
-  prepareTextForRendering = () => {
+  prepareTextForRendering = (): void => {
     if (this.props.yamlText !== "") {
       const yamlObj = yamlParser.parseDocument(this.props.yamlText, {
         prettyErrors: true,
       });
 
-      const inputFiles = yamlObj.get("input_files");
+      const inputFiles = yamlObj.get("input_files") as unknown;
       if (inputFiles) {
-        if (Array.isArray(inputFiles.items)) {
+        if (hasItemsArray<YamlScalarLike<unknown>>(inputFiles)) {
           inputFiles.items.forEach((inputFileItem) => {
-            inputFileItem.value = this.encloseFileInTags(inputFileItem.value);
+            inputFileItem.value = this.encloseFileInTags(
+              toText(inputFileItem.value),
+            );
           });
         } else {
-          yamlObj.set("input_files", this.encloseFileInTags(inputFiles));
+          yamlObj.set(
+            "input_files",
+            this.encloseFileInTags(toText(inputFiles)),
+          );
         }
       }
 
-      const properties = yamlObj.get("properties");
+      const properties = yamlObj.get("properties") as unknown;
       if (properties) {
-        if (Array.isArray(properties.items)) {
+        if (
+          hasItemsArray<YamlSeqLike<YamlPairLike<unknown, unknown>>>(properties)
+        ) {
           properties.items.forEach((property) => {
-            if (Array.isArray(property.items)) {
+            if (hasItemsArray<YamlPairLike<unknown, unknown>>(property)) {
               property.items.forEach((propertyItem) => {
                 if (propertyItem.key.value === "property_file") {
                   propertyItem.value.value = this.encloseFileInTags(
-                    propertyItem.value.value,
+                    toText(propertyItem.value.value),
                   );
                 }
               });
@@ -73,7 +133,7 @@ export default class TaskDefinitionViewer extends React.Component {
     }
   };
 
-  encloseFileInTags = (fileName) => {
+  encloseFileInTags = (fileName: string): string => {
     return (
       this.state.splitterTag +
       this.state.fileTag +
@@ -83,19 +143,28 @@ export default class TaskDefinitionViewer extends React.Component {
     );
   };
 
-  loadFileInViewer = (event, contentPart) => {
+  loadFileInViewer = (
+    event: React.MouseEvent<HTMLAnchorElement>,
+    contentPart: string,
+  ): void => {
     event.preventDefault();
     this.props.loadNewFile(contentPart);
   };
 
-  render() {
-    if (this.state.content.errors && this.state.content.errors.length > 0) {
+  render(): React.ReactNode {
+    const { content } = this.state;
+
+    if (
+      isYamlDocument(content) &&
+      content.errors &&
+      content.errors.length > 0
+    ) {
       return (
         <>
           <div className="link-overlay-text">
             Errors parsing YAML file:
             <ul>
-              {this.state.content.errors.map((err, i) => (
+              {content.errors.map((err, i) => (
                 <li key={i}>
                   <pre>{err.message}</pre>
                 </li>
@@ -108,10 +177,13 @@ export default class TaskDefinitionViewer extends React.Component {
     }
 
     // ugly: global override of YAML options, but we use it only here
-    yamlParser.scalarOptions.str.fold = { lineWidth: 0 };
-    const contentBySplitter = this.state.content
-      .toString()
-      .split(this.state.splitterTag);
+    (
+      yamlParser.scalarOptions.str as unknown as {
+        fold: { lineWidth: number };
+      }
+    ).fold = { lineWidth: 0 };
+
+    const contentBySplitter = content.toString().split(this.state.splitterTag);
     const jsxContent = contentBySplitter.map((contentPart) => {
       // If contentPart is enclosed with file tags (= if contentPart is a file which should be linked)
       if (
