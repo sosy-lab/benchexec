@@ -13,7 +13,7 @@ import { formatColumnTitle, getRunSetName } from "../utils/utils";
  * ========================================================================== */
 
 export type TableColumn = Readonly<{
-  Header: React.ReactNode;
+  Header?: React.ReactNode;
   accessor?: string;
   id?: string;
   className?: string;
@@ -27,7 +27,13 @@ export type TableColumn = Readonly<{
  * ========================================================================== */
 
 type RunSet = {
-  columns: unknown[];
+  tool: string;
+  date: string;
+  niceName: string;
+  columns: ReadonlyArray<{
+    unit?: string;
+    display_title: React.ReactNode;
+  }>;
 };
 
 type CellValue = {
@@ -49,13 +55,13 @@ type SelectColumnsButtonProps = {
 } & Omit<React.HTMLAttributes<HTMLSpanElement>, "onClick">;
 
 type StandardColumnHeaderProps = {
-  column: unknown;
+  column: { unit?: string; display_title: React.ReactNode };
   title?: string;
   children?: React.ReactNode;
 } & React.HTMLAttributes<HTMLDivElement>;
 
 type RunSetHeaderProps = {
-  runSet: unknown;
+  runSet: { tool: string; date: string; niceName: string };
 } & React.HTMLAttributes<HTMLSpanElement>;
 
 type StandardCellProps = {
@@ -150,14 +156,13 @@ const createSeparatorColumn = (runSetIdx: number): TableColumn =>
         className: "separator",
         width: 2,
         minWidth: 2,
-        Header: "",
       },
     ],
   });
 
 type CreateColumnFn = (
   runSetIdx: number,
-  column: unknown,
+  column: RunSet["columns"][number],
   columnIdx: number,
 ) => TableColumn;
 
