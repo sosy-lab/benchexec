@@ -21,7 +21,7 @@ import {
   StandardCell,
   StandardColumnHeader,
   SelectColumnsButton,
-} from "./TableComponents.js";
+} from "./TableComponents.tsx";
 import {
   isNumericColumn,
   numericSortMethod,
