@@ -41,7 +41,7 @@ interface DecodedFilterId {
   tool: number;
   name: string;
   column: number;
-};
+}
 
 type ColumnFilterData = {
   title: string;
@@ -148,7 +148,11 @@ export default class FilterBox extends React.PureComponent<
       if (id === "id") {
         continue;
       }
-      const { tool, name: title, column } = decodeFilter(id) as DecodedFilterId;
+      const {
+        tool,
+        name: title,
+        column,
+      } = decodeFilter(id) as unknown as DecodedFilterId;
       const toolArr = out[tool] ?? [];
       if (!toolArr[column]) {
         toolArr[column] = { title, values: [value] };
@@ -254,7 +258,7 @@ export default class FilterBox extends React.PureComponent<
               this.updateIdFilters(data)
             }
             resetFilterHook={this.resetFilterHook}
-            filters={this.state.idFilters}
+            filters={this.state.idFilters as string[]}
           />
           {this.props.filterable.map((tool, idx) => {
             return (
@@ -263,7 +267,7 @@ export default class FilterBox extends React.PureComponent<
                 updateFilters={(data: ColumnFilterData, columnIndex: number) =>
                   this.updateFilters(idx, columnIndex, data)
                 }
-                currentFilters={this.state.filters[idx] ?? []}
+                currentFilters={(this.state.filters[idx] as undefined) ?? []}
                 toolName={tool.name}
                 filters={tool.columns as unknown as never}
                 hiddenCols={hiddenCols[idx]}
