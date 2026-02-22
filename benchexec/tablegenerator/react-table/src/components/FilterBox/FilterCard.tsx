@@ -13,48 +13,92 @@ import "rc-slider/assets/index.css";
 
 import {
   without,
-  pathOr,
   emptyStateValue,
   getStep,
   NumberFormatterBuilder,
 } from "../../utils/utils";
 import { statusForEmptyRows } from "../../utils/filters";
+import {
+  AvailableFilter,
+  FilterUpdatePayload,
+  FilterDefinition,
+} from "./types";
 
 const Range = createSliderWithTooltip(Slider.Range);
 
 const numericInputDebounce = 500;
-let debounceHandler = setTimeout(() => {}, numericInputDebounce);
+let debounceHandler: ReturnType<typeof setTimeout> = setTimeout(() => {
+  /* empty */
+}, numericInputDebounce);
 
-export default class FilterCard extends React.PureComponent {
-  constructor(props) {
+interface FilterCardProps {
+  filter?: FilterDefinition;
+  editable?: boolean;
+  availableFilters?: AvailableFilter[];
+
+  title?: string;
+  name?: string;
+  style?: React.CSSProperties;
+
+  onFilterUpdate: (payload: FilterUpdatePayload) => void;
+  addFilter?: (idx: number) => void;
+  removeFilter?: () => void;
+}
+
+interface FilterCardState {
+  title: string;
+  values: string[];
+  idx: number;
+  active: boolean;
+  selectedDistincts: string[];
+  sliderMin: string | number;
+  sliderMax: string | number;
+  numericMin: string | number | null;
+  numericMax: string | number | null;
+}
+
+export default class FilterCard extends React.PureComponent<
+  FilterCardProps,
+  FilterCardState
+> {
+  private numericMinTimeout: ReturnType<typeof setTimeout> | null = null;
+  private numericMaxTimeout: ReturnType<typeof setTimeout> | null = null;
+
+  // NOTE (JS->TS): Define ref as a stable class property instead of creating it in render()
+  // to avoid creating a new ref instance on every render.
+  private selectRef = React.createRef<HTMLSelectElement>();
+  private emptyRowRef = React.createRef<HTMLInputElement>();
+
+  constructor(props: FilterCardProps) {
     super(props);
-    const {
-      values,
-      min,
-      max,
-      type,
-      number_of_significant_digits: significantDigits,
-    } = props.filter || { values: [] };
-    let sliderMin = 0;
-    let sliderMax = 0;
-    if (type === "measure" || type === "number") {
-      const builder = new NumberFormatterBuilder(significantDigits).build();
-      sliderMin = builder(min);
-      sliderMax = builder(max);
+    const filter = props.filter;
+    const values = filter?.values ?? [];
+    const type = filter?.type;
+
+    let sliderMin: string | number = 0;
+    let sliderMax: string | number = 0;
+
+    if (filter && (type === "measure" || type === "number")) {
+      const builder = this.getFormatter();
+      const { min, max } = filter;
+      sliderMin = builder(min ?? 0);
+      sliderMax = builder(max ?? 0);
       const value = values && values[0];
       if (value && value.includes(":")) {
-        const res = this.handleMinMaxValue(value, significantDigits);
+        const res = this.handleMinMaxValue(value);
         sliderMin = res.min;
         sliderMax = res.max;
       }
     }
+
     this.state = {
       title:
         props.availableFilters && props.availableFilters.length
           ? props.availableFilters[0].title
           : "",
       values: [],
-      idx: pathOr(["availableFilters", 0, "idx"], 0, props),
+      // NOTE (JS->TS): Replaced pathOr(...) with optional chaining and nullish coalescing to achieve the same safe fallback behavior in a type-safe way.
+      idx: props.availableFilters?.[0]?.idx ?? 0,
       active: true,
       selectedDistincts: [],
       sliderMin,
@@ -64,8 +108,19 @@ export default class FilterCard extends React.PureComponent {
     };
   }
 
-  sendFilterUpdate(values) {
-    const { type, categories } = this.props.filter;
+  // NOTE (JS->TS): Centralizes the NumberFormatterBuilder creation.
+  // In the original JS implementation, the builder logic (including the
+  // significantDigits check) was duplicated in multiple places
+  // (constructor, handleMinMaxValue, render).
+  private getFormatter(): (n: number) => string {
+    const { number_of_significant_digits: digits } = this.props.filter || {};
+    return digits === null || digits === undefined
+      ? (n: number) => n.toString()
+      : new NumberFormatterBuilder(digits).build();
+  }
+
+  sendFilterUpdate(values: string[]): void {
+    const { type, categories } = this.props.filter ?? {};
     if (
       categories &&
       categories.includes("empty ") &&
@@ -76,17 +131,17 @@ export default class FilterCard extends React.PureComponent {
     if (values.length === 0 && type === "status") {
       this.props.onFilterUpdate({
         values: [emptyStateValue],
-        title: this.state.title || this.props.title,
+        title: this.state.title || this.props.title || "",
       });
     } else {
       this.props.onFilterUpdate({
         values,
-        title: this.state.title || this.props.title,
+        title: this.state.title || this.props.title || "",
       });
     }
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(prevProps: FilterCardProps): void {
     if (!this.props.filter) {
       return;
     }
@@ -94,11 +149,10 @@ export default class FilterCard extends React.PureComponent {
       !prevProps.filter ||
       prevProps.filter.values !== this.props.filter.values
     ) {
-      const { values, number_of_significant_digits: significantDigits } =
-        this.props.filter;
+      const { values = [] } = this.props.filter;
       const [value] = values;
       if (value && value.includes(":")) {
-        const { min, max } = this.handleMinMaxValue(value, significantDigits);
+        const { min, max } = this.handleMinMaxValue(value);
         this.setState({
           sliderMin: min,
           sliderMax: max,
@@ -109,62 +163,76 @@ export default class FilterCard extends React.PureComponent {
     }
   }
 
-  handleMinMaxValue(value, significantDigits) {
-    const builder = new NumberFormatterBuilder(significantDigits).build();
+  handleMinMaxValue(value: string): {
+    min: string | number;
+    max: string | number;
+  } {
+    const builder = this.getFormatter();
     const { min: propMin, max: propMax } = this.props.filter || {
       min: 0,
       max: Infinity,
     };
     const [vMin, vMax] = value.split(":");
     return {
-      min: vMin.trim() !== "" ? vMin : builder(propMin),
-      max: vMax.trim() !== "" ? vMax : builder(propMax),
+      min: vMin.trim() !== "" ? vMin : builder(propMin ?? 0),
+      max: vMax.trim() !== "" ? vMax : builder(propMax ?? Infinity),
     };
   }
 
-  handleNumberChange(min, max) {
-    const newState = {};
-    newState.sliderMin = Number(this.state.numericMin ?? this.state.sliderMin);
-    newState.sliderMax = Number(this.state.numericMax ?? this.state.sliderMax);
-    if (newState.sliderMin > newState.sliderMax) {
-      const temp = newState.sliderMax;
-      newState.sliderMax = newState.sliderMin;
-      newState.sliderMin = temp;
+  handleNumberChange(min: string | number, max: string | number): void {
+    const sliderMin = Number(this.state.numericMin ?? this.state.sliderMin);
+    const sliderMax = Number(this.state.numericMax ?? this.state.sliderMax);
+
+    let finalSliderMin = sliderMin;
+    let finalSliderMax = sliderMax;
+
+    if (sliderMin > sliderMax) {
+      finalSliderMin = sliderMax;
+      finalSliderMax = sliderMin;
     }
     // defaulting to an empty string per side, if the values exceeds
     // or is less than the min/max thresholds
-    const stringRepMin =
-      newState.sliderMin <= Number(min) ? "" : newState.sliderMin;
-    const stringRepMax =
-      newState.sliderMax >= Number(max) ? "" : newState.sliderMax;
-    newState.values = [`${stringRepMin}:${stringRepMax}`];
-    this.setState(newState);
-    this.sendFilterUpdate(newState.values);
+    const stringRepMin = finalSliderMin <= Number(min) ? "" : finalSliderMin;
+    const stringRepMax = finalSliderMax <= Number(max) ? "" : finalSliderMax;
+    const values = [`${stringRepMin}:${stringRepMax}`];
+
+    this.setState({
+      sliderMin: finalSliderMin,
+      sliderMax: finalSliderMax,
+      values,
+    });
+    this.sendFilterUpdate(values);
   }
 
-  render() {
+  render(): React.ReactNode {
     const { filter, editable, availableFilters } = this.props;
-    const selectRef = React.createRef();
+
     const filterAddSelection = () => (
       <>
         <span style={{ marginLeft: "12px" }}>Add filter for: </span>
         <select
           className="filter-selection"
           defaultValue="-1"
-          ref={selectRef}
-          onChange={({ target: { value: idx } }) => {
-            if (idx === -1) {
+          ref={this.selectRef}
+          onChange={({
+            target: { value: idx },
+          }: React.ChangeEvent<HTMLSelectElement>) => {
+            // NOTE (JS->TS): Select values are strings; normalize to number for correct comparisons and callback typing.
+            const numericIdx = Number(idx);
+            if (numericIdx === -1) {
               return;
             }
             this.setState({ idx: -1, active: true });
-            selectRef.current.value = "-1"; // Reset preselected option to "Column"
-            this.props.addFilter(idx);
+            if (this.selectRef.current) {
+              this.selectRef.current.value = "-1"; // Reset preselected option to "Column"
+            }
+            this.props.addFilter?.(numericIdx);
           }}
         >
           <option value="-1" disabled>
             Column
           </option>
-          {availableFilters.map(({ idx, display_title }) => (
+          {availableFilters?.map(({ idx, display_title }) => (
             <option key={idx} value={idx}>
               {display_title}
             </option>
@@ -173,20 +241,23 @@ export default class FilterCard extends React.PureComponent {
       </>
     );
 
-    const makeHeader = (name, editable) => (
+    const makeHeader = (
+      name: string | undefined,
+      editable: boolean | undefined,
+    ) => (
       <div className="filter-card--header">
         {editable ? (
           filterAddSelection()
         ) : (
           <>
-            <h4 className="title">{`${filter.display_title} ${
-              filter.unit ? "(" + filter.unit + ")" : ""
+            <h4 className="title">{`${filter?.display_title ?? ""} ${
+              filter?.unit ? "(" + filter.unit + ")" : ""
             }`}</h4>
             <FontAwesomeIcon
               className="delete-button"
               icon={faTrash}
               onClick={() => {
-                this.props.removeFilter();
+                this.props.removeFilter?.();
               }}
             />
           </>
@@ -194,34 +265,36 @@ export default class FilterCard extends React.PureComponent {
       </div>
     );
 
-    const makeFilterBody = (filter) => {
+    const makeFilterBody = (filter: FilterDefinition | undefined) => {
       if (!filter) {
         return null;
       }
       const {
         title,
         type,
-        number_of_significant_digits: significantDigits,
-        categories,
-        statuses,
+        categories = [],
+        statuses = [],
         values = [],
       } = filter;
-      let { min, max } = filter;
-      let body;
-      const emptyRowRef = React.createRef();
+
+      const { min = 0, max = 0 } = filter;
+      let body: React.ReactNode;
+
       if (type === "status") {
         body = (
           <>
-            {this.props.filter.categories &&
+            {this.props.filter?.categories &&
               this.props.filter.categories.includes("empty ") && (
                 <div className="filter-card--body--empty-rows">
                   Empty rows{" "}
                   <input
                     type="checkbox"
                     name={`empty-rows`}
-                    ref={emptyRowRef}
+                    ref={this.emptyRowRef}
                     checked={values.includes("empty ")}
-                    onChange={({ target: { checked } }) => {
+                    onChange={({
+                      target: { checked },
+                    }: React.ChangeEvent<HTMLInputElement>) => {
                       const emptyValue = "empty ";
                       if (checked) {
                         const newValues = [...values, emptyValue];
@@ -243,7 +316,7 @@ export default class FilterCard extends React.PureComponent {
                 .filter((category) => category !== "empty ")
                 .sort()
                 .map((category) => {
-                  const ref = React.createRef();
+                  const ref = React.createRef<HTMLInputElement>();
                   return (
                     <li key={category}>
                       <input
@@ -251,7 +324,9 @@ export default class FilterCard extends React.PureComponent {
                         name={`cat-${category}`}
                         checked={values.includes(category)}
                         ref={ref}
-                        onChange={({ target: { checked } }) => {
+                        onChange={({
+                          target: { checked },
+                        }: React.ChangeEvent<HTMLInputElement>) => {
                           if (checked) {
                             const newValues = [...values, category];
                             this.setState({ values: newValues });
@@ -266,7 +341,7 @@ export default class FilterCard extends React.PureComponent {
                       />
                       <label
                         htmlFor={`cat-${category}`}
-                        onClick={() => ref.current.click()}
+                        onClick={() => ref.current?.click()}
                         className={category}
                       >
                         {category}
@@ -278,7 +353,7 @@ export default class FilterCard extends React.PureComponent {
             Status
             <ul className="filter-card--body--list">
               {statuses.sort().map((status) => {
-                const ref = React.createRef();
+                const ref = React.createRef<HTMLInputElement>();
                 return (
                   <li key={status}>
                     <input
@@ -286,7 +361,9 @@ export default class FilterCard extends React.PureComponent {
                       name={`stat-${status}`}
                       ref={ref}
                       checked={values.includes(status)}
-                      onChange={({ target: { checked } }) => {
+                      onChange={({
+                        target: { checked },
+                      }: React.ChangeEvent<HTMLInputElement>) => {
                         if (checked) {
                           const newValues = [...values, status];
                           this.setState({ values: newValues });
@@ -300,7 +377,7 @@ export default class FilterCard extends React.PureComponent {
                     />
                     <label
                       htmlFor={`stat-${status}`}
-                      onClick={() => ref.current.click()}
+                      onClick={() => ref.current?.click()}
                     >
                       {status}
                     </label>
@@ -319,7 +396,9 @@ export default class FilterCard extends React.PureComponent {
             name={`text-${title}`}
             placeholder="Search for value"
             value={value}
-            onChange={({ target: { value: textValue } }) => {
+            onChange={({
+              target: { value: textValue },
+            }: React.ChangeEvent<HTMLInputElement>) => {
               clearTimeout(debounceHandler);
               this.setState({ values: [textValue] });
               debounceHandler = setTimeout(() => {
@@ -329,42 +408,48 @@ export default class FilterCard extends React.PureComponent {
           />
         );
       } else {
-        const builder = new NumberFormatterBuilder(significantDigits).build();
-        min = builder(min);
-        max = builder(max);
-        const minStep = getStep(min);
-        const maxStep = getStep(max);
+        const builder = this.getFormatter();
+        const formattedMin = builder(min ?? 0);
+        const formattedMax = builder(max ?? 0);
+
+        const minStep = getStep(formattedMin);
+        const maxStep = getStep(formattedMax);
 
         // get the bigger step by length of string (== smaller step)
-        const step = minStep.length > maxStep.length ? minStep : maxStep;
+        const step =
+          String(minStep).length > String(maxStep).length ? minStep : maxStep;
+        // NOTE (JS->TS): rc-slider expects a numeric step; getStep may return a string for HTML input compatibility.
+        const sliderStep = typeof step === "string" ? Number(step) : step;
 
         //shift the decimal
         body = (
           <>
             <div className="filter-card--range-container">
-              <b>{min}</b>
-              <b>{max}</b>
+              <b>{formattedMin}</b>
+              <b>{formattedMax}</b>
             </div>
             <Range
-              min={Number(min)}
-              max={Number(max)}
-              step={step}
-              defaultValue={[Number(min), Number(max)]}
+              min={Number(formattedMin)}
+              max={Number(formattedMax)}
+              step={sliderStep}
+              defaultValue={[Number(formattedMin), Number(formattedMax)]}
               value={[
                 Number(this.state.sliderMin),
                 Number(this.state.sliderMax),
               ]}
-              onChange={([nMin, nMax]) => {
+              onChange={(value: number[]) => {
+                const [nMin, nMax] = value;
                 this.setState({
                   sliderMin: builder(nMin),
                   sliderMax: builder(nMax),
                 });
               }}
-              onAfterChange={([nMin, nMax]) => {
+              onAfterChange={(value: number[]) => {
+                const [nMin, nMax] = value;
                 const fMin = builder(nMin);
                 const fMax = builder(nMax);
-                const stringRepMin = fMin === min ? "" : fMin;
-                const stringRepMax = fMax === max ? "" : fMax;
+                const stringRepMin = fMin === formattedMin ? "" : fMin;
+                const stringRepMax = fMax === formattedMax ? "" : fMax;
                 this.setState({
                   sliderMin: fMin,
                   sliderMax: fMax,
@@ -398,13 +483,15 @@ export default class FilterCard extends React.PureComponent {
                 }
                 lang="en-US"
                 step={step}
-                onChange={({ target: { value } }) => {
+                onChange={({
+                  target: { value },
+                }: React.ChangeEvent<HTMLInputElement>) => {
                   if (this.numericMinTimeout) {
-                    clearTimeout(this.numericMinTimeout);
+                    window.clearTimeout(this.numericMinTimeout);
                   }
                   this.setState({ numericMin: value });
                   this.numericMinTimeout = setTimeout(
-                    () => this.handleNumberChange(min, max),
+                    () => this.handleNumberChange(formattedMin, formattedMax),
                     numericInputDebounce,
                   );
                 }}
@@ -419,13 +506,15 @@ export default class FilterCard extends React.PureComponent {
                     ? this.state.numericMax
                     : this.state.sliderMax
                 }
-                onChange={({ target: { value } }) => {
+                onChange={({
+                  target: { value },
+                }: React.ChangeEvent<HTMLInputElement>) => {
                   if (this.numericMaxTimeout) {
                     clearTimeout(this.numericMaxTimeout);
                   }
                   this.setState({ numericMax: value });
                   this.numericMaxTimeout = setTimeout(
-                    () => this.handleNumberChange(min, max),
+                    () => this.handleNumberChange(formattedMin, formattedMax),
                     numericInputDebounce,
                   );
                 }}

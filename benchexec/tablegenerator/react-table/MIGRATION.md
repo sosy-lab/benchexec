@@ -169,7 +169,7 @@ changes and improves the reproducibility of the migration process.
 - [x] `src/utils/` (utils.js, filters.js, stats.js, plot.js)
 - [ ] `src/workers/` (workerDirector.js, dataUrls.js)
 - [ ] `src/components/` (leaf components → central components)
-  - [ ] `src/components/FilterBox/`
+  - [x] `src/components/FilterBox/`
   - [x] `src/components/Table/`
 - [ ] Entry points (`src/App.js`, `src/index.js`)
 - [ ] Tests as needed (`src/tests/**`, `src/App.test.js`)

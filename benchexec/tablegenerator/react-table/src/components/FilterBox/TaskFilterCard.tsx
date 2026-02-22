@@ -7,13 +7,30 @@
 
 import React from "react";
 import equals from "deep-equal";
-import { pathOr } from "../../utils/utils";
 import "rc-slider/assets/index.css";
 
-let debounceHandler = setTimeout(() => {}, 500);
+type TaskIdExamples = Record<string, string>;
 
-export default class TaskFilterCard extends React.PureComponent {
-  constructor(props) {
+type TaskIdFilterValues = Record<string, string>;
+
+interface TaskFilterCardProps {
+  ids?: TaskIdExamples;
+  filters?: string[] | null;
+  updateFilters: (values: TaskIdFilterValues) => void;
+  resetFilterHook: (resetFn: () => void) => void;
+}
+
+interface TaskFilterCardState {
+  values: TaskIdFilterValues;
+}
+
+export default class TaskFilterCard extends React.PureComponent<
+  Readonly<TaskFilterCardProps>,
+  Readonly<TaskFilterCardState>
+> {
+  private debounceHandler: ReturnType<typeof setTimeout> | null = null;
+
+  constructor(props: TaskFilterCardProps) {
     super(props);
     this.state = {
       values: this.extractFilters(),
@@ -21,33 +38,36 @@ export default class TaskFilterCard extends React.PureComponent {
     props.resetFilterHook(() => this.resetIdFilters());
   }
 
-  resetIdFilters() {
+  resetIdFilters(): void {
     this.setState({ values: {} });
     this.sendFilterUpdate({});
   }
 
-  sendFilterUpdate(values) {
+  sendFilterUpdate(values: TaskIdFilterValues): void {
     this.props.updateFilters(values);
   }
 
-  extractFilters() {
-    let i = 0;
-    const newVal = {};
-    for (const id of Object.keys(this.props.ids)) {
-      newVal[id] = pathOr(["filters", i++], "", this.props);
-    }
+  extractFilters(): TaskIdFilterValues {
+    // NOTE (JS->TS): Directly access filters array and convert to TaskIdFilterValues object for better type safety and readability.
+    // Using forEach and optional chaining eliminates the need for external pathOr utility and manual type casting.
+    const newVal: TaskIdFilterValues = {};
+    const ids = this.props.ids ?? {};
+    const filters = this.props.filters;
+    Object.keys(ids).forEach((id, i) => {
+      newVal[id] = filters?.[i] ?? "";
+    });
     return newVal;
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps: Readonly<TaskFilterCardProps>): void {
     if (!equals(this.props.filters, prevProps.filters)) {
       const newVal = this.extractFilters();
       this.setState({ values: newVal });
     }
   }
 
-  render() {
-    const ids = this.props.ids || {};
+  render(): React.ReactNode {
+    const ids = this.props.ids ?? {};
     const makeHeader = () => (
       <div className="filter-card--header">
         <>
@@ -58,7 +78,7 @@ export default class TaskFilterCard extends React.PureComponent {
 
     const makeFilterBody = () => {
       const body = Object.entries(ids).map(([key, example]) => {
-        const value = this.state.values[key] || "";
+        const value = this.state.values[key] ?? "";
         const id = `text-task-${key}`;
         return (
           <div key={id} className="task-id-filters">
@@ -69,12 +89,18 @@ export default class TaskFilterCard extends React.PureComponent {
               name={id}
               placeholder={example}
               value={value}
-              onChange={({ target: { value: textValue } }) => {
-                clearTimeout(debounceHandler);
-                const newState = {
+              onChange={({
+                target: { value: textValue },
+              }: React.ChangeEvent<HTMLInputElement>) => {
+                // NOTE (JS->TS): Use a class-level debounce handler to avoid global side effects and ensure multiple instances
+                // of this component don't interfere with each other's timers.
+                if (this.debounceHandler) {
+                  clearTimeout(this.debounceHandler);
+                }
+                const newState: TaskFilterCardState = {
                   values: { ...this.state.values, [key]: textValue },
                 };
-                debounceHandler = setTimeout(() => {
+                this.debounceHandler = setTimeout(() => {
                   this.sendFilterUpdate({
                     ...this.state.values,
                     [key]: textValue,
