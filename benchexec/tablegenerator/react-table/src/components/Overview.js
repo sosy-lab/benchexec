@@ -14,7 +14,7 @@ import SelectColumn from "./SelectColumn.tsx";
 import ScatterPlot from "./ScatterPlot.js";
 import QuantilePlot from "./QuantilePlot.js";
 import FilterBox from "./FilterBox/FilterBox.js";
-import LinkOverlay from "./LinkOverlay.js";
+import LinkOverlay from "./LinkOverlay.tsx";
 import classNames from "classnames";
 import FilterInfoButton from "./FilterInfoButton.tsx";
 import {
