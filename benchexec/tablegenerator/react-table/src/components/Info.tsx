@@ -18,14 +18,14 @@ type SpdxLicenseId = string;
 
 interface DependenciesJson {
   dependencies: DependencyJsonEntry[];
-  licenses: Record<string, string>;
+  licenses: string[];
 }
 
 interface DependencyJsonEntry {
   name: string;
   version: string;
   licenses: string;
-  licenseId?: string;
+  licenseId?: number;
   repository?: string;
   copyright?: string;
 }
@@ -35,7 +35,7 @@ interface DependencyJsonEntry {
  * ============================================================================
  */
 
-interface DependencyProps extends DependencyJsonEntry {}
+type DependencyProps = DependencyJsonEntry;
 
 interface InfoProps {
   selectColumn: React.MouseEventHandler<HTMLSpanElement>;
@@ -59,7 +59,11 @@ class Dependency extends React.Component<DependencyProps> {
   linkifyLicenses = (licensesString: string): Array<string | JSX.Element> =>
     licensesString
       .split(/([A-Za-z0-9.-]+)/)
-      .map((s) => (this.knownLicenses.includes(s as (typeof this.knownLicenses)[number]) ? this.linkifyLicense(s) : s));
+      .map((s) =>
+        this.knownLicenses.includes(s as typeof this.knownLicenses[number])
+          ? this.linkifyLicense(s)
+          : s,
+      );
 
   render = () => (
     <div>
@@ -106,7 +110,7 @@ class Dependency extends React.Component<DependencyProps> {
               {
                 (dependenciesJson as DependenciesJson).licenses[
                   this.props.licenseId
-                  ]
+                ]
               }
             </pre>
           </details>
