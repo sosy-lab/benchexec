@@ -7,11 +7,45 @@
 
 import React from "react";
 
-const dependencies = require("../data/dependencies.json");
+import dependenciesJson from "../data/dependencies.json";
 
-class Dependency extends React.Component {
-  knownLicenses = ["BSD-3-Clause", "CC-BY-4.0", "ISC", "MIT", "Zlib"];
-  linkifyLicense = (license) => (
+/* ============================================================================
+ * Types: JSON data model
+ * ============================================================================
+ */
+
+type SpdxLicenseId = string;
+
+interface DependenciesJson {
+  dependencies: DependencyJsonEntry[];
+  licenses: Record<string, string>;
+}
+
+interface DependencyJsonEntry {
+  name: string;
+  version: string;
+  licenses: string;
+  licenseId?: string;
+  repository?: string;
+  copyright?: string;
+}
+
+/* ============================================================================
+ * Types: React component props
+ * ============================================================================
+ */
+
+interface DependencyProps extends DependencyJsonEntry {}
+
+interface InfoProps {
+  selectColumn: React.MouseEventHandler<HTMLSpanElement>;
+  version: string;
+}
+
+class Dependency extends React.Component<DependencyProps> {
+  knownLicenses = ["BSD-3-Clause", "CC-BY-4.0", "ISC", "MIT", "Zlib"] as const;
+
+  linkifyLicense = (license: SpdxLicenseId): JSX.Element => (
     <a
       key={license}
       href={"https://spdx.org/licenses/" + license}
@@ -21,12 +55,11 @@ class Dependency extends React.Component {
       {license}
     </a>
   );
-  linkifyLicenses = (licensesString) =>
+
+  linkifyLicenses = (licensesString: string): Array<string | JSX.Element> =>
     licensesString
       .split(/([A-Za-z0-9.-]+)/)
-      .map((s) =>
-        this.knownLicenses.includes(s) ? this.linkifyLicense(s) : s,
-      );
+      .map((s) => (this.knownLicenses.includes(s as (typeof this.knownLicenses)[number]) ? this.linkifyLicense(s) : s));
 
   render = () => (
     <div>
@@ -69,7 +102,13 @@ class Dependency extends React.Component {
           <br />
           <details>
             <summary>Full text of license</summary>
-            <pre>{dependencies.licenses[this.props.licenseId]}</pre>
+            <pre>
+              {
+                (dependenciesJson as DependenciesJson).licenses[
+                  this.props.licenseId
+                  ]
+              }
+            </pre>
           </details>
         </>
       )}
@@ -77,7 +116,7 @@ class Dependency extends React.Component {
   );
 }
 
-const Info = (props) => (
+const Info = (props: InfoProps): JSX.Element => (
   <div className="info">
     <div className="info-header">
       <h1>Info and Help</h1>
@@ -203,7 +242,7 @@ const Info = (props) => (
         This application includes third-party dependencies under different
         licenses. Click here to view them.
       </summary>
-      {dependencies.dependencies.map((dependency) => {
+      {(dependenciesJson as DependenciesJson).dependencies.map((dependency) => {
         return (
           <Dependency
             key={dependency.name + dependency.version}
@@ -214,4 +253,5 @@ const Info = (props) => (
     </details>
   </div>
 );
+
 export default Info;
