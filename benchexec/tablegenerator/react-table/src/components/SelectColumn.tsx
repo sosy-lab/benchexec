@@ -57,7 +57,9 @@ export default class SelectColumn extends React.Component<
             (otherCol) => otherCol.display_title === col.display_title,
           ),
       )
-      .map((col) => col.display_title);
+      .map((col) => col.display_title)
+      .filter((t): t is NonNullable<typeof t> => t !== undefined && t !== null)
+      .map((t) => String(t));
 
     this.state = {
       isButtonOnDeselect: true,
@@ -111,11 +113,17 @@ export default class SelectColumn extends React.Component<
 
   // -------------------------Rendering-------------------------
   renderTools = (): JSX.Element[] => {
-    return this.props.tools.map((tool) => {
-      const toolIdx = tool.toolIdx;
-      const isVisible =
-        this.state.hiddenCols[toolIdx].length !== tool.columns.length;
-      const toolName = getRunSetName(tool);
+    return this.props.tools.map((tool, idx) => {
+      const toolIdx: number = tool.toolIdx ?? idx;
+      const hiddenForTool = this.state.hiddenCols[toolIdx] ?? [];
+      const isVisible = hiddenForTool.length !== tool.columns.length;
+
+      const toolName = getRunSetName({
+        tool: tool.tool ?? "",
+        date: tool.date ?? "",
+        niceName: tool.niceName ?? "",
+      });
+
       return (
         <tr id={toolName} key={"tr" + toolName + toolIdx}>
           <td id={toolName} className={isVisible ? "checked" : ""}>
@@ -136,9 +144,10 @@ export default class SelectColumn extends React.Component<
   };
 
   renderToolColumns = (toolIdx: number): Array<JSX.Element> => {
-    const currentTool = this.props.tools.find(
-      (tool) => tool.toolIdx === toolIdx,
-    );
+    const currentTool = this.props.tools.find((tool, idx) => {
+      const currentIdx = tool.toolIdx ?? idx;
+      return currentIdx === toolIdx;
+    });
 
     // NOTE (JS->TS): Guard against an unexpected missing tool entry to avoid a runtime crash.
     if (!currentTool) {
@@ -147,17 +156,20 @@ export default class SelectColumn extends React.Component<
       ));
     }
 
+    const hiddenForTool = this.state.hiddenCols[toolIdx] ?? [];
+
     return this.state.selectableCols.map((colTitle) => {
       const hasToolCol = currentTool.columns.some(
-        (col) => col.display_title === colTitle,
+        (col) => String(col.display_title ?? "") === colTitle,
       );
       if (hasToolCol) {
         const colIdxs = currentTool.columns
-          .filter((col) => col.display_title === colTitle)
-          .map((col) => col.colIdx);
-        const isVisible = !colIdxs.some((col) =>
-          this.state.hiddenCols[toolIdx].includes(col),
-        );
+          .filter((col) => String(col.display_title ?? "") === colTitle)
+          .map((col) => col.colIdx)
+          .filter((n): n is number => typeof n === "number");
+
+        const isVisible = !colIdxs.some((col) => hiddenForTool.includes(col));
+
         return (
           <td
             id={"td" + toolIdx + colTitle}
@@ -187,9 +199,10 @@ export default class SelectColumn extends React.Component<
       // Column is visible if there is at least one runset that contains this col and this col is not hidden for
       const isVisible = Object.values(this.state.hiddenCols).some(
         (hiddenCols, idx) => {
-          const currentTool = this.props.tools.find(
-            (tool) => tool.toolIdx === idx,
-          );
+          const currentTool = this.props.tools.find((tool, toolArrIdx) => {
+            const toolIdx = tool.toolIdx ?? toolArrIdx;
+            return toolIdx === idx;
+          });
 
           // NOTE (JS->TS): Guard against an unexpected missing tool entry to avoid a runtime crash.
           if (!currentTool) {
@@ -197,12 +210,14 @@ export default class SelectColumn extends React.Component<
           }
 
           const colIdxs = currentTool.columns
-            .filter((col) => col.display_title === colTitle)
-            .map((col) => col.colIdx);
+            .filter((col) => String(col.display_title ?? "") === colTitle)
+            .map((col) => col.colIdx)
+            .filter((n): n is number => typeof n === "number");
+
           return (
             !colIdxs.some((col) => hiddenCols.includes(col)) &&
             currentTool.columns.some(
-              (toolCol) => toolCol.display_title === colTitle,
+              (toolCol) => String(toolCol.display_title ?? "") === colTitle,
             )
           );
         },
@@ -231,13 +246,17 @@ export default class SelectColumn extends React.Component<
   // Toggles all columns of all runsets
   toggleAllColsHidden = (): void => {
     const hiddenCols: HiddenColsByTool = {};
-    this.props.tools.forEach((tool) => {
-      hiddenCols[tool.toolIdx] = [];
+    this.props.tools.forEach((tool, idx) => {
+      const toolIdx = tool.toolIdx ?? idx;
+      hiddenCols[toolIdx] = [];
     });
 
     if (this.state.isButtonOnDeselect) {
-      this.props.tools.forEach((tool) => {
-        hiddenCols[tool.toolIdx] = tool.columns.map((column) => column.colIdx);
+      this.props.tools.forEach((tool, idx) => {
+        const toolIdx = tool.toolIdx ?? idx;
+        hiddenCols[toolIdx] = tool.columns
+          .map((column) => column.colIdx)
+          .filter((n): n is number => typeof n === "number");
       });
     }
 
@@ -257,8 +276,9 @@ export default class SelectColumn extends React.Component<
     const newHiddenCols = isAlreadyHidden
       ? []
       : this.props.tools
-          .find((tool) => tool.toolIdx === toolIdx)
-          ?.columns.map((col) => col.colIdx) ?? [];
+          .find((tool, idx) => (tool.toolIdx ?? idx) === toolIdx)
+          ?.columns.map((col) => col.colIdx)
+          .filter((n): n is number => typeof n === "number") ?? [];
 
     // NOTE (JS->TS): If the tool is unexpectedly missing, fall back to an empty list to keep behavior stable.
     this.setHiddenColsForTool(toolIdx, newHiddenCols);
@@ -274,9 +294,10 @@ export default class SelectColumn extends React.Component<
       target.type === "checkbox" ? target.checked : target.value;
     const colIdxs =
       this.props.tools
-        .find((tool) => tool.toolIdx === toolIdx)
-        ?.columns.filter((col) => col.display_title === colTitle)
-        .map((col) => col.colIdx) ?? [];
+        .find((tool, idx) => (tool.toolIdx ?? idx) === toolIdx)
+        ?.columns.filter((col) => String(col.display_title ?? "") === colTitle)
+        .map((col) => col.colIdx)
+        .filter((n): n is number => typeof n === "number") ?? [];
 
     // NOTE (JS->TS): If the tool is unexpectedly missing, fall back to an empty list to keep behavior stable.
     isAlreadyHidden
@@ -292,28 +313,33 @@ export default class SelectColumn extends React.Component<
     const isAlreadyHidden =
       target.type === "checkbox" ? target.checked : target.value;
 
-    this.props.tools.forEach((tool) => {
-      const cols = tool.columns.filter((col) => col.display_title === colTitle);
+    this.props.tools.forEach((tool, idx) => {
+      const toolIdx = tool.toolIdx ?? idx;
+      const cols = tool.columns.filter(
+        (col) => String(col.display_title ?? "") === colTitle,
+      );
       if (cols.length > 0) {
-        const colIdxs = cols.map((col) => col.colIdx);
+        const colIdxs = cols
+          .map((col) => col.colIdx)
+          .filter((n): n is number => typeof n === "number");
         isAlreadyHidden
-          ? this.removeFromHiddenCols(tool.toolIdx, colIdxs)
-          : this.addToHiddenCols(tool.toolIdx, colIdxs);
+          ? this.removeFromHiddenCols(toolIdx, colIdxs)
+          : this.addToHiddenCols(toolIdx, colIdxs);
       }
     });
   };
 
   // Adds the given column indexes of the given runset to the hidden columns
   addToHiddenCols = (toolIdx: number, colIdxs: number[]): void => {
-    const newHiddenCols = [
-      ...new Set(this.state.hiddenCols[toolIdx].concat(colIdxs)),
-    ];
+    const currentHidden = this.state.hiddenCols[toolIdx] ?? [];
+    const newHiddenCols = [...new Set(currentHidden.concat(colIdxs))];
     this.setHiddenColsForTool(toolIdx, newHiddenCols);
   };
 
   // Removes the given column indexes of the given runset to the hidden columns
   removeFromHiddenCols = (toolIdx: number, colIdxs: number[]): void => {
-    const newHiddenCols = this.state.hiddenCols[toolIdx].filter(
+    const currentHidden = this.state.hiddenCols[toolIdx] ?? [];
+    const newHiddenCols = currentHidden.filter(
       (hiddenColIdx) => !colIdxs.includes(hiddenColIdx),
     );
     this.setHiddenColsForTool(toolIdx, newHiddenCols);
@@ -333,13 +359,14 @@ export default class SelectColumn extends React.Component<
   };
 
   render() {
-    // NOTE (JS->TS): Use a selector string to avoid dealing with a possibly-null HTMLElement.
-    ReactModal.setAppElement("#root");
+    ReactModal.setAppElement(document.getElementById("root"));
 
-    const areAllColsDisabled = this.props.tools.every(
-      (tool) =>
-        tool.columns.length === this.state.hiddenCols[tool.toolIdx].length,
-    );
+    const areAllColsDisabled = this.props.tools.every((tool, idx) => {
+      const toolIdx = tool.toolIdx ?? idx;
+      const hiddenForTool = this.state.hiddenCols[toolIdx] ?? [];
+      return tool.columns.length === hiddenForTool.length;
+    });
+
     return (
       <ReactModal
         ariaHideApp={false}
