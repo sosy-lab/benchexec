@@ -6,7 +6,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from "react";
-import SelectColumn from "../components/SelectColumn.js";
+import SelectColumn from "../components/SelectColumn.tsx";
 
 import { test_snapshot_of } from "./utils.js";
 
