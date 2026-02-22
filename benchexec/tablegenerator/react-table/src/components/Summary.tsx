@@ -20,12 +20,67 @@ const infos = [
   "branch",
   "options",
   "property",
-];
+] as const;
 
-const Summary = (props) => {
+/* ============================================================================
+ * Basic model types
+ * ========================================================================== */
+
+type InfoRowId = typeof infos[number];
+
+type ToolNameAndVersion = {
+  tool: string;
+  version: string;
+  project_url?: string;
+  version_url?: string;
+};
+
+type ExternalLinkUrl = string | null | undefined;
+
+type InfoRowTextById = {
+  tool: ToolNameAndVersion;
+  options: string;
+} & {
+  [K in Exclude<InfoRowId, "tool" | "options">]: string;
+};
+
+type InfoRowText<K extends InfoRowId> = InfoRowTextById[K];
+
+type HeaderCell<K extends InfoRowId> = readonly [InfoRowText<K>, number];
+
+type HeaderRow<K extends InfoRowId> = {
+  id: K;
+  name: string;
+  content: ReadonlyArray<HeaderCell<K>>;
+};
+
+type TableHeader = {
+  [K in InfoRowId]: HeaderRow<K> | null;
+};
+
+/* ============================================================================
+ * Component props
+ * ========================================================================== */
+
+type SummaryProps = {
+  tableHeader: TableHeader;
+
+  selectColumn: unknown;
+  tools: unknown;
+  switchToQuantile: unknown;
+  hiddenCols: unknown;
+  tableData: unknown;
+  onStatsReady: unknown;
+  stats: unknown;
+  filtered: unknown;
+
+  version: string;
+};
+
+const Summary = (props: SummaryProps): React.ReactElement => {
   /* ++++++++++++++ Helper functions ++++++++++++++ */
 
-  const renderOptions = (text) => {
+  const renderOptions = (text: string): React.ReactElement[] => {
     return text.split(/[\s]+-/).map((option, i) => (
       <li key={option}>
         <code>{i === 0 ? option : `-${option}`}</code>
@@ -33,7 +88,10 @@ const Summary = (props) => {
     ));
   };
 
-  const externalLink = (url, text) => {
+  const externalLink = (
+    url: ExternalLinkUrl,
+    text: React.ReactNode,
+  ): React.ReactNode => {
     if (url) {
       return (
         <a href={url} target="_blank" rel="noopener noreferrer">
@@ -50,7 +108,7 @@ const Summary = (props) => {
     version,
     project_url,
     version_url,
-  }) => {
+  }: ToolNameAndVersion): React.ReactElement => {
     return (
       <>
         {externalLink(project_url, tool)} {externalLink(version_url, version)}
@@ -60,19 +118,24 @@ const Summary = (props) => {
 
   /* ++++++++++++++ Table render functions ++++++++++++++ */
 
-  const renderRow = (row, text, colSpan, j) => {
+  const renderRow = <K extends InfoRowId>(
+    row: K,
+    text: InfoRowText<K>,
+    colSpan: number,
+    j: number,
+  ): React.ReactElement => {
     const isOptionRow = row === "options";
     const isToolRow = row === "tool";
     return (
       <td
         colSpan={colSpan}
-        key={text + j}
+        key={String(text) + j}
         className={`header__tool-row${isOptionRow && " options"}`}
       >
         {isOptionRow ? (
-          <ul>{renderOptions(text)}</ul>
+          <ul>{renderOptions(text as InfoRowText<"options">)}</ul>
         ) : isToolRow ? (
-          renderToolNameAndVersion(text)
+          renderToolNameAndVersion(text as InfoRowText<"tool">)
         ) : (
           text
         )}
@@ -88,12 +151,12 @@ const Summary = (props) => {
           <tbody>
             {infos
               .map((row) => props.tableHeader[row])
-              .filter((row) => row !== null)
+              .filter((row): row is NonNullable<typeof row> => row !== null)
               .map((row) => (
                 <tr key={"tr-" + row.id} className={row.id}>
                   <th key={"td-" + row.id}>{row.name}</th>
                   {row.content.map((tool, j) =>
-                    renderRow(row.id, tool[0], tool[1], j),
+                    renderRow(row.id, tool[0] as never, tool[1], j),
                   )}
                 </tr>
               ))}
