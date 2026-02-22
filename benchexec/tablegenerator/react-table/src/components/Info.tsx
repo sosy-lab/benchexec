@@ -30,6 +30,8 @@ interface DependencyJsonEntry {
   copyright?: string;
 }
 
+const dependenciesData: DependenciesJson = dependenciesJson;
+
 /* ============================================================================
  * Types: React component props
  * ============================================================================
@@ -106,13 +108,7 @@ class Dependency extends React.Component<DependencyProps> {
           <br />
           <details>
             <summary>Full text of license</summary>
-            <pre>
-              {
-                (dependenciesJson as DependenciesJson).licenses[
-                  this.props.licenseId
-                ]
-              }
-            </pre>
+            <pre>{dependenciesData.licenses[this.props.licenseId]}</pre>
           </details>
         </>
       )}
@@ -246,7 +242,7 @@ const Info = (props: InfoProps): JSX.Element => (
         This application includes third-party dependencies under different
         licenses. Click here to view them.
       </summary>
-      {(dependenciesJson as DependenciesJson).dependencies.map((dependency) => {
+      {dependenciesData.dependencies.map((dependency) => {
         return (
           <Dependency
             key={dependency.name + dependency.version}
