@@ -38,8 +38,129 @@ import calcRegression from "regression";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faExchangeAlt } from "@fortawesome/free-solid-svg-icons";
 
-export default class ScatterPlot extends React.Component {
-  constructor(props) {
+import type { RowLike, ToolLike } from "../types/reactTable";
+
+/* ============================================================================
+ * Types: helpers and component props/state
+ * ============================================================================
+ */
+
+type AxisId = "X" | "Y";
+
+type ScalingType = "ordinal" | "log" | "linear";
+
+type ScatterPlotProps = {
+  tools: ToolLike[];
+  columns: Array<[unknown, string]>;
+  hiddenCols: Record<number, number[]>;
+  table: RowLike[];
+  getRowName: (row: RowLike) => string;
+  isFlexible?: boolean;
+}
+
+type ScatterPlotState = {
+  dataX?: string;
+  dataY?: string;
+  results: string;
+  scaling: string;
+  regression: string;
+  toolX: number;
+  toolY: number;
+  line: number;
+  columnX: number;
+  columnY: number;
+  nameX: string;
+  nameY: string;
+  value: ScatterPlotPoint | null | false;
+  areAllColsHidden: boolean;
+}
+
+/** A single scatter-plot point. */
+type ScatterPlotPoint = {
+  x: number;
+  y: number;
+  info: string;
+}
+
+type SettingOptions = Record<string, string>;
+
+type OptgroupOption = {
+  name: string;
+  value: string;
+}
+
+type OptgroupOptions = Record<string, OptgroupOption[]>;
+
+/**
+ * Minimal subset of the regression result shape that we use.
+ * (The regression library types are not necessarily available in this project.)
+ */
+interface RegressionResultLike {
+  points: Array<[number, number]>;
+  equation: [number, number];
+  string: string;
+  r2: number;
+  predict: (x: number) => [number, number];
+}
+
+interface RegressionData {
+  regression: RegressionResultLike;
+  text: string;
+  upperConfidenceBorderData: Array<[number, number]>;
+  lowerConfidenceBorderData: Array<[number, number]>;
+}
+
+/** URL parameters that ScatterPlot may read/write. */
+interface ScatterPlotUrlParams {
+  results?: string | null;
+  scaling?: string | null;
+  toolX?: string | null;
+  toolY?: string | null;
+  columnX?: string | null;
+  columnY?: string | null;
+  line?: string | null;
+  regression?: string | null;
+}
+
+export default class ScatterPlot extends React.Component<
+  ScatterPlotProps,
+  ScatterPlotState
+> {
+  scalingOptions: SettingOptions;
+
+  resultsOptions: SettingOptions;
+
+  regressionOptions: SettingOptions;
+
+  lineOptgroupOptions: Record<string, Array<{ name: string; value: number }>>;
+
+  defaultValues: {
+    scaling: string;
+    results: string;
+    regression: string;
+    line: number;
+  };
+
+  maxX: number;
+
+  minX: number;
+
+  maxY: number;
+
+  minY: number;
+
+  lineCount: number;
+
+  hasInvalidLog: boolean;
+
+  dataArray: ScatterPlotPoint[];
+
+  regressionData?: RegressionData;
+
+  // NOTE (JS->TS): This field existed implicitly in JS; keep it as an empty list to preserve structure.
+  array: unknown[];
+
+  constructor(props: ScatterPlotProps) {
     super(props);
 
     this.scalingOptions = {
@@ -87,50 +208,101 @@ export default class ScatterPlot extends React.Component {
     };
 
     this.state = this.setup();
-    this.maxX = "";
-    this.minX = "";
+    this.maxX = 0;
+    this.minX = 0;
+    this.maxY = 0;
+    this.minY = 0;
     this.lineCount = 1;
+    this.hasInvalidLog = false;
+    this.dataArray = [];
+    this.array = [];
   }
 
-  setup() {
+  setup(): ScatterPlotState {
     const defaultName =
       getRunSetName(this.props.tools[0]) + " " + this.props.columns[0][1];
 
-    let { results, scaling, toolX, toolY, columnX, columnY, line, regression } =
-      {
-        ...this.defaultValues,
-        ...getURLParameters(),
-      };
+    const urlParams = getURLParameters() as Partial<ScatterPlotUrlParams>;
 
-    let dataX, dataY, areAllColsHidden;
+    const {
+      results,
+      scaling,
+      toolX,
+      toolY,
+      columnX,
+      columnY,
+      line,
+      regression,
+    } = {
+      ...this.defaultValues,
+      ...urlParams,
+    } as {
+      results: string;
+      scaling: string;
+      regression: string;
+      line: number | string;
+      toolX?: string | null;
+      toolY?: string | null;
+      columnX?: string | null;
+      columnY?: string | null;
+    };
 
-    if (isNil(toolX) || isNil(columnX)) {
+    let dataX: string | undefined;
+    let dataY: string | undefined;
+    let areAllColsHidden: boolean;
+
+    const parsedLine =
+      typeof line === "string" ? Number.parseFloat(line) : line;
+
+    let toolXNum: number | undefined;
+    let toolYNum: number | undefined;
+    let columnXNum: number | undefined;
+    let columnYNum: number | undefined;
+
+    if (!isNil(toolX) && !isNil(columnX)) {
+      toolXNum = Number.parseInt(toolX, 10);
+      columnXNum = Number.parseInt(columnX, 10);
+    }
+    if (!isNil(toolY) && !isNil(columnY)) {
+      toolYNum = Number.parseInt(toolY, 10);
+      columnYNum = Number.parseInt(columnY, 10);
+    }
+
+    if (isNil(toolXNum) || isNil(columnXNum)) {
       const [firstVisibleTool, firstVisibleColumn] = getFirstVisibles(
         this.props.tools,
         this.props.hiddenCols,
-      );
+      ) as [number | undefined, number | undefined];
       areAllColsHidden = firstVisibleTool === undefined;
-      toolX = firstVisibleTool;
-      dataX = `${firstVisibleTool}-${firstVisibleColumn}`;
+      toolXNum = firstVisibleTool ?? 0;
+      columnXNum = firstVisibleColumn ?? 0;
+      dataX =
+        firstVisibleTool !== undefined && firstVisibleColumn !== undefined
+          ? `${firstVisibleTool}-${firstVisibleColumn}`
+          : undefined;
     } else {
       areAllColsHidden = false;
-      dataX = `${toolX}-${columnX}`;
+      dataX = `${toolXNum}-${columnXNum}`;
     }
 
-    if (isNil(toolY) || isNil(columnY)) {
+    if (isNil(toolYNum) || isNil(columnYNum)) {
       const [firstVisibleTool, firstVisibleColumn] = getFirstVisibles(
         this.props.tools,
         this.props.hiddenCols,
-      );
+      ) as [number | undefined, number | undefined];
       areAllColsHidden = firstVisibleTool === undefined;
-      toolY = firstVisibleTool;
-      dataY = `${firstVisibleTool}-${firstVisibleColumn}`;
+      toolYNum = firstVisibleTool ?? 0;
+      columnYNum = firstVisibleColumn ?? 0;
+      dataY =
+        firstVisibleTool !== undefined && firstVisibleColumn !== undefined
+          ? `${firstVisibleTool}-${firstVisibleColumn}`
+          : undefined;
     } else {
       areAllColsHidden = false;
-      dataY = `${toolY}-${columnY}`;
+      dataY = `${toolYNum}-${columnYNum}`;
     }
 
-    let out = {
+    let out: ScatterPlotState = {
       dataX,
       dataY,
       results,
@@ -138,7 +310,7 @@ export default class ScatterPlot extends React.Component {
       regression,
       toolX: 0,
       toolY: 0,
-      line,
+      line: Number.isFinite(parsedLine) ? parsedLine : this.defaultValues.line,
       columnX: 1,
       columnY: 1,
       nameX: defaultName,
@@ -165,25 +337,25 @@ export default class ScatterPlot extends React.Component {
     window.removeEventListener("popstate", this.refreshUrlState);
   }
 
-  refreshUrlState = () => {
+  refreshUrlState = (): void => {
     this.setState(this.setup());
   };
 
-  checkForNumericalSelections = () =>
+  checkForNumericalSelections = (): boolean =>
     this.handleType(this.state.toolY, this.state.columnY) !== "ordinal" &&
     this.handleType(this.state.toolX, this.state.columnX) !== "ordinal";
 
   // --------------------rendering-----------------------------
-  renderData = () => {
-    let array = [];
+  renderData = (): void => {
+    const array: ScatterPlotPoint[] = [];
     this.hasInvalidLog = false;
 
     if (!this.state.areAllColsHidden) {
       this.props.table.forEach((row) => {
         const resX = row.results[this.state.toolX];
         const resY = row.results[this.state.toolY];
-        const x = resX.values[this.state.columnX].raw;
-        const y = resY.values[this.state.columnY].raw;
+        const x = resX.values[this.state.columnX].raw as number | null;
+        const y = resY.values[this.state.columnY].raw as number | null;
         const hasValues =
           x !== undefined && x !== null && y !== undefined && y !== null;
         const areOnlyCorrectResults =
@@ -204,8 +376,8 @@ export default class ScatterPlot extends React.Component {
             this.hasInvalidLog = true;
           } else {
             array.push({
-              x: x,
-              y: y,
+              x,
+              y,
               info: this.props.getRowName(row),
             });
           }
@@ -224,29 +396,35 @@ export default class ScatterPlot extends React.Component {
       if (this.lineCount === 0 || !areSelectionsNumerical) {
         setURLParameter({ regression: this.regressionOptions.none });
       } else {
-        const regressionDataArray = array.map((data) => [
-          parseFloat(data.x),
-          parseFloat(data.y),
-        ]);
-        const regression = calcRegression.linear(regressionDataArray);
+        const regressionDataArray: Array<[number, number]> = array.map(
+          (data) => [parseFloat(`${data.x}`), parseFloat(`${data.y}`)],
+        );
+        const regression = calcRegression.linear(
+          regressionDataArray,
+        ) as unknown as RegressionResultLike;
+
         const confidenceIntervalBorders = getConfidenceIntervalBorders(
           regressionDataArray,
           regression.points,
           regression.predict,
           this.minX,
           this.maxX,
-        );
+        ) as {
+          upperBorderData: Array<[number, number]>;
+          lowerBorderData: Array<[number, number]>;
+        };
+
         /* Due to points with same x but different y value, there may be many duplicates in the regression data. Those can be used for
            easier calculation for the 95% Confidence Intervals, but aren't necessary afterwards since they'll only be used to draw the line.
            To have a line from the start to the end of the coordinate system, the points at the borders are added here too. */
-        const endPoints = [
+        const endPoints: Array<[number, number]> = [
           [this.minX, regression.predict(this.minX)[1]],
           [this.maxX, regression.predict(this.maxX)[1]],
         ];
         regression.points = Array.from(
           new Set(regression.points.map(JSON.stringify)),
           JSON.parse,
-        ).concat(endPoints);
+        ).concat(endPoints) as Array<[number, number]>;
 
         const unitX =
           this.props.tools[this.state.toolX].columns[this.state.columnX].unit;
@@ -272,7 +450,7 @@ export default class ScatterPlot extends React.Component {
     }
   };
 
-  setMinMaxValues = (array) => {
+  setMinMaxValues = (array: ScatterPlotPoint[]): void => {
     const xValues = array.map((el) => el.x);
     const yValues = array.map((el) => el.y);
 
@@ -282,25 +460,25 @@ export default class ScatterPlot extends React.Component {
     this.minY = this.findMinValue(yValues);
   };
 
-  findMaxValue = (values) => {
+  findMaxValue = (values: number[]): number => {
     const max = Math.max(...values);
     return max < 3 ? 3 : max;
   };
 
-  findMinValue = (values) => {
+  findMinValue = (values: number[]): number => {
     const min = Math.min(...values);
     return min > 2 ? 1 : min;
   };
 
-  renderAllSettings() {
-    const axisOptions = this.props.tools.reduce(
+  renderAllSettings(): JSX.Element {
+    const axisOptions = this.props.tools.reduce<OptgroupOptions>(
       (acc, runset, runsetIdx) =>
         Object.assign(acc, {
           [getRunSetName(runset)]: runset.columns
             .filter(
               (col) => !this.props.hiddenCols[runsetIdx].includes(col.colIdx),
             )
-            .map((col, j) => ({
+            .map((col) => ({
               name: col.display_title,
               value: runsetIdx + "-" + col.colIdx,
             })),
@@ -314,7 +492,8 @@ export default class ScatterPlot extends React.Component {
             {renderOptgroupsSetting(
               "X-Axis",
               this.state.dataX,
-              (ev) => this.setAxis(ev, "X"),
+              (ev: React.ChangeEvent<HTMLSelectElement>) =>
+                this.setAxis(ev, "X"),
               axisOptions,
             )}
             <span className="setting icon">
@@ -326,7 +505,8 @@ export default class ScatterPlot extends React.Component {
             {renderOptgroupsSetting(
               "Y-Axis",
               this.state.dataY,
-              (ev) => this.setAxis(ev, "Y"),
+              (ev: React.ChangeEvent<HTMLSelectElement>) =>
+                this.setAxis(ev, "Y"),
               axisOptions,
             )}
           </div>
@@ -334,22 +514,25 @@ export default class ScatterPlot extends React.Component {
             {renderSetting(
               "Scaling",
               this.state.scaling,
-              (ev) => setURLParameter({ scaling: ev.target.value }),
+              (ev: React.ChangeEvent<HTMLSelectElement>) =>
+                setURLParameter({ scaling: ev.target.value }),
               this.scalingOptions,
             )}
             {renderSetting(
               "Results",
               this.state.results,
-              (ev) => setURLParameter({ results: ev.target.value }),
+              (ev: React.ChangeEvent<HTMLSelectElement>) =>
+                setURLParameter({ results: ev.target.value }),
               this.resultsOptions,
               "In addition to which results are selected here, any filters will still be applied.",
             )}
             <div className="settings-subcontainer">
               {renderOptgroupsSetting(
                 "Aux. Lines",
-                this.state.line,
-                (ev) => setURLParameter({ line: ev.target.value }),
-                this.lineOptgroupOptions,
+                `${this.state.line}`,
+                (ev: React.ChangeEvent<HTMLSelectElement>) =>
+                  setURLParameter({ line: ev.target.value }),
+                this.lineOptgroupOptions as unknown as OptgroupOptions,
                 "Adds the two auxiliary lines f(x) = cx and f(x) = x/c to the plot, with c being the chosen factor in the dropdown.",
               )}
             </div>
@@ -358,7 +541,7 @@ export default class ScatterPlot extends React.Component {
             {renderSetting(
               "Regression",
               this.state.regression,
-              (ev) => {
+              (ev: React.ChangeEvent<HTMLSelectElement>) => {
                 if (this.checkForNumericalSelections()) {
                   setURLParameter({ regression: ev.target.value });
                 } else {
@@ -391,47 +574,50 @@ export default class ScatterPlot extends React.Component {
     );
   }
 
-  renderRegressionAndConfidenceIntervals() {
+  renderRegressionAndConfidenceIntervals(): React.ReactNode[] {
     const minX = Math.floor(this.minX);
     const maxX = Math.ceil(this.maxX);
     const dataPointsOfRegression = getDataPointsOfRegression(
       minX,
       maxX,
-      this.regressionData.regression.predict,
-    );
+      this.regressionData?.regression.predict,
+    ) as Array<[number, number]>;
     return [
       this.renderConfidenceIntervalLine(
-        this.regressionData.upperConfidenceBorderData,
+        this.regressionData?.upperConfidenceBorderData ?? [],
         "upper",
       ),
       this.renderConfidenceIntervalLine(
-        this.regressionData.lowerConfidenceBorderData,
+        this.regressionData?.lowerConfidenceBorderData ?? [],
         "lower",
       ),
       this.renderRegressionLine(dataPointsOfRegression),
     ];
   }
 
-  renderRegressionLine = (dataPoints) => {
+  renderRegressionLine = (dataPoints: Array<[number, number]>): JSX.Element => {
     const lineData = this.prepareRegressionLineData(dataPoints);
     return (
       <LineMarkSeries
         className="regression-line"
-        data={lineData}
+        data={lineData as unknown as Array<Record<string, unknown>>}
         style={{
           stroke: "green",
         }}
         key={"reg-line-" + dataPoints}
-        onValueMouseOver={(datapoint, event) =>
-          this.setState({ value: datapoint })
+        onValueMouseOver={(datapoint: unknown) =>
+          this.setState({ value: datapoint as ScatterPlotPoint })
         }
-        onValueMouseOut={(datapoint, event) => this.setState({ value: null })}
+        onValueMouseOut={() => this.setState({ value: null })}
         opacity="0"
       />
     );
   };
 
-  renderConfidenceIntervalLine = (dataPoints, identifier) => {
+  renderConfidenceIntervalLine = (
+    dataPoints: Array<[number, number]>,
+    identifier: string,
+  ): JSX.Element => {
     const lineData = this.prepareLineData(dataPoints);
     return (
       <LineSeries
@@ -445,17 +631,21 @@ export default class ScatterPlot extends React.Component {
     );
   };
 
-  prepareRegressionLineData = (dataPoints) =>
+  prepareRegressionLineData = (
+    dataPoints: Array<[number, number]>,
+  ): Array<{ x: number; y: number; "95% Confidence Interval": string }> =>
     dataPoints
       .sort((val1, val2) => val1[0] - val2[0])
       .map((data, index) => {
         const lowerBorderData =
           Math.round(
-            this.regressionData.lowerConfidenceBorderData[index][1] * 100,
+            (this.regressionData?.lowerConfidenceBorderData[index]?.[1] ?? 0) *
+              100,
           ) / 100;
         const upperBorderData =
           Math.round(
-            this.regressionData.upperConfidenceBorderData[index][1] * 100,
+            (this.regressionData?.upperConfidenceBorderData[index]?.[1] ?? 0) *
+              100,
           ) / 100;
         return {
           x: data[0],
@@ -465,7 +655,9 @@ export default class ScatterPlot extends React.Component {
       })
       .sort((val1, val2) => val1.x - val2.x);
 
-  prepareLineData = (dataPoints) =>
+  prepareLineData = (
+    dataPoints: Array<[number, number]>,
+  ): Array<{ x: number; y: number }> =>
     dataPoints
       .map((data) => {
         return {
@@ -476,7 +668,7 @@ export default class ScatterPlot extends React.Component {
       .sort((val1, val2) => val1.x - val2.x);
 
   // ------------------------handeling----------------------------
-  handleType = (tool, column) => {
+  handleType = (tool: number, column: number): ScalingType => {
     const colType = this.props.tools[tool].columns[column].type;
     if (colType === "text" || colType === "status") {
       return "ordinal";
@@ -487,30 +679,35 @@ export default class ScatterPlot extends React.Component {
     }
   };
 
-  extractAxisInfoByName = (val, axis) => {
-    let [toolIndex, colIdx] = val.split("-");
+  extractAxisInfoByName = (
+    val: string,
+    axis: AxisId,
+  ): Partial<ScatterPlotState> => {
+    const [toolIndexRaw, colIdxRaw] = val.split("-");
+    const toolIndex = Number.parseInt(toolIndexRaw, 10);
+    const colIdx = Number.parseInt(colIdxRaw, 10);
+
     return {
       [`data${axis}`]: val,
       [`tool${axis}`]: toolIndex,
       [`column${axis}`]: colIdx,
       [`name${axis}`]:
-        this.props.tools[toolIndex].columns.find(
-          (col) => col.colIdx === parseInt(colIdx),
-        ).display_title +
+        this.props.tools[toolIndex].columns.find((col) => col.colIdx === colIdx)
+          ?.display_title +
         " (" +
         getRunSetName(this.props.tools[toolIndex]) +
         ")",
-    };
+    } as Partial<ScatterPlotState>;
   };
 
-  setAxis = (ev, axis) => {
+  setAxis = (ev: React.ChangeEvent<HTMLSelectElement>, axis: AxisId): void => {
     this.array = [];
     let [tool, column] = ev.target.value.split("-");
     column = column.replace("___", "-");
     setURLParameter({ [`tool${axis}`]: tool, [`column${axis}`]: column });
   };
 
-  swapAxes = () => {
+  swapAxes = (): void => {
     this.array = [];
     setURLParameter({
       toolX: this.state.toolY,
@@ -520,7 +717,7 @@ export default class ScatterPlot extends React.Component {
     });
   };
 
-  render() {
+  render(): JSX.Element {
     this.renderData();
     const isLinear = this.state.scaling === this.scalingOptions.linear;
     const Plot = this.props.isFlexible ? FlexibleXYPlot : XYPlot;
@@ -533,6 +730,7 @@ export default class ScatterPlot extends React.Component {
           width: 1500,
         };
     const highestAxisValue = this.maxX > this.maxY ? this.maxX : this.maxY;
+
     return (
       <div className="scatterPlot">
         {!this.state.areAllColsHidden && this.renderAllSettings()}
@@ -630,20 +828,22 @@ export default class ScatterPlot extends React.Component {
             xType={this.handleType(this.state.toolX, this.state.columnX)}
           />
           <MarkSeries
-            data={this.dataArray}
-            onValueMouseOver={(datapoint, event) =>
-              this.setState({ value: datapoint })
+            data={this.dataArray as unknown as Array<Record<string, unknown>>}
+            onValueMouseOver={(datapoint: unknown) =>
+              this.setState({ value: datapoint as ScatterPlotPoint })
             }
-            onValueMouseOut={(datapoint, event) =>
-              this.setState({ value: null })
-            }
+            onValueMouseOut={() => this.setState({ value: null })}
           />
           {this.state.regression !== this.regressionOptions.none &&
             this.checkForNumericalSelections() &&
             this.regressionData &&
             this.lineCount !== 0 &&
             this.renderRegressionAndConfidenceIntervals()}
-          {this.state.value ? <Hint value={this.state.value} /> : null}
+          {this.state.value ? (
+            <Hint
+              value={this.state.value as unknown as Record<string, unknown>}
+            />
+          ) : null}
         </Plot>
         {this.state.areAllColsHidden ? (
           <div className="plot__noresults">No columns to show!</div>
