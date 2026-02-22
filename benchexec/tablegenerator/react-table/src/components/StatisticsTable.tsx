@@ -16,7 +16,6 @@ import {
   type CellProps,
   type HeaderGroup,
   type Row,
-  type TableInstance,
 } from "react-table";
 import { useSticky } from "react-table-sticky";
 import {
@@ -114,9 +113,15 @@ const StatisticsTable = ({
     const updateStats = async (): Promise<void> => {
       if (filtered) {
         const newStats = await computeStats({
-          tools,
-          tableData,
-          stats: defaultStats,
+          tools: [...tools] as unknown as Parameters<
+            typeof computeStats
+          >[0]["tools"],
+          tableData: [...tableData] as unknown as Parameters<
+            typeof computeStats
+          >[0]["tableData"],
+          stats: [...defaultStats] as unknown as Parameters<
+            typeof computeStats
+          >[0]["stats"],
         });
         setStats(newStats);
       } else {
@@ -137,25 +142,37 @@ const StatisticsTable = ({
     <div className="table-header">
       {headerGroups.map((headerGroup) => (
         <div className="tr headergroup" {...headerGroup.getHeaderGroupProps()}>
-          {headerGroup.headers.map((header) => (
-            <div
-              {...header.getHeaderProps({
-                className: `th header ${header.headers ? "outer " : ""}${
-                  header.className || ""
-                }`,
-              })}
-            >
-              {header.render("Header")}
+          {headerGroup.headers.map((header) => {
+            // NOTE (JS->TS): react-table's v7 types don't include our custom `className`
+            // and plugin-injected fields (e.g., `getResizerProps`, `isResizing`).
+            // We narrow the header type locally to the fields we actually use.
+            const h = header as HeaderGroup<StatRow> & {
+              className?: string;
+              columns?: unknown[];
+              getResizerProps?: () => Record<string, unknown>;
+              isResizing?: boolean;
+            };
 
-              {(!header.className ||
-                !header.className.includes("separator")) && (
-                <div
-                  {...header.getResizerProps()}
-                  className={`resizer ${header.isResizing ? "isResizing" : ""}`}
-                />
-              )}
-            </div>
-          ))}
+            return (
+              <div
+                {...h.getHeaderProps({
+                  className: `th header ${h.columns ? "outer " : ""}${
+                    h.className || ""
+                  }`,
+                })}
+              >
+                {h.render("Header")}
+
+                {(!h.className || !h.className.includes("separator")) &&
+                  h.getResizerProps && (
+                    <div
+                      {...h.getResizerProps()}
+                      className={`resizer ${h.isResizing ? "isResizing" : ""}`}
+                    />
+                  )}
+              </div>
+            );
+          })}
         </div>
       ))}
     </div>
@@ -169,15 +186,23 @@ const StatisticsTable = ({
         prepareRow(row);
         return (
           <div {...row.getRowProps()} className="tr">
-            {row.cells.map((cell) => (
-              <div
-                {...cell.getCellProps({
-                  className: "td " + (cell.column.className || ""),
-                })}
-              >
-                {cell.render("Cell")}
-              </div>
-            ))}
+            {row.cells.map((cell) => {
+              // NOTE (JS->TS): `className` is custom column metadata used for styling,
+              // but react-table's types don't model it. We locally narrow the column type.
+              const column = cell.column as typeof cell.column & {
+                className?: string;
+              };
+
+              return (
+                <div
+                  {...cell.getCellProps({
+                    className: "td " + (column.className || ""),
+                  })}
+                >
+                  {cell.render("Cell")}
+                </div>
+              );
+            })}
           </div>
         );
       })}
@@ -222,7 +247,15 @@ const StatisticsTable = ({
         runSetIdx: number,
         column: RunSetColumn,
         columnIdx: number,
-      ): Column<StatRow> => ({
+      ): {
+        id: string;
+        Header: React.JSX.Element;
+        hidden: boolean;
+        width: number;
+        minWidth: number;
+        accessor: (row: StatRow) => StatsCellValue | null | undefined;
+        Cell: ({ value }: CellProps<StatRow, unknown>) => React.JSX.Element;
+      } => ({
         id: `${runSetIdx}_${String(column.display_title)}_${columnIdx}`,
         Header: (
           <StandardColumnHeader
@@ -253,19 +286,17 @@ const StatisticsTable = ({
           }
           return cell as StatsCellValue;
         },
-        Cell: ({
-          value,
-          row,
-        }: CellProps<StatRow, StatsCellValue | null | undefined>) => {
-          let valueToRender: unknown = value?.sum;
+        Cell: ({ value }: CellProps<StatRow, unknown>) => {
+          const typedValue = value as StatsCellValue | null | undefined;
+          let valueToRender: unknown = typedValue?.sum;
           // We handle status differently as the main aggregation (denoted "sum")
           // is of type "count" for this column type.
           // This means that the default value if no data is available is 0
           if (column.type === "status") {
-            if (value === undefined) {
+            if (typedValue === undefined) {
               // No data is available, default to 0
               valueToRender = 0;
-            } else if (value === null) {
+            } else if (typedValue === null) {
               // We receive a null value directly from the stats object of the dataset.
               // Will be rendered as "-"
               // This edge case only applies to the summary-measurements row as it contains static values
@@ -273,7 +304,7 @@ const StatisticsTable = ({
 
               valueToRender = null;
             } else {
-              const sum = value.sum;
+              const sum = typedValue.sum;
               valueToRender =
                 Number.isInteger(Number(sum)) && sum !== undefined
                   ? Number(sum)
@@ -283,12 +314,12 @@ const StatisticsTable = ({
           return !isNil(valueToRender) ? (
             <div
               dangerouslySetInnerHTML={{
-                __html: String(valueToRender),
+                __html: valueToRender as unknown as string,
               }}
               className="cell"
               title={
-                column.type !== "status" && value
-                  ? renderTooltip(value)
+                column.type !== "status" && typedValue
+                  ? renderTooltip(typedValue)
                   : undefined
               }
             ></div>
@@ -298,7 +329,20 @@ const StatisticsTable = ({
         },
       });
 
-    const createRowTitleColumn = (): Column<StatRow> => ({
+    const createRowTitleColumn = (): {
+      Header: () => React.JSX.Element;
+      id: string;
+      sticky: string;
+      width: number;
+      minWidth: number;
+      columns: {
+        id: string;
+        width: number;
+        minWidth: number;
+        Header: React.JSX.Element;
+        Cell: ({ row }: CellProps<StatRow>) => React.JSX.Element;
+      }[];
+    } => ({
       Header: () => (
         <form>
           <label title="Fix the first column">
@@ -325,25 +369,39 @@ const StatisticsTable = ({
           width: titleColWidth,
           minWidth: 100,
           Header: <SelectColumnsButton handler={selectColumn} />,
-          Cell: ({ row }: CellProps<StatRow>) => (
-            <div
-              dangerouslySetInnerHTML={{
-                __html:
-                  ((row.original as StatRow).title ||
-                    "&nbsp;".repeat(
-                      4 *
-                        (statisticsRows[(row.original as StatRow).id].indent ??
-                          0),
-                    ) + statisticsRows[(row.original as StatRow).id].title) +
-                  (filtered ? " of selected rows" : ""),
-              }}
-              title={
-                (row.original as StatRow).description ||
-                statisticsRows[(row.original as StatRow).id].description
-              }
-              className="row-title"
-            />
-          ),
+          Cell: ({ row }: CellProps<StatRow>) => {
+            // NOTE (JS->TS): Not all statistic rows are guaranteed to be listed in `statisticsRows`
+            // (e.g., dataset-provided/static rows). We therefore look up the row definition
+            // defensively and fall back to a reasonable default.
+            const original = row.original as StatRow & {
+              title?: string;
+              description?: string;
+            };
+
+            const rowDefUnsafe = (statisticsRows as Record<string, unknown>)[
+              original.id as unknown as string
+            ] as
+              | { title: string; indent?: number; description?: string }
+              | undefined;
+
+            const rowDef = rowDefUnsafe ?? { title: String(original.id) };
+            const indent = "indent" in rowDef ? rowDef.indent ?? 0 : 0;
+            const description =
+              "description" in rowDef ? rowDef.description : undefined;
+
+            return (
+              <div
+                dangerouslySetInnerHTML={{
+                  __html:
+                    (original.title ||
+                      "&nbsp;".repeat(4 * indent) + rowDef.title) +
+                    (filtered ? " of selected rows" : ""),
+                }}
+                title={original.description || description}
+                className="row-title"
+              />
+            );
+          },
         },
       ],
     });
@@ -351,17 +409,17 @@ const StatisticsTable = ({
     const statColumns = tools
       .map((runSet, runSetIdx) =>
         createRunSetColumns(
-          runSet,
+          runSet as unknown as Parameters<typeof createRunSetColumns>[0],
           runSetIdx,
           createColumnBuilder({
             switchToQuantile: switchToQuantile,
             hiddenCols,
-          }),
+          }) as unknown as Parameters<typeof createRunSetColumns>[2],
         ),
       )
       .flat();
 
-    return [createRowTitleColumn()].concat(statColumns);
+    return [createRowTitleColumn(), ...(statColumns as Column<StatRow>[])];
   }, [
     filtered,
     isTitleColSticky,
@@ -379,7 +437,9 @@ const StatisticsTable = ({
         columns,
         data,
         initialState: {
-          hiddenColumns: getHiddenColIds(columns),
+          hiddenColumns: getHiddenColIds(
+            columns as unknown as Parameters<typeof getHiddenColIds>[0],
+          ),
         },
       },
       useFilters,
