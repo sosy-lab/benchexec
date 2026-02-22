@@ -8,6 +8,7 @@
 import React from "react";
 import StatisticsTable from "./StatisticsTable";
 import type { RowLike, ToolLike } from "../types/reactTable";
+import { StatRow } from "../types/stats";
 
 const infos = [
   "displayName",
@@ -76,7 +77,7 @@ type SummaryProps = {
   hiddenCols: HiddenColsByRunSet;
   tableData: ReadonlyArray<RowLike>;
   onStatsReady?: () => void;
-  stats: ReadonlyArray<unknown>;
+  stats: ReadonlyArray<StatRow>;
   filtered: boolean;
 
   version: string;

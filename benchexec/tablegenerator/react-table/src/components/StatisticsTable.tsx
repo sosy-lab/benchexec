@@ -61,18 +61,13 @@ type RunSetColumn = ToolColumnLike &
     number_of_significant_digits: number;
   };
 
-type RunSet = ToolLike &
-  Required<Pick<ToolLike, "tool" | "date" | "niceName">> & {
-    columns: ReadonlyArray<RunSetColumn>;
-  };
-
 /* ============================================================================
  * Component props
  * ========================================================================== */
 
 type StatisticsTableProps = {
   selectColumn: React.MouseEventHandler<HTMLSpanElement>;
-  tools: ReadonlyArray<RunSet>;
+  tools: ReadonlyArray<ToolLike>;
   switchToQuantile: (column: RunSetColumn) => void;
   hiddenCols: HiddenColsByRunSet;
   tableData: ReadonlyArray<RowLike>;

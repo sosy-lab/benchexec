@@ -47,19 +47,21 @@ export default class SelectColumn extends React.Component<
     super(props);
 
     // All unique display_titles of the columns of all runsets
-    const selectableCols = props.tools
-      .map((tool) => tool.columns)
-      .flat()
-      .filter(
-        (col, idx, arr) =>
-          idx ===
-          arr.findIndex(
-            (otherCol) => otherCol.display_title === col.display_title,
-          ),
-      )
-      .map((col) => col.display_title)
-      .filter((t): t is NonNullable<typeof t> => t !== undefined && t !== null)
-      .map((t) => String(t));
+    const selectableCols = Array.from(
+      new Set(
+        props.tools
+          .flatMap((tool) => tool.columns)
+          .map((col) => {
+            const t = col.display_title;
+            // Prefer real textual titles; fall back to stable string fields.
+            if (typeof t === "string" || typeof t === "number") {
+              return String(t);
+            }
+            return col.title; // always a string per ToolColumnLike
+          })
+          .filter((s) => s.length > 0),
+      ),
+    );
 
     this.state = {
       isButtonOnDeselect: true,
@@ -69,6 +71,14 @@ export default class SelectColumn extends React.Component<
   }
 
   componentDidMount() {
+    // react-modal needs an appElement for aria-hiding, but tests (react-test-renderer)
+    // often run without a real DOM node like "#root".
+    const appRoot =
+      typeof document !== "undefined" ? document.getElementById("root") : null;
+    if (appRoot) {
+      ReactModal.setAppElement(appRoot);
+    }
+
     window.history.pushState({}, "", "");
     window.addEventListener("popstate", this.props.close, false);
   }
@@ -359,7 +369,7 @@ export default class SelectColumn extends React.Component<
   };
 
   render() {
-    ReactModal.setAppElement(document.getElementById("root"));
+    // NOTE (JS->TS): setAppElement moved to componentDidMount() to avoid test/SSR crashes.
 
     const areAllColsDisabled = this.props.tools.every((tool, idx) => {
       const toolIdx = tool.toolIdx ?? idx;
