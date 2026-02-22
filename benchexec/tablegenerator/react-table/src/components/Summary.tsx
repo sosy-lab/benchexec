@@ -46,16 +46,18 @@ type InfoRowTextById = {
 
 type InfoRowText<K extends InfoRowId> = InfoRowTextById[K];
 
-type HeaderCell<K extends InfoRowId> = readonly [InfoRowText<K>, number];
+type HeaderCellValue = string | ToolNameAndVersion;
 
-type HeaderRow<K extends InfoRowId> = {
-  id: K;
+type HeaderCell = readonly [HeaderCellValue, number];
+
+type HeaderRow = {
+  id: InfoRowId;
   name: string;
-  content: ReadonlyArray<HeaderCell<K>>;
+  content: ReadonlyArray<HeaderCell>;
 };
 
 type TableHeader = {
-  [K in InfoRowId]: HeaderRow<K> | null;
+  [K in InfoRowId]: HeaderRow | null;
 };
 
 /* ============================================================================
@@ -72,7 +74,7 @@ type SummaryProps = {
   tableData: unknown;
   onStatsReady: unknown;
   stats: unknown;
-  filtered?: boolean;
+  filtered: boolean;
 
   version: string;
 };
@@ -151,12 +153,12 @@ const Summary = (props: SummaryProps): React.ReactElement => {
           <tbody>
             {infos
               .map((row) => props.tableHeader[row])
-              .filter((row): row is NonNullable<typeof row> => row !== null)
+              .filter((row): row is HeaderRow => row !== null)
               .map((row) => (
                 <tr key={"tr-" + row.id} className={row.id}>
                   <th key={"td-" + row.id}>{row.name}</th>
                   {row.content.map((tool, j) =>
-                    renderRow(row.id, tool[0] as never, tool[1], j),
+                    renderRow(row.id, tool[0], tool[1], j),
                   )}
                 </tr>
               ))}
