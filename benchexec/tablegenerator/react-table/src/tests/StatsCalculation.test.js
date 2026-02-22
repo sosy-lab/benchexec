@@ -6,7 +6,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from "react";
-import StatisticsTable from "../components/StatisticsTable.js";
+import StatisticsTable from "../components/StatisticsTable.tsx";
 import fs from "fs";
 import renderer from "react-test-renderer";
 import { getOverviewProps } from "./utils.js";
