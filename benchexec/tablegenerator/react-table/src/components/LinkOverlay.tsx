@@ -29,31 +29,28 @@ zip.configure({
  */
 
 /**
- * Minimal subset of zip.js entry API that we use in this file.
- * (zip.js types are not necessarily available/consistent across builds.)
+ * Use zip.js' own Entry type to match getEntries() return type.
+ * (Some builds expose getData as optional and generic.)
  */
-interface ZipEntryLike {
-  filename: string;
-  getData: (writer: zip.TextWriter) => Promise<string>;
-}
+type ZipEntryLike = zip.Entry;
 
 /* ============================================================================
  * Types: component props/state
  * ============================================================================
  */
 
-interface LinkOverlayProps {
+type LinkOverlayProps = {
   link: string;
   close: (event?: PopStateEvent | MouseEvent) => void;
-}
+};
 
-interface LinkOverlayState {
+type LinkOverlayState = {
   isYAML: boolean;
   content: string;
   currentFile: string;
   isSecondLevel: boolean;
   error?: string;
-}
+};
 
 const zipEntriesCache: Record<string, ZipEntryLike[]> = {};
 
@@ -203,10 +200,10 @@ export default class LinkOverlay extends React.Component<
   readZipArchive = (zipPath: string, zipFile: string): void => {
     const reader = new zip.ZipReader(new zip.HttpRangeReader(zipPath));
     reader.getEntries().then(
-      (entries: ZipEntryLike[]) => {
+      (entries: zip.Entry[]) => {
         this.handleZipEntries(entries, zipFile, zipPath);
       },
-      (error: unknown) => {
+      () => {
         this.readZipArchiveNoHttpRange(zipPath, zipFile);
       },
     );
@@ -216,10 +213,10 @@ export default class LinkOverlay extends React.Component<
   readZipArchiveNoHttpRange = (zipPath: string, zipFile: string): void => {
     const reader = new zip.ZipReader(new zip.HttpReader(zipPath));
     reader.getEntries().then(
-      (entries: ZipEntryLike[]) => {
+      (entries: zip.Entry[]) => {
         this.handleZipEntries(entries, zipFile, zipPath);
       },
-      (error: unknown) => {
+      () => {
         this.readZipArchiveManually(zipPath, zipFile);
       },
     );
@@ -248,7 +245,12 @@ export default class LinkOverlay extends React.Component<
         },
         false,
       );
-      xhr.addEventListener("error", this.setError, false);
+      xhr.addEventListener(
+        "error",
+        (ev) =>
+          this.setError(`HTTP request for the file "${zipFile}" failed`, ev),
+        false,
+      );
       xhr.open("GET", zipPath);
       xhr.send();
     } catch (error) {
@@ -272,6 +274,10 @@ export default class LinkOverlay extends React.Component<
   ): void => {
     const entry = entries.find((entryItem) => entryItem.filename === zipFile);
     if (entry) {
+      if (!entry.getData) {
+        this.setError(`ZIP entry "${zipFile}" does not support reading data`);
+        return;
+      }
       entry.getData(new zip.TextWriter()).then((content: string) => {
         this.setState({ content });
       });
@@ -340,10 +346,12 @@ export default class LinkOverlay extends React.Component<
     // We need the base directory of the HTTP server (document root)
     // that should contain both the table and the result files.
     const absCurrentFile = new URL(this.state.currentFile, document.baseURI);
-    let [baseDir, pathSuffix] = splitUrlPathForMatchingPrefix(
+    const splitResult = splitUrlPathForMatchingPrefix(
       window.location,
       absCurrentFile,
     ) as [string | undefined, string];
+    let baseDir = splitResult[0];
+    const pathSuffix = splitResult[1];
 
     // There are three known path variants:
     // Unix: looks like: /home/...
