@@ -6,7 +6,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from "react";
-import Summary from "../components/Summary.js";
+import Summary from "../components/Summary.tsx";
 
 import { test_snapshot_of_async } from "./utils.js";
 

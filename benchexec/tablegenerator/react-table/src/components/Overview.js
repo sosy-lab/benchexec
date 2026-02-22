@@ -8,7 +8,7 @@
 import React from "react";
 import { HashRouter as Router, Routes, Route, Link } from "react-router-dom";
 import Table from "./ReactTable.js";
-import Summary from "./Summary.js";
+import Summary from "./Summary.tsx";
 import Info from "./Info.js";
 import SelectColumn from "./SelectColumn.js";
 import ScatterPlot from "./ScatterPlot.js";
