@@ -16,17 +16,56 @@ import {
 } from "../utils/utils";
 import classNames from "classnames";
 import path from "path-browserify";
-import TaskDefinitionViewer from "./TaskDefinitionViewer.tsx";
+import TaskDefinitionViewer from "./TaskDefinitionViewer";
 import * as zip from "@zip.js/zip.js/lib/zip-no-worker-inflate";
 
 zip.configure({
   useWebWorkers: false,
 });
 
-const zipEntriesCache = {};
+/* ============================================================================
+ * Types: ZIP handling
+ * ============================================================================
+ */
 
-export default class LinkOverlay extends React.Component {
-  constructor(props) {
+/**
+ * Minimal subset of zip.js entry API that we use in this file.
+ * (zip.js types are not necessarily available/consistent across builds.)
+ */
+interface ZipEntryLike {
+  filename: string;
+  getData: (writer: zip.TextWriter) => Promise<string>;
+}
+
+/* ============================================================================
+ * Types: component props/state
+ * ============================================================================
+ */
+
+interface LinkOverlayProps {
+  link: string;
+  close: (event?: PopStateEvent | MouseEvent) => void;
+}
+
+interface LinkOverlayState {
+  isYAML: boolean;
+  content: string;
+  currentFile: string;
+  isSecondLevel: boolean;
+  error?: string;
+}
+
+const zipEntriesCache: Record<string, ZipEntryLike[]> = {};
+
+export default class LinkOverlay extends React.Component<
+  LinkOverlayProps,
+  LinkOverlayState
+> {
+  // NOTE (JS->TS): Keep the "strategy" field as in JS (points to the XHR variant),
+  // but add an explicit function type to avoid implicit-any.
+  loadFile: (url?: string) => void = this.loadFileXMLHttpRequest;
+
+  constructor(props: LinkOverlayProps) {
     super(props);
     const isYAML = props.link ? this.isYAMLFile(props.link) : false;
     this.state = {
@@ -47,7 +86,7 @@ export default class LinkOverlay extends React.Component {
   componentDidUpdate() {
     const modalContainer = document.getElementById("modal-container");
     if (modalContainer) {
-      modalContainer.focus();
+      (modalContainer as HTMLElement).focus();
     }
   }
 
@@ -56,11 +95,11 @@ export default class LinkOverlay extends React.Component {
     window.removeEventListener("click", this.props.close, false);
   }
 
-  isYAMLFile(filePath) {
+  isYAMLFile(filePath: string): boolean {
     return filePath.endsWith(".yml");
   }
 
-  loadNewFile = (relativeURL) => {
+  loadNewFile = (relativeURL: string): void => {
     const newURL = this.createFileUrl(relativeURL);
     this.setState({
       isYAML: this.isYAMLFile(relativeURL),
@@ -70,7 +109,7 @@ export default class LinkOverlay extends React.Component {
     this.loadFile(newURL);
   };
 
-  loadOriginalFile = () => {
+  loadOriginalFile = (): void => {
     this.setState({
       isYAML: this.isYAMLFile(this.props.link),
       isSecondLevel: false,
@@ -80,13 +119,14 @@ export default class LinkOverlay extends React.Component {
     this.loadFile(this.props.link);
   };
 
-  loadOriginalFileIfEnter = (e) => {
+  loadOriginalFileIfEnter = (e: React.KeyboardEvent<HTMLSpanElement>): void => {
     if (e.key === "Enter") {
       this.loadOriginalFile();
     }
   };
 
-  createFileUrl = (fileUrl) => path.join(this.props.link, "../" + fileUrl);
+  createFileUrl = (fileUrl: string): string =>
+    path.join(this.props.link, "../" + fileUrl);
 
   /*
    * Loads the file of the given url. Four different approaches to load the file will be made in case the previous one fails:
@@ -100,9 +140,8 @@ export default class LinkOverlay extends React.Component {
    * does not affect fetch requests, only XMLHttpRequest.
    * So we need to use the latter for now.
    */
-  loadFile = this.loadFileXMLHttpRequest;
 
-  async loadFileFetch(url) {
+  async loadFileFetch(url?: string): Promise<void> {
     if (url) {
       this.setState({ currentFile: url });
       try {
@@ -119,7 +158,7 @@ export default class LinkOverlay extends React.Component {
     }
   }
 
-  loadFileXMLHttpRequest(url) {
+  loadFileXMLHttpRequest(url?: string): void {
     if (url) {
       try {
         this.setState({ currentFile: url });
@@ -142,7 +181,7 @@ export default class LinkOverlay extends React.Component {
   }
 
   /* Loads the file from a ZIP archive and stores the entries in a cache for faster future access. */
-  loadFileFromZip = (url) => {
+  loadFileFromZip = (url: string): void => {
     const decodedUrl = decodeURIComponent(url);
     const folderSplitterSlash =
       decodedUrl.lastIndexOf("/") > decodedUrl.lastIndexOf("\\") ? "/" : "\\";
@@ -161,26 +200,26 @@ export default class LinkOverlay extends React.Component {
   };
 
   /* Tries to read the file from a ZIP archive with a HTTP range request.  */
-  readZipArchive = (zipPath, zipFile) => {
+  readZipArchive = (zipPath: string, zipFile: string): void => {
     const reader = new zip.ZipReader(new zip.HttpRangeReader(zipPath));
     reader.getEntries().then(
-      (entries) => {
+      (entries: ZipEntryLike[]) => {
         this.handleZipEntries(entries, zipFile, zipPath);
       },
-      (error) => {
+      (error: unknown) => {
         this.readZipArchiveNoHttpRange(zipPath, zipFile);
       },
     );
   };
 
   /* Tries to read the file from a ZIP archive with a normal HTTP request.  */
-  readZipArchiveNoHttpRange = (zipPath, zipFile) => {
+  readZipArchiveNoHttpRange = (zipPath: string, zipFile: string): void => {
     const reader = new zip.ZipReader(new zip.HttpReader(zipPath));
     reader.getEntries().then(
-      (entries) => {
+      (entries: ZipEntryLike[]) => {
         this.handleZipEntries(entries, zipFile, zipPath);
       },
-      (error) => {
+      (error: unknown) => {
         this.readZipArchiveManually(zipPath, zipFile);
       },
     );
@@ -190,19 +229,20 @@ export default class LinkOverlay extends React.Component {
    * Loads a file from the zip archive with a HTTP request manually. This should only be necessary
    * for Google Chrome as a HTTP Reader does not work there.
    */
-  readZipArchiveManually = (zipPath, zipFile) => {
+  readZipArchiveManually = (zipPath: string, zipFile: string): void => {
     try {
       const xhr = new XMLHttpRequest();
       xhr.responseType = "arraybuffer";
       xhr.addEventListener(
         "load",
         () => {
-          const array = new Uint8Array(xhr.response);
+          const array = new Uint8Array(xhr.response as ArrayBuffer);
           const reader = new zip.ZipReader(new zip.Uint8ArrayReader(array));
           reader
             .getEntries()
             .then(
-              (entries) => this.handleZipEntries(entries, zipFile, zipPath),
+              (entries: ZipEntryLike[]) =>
+                this.handleZipEntries(entries, zipFile, zipPath),
               this.setError,
             );
         },
@@ -216,15 +256,23 @@ export default class LinkOverlay extends React.Component {
     }
   };
 
-  handleZipEntries = (entries, zipFile, zipPath) => {
+  handleZipEntries = (
+    entries: ZipEntryLike[],
+    zipFile: string,
+    zipPath: string,
+  ): void => {
     zipEntriesCache[zipPath] = entries;
     this.loadFileFromZipEntries(entries, zipFile, zipPath);
   };
 
-  loadFileFromZipEntries = (entries, zipFile, zipPath) => {
-    const entry = entries.find((entry) => entry.filename === zipFile);
+  loadFileFromZipEntries = (
+    entries: ZipEntryLike[],
+    zipFile: string,
+    zipPath: string,
+  ): void => {
+    const entry = entries.find((entryItem) => entryItem.filename === zipFile);
     if (entry) {
-      entry.getData(new zip.TextWriter()).then((content) => {
+      entry.getData(new zip.TextWriter()).then((content: string) => {
         this.setState({ content });
       });
     } else {
@@ -237,18 +285,18 @@ export default class LinkOverlay extends React.Component {
    * error object is a plain string, this error object will be set for the message. Otherwise
    * the simple error message, i.e. the first parameter, will be set.
    */
-  setError = (errorMsg, errorObj) => {
+  setError = (errorMsg: string, errorObj?: unknown): void => {
     const error =
       errorObj && typeof errorObj === "string" ? errorObj : errorMsg;
     this.setState({ error: `${error}` });
   };
 
-  handlePopState = () => {
+  handlePopState = (): void => {
     window.history.back();
     window.addEventListener("click", this.props.close, false);
   };
 
-  renderHelpMessageForLocalLogs = () => {
+  renderHelpMessageForLocalLogs = (): React.ReactNode => {
     if (window.location.protocol !== "file:") {
       return null; // not relevant
     }
@@ -295,7 +343,7 @@ export default class LinkOverlay extends React.Component {
     let [baseDir, pathSuffix] = splitUrlPathForMatchingPrefix(
       window.location,
       absCurrentFile,
-    );
+    ) as [string | undefined, string];
 
     // There are three known path variants:
     // Unix: looks like: /home/...
@@ -351,8 +399,10 @@ export default class LinkOverlay extends React.Component {
     );
   };
 
-  render() {
-    ReactModal.setAppElement(document.getElementById("root"));
+  render(): JSX.Element {
+    // NOTE (JS->TS): Use a selector string to avoid dealing with a possibly-null HTMLElement.
+    ReactModal.setAppElement("#root");
+
     return (
       <ReactModal
         id="modal-container"
@@ -372,7 +422,7 @@ export default class LinkOverlay extends React.Component {
           {this.state.isSecondLevel ? (
             <span
               className="link-overlay-back-button"
-              tabIndex="0"
+              tabIndex={0}
               role="button"
               onClick={this.loadOriginalFile}
               onKeyDown={this.loadOriginalFileIfEnter}
