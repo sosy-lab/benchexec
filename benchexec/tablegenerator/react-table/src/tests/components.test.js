@@ -13,7 +13,7 @@ import renderer from "react-test-renderer";
 import { render, screen, fireEvent } from "@testing-library/react";
 
 // components
-import Reset from "../components/FilterInfoButton.js";
+import Reset from "../components/FilterInfoButton.tsx";
 
 // NOTE:
 // The original Enzyme test rendered the reset button, checked its text and
