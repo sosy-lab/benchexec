@@ -6,7 +6,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from "react";
-import ScatterPlot from "../components/ScatterPlot.js";
+import ScatterPlot from "../components/ScatterPlot.tsx";
 import Overview from "../components/Overview";
 import renderer from "react-test-renderer";
 import { constructHashURL } from "../utils/utils";
