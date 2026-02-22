@@ -54,7 +54,7 @@ type LinkOverlayState = {
 
 const zipEntriesCache: Record<string, ZipEntryLike[]> = {};
 
-export default class LinkOverlay extends React.Component<
+export class LinkOverlay extends React.Component<
   LinkOverlayProps,
   LinkOverlayState
 > {
@@ -74,6 +74,9 @@ export default class LinkOverlay extends React.Component<
   }
 
   componentDidMount() {
+    // NOTE (JS->TS): Use a selector string to avoid dealing with a possibly-null HTMLElement.
+    ReactModal.setAppElement("#root");
+
     this.loadFile(this.props.link);
     window.history.pushState({}, "", "");
     window.addEventListener("popstate", this.props.close, false);
@@ -81,10 +84,9 @@ export default class LinkOverlay extends React.Component<
 
   // Focus modal container when new content is loaded into the modal for accessibility via keyboard
   componentDidUpdate() {
-    const modalContainer = document.getElementById("modal-container");
-    if (modalContainer) {
-      (modalContainer as HTMLElement).focus();
-    }
+    const modalContainer: HTMLElement | null =
+      document.getElementById("modal-container");
+    modalContainer?.focus();
   }
 
   componentWillUnmount() {
@@ -278,7 +280,7 @@ export default class LinkOverlay extends React.Component<
         this.setError(`ZIP entry "${zipFile}" does not support reading data`);
         return;
       }
-      entry.getData(new zip.TextWriter()).then((content: string) => {
+      entry.getData<string>(new zip.TextWriter()).then((content) => {
         this.setState({ content });
       });
     } else {
@@ -408,9 +410,6 @@ export default class LinkOverlay extends React.Component<
   };
 
   render(): JSX.Element {
-    // NOTE (JS->TS): Use a selector string to avoid dealing with a possibly-null HTMLElement.
-    ReactModal.setAppElement("#root");
-
     return (
       <ReactModal
         id="modal-container"
