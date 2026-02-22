@@ -9,15 +9,18 @@ import React from "react";
 import copy from "copy-to-clipboard";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCopy } from "@fortawesome/free-regular-svg-icons";
-
-/**
- * Types ending with "Like" describe the structural shape of an object,
- * not a full domain model.
- *
- * They intentionally represent only the minimal subset of properties
- * required in a specific context. Any object that matches this shape
- * is considered compatible.
- */
+import type {
+  ToolColumnLike,
+  ToolLike,
+  RowLike,
+  PrepareTableDataInput,
+  PreparedTableData,
+  ColumnId,
+  RunsetId,
+  SerializedFilterItem as FilterItem,
+  DecodedFilterId,
+  StatusCategorySelection,
+} from "../types/reactTable";
 
 /* ============================================================
  * Types: React Components
@@ -35,152 +38,23 @@ type UrlLike = Pick<Location, "pathname"> | Pick<URL, "pathname">;
 
 type URLParameters = Record<string, string>;
 
-interface SetURLParameterOptions {
+type SetURLParameterOptions = {
   callbacks: Array<() => void>;
   pushState: boolean;
-}
+};
 
-interface ConstructHashURLResult {
+type ConstructHashURLResult = {
   newUrl: string;
   queryString: string;
-}
-
-/* ============================================================
- * Types: Table Data Preparation
- * ============================================================ */
-
-interface TableHeaderItem {
-  content: [unknown, number][];
-  id: string;
-  name: string;
-}
-
-interface TableHeaderLike {
-  task_id_names: string[];
-  branch?: string | null;
-  date?: TableHeaderItem;
-  displayName?: TableHeaderItem;
-  host?: TableHeaderItem;
-  limit?: TableHeaderItem;
-  options?: TableHeaderItem;
-  os?: TableHeaderItem;
-  property?: string | null;
-  runset?: TableHeaderItem;
-  system?: TableHeaderItem;
-  title?: TableHeaderItem;
-  tool?: TableHeaderItem;
-  // other properties are passed through unchanged
-  [key: string]: unknown;
-}
-
-interface ToolColumnLike {
-  title: string;
-  display_title?: string;
-  type?: string;
-  unit?: string;
-  max_width?: number;
-  number_of_significant_digits?: number;
-  relevant_for_diff?: boolean;
-  hidden?: boolean;
-  id?: string;
-
-  // augmented fields
-  colIdx?: number;
-
-  // other properties are passed through unchanged
-  [key: string]: unknown;
-}
-
-interface ToolLike {
-  columns: ToolColumnLike[];
-  benchmarkname?: string;
-  name?: string;
-  niceName?: string;
-  tool?: string;
-  version?: string;
-  options?: string;
-  timelimit?: string;
-  memlimit?: string;
-  cpuCores?: string;
-  os?: string;
-  cpu?: string;
-  freq?: string;
-  ram?: string;
-  host?: string;
-  date?: string;
-  toolmodule?: string;
-  project_url?: string;
-
-  // augmented fields
-  toolIdx?: number;
-  scoreBased?: boolean;
-
-  // other properties are passed through unchanged
-  [key: string]: unknown;
-}
-
-interface ResultValue {
-  raw: string | number | null;
-  html?: string;
-}
-
-interface RowResultLike {
-  category: string;
-  href: string;
-  values: ResultValue[];
-  score?: number | string | null;
-  // other properties are passed through unchanged
-  [key: string]: unknown;
-}
-
-interface RowLike {
-  id: string[];
-  href: string;
-  results: RowResultLike[];
-  // other properties are passed through unchanged
-  [key: string]: unknown;
-}
-
-interface TableStats {
-  id: string;
-  content: Array<Array<Record<string, number | string | null> | null>>;
-  title?: string;
-  description?: string;
-}
-
-interface PrepareTableDataInput {
-  head: TableHeaderLike;
-  tools: ToolLike[];
-  rows: RowLike[];
-  stats: TableStats[];
-  props: unknown;
-  initial: unknown;
-}
-
-interface PreparedTableData {
-  tableHeader: TableHeaderLike;
-  taskIdNames: string[];
-  tools: Array<
-    ToolLike & {
-      toolIdx: number;
-      columns: ToolColumnLike[];
-      scoreBased: boolean;
-    }
-  >;
-  columns: string[][];
-  tableData: RowLike[];
-  stats: TableStats[];
-  properties: unknown;
-  initial: unknown;
-}
+};
 
 /* ============================================================
  * Types: Sorting / Cell Values
  * ============================================================ */
 
-interface RawValueLike {
+type RawValueLike = {
   raw?: unknown;
-}
+};
 
 type SortCellValue = RawValueLike | null | undefined;
 
@@ -188,23 +62,8 @@ type SortCellValue = RawValueLike | null | undefined;
  * Types: Filter Serialization / Deserialization
  * ============================================================ */
 
-type ColumnId = string;
-type RunsetId = string;
-
 type DistinctValuesByColumn = Record<ColumnId, string[]>;
 type DistinctValuesByRunset = Record<RunsetId, DistinctValuesByColumn>;
-
-interface StatusCategorySelection {
-  statusValues?: string[];
-  categoryValues?: string[];
-}
-
-interface FilterItem {
-  id: string;
-  value?: string;
-  values?: string[];
-  isTableTabFilter?: boolean;
-}
 
 type TokenizeResult = Record<string, string>;
 
@@ -213,31 +72,21 @@ type TokenHandlerResult =
   | { values: string[] }
   | { value: string; isTableTabFilter: true };
 
-/**
- * Decoded form of a filter ID.
- * `name` is the human-readable part encoded in the ID and may be missing for short IDs.
- */
-interface DecodedFilterId {
-  tool: string;
-  name?: string;
-  column?: string;
-}
-
 /* ============================================================
  * Types: Number Formatting
  * ============================================================ */
 
-interface NumberFormattingContext {
+type NumberFormattingContext = {
   significantDigits: number;
   maxDecimalInputLength: number;
-}
+};
 
-interface NumberFormatterOptions {
+type NumberFormatterOptions = {
   whitespaceFormat: boolean;
   html: boolean;
   leadingZero: boolean;
   additionalFormatting: (x: string, ctx: NumberFormattingContext) => string;
-}
+};
 
 /* A DOM node that allows its content to be copied to the clipboard. */
 export class CopyableNode extends React.Component<CopyableNodeProps> {

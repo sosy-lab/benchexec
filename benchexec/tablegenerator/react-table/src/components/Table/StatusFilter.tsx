@@ -8,7 +8,7 @@
 import { memo } from "react";
 import { statusForEmptyRows } from "../../utils/filters";
 import { pathOr, emptyStateValue, hasSameEntries } from "../../utils/utils";
-import type { SetCustomFilters } from "./types";
+import type { SetCustomFilters } from "../../types/table";
 
 // Special markers we use as category for empty run results
 const RUN_ABORTED = "aborted" as const; // Result tag was present but empty (failure)

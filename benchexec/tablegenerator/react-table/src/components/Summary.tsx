@@ -7,6 +7,7 @@
 
 import React from "react";
 import StatisticsTable from "./StatisticsTable";
+import type { RowLike, ToolLike } from "../types/reactTable";
 
 const infos = [
   "displayName",
@@ -64,16 +65,18 @@ type TableHeader = {
  * Component props
  * ========================================================================== */
 
+type HiddenColsByRunSet = ReadonlyArray<ReadonlyArray<number>>;
+
 type SummaryProps = {
   tableHeader: TableHeader;
 
-  selectColumn: unknown;
-  tools: unknown;
-  switchToQuantile: unknown;
-  hiddenCols: unknown;
-  tableData: unknown;
-  onStatsReady: unknown;
-  stats: unknown;
+  selectColumn: React.MouseEventHandler<HTMLSpanElement>;
+  tools: ReadonlyArray<ToolLike>;
+  switchToQuantile: (column: unknown) => void;
+  hiddenCols: HiddenColsByRunSet;
+  tableData: ReadonlyArray<RowLike>;
+  onStatsReady?: () => void;
+  stats: ReadonlyArray<unknown>;
   filtered: boolean;
 
   version: string;
@@ -120,9 +123,9 @@ const Summary = (props: SummaryProps): React.ReactElement => {
 
   /* ++++++++++++++ Table render functions ++++++++++++++ */
 
-  const renderRow = <K extends InfoRowId>(
-    row: K,
-    text: InfoRowText<K>,
+  const renderRow = (
+    row: InfoRowId,
+    text: HeaderCellValue,
     colSpan: number,
     j: number,
   ): React.ReactElement => {

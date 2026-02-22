@@ -7,20 +7,7 @@
 
 import React from "react";
 import { formatColumnTitle, getRunSetName } from "../utils/utils";
-
-/* ============================================================================
- * Table column model (minimal subset used here)
- * ========================================================================== */
-
-export type TableColumn = Readonly<{
-  Header?: React.ReactNode;
-  accessor?: string;
-  id?: string;
-  className?: string;
-  columns?: ReadonlyArray<TableColumn>;
-  width?: number;
-  minWidth?: number;
-}>;
+import type { TableColumn } from "../types/reactTable";
 
 /* ============================================================================
  * Domain types

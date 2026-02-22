@@ -11,7 +11,7 @@ import type {
   FilterValueState,
   SetCustomFilters,
   SetFocusedFilter,
-} from "./types";
+} from "../../types/table";
 
 const numericPattern =
   "([+\\-]?[0-9]*(\\.[0-9]*)?)(:[+\\-]?[0-9]*(\\.[0-9]*)?)?";

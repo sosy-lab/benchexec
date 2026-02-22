@@ -13,120 +13,18 @@ import {
   decodeFilter,
   makeRegExp,
 } from "./utils";
-
-/* ============================================================
- * Types: Input data shapes
- * ============================================================ */
-
-type RawCell = {
-  raw?: string | number | null;
-};
-
-type TableRowResult = {
-  category: string;
-  values: RawCell[];
-};
-
-type TableRow = {
-  id: string[];
-  results: TableRowResult[];
-};
-
-type ToolColumn = {
-  type?: string;
-  title: string;
-  [key: string]: unknown;
-};
-
-type Tool = {
-  tool: string;
-  date: string;
-  niceName: string;
-  columns: Array<ToolColumn | undefined>;
-};
-
-type Dataset = {
-  tools: Tool[];
-  rows: TableRow[];
-};
-
-/* ============================================================
- * Types: Filter UI input
- * ============================================================ */
-
-type FilterItem = {
-  id: string;
-  value?: string;
-  type?: string;
-  values?: string[];
-};
-
-/* ============================================================
- * Types: Matcher (compiled filters)
- * ============================================================ */
-
-type IdMatcher = {
-  value?: string;
-  values?: string[];
-};
-
-type DiffMatcherItem = {
-  col?: string;
-};
-
-type NumericRangeFilter = {
-  min: number;
-  max: number;
-};
-
-type CategoryFilter = {
-  category: string;
-};
-
-type StatusFilter = {
-  status: string;
-};
-
-type TextValueFilter = {
-  value: string;
-};
-
-type ColumnFilter =
-  | NumericRangeFilter
-  | CategoryFilter
-  | StatusFilter
-  | TextValueFilter;
-
-type ToolMatcher = Record<string, ColumnFilter[]>;
-
-type Matcher = {
-  id?: IdMatcher;
-  diff?: DiffMatcherItem[];
-} & Record<string, ToolMatcher | IdMatcher | DiffMatcherItem[] | undefined>;
-
-type IntermediateStatusColumn = ToolColumn & {
-  type: "status";
-  categories: Record<string, true>;
-  statuses: Record<string, true>;
-  idx: number;
-};
-
-type IntermediateTextColumn = ToolColumn & {
-  type: "text";
-  distincts: Record<string, true>;
-  idx: number;
-};
-
-type IntermediateNumericColumn = ToolColumn & {
-  min: number;
-  max: number;
-  idx: number;
-};
-
-type IntermediateColumn =
-  | IntermediateStatusColumn
-  | IntermediateTextColumn
-  | IntermediateNumericColumn;
+import type {
+  FilterTableRow as TableRow,
+  Dataset,
+  FilterUIItem as FilterItem,
+  ColumnFilter,
+  ToolMatcher,
+  Matcher,
+  IntermediateStatusColumn,
+  IntermediateTextColumn,
+  IntermediateNumericColumn,
+  IntermediateColumn,
+} from "../types/filters";
 
 const asRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null;

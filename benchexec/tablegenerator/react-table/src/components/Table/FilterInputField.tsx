@@ -11,7 +11,7 @@ import type {
   FilterValueState,
   SetCustomFilters,
   SetFocusedFilter,
-} from "./types";
+} from "../../types/table";
 
 type FilterInputFieldProps = Readonly<{
   id: string;

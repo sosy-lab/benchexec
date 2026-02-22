@@ -7,18 +7,16 @@
 
 import { isNil, NumberFormatterBuilder } from "./utils";
 import { enqueue } from "../workers/workerDirector";
+import {
+  StatisticRowDef,
+  StatisticRowId,
+  RawCell,
+  TableRow,
+  Tool,
+  StatRow,
+} from "../types/stats";
 
 const keysToIgnore = new Set<string>(["meta"]);
-
-/* ============================================================
- * Types: Statistic Rows (UI metadata)
- * ============================================================ */
-
-type StatisticRowDef = {
-  title: string;
-  indent?: number;
-  description?: string;
-};
 
 export const statisticsRows = {
   total: { title: "all results" },
@@ -75,38 +73,6 @@ export const statisticsRows = {
 const _statisticsRowsTypeCheck: Record<string, StatisticRowDef> =
   statisticsRows;
 void _statisticsRowsTypeCheck;
-
-type StatisticRowId = keyof typeof statisticsRows;
-
-/* ============================================================
- * Types: Dataset / Table Shapes
- * ============================================================ */
-
-type RawCell = { raw: string };
-
-type TableRowResult = {
-  category: string;
-  values: RawCell[];
-};
-
-type TableRow = {
-  results: TableRowResult[];
-};
-
-type ToolColumn = {
-  type?: string;
-  title: string;
-  number_of_significant_digits: number;
-};
-
-type Tool = {
-  columns: ToolColumn[];
-};
-
-type StatRow = {
-  id: StatisticRowId;
-  content: unknown[][];
-};
 
 /* ============================================================
  * Types: Formatting
