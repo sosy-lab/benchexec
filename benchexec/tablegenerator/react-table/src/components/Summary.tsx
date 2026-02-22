@@ -72,7 +72,7 @@ type SummaryProps = {
   tableData: unknown;
   onStatsReady: unknown;
   stats: unknown;
-  filtered: unknown;
+  filtered?: boolean;
 
   version: string;
 };
