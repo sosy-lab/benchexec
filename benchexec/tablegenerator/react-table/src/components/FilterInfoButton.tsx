@@ -6,10 +6,21 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from "react";
-import { isNil } from "../utils/utils";
 import { faFilter } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-export default class FilterInfoButton extends React.Component {
+
+import { isNil } from "../utils/utils";
+
+interface FilterInfoButtonProps {
+  className?: string;
+  onClick?: React.MouseEventHandler<HTMLButtonElement>;
+  enabled?: boolean;
+  isFiltered: boolean;
+  filteredCount: number;
+  totalCount: number;
+}
+
+export default class FilterInfoButton extends React.Component<FilterInfoButtonProps> {
   render = () => (
     <button
       className={this.props.className || "reset"}
