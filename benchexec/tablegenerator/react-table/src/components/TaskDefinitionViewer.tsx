@@ -6,7 +6,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from "react";
-import yamlParser from "yaml";
+import yamlParser, { Document } from "yaml";
+import { Scalar, YAMLSeq, YAMLMap, Pair } from "yaml/types";
 
 type TaskDefinitionViewerProps = {
   yamlText: string;
@@ -14,26 +15,12 @@ type TaskDefinitionViewerProps = {
   createHref: (fileName: string) => string;
 };
 
-type YamlParseError = {
-  message: string;
-};
-
-/**
- * Minimal shape we rely on from yamlParser.parseDocument(...).
- * We keep it intentionally small to stay close to the original JS code.
- */
-type YamlDocumentLike = {
-  errors?: YamlParseError[];
-  get: (key: string) => unknown;
-  set: (key: string, value: unknown) => void;
-  toString: () => string;
-};
-
 type TaskDefinitionViewerState = {
-  splitterTag: string;
-  fileTag: string;
-  content: string | YamlDocumentLike;
+  content: string | Document;
 };
+
+const SPLITTER_TAG = "<splitter#9d81y23>";
+const FILE_TAG = "<file#092nt43>";
 
 /** Special view for YAML files in the LinkOverlay component. */
 export default class TaskDefinitionViewer extends React.Component<
@@ -43,8 +30,6 @@ export default class TaskDefinitionViewer extends React.Component<
   constructor(props: TaskDefinitionViewerProps) {
     super(props);
     this.state = {
-      splitterTag: "<splitter#9d81y23>",
-      fileTag: "<file#092nt43>",
       content: this.props.yamlText,
     };
   }
@@ -69,70 +54,46 @@ export default class TaskDefinitionViewer extends React.Component<
     if (this.props.yamlText !== "") {
       const yamlObj = yamlParser.parseDocument(this.props.yamlText, {
         prettyErrors: true,
-      }) as unknown as YamlDocumentLike;
+      });
 
-      const inputFiles = yamlObj.get("input_files") as unknown as
-        | { items?: Array<{ value: string }> }
-        | string
-        | undefined;
+      // NOTE (JS->TS): Official yaml node classes (Scalar, YAMLSeq, YAMLMap, Pair)
+      // are used instead of structural "Like" types. This makes the code more robust
+      // against internal library changes and provides precise type narrowing
+      // via instanceof checks instead of manual shape inspection.
+      const inputFiles = yamlObj.get("input_files");
 
-      if (inputFiles) {
-        if (Array.isArray((inputFiles as { items?: unknown }).items)) {
-          (inputFiles as { items: Array<{ value: string }> }).items.forEach(
-            (inputFileItem) => {
-              inputFileItem.value = this.encloseFileInTags(inputFileItem.value);
-            },
-          );
-        } else {
-          yamlObj.set(
-            "input_files",
-            this.encloseFileInTags(String(inputFiles)),
-          );
-        }
+      if (inputFiles instanceof YAMLSeq) {
+        inputFiles.items.forEach((inputFileItem) => {
+          if (inputFileItem instanceof Scalar) {
+            inputFileItem.value = this.encloseFileInTags(
+              String(inputFileItem.value),
+            );
+          }
+        });
+      } else if (inputFiles instanceof Scalar) {
+        inputFiles.value = this.encloseFileInTags(String(inputFiles.value));
+      } else if (typeof inputFiles === "string") {
+        yamlObj.set("input_files", this.encloseFileInTags(inputFiles));
       }
 
-      const properties = yamlObj.get("properties") as unknown as
-        | {
-            items?: Array<{
-              items?: Array<{
-                key: { value: unknown };
-                value: { value: unknown };
-              }>;
-            }>;
-          }
-        | undefined;
+      const properties = yamlObj.get("properties");
 
-      if (properties) {
-        if (Array.isArray((properties as { items?: unknown }).items)) {
-          (
-            properties as {
-              items: Array<{
-                items?: Array<{
-                  key: { value: unknown };
-                  value: { value: unknown };
-                }>;
-              }>;
-            }
-          ).items.forEach((property) => {
-            if (Array.isArray((property as { items?: unknown }).items)) {
-              (
-                property as {
-                  items: Array<{
-                    key: { value: unknown };
-                    value: { value: unknown };
-                  }>;
-                }
-              ).items.forEach((propertyItem) => {
-                if (propertyItem.key.value === "property_file") {
-                  const v = propertyItem.value.value;
-                  if (typeof v === "string") {
-                    propertyItem.value.value = this.encloseFileInTags(v);
+      if (properties instanceof YAMLSeq) {
+        properties.items.forEach((property) => {
+          if (property instanceof YAMLMap) {
+            property.items.forEach((propertyItem) => {
+              if (propertyItem instanceof Pair) {
+                const key = propertyItem.key;
+                if (key instanceof Scalar && key.value === "property_file") {
+                  const value = propertyItem.value;
+                  if (value instanceof Scalar) {
+                    value.value = this.encloseFileInTags(String(value.value));
                   }
                 }
-              });
-            }
-          });
-        }
+              }
+            });
+          }
+        });
       }
 
       this.setState({ content: yamlObj });
@@ -140,13 +101,7 @@ export default class TaskDefinitionViewer extends React.Component<
   };
 
   encloseFileInTags = (fileName: string): string => {
-    return (
-      this.state.splitterTag +
-      this.state.fileTag +
-      fileName +
-      this.state.fileTag +
-      this.state.splitterTag
-    );
+    return SPLITTER_TAG + FILE_TAG + fileName + FILE_TAG + SPLITTER_TAG;
   };
 
   loadFileInViewer = (
@@ -183,26 +138,17 @@ export default class TaskDefinitionViewer extends React.Component<
     }
 
     // ugly: global override of YAML options, but we use it only here
-    // NOTE (JS->TS): yamlParser's TS types don't expose scalarOptions; keep original behavior via a narrow cast.
     (
-      yamlParser as unknown as {
-        scalarOptions: { str: { fold: { lineWidth: number } } };
+      yamlParser.scalarOptions.str as unknown as {
+        fold: { lineWidth: number };
       }
-    ).scalarOptions.str.fold = { lineWidth: 0 };
+    ).fold = { lineWidth: 0 };
 
-    const asText = typeof content === "string" ? content : content.toString();
-
-    const contentBySplitter = asText.split(this.state.splitterTag);
-    const jsxContent = contentBySplitter.map((contentPartOriginal) => {
-      let contentPart = contentPartOriginal;
+    const contentBySplitter = content.toString().split(SPLITTER_TAG);
+    const jsxContent = contentBySplitter.map((contentPart) => {
       // If contentPart is enclosed with file tags (= if contentPart is a file which should be linked)
-      if (
-        contentPart.match(`^${this.state.fileTag}(?:.)+${this.state.fileTag}$`)
-      ) {
-        contentPart = contentPart.replace(
-          new RegExp(this.state.fileTag, "g"),
-          "",
-        );
+      if (contentPart.match(`^${FILE_TAG}(?:.)+${FILE_TAG}$`)) {
+        contentPart = contentPart.replace(new RegExp(FILE_TAG, "g"), "");
         return (
           /* Custom onClick disables the default behavior of an <a> tag to load a new page and instead loads
              the file in the same LinkOverlay. At the same time other benefits from <a> tags such as downloading
