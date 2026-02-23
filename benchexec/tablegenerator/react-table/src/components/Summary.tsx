@@ -7,6 +7,7 @@
 
 import React from "react";
 import StatisticsTable from "./StatisticsTable";
+import type { Tool, StatRow, TableRow, ToolColumn } from "./StatisticsTable";
 
 /* ============================================================
  * Domain Types
@@ -68,14 +69,14 @@ type TableHeader = Record<InfoRowId, TableHeaderRow | null>;
 type SummaryProps = {
   tableHeader: TableHeader;
 
-  // passed through to StatisticsTable (keep local-first; these can be tightened later once StatisticsTable is typed)
-  selectColumn: (ev: React.SyntheticEvent) => void;
-  tools: unknown;
-  switchToQuantile: (quantilePreSelection: unknown) => void;
-  hiddenCols: unknown;
-  tableData: unknown;
-  onStatsReady: (...args: unknown[]) => void;
-  stats: unknown;
+  // passed through to StatisticsTable (keep local-first; these can be tightened later)
+  selectColumn: React.MouseEventHandler<HTMLSpanElement>;
+  tools: Tool[];
+  switchToQuantile: (col: ToolColumn) => void;
+  hiddenCols: Array<number[] | undefined>;
+  tableData: TableRow[];
+  onStatsReady: () => void;
+  stats: StatRow[];
   filtered: boolean;
 
   version: string;

@@ -15,8 +15,6 @@ import {
   type Column,
   type HeaderGroup,
   type Row,
-  type TableBodyPropGetter,
-  type TablePropGetter,
 } from "react-table";
 import { useSticky } from "react-table-sticky";
 import {
@@ -24,6 +22,7 @@ import {
   SelectColumnsButton,
   StandardColumnHeader,
 } from "./TableComponents";
+import type { TableColumnLike, ColumnTitleLike } from "./TableComponents";
 import { computeStats, statisticsRows } from "../utils/stats";
 import {
   determineColumnWidth,
@@ -57,14 +56,14 @@ type StatCellValue = StatCellObject | null | undefined;
  * Minimal stat row shape used by StatisticsTable.
  * `title` and `description` are optional overrides used by the UI.
  */
-type StatRow = {
+export type StatRow = {
   id: keyof typeof statisticsRows;
   content: StatCellValue[][];
   title?: string;
   description?: string;
 };
 
-type ToolColumn = {
+export type ToolColumn = {
   type?: string;
   title: string;
   number_of_significant_digits: number;
@@ -77,7 +76,10 @@ type ToolColumn = {
   max_width?: number;
 };
 
-type Tool = {
+export type Tool = {
+  tool: string;
+  date: string;
+  niceName: string;
   columns: ToolColumn[];
 };
 
@@ -86,7 +88,7 @@ type TableRowResult = {
   values: Array<{ raw: string }>;
 };
 
-type TableRow = {
+export type TableRow = {
   results: TableRowResult[];
 };
 
@@ -140,7 +142,7 @@ const StatisticsTable = ({
           tableData,
           stats: defaultStats,
         });
-        setStats(newStats);
+        setStats(newStats as StatRow[]);
       } else {
         setStats(defaultStats);
       }
@@ -157,57 +159,65 @@ const StatisticsTable = ({
     <div className="table-header">
       {headerGroups.map((headerGroup) => (
         <div className="tr headergroup" {...headerGroup.getHeaderGroupProps()}>
-          {headerGroup.headers.map((header) => (
-            <div
-              {...header.getHeaderProps({
-                className: `th header ${header.headers ? "outer " : ""}${
-                  // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                  (header as unknown as { className?: string }).className || ""
-                }`,
-              })}
-            >
-              {header.render("Header")}
+          {headerGroup.headers.map((header) => {
+            // NOTE (JS->TS): react-table's v7 types don't include our custom `className`
+            // and plugin-injected fields (e.g., `getResizerProps`, `isResizing`).
+            // We narrow the header type locally to the fields we actually use.
+            const h = header as HeaderGroup<StatRow> & {
+              className?: string;
+              columns?: unknown[];
+              getResizerProps?: () => Record<string, unknown>;
+              isResizing?: boolean;
+            };
 
-              {(!(header as unknown as { className?: string }).className ||
-                !(
-                  header as unknown as { className?: string }
-                ).className?.includes("separator")) && (
-                <div
-                  {...header.getResizerProps()}
-                  className={`resizer ${
-                    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                    (header as unknown as { isResizing?: boolean }).isResizing
-                      ? "isResizing"
-                      : ""
-                  }`}
-                />
-              )}
-            </div>
-          ))}
+            return (
+              <div
+                {...h.getHeaderProps({
+                  className: `th header ${header.headers ? "outer " : ""}${
+                    h.className || ""
+                  }`,
+                })}
+              >
+                {header.render("Header")}
+
+                {(!h.className || !h.className.includes("separator")) &&
+                  h.getResizerProps && (
+                    <div
+                      {...h.getResizerProps()}
+                      className={`resizer ${h.isResizing ? "isResizing" : ""}`}
+                    />
+                  )}
+              </div>
+            );
+          })}
         </div>
       ))}
     </div>
   );
 
-  const renderTableData = (rows: Array<Row<StatRow>>) => (
+  const renderTableData = (rows: Array<Row<StatRow>>): React.ReactElement => (
     <div {...getTableBodyProps()} className="table-body body">
       {rows.map((row) => {
         prepareRow(row);
         return (
           <div {...row.getRowProps()} className="tr">
-            {row.cells.map((cell) => (
-              <div
-                {...cell.getCellProps({
-                  className:
-                    "td " +
-                    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-                    ((cell.column as unknown as { className?: string })
-                      .className || ""),
-                })}
-              >
-                {cell.render("Cell")}
-              </div>
-            ))}
+            {row.cells.map((cell) => {
+              // NOTE (JS->TS): `className` is custom column metadata used for styling,
+              // but react-table's types don't model it. We locally narrow the column type.
+              const column = cell.column as typeof cell.column & {
+                className?: string;
+              };
+
+              return (
+                <div
+                  {...cell.getCellProps({
+                    className: "td " + (column.className || ""),
+                  })}
+                >
+                  {cell.render("Cell")}
+                </div>
+              );
+            })}
           </div>
         );
       })}
@@ -217,7 +227,7 @@ const StatisticsTable = ({
   const renderTable = (
     headerGroups: Array<HeaderGroup<StatRow>>,
     rows: Array<Row<StatRow>>,
-  ) => {
+  ): React.ReactElement => {
     if (filtered && stats.length === 0) {
       return (
         <p id="statistics-placeholder">
@@ -238,6 +248,7 @@ const StatisticsTable = ({
       </div>
     );
   };
+
   const columns = useMemo((): Array<Column<StatRow>> => {
     const createColumnBuilder =
       ({
@@ -247,27 +258,35 @@ const StatisticsTable = ({
         switchToQuantile: StatisticsTableProps["switchToQuantile"];
         hiddenCols: StatisticsTableProps["hiddenCols"];
       }) =>
-      (runSetIdx: number, column: ToolColumn, columnIdx: number) => {
+      (
+        runSetIdx: number,
+        column: ColumnTitleLike,
+        columnIdx: number,
+      ): TableColumnLike => {
         // NOTE (JS->TS): hiddenCols entries may be undefined; default to empty list to preserve JS behavior.
         const hiddenForRunSet = hiddenCols[runSetIdx] ?? [];
+        // NOTE (JS->TS): TableComponents types `column` as ColumnTitleLike, but our dataset
+        // provides a richer column object (incl. type/colIdx/etc.). We narrow via cast here.
+        const fullColumn = column as ToolColumn;
 
         return {
-          id: `${runSetIdx}_${String(column.display_title)}_${columnIdx}`,
+          id: `${runSetIdx}_${String(fullColumn.display_title)}_${columnIdx}`,
           Header: (
             <StandardColumnHeader
-              column={column}
+              column={fullColumn}
               className="header-data clickable"
               title="Show Quantile Plot of this column"
-              onClick={() => switchToQuantile(column)}
+              onClick={() => switchToQuantile(fullColumn)}
             />
           ),
           hidden:
-            hiddenForRunSet.includes(column.colIdx) ||
-            !(isNumericColumn(column) || column.type === "status"),
+            hiddenForRunSet.includes(fullColumn.colIdx) ||
+            !(isNumericColumn(fullColumn) || fullColumn.type === "status"),
+          // NOTE (JS->TS): determineColumnWidth expects `number | undefined` for optional params (not `null`).
           width: determineColumnWidth(
-            column,
-            null,
-            column.type === "status" ? 6 : null,
+            fullColumn,
+            undefined,
+            fullColumn.type === "status" ? 6 : undefined,
           ),
           minWidth: 30,
           accessor: (row: StatRow) => row.content[runSetIdx]?.[columnIdx],
@@ -278,7 +297,7 @@ const StatisticsTable = ({
             // We handle status differently as the main aggregation (denoted "sum")
             // is of type "count" for this column type.
             // This means that the default value if no data is available is 0
-            if (column.type === "status") {
+            if (fullColumn.type === "status") {
               if (value === undefined) {
                 // No data is available, default to 0
                 valueToRender = 0;
@@ -300,11 +319,13 @@ const StatisticsTable = ({
             return !isNil(valueToRender) ? (
               <div
                 dangerouslySetInnerHTML={{
-                  __html: String(valueToRender),
+                  __html: valueToRender,
                 }}
                 className="cell"
                 title={
-                  column.type !== "status" && value && typeof value === "object"
+                  fullColumn.type !== "status" &&
+                  value &&
+                  typeof value === "object"
                     ? renderTooltip(value)
                     : undefined
                 }
@@ -313,7 +334,7 @@ const StatisticsTable = ({
               <div className="cell">-</div>
             );
           },
-        } as Column<StatRow>;
+        } as unknown as TableColumnLike;
       };
 
     const createRowTitleColumn = (): Column<StatRow> => ({
@@ -334,7 +355,7 @@ const StatisticsTable = ({
         </form>
       ),
       id: "row-title",
-      // `sticky` is consumed by react-table-sticky at runtime
+      // NOTE (JS->TS):`sticky` is consumed by react-table-sticky at runtime
       // (react-table typings don't know it, but it's safe to keep as-is)
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-expect-error react-table-sticky runtime extension
@@ -353,13 +374,17 @@ const StatisticsTable = ({
                 __html:
                   (row.original.title ||
                     "&nbsp;".repeat(
-                      4 * (statisticsRows[row.original.id]?.indent ?? 0),
+                      4 *
+                        ((
+                          statisticsRows[row.original.id] as { indent?: number }
+                        ).indent ?? 0),
                     ) + statisticsRows[row.original.id].title) +
                   (filtered ? " of selected rows" : ""),
               }}
               title={
                 row.original.description ||
-                statisticsRows[row.original.id].description
+                (statisticsRows[row.original.id] as { description?: string })
+                  .description
               }
               className="row-title"
             />
@@ -390,32 +415,22 @@ const StatisticsTable = ({
 
   const data = useMemo(() => stats, [stats]);
 
-  const {
-    getTableProps,
-    getTableBodyProps,
-    headerGroups,
-    rows,
-    prepareRow,
-  }: {
-    getTableProps: TablePropGetter<StatRow>;
-    getTableBodyProps: TableBodyPropGetter<StatRow>;
-    headerGroups: Array<HeaderGroup<StatRow>>;
-    rows: Array<Row<StatRow>>;
-    prepareRow: (row: Row<StatRow>) => void;
-  } = useTable<StatRow>(
-    {
-      columns,
-      data,
-      initialState: {
-        hiddenColumns: getHiddenColIds(columns as unknown as any),
-        // NOTE (JS->TS): getHiddenColIds has a narrow structural type; columns match at runtime.
+  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
+    useTable<StatRow>(
+      {
+        columns,
+        data,
+        initialState: {
+          hiddenColumns: getHiddenColIds(
+            columns as unknown as Parameters<typeof getHiddenColIds>[0],
+          ),
+        },
       },
-    },
-    useFilters,
-    useResizeColumns,
-    useFlexLayout,
-    useSticky,
-  );
+      useFilters,
+      useResizeColumns,
+      useFlexLayout,
+      useSticky,
+    );
 
   return (
     <div id="statistics">
