@@ -13,55 +13,6 @@ import StatisticsTable from "./StatisticsTable";
  * ============================================================
  */
 
-/**
- * A single header row entry in the benchmark setup table.
- * `content` is an array per tool/runset containing tuples of:
- * [displayTextOrPayload, colSpan].
- */
-type TableHeaderRow = {
-  id: string;
-  name: string;
-  content: Array<[unknown, number]>;
-};
-
-/**
- * Table header structure as used by Summary.
- * Keys are stable strings like "tool", "date", "options", ...
- */
-type TableHeader = Record<string, TableHeaderRow | null>;
-
-/**
- * Payload used by the "tool" row in the header table.
- * This matches the destructuring in renderToolNameAndVersion(...).
- */
-type ToolVersionInfo = {
-  tool: string;
-  version: string;
-  project_url?: string;
-  version_url?: string;
-};
-
-/* ============================================================
- * Component Types
- * ============================================================
- */
-
-type SummaryProps = {
-  tableHeader: TableHeader;
-
-  // passed through to StatisticsTable (typed locally only as far as Summary needs)
-  selectColumn: (...args: unknown[]) => void;
-  tools: unknown;
-  switchToQuantile: (...args: unknown[]) => void;
-  hiddenCols: unknown;
-  tableData: unknown;
-  onStatsReady: (...args: unknown[]) => void;
-  stats: unknown;
-  filtered: boolean;
-
-  version: string;
-};
-
 const infos = [
   "displayName",
   "tool",
@@ -76,15 +27,70 @@ const infos = [
   "property",
 ] as const;
 
+type InfoRowId = typeof infos[number];
+
+/**
+ * Payload used by the "tool" row in the header table.
+ * This matches the destructuring in renderToolNameAndVersion(...).
+ */
+type ToolVersionInfo = {
+  tool: string;
+  version: string;
+  project_url?: string;
+  version_url?: string;
+};
+
+/**
+ * A single header cell in the benchmark setup table.
+ * First element is the cell content, second is the colSpan.
+ */
+type HeaderCell = [string, number] | [ToolVersionInfo, number];
+
+/**
+ * Table header row entry.
+ */
+type TableHeaderRow = {
+  id: InfoRowId;
+  name: string;
+  content: HeaderCell[];
+};
+
+/**
+ * `tableHeader` is indexed by the known `InfoRowId`s and may contain null rows.
+ */
+type TableHeader = Record<InfoRowId, TableHeaderRow | null>;
+
+/* ============================================================
+ * Component Types
+ * ============================================================
+ */
+
+type SummaryProps = {
+  tableHeader: TableHeader;
+
+  // passed through to StatisticsTable (keep local-first; these can be tightened later once StatisticsTable is typed)
+  selectColumn: (ev: React.SyntheticEvent) => void;
+  tools: unknown;
+  switchToQuantile: (quantilePreSelection: unknown) => void;
+  hiddenCols: unknown;
+  tableData: unknown;
+  onStatsReady: (...args: unknown[]) => void;
+  stats: unknown;
+  filtered: boolean;
+
+  version: string;
+};
+
 const Summary = (props: SummaryProps): React.ReactElement => {
   /* ++++++++++++++ Helper functions ++++++++++++++ */
 
-  const renderOptions = (text: string): React.ReactNode =>
-    text.split(/[\s]+-/).map((option, i) => (
+  const renderOptions = (text: string): React.ReactNode => {
+    return text.split(/[\s]+-/).map((option, i) => (
       <li key={option}>
         <code>{i === 0 ? option : `-${option}`}</code>
       </li>
     ));
+  };
 
   const externalLink = (
     url: string | undefined,
@@ -117,13 +123,13 @@ const Summary = (props: SummaryProps): React.ReactElement => {
   /* ++++++++++++++ Table render functions ++++++++++++++ */
 
   const renderRow = (
-    row: string,
-    text: unknown,
-    colSpan: number,
+    row: InfoRowId,
+    cell: HeaderCell,
     j: number,
   ): React.ReactElement => {
     const isOptionRow = row === "options";
     const isToolRow = row === "tool";
+    const [text, colSpan] = cell;
 
     return (
       <td
@@ -154,9 +160,7 @@ const Summary = (props: SummaryProps): React.ReactElement => {
               .map((row) => (
                 <tr key={"tr-" + row.id} className={row.id}>
                   <th key={"td-" + row.id}>{row.name}</th>
-                  {row.content.map((tool, j) =>
-                    renderRow(row.id, tool[0], tool[1], j),
-                  )}
+                  {row.content.map((cell, j) => renderRow(row.id, cell, j))}
                 </tr>
               ))}
           </tbody>
