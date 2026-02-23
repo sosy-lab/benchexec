@@ -16,7 +16,7 @@ import { formatColumnTitle, getRunSetName } from "../utils/utils";
 /**
  * Minimal shape of a column definition as required by formatColumnTitle(...).
  */
-type ColumnTitleLike = {
+export type ColumnTitleLike = {
   unit?: string;
   display_title: React.ReactNode;
 };
@@ -58,7 +58,7 @@ type CellLike = {
  * Minimal react-table column shape used by createRunSetColumns/createSeparatorColumn.
  * Kept intentionally small and structural.
  */
-type TableColumnLike = {
+export type TableColumnLike = {
   Header?: React.ReactNode | string;
   accessor?: string;
   className?: string;
