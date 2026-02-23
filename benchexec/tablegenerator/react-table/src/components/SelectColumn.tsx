@@ -129,9 +129,9 @@ export default class SelectColumn extends React.Component<
       const isVisible = hiddenForTool.length !== tool.columns.length;
 
       const toolName = getRunSetName({
-        tool: tool.tool ?? "",
-        date: tool.date ?? "",
-        niceName: tool.niceName ?? "",
+        tool: tool.tool,
+        date: tool.date,
+        niceName: tool.niceName,
       });
 
       return (

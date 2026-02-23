@@ -299,10 +299,12 @@ const formatColumnTitle = (column: {
     column.display_title
   );
 
-const getRunSetName = (runSet: ToolLike): string => {
-  const tool = runSet.tool;
-  const date = runSet.date;
-  const niceName = runSet.niceName;
+type RunSetNameLike = Pick<ToolLike, "tool" | "date" | "niceName">;
+
+const getRunSetName = (runSet: RunSetNameLike): string => {
+  const tool = runSet.tool ?? "";
+  const date = runSet.date ?? "";
+  const niceName = runSet.niceName ?? "";
 
   return `${tool} ${date} ${niceName}`;
 };

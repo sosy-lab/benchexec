@@ -54,7 +54,7 @@ type LinkOverlayState = {
 
 const zipEntriesCache: Record<string, ZipEntryLike[]> = {};
 
-export class LinkOverlay extends React.Component<
+export default class LinkOverlay extends React.Component<
   LinkOverlayProps,
   LinkOverlayState
 > {
