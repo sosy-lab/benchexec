@@ -88,6 +88,9 @@ export default class SelectColumn extends React.Component<
     const hiddenRunsets: string[] = [];
 
     Object.entries(this.state.hiddenCols).forEach(([toolIdxStr, cols]) => {
+      // NOTE (JS->TS): Object.entries returns string keys.
+      // We convert to number for numeric comparison with tool.toolIdx,
+      // but keep the original string for building URL parameters.
       const toolIdx = Number(toolIdxStr);
 
       // If all columns of the runset are hidden, the runset will be added to the "hidden" parameter
@@ -167,6 +170,8 @@ export default class SelectColumn extends React.Component<
         return (
           <td
             id={"td" + toolIdx + String(colTitle)}
+            // NOTE (JS->TS): colTitle is typed as React.ReactNode; convert to string
+            // because id/key must be string values.
             key={String(colTitle)}
             className={isVisible ? "checked" : ""}
           >
@@ -191,11 +196,10 @@ export default class SelectColumn extends React.Component<
   renderColumnHeaders = (): React.ReactNode => {
     return this.state.selectableCols.map((colTitle) => {
       // Column is visible if there is at least one runset that contains this col and this col is not hidden for
-      const isVisible = Object.entries(this.state.hiddenCols).some(
-        ([toolIdxStr, hiddenCols]) => {
-          const toolIdx = Number(toolIdxStr);
+      const isVisible = Object.values(this.state.hiddenCols).some(
+        (hiddenCols, idx) => {
           const currentTool = this.props.tools.find(
-            (tool) => tool.toolIdx === toolIdx,
+            (tool) => tool.toolIdx === idx,
           );
           if (!currentTool) {
             return false;
@@ -277,7 +281,6 @@ export default class SelectColumn extends React.Component<
   ): void => {
     const isAlreadyHidden =
       target.type === "checkbox" ? target.checked : Boolean(target.value);
-
     const colIdxs =
       this.props.tools
         .find((tool) => tool.toolIdx === toolIdx)
