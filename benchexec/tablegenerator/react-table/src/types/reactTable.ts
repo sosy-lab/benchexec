@@ -121,7 +121,14 @@ type ToolLike = {
   [key: string]: unknown;
 };
 
-export type { ToolColumnLike, ToolLike };
+type PreparedToolColumnLike = ToolColumnLike & { colIdx: number };
+type PreparedToolLike = ToolLike & {
+  toolIdx: number;
+  columns: PreparedToolColumnLike[];
+  scoreBased: boolean;
+};
+
+export type { ToolColumnLike, ToolLike, PreparedToolLike };
 
 /* ============================================================================
  * Row / result shapes (prepared table rows)
@@ -178,13 +185,7 @@ type PrepareTableDataInput = {
 type PreparedTableData = {
   tableHeader: TableHeaderLike;
   taskIdNames: string[];
-  tools: Array<
-    ToolLike & {
-      toolIdx: number;
-      columns: ToolColumnLike[];
-      scoreBased: boolean;
-    }
-  >;
+  tools: PreparedToolLike[];
   columns: string[][];
   tableData: RowLike[];
   stats: TableStats[];

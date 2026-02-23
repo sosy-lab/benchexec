@@ -113,6 +113,8 @@
     "@types/react-dom": "^17.0.26",
     "@types/react-modal": "^3.16.3",
     "@types/react-table": "^7.7.20",
+    "@types/react-vis": "^1.11.15",
+    "@types/regression": "^2.0.6",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
     "eslint-config-prettier": "^8.5.0",

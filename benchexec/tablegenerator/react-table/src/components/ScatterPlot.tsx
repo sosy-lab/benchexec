@@ -38,7 +38,7 @@ import calcRegression from "regression";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faExchangeAlt } from "@fortawesome/free-solid-svg-icons";
 
-import type { RowLike, ToolLike } from "../types/reactTable";
+import type { RowLike, PreparedToolLike } from "../types/reactTable";
 
 /* ============================================================================
  * Types: helpers and component props/state
@@ -50,13 +50,13 @@ type AxisId = "X" | "Y";
 type ScalingType = "ordinal" | "log" | "linear";
 
 type ScatterPlotProps = {
-  tools: ToolLike[];
+  tools: PreparedToolLike[];
   columns: Array<[unknown, string]>;
   hiddenCols: Record<number, number[]>;
   table: RowLike[];
   getRowName: (row: RowLike) => string;
   isFlexible?: boolean;
-}
+};
 
 type ScatterPlotState = {
   dataX?: string;
@@ -73,21 +73,21 @@ type ScatterPlotState = {
   nameY: string;
   value: ScatterPlotPoint | null | false;
   areAllColsHidden: boolean;
-}
+};
 
 /** A single scatter-plot point. */
 type ScatterPlotPoint = {
   x: number;
   y: number;
   info: string;
-}
+};
 
 type SettingOptions = Record<string, string>;
 
 type OptgroupOption = {
   name: string;
   value: string;
-}
+};
 
 type OptgroupOptions = Record<string, OptgroupOption[]>;
 
@@ -95,23 +95,23 @@ type OptgroupOptions = Record<string, OptgroupOption[]>;
  * Minimal subset of the regression result shape that we use.
  * (The regression library types are not necessarily available in this project.)
  */
-interface RegressionResultLike {
+type RegressionResultLike = {
   points: Array<[number, number]>;
   equation: [number, number];
   string: string;
   r2: number;
   predict: (x: number) => [number, number];
-}
+};
 
-interface RegressionData {
+type RegressionData = {
   regression: RegressionResultLike;
   text: string;
   upperConfidenceBorderData: Array<[number, number]>;
   lowerConfidenceBorderData: Array<[number, number]>;
-}
+};
 
 /** URL parameters that ScatterPlot may read/write. */
-interface ScatterPlotUrlParams {
+type ScatterPlotUrlParams = {
   results?: string | null;
   scaling?: string | null;
   toolX?: string | null;
@@ -120,7 +120,7 @@ interface ScatterPlotUrlParams {
   columnY?: string | null;
   line?: string | null;
   regression?: string | null;
-}
+};
 
 export default class ScatterPlot extends React.Component<
   ScatterPlotProps,
@@ -422,8 +422,8 @@ export default class ScatterPlot extends React.Component<
           [this.maxX, regression.predict(this.maxX)[1]],
         ];
         regression.points = Array.from(
-          new Set(regression.points.map(JSON.stringify)),
-          JSON.parse,
+          new Set(regression.points.map((p) => JSON.stringify(p))),
+          (s) => JSON.parse(s) as [number, number],
         ).concat(endPoints) as Array<[number, number]>;
 
         const unitX =
@@ -476,7 +476,8 @@ export default class ScatterPlot extends React.Component<
         Object.assign(acc, {
           [getRunSetName(runset)]: runset.columns
             .filter(
-              (col) => !this.props.hiddenCols[runsetIdx].includes(col.colIdx),
+              (col) =>
+                !this.props.hiddenCols[runsetIdx].includes(col.colIdx ?? -1),
             )
             .map((col) => ({
               name: col.display_title,
@@ -491,7 +492,7 @@ export default class ScatterPlot extends React.Component<
           <div className="settings-subcontainer flexible-width">
             {renderOptgroupsSetting(
               "X-Axis",
-              this.state.dataX,
+              this.state.dataX ?? "",
               (ev: React.ChangeEvent<HTMLSelectElement>) =>
                 this.setAxis(ev, "X"),
               axisOptions,
@@ -504,7 +505,7 @@ export default class ScatterPlot extends React.Component<
             </span>
             {renderOptgroupsSetting(
               "Y-Axis",
-              this.state.dataY,
+              this.state.dataY ?? "",
               (ev: React.ChangeEvent<HTMLSelectElement>) =>
                 this.setAxis(ev, "Y"),
               axisOptions,
@@ -575,12 +576,16 @@ export default class ScatterPlot extends React.Component<
   }
 
   renderRegressionAndConfidenceIntervals(): React.ReactNode[] {
+    const predict = this.regressionData?.regression.predict;
+    if (!predict) {
+      return [];
+    }
     const minX = Math.floor(this.minX);
     const maxX = Math.ceil(this.maxX);
     const dataPointsOfRegression = getDataPointsOfRegression(
       minX,
       maxX,
-      this.regressionData?.regression.predict,
+      predict,
     ) as Array<[number, number]>;
     return [
       this.renderConfidenceIntervalLine(
@@ -600,7 +605,7 @@ export default class ScatterPlot extends React.Component<
     return (
       <LineMarkSeries
         className="regression-line"
-        data={lineData as unknown as Array<Record<string, unknown>>}
+        data={lineData as unknown as Array<{ x: number; y: number }>}
         style={{
           stroke: "green",
         }}
@@ -609,7 +614,8 @@ export default class ScatterPlot extends React.Component<
           this.setState({ value: datapoint as ScatterPlotPoint })
         }
         onValueMouseOut={() => this.setState({ value: null })}
-        opacity="0"
+        // NOTE (JS->TS): `opacity` is typed as a number in react-vis props.
+        opacity={0}
       />
     );
   };
@@ -702,8 +708,8 @@ export default class ScatterPlot extends React.Component<
 
   setAxis = (ev: React.ChangeEvent<HTMLSelectElement>, axis: AxisId): void => {
     this.array = [];
-    let [tool, column] = ev.target.value.split("-");
-    column = column.replace("___", "-");
+    const [tool, columnRaw] = ev.target.value.split("-");
+    const column = columnRaw.replace("___", "-");
     setURLParameter({ [`tool${axis}`]: tool, [`column${axis}`]: column });
   };
 
@@ -721,17 +727,23 @@ export default class ScatterPlot extends React.Component<
     this.renderData();
     const isLinear = this.state.scaling === this.scalingOptions.linear;
     const Plot = this.props.isFlexible ? FlexibleXYPlot : XYPlot;
-    const plotDimensions = this.props.isFlexible
-      ? {
-          height: window.innerHeight - 200,
-        }
-      : {
-          height: 1000,
-          width: 1500,
-        };
+    const plotDimensions = (
+      this.props.isFlexible
+        ? {
+            height: window.innerHeight - 200,
+          }
+        : {
+            height: 1000,
+            width: 1500,
+          }
+    ) as unknown;
     const highestAxisValue = this.maxX > this.maxY ? this.maxX : this.maxY;
 
     return (
+      // NOTE (JS->TS): `Plot` is `XYPlot | FlexibleXYPlot`.
+      // `FlexibleXYPlot` doesn't accept `width`, but `XYPlot` does.
+      // With a dynamic component + conditional props, TS can't pick an overload.
+      // We cast the spread payload to a generic object to keep behavior unchanged.
       <div className="scatterPlot">
         {!this.state.areAllColsHidden && this.renderAllSettings()}
         <Plot
@@ -749,18 +761,23 @@ export default class ScatterPlot extends React.Component<
               ? [this.minY, this.maxY]
               : null
           }
-          {...plotDimensions}
+          {...(plotDimensions as unknown as Record<string, unknown>)}
         >
+          {/* NOTE (JS->TS): our react-vis typings don't declare xType/yType
+                  on GridLines/Axes. Plot-level xType/yType is enough, so we omit them. */}
           <VerticalGridLines
-            yType={this.handleType(this.state.toolY, this.state.columnY)}
-            xType={this.handleType(this.state.toolX, this.state.columnX)}
+          // yType={this.handleType(this.state.toolY, this.state.columnY)}
+          // xType={this.handleType(this.state.toolX, this.state.columnX)}
           />
           <HorizontalGridLines
-            yType={this.handleType(this.state.toolY, this.state.columnY)}
-            xType={this.handleType(this.state.toolX, this.state.columnX)}
+          // yType={this.handleType(this.state.toolY, this.state.columnY)}
+          // xType={this.handleType(this.state.toolX, this.state.columnX)}
           />
 
           <DecorativeAxis
+            // NOTE (JS->TS): DecorativeAxis supports nested style keys
+            // (`ticks`, `text`), but typings model it as plain CSSProperties.
+            // Cast keeps the runtime API without `any`.
             className="middle-line"
             axisStart={{
               x: isLinear ? 0 : 1,
@@ -771,15 +788,17 @@ export default class ScatterPlot extends React.Component<
               y: highestAxisValue,
             }}
             axisDomain={[0, 10000000000]}
-            style={{
-              ticks: { stroke: "#009440", opacity: 0 },
-              text: {
-                stroke: "none",
-                fill: "#009440",
-                fontWeight: 600,
-                opacity: 0,
-              },
-            }}
+            style={
+              {
+                ticks: { stroke: "#009440", opacity: 0 },
+                text: {
+                  stroke: "none",
+                  fill: "#009440",
+                  fontWeight: 600,
+                  opacity: 0,
+                },
+              } as unknown as React.CSSProperties
+            }
           />
           <DecorativeAxis
             axisStart={{
@@ -788,15 +807,17 @@ export default class ScatterPlot extends React.Component<
             }}
             axisEnd={{ x: this.maxX, y: this.maxX / this.state.line }}
             axisDomain={[0, 10000000000]}
-            style={{
-              ticks: { stroke: "#ADDDE1", opacity: 0 },
-              text: {
-                stroke: "none",
-                fill: "#6b6b76",
-                fontWeight: 600,
-                opacity: 0,
-              },
-            }}
+            style={
+              {
+                ticks: { stroke: "#ADDDE1", opacity: 0 },
+                text: {
+                  stroke: "none",
+                  fill: "#6b6b76",
+                  fontWeight: 600,
+                  opacity: 0,
+                },
+              } as unknown as React.CSSProperties
+            }
           />
           <DecorativeAxis
             axisStart={{
@@ -805,30 +826,32 @@ export default class ScatterPlot extends React.Component<
             }}
             axisEnd={{ x: this.maxX, y: this.maxX * this.state.line }}
             axisDomain={[0, 10000000000]}
-            style={{
-              ticks: { stroke: "#ADDDE1", opacity: 0 },
-              text: {
-                stroke: "none",
-                fill: "#6b6b76",
-                fontWeight: 600,
-                opacity: 0,
-              },
-            }}
+            style={
+              {
+                ticks: { stroke: "#ADDDE1", opacity: 0 },
+                text: {
+                  stroke: "none",
+                  fill: "#6b6b76",
+                  fontWeight: 600,
+                  opacity: 0,
+                },
+              } as unknown as React.CSSProperties
+            }
           />
           <XAxis
             title={this.state.nameX}
             tickFormat={(value) => value}
-            yType={this.handleType(this.state.toolY, this.state.columnY)}
-            xType={this.handleType(this.state.toolX, this.state.columnX)}
+            // yType={this.handleType(this.state.toolY, this.state.columnY)}
+            // xType={this.handleType(this.state.toolX, this.state.columnX)}
           />
           <YAxis
             title={this.state.nameY}
             tickFormat={(value) => value}
-            yType={this.handleType(this.state.toolY, this.state.columnY)}
-            xType={this.handleType(this.state.toolX, this.state.columnX)}
+            // yType={this.handleType(this.state.toolY, this.state.columnY)}
+            // xType={this.handleType(this.state.toolX, this.state.columnX)}
           />
           <MarkSeries
-            data={this.dataArray as unknown as Array<Record<string, unknown>>}
+            data={this.dataArray as unknown as Array<{ x: number; y: number }>}
             onValueMouseOver={(datapoint: unknown) =>
               this.setState({ value: datapoint as ScatterPlotPoint })
             }
