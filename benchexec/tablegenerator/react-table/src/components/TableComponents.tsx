@@ -6,9 +6,106 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from "react";
-import { formatColumnTitle, getRunSetName } from "../utils/utils.tsx";
+import { formatColumnTitle, getRunSetName } from "../utils/utils";
 
-export const SelectColumnsButton = ({ handler, ...other }) => (
+/* ============================================================
+ * Domain Types
+ * ============================================================
+ */
+
+/**
+ * Minimal shape of a column definition as required by formatColumnTitle(...).
+ */
+type ColumnTitleLike = {
+  unit?: string;
+  display_title: React.ReactNode;
+};
+
+/**
+ * Minimal runset metadata as required by getRunSetName(...).
+ */
+type RunSetMetaLike = {
+  tool: string;
+  date: string;
+  niceName: string;
+};
+
+/**
+ * Minimal runset shape used in this module.
+ */
+type RunSetLike = RunSetMetaLike & {
+  columns: ColumnTitleLike[];
+};
+
+/**
+ * Minimal cell value used by StandardCell. This mirrors the data shape produced by the table generator.
+ */
+type CellValueLike = {
+  href?: string;
+  html?: string;
+  raw?: React.ReactNode;
+};
+
+/**
+ * Minimal cell shape used by StandardCell.
+ * We keep it local-first and avoid importing react-table types here.
+ */
+type CellLike = {
+  value: CellValueLike;
+};
+
+/**
+ * Minimal react-table column shape used by createRunSetColumns/createSeparatorColumn.
+ * Kept intentionally small and structural.
+ */
+type TableColumnLike = {
+  Header?: React.ReactNode | string;
+  accessor?: string;
+  className?: string;
+  columns?: TableColumnLike[];
+  width?: number;
+  minWidth?: number;
+  id?: string;
+};
+
+/* ============================================================
+ * Component Types
+ * ============================================================
+ */
+
+type SelectColumnsButtonProps = React.HTMLAttributes<HTMLSpanElement> & {
+  handler: React.MouseEventHandler<HTMLSpanElement>;
+};
+
+type StandardColumnHeaderProps = React.HTMLAttributes<HTMLDivElement> & {
+  column: ColumnTitleLike;
+  title?: string;
+  children?: React.ReactNode;
+};
+
+type RunSetHeaderProps = React.HTMLAttributes<HTMLSpanElement> & {
+  runSet: RunSetMetaLike;
+};
+
+type StandardCellProps = React.HTMLAttributes<HTMLElement> & {
+  cell: CellLike;
+  href?: string;
+  toggleLinkOverlay: (
+    ev: React.MouseEvent<HTMLAnchorElement>,
+    href: string,
+  ) => void;
+  force?: boolean;
+};
+
+/* ============================================================
+ * Components
+ * ============================================================
+ */
+
+export const SelectColumnsButton = ({
+  handler,
+  ...other
+}: SelectColumnsButtonProps): React.ReactElement => (
   <span onClick={handler} title="" className="selectColumns" {...other}>
     Click here to select columns
   </span>
@@ -19,13 +116,16 @@ export const StandardColumnHeader = ({
   title = "Click here to sort. Hold shift to multi-sort",
   children,
   ...other
-}) => (
+}: StandardColumnHeaderProps): React.ReactElement => (
   <div title={title} {...other}>
     {children || formatColumnTitle(column)}
   </div>
 );
 
-export const RunSetHeader = ({ runSet, ...other }) => (
+export const RunSetHeader = ({
+  runSet,
+  ...other
+}: RunSetHeaderProps): React.ReactElement => (
   <span className="header__tool-infos" {...other} title={getRunSetName(runSet)}>
     {getRunSetName(runSet)}
   </span>
@@ -37,7 +137,7 @@ export const StandardCell = ({
   toggleLinkOverlay,
   force = false,
   ...other
-}) => {
+}: StandardCellProps): React.ReactElement | null => {
   const html = cell.value.html;
   const raw = html ? undefined : cell.value.raw;
   if (!force && !(raw || html)) {
@@ -65,7 +165,12 @@ export const StandardCell = ({
   );
 };
 
-const createSeparatorColumn = (runSetIdx) =>
+/* ============================================================
+ * Column Factory Helpers
+ * ============================================================
+ */
+
+const createSeparatorColumn = (runSetIdx: number): Readonly<TableColumnLike> =>
   Object.freeze({
     Header: "",
     accessor: "separator" + runSetIdx,
@@ -80,7 +185,15 @@ const createSeparatorColumn = (runSetIdx) =>
     ],
   });
 
-export const createRunSetColumns = (runSet, runSetIdx, createColumn) => [
+export const createRunSetColumns = (
+  runSet: RunSetLike,
+  runSetIdx: number,
+  createColumn: (
+    runSetIndex: number,
+    column: RunSetLike["columns"][number],
+    columnIdx: number,
+  ) => TableColumnLike,
+): TableColumnLike[] => [
   createSeparatorColumn(runSetIdx),
   {
     Header: <RunSetHeader runSet={runSet} />,
