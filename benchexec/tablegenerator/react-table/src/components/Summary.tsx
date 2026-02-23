@@ -8,6 +8,60 @@
 import React from "react";
 import StatisticsTable from "./StatisticsTable";
 
+/* ============================================================
+ * Domain Types
+ * ============================================================
+ */
+
+/**
+ * A single header row entry in the benchmark setup table.
+ * `content` is an array per tool/runset containing tuples of:
+ * [displayTextOrPayload, colSpan].
+ */
+type TableHeaderRow = {
+  id: string;
+  name: string;
+  content: Array<[unknown, number]>;
+};
+
+/**
+ * Table header structure as used by Summary.
+ * Keys are stable strings like "tool", "date", "options", ...
+ */
+type TableHeader = Record<string, TableHeaderRow | null>;
+
+/**
+ * Payload used by the "tool" row in the header table.
+ * This matches the destructuring in renderToolNameAndVersion(...).
+ */
+type ToolVersionInfo = {
+  tool: string;
+  version: string;
+  project_url?: string;
+  version_url?: string;
+};
+
+/* ============================================================
+ * Component Types
+ * ============================================================
+ */
+
+type SummaryProps = {
+  tableHeader: TableHeader;
+
+  // passed through to StatisticsTable (typed locally only as far as Summary needs)
+  selectColumn: (...args: unknown[]) => void;
+  tools: unknown;
+  switchToQuantile: (...args: unknown[]) => void;
+  hiddenCols: unknown;
+  tableData: unknown;
+  onStatsReady: (...args: unknown[]) => void;
+  stats: unknown;
+  filtered: boolean;
+
+  version: string;
+};
+
 const infos = [
   "displayName",
   "tool",
@@ -20,20 +74,22 @@ const infos = [
   "branch",
   "options",
   "property",
-];
+] as const;
 
-const Summary = (props) => {
+const Summary = (props: SummaryProps): React.ReactElement => {
   /* ++++++++++++++ Helper functions ++++++++++++++ */
 
-  const renderOptions = (text) => {
-    return text.split(/[\s]+-/).map((option, i) => (
+  const renderOptions = (text: string): React.ReactNode =>
+    text.split(/[\s]+-/).map((option, i) => (
       <li key={option}>
         <code>{i === 0 ? option : `-${option}`}</code>
       </li>
     ));
-  };
 
-  const externalLink = (url, text) => {
+  const externalLink = (
+    url: string | undefined,
+    text: string,
+  ): React.ReactNode => {
     if (url) {
       return (
         <a href={url} target="_blank" rel="noopener noreferrer">
@@ -50,7 +106,7 @@ const Summary = (props) => {
     version,
     project_url,
     version_url,
-  }) => {
+  }: ToolVersionInfo): React.ReactNode => {
     return (
       <>
         {externalLink(project_url, tool)} {externalLink(version_url, version)}
@@ -60,21 +116,27 @@ const Summary = (props) => {
 
   /* ++++++++++++++ Table render functions ++++++++++++++ */
 
-  const renderRow = (row, text, colSpan, j) => {
+  const renderRow = (
+    row: string,
+    text: unknown,
+    colSpan: number,
+    j: number,
+  ): React.ReactElement => {
     const isOptionRow = row === "options";
     const isToolRow = row === "tool";
+
     return (
       <td
         colSpan={colSpan}
-        key={text + j}
+        key={String((typeof text === "string" ? text : row) + j)}
         className={`header__tool-row${isOptionRow && " options"}`}
       >
         {isOptionRow ? (
-          <ul>{renderOptions(text)}</ul>
+          <ul>{renderOptions(String(text))}</ul>
         ) : isToolRow ? (
-          renderToolNameAndVersion(text)
+          renderToolNameAndVersion(text as ToolVersionInfo)
         ) : (
-          text
+          String(text)
         )}
       </td>
     );
@@ -88,7 +150,7 @@ const Summary = (props) => {
           <tbody>
             {infos
               .map((row) => props.tableHeader[row])
-              .filter((row) => row !== null)
+              .filter((row): row is TableHeaderRow => row !== null)
               .map((row) => (
                 <tr key={"tr-" + row.id} className={row.id}>
                   <th key={"td-" + row.id}>{row.name}</th>
