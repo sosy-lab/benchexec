@@ -16,7 +16,7 @@ import QuantilePlot from "./QuantilePlot.js";
 import FilterBox from "./FilterBox/FilterBox.js";
 import LinkOverlay from "./LinkOverlay.js";
 import classNames from "classnames";
-import FilterInfoButton from "./FilterInfoButton.js";
+import FilterInfoButton from "./FilterInfoButton";
 import {
   prepareTableData,
   getRawOrDefault,
