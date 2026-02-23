@@ -272,7 +272,14 @@ def getBenchmarkDataForCloud(benchmark):
     ]
 
     # get limits and number of Runs
-    timeLimit = benchmark.rlimits.cputime_hard or DEFAULT_CLOUD_TIMELIMIT
+    if benchmark.rlimits.cputime_hard:
+        timeLimit = benchmark.rlimits.cputime_hard
+    else:
+        logging.warning(
+            "No CPU-time limit is specified, using the default of %d seconds.",
+            DEFAULT_CLOUD_TIMELIMIT,
+        )
+        timeLimit = DEFAULT_CLOUD_TIMELIMIT
     memLimit = bytes_to_mb(benchmark.rlimits.memory) or memRequirement
     coreLimit = benchmark.rlimits.cpu_cores
     wallTimeLimit = benchmark.rlimits.walltime
