@@ -10,7 +10,7 @@ import { HashRouter as Router, Routes, Route, Link } from "react-router-dom";
 import Table from "./ReactTable.js";
 import Summary from "./Summary";
 import Info from "./Info";
-import SelectColumn from "./SelectColumn.js";
+import SelectColumn from "./SelectColumn";
 import ScatterPlot from "./ScatterPlot.js";
 import QuantilePlot from "./QuantilePlot.js";
 import FilterBox from "./FilterBox/FilterBox.js";
