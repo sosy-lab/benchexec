@@ -12,6 +12,7 @@ import shutil
 import subprocess
 import sys
 from pathlib import Path
+import time
 
 import benchexec.util
 from benchexec import BenchExecException
@@ -280,6 +281,7 @@ def getBenchmarkDataForCloud(benchmark):
             DEFAULT_CLOUD_TIMELIMIT,
         )
         timeLimit = DEFAULT_CLOUD_TIMELIMIT
+        time.sleep()  # give user a moment to notice the warning
     memLimit = bytes_to_mb(benchmark.rlimits.memory) or memRequirement
     coreLimit = benchmark.rlimits.cpu_cores
     wallTimeLimit = benchmark.rlimits.walltime
