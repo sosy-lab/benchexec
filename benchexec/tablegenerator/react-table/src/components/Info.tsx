@@ -7,7 +7,7 @@
 
 import React from "react";
 
-import dependencies from "../data/dependencies.json";
+import dependenciesJson from "../data/dependencies.json";
 
 /* ============================================================
  * Domain Types
@@ -21,7 +21,7 @@ type ThirdPartyDependency = {
   name: string;
   version: string;
   licenses: string;
-  licenseId?: string | number;
+  licenseId?: number;
   repository?: string;
   copyright?: string;
 };
@@ -31,8 +31,10 @@ type ThirdPartyDependency = {
  */
 type DependenciesJson = {
   dependencies: ThirdPartyDependency[];
-  licenses: Record<string, string>;
+  licenses: string[];
 };
+
+const dependenciesData: DependenciesJson = dependenciesJson;
 
 /* ============================================================
  * Component Types
@@ -42,7 +44,7 @@ type DependenciesJson = {
 type DependencyProps = ThirdPartyDependency;
 
 type InfoProps = {
-  version?: string;
+  version: string;
   selectColumn: (ev: React.SyntheticEvent) => void;
 };
 
@@ -106,11 +108,10 @@ class Dependency extends React.Component<DependencyProps> {
           <br />
           <details>
             <summary>Full text of license</summary>
-            {/* NOTE (JS->TS): licenseId may be a number; normalize to string for safe Record indexing. */}
             <pre>
               {
-                (dependencies as DependenciesJson).licenses[
-                  String(this.props.licenseId)
+                (dependenciesJson as DependenciesJson).licenses[
+                  this.props.licenseId
                 ]
               }
             </pre>
@@ -247,7 +248,7 @@ const Info = (props: InfoProps): React.ReactElement => (
         This application includes third-party dependencies under different
         licenses. Click here to view them.
       </summary>
-      {(dependencies as DependenciesJson).dependencies.map((dependency) => {
+      {dependenciesData.dependencies.map((dependency) => {
         return (
           <Dependency
             key={dependency.name + dependency.version}
