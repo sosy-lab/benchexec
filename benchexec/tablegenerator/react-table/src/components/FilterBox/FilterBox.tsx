@@ -166,10 +166,8 @@ export default class FilterBox extends React.PureComponent<
     return out;
   }
 
-  flattenFilterStructure(): ColumnFilterData[] {
-    return this.state.filters
-      .flat()
-      .filter((f): f is ColumnFilterData => Boolean(f));
+  flattenFilterStructure(): Array<ToolFilterData | undefined> {
+    return Object.values(Object.values(this.state.filters));
   }
 
   sendFilters({

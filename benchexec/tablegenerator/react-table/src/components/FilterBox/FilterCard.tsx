@@ -27,9 +27,6 @@ import {
 const Range = createSliderWithTooltip(Slider.Range);
 
 const numericInputDebounce = 500;
-let debounceHandler: ReturnType<typeof setTimeout> = setTimeout(() => {
-  /* empty */
-}, numericInputDebounce);
 
 interface FilterCardProps {
   filter?: FilterDefinition;
@@ -40,7 +37,7 @@ interface FilterCardProps {
   name?: string;
   style?: React.CSSProperties;
 
-  onFilterUpdate: (payload: FilterUpdatePayload) => void;
+  onFilterUpdate: (payload: FilterUpdatePayload, idx: number) => void;
   addFilter?: (idx: number) => void;
   removeFilter?: () => void;
 }
@@ -61,6 +58,7 @@ export default class FilterCard extends React.PureComponent<
   FilterCardProps,
   FilterCardState
 > {
+  private debounceHandler: ReturnType<typeof setTimeout> | null = null;
   private numericMinTimeout: ReturnType<typeof setTimeout> | null = null;
   private numericMaxTimeout: ReturnType<typeof setTimeout> | null = null;
 
@@ -113,10 +111,14 @@ export default class FilterCard extends React.PureComponent<
   // significantDigits check) was duplicated in multiple places
   // (constructor, handleMinMaxValue, render).
   private getFormatter(): (n: number) => string {
-    const { number_of_significant_digits: digits } = this.props.filter || {};
-    return digits === null || digits === undefined
-      ? (n: number) => n.toString()
-      : new NumberFormatterBuilder(digits).build();
+    if (!this.props.filter) {
+      throw new Error("getFormatter called without filter");
+    }
+
+    // Keep JS behavior: significantDigits may be undefined.
+    return new NumberFormatterBuilder(
+      this.props.filter.number_of_significant_digits as number,
+    ).build();
   }
 
   sendFilterUpdate(values: string[]): void {
@@ -129,15 +131,21 @@ export default class FilterCard extends React.PureComponent<
       values = values.concat(statusForEmptyRows);
     }
     if (values.length === 0 && type === "status") {
-      this.props.onFilterUpdate({
-        values: [emptyStateValue],
-        title: this.state.title || this.props.title || "",
-      });
+      this.props.onFilterUpdate(
+        {
+          values: [emptyStateValue],
+          title: this.state.title || this.props.title || "",
+        },
+        this.state.idx,
+      );
     } else {
-      this.props.onFilterUpdate({
-        values,
-        title: this.state.title || this.props.title || "",
-      });
+      this.props.onFilterUpdate(
+        {
+          values,
+          title: this.state.title || this.props.title || "",
+        },
+        this.state.idx,
+      );
     }
   }
 
@@ -164,8 +172,8 @@ export default class FilterCard extends React.PureComponent<
   }
 
   handleMinMaxValue(value: string): {
-    min: string | number;
-    max: string | number;
+    min: string;
+    max: string;
   } {
     const builder = this.getFormatter();
     const { min: propMin, max: propMax } = this.props.filter || {
@@ -399,9 +407,11 @@ export default class FilterCard extends React.PureComponent<
             onChange={({
               target: { value: textValue },
             }: React.ChangeEvent<HTMLInputElement>) => {
-              clearTimeout(debounceHandler);
+              if (this.debounceHandler) {
+                clearTimeout(this.debounceHandler);
+              }
               this.setState({ values: [textValue] });
-              debounceHandler = setTimeout(() => {
+              this.debounceHandler = setTimeout(() => {
                 this.sendFilterUpdate([textValue]);
               }, numericInputDebounce);
             }}
@@ -416,10 +426,7 @@ export default class FilterCard extends React.PureComponent<
         const maxStep = getStep(formattedMax);
 
         // get the bigger step by length of string (== smaller step)
-        const step =
-          String(minStep).length > String(maxStep).length ? minStep : maxStep;
-        // NOTE (JS->TS): rc-slider expects a numeric step; getStep may return a string for HTML input compatibility.
-        const sliderStep = typeof step === "string" ? Number(step) : step;
+        const step = minStep.length > maxStep.length ? minStep : maxStep;
 
         //shift the decimal
         body = (
@@ -431,7 +438,7 @@ export default class FilterCard extends React.PureComponent<
             <Range
               min={Number(formattedMin)}
               max={Number(formattedMax)}
-              step={sliderStep}
+              step={Number(step)}
               defaultValue={[Number(formattedMin), Number(formattedMax)]}
               value={[
                 Number(this.state.sliderMin),
@@ -482,7 +489,7 @@ export default class FilterCard extends React.PureComponent<
                     : this.state.sliderMin
                 }
                 lang="en-US"
-                step={step}
+                step={Number(step)}
                 onChange={({
                   target: { value },
                 }: React.ChangeEvent<HTMLInputElement>) => {
@@ -499,7 +506,7 @@ export default class FilterCard extends React.PureComponent<
               <input
                 type="number"
                 name={`inp-${title}-max`}
-                step={step}
+                step={Number(step)}
                 lang="en-US"
                 value={
                   this.state.numericMax !== null

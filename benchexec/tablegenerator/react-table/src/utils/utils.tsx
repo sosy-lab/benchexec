@@ -1544,11 +1544,11 @@ const isCategory = (item: string): boolean =>
  * @param {string} num - The number to check
  * @returns {string} - The smallest step
  */
-const getStep = (num: string | number): string | number => {
+const getStep = (num: string): string => {
   const stringRep = num.toString();
   const [, decimal] = stringRep.split(/,|\./);
   if (isNil(decimal) || decimal.length === 0) {
-    return 1;
+    return "1";
   }
   let out = ".";
   for (let i = 0; i < decimal.length - 1; i += 1) {

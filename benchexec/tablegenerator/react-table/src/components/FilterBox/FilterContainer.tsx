@@ -201,8 +201,8 @@ export default class FilterContainer extends React.PureComponent<
             editable={true}
             style={{ marginBottom: 20 }}
             addFilter={(idx: number) => this.addFilter(idx)}
-            onFilterUpdate={(vals: FilterUpdatePayload) =>
-              this.setFilter(vals, 0)
+            onFilterUpdate={(vals: FilterUpdatePayload, idx: number) =>
+              this.setFilter(vals, idx)
             }
           />
         )) ||
