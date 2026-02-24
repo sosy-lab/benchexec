@@ -122,7 +122,8 @@ export default class LinkOverlay extends React.Component<
     }
   };
 
-  createFileUrl = (fileUrl: string) => path.join(this.props.link ?? "", "../" + fileUrl);
+  createFileUrl = (fileUrl: string) =>
+    path.join(this.props.link ?? "", "../" + fileUrl);
 
   /*
    * Loads the file of the given url. Four different approaches to load the file will be made in case the previous one fails:
@@ -201,7 +202,11 @@ export default class LinkOverlay extends React.Component<
     const reader = new zip.ZipReader(new zip.HttpRangeReader(zipPath));
     reader.getEntries().then(
       (entries) => {
-        this.handleZipEntries(entries as unknown as ZipEntryLike[], zipFile, zipPath);
+        this.handleZipEntries(
+          entries as unknown as ZipEntryLike[],
+          zipFile,
+          zipPath,
+        );
       },
       (_error) => {
         this.readZipArchiveNoHttpRange(zipPath, zipFile);
@@ -214,7 +219,11 @@ export default class LinkOverlay extends React.Component<
     const reader = new zip.ZipReader(new zip.HttpReader(zipPath));
     reader.getEntries().then(
       (entries) => {
-        this.handleZipEntries(entries as unknown as ZipEntryLike[], zipFile, zipPath);
+        this.handleZipEntries(
+          entries as unknown as ZipEntryLike[],
+          zipFile,
+          zipPath,
+        );
       },
       (_error) => {
         this.readZipArchiveManually(zipPath, zipFile);
@@ -239,13 +248,19 @@ export default class LinkOverlay extends React.Component<
             .getEntries()
             .then(
               (entries) =>
-                this.handleZipEntries(entries as unknown as ZipEntryLike[], zipFile, zipPath),
+                this.handleZipEntries(
+                  entries as unknown as ZipEntryLike[],
+                  zipFile,
+                  zipPath,
+                ),
               this.setError,
             );
         },
         false,
       );
-      xhr.addEventListener("error", this.setError, false);
+      xhr.addEventListener("error", (ev) => {
+        this.setError(`HTTP request for the file "${zipFile}" failed`, ev);
+      });
       xhr.open("GET", zipPath);
       xhr.send();
     } catch (error) {
@@ -253,12 +268,20 @@ export default class LinkOverlay extends React.Component<
     }
   };
 
-  handleZipEntries = (entries: ZipEntryLike[], zipFile: string, zipPath: string) => {
+  handleZipEntries = (
+    entries: ZipEntryLike[],
+    zipFile: string,
+    zipPath: string,
+  ) => {
     zipEntriesCache[zipPath] = entries;
     this.loadFileFromZipEntries(entries, zipFile, zipPath);
   };
 
-  loadFileFromZipEntries = (entries: ZipEntryLike[], zipFile: string, zipPath: string) => {
+  loadFileFromZipEntries = (
+    entries: ZipEntryLike[],
+    zipFile: string,
+    zipPath: string,
+  ) => {
     const entry = entries.find((entry) => entry.filename === zipFile);
     if (entry) {
       entry.getData(new zip.TextWriter()).then((content) => {
@@ -329,10 +352,12 @@ export default class LinkOverlay extends React.Component<
     // We need the base directory of the HTTP server (document root)
     // that should contain both the table and the result files.
     const absCurrentFile = new URL(this.state.currentFile, document.baseURI);
-    let [baseDir, pathSuffix] = splitUrlPathForMatchingPrefix(
+    const [baseDirCandidate, pathSuffix] = splitUrlPathForMatchingPrefix(
       window.location,
       absCurrentFile,
     ) as unknown as [string | null, string];
+
+    let baseDir = baseDirCandidate;
 
     // There are three known path variants:
     // Unix: looks like: /home/...
