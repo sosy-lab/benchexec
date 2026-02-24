@@ -48,10 +48,12 @@ interface FilterCardState {
   idx: number;
   active: boolean;
   selectedDistincts: string[];
-  sliderMin: string | number;
-  sliderMax: string | number;
-  numericMin: string | number | null;
-  numericMax: string | number | null;
+  sliderMin: string;
+  sliderMax: string;
+  // NOTE (JS->TS): Raw user input buffer for <input type="number">.
+  // Keeps intermediate states like "", "-", "12." without breaking typing UX.
+  inputMin: string;
+  inputMax: string;
 }
 
 export default class FilterCard extends React.PureComponent<
@@ -73,19 +75,28 @@ export default class FilterCard extends React.PureComponent<
     const values = filter?.values ?? [];
     const type = filter?.type;
 
-    let sliderMin: string | number = 0;
-    let sliderMax: string | number = 0;
+    let sliderMin = "0";
+    let sliderMax = "0";
+    let inputMin = "";
+    let inputMax = "";
 
     if (filter && (type === "measure" || type === "number")) {
       const builder = this.getFormatter();
       const { min, max } = filter;
+
       sliderMin = builder(min ?? 0);
       sliderMax = builder(max ?? 0);
-      const value = values && values[0];
+
+      inputMin = sliderMin;
+      inputMax = sliderMax;
+
+      const value = values[0];
       if (value && value.includes(":")) {
         const res = this.handleMinMaxValue(value);
         sliderMin = res.min;
         sliderMax = res.max;
+        inputMin = res.min;
+        inputMax = res.max;
       }
     }
 
@@ -101,8 +112,8 @@ export default class FilterCard extends React.PureComponent<
       selectedDistincts: [],
       sliderMin,
       sliderMax,
-      numericMin: null,
-      numericMax: null,
+      inputMin,
+      inputMax,
     };
   }
 
@@ -164,17 +175,14 @@ export default class FilterCard extends React.PureComponent<
         this.setState({
           sliderMin: min,
           sliderMax: max,
-          numericMin: min,
-          numericMax: max,
+          inputMin: min,
+          inputMax: max,
         });
       }
     }
   }
 
-  handleMinMaxValue(value: string): {
-    min: string;
-    max: string;
-  } {
+  handleMinMaxValue(value: string): { min: string; max: string } {
     const builder = this.getFormatter();
     const { min: propMin, max: propMax } = this.props.filter || {
       min: 0,
@@ -187,28 +195,48 @@ export default class FilterCard extends React.PureComponent<
     };
   }
 
-  handleNumberChange(min: string | number, max: string | number): void {
-    const sliderMin = Number(this.state.numericMin ?? this.state.sliderMin);
-    const sliderMax = Number(this.state.numericMax ?? this.state.sliderMax);
+  handleNumberChange(minStr: string, maxStr: string): void {
+    const min = Number(minStr);
+    const max = Number(maxStr);
 
-    let finalSliderMin = sliderMin;
-    let finalSliderMax = sliderMax;
+    const rawMin = this.state.inputMin;
+    const rawMax = this.state.inputMax;
 
-    if (sliderMin > sliderMax) {
-      finalSliderMin = sliderMax;
-      finalSliderMax = sliderMin;
+    // If user input isn't parseable yet (e.g. "", "-", "12.") do nothing.
+    const nMin = rawMin.trim() === "" ? NaN : Number(rawMin);
+    const nMax = rawMax.trim() === "" ? NaN : Number(rawMax);
+    if (!Number.isFinite(nMin) || !Number.isFinite(nMax)) {
+      return;
     }
+
+    let finalMin = nMin;
+    let finalMax = nMax;
+    let nextInputMin = rawMin;
+    let nextInputMax = rawMax;
+    if (finalMin > finalMax) {
+      [finalMin, finalMax] = [finalMax, finalMin];
+      [nextInputMin, nextInputMax] = [rawMax, rawMin];
+    }
+
     // defaulting to an empty string per side, if the values exceeds
     // or is less than the min/max thresholds
-    const stringRepMin = finalSliderMin <= Number(min) ? "" : finalSliderMin;
-    const stringRepMax = finalSliderMax <= Number(max) ? "" : finalSliderMax;
+    const builder = this.getFormatter();
+    const fMin = builder(finalMin);
+    const fMax = builder(finalMax);
+
+    const stringRepMin = finalMin <= min ? "" : fMin;
+    const stringRepMax = finalMax >= max ? "" : fMax; // NOTE: likely you want >= for max threshold
+
     const values = [`${stringRepMin}:${stringRepMax}`];
 
     this.setState({
-      sliderMin: finalSliderMin,
-      sliderMax: finalSliderMax,
+      sliderMin: fMin,
+      sliderMax: fMax,
+      inputMin: nextInputMin,
+      inputMax: nextInputMax,
       values,
     });
+
     this.sendFilterUpdate(values);
   }
 
@@ -446,9 +474,14 @@ export default class FilterCard extends React.PureComponent<
               ]}
               onChange={(value: number[]) => {
                 const [nMin, nMax] = value;
+                const nextMin = builder(nMin);
+                const nextMax = builder(nMax);
+
                 this.setState({
-                  sliderMin: builder(nMin),
-                  sliderMax: builder(nMax),
+                  sliderMin: nextMin,
+                  sliderMax: nextMax,
+                  inputMin: nextMin,
+                  inputMax: nextMax,
                 });
               }}
               onAfterChange={(value: number[]) => {
@@ -457,12 +490,14 @@ export default class FilterCard extends React.PureComponent<
                 const fMax = builder(nMax);
                 const stringRepMin = fMin === formattedMin ? "" : fMin;
                 const stringRepMax = fMax === formattedMax ? "" : fMax;
+                const values = [`${stringRepMin}:${stringRepMax}`];
+
                 this.setState({
                   sliderMin: fMin,
                   sliderMax: fMax,
-                  numericMin: nMin,
-                  numericMax: nMax,
-                  values: [`${stringRepMin}:${stringRepMax}`],
+                  inputMin: fMin,
+                  inputMax: fMax,
+                  values,
                 });
                 this.sendFilterUpdate([`${stringRepMin}:${stringRepMax}`]);
               }}
@@ -483,11 +518,7 @@ export default class FilterCard extends React.PureComponent<
               <input
                 type="number"
                 name={`inp-${title}-min`}
-                value={
-                  this.state.numericMin !== null
-                    ? this.state.numericMin
-                    : this.state.sliderMin
-                }
+                value={this.state.inputMin}
                 lang="en-US"
                 step={step}
                 onChange={({
@@ -496,7 +527,7 @@ export default class FilterCard extends React.PureComponent<
                   if (this.numericMinTimeout) {
                     window.clearTimeout(this.numericMinTimeout);
                   }
-                  this.setState({ numericMin: value });
+                  this.setState({ inputMin: value });
                   this.numericMinTimeout = setTimeout(
                     () => this.handleNumberChange(formattedMin, formattedMax),
                     numericInputDebounce,
@@ -508,18 +539,14 @@ export default class FilterCard extends React.PureComponent<
                 name={`inp-${title}-max`}
                 step={step}
                 lang="en-US"
-                value={
-                  this.state.numericMax !== null
-                    ? this.state.numericMax
-                    : this.state.sliderMax
-                }
+                value={this.state.inputMax}
                 onChange={({
                   target: { value },
                 }: React.ChangeEvent<HTMLInputElement>) => {
                   if (this.numericMaxTimeout) {
                     clearTimeout(this.numericMaxTimeout);
                   }
-                  this.setState({ numericMax: value });
+                  this.setState({ inputMax: value });
                   this.numericMaxTimeout = setTimeout(
                     () => this.handleNumberChange(formattedMin, formattedMax),
                     numericInputDebounce,
