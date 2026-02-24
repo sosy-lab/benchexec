@@ -233,25 +233,22 @@ const getFilterableData = ({ tools, rows }: Dataset) => {
 
         if (c.type === "status") {
           const statusCol = c as IntermediateStatusColumn;
-          const { categories, statuses, idx, ...restOfCol } = statusCol;
+          const { categories, statuses, ...col } = statusCol;
           return {
-            ...restOfCol,
-            idx,
+            ...col,
             categories: Object.keys(categories),
             statuses: Object.keys(statuses),
           };
         }
         if (c.type === "text") {
           const textCol = c as IntermediateTextColumn;
-          const { distincts, idx, ...restOfCol } = textCol;
+          const { distincts, ...col } = textCol;
           return {
-            ...restOfCol,
-            idx,
+            ...col,
             distincts: Object.keys(distincts),
           };
         }
-        const { idx, ...rest } = c as IntermediateNumericColumn;
-        return { ...rest, idx };
+        return c;
       }),
     };
   });
