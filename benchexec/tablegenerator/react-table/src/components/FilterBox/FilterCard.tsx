@@ -419,8 +419,8 @@ export default class FilterCard extends React.PureComponent<
         );
       } else {
         const builder = this.getFormatter();
-        const formattedMin = builder(min ?? 0);
-        const formattedMax = builder(max ?? 0);
+        const formattedMin = builder(min);
+        const formattedMax = builder(max);
 
         const minStep = getStep(formattedMin);
         const maxStep = getStep(formattedMax);
@@ -438,7 +438,7 @@ export default class FilterCard extends React.PureComponent<
             <Range
               min={Number(formattedMin)}
               max={Number(formattedMax)}
-              step={Number(step)}
+              step={step as unknown as number}
               defaultValue={[Number(formattedMin), Number(formattedMax)]}
               value={[
                 Number(this.state.sliderMin),
