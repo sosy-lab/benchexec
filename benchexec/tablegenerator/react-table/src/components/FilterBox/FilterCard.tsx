@@ -117,7 +117,7 @@ export default class FilterCard extends React.PureComponent<
 
     // Keep JS behavior: significantDigits may be undefined.
     return new NumberFormatterBuilder(
-      this.props.filter.number_of_significant_digits as number,
+      this.props.filter.number_of_significant_digits,
     ).build();
   }
 

@@ -228,7 +228,7 @@ interface DecodedFilterId {
  * ============================================================ */
 
 interface NumberFormattingContext {
-  significantDigits: number;
+  significantDigits?: number;
   maxDecimalInputLength: number;
 }
 
@@ -1198,12 +1198,12 @@ const characterSpaceHtml = "&#x2007;";
  * @param {Number} significantDigits - Number of significant digits for this column
  */
 class NumberFormatterBuilder {
-  significantDigits: number;
+  significantDigits?: number;
   maxPositiveDecimalPosition: number;
   maxNegativeDecimalPosition: number;
   name: string;
 
-  constructor(significantDigits: number, name = "Unknown") {
+  constructor(significantDigits?: number, name = "Unknown") {
     this.significantDigits = significantDigits;
     this.maxPositiveDecimalPosition = -1;
     this.maxNegativeDecimalPosition = -1;
@@ -1231,6 +1231,9 @@ class NumberFormatterBuilder {
   }
 
   format(number: number): string {
+    if (isNil(this.significantDigits)) {
+      return number.toString();
+    }
     let stringNumber = number.toString();
     let prefix = "";
     let postfix = "";
