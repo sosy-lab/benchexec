@@ -48,8 +48,8 @@ interface FilterCardState {
   idx: number;
   active: boolean;
   selectedDistincts: string[];
-  sliderMin: string;
-  sliderMax: string;
+  sliderMin: string | number;
+  sliderMax: string | number;
   numericMin: string | number | null;
   numericMax: string | number | null;
 }
@@ -73,8 +73,8 @@ export default class FilterCard extends React.PureComponent<
     const values = filter?.values ?? [];
     const type = filter?.type;
 
-    let sliderMin = "";
-    let sliderMax = "";
+    let sliderMin: string | number = 0;
+    let sliderMax: string | number = 0;
 
     if (filter && (type === "measure" || type === "number")) {
       const builder = this.getFormatter();
@@ -187,7 +187,7 @@ export default class FilterCard extends React.PureComponent<
     };
   }
 
-  handleNumberChange(min: string, max: string): void {
+  handleNumberChange(min: string | number, max: string | number): void {
     const sliderMin = Number(this.state.numericMin ?? this.state.sliderMin);
     const sliderMax = Number(this.state.numericMax ?? this.state.sliderMax);
 
@@ -200,15 +200,13 @@ export default class FilterCard extends React.PureComponent<
     }
     // defaulting to an empty string per side, if the values exceeds
     // or is less than the min/max thresholds
-    const stringRepMin =
-      finalSliderMin <= Number(min) ? "" : String(finalSliderMin);
-    const stringRepMax =
-      finalSliderMax <= Number(max) ? "" : String(finalSliderMax);
+    const stringRepMin = finalSliderMin <= Number(min) ? "" : finalSliderMin;
+    const stringRepMax = finalSliderMax <= Number(max) ? "" : finalSliderMax;
     const values = [`${stringRepMin}:${stringRepMax}`];
 
     this.setState({
-      sliderMin: stringRepMin,
-      sliderMax: stringRepMax,
+      sliderMin: finalSliderMin,
+      sliderMax: finalSliderMax,
       values,
     });
     this.sendFilterUpdate(values);
