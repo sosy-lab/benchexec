@@ -489,7 +489,7 @@ export default class FilterCard extends React.PureComponent<
                     : this.state.sliderMin
                 }
                 lang="en-US"
-                step={Number(step)}
+                step={step}
                 onChange={({
                   target: { value },
                 }: React.ChangeEvent<HTMLInputElement>) => {
@@ -506,7 +506,7 @@ export default class FilterCard extends React.PureComponent<
               <input
                 type="number"
                 name={`inp-${title}-max`}
-                step={Number(step)}
+                step={step}
                 lang="en-US"
                 value={
                   this.state.numericMax !== null
