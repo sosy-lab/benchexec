@@ -1231,9 +1231,6 @@ class NumberFormatterBuilder {
   }
 
   format(number: number): string {
-    if (isNil(this.significantDigits)) {
-      return number.toString();
-    }
     let stringNumber = number.toString();
     let prefix = "";
     let postfix = "";
@@ -1261,6 +1258,7 @@ class NumberFormatterBuilder {
 
     const decimalPos = stringNumber.replace(/,/, ".").indexOf(".");
     while (
+      !isNil(this.significantDigits) &&
       addedNums < this.significantDigits - 1 &&
       stringNumber.length > pointer
     ) {
