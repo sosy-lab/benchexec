@@ -11,7 +11,7 @@ import renderer from "react-test-renderer";
 import { render } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-import FilterCard from "../components/FilterBox/FilterCard.js";
+import FilterCard from "../components/FilterBox/FilterCard.tsx";
 
 const createFilterCard = (props) => <FilterCard {...props} />;
 

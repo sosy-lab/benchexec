@@ -228,7 +228,7 @@ interface DecodedFilterId {
  * ============================================================ */
 
 interface NumberFormattingContext {
-  significantDigits: number;
+  significantDigits?: number;
   maxDecimalInputLength: number;
 }
 
@@ -1198,12 +1198,12 @@ const characterSpaceHtml = "&#x2007;";
  * @param {Number} significantDigits - Number of significant digits for this column
  */
 class NumberFormatterBuilder {
-  significantDigits: number;
+  significantDigits?: number;
   maxPositiveDecimalPosition: number;
   maxNegativeDecimalPosition: number;
   name: string;
 
-  constructor(significantDigits: number, name = "Unknown") {
+  constructor(significantDigits?: number, name = "Unknown") {
     this.significantDigits = significantDigits;
     this.maxPositiveDecimalPosition = -1;
     this.maxNegativeDecimalPosition = -1;
@@ -1258,6 +1258,7 @@ class NumberFormatterBuilder {
 
     const decimalPos = stringNumber.replace(/,/, ".").indexOf(".");
     while (
+      !isNil(this.significantDigits) &&
       addedNums < this.significantDigits - 1 &&
       stringNumber.length > pointer
     ) {
@@ -1544,11 +1545,11 @@ const isCategory = (item: string): boolean =>
  * @param {string} num - The number to check
  * @returns {string} - The smallest step
  */
-const getStep = (num: string | number): string | number => {
+const getStep = (num: string): string => {
   const stringRep = num.toString();
   const [, decimal] = stringRep.split(/,|\./);
   if (isNil(decimal) || decimal.length === 0) {
-    return 1;
+    return "1";
   }
   let out = ".";
   for (let i = 0; i < decimal.length - 1; i += 1) {
