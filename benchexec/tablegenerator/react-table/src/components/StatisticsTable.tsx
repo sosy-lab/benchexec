@@ -160,9 +160,9 @@ const StatisticsTable = ({
       {headerGroups.map((headerGroup) => (
         <div className="tr headergroup" {...headerGroup.getHeaderGroupProps()}>
           {headerGroup.headers.map((header) => {
-            // NOTE (JS->TS): react-table's v7 types don't include our custom `className`
-            // and plugin-injected fields (e.g., `getResizerProps`, `isResizing`).
-            // We narrow the header type locally to the fields we actually use.
+            // NOTE (JS->TS): react-table v7 types don't reflect our column extensions
+            // (e.g., custom `className`) and plugin-provided resize props.
+            // We narrow the header locally to the fields we use.
             const h = header as HeaderGroup<StatRow> & {
               className?: string;
               columns?: unknown[];

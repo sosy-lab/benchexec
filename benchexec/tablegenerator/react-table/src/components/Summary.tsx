@@ -135,7 +135,7 @@ const Summary = (props: SummaryProps): React.ReactElement => {
     return (
       <td
         colSpan={colSpan}
-        key={String((typeof text === "string" ? text : row) + j)}
+        key={`${String(text)}${j}`}
         className={`header__tool-row${isOptionRow && " options"}`}
       >
         {isOptionRow ? (
