@@ -77,9 +77,6 @@ export default class FilterContainer extends React.PureComponent<
     this.props.updateFilters({ title, values }, idx);
   }
 
-  // NOTE (JS->TS): avoids mutating React state in-place, preserves the discriminated-union type narrowing
-  // by branching on filter.type, and builds a well-typed next FilterDefinition (including status default values)
-  // so TypeScript can verify correctness and React updates stay predictable.
   addFilter(idx: number): void {
     const { numCards } = this.state;
     const newFilterState = [...this.state.filters];

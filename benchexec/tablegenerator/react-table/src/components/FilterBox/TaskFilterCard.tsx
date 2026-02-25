@@ -28,6 +28,8 @@ export default class TaskFilterCard extends React.PureComponent<
   Readonly<TaskFilterCardProps>,
   Readonly<TaskFilterCardState>
 > {
+  // Use a class-level debounce handler to avoid global side effects and ensure multiple instances
+  // of this component don't interfere with each other's timers.
   private debounceHandler: ReturnType<typeof setTimeout> | null = null;
 
   constructor(props: TaskFilterCardProps) {
@@ -48,7 +50,7 @@ export default class TaskFilterCard extends React.PureComponent<
   }
 
   extractFilters(): TaskIdFilterValues {
-    // NOTE (JS->TS): Directly access filters array and convert to TaskIdFilterValues object for better type safety and readability.
+    // Directly access filters array and convert to TaskIdFilterValues object for better type safety and readability.
     // Using forEach and optional chaining eliminates the need for external pathOr utility and manual type casting.
     const newVal: TaskIdFilterValues = {};
     const ids = this.props.ids ?? {};
@@ -92,8 +94,6 @@ export default class TaskFilterCard extends React.PureComponent<
               onChange={({
                 target: { value: textValue },
               }: React.ChangeEvent<HTMLInputElement>) => {
-                // NOTE (JS->TS): Use a class-level debounce handler to avoid global side effects and ensure multiple instances
-                // of this component don't interfere with each other's timers.
                 if (this.debounceHandler) {
                   clearTimeout(this.debounceHandler);
                 }

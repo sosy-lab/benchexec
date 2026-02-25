@@ -50,7 +50,7 @@ interface FilterCardState {
   selectedDistincts: string[];
   sliderMin: string;
   sliderMax: string;
-  // NOTE (JS->TS): Raw user input buffer for <input type="number">.
+  // Raw user input buffer for <input type="number">.
   // Keeps intermediate states like "", "-", "12." without breaking typing UX.
   inputMin: string;
   inputMax: string;
@@ -60,11 +60,13 @@ export default class FilterCard extends React.PureComponent<
   FilterCardProps,
   FilterCardState
 > {
+  // Use a class-level debounce handler to avoid global side effects and ensure multiple instances
+  // of this component don't interfere with each other's timers.
   private debounceHandler: ReturnType<typeof setTimeout> | null = null;
   private numericMinTimeout: ReturnType<typeof setTimeout> | null = null;
   private numericMaxTimeout: ReturnType<typeof setTimeout> | null = null;
 
-  // NOTE (JS->TS): Define ref as a stable class property instead of creating it in render()
+  // Define ref as a stable class property instead of creating it in render()
   // to avoid creating a new ref instance on every render.
   private selectRef = React.createRef<HTMLSelectElement>();
   private emptyRowRef = React.createRef<HTMLInputElement>();
@@ -106,7 +108,6 @@ export default class FilterCard extends React.PureComponent<
           ? props.availableFilters[0].title
           : "",
       values: [],
-      // NOTE (JS->TS): Replaced pathOr(...) with optional chaining and nullish coalescing to achieve the same safe fallback behavior in a type-safe way.
       idx: props.availableFilters?.[0]?.idx ?? 0,
       active: true,
       selectedDistincts: [],
@@ -117,10 +118,7 @@ export default class FilterCard extends React.PureComponent<
     };
   }
 
-  // NOTE (JS->TS): Centralizes the NumberFormatterBuilder creation.
-  // In the original JS implementation, the builder logic (including the
-  // significantDigits check) was duplicated in multiple places
-  // (constructor, handleMinMaxValue, render).
+  // Centralizes the NumberFormatterBuilder creation.
   private getFormatter(): (n: number) => string {
     if (!this.props.filter) {
       throw new Error("getFormatter called without filter");
@@ -253,7 +251,6 @@ export default class FilterCard extends React.PureComponent<
           onChange={({
             target: { value: idx },
           }: React.ChangeEvent<HTMLSelectElement>) => {
-            // NOTE (JS->TS): Select values are strings; normalize to number for correct comparisons and callback typing.
             const numericIdx = Number(idx);
             if (numericIdx === -1) {
               return;
