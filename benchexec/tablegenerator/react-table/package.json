@@ -109,6 +109,7 @@
     "@testing-library/user-event": "^13.5.0",
     "@types/deep-equal": "^1.0.4",
     "@types/node": "^18.19.130",
+    "@types/path-browserify": "^1.0.3",
     "@types/react": "^17.0.91",
     "@types/react-dom": "^17.0.26",
     "@types/react-modal": "^3.16.3",
