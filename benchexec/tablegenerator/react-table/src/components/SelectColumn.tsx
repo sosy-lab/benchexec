@@ -338,8 +338,10 @@ export default class SelectColumn extends React.Component<
   };
 
   render(): React.ReactNode {
-    // NOTE (JS->TS): ReactModal.setAppElement can accept null; we keep behavior but provide a safe fallback.
-    ReactModal.setAppElement(document.getElementById("root") ?? document.body);
+    const rootEl = document.getElementById("root");
+    if (rootEl) {
+      ReactModal.setAppElement(rootEl);
+    }
 
     const areAllColsDisabled = this.props.tools.every(
       (tool) =>
