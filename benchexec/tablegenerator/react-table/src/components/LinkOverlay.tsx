@@ -416,7 +416,6 @@ export default class LinkOverlay extends React.Component<
   render() {
     const rootEl = document.getElementById("root");
     if (rootEl) {
-      // NOTE (JS->TS): `setAppElement` requires a non-null element in TS.
       ReactModal.setAppElement(rootEl);
     }
 
@@ -437,7 +436,6 @@ export default class LinkOverlay extends React.Component<
             className="closing"
           />
           {this.state.isSecondLevel ? (
-            // NOTE (JS->TS): React types `tabIndex` as number
             <span
               className="link-overlay-back-button"
               tabIndex={0}

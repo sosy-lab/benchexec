@@ -56,10 +56,6 @@ export default class TaskDefinitionViewer extends React.Component<
         prettyErrors: true,
       });
 
-      // NOTE (JS->TS): Official yaml node classes (Scalar, YAMLSeq, YAMLMap, Pair)
-      // are used instead of structural "Like" types. This makes the code more robust
-      // against internal library changes and provides precise type narrowing
-      // via instanceof checks instead of manual shape inspection.
       const inputFiles = yamlObj.get("input_files");
 
       if (inputFiles instanceof YAMLSeq) {

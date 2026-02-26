@@ -160,9 +160,6 @@ const StatisticsTable = ({
       {headerGroups.map((headerGroup) => (
         <div className="tr headergroup" {...headerGroup.getHeaderGroupProps()}>
           {headerGroup.headers.map((header) => {
-            // NOTE (JS->TS): react-table v7 types don't reflect our column extensions
-            // (e.g., custom `className`) and plugin-provided resize props.
-            // We narrow the header locally to the fields we use.
             const h = header as HeaderGroup<StatRow> & {
               className?: string;
               columns?: unknown[];
@@ -202,8 +199,6 @@ const StatisticsTable = ({
         return (
           <div {...row.getRowProps()} className="tr">
             {row.cells.map((cell) => {
-              // NOTE (JS->TS): `className` is custom column metadata used for styling,
-              // but react-table's types don't model it. We locally narrow the column type.
               const column = cell.column as typeof cell.column & {
                 className?: string;
               };
@@ -263,9 +258,8 @@ const StatisticsTable = ({
         column: ColumnTitleLike,
         columnIdx: number,
       ): TableColumnLike => {
-        // NOTE (JS->TS): hiddenCols entries may be undefined; default to empty list to preserve JS behavior.
         const hiddenForRunSet = hiddenCols[runSetIdx] ?? [];
-        // NOTE (JS->TS): TableComponents types `column` as ColumnTitleLike, but our dataset
+        // TableComponents types `column` as ColumnTitleLike, but our dataset
         // provides a richer column object (incl. type/colIdx/etc.). We narrow via cast here.
         const fullColumn = column as ToolColumn;
 
@@ -282,7 +276,6 @@ const StatisticsTable = ({
           hidden:
             hiddenForRunSet.includes(fullColumn.colIdx) ||
             !(isNumericColumn(fullColumn) || fullColumn.type === "status"),
-          // NOTE (JS->TS): determineColumnWidth expects `number | undefined` for optional params (not `null`).
           width: determineColumnWidth(
             fullColumn,
             undefined,

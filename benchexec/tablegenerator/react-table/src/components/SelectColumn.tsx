@@ -88,7 +88,7 @@ export default class SelectColumn extends React.Component<
     const hiddenRunsets: string[] = [];
 
     Object.entries(this.state.hiddenCols).forEach(([toolIdxStr, cols]) => {
-      // NOTE (JS->TS): Object.entries returns string keys.
+      // Object.entries returns string keys.
       // We convert to number for numeric comparison with tool.toolIdx,
       // but keep the original string for building URL parameters.
       const toolIdx = Number(toolIdxStr);
@@ -149,7 +149,6 @@ export default class SelectColumn extends React.Component<
       (tool) => tool.toolIdx === toolIdx,
     );
 
-    // NOTE (JS->TS): Guard against missing tool to keep runtime safe without changing behavior.
     if (!currentTool) {
       return this.state.selectableCols.map((colTitle) => (
         <td key={String(colTitle)}></td>
@@ -170,8 +169,6 @@ export default class SelectColumn extends React.Component<
         return (
           <td
             id={"td" + toolIdx + String(colTitle)}
-            // NOTE (JS->TS): colTitle is typed as React.ReactNode; convert to string
-            // because id/key must be string values.
             key={String(colTitle)}
             className={isVisible ? "checked" : ""}
           >
