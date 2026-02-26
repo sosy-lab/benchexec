@@ -34,7 +34,7 @@ type DependenciesJson = {
   licenses: string[];
 };
 
-const dependenciesData: DependenciesJson = dependenciesJson;
+const dependencies: DependenciesJson = dependenciesJson;
 
 /* ============================================================
  * Component Types
@@ -108,13 +108,7 @@ class Dependency extends React.Component<DependencyProps> {
           <br />
           <details>
             <summary>Full text of license</summary>
-            <pre>
-              {
-                (dependenciesJson as DependenciesJson).licenses[
-                  this.props.licenseId
-                ]
-              }
-            </pre>
+            <pre>{dependencies.licenses[this.props.licenseId]}</pre>
           </details>
         </>
       )}
@@ -248,7 +242,7 @@ const Info = (props: InfoProps): React.ReactElement => (
         This application includes third-party dependencies under different
         licenses. Click here to view them.
       </summary>
-      {dependenciesData.dependencies.map((dependency) => {
+      {dependencies.dependencies.map((dependency) => {
         return (
           <Dependency
             key={dependency.name + dependency.version}
