@@ -45,7 +45,7 @@ export default class TaskDefinitionViewer extends React.Component<
   }
 
   /**
-   * Parses the YAML file and encloses all input and property files with a fileTag as well as a splitterTag,
+   * Parses the YAML file and encloses all input and property files with FILE_TAG as well as SPLITTER_TAG,
    * so they can be rendered separately as links. Takes the following assumptions:
    * input_files is either a string or a list of strings
    * properties is a list of dicts, each with a "property_file" key
