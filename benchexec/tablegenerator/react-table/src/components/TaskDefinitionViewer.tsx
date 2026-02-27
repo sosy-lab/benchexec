@@ -66,8 +66,6 @@ export default class TaskDefinitionViewer extends React.Component<
             );
           }
         });
-      } else if (inputFiles instanceof Scalar) {
-        inputFiles.value = this.encloseFileInTags(String(inputFiles.value));
       } else if (typeof inputFiles === "string") {
         yamlObj.set("input_files", this.encloseFileInTags(inputFiles));
       }
