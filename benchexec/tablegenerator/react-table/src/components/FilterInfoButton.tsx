@@ -9,7 +9,19 @@ import React from "react";
 import { isNil } from "../utils/utils";
 import { faFilter } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-export default class FilterInfoButton extends React.Component {
+
+type FilterInfoButtonProps = {
+  className?: string;
+  onClick?: React.MouseEventHandler<HTMLButtonElement>;
+  enabled?: boolean;
+  isFiltered: boolean;
+  filteredCount: number;
+  totalCount: number;
+  resetFilters: () => void;
+  showFilterText?: boolean;
+};
+
+export default class FilterInfoButton extends React.Component<FilterInfoButtonProps> {
   render = () => (
     <button
       className={this.props.className || "reset"}
