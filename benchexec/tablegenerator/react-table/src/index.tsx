@@ -19,7 +19,4 @@ if (rootEl) {
 
 // Remove loading message
 // Guard against missing element to avoid runtime errors in non-standard environments (e.g. tests).
-const msgContainerEl = document.getElementById("msg-container");
-if (msgContainerEl) {
-  msgContainerEl.remove();
-}
+document.getElementById("msg-container")?.remove();
