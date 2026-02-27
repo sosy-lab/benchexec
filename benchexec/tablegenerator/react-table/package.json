@@ -64,6 +64,7 @@
           "@typescript-eslint/no-unused-vars": [
             "error",
             {
+              "varsIgnorePattern": "^_",
               "argsIgnorePattern": "^_"
             }
           ]
@@ -106,9 +107,13 @@
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^12.1.5",
     "@testing-library/user-event": "^13.5.0",
+    "@types/deep-equal": "^1.0.4",
     "@types/node": "^18.19.130",
+    "@types/path-browserify": "^1.0.3",
     "@types/react": "^17.0.91",
     "@types/react-dom": "^17.0.26",
+    "@types/react-modal": "^3.16.3",
+    "@types/react-table": "^7.7.20",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
     "eslint-config-prettier": "^8.5.0",

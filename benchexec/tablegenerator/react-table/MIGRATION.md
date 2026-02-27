@@ -77,11 +77,16 @@ chore: step &lt;n> &lt;short description>
 When migrating individual files or modules using automated tools,
 the following commit sequence is used:
 
-1. **Tool output**
+1. **Rename File**
+   rename: &lt;file>.js to &lt;file>.ts/.tsx
+2. **Tool output**
    tool: convert &lt;file>
-2. **Minimal fixes**
+3. **Minimal fixes**
    fix: make &lt;file> compile
-3. **Manual cleanup**
+
+   (Only required if the automated conversion does not compile.)
+
+4. **Manual cleanup**
    refactor: cleanup &lt;file>
 
 This separation makes it explicit which changes were automated and
@@ -161,11 +166,11 @@ changes and improves the reproducibility of the migration process.
 
 **Order (bottom-up):**
 
-- [ ] `src/utils/` (utils.js, filters.js, stats.js, plot.js)
+- [x] `src/utils/` (utils.js, filters.js, stats.js, plot.js)
 - [ ] `src/workers/` (workerDirector.js, dataUrls.js)
 - [ ] `src/components/` (leaf components → central components)
-  - [ ] `src/components/FilterBox/`
-  - [ ] `src/components/Table/`
+  - [x] `src/components/FilterBox/`
+  - [x] `src/components/Table/`
 - [ ] Entry points (`src/App.js`, `src/index.js`)
 - [ ] Tests as needed (`src/tests/**`, `src/App.test.js`)
 - [ ] Node scripts (`scripts/*.js`)

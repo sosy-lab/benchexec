@@ -6,11 +6,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from "react";
-import StatisticsTable from "../components/StatisticsTable.js";
+import StatisticsTable from "../components/StatisticsTable";
 import fs from "fs";
 import renderer from "react-test-renderer";
 import { getOverviewProps } from "./utils.js";
-import { computeStats, filterComputableStatistics } from "../utils/stats.js";
+import { computeStats, filterComputableStatistics } from "../utils/stats.ts";
 const testDir = "../test_integration/expected/";
 
 fs.readdirSync(testDir)

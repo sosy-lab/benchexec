@@ -149,13 +149,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
        value="Score-based Quantile Plot"
       >
        <option
-        name="Quantile Plot Plot"
+        data-name="Quantile Plot Plot"
         value="Quantile Plot"
        >
         Quantile Plot
        </option>
        <option
-        name="Direct Plot Plot"
+        data-name="Direct Plot Plot"
         value="Direct Plot"
        >
         Direct Plot
@@ -180,13 +180,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
        value="Logarithmic"
       >
        <option
-        name="Linear Scaling"
+        data-name="Linear Scaling"
         value="Linear"
        >
         Linear
        </option>
        <option
-        name="Logarithmic Scaling"
+        data-name="Logarithmic Scaling"
         value="Logarithmic"
        >
         Logarithmic
@@ -209,13 +209,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
        value="All"
       >
        <option
-        name="All Results"
+        data-name="All Results"
         value="All"
        >
         All
        </option>
        <option
-        name="Correct only Results"
+        data-name="Correct only Results"
         value="Correct only"
        >
         Correct only
@@ -431,13 +431,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
        value="Score-based Quantile Plot"
       >
        <option
-        name="Quantile Plot Plot"
+        data-name="Quantile Plot Plot"
         value="Quantile Plot"
        >
         Quantile Plot
        </option>
        <option
-        name="Direct Plot Plot"
+        data-name="Direct Plot Plot"
         value="Direct Plot"
        >
         Direct Plot
@@ -462,13 +462,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
        value="Logarithmic"
       >
        <option
-        name="Linear Scaling"
+        data-name="Linear Scaling"
         value="Linear"
        >
         Linear
        </option>
        <option
-        name="Logarithmic Scaling"
+        data-name="Logarithmic Scaling"
         value="Logarithmic"
        >
         Logarithmic
@@ -491,13 +491,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
        value="Correct only"
       >
        <option
-        name="All Results"
+        data-name="All Results"
         value="All"
        >
         All
        </option>
        <option
-        name="Correct only Results"
+        data-name="Correct only Results"
         value="Correct only"
        >
         Correct only
@@ -713,13 +713,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
        value="Score-based Quantile Plot"
       >
        <option
-        name="Quantile Plot Plot"
+        data-name="Quantile Plot Plot"
         value="Quantile Plot"
        >
         Quantile Plot
        </option>
        <option
-        name="Direct Plot Plot"
+        data-name="Direct Plot Plot"
         value="Direct Plot"
        >
         Direct Plot
@@ -744,13 +744,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
        value="Logarithmic"
       >
        <option
-        name="Linear Scaling"
+        data-name="Linear Scaling"
         value="Linear"
        >
         Linear
        </option>
        <option
-        name="Logarithmic Scaling"
+        data-name="Logarithmic Scaling"
         value="Logarithmic"
        >
         Logarithmic
@@ -773,13 +773,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
        value="All"
       >
        <option
-        name="All Results"
+        data-name="All Results"
         value="All"
        >
         All
        </option>
        <option
-        name="Correct only Results"
+        data-name="Correct only Results"
         value="Correct only"
        >
         Correct only
@@ -2994,13 +2994,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
        value="Score-based Quantile Plot"
       >
        <option
-        name="Quantile Plot Plot"
+        data-name="Quantile Plot Plot"
         value="Quantile Plot"
        >
         Quantile Plot
        </option>
        <option
-        name="Direct Plot Plot"
+        data-name="Direct Plot Plot"
         value="Direct Plot"
        >
         Direct Plot
@@ -3025,13 +3025,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
        value="Logarithmic"
       >
        <option
-        name="Linear Scaling"
+        data-name="Linear Scaling"
         value="Linear"
        >
         Linear
        </option>
        <option
-        name="Logarithmic Scaling"
+        data-name="Logarithmic Scaling"
         value="Logarithmic"
        >
         Logarithmic
@@ -3054,13 +3054,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
        value="Correct only"
       >
        <option
-        name="All Results"
+        data-name="All Results"
         value="All"
        >
         All
        </option>
        <option
-        name="Correct only Results"
+        data-name="Correct only Results"
         value="Correct only"
        >
         Correct only
@@ -4883,13 +4883,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
        value="Score-based Quantile Plot"
       >
        <option
-        name="Quantile Plot Plot"
+        data-name="Quantile Plot Plot"
         value="Quantile Plot"
        >
         Quantile Plot
        </option>
        <option
-        name="Direct Plot Plot"
+        data-name="Direct Plot Plot"
         value="Direct Plot"
        >
         Direct Plot
@@ -4914,13 +4914,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
        value="Logarithmic"
       >
        <option
-        name="Linear Scaling"
+        data-name="Linear Scaling"
         value="Linear"
        >
         Linear
        </option>
        <option
-        name="Logarithmic Scaling"
+        data-name="Logarithmic Scaling"
         value="Logarithmic"
        >
         Logarithmic
@@ -4943,13 +4943,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
        value="All"
       >
        <option
-        name="All Results"
+        data-name="All Results"
         value="All"
        >
         All
        </option>
        <option
-        name="Correct only Results"
+        data-name="Correct only Results"
         value="Correct only"
        >
         Correct only
@@ -8994,13 +8994,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
        value="Score-based Quantile Plot"
       >
        <option
-        name="Quantile Plot Plot"
+        data-name="Quantile Plot Plot"
         value="Quantile Plot"
        >
         Quantile Plot
        </option>
        <option
-        name="Direct Plot Plot"
+        data-name="Direct Plot Plot"
         value="Direct Plot"
        >
         Direct Plot
@@ -9025,13 +9025,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
        value="Logarithmic"
       >
        <option
-        name="Linear Scaling"
+        data-name="Linear Scaling"
         value="Linear"
        >
         Linear
        </option>
        <option
-        name="Logarithmic Scaling"
+        data-name="Logarithmic Scaling"
         value="Logarithmic"
        >
         Logarithmic
@@ -9054,13 +9054,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
        value="All"
       >
        <option
-        name="All Results"
+        data-name="All Results"
         value="All"
        >
         All
        </option>
        <option
-        name="Correct only Results"
+        data-name="Correct only Results"
         value="Correct only"
        >
         Correct only
@@ -11565,13 +11565,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
        value="Score-based Quantile Plot"
       >
        <option
-        name="Quantile Plot Plot"
+        data-name="Quantile Plot Plot"
         value="Quantile Plot"
        >
         Quantile Plot
        </option>
        <option
-        name="Direct Plot Plot"
+        data-name="Direct Plot Plot"
         value="Direct Plot"
        >
         Direct Plot
@@ -11596,13 +11596,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
        value="Logarithmic"
       >
        <option
-        name="Linear Scaling"
+        data-name="Linear Scaling"
         value="Linear"
        >
         Linear
        </option>
        <option
-        name="Logarithmic Scaling"
+        data-name="Logarithmic Scaling"
         value="Logarithmic"
        >
         Logarithmic
@@ -11625,13 +11625,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
        value="All"
       >
        <option
-        name="All Results"
+        data-name="All Results"
         value="All"
        >
         All
        </option>
        <option
-        name="Correct only Results"
+        data-name="Correct only Results"
         value="Correct only"
        >
         Correct only
@@ -14265,13 +14265,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
        value="Score-based Quantile Plot"
       >
        <option
-        name="Quantile Plot Plot"
+        data-name="Quantile Plot Plot"
         value="Quantile Plot"
        >
         Quantile Plot
        </option>
        <option
-        name="Direct Plot Plot"
+        data-name="Direct Plot Plot"
         value="Direct Plot"
        >
         Direct Plot
@@ -14296,13 +14296,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
        value="Logarithmic"
       >
        <option
-        name="Linear Scaling"
+        data-name="Linear Scaling"
         value="Linear"
        >
         Linear
        </option>
        <option
-        name="Logarithmic Scaling"
+        data-name="Logarithmic Scaling"
         value="Logarithmic"
        >
         Logarithmic
@@ -14325,13 +14325,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
        value="Correct only"
       >
        <option
-        name="All Results"
+        data-name="All Results"
         value="All"
        >
         All
        </option>
        <option
-        name="Correct only Results"
+        data-name="Correct only Results"
         value="Correct only"
        >
         Correct only
@@ -18610,13 +18610,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
        value="Score-based Quantile Plot"
       >
        <option
-        name="Quantile Plot Plot"
+        data-name="Quantile Plot Plot"
         value="Quantile Plot"
        >
         Quantile Plot
        </option>
        <option
-        name="Direct Plot Plot"
+        data-name="Direct Plot Plot"
         value="Direct Plot"
        >
         Direct Plot
@@ -18641,13 +18641,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
        value="Logarithmic"
       >
        <option
-        name="Linear Scaling"
+        data-name="Linear Scaling"
         value="Linear"
        >
         Linear
        </option>
        <option
-        name="Logarithmic Scaling"
+        data-name="Logarithmic Scaling"
         value="Logarithmic"
        >
         Logarithmic
@@ -18670,13 +18670,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
        value="Correct only"
       >
        <option
-        name="All Results"
+        data-name="All Results"
         value="All"
        >
         All
        </option>
        <option
-        name="Correct only Results"
+        data-name="Correct only Results"
         value="Correct only"
        >
         Correct only
@@ -20170,13 +20170,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
        value="Score-based Quantile Plot"
       >
        <option
-        name="Quantile Plot Plot"
+        data-name="Quantile Plot Plot"
         value="Quantile Plot"
        >
         Quantile Plot
        </option>
        <option
-        name="Direct Plot Plot"
+        data-name="Direct Plot Plot"
         value="Direct Plot"
        >
         Direct Plot
@@ -20201,13 +20201,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
        value="Logarithmic"
       >
        <option
-        name="Linear Scaling"
+        data-name="Linear Scaling"
         value="Linear"
        >
         Linear
        </option>
        <option
-        name="Logarithmic Scaling"
+        data-name="Logarithmic Scaling"
         value="Logarithmic"
        >
         Logarithmic
@@ -20230,13 +20230,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
        value="Correct only"
       >
        <option
-        name="All Results"
+        data-name="All Results"
         value="All"
        >
         All
        </option>
        <option
-        name="Correct only Results"
+        data-name="Correct only Results"
         value="Correct only"
        >
         Correct only
@@ -22147,13 +22147,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
        value="Score-based Quantile Plot"
       >
        <option
-        name="Quantile Plot Plot"
+        data-name="Quantile Plot Plot"
         value="Quantile Plot"
        >
         Quantile Plot
        </option>
        <option
-        name="Direct Plot Plot"
+        data-name="Direct Plot Plot"
         value="Direct Plot"
        >
         Direct Plot
@@ -22178,13 +22178,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
        value="Logarithmic"
       >
        <option
-        name="Linear Scaling"
+        data-name="Linear Scaling"
         value="Linear"
        >
         Linear
        </option>
        <option
-        name="Logarithmic Scaling"
+        data-name="Logarithmic Scaling"
         value="Logarithmic"
        >
         Logarithmic
@@ -22207,13 +22207,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
        value="All"
       >
        <option
-        name="All Results"
+        data-name="All Results"
         value="All"
        >
         All
        </option>
        <option
-        name="Correct only Results"
+        data-name="Correct only Results"
         value="Correct only"
        >
         Correct only
@@ -24374,13 +24374,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
        value="Score-based Quantile Plot"
       >
        <option
-        name="Quantile Plot Plot"
+        data-name="Quantile Plot Plot"
         value="Quantile Plot"
        >
         Quantile Plot
        </option>
        <option
-        name="Direct Plot Plot"
+        data-name="Direct Plot Plot"
         value="Direct Plot"
        >
         Direct Plot
@@ -24405,13 +24405,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
        value="Logarithmic"
       >
        <option
-        name="Linear Scaling"
+        data-name="Linear Scaling"
         value="Linear"
        >
         Linear
        </option>
        <option
-        name="Logarithmic Scaling"
+        data-name="Logarithmic Scaling"
         value="Logarithmic"
        >
         Logarithmic
@@ -24434,13 +24434,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
        value="Correct only"
       >
        <option
-        name="All Results"
+        data-name="All Results"
         value="All"
        >
         All
        </option>
        <option
-        name="Correct only Results"
+        data-name="Correct only Results"
         value="Correct only"
        >
         Correct only
@@ -26209,13 +26209,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
        value="Score-based Quantile Plot"
       >
        <option
-        name="Quantile Plot Plot"
+        data-name="Quantile Plot Plot"
         value="Quantile Plot"
        >
         Quantile Plot
        </option>
        <option
-        name="Direct Plot Plot"
+        data-name="Direct Plot Plot"
         value="Direct Plot"
        >
         Direct Plot
@@ -26240,13 +26240,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
        value="Logarithmic"
       >
        <option
-        name="Linear Scaling"
+        data-name="Linear Scaling"
         value="Linear"
        >
         Linear
        </option>
        <option
-        name="Logarithmic Scaling"
+        data-name="Logarithmic Scaling"
         value="Logarithmic"
        >
         Logarithmic
@@ -26269,13 +26269,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
        value="All"
       >
        <option
-        name="All Results"
+        data-name="All Results"
         value="All"
        >
         All
        </option>
        <option
-        name="Correct only Results"
+        data-name="Correct only Results"
         value="Correct only"
        >
         Correct only
@@ -28822,13 +28822,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
        value="Score-based Quantile Plot"
       >
        <option
-        name="Quantile Plot Plot"
+        data-name="Quantile Plot Plot"
         value="Quantile Plot"
        >
         Quantile Plot
        </option>
        <option
-        name="Direct Plot Plot"
+        data-name="Direct Plot Plot"
         value="Direct Plot"
        >
         Direct Plot
@@ -28853,13 +28853,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
        value="Logarithmic"
       >
        <option
-        name="Linear Scaling"
+        data-name="Linear Scaling"
         value="Linear"
        >
         Linear
        </option>
        <option
-        name="Logarithmic Scaling"
+        data-name="Logarithmic Scaling"
         value="Logarithmic"
        >
         Logarithmic
@@ -28882,13 +28882,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Direct Plot should mat
        value="Correct only"
       >
        <option
-        name="All Results"
+        data-name="All Results"
         value="All"
        >
         All
        </option>
        <option
-        name="Correct only Results"
+        data-name="Correct only Results"
         value="Correct only"
        >
         Correct only
@@ -31191,13 +31191,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
        value="Score-based Quantile Plot"
       >
        <option
-        name="Quantile Plot Plot"
+        data-name="Quantile Plot Plot"
         value="Quantile Plot"
        >
         Quantile Plot
        </option>
        <option
-        name="Direct Plot Plot"
+        data-name="Direct Plot Plot"
         value="Direct Plot"
        >
         Direct Plot
@@ -31222,13 +31222,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
        value="Logarithmic"
       >
        <option
-        name="Linear Scaling"
+        data-name="Linear Scaling"
         value="Linear"
        >
         Linear
        </option>
        <option
-        name="Logarithmic Scaling"
+        data-name="Logarithmic Scaling"
         value="Logarithmic"
        >
         Logarithmic
@@ -31251,13 +31251,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
        value="All"
       >
        <option
-        name="All Results"
+        data-name="All Results"
         value="All"
        >
         All
        </option>
        <option
-        name="Correct only Results"
+        data-name="Correct only Results"
         value="Correct only"
        >
         Correct only
@@ -31473,13 +31473,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
        value="Score-based Quantile Plot"
       >
        <option
-        name="Quantile Plot Plot"
+        data-name="Quantile Plot Plot"
         value="Quantile Plot"
        >
         Quantile Plot
        </option>
        <option
-        name="Direct Plot Plot"
+        data-name="Direct Plot Plot"
         value="Direct Plot"
        >
         Direct Plot
@@ -31504,13 +31504,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
        value="Logarithmic"
       >
        <option
-        name="Linear Scaling"
+        data-name="Linear Scaling"
         value="Linear"
        >
         Linear
        </option>
        <option
-        name="Logarithmic Scaling"
+        data-name="Logarithmic Scaling"
         value="Logarithmic"
        >
         Logarithmic
@@ -31533,13 +31533,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
        value="Correct only"
       >
        <option
-        name="All Results"
+        data-name="All Results"
         value="All"
        >
         All
        </option>
        <option
-        name="Correct only Results"
+        data-name="Correct only Results"
         value="Correct only"
        >
         Correct only
@@ -31755,13 +31755,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
        value="Score-based Quantile Plot"
       >
        <option
-        name="Quantile Plot Plot"
+        data-name="Quantile Plot Plot"
         value="Quantile Plot"
        >
         Quantile Plot
        </option>
        <option
-        name="Direct Plot Plot"
+        data-name="Direct Plot Plot"
         value="Direct Plot"
        >
         Direct Plot
@@ -31786,13 +31786,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
        value="Logarithmic"
       >
        <option
-        name="Linear Scaling"
+        data-name="Linear Scaling"
         value="Linear"
        >
         Linear
        </option>
        <option
-        name="Logarithmic Scaling"
+        data-name="Logarithmic Scaling"
         value="Logarithmic"
        >
         Logarithmic
@@ -31815,13 +31815,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
        value="All"
       >
        <option
-        name="All Results"
+        data-name="All Results"
         value="All"
        >
         All
        </option>
        <option
-        name="Correct only Results"
+        data-name="Correct only Results"
         value="Correct only"
        >
         Correct only
@@ -34036,13 +34036,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
        value="Score-based Quantile Plot"
       >
        <option
-        name="Quantile Plot Plot"
+        data-name="Quantile Plot Plot"
         value="Quantile Plot"
        >
         Quantile Plot
        </option>
        <option
-        name="Direct Plot Plot"
+        data-name="Direct Plot Plot"
         value="Direct Plot"
        >
         Direct Plot
@@ -34067,13 +34067,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
        value="Logarithmic"
       >
        <option
-        name="Linear Scaling"
+        data-name="Linear Scaling"
         value="Linear"
        >
         Linear
        </option>
        <option
-        name="Logarithmic Scaling"
+        data-name="Logarithmic Scaling"
         value="Logarithmic"
        >
         Logarithmic
@@ -34096,13 +34096,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
        value="Correct only"
       >
        <option
-        name="All Results"
+        data-name="All Results"
         value="All"
        >
         All
        </option>
        <option
-        name="Correct only Results"
+        data-name="Correct only Results"
         value="Correct only"
        >
         Correct only
@@ -35925,13 +35925,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
        value="Score-based Quantile Plot"
       >
        <option
-        name="Quantile Plot Plot"
+        data-name="Quantile Plot Plot"
         value="Quantile Plot"
        >
         Quantile Plot
        </option>
        <option
-        name="Direct Plot Plot"
+        data-name="Direct Plot Plot"
         value="Direct Plot"
        >
         Direct Plot
@@ -35956,13 +35956,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
        value="Logarithmic"
       >
        <option
-        name="Linear Scaling"
+        data-name="Linear Scaling"
         value="Linear"
        >
         Linear
        </option>
        <option
-        name="Logarithmic Scaling"
+        data-name="Logarithmic Scaling"
         value="Logarithmic"
        >
         Logarithmic
@@ -35985,13 +35985,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
        value="All"
       >
        <option
-        name="All Results"
+        data-name="All Results"
         value="All"
        >
         All
        </option>
        <option
-        name="Correct only Results"
+        data-name="Correct only Results"
         value="Correct only"
        >
         Correct only
@@ -40036,13 +40036,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
        value="Score-based Quantile Plot"
       >
        <option
-        name="Quantile Plot Plot"
+        data-name="Quantile Plot Plot"
         value="Quantile Plot"
        >
         Quantile Plot
        </option>
        <option
-        name="Direct Plot Plot"
+        data-name="Direct Plot Plot"
         value="Direct Plot"
        >
         Direct Plot
@@ -40067,13 +40067,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
        value="Logarithmic"
       >
        <option
-        name="Linear Scaling"
+        data-name="Linear Scaling"
         value="Linear"
        >
         Linear
        </option>
        <option
-        name="Logarithmic Scaling"
+        data-name="Logarithmic Scaling"
         value="Logarithmic"
        >
         Logarithmic
@@ -40096,13 +40096,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
        value="All"
       >
        <option
-        name="All Results"
+        data-name="All Results"
         value="All"
        >
         All
        </option>
        <option
-        name="Correct only Results"
+        data-name="Correct only Results"
         value="Correct only"
        >
         Correct only
@@ -42607,13 +42607,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
        value="Score-based Quantile Plot"
       >
        <option
-        name="Quantile Plot Plot"
+        data-name="Quantile Plot Plot"
         value="Quantile Plot"
        >
         Quantile Plot
        </option>
        <option
-        name="Direct Plot Plot"
+        data-name="Direct Plot Plot"
         value="Direct Plot"
        >
         Direct Plot
@@ -42638,13 +42638,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
        value="Logarithmic"
       >
        <option
-        name="Linear Scaling"
+        data-name="Linear Scaling"
         value="Linear"
        >
         Linear
        </option>
        <option
-        name="Logarithmic Scaling"
+        data-name="Logarithmic Scaling"
         value="Logarithmic"
        >
         Logarithmic
@@ -42667,13 +42667,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
        value="All"
       >
        <option
-        name="All Results"
+        data-name="All Results"
         value="All"
        >
         All
        </option>
        <option
-        name="Correct only Results"
+        data-name="Correct only Results"
         value="Correct only"
        >
         Correct only
@@ -45307,13 +45307,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
        value="Score-based Quantile Plot"
       >
        <option
-        name="Quantile Plot Plot"
+        data-name="Quantile Plot Plot"
         value="Quantile Plot"
        >
         Quantile Plot
        </option>
        <option
-        name="Direct Plot Plot"
+        data-name="Direct Plot Plot"
         value="Direct Plot"
        >
         Direct Plot
@@ -45338,13 +45338,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
        value="Logarithmic"
       >
        <option
-        name="Linear Scaling"
+        data-name="Linear Scaling"
         value="Linear"
        >
         Linear
        </option>
        <option
-        name="Logarithmic Scaling"
+        data-name="Logarithmic Scaling"
         value="Logarithmic"
        >
         Logarithmic
@@ -45367,13 +45367,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
        value="Correct only"
       >
        <option
-        name="All Results"
+        data-name="All Results"
         value="All"
        >
         All
        </option>
        <option
-        name="Correct only Results"
+        data-name="Correct only Results"
         value="Correct only"
        >
         Correct only
@@ -49652,13 +49652,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
        value="Score-based Quantile Plot"
       >
        <option
-        name="Quantile Plot Plot"
+        data-name="Quantile Plot Plot"
         value="Quantile Plot"
        >
         Quantile Plot
        </option>
        <option
-        name="Direct Plot Plot"
+        data-name="Direct Plot Plot"
         value="Direct Plot"
        >
         Direct Plot
@@ -49683,13 +49683,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
        value="Logarithmic"
       >
        <option
-        name="Linear Scaling"
+        data-name="Linear Scaling"
         value="Linear"
        >
         Linear
        </option>
        <option
-        name="Logarithmic Scaling"
+        data-name="Logarithmic Scaling"
         value="Logarithmic"
        >
         Logarithmic
@@ -49712,13 +49712,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
        value="Correct only"
       >
        <option
-        name="All Results"
+        data-name="All Results"
         value="All"
        >
         All
        </option>
        <option
-        name="Correct only Results"
+        data-name="Correct only Results"
         value="Correct only"
        >
         Correct only
@@ -51212,13 +51212,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
        value="Score-based Quantile Plot"
       >
        <option
-        name="Quantile Plot Plot"
+        data-name="Quantile Plot Plot"
         value="Quantile Plot"
        >
         Quantile Plot
        </option>
        <option
-        name="Direct Plot Plot"
+        data-name="Direct Plot Plot"
         value="Direct Plot"
        >
         Direct Plot
@@ -51243,13 +51243,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
        value="Logarithmic"
       >
        <option
-        name="Linear Scaling"
+        data-name="Linear Scaling"
         value="Linear"
        >
         Linear
        </option>
        <option
-        name="Logarithmic Scaling"
+        data-name="Logarithmic Scaling"
         value="Logarithmic"
        >
         Logarithmic
@@ -51272,13 +51272,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
        value="Correct only"
       >
        <option
-        name="All Results"
+        data-name="All Results"
         value="All"
        >
         All
        </option>
        <option
-        name="Correct only Results"
+        data-name="Correct only Results"
         value="Correct only"
        >
         Correct only
@@ -53189,13 +53189,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
        value="Score-based Quantile Plot"
       >
        <option
-        name="Quantile Plot Plot"
+        data-name="Quantile Plot Plot"
         value="Quantile Plot"
        >
         Quantile Plot
        </option>
        <option
-        name="Direct Plot Plot"
+        data-name="Direct Plot Plot"
         value="Direct Plot"
        >
         Direct Plot
@@ -53220,13 +53220,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
        value="Logarithmic"
       >
        <option
-        name="Linear Scaling"
+        data-name="Linear Scaling"
         value="Linear"
        >
         Linear
        </option>
        <option
-        name="Logarithmic Scaling"
+        data-name="Logarithmic Scaling"
         value="Logarithmic"
        >
         Logarithmic
@@ -53249,13 +53249,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
        value="All"
       >
        <option
-        name="All Results"
+        data-name="All Results"
         value="All"
        >
         All
        </option>
        <option
-        name="Correct only Results"
+        data-name="Correct only Results"
         value="Correct only"
        >
         Correct only
@@ -55416,13 +55416,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
        value="Score-based Quantile Plot"
       >
        <option
-        name="Quantile Plot Plot"
+        data-name="Quantile Plot Plot"
         value="Quantile Plot"
        >
         Quantile Plot
        </option>
        <option
-        name="Direct Plot Plot"
+        data-name="Direct Plot Plot"
         value="Direct Plot"
        >
         Direct Plot
@@ -55447,13 +55447,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
        value="Logarithmic"
       >
        <option
-        name="Linear Scaling"
+        data-name="Linear Scaling"
         value="Linear"
        >
         Linear
        </option>
        <option
-        name="Logarithmic Scaling"
+        data-name="Logarithmic Scaling"
         value="Logarithmic"
        >
         Logarithmic
@@ -55476,13 +55476,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
        value="Correct only"
       >
        <option
-        name="All Results"
+        data-name="All Results"
         value="All"
        >
         All
        </option>
        <option
-        name="Correct only Results"
+        data-name="Correct only Results"
         value="Correct only"
        >
         Correct only
@@ -57251,13 +57251,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
        value="Score-based Quantile Plot"
       >
        <option
-        name="Quantile Plot Plot"
+        data-name="Quantile Plot Plot"
         value="Quantile Plot"
        >
         Quantile Plot
        </option>
        <option
-        name="Direct Plot Plot"
+        data-name="Direct Plot Plot"
         value="Direct Plot"
        >
         Direct Plot
@@ -57282,13 +57282,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
        value="Logarithmic"
       >
        <option
-        name="Linear Scaling"
+        data-name="Linear Scaling"
         value="Linear"
        >
         Linear
        </option>
        <option
-        name="Logarithmic Scaling"
+        data-name="Logarithmic Scaling"
         value="Logarithmic"
        >
         Logarithmic
@@ -57311,13 +57311,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
        value="All"
       >
        <option
-        name="All Results"
+        data-name="All Results"
         value="All"
        >
         All
        </option>
        <option
-        name="Correct only Results"
+        data-name="Correct only Results"
         value="Correct only"
        >
         Correct only
@@ -59864,13 +59864,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
        value="Score-based Quantile Plot"
       >
        <option
-        name="Quantile Plot Plot"
+        data-name="Quantile Plot Plot"
         value="Quantile Plot"
        >
         Quantile Plot
        </option>
        <option
-        name="Direct Plot Plot"
+        data-name="Direct Plot Plot"
         value="Direct Plot"
        >
         Direct Plot
@@ -59895,13 +59895,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
        value="Logarithmic"
       >
        <option
-        name="Linear Scaling"
+        data-name="Linear Scaling"
         value="Linear"
        >
         Linear
        </option>
        <option
-        name="Logarithmic Scaling"
+        data-name="Logarithmic Scaling"
         value="Logarithmic"
        >
         Logarithmic
@@ -59924,13 +59924,13 @@ exports[`Quantile Plot tests for file big-table.diff.html Quantile Plot should m
        value="Correct only"
       >
        <option
-        name="All Results"
+        data-name="All Results"
         value="All"
        >
         All
        </option>
        <option
-        name="Correct only Results"
+        data-name="Correct only Results"
         value="Correct only"
        >
         Correct only
@@ -62193,19 +62193,19 @@ exports[`Quantile Plot tests for file rows-with-scores.html Direct Plot should m
        value="Score-based Quantile Plot"
       >
        <option
-        name="Score-based Quantile Plot Plot"
+        data-name="Score-based Quantile Plot Plot"
         value="Score-based Quantile Plot"
        >
         Score-based Quantile Plot
        </option>
        <option
-        name="Quantile Plot Plot"
+        data-name="Quantile Plot Plot"
         value="Quantile Plot"
        >
         Quantile Plot
        </option>
        <option
-        name="Direct Plot Plot"
+        data-name="Direct Plot Plot"
         value="Direct Plot"
        >
         Direct Plot
@@ -62230,13 +62230,13 @@ exports[`Quantile Plot tests for file rows-with-scores.html Direct Plot should m
        value="Logarithmic"
       >
        <option
-        name="Linear Scaling"
+        data-name="Linear Scaling"
         value="Linear"
        >
         Linear
        </option>
        <option
-        name="Logarithmic Scaling"
+        data-name="Logarithmic Scaling"
         value="Logarithmic"
        >
         Logarithmic
@@ -62259,19 +62259,19 @@ exports[`Quantile Plot tests for file rows-with-scores.html Direct Plot should m
        value="disabled"
       >
        <option
-        name="All Results"
+        data-name="All Results"
         value="All"
        >
         All
        </option>
        <option
-        name="Correct only Results"
+        data-name="Correct only Results"
         value="Correct only"
        >
         Correct only
        </option>
        <option
-        name="disabled"
+        data-name="disabled"
         value="disabled"
        >
         ⸺
@@ -63722,19 +63722,19 @@ exports[`Quantile Plot tests for file rows-with-scores.html Direct Plot should m
        value="Score-based Quantile Plot"
       >
        <option
-        name="Score-based Quantile Plot Plot"
+        data-name="Score-based Quantile Plot Plot"
         value="Score-based Quantile Plot"
        >
         Score-based Quantile Plot
        </option>
        <option
-        name="Quantile Plot Plot"
+        data-name="Quantile Plot Plot"
         value="Quantile Plot"
        >
         Quantile Plot
        </option>
        <option
-        name="Direct Plot Plot"
+        data-name="Direct Plot Plot"
         value="Direct Plot"
        >
         Direct Plot
@@ -63759,13 +63759,13 @@ exports[`Quantile Plot tests for file rows-with-scores.html Direct Plot should m
        value="Logarithmic"
       >
        <option
-        name="Linear Scaling"
+        data-name="Linear Scaling"
         value="Linear"
        >
         Linear
        </option>
        <option
-        name="Logarithmic Scaling"
+        data-name="Logarithmic Scaling"
         value="Logarithmic"
        >
         Logarithmic
@@ -63788,19 +63788,19 @@ exports[`Quantile Plot tests for file rows-with-scores.html Direct Plot should m
        value="disabled"
       >
        <option
-        name="All Results"
+        data-name="All Results"
         value="All"
        >
         All
        </option>
        <option
-        name="Correct only Results"
+        data-name="Correct only Results"
         value="Correct only"
        >
         Correct only
        </option>
        <option
-        name="disabled"
+        data-name="disabled"
         value="disabled"
        >
         ⸺
@@ -65251,19 +65251,19 @@ exports[`Quantile Plot tests for file rows-with-scores.html Direct Plot should m
        value="Score-based Quantile Plot"
       >
        <option
-        name="Score-based Quantile Plot Plot"
+        data-name="Score-based Quantile Plot Plot"
         value="Score-based Quantile Plot"
        >
         Score-based Quantile Plot
        </option>
        <option
-        name="Quantile Plot Plot"
+        data-name="Quantile Plot Plot"
         value="Quantile Plot"
        >
         Quantile Plot
        </option>
        <option
-        name="Direct Plot Plot"
+        data-name="Direct Plot Plot"
         value="Direct Plot"
        >
         Direct Plot
@@ -65288,13 +65288,13 @@ exports[`Quantile Plot tests for file rows-with-scores.html Direct Plot should m
        value="Logarithmic"
       >
        <option
-        name="Linear Scaling"
+        data-name="Linear Scaling"
         value="Linear"
        >
         Linear
        </option>
        <option
-        name="Logarithmic Scaling"
+        data-name="Logarithmic Scaling"
         value="Logarithmic"
        >
         Logarithmic
@@ -65317,19 +65317,19 @@ exports[`Quantile Plot tests for file rows-with-scores.html Direct Plot should m
        value="disabled"
       >
        <option
-        name="All Results"
+        data-name="All Results"
         value="All"
        >
         All
        </option>
        <option
-        name="Correct only Results"
+        data-name="Correct only Results"
         value="Correct only"
        >
         Correct only
        </option>
        <option
-        name="disabled"
+        data-name="disabled"
         value="disabled"
        >
         ⸺
@@ -66780,19 +66780,19 @@ exports[`Quantile Plot tests for file rows-with-scores.html Direct Plot should m
        value="Score-based Quantile Plot"
       >
        <option
-        name="Score-based Quantile Plot Plot"
+        data-name="Score-based Quantile Plot Plot"
         value="Score-based Quantile Plot"
        >
         Score-based Quantile Plot
        </option>
        <option
-        name="Quantile Plot Plot"
+        data-name="Quantile Plot Plot"
         value="Quantile Plot"
        >
         Quantile Plot
        </option>
        <option
-        name="Direct Plot Plot"
+        data-name="Direct Plot Plot"
         value="Direct Plot"
        >
         Direct Plot
@@ -66817,13 +66817,13 @@ exports[`Quantile Plot tests for file rows-with-scores.html Direct Plot should m
        value="Logarithmic"
       >
        <option
-        name="Linear Scaling"
+        data-name="Linear Scaling"
         value="Linear"
        >
         Linear
        </option>
        <option
-        name="Logarithmic Scaling"
+        data-name="Logarithmic Scaling"
         value="Logarithmic"
        >
         Logarithmic
@@ -66846,19 +66846,19 @@ exports[`Quantile Plot tests for file rows-with-scores.html Direct Plot should m
        value="disabled"
       >
        <option
-        name="All Results"
+        data-name="All Results"
         value="All"
        >
         All
        </option>
        <option
-        name="Correct only Results"
+        data-name="Correct only Results"
         value="Correct only"
        >
         Correct only
        </option>
        <option
-        name="disabled"
+        data-name="disabled"
         value="disabled"
        >
         ⸺
@@ -68309,19 +68309,19 @@ exports[`Quantile Plot tests for file rows-with-scores.html Direct Plot should m
        value="Score-based Quantile Plot"
       >
        <option
-        name="Score-based Quantile Plot Plot"
+        data-name="Score-based Quantile Plot Plot"
         value="Score-based Quantile Plot"
        >
         Score-based Quantile Plot
        </option>
        <option
-        name="Quantile Plot Plot"
+        data-name="Quantile Plot Plot"
         value="Quantile Plot"
        >
         Quantile Plot
        </option>
        <option
-        name="Direct Plot Plot"
+        data-name="Direct Plot Plot"
         value="Direct Plot"
        >
         Direct Plot
@@ -68346,13 +68346,13 @@ exports[`Quantile Plot tests for file rows-with-scores.html Direct Plot should m
        value="Logarithmic"
       >
        <option
-        name="Linear Scaling"
+        data-name="Linear Scaling"
         value="Linear"
        >
         Linear
        </option>
        <option
-        name="Logarithmic Scaling"
+        data-name="Logarithmic Scaling"
         value="Logarithmic"
        >
         Logarithmic
@@ -68375,19 +68375,19 @@ exports[`Quantile Plot tests for file rows-with-scores.html Direct Plot should m
        value="disabled"
       >
        <option
-        name="All Results"
+        data-name="All Results"
         value="All"
        >
         All
        </option>
        <option
-        name="Correct only Results"
+        data-name="Correct only Results"
         value="Correct only"
        >
         Correct only
        </option>
        <option
-        name="disabled"
+        data-name="disabled"
         value="disabled"
        >
         ⸺
@@ -69838,19 +69838,19 @@ exports[`Quantile Plot tests for file rows-with-scores.html Direct Plot should m
        value="Score-based Quantile Plot"
       >
        <option
-        name="Score-based Quantile Plot Plot"
+        data-name="Score-based Quantile Plot Plot"
         value="Score-based Quantile Plot"
        >
         Score-based Quantile Plot
        </option>
        <option
-        name="Quantile Plot Plot"
+        data-name="Quantile Plot Plot"
         value="Quantile Plot"
        >
         Quantile Plot
        </option>
        <option
-        name="Direct Plot Plot"
+        data-name="Direct Plot Plot"
         value="Direct Plot"
        >
         Direct Plot
@@ -69875,13 +69875,13 @@ exports[`Quantile Plot tests for file rows-with-scores.html Direct Plot should m
        value="Logarithmic"
       >
        <option
-        name="Linear Scaling"
+        data-name="Linear Scaling"
         value="Linear"
        >
         Linear
        </option>
        <option
-        name="Logarithmic Scaling"
+        data-name="Logarithmic Scaling"
         value="Logarithmic"
        >
         Logarithmic
@@ -69904,19 +69904,19 @@ exports[`Quantile Plot tests for file rows-with-scores.html Direct Plot should m
        value="disabled"
       >
        <option
-        name="All Results"
+        data-name="All Results"
         value="All"
        >
         All
        </option>
        <option
-        name="Correct only Results"
+        data-name="Correct only Results"
         value="Correct only"
        >
         Correct only
        </option>
        <option
-        name="disabled"
+        data-name="disabled"
         value="disabled"
        >
         ⸺
@@ -71367,19 +71367,19 @@ exports[`Quantile Plot tests for file rows-with-scores.html Direct Plot should m
        value="Score-based Quantile Plot"
       >
        <option
-        name="Score-based Quantile Plot Plot"
+        data-name="Score-based Quantile Plot Plot"
         value="Score-based Quantile Plot"
        >
         Score-based Quantile Plot
        </option>
        <option
-        name="Quantile Plot Plot"
+        data-name="Quantile Plot Plot"
         value="Quantile Plot"
        >
         Quantile Plot
        </option>
        <option
-        name="Direct Plot Plot"
+        data-name="Direct Plot Plot"
         value="Direct Plot"
        >
         Direct Plot
@@ -71404,13 +71404,13 @@ exports[`Quantile Plot tests for file rows-with-scores.html Direct Plot should m
        value="Logarithmic"
       >
        <option
-        name="Linear Scaling"
+        data-name="Linear Scaling"
         value="Linear"
        >
         Linear
        </option>
        <option
-        name="Logarithmic Scaling"
+        data-name="Logarithmic Scaling"
         value="Logarithmic"
        >
         Logarithmic
@@ -71433,19 +71433,19 @@ exports[`Quantile Plot tests for file rows-with-scores.html Direct Plot should m
        value="disabled"
       >
        <option
-        name="All Results"
+        data-name="All Results"
         value="All"
        >
         All
        </option>
        <option
-        name="Correct only Results"
+        data-name="Correct only Results"
         value="Correct only"
        >
         Correct only
        </option>
        <option
-        name="disabled"
+        data-name="disabled"
         value="disabled"
        >
         ⸺
@@ -72680,19 +72680,19 @@ exports[`Quantile Plot tests for file rows-with-scores.html Direct Plot should m
        value="Score-based Quantile Plot"
       >
        <option
-        name="Score-based Quantile Plot Plot"
+        data-name="Score-based Quantile Plot Plot"
         value="Score-based Quantile Plot"
        >
         Score-based Quantile Plot
        </option>
        <option
-        name="Quantile Plot Plot"
+        data-name="Quantile Plot Plot"
         value="Quantile Plot"
        >
         Quantile Plot
        </option>
        <option
-        name="Direct Plot Plot"
+        data-name="Direct Plot Plot"
         value="Direct Plot"
        >
         Direct Plot
@@ -72717,13 +72717,13 @@ exports[`Quantile Plot tests for file rows-with-scores.html Direct Plot should m
        value="Logarithmic"
       >
        <option
-        name="Linear Scaling"
+        data-name="Linear Scaling"
         value="Linear"
        >
         Linear
        </option>
        <option
-        name="Logarithmic Scaling"
+        data-name="Logarithmic Scaling"
         value="Logarithmic"
        >
         Logarithmic
@@ -72746,19 +72746,19 @@ exports[`Quantile Plot tests for file rows-with-scores.html Direct Plot should m
        value="disabled"
       >
        <option
-        name="All Results"
+        data-name="All Results"
         value="All"
        >
         All
        </option>
        <option
-        name="Correct only Results"
+        data-name="Correct only Results"
         value="Correct only"
        >
         Correct only
        </option>
        <option
-        name="disabled"
+        data-name="disabled"
         value="disabled"
        >
         ⸺
@@ -73993,19 +73993,19 @@ exports[`Quantile Plot tests for file rows-with-scores.html Quantile Plot should
        value="Score-based Quantile Plot"
       >
        <option
-        name="Score-based Quantile Plot Plot"
+        data-name="Score-based Quantile Plot Plot"
         value="Score-based Quantile Plot"
        >
         Score-based Quantile Plot
        </option>
        <option
-        name="Quantile Plot Plot"
+        data-name="Quantile Plot Plot"
         value="Quantile Plot"
        >
         Quantile Plot
        </option>
        <option
-        name="Direct Plot Plot"
+        data-name="Direct Plot Plot"
         value="Direct Plot"
        >
         Direct Plot
@@ -74030,13 +74030,13 @@ exports[`Quantile Plot tests for file rows-with-scores.html Quantile Plot should
        value="Logarithmic"
       >
        <option
-        name="Linear Scaling"
+        data-name="Linear Scaling"
         value="Linear"
        >
         Linear
        </option>
        <option
-        name="Logarithmic Scaling"
+        data-name="Logarithmic Scaling"
         value="Logarithmic"
        >
         Logarithmic
@@ -74059,19 +74059,19 @@ exports[`Quantile Plot tests for file rows-with-scores.html Quantile Plot should
        value="disabled"
       >
        <option
-        name="All Results"
+        data-name="All Results"
         value="All"
        >
         All
        </option>
        <option
-        name="Correct only Results"
+        data-name="Correct only Results"
         value="Correct only"
        >
         Correct only
        </option>
        <option
-        name="disabled"
+        data-name="disabled"
         value="disabled"
        >
         ⸺
@@ -75522,19 +75522,19 @@ exports[`Quantile Plot tests for file rows-with-scores.html Quantile Plot should
        value="Score-based Quantile Plot"
       >
        <option
-        name="Score-based Quantile Plot Plot"
+        data-name="Score-based Quantile Plot Plot"
         value="Score-based Quantile Plot"
        >
         Score-based Quantile Plot
        </option>
        <option
-        name="Quantile Plot Plot"
+        data-name="Quantile Plot Plot"
         value="Quantile Plot"
        >
         Quantile Plot
        </option>
        <option
-        name="Direct Plot Plot"
+        data-name="Direct Plot Plot"
         value="Direct Plot"
        >
         Direct Plot
@@ -75559,13 +75559,13 @@ exports[`Quantile Plot tests for file rows-with-scores.html Quantile Plot should
        value="Logarithmic"
       >
        <option
-        name="Linear Scaling"
+        data-name="Linear Scaling"
         value="Linear"
        >
         Linear
        </option>
        <option
-        name="Logarithmic Scaling"
+        data-name="Logarithmic Scaling"
         value="Logarithmic"
        >
         Logarithmic
@@ -75588,19 +75588,19 @@ exports[`Quantile Plot tests for file rows-with-scores.html Quantile Plot should
        value="disabled"
       >
        <option
-        name="All Results"
+        data-name="All Results"
         value="All"
        >
         All
        </option>
        <option
-        name="Correct only Results"
+        data-name="Correct only Results"
         value="Correct only"
        >
         Correct only
        </option>
        <option
-        name="disabled"
+        data-name="disabled"
         value="disabled"
        >
         ⸺
@@ -77051,19 +77051,19 @@ exports[`Quantile Plot tests for file rows-with-scores.html Quantile Plot should
        value="Score-based Quantile Plot"
       >
        <option
-        name="Score-based Quantile Plot Plot"
+        data-name="Score-based Quantile Plot Plot"
         value="Score-based Quantile Plot"
        >
         Score-based Quantile Plot
        </option>
        <option
-        name="Quantile Plot Plot"
+        data-name="Quantile Plot Plot"
         value="Quantile Plot"
        >
         Quantile Plot
        </option>
        <option
-        name="Direct Plot Plot"
+        data-name="Direct Plot Plot"
         value="Direct Plot"
        >
         Direct Plot
@@ -77088,13 +77088,13 @@ exports[`Quantile Plot tests for file rows-with-scores.html Quantile Plot should
        value="Logarithmic"
       >
        <option
-        name="Linear Scaling"
+        data-name="Linear Scaling"
         value="Linear"
        >
         Linear
        </option>
        <option
-        name="Logarithmic Scaling"
+        data-name="Logarithmic Scaling"
         value="Logarithmic"
        >
         Logarithmic
@@ -77117,19 +77117,19 @@ exports[`Quantile Plot tests for file rows-with-scores.html Quantile Plot should
        value="disabled"
       >
        <option
-        name="All Results"
+        data-name="All Results"
         value="All"
        >
         All
        </option>
        <option
-        name="Correct only Results"
+        data-name="Correct only Results"
         value="Correct only"
        >
         Correct only
        </option>
        <option
-        name="disabled"
+        data-name="disabled"
         value="disabled"
        >
         ⸺
@@ -78580,19 +78580,19 @@ exports[`Quantile Plot tests for file rows-with-scores.html Quantile Plot should
        value="Score-based Quantile Plot"
       >
        <option
-        name="Score-based Quantile Plot Plot"
+        data-name="Score-based Quantile Plot Plot"
         value="Score-based Quantile Plot"
        >
         Score-based Quantile Plot
        </option>
        <option
-        name="Quantile Plot Plot"
+        data-name="Quantile Plot Plot"
         value="Quantile Plot"
        >
         Quantile Plot
        </option>
        <option
-        name="Direct Plot Plot"
+        data-name="Direct Plot Plot"
         value="Direct Plot"
        >
         Direct Plot
@@ -78617,13 +78617,13 @@ exports[`Quantile Plot tests for file rows-with-scores.html Quantile Plot should
        value="Logarithmic"
       >
        <option
-        name="Linear Scaling"
+        data-name="Linear Scaling"
         value="Linear"
        >
         Linear
        </option>
        <option
-        name="Logarithmic Scaling"
+        data-name="Logarithmic Scaling"
         value="Logarithmic"
        >
         Logarithmic
@@ -78646,19 +78646,19 @@ exports[`Quantile Plot tests for file rows-with-scores.html Quantile Plot should
        value="disabled"
       >
        <option
-        name="All Results"
+        data-name="All Results"
         value="All"
        >
         All
        </option>
        <option
-        name="Correct only Results"
+        data-name="Correct only Results"
         value="Correct only"
        >
         Correct only
        </option>
        <option
-        name="disabled"
+        data-name="disabled"
         value="disabled"
        >
         ⸺
@@ -80109,19 +80109,19 @@ exports[`Quantile Plot tests for file rows-with-scores.html Quantile Plot should
        value="Score-based Quantile Plot"
       >
        <option
-        name="Score-based Quantile Plot Plot"
+        data-name="Score-based Quantile Plot Plot"
         value="Score-based Quantile Plot"
        >
         Score-based Quantile Plot
        </option>
        <option
-        name="Quantile Plot Plot"
+        data-name="Quantile Plot Plot"
         value="Quantile Plot"
        >
         Quantile Plot
        </option>
        <option
-        name="Direct Plot Plot"
+        data-name="Direct Plot Plot"
         value="Direct Plot"
        >
         Direct Plot
@@ -80146,13 +80146,13 @@ exports[`Quantile Plot tests for file rows-with-scores.html Quantile Plot should
        value="Logarithmic"
       >
        <option
-        name="Linear Scaling"
+        data-name="Linear Scaling"
         value="Linear"
        >
         Linear
        </option>
        <option
-        name="Logarithmic Scaling"
+        data-name="Logarithmic Scaling"
         value="Logarithmic"
        >
         Logarithmic
@@ -80175,19 +80175,19 @@ exports[`Quantile Plot tests for file rows-with-scores.html Quantile Plot should
        value="disabled"
       >
        <option
-        name="All Results"
+        data-name="All Results"
         value="All"
        >
         All
        </option>
        <option
-        name="Correct only Results"
+        data-name="Correct only Results"
         value="Correct only"
        >
         Correct only
        </option>
        <option
-        name="disabled"
+        data-name="disabled"
         value="disabled"
        >
         ⸺
@@ -81638,19 +81638,19 @@ exports[`Quantile Plot tests for file rows-with-scores.html Quantile Plot should
        value="Score-based Quantile Plot"
       >
        <option
-        name="Score-based Quantile Plot Plot"
+        data-name="Score-based Quantile Plot Plot"
         value="Score-based Quantile Plot"
        >
         Score-based Quantile Plot
        </option>
        <option
-        name="Quantile Plot Plot"
+        data-name="Quantile Plot Plot"
         value="Quantile Plot"
        >
         Quantile Plot
        </option>
        <option
-        name="Direct Plot Plot"
+        data-name="Direct Plot Plot"
         value="Direct Plot"
        >
         Direct Plot
@@ -81675,13 +81675,13 @@ exports[`Quantile Plot tests for file rows-with-scores.html Quantile Plot should
        value="Logarithmic"
       >
        <option
-        name="Linear Scaling"
+        data-name="Linear Scaling"
         value="Linear"
        >
         Linear
        </option>
        <option
-        name="Logarithmic Scaling"
+        data-name="Logarithmic Scaling"
         value="Logarithmic"
        >
         Logarithmic
@@ -81704,19 +81704,19 @@ exports[`Quantile Plot tests for file rows-with-scores.html Quantile Plot should
        value="disabled"
       >
        <option
-        name="All Results"
+        data-name="All Results"
         value="All"
        >
         All
        </option>
        <option
-        name="Correct only Results"
+        data-name="Correct only Results"
         value="Correct only"
        >
         Correct only
        </option>
        <option
-        name="disabled"
+        data-name="disabled"
         value="disabled"
        >
         ⸺
@@ -83167,19 +83167,19 @@ exports[`Quantile Plot tests for file rows-with-scores.html Quantile Plot should
        value="Score-based Quantile Plot"
       >
        <option
-        name="Score-based Quantile Plot Plot"
+        data-name="Score-based Quantile Plot Plot"
         value="Score-based Quantile Plot"
        >
         Score-based Quantile Plot
        </option>
        <option
-        name="Quantile Plot Plot"
+        data-name="Quantile Plot Plot"
         value="Quantile Plot"
        >
         Quantile Plot
        </option>
        <option
-        name="Direct Plot Plot"
+        data-name="Direct Plot Plot"
         value="Direct Plot"
        >
         Direct Plot
@@ -83204,13 +83204,13 @@ exports[`Quantile Plot tests for file rows-with-scores.html Quantile Plot should
        value="Logarithmic"
       >
        <option
-        name="Linear Scaling"
+        data-name="Linear Scaling"
         value="Linear"
        >
         Linear
        </option>
        <option
-        name="Logarithmic Scaling"
+        data-name="Logarithmic Scaling"
         value="Logarithmic"
        >
         Logarithmic
@@ -83233,19 +83233,19 @@ exports[`Quantile Plot tests for file rows-with-scores.html Quantile Plot should
        value="disabled"
       >
        <option
-        name="All Results"
+        data-name="All Results"
         value="All"
        >
         All
        </option>
        <option
-        name="Correct only Results"
+        data-name="Correct only Results"
         value="Correct only"
        >
         Correct only
        </option>
        <option
-        name="disabled"
+        data-name="disabled"
         value="disabled"
        >
         ⸺
@@ -84480,19 +84480,19 @@ exports[`Quantile Plot tests for file rows-with-scores.html Quantile Plot should
        value="Score-based Quantile Plot"
       >
        <option
-        name="Score-based Quantile Plot Plot"
+        data-name="Score-based Quantile Plot Plot"
         value="Score-based Quantile Plot"
        >
         Score-based Quantile Plot
        </option>
        <option
-        name="Quantile Plot Plot"
+        data-name="Quantile Plot Plot"
         value="Quantile Plot"
        >
         Quantile Plot
        </option>
        <option
-        name="Direct Plot Plot"
+        data-name="Direct Plot Plot"
         value="Direct Plot"
        >
         Direct Plot
@@ -84517,13 +84517,13 @@ exports[`Quantile Plot tests for file rows-with-scores.html Quantile Plot should
        value="Logarithmic"
       >
        <option
-        name="Linear Scaling"
+        data-name="Linear Scaling"
         value="Linear"
        >
         Linear
        </option>
        <option
-        name="Logarithmic Scaling"
+        data-name="Logarithmic Scaling"
         value="Logarithmic"
        >
         Logarithmic
@@ -84546,19 +84546,19 @@ exports[`Quantile Plot tests for file rows-with-scores.html Quantile Plot should
        value="disabled"
       >
        <option
-        name="All Results"
+        data-name="All Results"
         value="All"
        >
         All
        </option>
        <option
-        name="Correct only Results"
+        data-name="Correct only Results"
         value="Correct only"
        >
         Correct only
        </option>
        <option
-        name="disabled"
+        data-name="disabled"
         value="disabled"
        >
         ⸺
@@ -85793,19 +85793,19 @@ exports[`Quantile Plot tests for file rows-with-scores.html Score-based Quantile
        value="Score-based Quantile Plot"
       >
        <option
-        name="Score-based Quantile Plot Plot"
+        data-name="Score-based Quantile Plot Plot"
         value="Score-based Quantile Plot"
        >
         Score-based Quantile Plot
        </option>
        <option
-        name="Quantile Plot Plot"
+        data-name="Quantile Plot Plot"
         value="Quantile Plot"
        >
         Quantile Plot
        </option>
        <option
-        name="Direct Plot Plot"
+        data-name="Direct Plot Plot"
         value="Direct Plot"
        >
         Direct Plot
@@ -85830,13 +85830,13 @@ exports[`Quantile Plot tests for file rows-with-scores.html Score-based Quantile
        value="Logarithmic"
       >
        <option
-        name="Linear Scaling"
+        data-name="Linear Scaling"
         value="Linear"
        >
         Linear
        </option>
        <option
-        name="Logarithmic Scaling"
+        data-name="Logarithmic Scaling"
         value="Logarithmic"
        >
         Logarithmic
@@ -85859,19 +85859,19 @@ exports[`Quantile Plot tests for file rows-with-scores.html Score-based Quantile
        value="disabled"
       >
        <option
-        name="All Results"
+        data-name="All Results"
         value="All"
        >
         All
        </option>
        <option
-        name="Correct only Results"
+        data-name="Correct only Results"
         value="Correct only"
        >
         Correct only
        </option>
        <option
-        name="disabled"
+        data-name="disabled"
         value="disabled"
        >
         ⸺
@@ -87322,19 +87322,19 @@ exports[`Quantile Plot tests for file rows-with-scores.html Score-based Quantile
        value="Score-based Quantile Plot"
       >
        <option
-        name="Score-based Quantile Plot Plot"
+        data-name="Score-based Quantile Plot Plot"
         value="Score-based Quantile Plot"
        >
         Score-based Quantile Plot
        </option>
        <option
-        name="Quantile Plot Plot"
+        data-name="Quantile Plot Plot"
         value="Quantile Plot"
        >
         Quantile Plot
        </option>
        <option
-        name="Direct Plot Plot"
+        data-name="Direct Plot Plot"
         value="Direct Plot"
        >
         Direct Plot
@@ -87359,13 +87359,13 @@ exports[`Quantile Plot tests for file rows-with-scores.html Score-based Quantile
        value="Logarithmic"
       >
        <option
-        name="Linear Scaling"
+        data-name="Linear Scaling"
         value="Linear"
        >
         Linear
        </option>
        <option
-        name="Logarithmic Scaling"
+        data-name="Logarithmic Scaling"
         value="Logarithmic"
        >
         Logarithmic
@@ -87388,19 +87388,19 @@ exports[`Quantile Plot tests for file rows-with-scores.html Score-based Quantile
        value="disabled"
       >
        <option
-        name="All Results"
+        data-name="All Results"
         value="All"
        >
         All
        </option>
        <option
-        name="Correct only Results"
+        data-name="Correct only Results"
         value="Correct only"
        >
         Correct only
        </option>
        <option
-        name="disabled"
+        data-name="disabled"
         value="disabled"
        >
         ⸺

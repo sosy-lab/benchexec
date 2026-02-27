@@ -143,14 +143,14 @@ exports[`FilterCard tests FilterCard should correctly reflect already set number
    <input
     lang="en-US"
     name="inp-undefined-min"
-    step={1}
+    step="1"
     type="number"
     value="1500"
    />
    <input
     lang="en-US"
     name="inp-undefined-max"
-    step={1}
+    step="1"
     type="number"
     value="3000"
    />
@@ -482,14 +482,14 @@ exports[`FilterCard tests FilterCard should display range slider for number filt
    <input
     lang="en-US"
     name="inp-undefined-min"
-    step={1}
+    step="1"
     type="number"
     value="1337"
    />
    <input
     lang="en-US"
     name="inp-undefined-max"
-    step={1}
+    step="1"
     type="number"
     value="9001"
    />
