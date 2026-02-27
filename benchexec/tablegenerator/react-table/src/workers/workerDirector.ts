@@ -151,15 +151,10 @@ const workerPool: WorkerPoolsByName = Object.fromEntries(
     return [name, pool] as const;
   }),
 ) as WorkerPoolsByName;
-// NOTE (JS->TS): Object.fromEntries expresses "build an object from key/value pairs" directly,
-// avoids the repeated object spreads of a reduce-based implementation, and is typically
-// more readable and efficient.
 
 // gets the first idle worker and reserves it for job dispatch
 const reserveWorker = (name: WorkerPoolName): WorkerWrapper | null => {
   const worker = workerPool[name].find((w) => !w.busy);
-  // NOTE (JS->TS): find() communicates intent ("first matching worker") and avoids allocating
-  // an intermediate array like filter(...)[0].
   if (!worker) {
     return null;
   }
