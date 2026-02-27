@@ -24,7 +24,7 @@ type StatsWorkerItem = {
   categoryType: string;
   resultType: string;
   column: number | string;
-  columnType: string;
+  columnType?: string;
   columnTitle: string;
 };
 
