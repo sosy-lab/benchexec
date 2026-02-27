@@ -10,7 +10,7 @@ import ReactDOM from "react-dom";
 import "./index.css";
 import App from "./App";
 
-// NOTE (JS->TS): `getElementById` can return null. We keep the runtime behavior
+// `getElementById` can return null. We keep the runtime behavior
 // (it should exist in production) but add a safe guard for type safety.
 const rootEl = document.getElementById("root");
 if (rootEl) {
@@ -18,7 +18,7 @@ if (rootEl) {
 }
 
 // Remove loading message
-// NOTE (JS->TS): Guard against missing element to avoid runtime errors in non-standard environments (e.g. tests).
+// Guard against missing element to avoid runtime errors in non-standard environments (e.g. tests).
 const msgContainerEl = document.getElementById("msg-container");
 if (msgContainerEl) {
   msgContainerEl.remove();

@@ -15,7 +15,7 @@ import Overview from "./components/Overview";
 
 declare global {
   interface Window {
-    // NOTE (JS->TS): Global injected app data (loaded via @data in dev and via index.html in prod).
+    // Global injected app data (loaded via @data in dev and via index.html in prod).
     data: unknown;
   }
 }
@@ -25,18 +25,18 @@ declare global {
 // ==============================
 
 interface AppProps {
-  // NOTE (JS->TS): Callback that is forwarded to Overview. We keep it generic here
+  // Callback that is forwarded to Overview. We keep it generic here
   // because the exact payload type is defined by Overview.
   onStatsReady?: (stats: unknown) => void;
 }
 
 if (process.env.NODE_ENV !== "production") {
   // Load example data for development
-  // NOTE (JS->TS): `require` is used here intentionally because @data is only available in dev builds.
+  // `require` is used here intentionally because @data is only available in dev builds.
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   window.data = require("@data") as unknown;
 
-  // NOTE (JS->TS): `window.data` is `unknown` on purpose (shape depends on runtime data).
+  // `window.data` is `unknown` on purpose (shape depends on runtime data).
   // We keep the original behavior and only narrow locally for this assignment.
   (window.data as { version?: string }).version = "(development build)";
 }
