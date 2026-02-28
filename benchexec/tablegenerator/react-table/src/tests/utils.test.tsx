@@ -28,6 +28,12 @@ import {
 
 type FilterSerializer = ReturnType<typeof makeFilterSerializer>;
 type FilterDeserializer = ReturnType<typeof makeFilterDeserializer>;
+type NumericSortCellValue = Parameters<typeof numericSortMethod>[0];
+type TextSortCellValue = Parameters<typeof textSortMethod>[0];
+type SerializerInput = Parameters<typeof makeFilterSerializer>[0];
+type DistinctValuesByRunset = SerializerInput["statusValues"];
+type Serializer = ReturnType<typeof makeFilterSerializer>;
+type SerializerArg = Parameters<Serializer>[0]; // <- this is FilterItem[]
 
 type SerializedFilterItem =
   | { id: string; value: string; isTableTabFilter?: boolean }
@@ -69,22 +75,32 @@ describe("numericSortMethod", () => {
   });
 
   test("should order items without raw prop last", () => {
-    const testObject = { raw: 1 };
-    const objectWithoutProp = { fake: 1 };
-    expect(numericSortMethod(objectWithoutProp as unknown, testObject)).toBeGreaterThan(
-      0,
-    );
-    expect(numericSortMethod(testObject, objectWithoutProp as unknown)).toBeLessThan(
-      0,
-    );
+    const testObject = { raw: 1 } as NumericSortCellValue;
+    const objectWithoutProp = { fake: 1 } as unknown as NumericSortCellValue;
+    expect(numericSortMethod(objectWithoutProp, testObject)).toBeGreaterThan(0);
+    expect(numericSortMethod(testObject, objectWithoutProp)).toBeLessThan(0);
   });
 
   test("should be nil safe", () => {
     const testObject = { raw: 1 };
-    expect(numericSortMethod(null as unknown, testObject)).toBeGreaterThan(0);
-    expect(numericSortMethod(undefined as unknown, testObject)).toBeGreaterThan(0);
-    expect(numericSortMethod(testObject, null as unknown)).toBeLessThan(0);
-    expect(numericSortMethod(testObject, undefined as unknown)).toBeLessThan(0);
+    expect(
+      numericSortMethod(null as unknown as NumericSortCellValue, testObject),
+    ).toBeGreaterThan(0);
+    expect(
+      numericSortMethod(
+        undefined as unknown as NumericSortCellValue,
+        testObject,
+      ),
+    ).toBeGreaterThan(0);
+    expect(
+      numericSortMethod(testObject, null as unknown as NumericSortCellValue),
+    ).toBeLessThan(0);
+    expect(
+      numericSortMethod(
+        testObject,
+        undefined as unknown as NumericSortCellValue,
+      ),
+    ).toBeLessThan(0);
   });
 });
 
@@ -171,7 +187,10 @@ describe("hashRouting helpers", () => {
 
     test("should return the same URL with exisiting params if no parameters are provided", () => {
       const baseUrl = "http://example.com?exisitingKey=existingValue";
-      const params: Record<string, unknown> = {};
+      const params: Record<
+        string,
+        string | number | boolean | null | undefined
+      > = {};
 
       const expected = {
         newUrl: "http://example.com?exisitingKey=existingValue",
@@ -249,7 +268,7 @@ describe("makeRegExp", () => {
   });
 
   test("should throw error if value is not of type string", () => {
-    const value = [];
+    const value: unknown = [];
     expect(() => {
       makeRegExp(value as unknown as string);
     }).toThrow();
@@ -307,11 +326,11 @@ describe("serialization", () => {
   const statusValues = [
     [["true", "false", "TIMEOUT", "OOM", "false(reach)"]],
     [["true", "false", "TIMEOUT", "OOM", "false(reach)"]],
-  ];
+  ] as unknown as DistinctValuesByRunset;
   const categoryValues = [
     [["correct ", "wrong ", "missing ", "unknown "]],
     [["correct ", "wrong ", "missing ", "unknown "]],
-  ];
+  ] as unknown as SerializerInput["categoryValues"];
 
   const makeSelection = (selection: string[] | null, base: string[]) => {
     // the status column has id 0
@@ -330,17 +349,19 @@ describe("serialization", () => {
   });
 
   test("should serialize id filters", () => {
-    const filter: SerializedFilterItem[] = [{ id: "id", values: ["abc", "def"] }];
+    const filter: SerializedFilterItem[] = [
+      { id: "id", values: ["abc", "def"] },
+    ];
     const expected = "id(values(abc,def))";
 
-    expect(serializer(filter as unknown)).toBe(expected);
+    expect(serializer(filter as unknown as SerializerArg)).toBe(expected);
   });
 
   test("should serialize id filters with parentheses", () => {
     const filter: SerializedFilterItem[] = [{ id: "id", values: ["(", ")"] }];
     const expected = "id(values(%28,%29))";
 
-    expect(serializer(filter as unknown)).toBe(expected);
+    expect(serializer(filter as unknown as SerializerArg)).toBe(expected);
   });
 
   test("should serialize id filter to escape special characters", () => {
@@ -349,7 +370,7 @@ describe("serialization", () => {
     ];
     const expected = "id_any(value(%3F%23%26%3D%28%29%2C*))";
 
-    expect(serializer(filter as unknown)).toBe(expected);
+    expect(serializer(filter as unknown as SerializerArg)).toBe(expected);
   });
 
   test("should serialize id filter with one opening parentheses", () => {
@@ -358,7 +379,7 @@ describe("serialization", () => {
     ];
     const expected = "id_any(value(%28))";
 
-    expect(serializer(filter as unknown)).toBe(expected);
+    expect(serializer(filter as unknown as SerializerArg)).toBe(expected);
   });
 
   test("should serialize id filter with one closing parentheses", () => {
@@ -367,7 +388,7 @@ describe("serialization", () => {
     ];
     const expected = "id_any(value(%29))";
 
-    expect(serializer(filter as unknown)).toBe(expected);
+    expect(serializer(filter as unknown as SerializerArg)).toBe(expected);
   });
 
   test("should serialize normal value filters for one runset", () => {
@@ -379,7 +400,7 @@ describe("serialization", () => {
     const urlencoded = escape("1223:4567");
     const expected = `0(1*cputime*(value(${urlencoded})),2*hostname*(value(satu)))`;
 
-    expect(serializer(filter as unknown)).toBe(expected);
+    expect(serializer(filter as unknown as SerializerArg)).toBe(expected);
   });
 
   test("should serialize normal value filters in multiple runsets", () => {
@@ -397,7 +418,7 @@ describe("serialization", () => {
     const filterRunset2 = `1(1*cputime*(value(${urlencoded2})),2*hostname*(value(tilo)))`;
     const expected = `${filterRunset1},${filterRunset2}`;
 
-    expect(serializer(filter as unknown)).toBe(expected);
+    expect(serializer(filter as unknown as SerializerArg)).toBe(expected);
   });
 
   test("should serialize normal value filters in multiple runsets and id filter", () => {
@@ -416,7 +437,7 @@ describe("serialization", () => {
     const filterRunset2 = `1(1*cputime*(value(${urlencoded2})),2*hostname*(value(tilo)))`;
     const expected = `id(values(abc,def)),${filterRunset1},${filterRunset2}`;
 
-    expect(serializer(filter as unknown)).toBe(expected);
+    expect(serializer(filter as unknown as SerializerArg)).toBe(expected);
   });
 
   test("should serialize status filter correctly (notIn)", () => {
@@ -438,7 +459,7 @@ describe("serialization", () => {
     const expected =
       "0(0*status*(status(notIn(true,false)),category(notIn())))";
 
-    expect(serializer(filter as unknown)).toBe(expected);
+    expect(serializer(filter as unknown as SerializerArg)).toBe(expected);
   });
 
   test("should serialize status filter correctly (in)", () => {
@@ -461,7 +482,7 @@ describe("serialization", () => {
 
     const expected = `0(0*status*(status(in(OOM,${encoded})),category(notIn())))`;
 
-    expect(serializer(filter as unknown)).toBe(expected);
+    expect(serializer(filter as unknown as SerializerArg)).toBe(expected);
   });
 
   test("should serialize status filter correctly in multiple runsets", () => {
@@ -498,7 +519,9 @@ describe("serialization", () => {
     const expected1 = `0(0*status*(status(in(OOM,${encoded})),category(notIn())))`;
     const expected2 = `1(0*status*(status(notIn(true,false)),category(notIn())))`;
 
-    expect(serializer(filter as unknown)).toBe(`${expected1},${expected2}`);
+    expect(serializer(filter as unknown as SerializerArg)).toBe(
+      `${expected1},${expected2}`,
+    );
   });
 
   test("should serialize category filter correctly (notIn)", () => {
@@ -521,7 +544,7 @@ describe("serialization", () => {
 
     const expected = "0(0*status*(status(notIn()),category(notIn(unknown))))";
 
-    expect(serializer(filter as unknown)).toBe(expected);
+    expect(serializer(filter as unknown as SerializerArg)).toBe(expected);
   });
 
   test("should serialize category filter correctly (in)", () => {
@@ -544,7 +567,7 @@ describe("serialization", () => {
 
     const expected = `0(0*status*(status(notIn()),category(in(missing,unknown))))`;
 
-    expect(serializer(filter as unknown)).toBe(expected);
+    expect(serializer(filter as unknown as SerializerArg)).toBe(expected);
   });
 
   test("should serialize category filter correctly in multiple runsets", () => {
@@ -580,7 +603,9 @@ describe("serialization", () => {
     const expected1 = `0(0*status*(status(notIn()),category(in(missing,unknown))))`;
     const expected2 = `1(0*status*(status(notIn()),category(notIn(unknown))))`;
 
-    expect(serializer(filter as unknown)).toBe(`${expected1},${expected2}`);
+    expect(serializer(filter as unknown as SerializerArg)).toBe(
+      `${expected1},${expected2}`,
+    );
   });
 
   test("should serialize category filter and status filter", () => {
@@ -595,12 +620,16 @@ describe("serialization", () => {
 
     const expected = `0(0*status*(status(in(true)),category(in(missing,unknown))))`;
 
-    expect(serializer(filter as unknown)).toBe(expected);
+    expect(serializer(filter as unknown as SerializerArg)).toBe(expected);
   });
 
   test("Should handle empty status filters", () => {
-    const testStatusValues = [[["true", "false"]]];
-    const testCategoryValues = [[["correct ", "wrong ", "missing "]]];
+    const testStatusValues = [
+      [["true", "false"]],
+    ] as unknown as DistinctValuesByRunset;
+    const testCategoryValues = [
+      [["correct ", "wrong ", "missing "]],
+    ] as unknown as SerializerInput["categoryValues"];
 
     const inp = [
       { id: "0_status_0", value: "wrong " },
@@ -615,12 +644,16 @@ describe("serialization", () => {
       categoryValues: testCategoryValues,
     });
 
-    expect(testSerializer(inp as unknown)).toBe(expected);
+    expect(testSerializer(inp as unknown as SerializerArg)).toBe(expected);
   });
 
   test("Should handle empty category filters", () => {
-    const testStatusValues = [[["true", "false"]]];
-    const testCategoryValues = [[["correct ", "wrong ", "missing "]]];
+    const testStatusValues = [
+      [["true", "false"]],
+    ] as unknown as DistinctValuesByRunset;
+    const testCategoryValues = [
+      [["correct ", "wrong ", "missing "]],
+    ] as unknown as SerializerInput["categoryValues"];
 
     const inp = [
       { id: "0_status_0", value: "true" },
@@ -634,12 +667,16 @@ describe("serialization", () => {
       categoryValues: testCategoryValues,
     });
 
-    expect(testSerializer(inp as unknown)).toBe(expected);
+    expect(testSerializer(inp as unknown as SerializerArg)).toBe(expected);
   });
 
   test("Should produce an empty status filter if all fields are selected", () => {
-    const testStatusValues = [[["true", "false"]]];
-    const testCategoryValues = [[["correct ", "wrong ", "missing "]]];
+    const testStatusValues = [
+      [["true", "false"]],
+    ] as unknown as DistinctValuesByRunset;
+    const testCategoryValues = [
+      [["correct ", "wrong ", "missing "]],
+    ] as unknown as SerializerInput["categoryValues"];
 
     const inp = [
       { id: "0_status_0", value: "true" },
@@ -659,7 +696,7 @@ describe("serialization", () => {
     const expected =
       "0(0*status*(status(notIn()),category(notIn())),1*cputime*(value(1234)))";
 
-    expect(testSerializer(inp as unknown)).toEqual(expected);
+    expect(testSerializer(inp as unknown as SerializerArg)).toEqual(expected);
   });
 });
 
@@ -669,11 +706,11 @@ describe("Filter deserialization", () => {
   const statusValues = [
     [["true", "false", "TIMEOUT", "OOM", "false(reach)"]],
     [["true", "false", "TIMEOUT", "OOM", "false(reach)"]],
-  ];
+  ] as unknown as DistinctValuesByRunset;
   const categoryValues = [
     [["correct ", "wrong ", "missing ", "unknown "]],
     [["correct ", "wrong ", "missing ", "unknown "]],
-  ];
+  ] as unknown as SerializerInput["categoryValues"];
 
   const makeStandardStatusValues = (id: string) =>
     statusValues[0][0].map((value) => ({ id, value }));
@@ -844,64 +881,64 @@ describe("NumberFormatterBuilder", () => {
   test("should not count decimal point as significant number", () => {
     const formatter = builder.build();
     const number = "12.34";
-    expect(formatter(number)).toBe("12.34");
+    expect(formatter(number as unknown as number)).toBe("12.34");
   });
 
   test("should correctly format numbers with integral and fractional parts", () => {
     const formatter = builder.build();
     const number = "12.30000000123";
-    expect(formatter(number)).toBe("12.30");
+    expect(formatter(number as unknown as number)).toBe("12.30");
   });
 
   test("should handle if postfix has a decimal point", () => {
     const formatter = builder.build();
     const number = "1234.342";
-    expect(formatter(number)).toBe("1234");
+    expect(formatter(number as unknown as number)).toBe("1234");
   });
 
   test("should handle if postfix has a leading decimal point", () => {
     const formatter = builder.build();
     const number = "12345.342";
-    expect(formatter(number)).toBe("12350");
+    expect(formatter(number as unknown as number)).toBe("12350");
   });
 
   test("in fractions below 1, should add all zeros before the first non-zero digit", () => {
     const formatter = builder.build();
     const number = "0.000001234";
-    expect(formatter(number)).toBe("0.000001234");
+    expect(formatter(number as unknown as number)).toBe("0.000001234");
   });
 
   test("should identify comma and dots as decimal points", () => {
     const formatter = builder.build();
     const numberDot = "12.34";
     const numberComma = "12,34";
-    expect(formatter(numberDot)).toBe("12.34");
-    expect(formatter(numberComma)).toBe("12.34");
+    expect(formatter(numberDot as unknown as number)).toBe("12.34");
+    expect(formatter(numberComma as unknown as number)).toBe("12.34");
   });
 
   test("should round whole integer numbers after significant digits have been reached", () => {
     const formatter = builder.build();
     const number = "123456789";
-    expect(formatter(number)).toBe("123500000");
+    expect(formatter(number as unknown as number)).toBe("123500000");
   });
 
   test("should round fractions after significant digits have been reached", () => {
     const formatter = builder.build();
     const number = "0.123456789";
-    expect(formatter(number)).toBe("0.1235");
+    expect(formatter(number as unknown as number)).toBe("0.1235");
   });
 
   test("should return number without rounding if no significant digits were provided", () => {
     const newBuilder = new NumberFormatterBuilder();
     const formatter = newBuilder.build();
     const number = "123456789";
-    expect(formatter(number)).toBe("123456789");
+    expect(formatter(number as unknown as number)).toBe("123456789");
   });
 
   test("should format whitespaces according to dataset context", () => {
-    builder.addDataItem("1234");
-    builder.addDataItem("0.12345");
-    builder.addDataItem("0.02345");
+    builder.addDataItem("1234" as unknown as number);
+    builder.addDataItem("0.12345" as unknown as number);
+    builder.addDataItem("0.02345" as unknown as number);
 
     const formatter = builder.build();
 
@@ -915,10 +952,18 @@ describe("NumberFormatterBuilder", () => {
     const expected3 = "0.123  ";
     const expected4 = "0.01337";
 
-    const actual1 = formatter(number1, { whitespaceFormat: true });
-    const actual2 = formatter(number2, { whitespaceFormat: true });
-    const actual3 = formatter(number3, { whitespaceFormat: true });
-    const actual4 = formatter(number4, { whitespaceFormat: true });
+    const actual1 = formatter(number1 as unknown as number, {
+      whitespaceFormat: true,
+    });
+    const actual2 = formatter(number2 as unknown as number, {
+      whitespaceFormat: true,
+    });
+    const actual3 = formatter(number3 as unknown as number, {
+      whitespaceFormat: true,
+    });
+    const actual4 = formatter(number4 as unknown as number, {
+      whitespaceFormat: true,
+    });
 
     expect(actual1).toBe(expected1);
     expect(actual2).toBe(expected2);
@@ -927,9 +972,9 @@ describe("NumberFormatterBuilder", () => {
   });
 
   test("should format whitespaces with html", () => {
-    builder.addDataItem("1234");
-    builder.addDataItem("0.12345");
-    builder.addDataItem("0.02345");
+    builder.addDataItem("1234" as unknown as number);
+    builder.addDataItem("0.12345" as unknown as number);
+    builder.addDataItem("0.02345" as unknown as number);
 
     const formatter = builder.build();
 
@@ -943,10 +988,22 @@ describe("NumberFormatterBuilder", () => {
     const expected3 = "0.123  ".replace(/ /g, "&#x2007;");
     const expected4 = "0.01337".replace(/ /g, "&#x2007;");
 
-    const actual1 = formatter(number1, { whitespaceFormat: true, html: true });
-    const actual2 = formatter(number2, { whitespaceFormat: true, html: true });
-    const actual3 = formatter(number3, { whitespaceFormat: true, html: true });
-    const actual4 = formatter(number4, { whitespaceFormat: true, html: true });
+    const actual1 = formatter(number1 as unknown as number, {
+      whitespaceFormat: true,
+      html: true,
+    });
+    const actual2 = formatter(number2 as unknown as number, {
+      whitespaceFormat: true,
+      html: true,
+    });
+    const actual3 = formatter(number3 as unknown as number, {
+      whitespaceFormat: true,
+      html: true,
+    });
+    const actual4 = formatter(number4 as unknown as number, {
+      whitespaceFormat: true,
+      html: true,
+    });
 
     expect(actual1).toBe(expected1);
     expect(actual2).toBe(expected2);
@@ -1097,10 +1154,16 @@ describe("NumberFormatterBuilder", () => {
         resolve = res;
       });
 
-      const additionalFormatting = (_: unknown, context: { significantDigits: number }) => {
-        expect(context.significantDigits).toBe(9);
+      const additionalFormatting = ((
+        x: string,
+        ctx: { significantDigits?: number },
+      ) => {
+        expect(ctx.significantDigits).toBe(9);
         resolve();
-      };
+        return x; // must return string
+      }) as unknown as NonNullable<
+        Parameters<ReturnType<NumberFormatterBuilder["build"]>>[1]
+      >["additionalFormatting"];
 
       const b = new NumberFormatterBuilder(9);
       const formatter = b.build();
@@ -1117,13 +1180,16 @@ describe("NumberFormatterBuilder", () => {
         resolve = res;
       });
 
-      const additionalFormatting = (
-        _: unknown,
-        context: { maxDecimalInputLength: number },
+      const additionalFormatting = ((
+        x: string,
+        ctx: { maxDecimalInputLength?: number },
       ) => {
-        expect(context.maxDecimalInputLength).toBe(4);
+        expect(ctx.maxDecimalInputLength).toBe(4);
         resolve();
-      };
+        return x;
+      }) as unknown as NonNullable<
+        Parameters<ReturnType<NumberFormatterBuilder["build"]>>[1]
+      >["additionalFormatting"];
 
       const b = new NumberFormatterBuilder(9);
       b.addDataItem(1);
@@ -1176,20 +1242,34 @@ describe("textSortMethod", () => {
   test("should order items without raw prop last", () => {
     const testObject = { raw: "a" };
     const objectWithoutProp = { fake: "a" };
-    expect(textSortMethod(objectWithoutProp as unknown, testObject)).toBeGreaterThan(
-      0,
-    );
-    expect(textSortMethod(testObject, objectWithoutProp as unknown)).toBeLessThan(
-      0,
-    );
+    expect(
+      textSortMethod(
+        objectWithoutProp as unknown as TextSortCellValue,
+        testObject,
+      ),
+    ).toBeGreaterThan(0);
+    expect(
+      textSortMethod(
+        testObject,
+        objectWithoutProp as unknown as TextSortCellValue,
+      ),
+    ).toBeLessThan(0);
   });
 
   test("should be nil safe", () => {
     const testObject = { raw: "a" };
-    expect(textSortMethod(null as unknown, testObject)).toBeGreaterThan(0);
-    expect(textSortMethod(undefined as unknown, testObject)).toBeGreaterThan(0);
-    expect(textSortMethod(testObject, null as unknown)).toBeLessThan(0);
-    expect(textSortMethod(testObject, undefined as unknown)).toBeLessThan(0);
+    expect(
+      textSortMethod(null as unknown as TextSortCellValue, testObject),
+    ).toBeGreaterThan(0);
+    expect(
+      textSortMethod(undefined as unknown as TextSortCellValue, testObject),
+    ).toBeGreaterThan(0);
+    expect(
+      textSortMethod(testObject, null as unknown as TextSortCellValue),
+    ).toBeLessThan(0);
+    expect(
+      textSortMethod(testObject, undefined as unknown as TextSortCellValue),
+    ).toBeLessThan(0);
   });
 });
 
