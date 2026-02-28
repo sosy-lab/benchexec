@@ -10,23 +10,43 @@ import Summary from "../components/Summary";
 
 import { test_snapshot_of_async } from "./utils.js";
 
-test_snapshot_of_async("Render Summary", (overview) => {
-  let statsResolver;
-  const StatsReadyPromise = new Promise((resolve) => {
+type SummaryProps = React.ComponentProps<typeof Summary>;
+type StatsReadyResolver = SummaryProps["onStatsReady"];
+
+type OverviewForSummary = {
+  originalTools: unknown;
+  tableHeader: unknown;
+  data: { version: unknown };
+  toggleSelectColumns: unknown;
+  stats: unknown;
+  tableData: unknown;
+  prepareTableValues: unknown;
+  changeTab: unknown;
+  hiddenCols: unknown;
+};
+
+test_snapshot_of_async("Render Summary", (overview: unknown) => {
+  const o = overview as OverviewForSummary;
+
+  let statsResolver!: StatsReadyResolver;
+  const StatsReadyPromise = new Promise<void>((resolve) => {
     statsResolver = resolve;
   });
+
   const out = (
     <Summary
-      tools={overview.originalTools}
-      tableHeader={overview.tableHeader}
-      version={overview.data.version}
-      selectColumn={overview.toggleSelectColumns}
-      stats={overview.stats}
-      tableData={overview.tableData}
-      prepareTableValues={overview.prepareTableValues}
-      changeTab={overview.changeTab}
-      onStatsReady={statsResolver}
-      hiddenCols={overview.hiddenCols}
+      {...({
+        tools: o.originalTools,
+        tableHeader: o.tableHeader,
+        version: o.data.version,
+        selectColumn: o.toggleSelectColumns,
+        stats: o.stats,
+        tableData: o.tableData,
+        prepareTableValues: o.prepareTableValues,
+        changeTab: o.changeTab,
+        onStatsReady: statsResolver,
+        hiddenCols: o.hiddenCols,
+      } as Partial<SummaryProps> as SummaryProps)}
     />
   );
 
