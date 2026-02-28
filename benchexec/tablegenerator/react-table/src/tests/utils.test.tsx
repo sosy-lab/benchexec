@@ -50,10 +50,10 @@ describe("isStatusOk", () => {
     expect(isOkStatus(404)).toBe(false);
   });
   test("should return false if string is passed", () => {
-    expect(isOkStatus("hi there" as unknown as number)).toBe(false);
+    expect(isOkStatus("hi there")).toBe(false);
   });
   test("should return false if object is passed", () => {
-    expect(isOkStatus({ a: "b" } as unknown as number)).toBe(false);
+    expect(isOkStatus({ a: "b" })).toBe(false);
   });
   test("should return false if nothing is passed", () => {
     expect(isOkStatus(undefined)).toBe(false);
@@ -295,8 +295,8 @@ describe("decodeFilter", () => {
   });
 
   test("should throw errors if there are is only one '_' in the filter id", () => {
-    expect(() => decodeFilter("0cputime_" as unknown as string)).toThrow();
-    expect(() => decodeFilter("0_cputime2" as unknown as string)).toThrow();
+    expect(() => decodeFilter("0cputime_")).toThrow();
+    expect(() => decodeFilter("0_cputime2")).toThrow();
   });
 
   test("should decode correctly with more than two '_' in the filter id", () => {
@@ -530,9 +530,9 @@ describe("serialization", () => {
 
     const standardStatus = makeSelection(null, statusValues[0][0]);
 
-    const filter = selected.map((category) => ({
+    const filter = selected.map((status) => ({
       id: "0_status_0",
-      value: category,
+      value: status,
     }));
 
     filter.push(
@@ -553,9 +553,9 @@ describe("serialization", () => {
 
     const standardStatus = makeSelection(null, statusValues[0][0]);
 
-    const filter = selected.map((category) => ({
+    const filter = selected.map((status) => ({
       id: "0_status_0",
-      value: category,
+      value: status,
     }));
 
     filter.push(
@@ -579,9 +579,9 @@ describe("serialization", () => {
     const standardStatus = makeSelection(null, statusValues[0][0]);
 
     const makeStatus = (selection: string[], runset: number) =>
-      selection.map((category) => ({
+      selection.map((status) => ({
         id: `${runset}_status_0`,
-        value: category,
+        value: status,
       }));
 
     const filter = [...makeStatus(selected1, 0), ...makeStatus(selected2, 1)];
@@ -812,6 +812,7 @@ describe("Filter deserialization", () => {
 
     expect(deserializer(string)).toStrictEqual(expected);
   });
+  // categories
 
   test("should deserialize category filters (in)", () => {
     const string = "0(0*status*(category(in(correct,wrong))))";
@@ -1125,6 +1126,9 @@ describe("NumberFormatterBuilder", () => {
 
     const actual = formatter(num);
 
+    // As the rounding of the last digits results in a carry-over,
+    // we end up with the addition of 7.1 and 0.1
+    // In JS 7.1 + 0.1 evaluates to 7.199999999999999, which caused an issue
     expect(actual).toBe("7.20");
   });
 
