@@ -13,14 +13,31 @@ import { test_snapshot_of } from "./utils.js";
 
 // Add a serializer that removes title attributes (irrelevant in our table)
 expect.addSnapshotSerializer({
-  print: (val, serialize) => {
-    delete val.props.title;
+  print: (val: { props?: { title?: unknown } }, serialize: (v: unknown) => string) => {
+    if (val.props) {
+      delete val.props.title;
+    }
     return serialize(val);
   },
-  test: (val) => val && val.props && val.props.hasOwnProperty("title"),
+  test: (val: unknown): val is { props: Record<string, unknown> } =>
+    typeof val === "object" &&
+    val !== null &&
+    "props" in val &&
+    typeof (val as { props?: unknown }).props === "object" &&
+    (val as { props?: Record<string, unknown> }).props !== null &&
+    Object.prototype.hasOwnProperty.call(
+      (val as { props: Record<string, unknown> }).props,
+      "title",
+    ),
 });
 
-test_snapshot_of("Render ReactTable", (overview) => (
+type SnapshotOverview = Parameters<typeof test_snapshot_of>[1] extends (
+    overview: infer O,
+  ) => unknown
+  ? O
+  : never;
+
+test_snapshot_of("Render ReactTable", (overview: SnapshotOverview) => (
   <Router>
     <Table
       tableHeader={overview.tableHeader}
