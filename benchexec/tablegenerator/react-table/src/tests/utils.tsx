@@ -60,9 +60,7 @@ type OverviewProps = {
   tableHeader: PreparedTableHeader;
   originalTable: PreparedTableDataRows;
   originalTools: PreparedTools;
-  data: {
-    version: string;
-  };
+  data: { version?: string };
   statusValues: unknown;
   categoryValues: unknown;
   filtered: unknown[];
@@ -96,6 +94,8 @@ type ComponentFuncSync = (overview: OverviewProps) => React.ReactElement;
 // Provide a way to render children into a DOM node that exists outside the hierarchy of the DOM component
 ReactDOM.createPortal = ((dom: unknown) =>
   dom) as unknown as typeof ReactDOM.createPortal;
+
+const noop = (..._args: unknown[]): void => undefined;
 
 /**
  * Function to get all props that can be passed by the Overview component to its
@@ -165,10 +165,17 @@ const getOverviewProps = (data: unknown): OverviewProps => {
     stats,
     originalTable,
     originalTools,
-    data,
+    data: data as { version?: string },
     statusValues,
     categoryValues,
     filtered: [],
+    toggleSelectColumns: noop,
+    prepareTableValues: noop,
+    setFilter: noop,
+    filterPlotData: noop,
+    toggleLinkOverlay: noop,
+    changeTab: noop,
+    switchToQuantile: noop,
   };
 };
 
@@ -187,8 +194,8 @@ const test_snapshot_of_async = (
     .filter((file) => file.endsWith(".html"))
     .filter((file) => fs.statSync(`${testDir}${file}`).size < 100000)
     .forEach((file) => {
-      it(`${name} for ${file}`, async () => {
-        const content = fs.readFileSync(`${testDir}${file}`, {
+      it(name + " for " + file, async () => {
+        const content = fs.readFileSync(testDir + file, {
           encoding: "utf-8",
         });
         const data = JSON.parse(content) as unknown;
@@ -213,10 +220,10 @@ const test_snapshot_of = (
 ): void => {
   fs.readdirSync(testDir)
     .filter((file) => file.endsWith(".html"))
-    .filter((file) => fs.statSync(`${testDir}${file}`).size < 100000)
+    .filter((file) => fs.statSync(testDir + file).size < 100000)
     .forEach((file) => {
-      it(`${name} for ${file}`, () => {
-        const content = fs.readFileSync(`${testDir}${file}`, {
+      it(name + " for " + file, () => {
+        const content = fs.readFileSync(testDir + file, {
           encoding: "utf-8",
         });
         const data = JSON.parse(content) as unknown;
