@@ -10,10 +10,22 @@ import SelectColumn from "../components/SelectColumn";
 
 import { test_snapshot_of } from "./utils.js";
 
-test_snapshot_of("Render SelectColumn", (overview) => (
-  <SelectColumn
-    close={overview.toggleSelectColumns}
-    tools={overview.tools}
-    hiddenCols={overview.hiddenCols}
-  />
-));
+type SelectColumnProps = React.ComponentProps<typeof SelectColumn>;
+
+type OverviewShape = {
+  toggleSelectColumns: SelectColumnProps["close"];
+  tools: SelectColumnProps["tools"];
+  hiddenCols: SelectColumnProps["hiddenCols"];
+};
+
+test_snapshot_of("Render SelectColumn", (overview: unknown) => {
+  const o = overview as unknown as OverviewShape;
+
+  return (
+    <SelectColumn
+      close={o.toggleSelectColumns}
+      tools={o.tools}
+      hiddenCols={o.hiddenCols}
+    />
+  );
+});
