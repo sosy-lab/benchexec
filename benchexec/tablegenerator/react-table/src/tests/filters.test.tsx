@@ -12,34 +12,9 @@ import {
   statusForEmptyRows,
 } from "../utils/filters";
 
-type NumericCell = {
-  raw?: string;
-  html?: string;
-};
-
-type NumericRow = {
-  test?: NumericCell;
-};
-
-type GeneralValue = {
-  raw?: string;
-};
-
-type GeneralResult = {
-  category: string;
-  values: GeneralValue[];
-};
-
-type GeneralRow = {
-  id: string[];
-  results: GeneralResult[];
-};
-
-type MatcherFilter = {
-  id: string;
-  value: string;
-  type?: string;
-};
+type FilterItem = Parameters<typeof buildMatcher>[0][number];
+type TableRow = Parameters<ReturnType<typeof applyMatcher>>[0][number];
+type NumericRow = Parameters<typeof applyNumericFilter>[1];
 
 //Example data set to test the filtering by regex
 const numericRows: NumericRow[] = [
@@ -87,7 +62,7 @@ const numericRows: NumericRow[] = [
 ];
 
 // Example data for tests on id, status and category filtering
-const generalRows: GeneralRow[] = [
+const generalRows: TableRow[] = [
   {
     id: ["task_definition.yml", "unreach-label"],
     results: [
@@ -152,7 +127,7 @@ const getFilteredNumericalData = (regex: string): NumericRow[] =>
     applyNumericFilter({ id: "test", value: regex }, row),
   );
 
-const getFilteredDataWithMatcher = (filters: MatcherFilter[]): GeneralRow[] =>
+const getFilteredDataWithMatcher = (filters: FilterItem[]): TableRow[] =>
   applyMatcher(buildMatcher(filters))(generalRows);
 
 test("applyNumericFilter single entry without result", () => {
@@ -206,12 +181,12 @@ test("applyNumericFilter with string", () => {
 });
 
 test("applyMatcher for all results", () => {
-  const filters: MatcherFilter[] = [];
+  const filters: FilterItem[] = [];
   expect(getFilteredDataWithMatcher(filters).length).toBe(generalRows.length);
 });
 
 test("applyMatcher for category", () => {
-  const filters: MatcherFilter[] = [
+  const filters: FilterItem[] = [
     { id: "0_test_0", value: "correct ", type: "status" },
     { id: "0_test_0", value: "true", type: "status" },
     { id: "0_test_0", value: "false(reach)", type: "status" },
@@ -220,7 +195,7 @@ test("applyMatcher for category", () => {
 });
 
 test("applyMatcher for status", () => {
-  const filters: MatcherFilter[] = [
+  const filters: FilterItem[] = [
     { id: "0_test_0", value: "true", type: "status" },
     { id: "0_test_0", value: "wrong ", type: "status" },
   ];
@@ -228,7 +203,7 @@ test("applyMatcher for status", () => {
 });
 
 test("applyMatcher for status with colon", () => {
-  const filters: MatcherFilter[] = [
+  const filters: FilterItem[] = [
     { id: "0_test_0", value: "UNKNOWN: test", type: "status" },
     { id: "0_test_0", value: "missing ", type: "status" },
   ];
@@ -236,7 +211,7 @@ test("applyMatcher for status with colon", () => {
 });
 
 test("applyMatcher for empty row", () => {
-  const filters: MatcherFilter[] = [
+  const filters: FilterItem[] = [
     { id: "0_test_0", value: "empty ", type: "status" },
     { id: "0_test_0", value: statusForEmptyRows, type: "status" },
   ];
@@ -244,26 +219,26 @@ test("applyMatcher for empty row", () => {
 });
 
 test("applyMatcher for textual id filter", () => {
-  const filters: MatcherFilter[] = [{ id: "id", value: "DefInItion.YmL" }];
+  const filters: FilterItem[] = [{ id: "id", value: "DefInItion.YmL" }];
   expect(getFilteredDataWithMatcher(filters).length).toBe(1);
 });
 
 test("applyMatcher for textual id filter with case mapping", () => {
-  const filters: MatcherFilter[] = [{ id: "id", value: "ſs" }];
+  const filters: FilterItem[] = [{ id: "id", value: "ſs" }];
   expect(getFilteredDataWithMatcher(filters).length).toBe(2);
 });
 
 test("applyMatcher for textual id filter with special RegExp character", () => {
-  const filters: MatcherFilter[] = [{ id: "id", value: "..." }];
+  const filters: FilterItem[] = [{ id: "id", value: "..." }];
   expect(getFilteredDataWithMatcher(filters).length).toBe(0);
 });
 
 test("applyMatcher for no results", () => {
-  const filters: MatcherFilter[] = [{ id: "id", value: "nomatch" }];
+  const filters: FilterItem[] = [{ id: "id", value: "nomatch" }];
   expect(getFilteredDataWithMatcher(filters).length).toBe(0);
 });
 
 test("applyMatcher for all results", () => {
-  const filters: MatcherFilter[] = [];
+  const filters: FilterItem[] = [];
   expect(getFilteredDataWithMatcher(filters).length).toBe(5);
 });
