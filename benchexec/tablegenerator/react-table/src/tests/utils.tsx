@@ -16,7 +16,9 @@ import {
 import { getFilterableData } from "../utils/filters";
 import fs from "fs";
 
+import React from "react";
 import Table from "../components/ReactTable";
+import SelectColumn from "../components/SelectColumn";
 
 const testDir = "../test_integration/expected/";
 
@@ -25,6 +27,11 @@ const testDir = "../test_integration/expected/";
  * ============================================================ */
 
 type TableProps = React.ComponentProps<typeof Table>;
+type SelectColumnProps = React.ComponentProps<typeof SelectColumn>;
+
+type OverviewTools = TableProps["tools"] extends SelectColumnProps["tools"]
+  ? SelectColumnProps["tools"]
+  : TableProps["tools"];
 
 type PreparedTableData = ReturnType<typeof prepareTableData>;
 type PreparedTools = PreparedTableData["tools"];
@@ -36,7 +43,6 @@ type PreparedTaskIdNames = PreparedTableData["taskIdNames"];
 
 type OverviewProps = {
   taskIdNames: PreparedTaskIdNames;
-  tools: PreparedTools;
   columns: PreparedColumns;
   tableData: PreparedTableDataRows;
   filteredData: unknown[];
@@ -57,6 +63,8 @@ type OverviewProps = {
   filterPlotData: TableProps["filterPlotData"];
   toggleLinkOverlay: TableProps["toggleLinkOverlay"];
   changeTab: TableProps["changeTab"];
+
+  tools: OverviewTools;
 };
 
 type ComponentFuncResult = {
