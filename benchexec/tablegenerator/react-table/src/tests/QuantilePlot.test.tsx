@@ -20,7 +20,9 @@ import fs from "fs";
  * @param {Object} params - The parameters to set in the URL
  * @returns {void}
  */
-const updateURLParams = (params: Record<string, string | number | undefined>) => {
+const updateURLParams = (
+  params: Record<string, string | number | undefined>,
+) => {
   const { newUrl } = constructHashURL(window.location.href, params);
   window.history.pushState({}, "Quantile Plot Test", newUrl);
 };
@@ -83,7 +85,8 @@ files
       );
 
       const plot = renderer.create(quantilePlotJSX);
-      const plotInstance = plot.getInstance() as unknown as QuantilePlotInstance;
+      const plotInstance =
+        plot.getInstance() as unknown as QuantilePlotInstance;
 
       const typesOfCols = plotInstance.possibleValues.map((col) => col.type);
 
@@ -107,7 +110,7 @@ files
       // Array of pairs of selection and shown results as test data
       const selectionResultInput: Array<[SelectionOption, string]> =
         selectionOptions.flatMap((selection) =>
-          resultOptions.map((result) => [selection, result]),
+          resultOptions.map((result): [SelectionOption, string] => [selection, result]),
         );
 
       describe("Quantile Plot should match HTML snapshot", () => {
