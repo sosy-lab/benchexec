@@ -24,9 +24,7 @@ type MutableOverviewData = OverviewData & { initial?: string };
 
 const content = fs.readFileSync(
   "../test_integration/expected/big-table.diff.html",
-  {
-    encoding: "UTF-8",
-  },
+  "utf-8",
 );
 
 const data = JSON.parse(content) as unknown as MutableOverviewData;
