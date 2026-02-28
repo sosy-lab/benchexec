@@ -16,11 +16,15 @@ import {
 import { getFilterableData } from "../utils/filters";
 import fs from "fs";
 
+import Table from "../components/ReactTable";
+
 const testDir = "../test_integration/expected/";
 
 /* ============================================================
  * Types
  * ============================================================ */
+
+type TableProps = React.ComponentProps<typeof Table>;
 
 type PreparedTableData = ReturnType<typeof prepareTableData>;
 type PreparedTools = PreparedTableData["tools"];
@@ -46,6 +50,13 @@ type OverviewProps = {
   statusValues: unknown;
   categoryValues: unknown;
   filtered: unknown[];
+
+  toggleSelectColumns: TableProps["selectColumn"];
+  prepareTableValues: TableProps["prepareTableValues"];
+  setFilter: TableProps["setFilter"];
+  filterPlotData: TableProps["filterPlotData"];
+  toggleLinkOverlay: TableProps["toggleLinkOverlay"];
+  changeTab: TableProps["changeTab"];
 };
 
 type ComponentFuncResult = {
