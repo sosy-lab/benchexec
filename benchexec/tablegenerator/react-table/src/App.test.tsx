@@ -10,10 +10,14 @@ import ReactDOM from "react-dom";
 import { act } from "react-dom/test-utils";
 import App from "./App";
 
+type StatsReadyResolver = () => void;
+
 it("renders without crashing", async () => {
   const div = document.createElement("div");
-  let statsResolver;
-  const StatsReadyPromise = new Promise((resolve) => (statsResolver = resolve));
+  let statsResolver: StatsReadyResolver;
+  const StatsReadyPromise = new Promise<void>((resolve) => {
+    statsResolver = resolve;
+  });
   await act(async () => {
     ReactDOM.render(<App onStatsReady={statsResolver} />, div);
     await StatsReadyPromise;
