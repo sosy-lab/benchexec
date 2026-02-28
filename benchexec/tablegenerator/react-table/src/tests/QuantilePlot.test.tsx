@@ -110,7 +110,10 @@ files
       // Array of pairs of selection and shown results as test data
       const selectionResultInput: Array<[SelectionOption, string]> =
         selectionOptions.flatMap((selection) =>
-          resultOptions.map((result): [SelectionOption, string] => [selection, result]),
+          resultOptions.map((result): [SelectionOption, string] => [
+            selection,
+            result,
+          ]),
         );
 
       describe("Quantile Plot should match HTML snapshot", () => {

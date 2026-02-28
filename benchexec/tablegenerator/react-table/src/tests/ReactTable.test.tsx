@@ -12,47 +12,73 @@ import { HashRouter as Router } from "react-router-dom";
 import { test_snapshot_of } from "./utils.js";
 
 // Add a serializer that removes title attributes (irrelevant in our table)
-expect.addSnapshotSerializer({
-  print: (val: { props?: { title?: unknown } }, serialize: (v: unknown) => string) => {
-    if (val.props) {
-      delete val.props.title;
+type SnapshotSerializer = Parameters<typeof expect.addSnapshotSerializer>[0];
+
+const hasTitleProp = (
+  val: unknown,
+): val is { props: Record<string, unknown> } =>
+  typeof val === "object" &&
+  val !== null &&
+  "props" in val &&
+  typeof (val as { props?: unknown }).props === "object" &&
+  (val as { props?: Record<string, unknown> }).props !== null &&
+  Object.prototype.hasOwnProperty.call(
+    (val as { props: Record<string, unknown> }).props,
+    "title",
+  );
+
+// Add a serializer that removes title attributes (irrelevant in our table)
+const removeTitleSerializer: SnapshotSerializer = {
+  test: hasTitleProp,
+  print: (val, print) => {
+    const v = val as { props?: { title?: unknown } };
+    if (v.props) {
+      delete v.props.title;
     }
-    return serialize(val);
+    return print(val);
   },
-  test: (val: unknown): val is { props: Record<string, unknown> } =>
-    typeof val === "object" &&
-    val !== null &&
-    "props" in val &&
-    typeof (val as { props?: unknown }).props === "object" &&
-    (val as { props?: Record<string, unknown> }).props !== null &&
-    Object.prototype.hasOwnProperty.call(
-      (val as { props: Record<string, unknown> }).props,
-      "title",
-    ),
+};
+
+expect.addSnapshotSerializer(removeTitleSerializer);
+
+type TableProps = React.ComponentProps<typeof Table>;
+
+type OverviewShape = {
+  tableHeader: TableProps["tableHeader"];
+  originalTable: TableProps["tableData"];
+  tools: TableProps["tools"];
+  toggleSelectColumns: TableProps["selectColumn"];
+  prepareTableValues: TableProps["prepareTableValues"];
+  setFilter: TableProps["setFilter"];
+  filterPlotData: TableProps["filterPlotData"];
+  filteredData: TableProps["filters"];
+  toggleLinkOverlay: TableProps["toggleLinkOverlay"];
+  changeTab: TableProps["changeTab"];
+  statusValues: TableProps["statusValues"];
+  categoryValues: TableProps["categoryValues"];
+  hiddenCols: TableProps["hiddenCols"];
+};
+
+test_snapshot_of("Render ReactTable", (overview: unknown) => {
+  const o = overview as unknown as OverviewShape;
+
+  return (
+    <Router>
+      <Table
+        tableHeader={o.tableHeader}
+        tableData={o.originalTable}
+        tools={o.tools}
+        selectColumn={o.toggleSelectColumns}
+        prepareTableValues={o.prepareTableValues}
+        setFilter={o.setFilter}
+        filterPlotData={o.filterPlotData}
+        filters={o.filteredData}
+        toggleLinkOverlay={o.toggleLinkOverlay}
+        changeTab={o.changeTab}
+        statusValues={o.statusValues}
+        categoryValues={o.categoryValues}
+        hiddenCols={o.hiddenCols}
+      />
+    </Router>
+  );
 });
-
-type SnapshotOverview = Parameters<typeof test_snapshot_of>[1] extends (
-    overview: infer O,
-  ) => unknown
-  ? O
-  : never;
-
-test_snapshot_of("Render ReactTable", (overview: SnapshotOverview) => (
-  <Router>
-    <Table
-      tableHeader={overview.tableHeader}
-      tableData={overview.originalTable}
-      tools={overview.tools}
-      selectColumn={overview.toggleSelectColumns}
-      prepareTableValues={overview.prepareTableValues}
-      setFilter={overview.setFilter}
-      filterPlotData={overview.filterPlotData}
-      filters={overview.filteredData}
-      toggleLinkOverlay={overview.toggleLinkOverlay}
-      changeTab={overview.changeTab}
-      statusValues={overview.statusValues}
-      categoryValues={overview.categoryValues}
-      hiddenCols={overview.hiddenCols}
-    />
-  </Router>
-));
