@@ -7,8 +7,20 @@
 
 import React from "react";
 import Overview from "../components/Overview";
-import renderer from "react-test-renderer";
-const fs = require("fs");
+import * as renderer from "react-test-renderer";
+import fs from "fs";
+
+type OverviewProps = React.ComponentProps<typeof Overview>;
+
+type OverviewInstanceShape = {
+  state: {
+    active: string;
+  };
+};
+
+type OverviewData = OverviewProps["data"];
+
+type MutableOverviewData = OverviewData & { initial?: string };
 
 const content = fs.readFileSync(
   "../test_integration/expected/big-table.diff.html",
@@ -16,20 +28,21 @@ const content = fs.readFileSync(
     encoding: "UTF-8",
   },
 );
-let data = JSON.parse(content);
+
+const data = JSON.parse(content) as unknown as MutableOverviewData;
 const initialHref = document.location.href;
 
 describe("Initial state parameter tests", () => {
   describe("leads to right menu item", () => {
     const menuItemPaths = ["/table", "/quantile", "/scatter", "/info"];
 
-    it.each(menuItemPaths)("with initial parameter %s", (parameter) => {
+    it.each(menuItemPaths)("with initial parameter %s", (parameter: string) => {
       document.location.href = initialHref;
       data.initial = parameter;
 
       const overviewInstance = renderer
         .create(<Overview data={data} />)
-        .getInstance();
+        .getInstance() as unknown as OverviewInstanceShape;
 
       expect(overviewInstance.state.active).toBe(parameter.substring(1));
     });
@@ -40,18 +53,18 @@ describe("Initial state parameter tests", () => {
       "broken+#--param=<<2893n-s,cn^^",
     ];
     const menuItemPathsWithParameters = menuItemPaths.flatMap((menuItem) =>
-      urlParameters.map((urlParam) => menuItem + "?" + urlParam),
+      urlParameters.map((urlParam) => `${menuItem}?${urlParam}`),
     );
 
     it.each(menuItemPathsWithParameters)(
       "with initial parameter %s",
-      (parameter) => {
+      (parameter: string) => {
         document.location.href = initialHref;
         data.initial = parameter;
 
         const overviewInstance = renderer
           .create(<Overview data={data} />)
-          .getInstance();
+          .getInstance() as unknown as OverviewInstanceShape;
 
         const tabToBeActive = parameter.substring(1).split("?")[0];
         expect(overviewInstance.state.active).toBe(tabToBeActive);
@@ -65,18 +78,18 @@ describe("Initial state parameter tests", () => {
 
     const overviewInstance = renderer
       .create(<Overview data={data} />)
-      .getInstance();
+      .getInstance() as unknown as OverviewInstanceShape;
 
     expect(overviewInstance.state.active).toBe("summary");
   });
 
   it("isn't applied if a '#' is added to the URL", () => {
-    document.location.href = initialHref + "#";
+    document.location.href = `${initialHref}#`;
     data.initial = "/table";
 
     const overviewInstance = renderer
       .create(<Overview data={data} />)
-      .getInstance();
+      .getInstance() as unknown as OverviewInstanceShape;
 
     expect(overviewInstance.state.active).toBe("summary");
   });
