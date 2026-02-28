@@ -6,14 +6,18 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from "react";
-import renderer from "react-test-renderer";
+import * as renderer from "react-test-renderer";
 
 import { render } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-import FilterCard from "../components/FilterBox/FilterCard.tsx";
+import FilterCard from "../components/FilterBox/FilterCard";
 
-const createFilterCard = (props) => <FilterCard {...props} />;
+type FilterCardProps = React.ComponentProps<typeof FilterCard>;
+
+const createFilterCard = (props: Partial<FilterCardProps>) => (
+  <FilterCard {...(props as Partial<FilterCardProps> as FilterCardProps)} />
+);
 
 describe("FilterCard tests", () => {
   test("FilterCard should allow selection of available filters", () => {
@@ -104,29 +108,34 @@ describe("FilterCard tests", () => {
   // makes the test closer to actual runtime behavior and allows us to
   // drop the Enzyme dependency.
   test("FilterCard should send correct updates on selection of filters", async () => {
-    let response = {};
+    let response: Record<string, unknown> = {};
 
-    const handler = (obj) => {
+    const handler = (obj: Record<string, unknown>) => {
       response = obj;
     };
+
     const filter = {
       display_title: "Status",
       categories: ["cat1", "correct", "wrong"],
       statuses: ["true", "false(reach)"],
       type: "status",
     };
+
     const Card = createFilterCard({
       title: "Status",
       filter,
       onFilterUpdate: handler,
     });
+
     const { container } = render(Card);
 
-    const checkBox = container.querySelector('input[name="stat-true"]');
+    const checkBox = container.querySelector<HTMLInputElement>(
+      'input[name="stat-true"]',
+    );
 
     expect(checkBox).not.toBeNull();
 
-    await userEvent.click(checkBox);
+    await userEvent.click(checkBox as HTMLInputElement);
 
     expect(response).toEqual({ values: ["true"], title: "Status" });
   });
