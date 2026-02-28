@@ -14,12 +14,14 @@ import { computeStats, filterComputableStatistics } from "../utils/stats";
 
 const testDir = "../test_integration/expected/";
 
-type OverviewProps = ReturnType<typeof getOverviewProps>;
+/* ============================================================
+ * Types
+ * ============================================================ */
 
 type StatisticsTableProps = React.ComponentProps<typeof StatisticsTable>;
-
-type StatsValue = StatisticsTableProps["stats"];
 type StatsComponent = renderer.ReactTestRenderer;
+
+type OverviewProps = ReturnType<typeof getOverviewProps>;
 
 fs.readdirSync(testDir)
   .filter((file) => file.endsWith(".html"))
@@ -35,37 +37,70 @@ fs.readdirSync(testDir)
         content = fs.readFileSync(`${testDir}${file}`, { encoding: "utf-8" });
         data = JSON.parse(content) as unknown;
 
-        overviewProps = getOverviewProps(data as unknown as Parameters<typeof getOverviewProps>[0]);
+        overviewProps = getOverviewProps(
+          data as unknown as Parameters<typeof getOverviewProps>[0],
+        );
+
+        const selectColumn =
+          (overviewProps as unknown as { toggleSelectColumns?: unknown })
+            .toggleSelectColumns ??
+          (overviewProps as unknown as { selectColumn?: unknown }).selectColumn;
 
         await renderer.act(async () => {
           pythonStatComponent = renderer.create(
             <StatisticsTable
-              selectColumn={overviewProps.toggleSelectColumns}
-              tools={overviewProps.tools}
-              switchToQuantile={overviewProps.switchToQuantile}
-              hiddenCols={overviewProps.hiddenCols}
-              tableData={overviewProps.tableData}
-              stats={filterComputableStatistics(
-                overviewProps.stats as unknown as Parameters<
-                  typeof filterComputableStatistics
-                >[0],
-              ) as unknown as StatsValue}
+              selectColumn={
+                selectColumn as StatisticsTableProps["selectColumn"]
+              }
+              tools={
+                overviewProps.tools as unknown as StatisticsTableProps["tools"]
+              }
+              switchToQuantile={
+                ((overviewProps as unknown as { switchToQuantile?: unknown })
+                  .switchToQuantile ??
+                  (() => undefined)) as StatisticsTableProps["switchToQuantile"]
+              }
+              hiddenCols={
+                overviewProps.hiddenCols as unknown as StatisticsTableProps["hiddenCols"]
+              }
+              tableData={
+                overviewProps.tableData as unknown as StatisticsTableProps["tableData"]
+              }
+              stats={
+                filterComputableStatistics(
+                  overviewProps.stats as unknown as Parameters<
+                    typeof filterComputableStatistics
+                  >[0],
+                ) as unknown as StatisticsTableProps["stats"]
+              }
             />,
           );
         });
 
         const jsStats = (await computeStats(
           overviewProps as unknown as Parameters<typeof computeStats>[0],
-        )) as unknown as StatsValue;
+        )) as unknown as StatisticsTableProps["stats"];
 
         await renderer.act(async () => {
           jsStatComponent = renderer.create(
             <StatisticsTable
-              selectColumn={overviewProps.toggleSelectColumns}
-              tools={overviewProps.tools}
-              switchToQuantile={overviewProps.switchToQuantile}
-              hiddenCols={overviewProps.hiddenCols}
-              tableData={overviewProps.tableData}
+              selectColumn={
+                selectColumn as StatisticsTableProps["selectColumn"]
+              }
+              tools={
+                overviewProps.tools as unknown as StatisticsTableProps["tools"]
+              }
+              switchToQuantile={
+                ((overviewProps as unknown as { switchToQuantile?: unknown })
+                  .switchToQuantile ??
+                  (() => undefined)) as StatisticsTableProps["switchToQuantile"]
+              }
+              hiddenCols={
+                overviewProps.hiddenCols as unknown as StatisticsTableProps["hiddenCols"]
+              }
+              tableData={
+                overviewProps.tableData as unknown as StatisticsTableProps["tableData"]
+              }
               stats={jsStats}
             />,
           );
