@@ -8,25 +8,35 @@
 import React from "react";
 import StatisticsTable from "../components/StatisticsTable";
 import fs from "fs";
-import renderer from "react-test-renderer";
+import * as renderer from "react-test-renderer";
 import { getOverviewProps } from "./utils.js";
-import { computeStats, filterComputableStatistics } from "../utils/stats.ts";
+import { computeStats, filterComputableStatistics } from "../utils/stats";
+
 const testDir = "../test_integration/expected/";
+
+type OverviewProps = ReturnType<typeof getOverviewProps>;
+
+type StatisticsTableProps = React.ComponentProps<typeof StatisticsTable>;
+
+type StatsValue = StatisticsTableProps["stats"];
+type StatsComponent = renderer.ReactTestRenderer;
 
 fs.readdirSync(testDir)
   .filter((file) => file.endsWith(".html"))
   .forEach((file) => {
-    describe("StatisticsTable for " + file, () => {
-      let content;
-      let data;
-      let overviewProps;
-      let jsStatComponent;
-      let pythonStatComponent;
+    describe(`StatisticsTable for ${file}`, () => {
+      let content: string;
+      let data: unknown;
+      let overviewProps: OverviewProps;
+      let jsStatComponent: StatsComponent;
+      let pythonStatComponent: StatsComponent;
 
       beforeAll(async () => {
-        content = fs.readFileSync(testDir + file, { encoding: "UTF-8" });
-        data = JSON.parse(content);
-        overviewProps = getOverviewProps(data);
+        content = fs.readFileSync(`${testDir}${file}`, { encoding: "utf-8" });
+        data = JSON.parse(content) as unknown;
+
+        overviewProps = getOverviewProps(data as unknown as Parameters<typeof getOverviewProps>[0]);
+
         await renderer.act(async () => {
           pythonStatComponent = renderer.create(
             <StatisticsTable
@@ -35,12 +45,19 @@ fs.readdirSync(testDir)
               switchToQuantile={overviewProps.switchToQuantile}
               hiddenCols={overviewProps.hiddenCols}
               tableData={overviewProps.tableData}
-              stats={filterComputableStatistics(overviewProps.stats)}
+              stats={filterComputableStatistics(
+                overviewProps.stats as unknown as Parameters<
+                  typeof filterComputableStatistics
+                >[0],
+              ) as unknown as StatsValue}
             />,
           );
         });
 
-        const jsStats = await computeStats(overviewProps);
+        const jsStats = (await computeStats(
+          overviewProps as unknown as Parameters<typeof computeStats>[0],
+        )) as unknown as StatsValue;
+
         await renderer.act(async () => {
           jsStatComponent = renderer.create(
             <StatisticsTable
