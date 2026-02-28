@@ -60,7 +60,9 @@ type OverviewProps = {
   tableHeader: PreparedTableHeader;
   originalTable: PreparedTableDataRows;
   originalTools: PreparedTools;
-  data: unknown;
+  data: {
+    version: string;
+  };
   statusValues: unknown;
   categoryValues: unknown;
   filtered: unknown[];
