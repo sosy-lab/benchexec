@@ -19,11 +19,8 @@ type TaskDefinitionViewerProps = React.ComponentProps<
 fs.readdirSync(testDir)
   .filter((file) => file.endsWith(".yml"))
   .forEach((file) => {
-    it(`Render TaskDefinitionViewer for ${file}`, () => {
-      const content = fs.readFileSync(`${testDir}${file}`, {
-        encoding: "utf-8",
-      });
-
+    it("Render TaskDefinitionViewer for " + file, () => {
+      const content = fs.readFileSync(testDir + file, { encoding: "utf-8" });
       const component = renderer.create(
         <TaskDefinitionViewer
           {...({
