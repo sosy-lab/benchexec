@@ -97,7 +97,7 @@ describe("Scatter Plot with columns of same runset should match HTML snapshot", 
      Overriding of toString() method is used for better identifying test cases. */
   const selectionOptions: SelectionOption[] =
     plotInstance.props.tools[0].columns.map((col) => ({
-      value: `0-${col.colIdx}`,
+      value: "0-" + col.colIdx,
       toString: () => col.display_title,
     }));
 
@@ -125,8 +125,8 @@ describe("Scatter Plot with columns of different runsets should match HTML snaps
   const selectionOptions: SelectionOption[] = colsWithToolRef
     .filter((col, index) => toolIdxesOfCols.indexOf(col.toolIdx) === index)
     .map((col) => ({
-      value: `${col.toolIdx}-${col.colIdx}`,
-      toString: () => `${col.display_title} of runset ${col.toolIdx}`,
+      value: col.toolIdx + "-" + col.colIdx,
+      toString: () => col.display_title + " of runset " + col.toolIdx,
     }));
 
   // All combinations of the first columns of all runsets with all result options.
@@ -153,7 +153,7 @@ describe("Scatter Plot with columns of different types should match HTML snapsho
   const selectionOptions: SelectionOption[] = colsWithToolRef
     .filter((col, index) => typesOfCols.indexOf(col.type) === index)
     .map((col) => ({
-      value: `${col.toolIdx}-${col.colIdx}`,
+      value: col.toolIdx + "-" + col.colIdx,
       toString: () => String(col.type),
     }));
 
@@ -182,8 +182,8 @@ describe("Scatter Plot linear regression should match HTML snapshot", () => {
       (col) => plotInstance.handleType(col.toolIdx, col.colIdx) !== "ordinal",
     )
     .map((col) => ({
-      value: `${col.toolIdx}-${col.colIdx}`,
-      toString: () => `${col.display_title} of runset ${col.toolIdx}`,
+      value: col.toolIdx + "-" + col.colIdx,
+      toString: () => col.display_title + " of runset " + col.toolIdx,
     }));
 
   // All paired combinations of all columns.
