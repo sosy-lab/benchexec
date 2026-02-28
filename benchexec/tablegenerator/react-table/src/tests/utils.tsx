@@ -19,6 +19,7 @@ import fs from "fs";
 import React from "react";
 import Table from "../components/ReactTable";
 import SelectColumn from "../components/SelectColumn";
+import StatisticsTable from "../components/StatisticsTable";
 
 const testDir = "../test_integration/expected/";
 
@@ -28,15 +29,24 @@ const testDir = "../test_integration/expected/";
 
 type TableProps = React.ComponentProps<typeof Table>;
 type SelectColumnProps = React.ComponentProps<typeof SelectColumn>;
+type StatisticsTableProps = React.ComponentProps<typeof StatisticsTable>;
 
 type OverviewTools = TableProps["tools"] extends SelectColumnProps["tools"]
   ? SelectColumnProps["tools"]
   : TableProps["tools"];
 
+type HiddenCols =
+  TableProps["hiddenCols"] extends SelectColumnProps["hiddenCols"]
+    ? SelectColumnProps["hiddenCols"]
+    : TableProps["hiddenCols"];
+
+type Stats = TableProps["stats"] extends StatisticsTableProps["stats"]
+  ? StatisticsTableProps["stats"]
+  : TableProps["stats"];
+
 type PreparedTableData = ReturnType<typeof prepareTableData>;
 type PreparedTools = PreparedTableData["tools"];
 type PreparedTableDataRows = PreparedTableData["tableData"];
-type PreparedStats = PreparedTableData["stats"];
 type PreparedTableHeader = PreparedTableData["tableHeader"];
 type PreparedColumns = PreparedTableData["columns"];
 type PreparedTaskIdNames = PreparedTableData["taskIdNames"];
@@ -47,9 +57,7 @@ type OverviewProps = {
   tableData: PreparedTableDataRows;
   filteredData: unknown[];
   filterable: ReturnType<typeof getFilterableData>;
-  hiddenCols: ReturnType<typeof createHiddenColsFromURL>;
   tableHeader: PreparedTableHeader;
-  stats: PreparedStats;
   originalTable: PreparedTableDataRows;
   originalTools: PreparedTools;
   data: unknown;
@@ -65,6 +73,10 @@ type OverviewProps = {
   changeTab: TableProps["changeTab"];
 
   tools: OverviewTools;
+  hiddenCols: HiddenCols;
+
+  switchToQuantile: StatisticsTableProps["switchToQuantile"];
+  stats: Stats;
 };
 
 type ComponentFuncResult = {

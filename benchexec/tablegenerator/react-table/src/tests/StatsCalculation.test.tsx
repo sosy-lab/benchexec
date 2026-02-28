@@ -26,7 +26,7 @@ type OverviewProps = ReturnType<typeof getOverviewProps>;
 fs.readdirSync(testDir)
   .filter((file) => file.endsWith(".html"))
   .forEach((file) => {
-    describe(`StatisticsTable for ${file}`, () => {
+    describe("StatisticsTable for " + file, () => {
       let content: string;
       let data: unknown;
       let overviewProps: OverviewProps;
@@ -34,43 +34,24 @@ fs.readdirSync(testDir)
       let pythonStatComponent: StatsComponent;
 
       beforeAll(async () => {
-        content = fs.readFileSync(`${testDir}${file}`, { encoding: "utf-8" });
+        content = fs.readFileSync(testDir + file, { encoding: "utf-8" });
         data = JSON.parse(content) as unknown;
 
-        overviewProps = getOverviewProps(
-          data as unknown as Parameters<typeof getOverviewProps>[0],
-        );
-
-        const selectColumn =
-          (overviewProps as unknown as { toggleSelectColumns?: unknown })
-            .toggleSelectColumns ??
-          (overviewProps as unknown as { selectColumn?: unknown }).selectColumn;
+        overviewProps = getOverviewProps(data);
 
         await renderer.act(async () => {
           pythonStatComponent = renderer.create(
             <StatisticsTable
-              selectColumn={
-                selectColumn as StatisticsTableProps["selectColumn"]
-              }
-              tools={
-                overviewProps.tools as unknown as StatisticsTableProps["tools"]
-              }
-              switchToQuantile={
-                ((overviewProps as unknown as { switchToQuantile?: unknown })
-                  .switchToQuantile ??
-                  (() => undefined)) as StatisticsTableProps["switchToQuantile"]
-              }
-              hiddenCols={
-                overviewProps.hiddenCols as unknown as StatisticsTableProps["hiddenCols"]
-              }
+              selectColumn={overviewProps.toggleSelectColumns}
+              tools={overviewProps.tools}
+              switchToQuantile={overviewProps.switchToQuantile}
+              hiddenCols={overviewProps.hiddenCols}
               tableData={
                 overviewProps.tableData as unknown as StatisticsTableProps["tableData"]
               }
               stats={
                 filterComputableStatistics(
-                  overviewProps.stats as unknown as Parameters<
-                    typeof filterComputableStatistics
-                  >[0],
+                  overviewProps.stats,
                 ) as unknown as StatisticsTableProps["stats"]
               }
             />,
@@ -84,20 +65,10 @@ fs.readdirSync(testDir)
         await renderer.act(async () => {
           jsStatComponent = renderer.create(
             <StatisticsTable
-              selectColumn={
-                selectColumn as StatisticsTableProps["selectColumn"]
-              }
-              tools={
-                overviewProps.tools as unknown as StatisticsTableProps["tools"]
-              }
-              switchToQuantile={
-                ((overviewProps as unknown as { switchToQuantile?: unknown })
-                  .switchToQuantile ??
-                  (() => undefined)) as StatisticsTableProps["switchToQuantile"]
-              }
-              hiddenCols={
-                overviewProps.hiddenCols as unknown as StatisticsTableProps["hiddenCols"]
-              }
+              selectColumn={overviewProps.toggleSelectColumns}
+              tools={overviewProps.tools}
+              switchToQuantile={overviewProps.switchToQuantile}
+              hiddenCols={overviewProps.hiddenCols}
               tableData={
                 overviewProps.tableData as unknown as StatisticsTableProps["tableData"]
               }
