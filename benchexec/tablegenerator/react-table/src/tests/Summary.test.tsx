@@ -8,7 +8,7 @@
 import React from "react";
 import Summary from "../components/Summary";
 
-import { test_snapshot_of_async } from "./utils.js";
+import { test_snapshot_of_async } from "./utils";
 
 type SummaryProps = React.ComponentProps<typeof Summary>;
 type StatsReadyResolver = SummaryProps["onStatsReady"];

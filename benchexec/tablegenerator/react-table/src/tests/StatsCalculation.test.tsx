@@ -9,7 +9,7 @@ import React from "react";
 import StatisticsTable from "../components/StatisticsTable";
 import fs from "fs";
 import * as renderer from "react-test-renderer";
-import { getOverviewProps } from "./utils.js";
+import { getOverviewProps } from "./utils";
 import { computeStats, filterComputableStatistics } from "../utils/stats";
 
 const testDir = "../test_integration/expected/";

@@ -9,7 +9,7 @@ import React from "react";
 import Table from "../components/ReactTable.js";
 import { HashRouter as Router } from "react-router-dom";
 
-import { test_snapshot_of } from "./utils.js";
+import { test_snapshot_of } from "./utils";
 
 // Add a serializer that removes title attributes (irrelevant in our table)
 type SnapshotSerializer = Parameters<typeof expect.addSnapshotSerializer>[0];

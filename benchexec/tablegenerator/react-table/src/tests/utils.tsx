@@ -6,7 +6,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import ReactDOM from "react-dom";
-import renderer from "react-test-renderer";
+import * as renderer from "react-test-renderer";
 import {
   prepareTableData,
   getRawOrDefault,
@@ -14,25 +14,75 @@ import {
 } from "../utils/utils";
 
 import { getFilterableData } from "../utils/filters";
-const fs = require("fs");
+import fs from "fs";
 
 const testDir = "../test_integration/expected/";
 
-// Provide a way to render children into a DOM node that exists outside the hierarchy of the DOM component
-ReactDOM.createPortal = (dom) => {
-  return dom;
+/* ============================================================
+ * Types
+ * ============================================================ */
+
+type PreparedTableData = ReturnType<typeof prepareTableData>;
+type PreparedTools = PreparedTableData["tools"];
+type PreparedTableDataRows = PreparedTableData["tableData"];
+type PreparedStats = PreparedTableData["stats"];
+type PreparedTableHeader = PreparedTableData["tableHeader"];
+type PreparedColumns = PreparedTableData["columns"];
+type PreparedTaskIdNames = PreparedTableData["taskIdNames"];
+
+type OverviewProps = {
+  taskIdNames: PreparedTaskIdNames;
+  tools: PreparedTools;
+  columns: PreparedColumns;
+  tableData: PreparedTableDataRows;
+  filteredData: unknown[];
+  filterable: ReturnType<typeof getFilterableData>;
+  hiddenCols: ReturnType<typeof createHiddenColsFromURL>;
+  tableHeader: PreparedTableHeader;
+  stats: PreparedStats;
+  originalTable: PreparedTableDataRows;
+  originalTools: PreparedTools;
+  data: unknown;
+  statusValues: unknown;
+  categoryValues: unknown;
+  filtered: unknown[];
 };
+
+type ComponentFuncResult = {
+  component: React.ReactElement;
+  promise: Promise<unknown>;
+};
+
+type ComponentFuncAsync = (overview: OverviewProps) => ComponentFuncResult;
+type ComponentFuncSync = (overview: OverviewProps) => React.ReactElement;
+
+/* ============================================================
+ * Portal override
+ * ============================================================ */
+
+// Provide a way to render children into a DOM node that exists outside the hierarchy of the DOM component
+ReactDOM.createPortal = ((dom: unknown) =>
+  dom) as unknown as typeof ReactDOM.createPortal;
 
 /**
  * Function to get all props that can be passed by the Overview component to its
  * children, without invoking a render
  * @param {object} data
  */
-const getOverviewProps = (data) => {
+const getOverviewProps = (data: unknown): OverviewProps => {
   const { tableHeader, taskIdNames, tools, columns, tableData, stats } =
-    prepareTableData(data);
+    prepareTableData(data as Parameters<typeof prepareTableData>[0]);
 
-  const findAllValuesOfColumn = (columnFilter, valueAccessor) =>
+  const findAllValuesOfColumn = (
+    columnFilter: (
+      tool: PreparedTools[number],
+      column: PreparedTools[number]["columns"][number],
+    ) => boolean,
+    valueAccessor: (
+      runResult: PreparedTableDataRows[number]["results"][number],
+      value: unknown,
+    ) => unknown,
+  ) =>
     tools.map((tool, j) =>
       tool.columns.map((column, i) => {
         if (!columnFilter(tool, column)) {
@@ -45,21 +95,29 @@ const getOverviewProps = (data) => {
       }),
     );
 
-  const filterable = getFilterableData(data);
+  const filterable = getFilterableData(
+    data as Parameters<typeof getFilterableData>[0],
+  );
   const originalTable = tableData;
   const originalTools = tools;
 
-  const filteredData = [];
+  const filteredData: unknown[] = [];
 
-  const hiddenCols = createHiddenColsFromURL(tools);
+  const hiddenCols = createHiddenColsFromURL(
+    tools as Parameters<typeof createHiddenColsFromURL>[0],
+  );
 
   const statusValues = findAllValuesOfColumn(
     (_tool, column) => column.type === "status",
-    (_runResult, value) => getRawOrDefault(value),
+    (_runResult, value) =>
+      getRawOrDefault(
+        value as Parameters<typeof getRawOrDefault>[0],
+        undefined,
+      ),
   );
   const categoryValues = findAllValuesOfColumn(
     (_tool, column) => column.type === "status",
-    (runResult, _value) => runResult.category,
+    (runResult) => runResult.category,
   );
 
   return {
@@ -88,18 +146,23 @@ const getOverviewProps = (data) => {
  * @param {*} name Name of test
  * @param {*} component_func Retrieval function for component
  */
-const test_snapshot_of_async = (name, component_func) => {
+const test_snapshot_of_async = (
+  name: string,
+  component_func: ComponentFuncAsync,
+): void => {
   fs.readdirSync(testDir)
     .filter((file) => file.endsWith(".html"))
-    .filter((file) => fs.statSync(testDir + file).size < 100000)
+    .filter((file) => fs.statSync(`${testDir}${file}`).size < 100000)
     .forEach((file) => {
-      it(name + " for " + file, async () => {
-        const content = fs.readFileSync(testDir + file, { encoding: "UTF-8" });
-        const data = JSON.parse(content);
+      it(`${name} for ${file}`, async () => {
+        const content = fs.readFileSync(`${testDir}${file}`, {
+          encoding: "utf-8",
+        });
+        const data = JSON.parse(content) as unknown;
         const overview = getOverviewProps(data);
         const { component: c, promise } = component_func(overview);
 
-        let component;
+        let component!: renderer.ReactTestRenderer;
 
         await renderer.act(async () => {
           component = renderer.create(c);
@@ -111,14 +174,19 @@ const test_snapshot_of_async = (name, component_func) => {
     });
 };
 
-const test_snapshot_of = (name, component_func) => {
+const test_snapshot_of = (
+  name: string,
+  component_func: ComponentFuncSync,
+): void => {
   fs.readdirSync(testDir)
     .filter((file) => file.endsWith(".html"))
-    .filter((file) => fs.statSync(testDir + file).size < 100000)
+    .filter((file) => fs.statSync(`${testDir}${file}`).size < 100000)
     .forEach((file) => {
-      it(name + " for " + file, () => {
-        const content = fs.readFileSync(testDir + file, { encoding: "UTF-8" });
-        const data = JSON.parse(content);
+      it(`${name} for ${file}`, () => {
+        const content = fs.readFileSync(`${testDir}${file}`, {
+          encoding: "utf-8",
+        });
+        const data = JSON.parse(content) as unknown;
 
         const overview = getOverviewProps(data);
 

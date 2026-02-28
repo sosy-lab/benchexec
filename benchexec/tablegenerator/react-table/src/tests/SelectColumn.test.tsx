@@ -8,7 +8,7 @@
 import React from "react";
 import SelectColumn from "../components/SelectColumn";
 
-import { test_snapshot_of } from "./utils.js";
+import { test_snapshot_of } from "./utils";
 
 type SelectColumnProps = React.ComponentProps<typeof SelectColumn>;
 
