@@ -26,6 +26,7 @@ test_snapshot_of("Render SelectColumn", (overview: unknown) => {
       close={o.toggleSelectColumns}
       tools={o.tools}
       hiddenCols={o.hiddenCols}
+      updateParentStateOnClose={() => undefined}
     />
   );
 });
