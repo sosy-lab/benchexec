@@ -14,6 +14,8 @@ import userEvent from "@testing-library/user-event";
 import FilterCard from "../components/FilterBox/FilterCard";
 
 type FilterCardProps = React.ComponentProps<typeof FilterCard>;
+type FilterUpdateHandler = NonNullable<FilterCardProps["onFilterUpdate"]>;
+type FilterUpdatePayload = Parameters<FilterUpdateHandler>[0];
 
 const createFilterCard = (props: Partial<FilterCardProps>) => (
   <FilterCard {...(props as Partial<FilterCardProps> as FilterCardProps)} />
@@ -24,7 +26,7 @@ describe("FilterCard tests", () => {
     const availableFilters = [
       { display_title: "Filter1", idx: 0 },
       { display_title: "Filter2", idx: 1 },
-    ];
+    ] as unknown as FilterCardProps["availableFilters"];
     const Card = createFilterCard({ availableFilters, editable: true });
 
     expect(renderer.create(Card)).toMatchSnapshot();
@@ -36,7 +38,7 @@ describe("FilterCard tests", () => {
       categories: ["cat1", "correct", "wrong"],
       statuses: ["true", "false(reach)"],
       type: "status",
-    };
+    } as unknown as FilterCardProps["filter"];
     const Card = createFilterCard({ title: "Status", filter });
 
     expect(renderer.create(Card)).toMatchSnapshot();
@@ -48,7 +50,7 @@ describe("FilterCard tests", () => {
       min: 1337,
       max: 9001,
       type: "measure",
-    };
+    } as unknown as FilterCardProps["filter"];
     const Card = createFilterCard({ title: "cputime", filter });
 
     expect(renderer.create(Card)).toMatchSnapshot();
@@ -58,7 +60,7 @@ describe("FilterCard tests", () => {
     const filter = {
       display_title: "host",
       type: "text",
-    };
+    } as unknown as FilterCardProps["filter"];
     const Card = createFilterCard({ title: "host", filter });
 
     expect(renderer.create(Card)).toMatchSnapshot();
@@ -71,7 +73,7 @@ describe("FilterCard tests", () => {
       statuses: ["true", "false(reach)"],
       values: ["true"],
       type: "status",
-    };
+    } as unknown as FilterCardProps["filter"];
     const Card = createFilterCard({ title: "Status", filter });
 
     expect(renderer.create(Card)).toMatchSnapshot();
@@ -84,7 +86,7 @@ describe("FilterCard tests", () => {
       max: 9001,
       values: ["1500:3000"],
       type: "measure",
-    };
+    } as unknown as FilterCardProps["filter"];
     const Card = createFilterCard({ title: "cputime", filter });
 
     expect(renderer.create(Card)).toMatchSnapshot();
@@ -95,7 +97,7 @@ describe("FilterCard tests", () => {
       display_title: "host",
       type: "text",
       values: ["node-"],
-    };
+    } as unknown as FilterCardProps["filter"];
     const Card = createFilterCard({ title: "host", filter });
 
     expect(renderer.create(Card)).toMatchSnapshot();
@@ -108,10 +110,10 @@ describe("FilterCard tests", () => {
   // makes the test closer to actual runtime behavior and allows us to
   // drop the Enzyme dependency.
   test("FilterCard should send correct updates on selection of filters", async () => {
-    let response: Record<string, unknown> = {};
+    let response: FilterUpdatePayload | null = null;
 
-    const handler = (obj: Record<string, unknown>) => {
-      response = obj;
+    const handler: FilterUpdateHandler = (payload) => {
+      response = payload;
     };
 
     const filter = {
@@ -119,7 +121,7 @@ describe("FilterCard tests", () => {
       categories: ["cat1", "correct", "wrong"],
       statuses: ["true", "false(reach)"],
       type: "status",
-    };
+    } as unknown as FilterCardProps["filter"];
 
     const Card = createFilterCard({
       title: "Status",
