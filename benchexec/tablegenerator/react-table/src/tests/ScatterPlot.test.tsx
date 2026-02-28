@@ -235,10 +235,12 @@ function getSelections(
   toolY: string;
   columnY: string;
 } {
-  let [toolX, columnX] = xSelection.value.split("-");
-  let [toolY, columnY] = ySelection.value.split("-");
-  columnX = columnX.replace("___", "-");
-  columnY = columnY.replace("___", "-");
+  const [toolX, columnXRaw] = xSelection.value.split("-");
+  const [toolY, columnYRaw] = ySelection.value.split("-");
+
+  const columnX = columnXRaw.replace("___", "-");
+  const columnY = columnYRaw.replace("___", "-");
+
   return { toolX, columnX, toolY, columnY };
 }
 
