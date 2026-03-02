@@ -11,8 +11,13 @@ import {
   applyNumericFilter,
   statusForEmptyRows,
 } from "../utils/filters";
+
+type FilterItem = Parameters<typeof buildMatcher>[0][number];
+type TableRow = Parameters<ReturnType<typeof applyMatcher>>[0][number];
+type NumericRow = Parameters<typeof applyNumericFilter>[1];
+
 //Example data set to test the filtering by regex
-const numericRows = [
+const numericRows: NumericRow[] = [
   {},
   {
     test: {},
@@ -57,7 +62,7 @@ const numericRows = [
 ];
 
 // Example data for tests on id, status and category filtering
-const generalRows = [
+const generalRows: TableRow[] = [
   {
     id: ["task_definition.yml", "unreach-label"],
     results: [
@@ -117,12 +122,12 @@ const generalRows = [
 ];
 
 //Function to test filtering by regex for data set 'rows' (return number of truely returnd values)
-const getFilteredNumericalData = (regex) =>
+const getFilteredNumericalData = (regex: string): NumericRow[] =>
   numericRows.filter((row) =>
     applyNumericFilter({ id: "test", value: regex }, row),
   );
 
-const getFilteredDataWithMatcher = (filters) =>
+const getFilteredDataWithMatcher = (filters: FilterItem[]): TableRow[] =>
   applyMatcher(buildMatcher(filters))(generalRows);
 
 test("applyNumericFilter single entry without result", () => {
@@ -176,12 +181,12 @@ test("applyNumericFilter with string", () => {
 });
 
 test("applyMatcher for all results", () => {
-  const filters = [];
+  const filters: FilterItem[] = [];
   expect(getFilteredDataWithMatcher(filters).length).toBe(generalRows.length);
 });
 
 test("applyMatcher for category", () => {
-  const filters = [
+  const filters: FilterItem[] = [
     { id: "0_test_0", value: "correct ", type: "status" },
     { id: "0_test_0", value: "true", type: "status" },
     { id: "0_test_0", value: "false(reach)", type: "status" },
@@ -190,7 +195,7 @@ test("applyMatcher for category", () => {
 });
 
 test("applyMatcher for status", () => {
-  const filters = [
+  const filters: FilterItem[] = [
     { id: "0_test_0", value: "true", type: "status" },
     { id: "0_test_0", value: "wrong ", type: "status" },
   ];
@@ -198,7 +203,7 @@ test("applyMatcher for status", () => {
 });
 
 test("applyMatcher for status with colon", () => {
-  const filters = [
+  const filters: FilterItem[] = [
     { id: "0_test_0", value: "UNKNOWN: test", type: "status" },
     { id: "0_test_0", value: "missing ", type: "status" },
   ];
@@ -206,7 +211,7 @@ test("applyMatcher for status with colon", () => {
 });
 
 test("applyMatcher for empty row", () => {
-  const filters = [
+  const filters: FilterItem[] = [
     { id: "0_test_0", value: "empty ", type: "status" },
     { id: "0_test_0", value: statusForEmptyRows, type: "status" },
   ];
@@ -214,26 +219,26 @@ test("applyMatcher for empty row", () => {
 });
 
 test("applyMatcher for textual id filter", () => {
-  const filters = [{ id: "id", value: "DefInItion.YmL" }];
+  const filters: FilterItem[] = [{ id: "id", value: "DefInItion.YmL" }];
   expect(getFilteredDataWithMatcher(filters).length).toBe(1);
 });
 
 test("applyMatcher for textual id filter with case mapping", () => {
-  const filters = [{ id: "id", value: "ſs" }];
+  const filters: FilterItem[] = [{ id: "id", value: "ſs" }];
   expect(getFilteredDataWithMatcher(filters).length).toBe(2);
 });
 
 test("applyMatcher for textual id filter with special RegExp character", () => {
-  const filters = [{ id: "id", value: "..." }];
+  const filters: FilterItem[] = [{ id: "id", value: "..." }];
   expect(getFilteredDataWithMatcher(filters).length).toBe(0);
 });
 
 test("applyMatcher for no results", () => {
-  const filters = [{ id: "id", value: "nomatch" }];
+  const filters: FilterItem[] = [{ id: "id", value: "nomatch" }];
   expect(getFilteredDataWithMatcher(filters).length).toBe(0);
 });
 
 test("applyMatcher for all results", () => {
-  const filters = [];
+  const filters: FilterItem[] = [];
   expect(getFilteredDataWithMatcher(filters).length).toBe(5);
 });

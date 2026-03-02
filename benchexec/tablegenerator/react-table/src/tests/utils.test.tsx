@@ -22,6 +22,23 @@ import {
   tokenizePart,
 } from "../utils/utils";
 
+/* ============================================================
+ * Types
+ * ============================================================ */
+
+type FilterSerializer = ReturnType<typeof makeFilterSerializer>;
+type FilterDeserializer = ReturnType<typeof makeFilterDeserializer>;
+type NumericSortCellValue = Parameters<typeof numericSortMethod>[0];
+type TextSortCellValue = Parameters<typeof textSortMethod>[0];
+type SerializerInput = Parameters<typeof makeFilterSerializer>[0];
+type DistinctValuesByRunset = SerializerInput["statusValues"];
+type Serializer = ReturnType<typeof makeFilterSerializer>;
+type SerializerArg = Parameters<Serializer>[0]; // <- this is FilterItem[]
+
+type SerializedFilterItem =
+  | { id: string; value: string; isTableTabFilter?: boolean }
+  | { id: string; values: string[] };
+
 describe("isStatusOk", () => {
   test("should return true if status code is 0", () => {
     expect(isOkStatus(0)).toBe(true);
@@ -39,7 +56,7 @@ describe("isStatusOk", () => {
     expect(isOkStatus({ a: "b" })).toBe(false);
   });
   test("should return false if nothing is passed", () => {
-    expect(isOkStatus()).toBe(false);
+    expect(isOkStatus(undefined)).toBe(false);
   });
 });
 
@@ -58,18 +75,32 @@ describe("numericSortMethod", () => {
   });
 
   test("should order items without raw prop last", () => {
-    const testObject = { raw: 1 };
-    const objectWithoutProp = { fake: 1 };
+    const testObject = { raw: 1 } as NumericSortCellValue;
+    const objectWithoutProp = { fake: 1 } as unknown as NumericSortCellValue;
     expect(numericSortMethod(objectWithoutProp, testObject)).toBeGreaterThan(0);
     expect(numericSortMethod(testObject, objectWithoutProp)).toBeLessThan(0);
   });
 
   test("should be nil safe", () => {
     const testObject = { raw: 1 };
-    expect(numericSortMethod(null, testObject)).toBeGreaterThan(0);
-    expect(numericSortMethod(undefined, testObject)).toBeGreaterThan(0);
-    expect(numericSortMethod(testObject, null)).toBeLessThan(0);
-    expect(numericSortMethod(testObject, undefined)).toBeLessThan(0);
+    expect(
+      numericSortMethod(null as unknown as NumericSortCellValue, testObject),
+    ).toBeGreaterThan(0);
+    expect(
+      numericSortMethod(
+        undefined as unknown as NumericSortCellValue,
+        testObject,
+      ),
+    ).toBeGreaterThan(0);
+    expect(
+      numericSortMethod(testObject, null as unknown as NumericSortCellValue),
+    ).toBeLessThan(0);
+    expect(
+      numericSortMethod(
+        testObject,
+        undefined as unknown as NumericSortCellValue,
+      ),
+    ).toBeLessThan(0);
   });
 });
 
@@ -156,7 +187,10 @@ describe("hashRouting helpers", () => {
 
     test("should return the same URL with exisiting params if no parameters are provided", () => {
       const baseUrl = "http://example.com?exisitingKey=existingValue";
-      const params = {};
+      const params: Record<
+        string,
+        string | number | boolean | null | undefined
+      > = {};
 
       const expected = {
         newUrl: "http://example.com?exisitingKey=existingValue",
@@ -234,9 +268,9 @@ describe("makeRegExp", () => {
   });
 
   test("should throw error if value is not of type string", () => {
-    const value = [];
+    const value: unknown = [];
     expect(() => {
-      makeRegExp(value);
+      makeRegExp(value as unknown as string);
     }).toThrow();
   });
 });
@@ -287,24 +321,26 @@ describe("tokenizePart", () => {
 });
 
 describe("serialization", () => {
-  let serializer;
+  let serializer: FilterSerializer;
+
   const statusValues = [
     [["true", "false", "TIMEOUT", "OOM", "false(reach)"]],
     [["true", "false", "TIMEOUT", "OOM", "false(reach)"]],
-  ];
+  ] as unknown as DistinctValuesByRunset;
   const categoryValues = [
     [["correct ", "wrong ", "missing ", "unknown "]],
     [["correct ", "wrong ", "missing ", "unknown "]],
-  ];
+  ] as unknown as SerializerInput["categoryValues"];
 
-  const makeSelection = (selection, base) => {
+  const makeSelection = (selection: string[] | null, base: string[]) => {
     // the status column has id 0
-    return base[0].filter((item) =>
+    return base.filter((item) =>
       selection && selection.length > 0
         ? selection.every((select) => item !== select)
         : true,
     );
   };
+
   beforeEach(() => {
     serializer = makeFilterSerializer({
       statusValues,
@@ -313,38 +349,46 @@ describe("serialization", () => {
   });
 
   test("should serialize id filters", () => {
-    const filter = [{ id: "id", values: ["abc", "def"] }];
+    const filter: SerializedFilterItem[] = [
+      { id: "id", values: ["abc", "def"] },
+    ];
     const expected = "id(values(abc,def))";
 
-    expect(serializer(filter)).toBe(expected);
+    expect(serializer(filter as unknown as SerializerArg)).toBe(expected);
   });
 
   test("should serialize id filters with parentheses", () => {
-    const filter = [{ id: "id", values: ["(", ")"] }];
+    const filter: SerializedFilterItem[] = [{ id: "id", values: ["(", ")"] }];
     const expected = "id(values(%28,%29))";
 
-    expect(serializer(filter)).toBe(expected);
+    expect(serializer(filter as unknown as SerializerArg)).toBe(expected);
   });
 
   test("should serialize id filter to escape special characters", () => {
-    const filter = [{ id: "id", value: "?#&=(),*", isTableTabFilter: true }];
+    const filter: SerializedFilterItem[] = [
+      { id: "id", value: "?#&=(),*", isTableTabFilter: true },
+    ];
     const expected = "id_any(value(%3F%23%26%3D%28%29%2C*))";
 
-    expect(serializer(filter)).toBe(expected);
+    expect(serializer(filter as unknown as SerializerArg)).toBe(expected);
   });
 
   test("should serialize id filter with one opening parentheses", () => {
-    const filter = [{ id: "id", value: "(", isTableTabFilter: true }];
+    const filter: SerializedFilterItem[] = [
+      { id: "id", value: "(", isTableTabFilter: true },
+    ];
     const expected = "id_any(value(%28))";
 
-    expect(serializer(filter)).toBe(expected);
+    expect(serializer(filter as unknown as SerializerArg)).toBe(expected);
   });
 
   test("should serialize id filter with one closing parentheses", () => {
-    const filter = [{ id: "id", value: ")", isTableTabFilter: true }];
+    const filter: SerializedFilterItem[] = [
+      { id: "id", value: ")", isTableTabFilter: true },
+    ];
     const expected = "id_any(value(%29))";
 
-    expect(serializer(filter)).toBe(expected);
+    expect(serializer(filter as unknown as SerializerArg)).toBe(expected);
   });
 
   test("should serialize normal value filters for one runset", () => {
@@ -356,7 +400,7 @@ describe("serialization", () => {
     const urlencoded = escape("1223:4567");
     const expected = `0(1*cputime*(value(${urlencoded})),2*hostname*(value(satu)))`;
 
-    expect(serializer(filter)).toBe(expected);
+    expect(serializer(filter as unknown as SerializerArg)).toBe(expected);
   });
 
   test("should serialize normal value filters in multiple runsets", () => {
@@ -374,7 +418,7 @@ describe("serialization", () => {
     const filterRunset2 = `1(1*cputime*(value(${urlencoded2})),2*hostname*(value(tilo)))`;
     const expected = `${filterRunset1},${filterRunset2}`;
 
-    expect(serializer(filter)).toBe(expected);
+    expect(serializer(filter as unknown as SerializerArg)).toBe(expected);
   });
 
   test("should serialize normal value filters in multiple runsets and id filter", () => {
@@ -393,13 +437,13 @@ describe("serialization", () => {
     const filterRunset2 = `1(1*cputime*(value(${urlencoded2})),2*hostname*(value(tilo)))`;
     const expected = `id(values(abc,def)),${filterRunset1},${filterRunset2}`;
 
-    expect(serializer(filter)).toBe(expected);
+    expect(serializer(filter as unknown as SerializerArg)).toBe(expected);
   });
 
   test("should serialize status filter correctly (notIn)", () => {
     const uncheckedBoxes = ["true", "false"];
-    const selected = makeSelection(uncheckedBoxes, statusValues[0]);
-    const standardCategories = makeSelection(null, categoryValues[0]);
+    const selected = makeSelection(uncheckedBoxes, statusValues[0][0]);
+    const standardCategories = makeSelection(null, categoryValues[0][0]);
 
     const filter = selected.map((status) => ({
       id: "0_status_0",
@@ -415,13 +459,13 @@ describe("serialization", () => {
     const expected =
       "0(0*status*(status(notIn(true,false)),category(notIn())))";
 
-    expect(serializer(filter)).toBe(expected);
+    expect(serializer(filter as unknown as SerializerArg)).toBe(expected);
   });
 
   test("should serialize status filter correctly (in)", () => {
     const uncheckedBoxes = ["true", "false", "TIMEOUT"];
-    const selected = makeSelection(uncheckedBoxes, statusValues[0]);
-    const standardCategories = makeSelection(null, categoryValues[0]);
+    const selected = makeSelection(uncheckedBoxes, statusValues[0][0]);
+    const standardCategories = makeSelection(null, categoryValues[0][0]);
 
     const filter = selected.map((status) => ({
       id: "0_status_0",
@@ -438,17 +482,17 @@ describe("serialization", () => {
 
     const expected = `0(0*status*(status(in(OOM,${encoded})),category(notIn())))`;
 
-    expect(serializer(filter)).toBe(expected);
+    expect(serializer(filter as unknown as SerializerArg)).toBe(expected);
   });
 
   test("should serialize status filter correctly in multiple runsets", () => {
     const uncheckedBoxes1 = ["true", "false", "TIMEOUT"];
     const uncheckedBoxes2 = ["true", "false"];
-    const selected1 = makeSelection(uncheckedBoxes1, statusValues[0]);
-    const selected2 = makeSelection(uncheckedBoxes2, statusValues[0]);
-    const standardCategories = makeSelection(null, categoryValues[0]);
+    const selected1 = makeSelection(uncheckedBoxes1, statusValues[0][0]);
+    const selected2 = makeSelection(uncheckedBoxes2, statusValues[0][0]);
+    const standardCategories0 = makeSelection(null, categoryValues[0][0]);
 
-    const makeStatus = (selection, runset) =>
+    const makeStatus = (selection: string[], runset: number) =>
       selection.map((status) => ({
         id: `${runset}_status_0`,
         value: status,
@@ -457,14 +501,14 @@ describe("serialization", () => {
     const filter = [...makeStatus(selected1, 0), ...makeStatus(selected2, 1)];
 
     filter.push(
-      ...standardCategories.map((category) => ({
+      ...standardCategories0.map((category) => ({
         id: "0_status_0",
         value: category,
       })),
     );
 
     filter.push(
-      ...standardCategories.map((category) => ({
+      ...standardCategories0.map((category) => ({
         id: "1_status_0",
         value: category,
       })),
@@ -475,14 +519,16 @@ describe("serialization", () => {
     const expected1 = `0(0*status*(status(in(OOM,${encoded})),category(notIn())))`;
     const expected2 = `1(0*status*(status(notIn(true,false)),category(notIn())))`;
 
-    expect(serializer(filter)).toBe(`${expected1},${expected2}`);
+    expect(serializer(filter as unknown as SerializerArg)).toBe(
+      `${expected1},${expected2}`,
+    );
   });
 
   test("should serialize category filter correctly (notIn)", () => {
     const uncheckedBoxes = ["unknown "];
-    const selected = makeSelection(uncheckedBoxes, categoryValues[0]);
+    const selected = makeSelection(uncheckedBoxes, categoryValues[0][0]);
 
-    const standardStatus = makeSelection(null, statusValues[0]);
+    const standardStatus = makeSelection(null, statusValues[0][0]);
 
     const filter = selected.map((status) => ({
       id: "0_status_0",
@@ -498,14 +544,14 @@ describe("serialization", () => {
 
     const expected = "0(0*status*(status(notIn()),category(notIn(unknown))))";
 
-    expect(serializer(filter)).toBe(expected);
+    expect(serializer(filter as unknown as SerializerArg)).toBe(expected);
   });
 
   test("should serialize category filter correctly (in)", () => {
     const uncheckedBoxes = ["correct ", "wrong "];
-    const selected = makeSelection(uncheckedBoxes, categoryValues[0]);
+    const selected = makeSelection(uncheckedBoxes, categoryValues[0][0]);
 
-    const standardStatus = makeSelection(null, statusValues[0]);
+    const standardStatus = makeSelection(null, statusValues[0][0]);
 
     const filter = selected.map((status) => ({
       id: "0_status_0",
@@ -521,18 +567,18 @@ describe("serialization", () => {
 
     const expected = `0(0*status*(status(notIn()),category(in(missing,unknown))))`;
 
-    expect(serializer(filter)).toBe(expected);
+    expect(serializer(filter as unknown as SerializerArg)).toBe(expected);
   });
 
   test("should serialize category filter correctly in multiple runsets", () => {
     const uncheckedBoxes1 = ["correct ", "wrong "];
     const uncheckedBoxes2 = ["unknown "];
-    const selected1 = makeSelection(uncheckedBoxes1, categoryValues[0]);
-    const selected2 = makeSelection(uncheckedBoxes2, categoryValues[0]);
+    const selected1 = makeSelection(uncheckedBoxes1, categoryValues[0][0]);
+    const selected2 = makeSelection(uncheckedBoxes2, categoryValues[0][0]);
 
-    const standardStatus = makeSelection(null, statusValues[0]);
+    const standardStatus = makeSelection(null, statusValues[0][0]);
 
-    const makeStatus = (selection, runset) =>
+    const makeStatus = (selection: string[], runset: number) =>
       selection.map((status) => ({
         id: `${runset}_status_0`,
         value: status,
@@ -557,12 +603,14 @@ describe("serialization", () => {
     const expected1 = `0(0*status*(status(notIn()),category(in(missing,unknown))))`;
     const expected2 = `1(0*status*(status(notIn()),category(notIn(unknown))))`;
 
-    expect(serializer(filter)).toBe(`${expected1},${expected2}`);
+    expect(serializer(filter as unknown as SerializerArg)).toBe(
+      `${expected1},${expected2}`,
+    );
   });
 
   test("should serialize category filter and status filter", () => {
     const uncheckedBoxes = ["correct ", "wrong "];
-    const selected = makeSelection(uncheckedBoxes, categoryValues[0]);
+    const selected = makeSelection(uncheckedBoxes, categoryValues[0][0]);
 
     const filter = selected.map((category) => ({
       id: "0_status_0",
@@ -572,12 +620,16 @@ describe("serialization", () => {
 
     const expected = `0(0*status*(status(in(true)),category(in(missing,unknown))))`;
 
-    expect(serializer(filter)).toBe(expected);
+    expect(serializer(filter as unknown as SerializerArg)).toBe(expected);
   });
 
   test("Should handle empty status filters", () => {
-    const testStatusValues = [[["true", "false"]]];
-    const testCategoryValues = [[["correct ", "wrong ", "missing "]]];
+    const testStatusValues = [
+      [["true", "false"]],
+    ] as unknown as DistinctValuesByRunset;
+    const testCategoryValues = [
+      [["correct ", "wrong ", "missing "]],
+    ] as unknown as SerializerInput["categoryValues"];
 
     const inp = [
       { id: "0_status_0", value: "wrong " },
@@ -592,12 +644,16 @@ describe("serialization", () => {
       categoryValues: testCategoryValues,
     });
 
-    expect(testSerializer(inp)).toBe(expected);
+    expect(testSerializer(inp as unknown as SerializerArg)).toBe(expected);
   });
 
   test("Should handle empty category filters", () => {
-    const testStatusValues = [[["true", "false"]]];
-    const testCategoryValues = [[["correct ", "wrong ", "missing "]]];
+    const testStatusValues = [
+      [["true", "false"]],
+    ] as unknown as DistinctValuesByRunset;
+    const testCategoryValues = [
+      [["correct ", "wrong ", "missing "]],
+    ] as unknown as SerializerInput["categoryValues"];
 
     const inp = [
       { id: "0_status_0", value: "true" },
@@ -611,12 +667,16 @@ describe("serialization", () => {
       categoryValues: testCategoryValues,
     });
 
-    expect(testSerializer(inp)).toBe(expected);
+    expect(testSerializer(inp as unknown as SerializerArg)).toBe(expected);
   });
 
   test("Should produce an empty status filter if all fields are selected", () => {
-    const testStatusValues = [[["true", "false"]]];
-    const testCategoryValues = [[["correct ", "wrong ", "missing "]]];
+    const testStatusValues = [
+      [["true", "false"]],
+    ] as unknown as DistinctValuesByRunset;
+    const testCategoryValues = [
+      [["correct ", "wrong ", "missing "]],
+    ] as unknown as SerializerInput["categoryValues"];
 
     const inp = [
       { id: "0_status_0", value: "true" },
@@ -636,25 +696,25 @@ describe("serialization", () => {
     const expected =
       "0(0*status*(status(notIn()),category(notIn())),1*cputime*(value(1234)))";
 
-    expect(testSerializer(inp)).toEqual(expected);
+    expect(testSerializer(inp as unknown as SerializerArg)).toEqual(expected);
   });
 });
 
 describe("Filter deserialization", () => {
-  let deserializer;
+  let deserializer: FilterDeserializer;
 
   const statusValues = [
     [["true", "false", "TIMEOUT", "OOM", "false(reach)"]],
     [["true", "false", "TIMEOUT", "OOM", "false(reach)"]],
-  ];
+  ] as unknown as DistinctValuesByRunset;
   const categoryValues = [
     [["correct ", "wrong ", "missing ", "unknown "]],
     [["correct ", "wrong ", "missing ", "unknown "]],
-  ];
+  ] as unknown as SerializerInput["categoryValues"];
 
-  const makeStandardStatusValues = (id) =>
+  const makeStandardStatusValues = (id: string) =>
     statusValues[0][0].map((value) => ({ id, value }));
-  const makeStandardCategoryValues = (id) =>
+  const makeStandardCategoryValues = (id: string) =>
     categoryValues[0][0].map((value) => ({ id, value }));
 
   beforeEach(() => {
@@ -663,61 +723,47 @@ describe("Filter deserialization", () => {
 
   test("should deserialize id filter", () => {
     const string = "id(values(abc,def))";
-
     const expected = [{ id: "id", values: ["abc", "def"] }];
-
     expect(deserializer(string)).toStrictEqual(expected);
   });
 
   test("should serialize id filters with parentheses", () => {
     const string = "id(values(%28,%29))";
-
     const expected = [{ id: "id", values: ["(", ")"] }];
-
     expect(deserializer(string)).toStrictEqual(expected);
   });
 
   test("should deserialize id filter with one opening parentheses", () => {
     const string = "id_any(value(%28))";
-
     const expected = [{ id: "id", value: "(", isTableTabFilter: true }];
-
     expect(deserializer(string)).toStrictEqual(expected);
   });
 
   test("should deserialize id filter with one closing parentheses", () => {
     const string = "id_any(value(%29))";
-
     const expected = [{ id: "id", value: ")", isTableTabFilter: true }];
-
     expect(deserializer(string)).toStrictEqual(expected);
   });
 
   test("should deserialize Table Tab Id filter with special characters", () => {
     const string = "id_any(value(%3F%23%26%3D()%2C*))*";
-
     const expected = [{ id: "id", value: "?#&=(),*", isTableTabFilter: true }];
-
     expect(deserializer(string)).toStrictEqual(expected);
   });
 
   test("should deserialize normal values for one runset", () => {
     const string = "0(1*cputime*(value(%3A1234)))";
-
     const expected = [{ id: "0_cputime_1", value: ":1234" }];
-
     expect(deserializer(string)).toStrictEqual(expected);
   });
 
   test("should deserialize normal values for many runsets", () => {
     const string =
       "0(1*cputime*(value(%3A1234))),1(1*cputime*(value(23%3A1234)))";
-
     const expected = [
       { id: "0_cputime_1", value: ":1234" },
       { id: "1_cputime_1", value: "23:1234" },
     ];
-
     expect(deserializer(string)).toStrictEqual(expected);
   });
 
@@ -815,106 +861,88 @@ describe("Filter deserialization", () => {
 
   test("should handle empty category filters correctly", () => {
     const string = "0(0*status*(category(empty()),status(in(true))))";
-
     const expected = [{ id: "0_status_0", value: "true" }];
-
     expect(deserializer(string)).toStrictEqual(expected);
   });
 
   test("should handle empty status filters correctly", () => {
     const string = "0(0*status*(category(in(missing)),status(empty())))";
-
     const expected = [{ id: "0_status_0", value: "missing " }];
-
     expect(deserializer(string)).toStrictEqual(expected);
   });
 });
 
 describe("NumberFormatterBuilder", () => {
-  let builder;
+  let builder: InstanceType<typeof NumberFormatterBuilder>;
+
   beforeEach(() => {
     builder = new NumberFormatterBuilder(4);
   });
+
   test("should not count decimal point as significant number", () => {
     const formatter = builder.build();
-
     const number = "12.34";
-
-    expect(formatter(number)).toBe("12.34");
+    expect(formatter(number as unknown as number)).toBe("12.34");
   });
 
   test("should correctly format numbers with integral and fractional parts", () => {
     const formatter = builder.build();
-
     const number = "12.30000000123";
-
-    expect(formatter(number)).toBe("12.30");
+    expect(formatter(number as unknown as number)).toBe("12.30");
   });
 
   test("should handle if postfix has a decimal point", () => {
     const formatter = builder.build();
-
     const number = "1234.342";
-
-    expect(formatter(number)).toBe("1234");
+    expect(formatter(number as unknown as number)).toBe("1234");
   });
 
   test("should handle if postfix has a leading decimal point", () => {
     const formatter = builder.build();
-
     const number = "12345.342";
-
-    expect(formatter(number)).toBe("12350");
+    expect(formatter(number as unknown as number)).toBe("12350");
   });
 
   test("in fractions below 1, should add all zeros before the first non-zero digit", () => {
     const formatter = builder.build();
-
     const number = "0.000001234";
-
-    expect(formatter(number)).toBe("0.000001234");
+    expect(formatter(number as unknown as number)).toBe("0.000001234");
   });
 
   test("should identify comma and dots as decimal points", () => {
     const formatter = builder.build();
-
     const numberDot = "12.34";
     const numberComma = "12,34";
-
-    expect(formatter(numberDot)).toBe("12.34");
-    expect(formatter(numberComma)).toBe("12.34");
+    expect(formatter(numberDot as unknown as number)).toBe("12.34");
+    expect(formatter(numberComma as unknown as number)).toBe("12.34");
   });
 
   test("should round whole integer numbers after significant digits have been reached", () => {
     const formatter = builder.build();
     const number = "123456789";
-
-    expect(formatter(number)).toBe("123500000");
+    expect(formatter(number as unknown as number)).toBe("123500000");
   });
 
   test("should round fractions after significant digits have been reached", () => {
     const formatter = builder.build();
     const number = "0.123456789";
-
-    expect(formatter(number)).toBe("0.1235");
+    expect(formatter(number as unknown as number)).toBe("0.1235");
   });
 
   test("should return number without rounding if no significant digits were provided", () => {
     const newBuilder = new NumberFormatterBuilder();
     const formatter = newBuilder.build();
     const number = "123456789";
-
-    expect(formatter(number)).toBe("123456789");
+    expect(formatter(number as unknown as number)).toBe("123456789");
   });
 
   test("should format whitespaces according to dataset context", () => {
-    builder.addDataItem("1234");
-    builder.addDataItem("0.12345");
-    builder.addDataItem("0.02345");
+    builder.addDataItem("1234" as unknown as number);
+    builder.addDataItem("0.12345" as unknown as number);
+    builder.addDataItem("0.02345" as unknown as number);
 
     const formatter = builder.build();
 
-    // we have 4 digits before and 5 digits after the decimal point
     const number1 = "23";
     const number2 = "23.1";
     const number3 = "0.123";
@@ -925,10 +953,18 @@ describe("NumberFormatterBuilder", () => {
     const expected3 = "0.123  ";
     const expected4 = "0.01337";
 
-    const actual1 = formatter(number1, { whitespaceFormat: true });
-    const actual2 = formatter(number2, { whitespaceFormat: true });
-    const actual3 = formatter(number3, { whitespaceFormat: true });
-    const actual4 = formatter(number4, { whitespaceFormat: true });
+    const actual1 = formatter(number1 as unknown as number, {
+      whitespaceFormat: true,
+    });
+    const actual2 = formatter(number2 as unknown as number, {
+      whitespaceFormat: true,
+    });
+    const actual3 = formatter(number3 as unknown as number, {
+      whitespaceFormat: true,
+    });
+    const actual4 = formatter(number4 as unknown as number, {
+      whitespaceFormat: true,
+    });
 
     expect(actual1).toBe(expected1);
     expect(actual2).toBe(expected2);
@@ -937,13 +973,12 @@ describe("NumberFormatterBuilder", () => {
   });
 
   test("should format whitespaces with html", () => {
-    builder.addDataItem("1234");
-    builder.addDataItem("0.12345");
-    builder.addDataItem("0.02345");
+    builder.addDataItem("1234" as unknown as number);
+    builder.addDataItem("0.12345" as unknown as number);
+    builder.addDataItem("0.02345" as unknown as number);
 
     const formatter = builder.build();
 
-    // we have 4 digits before and 5 digits after the decimal point
     const number1 = "23";
     const number2 = "23.1";
     const number3 = "0.123";
@@ -954,10 +989,22 @@ describe("NumberFormatterBuilder", () => {
     const expected3 = "0.123  ".replace(/ /g, "&#x2007;");
     const expected4 = "0.01337".replace(/ /g, "&#x2007;");
 
-    const actual1 = formatter(number1, { whitespaceFormat: true, html: true });
-    const actual2 = formatter(number2, { whitespaceFormat: true, html: true });
-    const actual3 = formatter(number3, { whitespaceFormat: true, html: true });
-    const actual4 = formatter(number4, { whitespaceFormat: true, html: true });
+    const actual1 = formatter(number1 as unknown as number, {
+      whitespaceFormat: true,
+      html: true,
+    });
+    const actual2 = formatter(number2 as unknown as number, {
+      whitespaceFormat: true,
+      html: true,
+    });
+    const actual3 = formatter(number3 as unknown as number, {
+      whitespaceFormat: true,
+      html: true,
+    });
+    const actual4 = formatter(number4 as unknown as number, {
+      whitespaceFormat: true,
+      html: true,
+    });
 
     expect(actual1).toBe(expected1);
     expect(actual2).toBe(expected2);
@@ -1034,6 +1081,7 @@ describe("NumberFormatterBuilder", () => {
 
     expect(actual).toBe("0.00000022");
   });
+
   test("should correctly handle numbers in scientific notation with a integer coeffecient", () => {
     const num = 2e-7;
 
@@ -1104,16 +1152,22 @@ describe("NumberFormatterBuilder", () => {
 
   describe("additionalFormatting function", () => {
     test("Should correctly pass number of significant digits in context", async () => {
-      let resolve;
+      let resolve!: () => void;
 
-      const promise = new Promise((res) => {
+      const promise = new Promise<void>((res) => {
         resolve = res;
       });
 
-      const additionalFormatting = (_, context) => {
-        expect(context.significantDigits).toBe(9);
+      const additionalFormatting = ((
+        x: string,
+        ctx: { significantDigits?: number },
+      ) => {
+        expect(ctx.significantDigits).toBe(9);
         resolve();
-      };
+        return x; // must return string
+      }) as unknown as NonNullable<
+        Parameters<ReturnType<NumberFormatterBuilder["build"]>>[1]
+      >["additionalFormatting"];
 
       const b = new NumberFormatterBuilder(9);
       const formatter = b.build();
@@ -1124,16 +1178,22 @@ describe("NumberFormatterBuilder", () => {
     });
 
     test("Should correctly pass max length of decimals of input", async () => {
-      let resolve;
+      let resolve!: () => void;
 
-      const promise = new Promise((res) => {
+      const promise = new Promise<void>((res) => {
         resolve = res;
       });
 
-      const additionalFormatting = (_, context) => {
-        expect(context.maxDecimalInputLength).toBe(4);
+      const additionalFormatting = ((
+        x: string,
+        ctx: { maxDecimalInputLength?: number },
+      ) => {
+        expect(ctx.maxDecimalInputLength).toBe(4);
         resolve();
-      };
+        return x;
+      }) as unknown as NonNullable<
+        Parameters<ReturnType<NumberFormatterBuilder["build"]>>[1]
+      >["additionalFormatting"];
 
       const b = new NumberFormatterBuilder(9);
       b.addDataItem(1);
@@ -1149,102 +1209,117 @@ describe("NumberFormatterBuilder", () => {
   });
 });
 
-describe(
-  "textSortMethod",
-  () => {
-    test("should evaluate order of objects with different values", () => {
-      const smaller = { raw: "a" };
-      const bigger = { raw: "b" };
-      expect(textSortMethod(bigger, smaller)).toBeGreaterThan(0);
-      expect(textSortMethod(smaller, bigger)).toBeLessThan(0);
-    });
+describe("textSortMethod", () => {
+  test("should evaluate order of objects with different values", () => {
+    const smaller = { raw: "a" };
+    const bigger = { raw: "b" };
+    expect(textSortMethod(bigger, smaller)).toBeGreaterThan(0);
+    expect(textSortMethod(smaller, bigger)).toBeLessThan(0);
+  });
 
-    test("should sort strings with different values without case sensitivy", () => {
-      const smaller = { raw: "a" };
-      const bigger = { raw: "B" };
-      expect(textSortMethod(bigger, smaller)).toBeGreaterThan(0);
-      expect(textSortMethod(smaller, bigger)).toBeLessThan(0);
-    });
+  test("should sort strings with different values without case sensitivy", () => {
+    const smaller = { raw: "a" };
+    const bigger = { raw: "B" };
+    expect(textSortMethod(bigger, smaller)).toBeGreaterThan(0);
+    expect(textSortMethod(smaller, bigger)).toBeLessThan(0);
+  });
 
-    test("should evaluate order of objects with same values", () => {
-      const even1 = { raw: "a" };
-      const even2 = { raw: "a" };
-      expect(textSortMethod(even1, even2)).toBe(0);
-    });
+  test("should evaluate order of objects with same values", () => {
+    const even1 = { raw: "a" };
+    const even2 = { raw: "a" };
+    expect(textSortMethod(even1, even2)).toBe(0);
+  });
 
-    test("should sort strings with same values without case sensitivity", () => {
-      const even1 = { raw: "a" };
-      const even2 = { raw: "A" };
-      expect(textSortMethod(even1, even2)).toBe(0);
-    });
+  test("should sort strings with same values without case sensitivity", () => {
+    const even1 = { raw: "a" };
+    const even2 = { raw: "A" };
+    expect(textSortMethod(even1, even2)).toBe(0);
+  });
 
-    test("should sort empty value last", () => {
-      const bigger = { raw: "" };
-      const smaller = { raw: "a" };
-      expect(textSortMethod(bigger, smaller)).toBeGreaterThan(0);
-      expect(textSortMethod(smaller, bigger)).toBeLessThan(0);
-    });
+  test("should sort empty value last", () => {
+    const bigger = { raw: "" };
+    const smaller = { raw: "a" };
+    expect(textSortMethod(bigger, smaller)).toBeGreaterThan(0);
+    expect(textSortMethod(smaller, bigger)).toBeLessThan(0);
+  });
 
-    test("should order items without raw prop last", () => {
-      const testObject = { raw: "a" };
-      const objectWithoutProp = { fake: "a" };
-      expect(textSortMethod(objectWithoutProp, testObject)).toBeGreaterThan(0);
-      expect(textSortMethod(testObject, objectWithoutProp)).toBeLessThan(0);
-    });
+  test("should order items without raw prop last", () => {
+    const testObject = { raw: "a" };
+    const objectWithoutProp = { fake: "a" };
+    expect(
+      textSortMethod(
+        objectWithoutProp as unknown as TextSortCellValue,
+        testObject,
+      ),
+    ).toBeGreaterThan(0);
+    expect(
+      textSortMethod(
+        testObject,
+        objectWithoutProp as unknown as TextSortCellValue,
+      ),
+    ).toBeLessThan(0);
+  });
 
-    test("should be nil safe", () => {
-      const testObject = { raw: "a" };
-      expect(textSortMethod(null, testObject)).toBeGreaterThan(0);
-      expect(textSortMethod(undefined, testObject)).toBeGreaterThan(0);
-      expect(textSortMethod(testObject, null)).toBeLessThan(0);
-      expect(textSortMethod(testObject, undefined)).toBeLessThan(0);
-    });
-  },
+  test("should be nil safe", () => {
+    const testObject = { raw: "a" };
+    expect(
+      textSortMethod(null as unknown as TextSortCellValue, testObject),
+    ).toBeGreaterThan(0);
+    expect(
+      textSortMethod(undefined as unknown as TextSortCellValue, testObject),
+    ).toBeGreaterThan(0);
+    expect(
+      textSortMethod(testObject, null as unknown as TextSortCellValue),
+    ).toBeLessThan(0);
+    expect(
+      textSortMethod(testObject, undefined as unknown as TextSortCellValue),
+    ).toBeLessThan(0);
+  });
+});
 
-  describe("hasSameEntries", () => {
-    test("should return true if the same arrays are passed", () => {
-      const a = ["a", "b", "c"];
-      const b = ["a", "b", "c"];
-      expect(hasSameEntries(a, b)).toBe(true);
-    });
+describe("hasSameEntries", () => {
+  test("should return true if the same arrays are passed", () => {
+    const a = ["a", "b", "c"];
+    const b = ["a", "b", "c"];
+    expect(hasSameEntries(a, b)).toBe(true);
+  });
 
-    test("should return true if the same elements are present but in different order", () => {
-      const a = ["a", "b", "c"];
-      const b = ["c", "a", "b"];
-      expect(hasSameEntries(a, b)).toBe(true);
-    });
+  test("should return true if the same elements are present but in different order", () => {
+    const a = ["a", "b", "c"];
+    const b = ["c", "a", "b"];
+    expect(hasSameEntries(a, b)).toBe(true);
+  });
 
-    test("should return true if the second array is a subset of the first one", () => {
-      const a = ["a", "b", "c"];
-      const b = ["a", "b"];
-      expect(hasSameEntries(a, b)).toBe(true);
-    });
+  test("should return true if the second array is a subset of the first one", () => {
+    const a = ["a", "b", "c"];
+    const b = ["a", "b"];
+    expect(hasSameEntries(a, b)).toBe(true);
+  });
 
-    test("should return false if the second array has elements that are not in the first array", () => {
-      const a = ["a", "b", "c"];
-      const b = ["a", "b", "x"];
-      expect(hasSameEntries(a, b)).toBe(false);
-    });
+  test("should return false if the second array has elements that are not in the first array", () => {
+    const a = ["a", "b", "c"];
+    const b = ["a", "b", "x"];
+    expect(hasSameEntries(a, b)).toBe(false);
+  });
 
-    test("should return false if the first array is a subset of the second one", () => {
-      const a = ["a", "b"];
-      const b = ["a", "b", "c"];
-      expect(hasSameEntries(a, b)).toBe(false);
-    });
+  test("should return false if the first array is a subset of the second one", () => {
+    const a = ["a", "b"];
+    const b = ["a", "b", "c"];
+    expect(hasSameEntries(a, b)).toBe(false);
+  });
 
-    test("should return false if the first array is empty", () => {
-      const a = [];
-      const b = ["a", "b", "c"];
-      expect(hasSameEntries(a, b)).toBe(false);
-    });
+  test("should return false if the first array is empty", () => {
+    const a: string[] = [];
+    const b = ["a", "b", "c"];
+    expect(hasSameEntries(a, b)).toBe(false);
+  });
 
-    test("should return true if the second array is empty", () => {
-      const a = ["a", "b"];
-      const b = [];
-      expect(hasSameEntries(a, b)).toBe(true);
-    });
-  }),
-);
+  test("should return true if the second array is empty", () => {
+    const a = ["a", "b"];
+    const b: string[] = [];
+    expect(hasSameEntries(a, b)).toBe(true);
+  });
+});
 
 describe("splitUrlPathForMatchingPrefix", () => {
   test("should work if both URLs are equal", () => {

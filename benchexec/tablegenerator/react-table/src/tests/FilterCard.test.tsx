@@ -6,21 +6,27 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import React from "react";
-import renderer from "react-test-renderer";
+import * as renderer from "react-test-renderer";
 
 import { render } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-import FilterCard from "../components/FilterBox/FilterCard.tsx";
+import FilterCard from "../components/FilterBox/FilterCard";
 
-const createFilterCard = (props) => <FilterCard {...props} />;
+type FilterCardProps = React.ComponentProps<typeof FilterCard>;
+type FilterUpdateHandler = NonNullable<FilterCardProps["onFilterUpdate"]>;
+type FilterUpdatePayload = Parameters<FilterUpdateHandler>[0];
+
+const createFilterCard = (props: Partial<FilterCardProps>) => (
+  <FilterCard {...(props as Partial<FilterCardProps> as FilterCardProps)} />
+);
 
 describe("FilterCard tests", () => {
   test("FilterCard should allow selection of available filters", () => {
     const availableFilters = [
       { display_title: "Filter1", idx: 0 },
       { display_title: "Filter2", idx: 1 },
-    ];
+    ] as unknown as FilterCardProps["availableFilters"];
     const Card = createFilterCard({ availableFilters, editable: true });
 
     expect(renderer.create(Card)).toMatchSnapshot();
@@ -32,7 +38,7 @@ describe("FilterCard tests", () => {
       categories: ["cat1", "correct", "wrong"],
       statuses: ["true", "false(reach)"],
       type: "status",
-    };
+    } as unknown as FilterCardProps["filter"];
     const Card = createFilterCard({ title: "Status", filter });
 
     expect(renderer.create(Card)).toMatchSnapshot();
@@ -44,7 +50,7 @@ describe("FilterCard tests", () => {
       min: 1337,
       max: 9001,
       type: "measure",
-    };
+    } as unknown as FilterCardProps["filter"];
     const Card = createFilterCard({ title: "cputime", filter });
 
     expect(renderer.create(Card)).toMatchSnapshot();
@@ -54,7 +60,7 @@ describe("FilterCard tests", () => {
     const filter = {
       display_title: "host",
       type: "text",
-    };
+    } as unknown as FilterCardProps["filter"];
     const Card = createFilterCard({ title: "host", filter });
 
     expect(renderer.create(Card)).toMatchSnapshot();
@@ -67,7 +73,7 @@ describe("FilterCard tests", () => {
       statuses: ["true", "false(reach)"],
       values: ["true"],
       type: "status",
-    };
+    } as unknown as FilterCardProps["filter"];
     const Card = createFilterCard({ title: "Status", filter });
 
     expect(renderer.create(Card)).toMatchSnapshot();
@@ -80,7 +86,7 @@ describe("FilterCard tests", () => {
       max: 9001,
       values: ["1500:3000"],
       type: "measure",
-    };
+    } as unknown as FilterCardProps["filter"];
     const Card = createFilterCard({ title: "cputime", filter });
 
     expect(renderer.create(Card)).toMatchSnapshot();
@@ -91,7 +97,7 @@ describe("FilterCard tests", () => {
       display_title: "host",
       type: "text",
       values: ["node-"],
-    };
+    } as unknown as FilterCardProps["filter"];
     const Card = createFilterCard({ title: "host", filter });
 
     expect(renderer.create(Card)).toMatchSnapshot();
@@ -104,29 +110,34 @@ describe("FilterCard tests", () => {
   // makes the test closer to actual runtime behavior and allows us to
   // drop the Enzyme dependency.
   test("FilterCard should send correct updates on selection of filters", async () => {
-    let response = {};
+    let response: FilterUpdatePayload | null = null;
 
-    const handler = (obj) => {
-      response = obj;
+    const handler: FilterUpdateHandler = (payload) => {
+      response = payload;
     };
+
     const filter = {
       display_title: "Status",
       categories: ["cat1", "correct", "wrong"],
       statuses: ["true", "false(reach)"],
       type: "status",
-    };
+    } as unknown as FilterCardProps["filter"];
+
     const Card = createFilterCard({
       title: "Status",
       filter,
       onFilterUpdate: handler,
     });
+
     const { container } = render(Card);
 
-    const checkBox = container.querySelector('input[name="stat-true"]');
+    const checkBox = container.querySelector<HTMLInputElement>(
+      'input[name="stat-true"]',
+    );
 
     expect(checkBox).not.toBeNull();
 
-    await userEvent.click(checkBox);
+    await userEvent.click(checkBox as HTMLInputElement);
 
     expect(response).toEqual({ values: ["true"], title: "Status" });
   });

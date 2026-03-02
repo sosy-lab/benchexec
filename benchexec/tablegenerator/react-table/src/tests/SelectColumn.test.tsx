@@ -8,12 +8,15 @@
 import React from "react";
 import SelectColumn from "../components/SelectColumn";
 
-import { test_snapshot_of } from "./utils.js";
+import { test_snapshot_of } from "./utils";
 
-test_snapshot_of("Render SelectColumn", (overview) => (
-  <SelectColumn
-    close={overview.toggleSelectColumns}
-    tools={overview.tools}
-    hiddenCols={overview.hiddenCols}
-  />
-));
+test_snapshot_of("Render SelectColumn", (overview) => {
+  return (
+    <SelectColumn
+      close={overview.toggleSelectColumns}
+      tools={overview.tools}
+      hiddenCols={overview.hiddenCols}
+      updateParentStateOnClose={() => undefined}
+    />
+  );
+});

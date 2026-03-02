@@ -15,6 +15,8 @@ import { render, screen, fireEvent } from "@testing-library/react";
 // components
 import Reset from "../components/FilterInfoButton";
 
+type ResetProps = React.ComponentProps<typeof Reset>;
+
 // NOTE:
 // The original Enzyme test rendered the reset button, checked its text and
 // then did `expect(resetBtn).toEqual({})`, which did not assert any real
@@ -27,10 +29,14 @@ test("Click on reset button stops button from rendering", () => {
 
   render(
     <Reset
-      isFiltered={isFiltered}
-      filteredCount="23"
-      totalCount="42"
-      resetFilters={() => (isFiltered = false)}
+      {...({
+        isFiltered,
+        filteredCount: 23,
+        totalCount: 42,
+        resetFilters: () => {
+          isFiltered = false;
+        },
+      } as Partial<ResetProps> as ResetProps)}
     />,
   );
 
@@ -41,7 +47,15 @@ test("Click on reset button stops button from rendering", () => {
 });
 
 it("Render reset button", () => {
-  const reset = <Reset filteredCount="23" totalCount="42" isFiltered={true} />;
+  const reset = (
+    <Reset
+      {...({
+        filteredCount: 23,
+        totalCount: 42,
+        isFiltered: true,
+      } as Partial<ResetProps> as ResetProps)}
+    />
+  );
 
   expect(renderer.create(reset)).toMatchInlineSnapshot(`
     <button
@@ -67,7 +81,9 @@ it("Render reset button", () => {
 });
 
 it("Hide reset button", () => {
-  const reset = <Reset isFiltered={false} />;
+  const reset = (
+    <Reset {...({ isFiltered: false } as Partial<ResetProps> as ResetProps)} />
+  );
 
   expect(renderer.create(reset)).toMatchInlineSnapshot(`
     <button

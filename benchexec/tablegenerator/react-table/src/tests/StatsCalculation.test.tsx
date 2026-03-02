@@ -8,25 +8,37 @@
 import React from "react";
 import StatisticsTable from "../components/StatisticsTable";
 import fs from "fs";
-import renderer from "react-test-renderer";
-import { getOverviewProps } from "./utils.js";
-import { computeStats, filterComputableStatistics } from "../utils/stats.ts";
+import * as renderer from "react-test-renderer";
+import { getOverviewProps } from "./utils";
+import { computeStats, filterComputableStatistics } from "../utils/stats";
+
 const testDir = "../test_integration/expected/";
+
+/* ============================================================
+ * Types
+ * ============================================================ */
+
+type StatisticsTableProps = React.ComponentProps<typeof StatisticsTable>;
+type StatsComponent = renderer.ReactTestRenderer;
+
+type OverviewProps = ReturnType<typeof getOverviewProps>;
 
 fs.readdirSync(testDir)
   .filter((file) => file.endsWith(".html"))
   .forEach((file) => {
     describe("StatisticsTable for " + file, () => {
-      let content;
-      let data;
-      let overviewProps;
-      let jsStatComponent;
-      let pythonStatComponent;
+      let content: string;
+      let data: unknown;
+      let overviewProps: OverviewProps;
+      let jsStatComponent: StatsComponent;
+      let pythonStatComponent: StatsComponent;
 
       beforeAll(async () => {
-        content = fs.readFileSync(testDir + file, { encoding: "UTF-8" });
-        data = JSON.parse(content);
+        content = fs.readFileSync(testDir + file, { encoding: "utf-8" });
+        data = JSON.parse(content) as unknown;
+
         overviewProps = getOverviewProps(data);
+
         await renderer.act(async () => {
           pythonStatComponent = renderer.create(
             <StatisticsTable
@@ -34,13 +46,22 @@ fs.readdirSync(testDir)
               tools={overviewProps.tools}
               switchToQuantile={overviewProps.switchToQuantile}
               hiddenCols={overviewProps.hiddenCols}
-              tableData={overviewProps.tableData}
-              stats={filterComputableStatistics(overviewProps.stats)}
+              tableData={
+                overviewProps.tableData as unknown as StatisticsTableProps["tableData"]
+              }
+              stats={
+                filterComputableStatistics(
+                  overviewProps.stats,
+                ) as unknown as StatisticsTableProps["stats"]
+              }
             />,
           );
         });
 
-        const jsStats = await computeStats(overviewProps);
+        const jsStats = (await computeStats(
+          overviewProps as unknown as Parameters<typeof computeStats>[0],
+        )) as unknown as StatisticsTableProps["stats"];
+
         await renderer.act(async () => {
           jsStatComponent = renderer.create(
             <StatisticsTable
@@ -48,7 +69,9 @@ fs.readdirSync(testDir)
               tools={overviewProps.tools}
               switchToQuantile={overviewProps.switchToQuantile}
               hiddenCols={overviewProps.hiddenCols}
-              tableData={overviewProps.tableData}
+              tableData={
+                overviewProps.tableData as unknown as StatisticsTableProps["tableData"]
+              }
               stats={jsStats}
             />,
           );
