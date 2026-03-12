@@ -33,18 +33,43 @@
     "node": ">=18.0.0"
   },
   "scripts": {
+    "typecheck": "tsc --noEmit",
     "injectWorkers": " node scripts/workerDataUrls.js && eslint --fix ./src/workers/dataUrls.js",
     "start": "(test -f src/data/dependencies.json || node scripts/dependencies.js) && npm run injectWorkers && node scripts/start.js",
     "build": "node scripts/dependencies.js && npm run injectWorkers  && react-app-rewired build",
     "test": "(test -f src/data/dependencies.json || node scripts/dependencies.js) && npm run injectWorkers && react-app-rewired test",
-    "lint:fix": "(test -f src/data/dependencies.json || node scripts/dependencies.js) && eslint --fix --ignore-path .lintignores $(pwd)'/**/*.js' && prettier --ignore-path .lintignores --write $(pwd)'/**/*.+(css|scss|json)'",
-    "lint": "(test -f src/data/dependencies.json || node scripts/dependencies.js) &&  eslint --max-warnings 0 --ignore-path .lintignores . && prettier --ignore-path .lintignores --check $(pwd)'/**/*.+(css|scss|json)'"
+    "lint:fix": "(test -f src/data/dependencies.json || node scripts/dependencies.js) && eslint --fix --ignore-path .lintignores --ext .js,.jsx,.ts,.tsx . && prettier --ignore-path .lintignores --write \"**/*.{css,scss,json}\"",
+    "lint": "(test -f src/data/dependencies.json || node scripts/dependencies.js) &&  eslint --max-warnings 0 --ignore-path .lintignores --ext .js,.jsx,.ts,.tsx . && prettier --ignore-path .lintignores --check \"**/*.{css,scss,json}\""
   },
   "eslintConfig": {
     "extends": [
       "react-app",
       "plugin:prettier/recommended",
       "prettier"
+    ],
+    "overrides": [
+      {
+        "files": [
+          "**/*.ts",
+          "**/*.tsx"
+        ],
+        "parser": "@typescript-eslint/parser",
+        "plugins": [
+          "@typescript-eslint"
+        ],
+        "extends": [
+          "plugin:@typescript-eslint/recommended"
+        ],
+        "rules": {
+          "@typescript-eslint/no-unused-vars": [
+            "error",
+            {
+              "varsIgnorePattern": "^_",
+              "argsIgnorePattern": "^_"
+            }
+          ]
+        }
+      }
     ],
     "rules": {
       "prettier/prettier": "warn"
@@ -54,7 +79,8 @@
     "src/vendor/"
   ],
   "prettier": {
-    "trailingComma": "all"
+    "trailingComma": "all",
+    "endOfLine": "auto"
   },
   "browserslist": {
     "production": [
@@ -81,6 +107,16 @@
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^12.1.5",
     "@testing-library/user-event": "^13.5.0",
+    "@types/deep-equal": "^1.0.4",
+    "@types/node": "^18.19.130",
+    "@types/path-browserify": "^1.0.3",
+    "@types/react": "^17.0.91",
+    "@types/react-dom": "^17.0.26",
+    "@types/react-modal": "^3.16.3",
+    "@types/react-table": "^7.7.20",
+    "@types/react-test-renderer": "^19.1.0",
+    "@typescript-eslint/eslint-plugin": "^5.62.0",
+    "@typescript-eslint/parser": "^5.62.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.2.1",
     "license-checker": "^25.0.1",
@@ -88,6 +124,7 @@
     "react-app-rewired": "^2.2.1",
     "react-scripts": "5.0.1",
     "react-test-renderer": "^17.0.2",
-    "sass": "^1.53.0"
+    "sass": "^1.53.0",
+    "typescript": "^4.9.5"
   }
 }
