@@ -418,8 +418,37 @@ class OutputHandler(object):
             self.all_created_files.add(runSet.xml_file_name)
             self.xml_file_names.append(runSet.xml_file_name)
         else:
-            # make sure to never write intermediate files
+            # make sure to never write intermediate files for rundefinition
             runSet.xml_file_last_modified_time = math.inf
+
+        # Initialize tracking for task-set (block) files if needed for periodic writes
+        if self.results_per_taskset or (
+            not self.results_per_rundefinition and len(runSet.blocks) > 1
+        ):
+            runSet.block_xml_files = {}
+            block_names = collections.Counter(block.name for block in runSet.blocks)
+            duplicate_block_names = {
+                block_name for block_name, count in block_names.items() if count > 1
+            }
+
+            for block in runSet.blocks:
+                if block.name in duplicate_block_names:
+                    continue
+
+                blockFileName = self.get_filename(runSet.name, block.name + ".xml")
+                # Create initial empty XML for this block
+                block_xml = self.runs_to_xml(runSet, [], block.name)
+                block_xml.set("starttime", runSet.xml.get("starttime"))
+
+                # Write initial empty file
+                self._write_rough_result_xml_to_file(block_xml, blockFileName)
+
+                runSet.block_xml_files[block.name] = {
+                    "filename": blockFileName,
+                    "last_modified_time": time.monotonic(),
+                }
+                self.all_created_files.add(blockFileName)
+                self.xml_file_names.append(blockFileName)
 
     def output_for_skipping_run_set(self, runSet, reason=None):
         """
@@ -580,6 +609,27 @@ class OutputHandler(object):
                     run.runSet.xml, run.runSet.xml_file_name
                 )
                 run.runSet.xml_file_last_modified_time = time.monotonic()
+
+            # Also write task-set (block) files periodically if enabled
+            if hasattr(run.runSet, "block_xml_files"):
+                for block in run.runSet.blocks:
+                    if block.name not in run.runSet.block_xml_files:
+                        continue
+
+                    # Check if this run belongs to this block
+                    if run not in block.runs:
+                        continue
+
+                    block_info = run.runSet.block_xml_files[block.name]
+                    if currentTime - block_info["last_modified_time"] > 60:
+                        # Recreate block XML with current runs
+                        block_xml = self.runs_to_xml(run.runSet, block.runs, block.name)
+                        block_xml.set("starttime", run.runSet.xml.get("starttime"))
+
+                        self._write_rough_result_xml_to_file(
+                            block_xml, block_info["filename"]
+                        )
+                        block_info["last_modified_time"] = time.monotonic()
 
         finally:
             OutputHandler.print_lock.release()
