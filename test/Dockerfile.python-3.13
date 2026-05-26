@@ -29,8 +29,7 @@ RUN pip install \
   coloredlogs \
   "coverage[toml] >= 5.0" \
   lxml \
-  # Temporarily from git because of https://github.com/systemd/pystemd/issues/95
-  git+https://github.com/systemd/pystemd@v0.13.2 \
+  pystemd \
   pytest \
   pytest-cov \
   pyyaml
