@@ -65,10 +65,10 @@ tests:cgroupsv1:python-3.10:
   variables:
     PYTHON_VERSION: '3.10'
 
-tests:cgroupsv1:python-3.13:
+tests:cgroupsv1:python-3.14:
   <<: *tests-cgroupsv1
   variables:
-    PYTHON_VERSION: '3.13'
+    PYTHON_VERSION: '3.14'
 
 .tests:cgroupsv2: &tests-cgroupsv2
   stage: test
@@ -107,10 +107,15 @@ tests:cgroupsv2:python-3.12:
   variables:
     PYTHON_VERSION: '3.12'
 
-tests:cgroupsv2:python-3.13:
+tests:cgroupsv2:python-3.15:
   <<: *tests-cgroupsv2
   variables:
     PYTHON_VERSION: '3.13'
+
+tests:cgroupsv2:python-3.14:
+  <<: *tests-cgroupsv2
+  variables:
+    PYTHON_VERSION: '3.14'
 
 # Static checks
 flynt:
@@ -262,3 +267,9 @@ build-docker:test:python-3.13:
   variables:
     DOCKERFILE: test/Dockerfile.python-3.13
     IMAGE: test:python-3.13
+
+build-docker:test:python-3.14:
+  extends: .build-docker
+  variables:
+    DOCKERFILE: test/Dockerfile.python-3.14
+    IMAGE: test:python-3.14
