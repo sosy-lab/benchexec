@@ -7,7 +7,12 @@
 
 import os
 import re
-from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, LP64
+from benchexec.tools.sv_benchmarks_util import (
+    get_data_model_from_task,
+    get_single_non_witness_input_file,
+    ILP32,
+    LP64,
+)
 import benchexec.tools.template
 import benchexec.result as result
 import decimal
@@ -42,7 +47,7 @@ class Tool(benchexec.tools.template.BaseTool2):
             [executable]
             + ["-p", task.property_file]
             + options
-            + [task.single_input_file]
+            + [get_single_non_witness_input_file(task)]
         )
 
     def determine_result(self, run):
