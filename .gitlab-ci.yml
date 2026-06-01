@@ -155,7 +155,7 @@ pytype:
   stage: test
   interruptible: true
   # keep version consistent with .github/workflows/ruff.yml
-  image: ghcr.io/astral-sh/ruff:0.14-alpine
+  image: ghcr.io/astral-sh/ruff:0.15-alpine
   before_script:
     - ruff --version
   cache:

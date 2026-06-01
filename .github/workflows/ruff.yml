@@ -19,7 +19,7 @@ jobs:
       - uses: astral-sh/ruff-action@v3
         with:
           # keep version consistent with .gitlab-ci.yml
-          version: "==0.14.*"
+          version: "==0.15.*"
 
   format:
     name: Code format
@@ -31,5 +31,5 @@ jobs:
       - uses: astral-sh/ruff-action@v3
         with:
           # keep version consistent with .gitlab-ci.yml
-          version: "==0.14.*"
+          version: "==0.15.*"
           args: "format --check --diff"
