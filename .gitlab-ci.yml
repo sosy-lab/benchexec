@@ -219,6 +219,7 @@ javascript-eslint:
 reuse:
   stage: test
   image:
+    # keep version consistent with .github/workflows/reuse.yml
     name: fsfe/reuse:6
     entrypoint: [""]
   script:
