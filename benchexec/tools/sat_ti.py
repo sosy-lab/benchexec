@@ -5,13 +5,16 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from benchexec import result
-from benchexec.tools import template
+import os
+
+import benchexec.result as result
+import benchexec.tools.template
 
 
-class Tool(template.BaseTool2):
+class Tool(benchexec.tools.template.BaseTool2):
     """
-    Tool-info module for sat solvers that were executed on the StarExec platform.
+    Generic tool-info for pre-2025 SAT-comp solvers that ship a single
+    starexec_run_default script.
     """
 
     REQUIRED_PATHS = ["bin"]
@@ -19,21 +22,16 @@ class Tool(template.BaseTool2):
     def executable(self, tool_locator):
         return tool_locator.find_executable("starexec_run_default", subdir="bin")
 
-    def version(self, executable):
-        return "TODO"
-
     def program_files(self, executable):
         return self._program_files_from_executable(
             executable, self.REQUIRED_PATHS, parent_dir=True
         )
 
     def name(self):
-        return "SAT Solver"
+        return "StarExec SAT Solver"
 
     def working_directory(self, executable):
-        from pathlib import Path
-
-        return str(Path(executable).parent)
+        return os.path.dirname(executable)
 
     def cmdline(self, executable, options, task, rlimits):
         return [executable, task.single_input_file, *options]

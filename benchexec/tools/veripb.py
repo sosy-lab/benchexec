@@ -5,40 +5,35 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import cast
-
-from benchexec.tools import template
-
-from benchexec import result
+import benchexec.result as result
+import benchexec.tools.template
 
 
-class Tool(template.BaseTool2):
+class Tool(benchexec.tools.template.BaseTool2):
     """
-    Tool-info module for sat solvers that were executed on the StarExec platform.
+    VeriPB is a proof checker for the pseudo-Boolean proof format, a strictly more
+    expressive generalization of DRAT that can certify advanced reasoning techniques
+    such as symmetry breaking, XOR reasoning, and dominance breaking.
     """
 
     def executable(self, tool_locator):
         return tool_locator.find_executable("veripb_bin_static")
 
-    def version(self, executable):
-        return "TODO"
-
     def name(self):
         return "VeriPB"
 
-    def cmdline(
-        self, executable, options: list[str], task: template.BaseTool2.Task, rlimits
-    ):
-        """ The proof must be the first argument in the options list. """
+    def project_url(self):
+        return "https://www.bartbogaerts.eu/talks/veripb-tutorial-series/"
+
+    def cmdline(self, executable, options, task, rlimits):
         if task.property_file is None:
-            raise ValueError("Task must have a certificate (proof.out) for VeriPB.")
-        
+            raise benchexec.tools.template.UnsupportedFeatureException(
+                "VeriPB requires a certificate (proof file) as the property file."
+            )
         return [executable, *options, task.single_input_file, task.property_file]
 
-    def determine_result(self, run: template.BaseTool2.Run):
-        output = cast(template.BaseTool2.RunOutput, run.output)
-        for line in output:
-            line = cast(str, line)
+    def determine_result(self, run):
+        for line in run.output:
             if line.startswith("s "):
                 verdict = line.strip().split(" ")[1].strip().upper()
                 try:

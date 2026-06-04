@@ -5,14 +5,16 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from benchexec.tools import template
+import os
 
-from benchexec import result
+import benchexec.result as result
+import benchexec.tools.template
 
 
-class Tool(template.BaseTool2):
+class Tool(benchexec.tools.template.BaseTool2):
     """
-    Tool-info module for sat solvers that were executed on the StarExec platform.
+    Tool-info for SAT-comp solvers shipped with two StarExec run scripts
+    (starexec_run_pbva / starexec_run_bva), used by hCaD and hKis.
     """
 
     REQUIRED_PATHS = ["bin"]
@@ -20,23 +22,19 @@ class Tool(template.BaseTool2):
     def executable(self, tool_locator):
         return tool_locator.find_executable("starexec_run_pbva", subdir="bin")
 
-    def version(self, executable):
-        return "TODO"
-
     def program_files(self, executable):
         return self._program_files_from_executable(
             executable, self.REQUIRED_PATHS, parent_dir=True
         )
 
     def name(self):
-        return "SAT Solver"
+        return "hCaD"
 
     def working_directory(self, executable):
-        from pathlib import Path
-
-        return str(Path(executable).parent)
+        return os.path.dirname(executable)
 
     def cmdline(self, executable, options, task, rlimits):
+        options = list(options)
         if "pbva" in options:
             options.remove("pbva")
         elif "bva" in options:

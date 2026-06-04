@@ -5,37 +5,30 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import cast
-
-from benchexec import result
-from benchexec.tools import template
+import benchexec.result as result
+import benchexec.tools.template
 
 
-class Tool(template.BaseTool2):
+class Tool(benchexec.tools.template.BaseTool2):
     """
-    Tool-info module for sat solvers that were executed on the StarExec platform.
+    GRAT-Gen converts standard DRAT unsatisfiability proofs into the GRAT format,
+    enabling efficient verification by the formally verified GRATchk checker.
     """
 
     def executable(self, tool_locator):
         return tool_locator.find_executable("gratgen")
 
-    def version(self, executable):
-        return "TODO"
-
     def name(self):
         return "GRAT-Gen"
 
-    def cmdline(
-        self, executable, options: list[str], task: template.BaseTool2.Task, rlimits
-    ):
-        """ The proof must be the first argument in the options list. """
-        
+    def project_url(self):
+        return "https://www21.in.tum.de/~lammich/grat/"
+
+    def cmdline(self, executable, options, task, rlimits):
         return [executable, task.single_input_file, *options]
 
-    def determine_result(self, run: template.BaseTool2.Run):
-        output = cast(template.BaseTool2.RunOutput, run.output)
-        for line in output:
-            line = cast(str, line)
+    def determine_result(self, run):
+        for line in run.output:
             if line.startswith("s "):
                 verdict = line.strip().split(" ")[1].strip().upper()
                 try:
