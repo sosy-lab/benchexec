@@ -5,8 +5,10 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import benchexec.result as result
+import os
+
 import benchexec.tools.template
+from benchexec.result import RESULT_ERROR, RESULT_TRUE_PROP
 
 
 class Tool(benchexec.tools.template.BaseTool2):
@@ -14,34 +16,40 @@ class Tool(benchexec.tools.template.BaseTool2):
     VeriPB is a proof checker for the pseudo-Boolean proof format, a strictly more
     expressive generalization of DRAT that can certify advanced reasoning techniques
     such as symmetry breaking, XOR reasoning, and dominance breaking.
+
+    Supports the Python-based static binary (veripb_bin_static, version < 3) and the
+    Rust rewrite (veripb, version 3+).
     """
 
     def executable(self, tool_locator):
-        return tool_locator.find_executable("veripb_bin_static")
+        # Prefer the new Rust binary; fall back to the old static Python binary.
+        try:
+            return tool_locator.find_executable("veripb")
+        except benchexec.tools.template.ToolNotFoundException:
+            return tool_locator.find_executable("veripb_bin_static")
 
     def name(self):
         return "VeriPB"
 
     def project_url(self):
-        return "https://www.bartbogaerts.eu/talks/veripb-tutorial-series/"
+        return "https://gitlab.com/MIAOresearch/software/VeriPB"
+
+    def version(self, executable):
+        if os.path.basename(executable) == "veripb_bin_static":
+            # Old Python binary prints "Running VeriPB version X.X.X" on every run
+            return self._version_from_tool(
+                executable, arg="-h", line_prefix="Running VeriPB version "
+            )
+        # New Rust binary (v3+) uses clap; --version prints "veripb X.X.X".
+        version = self._version_from_tool(executable)
+        return version.removeprefix("veripb ").strip()
 
     def cmdline(self, executable, options, task, rlimits):
-        if task.property_file is None:
-            raise benchexec.tools.template.UnsupportedFeatureException(
-                "VeriPB requires a certificate (proof file) as the property file."
-            )
-        return [executable, *options, task.single_input_file, task.property_file]
+        return [executable, task.single_input_file, *options]
 
     def determine_result(self, run):
-        for line in run.output:
-            if line.startswith("s "):
-                verdict = line.strip().split(" ")[1].strip().upper()
-                try:
-                    sat_arg = f"({line.strip().split(' ')[2].strip().upper()})"
-                except IndexError:
-                    sat_arg = ""
-                if verdict == "VERIFIED":
-                    return result.RESULT_TRUE_PROP + sat_arg
-                elif verdict == "ERROR":
-                    return result.RESULT_ERROR
-        return result.RESULT_ERROR
+        for line in reversed(run.output):
+            if line.startswith("Verification Succeeded."):
+                return RESULT_TRUE_PROP
+
+        return RESULT_ERROR
