@@ -24,11 +24,6 @@ class Tool(benchexec.tools.template.BaseTool2):
     def project_url(self):
         return "https://gitlab.com/MIAOresearch/software/cakepb"
 
-    def environment(self, executable):
-        # CakeML uses a static heap/stack; default 4 GiB each is too small for the
-        # 32 GiB memory limit on apollon.
-        return {"newEnv": {"CML_HEAP_SIZE": "20480", "CML_STACK_SIZE": "4096"}}
-
     def cmdline(self, executable, options, task, rlimits):
         return [executable, task.single_input_file, *options]
 
