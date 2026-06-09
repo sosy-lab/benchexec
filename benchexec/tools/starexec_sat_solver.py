@@ -13,8 +13,9 @@ import benchexec.tools.template
 
 class Tool(benchexec.tools.template.BaseTool2):
     """
-    Generic tool-info for pre-2025 SAT-comp solvers that ship a single
-    starexec_run_default script.
+    Generic tool-info for SAT Competition solvers distributed as StarExec
+    archives with a single starexec_run_default launcher script in a "bin/"
+    subdirectory.
     """
 
     REQUIRED_PATHS = ["bin"]
