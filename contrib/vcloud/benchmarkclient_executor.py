@@ -304,7 +304,9 @@ def getCloudInput(benchmark):
 
     cloud_input["runsets"] = runDefinitions
 
-    return yaml.dump(cloud_input, default_flow_style=False, allow_unicode=True), numberOfRuns
+    return yaml.dump(
+        cloud_input, default_flow_style=False, allow_unicode=True
+    ), numberOfRuns
 
 
 def getToolDataForCloud(benchmark):
