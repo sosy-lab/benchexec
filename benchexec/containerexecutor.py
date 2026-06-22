@@ -1103,7 +1103,11 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
 
         # Copy all mounts to mount_base and apply directory modes
         container.duplicate_mount_hierarchy(
-            mount_base, temp_base, work_base, self._dir_modes
+            mount_base,
+            temp_base,
+            work_base,
+            self._dir_modes,
+            squash_owners=self._container_system_config,
         )
 
         # Now configure some special hard-coded cases

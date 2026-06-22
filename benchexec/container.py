@@ -416,7 +416,9 @@ def activate_network_interface(iface):
         sock.close()
 
 
-def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
+def duplicate_mount_hierarchy(
+    mount_base, temp_base, work_base, dir_modes, squash_owners
+):
     """
     Setup a copy of the system's mount hierarchy below a specified directory,
     and apply all specified directory modes (e.g., read-only access or hidden)
@@ -426,6 +428,9 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
     @param temp_base: the base directory for all temporary files
     @param work_base: the base directory for all overlayfs work files
     @param dir_modes: the directory modes to apply (without mount_base prefix)
+    @param squash_owners: whether to attempt hiding all real file ownership
+        and making every file appear owned by the container user
+        (not implemented consistently, depends on directory mode and other details)
     """
     # Create a copy of all mountpoints.
     # Setting MS_PRIVATE flag discouples the new mounts from the original mounts,
@@ -487,7 +492,7 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
 
     # Create overlay mounts for all mount points.
     fuse_overlay_mount_path = (
-        setup_fuse_overlay(temp_base, work_base) if use_fuse else None
+        setup_fuse_overlay(temp_base, work_base, squash_owners) if use_fuse else None
     )
 
     # For some reason there is a deadlock if our temp dir is not hidden,
@@ -614,7 +619,7 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
                             # We should try fuse-overlayfs here, this could handle triple-nested benchexec.
                             # (cf. https://github.com/sosy-lab/benchexec/issues/1067
                             fuse_overlay_mount_path = setup_fuse_overlay(
-                                temp_base, work_base
+                                temp_base, work_base, squash_owners
                             )
                             if fuse_overlay_mount_path:
                                 logging.debug(
@@ -1002,12 +1007,13 @@ def get_fuse_overlayfs_executable():
         return fuse
 
 
-def setup_fuse_overlay(temp_base, work_base):
+def setup_fuse_overlay(temp_base, work_base, squash_owners):
     """
     Check if fuse-overlayfs is available on the system and,
     if so, creates a temporary overlay filesystem by stacking the root directory
     with a specified temporary directory.
 
+    @param squash_owners: whether to make every file appear as owned by the container user
     @return: The path to the mounted overlay filesystem if successful, None otherwise.
     """
     fuse = get_fuse_overlayfs_executable()
@@ -1028,7 +1034,7 @@ def setup_fuse_overlay(temp_base, work_base):
         work_fuse,
     )
 
-    cmd = (
+    cmd = [
         fuse,
         b"-o",
         b"lowerdir=/",
@@ -1037,7 +1043,12 @@ def setup_fuse_overlay(temp_base, work_base):
         b"-o",
         b"workdir=" + escape_overlayfs_parameters(work_fuse),
         escape_overlayfs_parameters(temp_fuse),
-    )
+    ]
+    if squash_owners:
+        cmd += [
+            b"-o",
+            b"squash_to_uid=%d,squash_to_gid=%d" % (CONTAINER_UID, CONTAINER_GID),
+        ]
 
     try:
         with permitted_cap_as_ambient():

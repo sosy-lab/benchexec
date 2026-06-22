@@ -256,7 +256,13 @@ def _setup_container_filesystem(temp_dir, dir_modes, container_system_config):
     os.mkdir(mount_base)
     os.mkdir(temp_base)
     os.mkdir(work_base)
-    container.duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes)
+    container.duplicate_mount_hierarchy(
+        mount_base,
+        temp_base,
+        work_base,
+        dir_modes,
+        squash_owners=container_system_config,
+    )
 
     def make_tmpfs_dir(path):
         """Ensure that a tmpfs is mounted on path, if the path exists"""
