@@ -24,18 +24,7 @@ class Tool(SatProofCheckerBase):
         return "https://www21.in.tum.de/~lammich/grat/"
 
     def cmdline(self, executable, options, task, rlimits):
-        options = list(options)
 
-        # Gratchk sandwiches the input files between two options that are provided externally.
-        # The order must be gratchk (sat | unsat) DIMACS_FILE GRAT_PROOF_FILE .
-        # The DIMACS file is provided as the single input file of the task.
-        # Both, the proof file and the mode are provided in as benchexec options,
-        # so we need to extract them from the options list and construct the command line accordingly.
-        mode = "sat"
-        if "sat" in options:
-            options.remove("sat")
-        else:
-            mode = "unsat"  # use unsat by default if neither is specified
-            if "unsat" in options:
-                options.remove("unsat")
-        return [executable, mode, task.single_input_file, *options]
+        # GRATchk requires a mode as its first argument: gratchk (sat|unsat) DIMACS PROOF
+        # The mode must be the first benchexec option; remaining options are the proof file(s).
+        return [executable, options[0], task.single_input_file, *options[1:]]
