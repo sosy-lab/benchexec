@@ -41,8 +41,7 @@ class Tool(benchexec.tools.template.BaseTool2):
                 executable, arg="-h", line_prefix="Running VeriPB version "
             )
         # New Rust binary (v3+) uses clap; --version prints "veripb X.X.X".
-        version = self._version_from_tool(executable)
-        return version.removeprefix("veripb ").strip()
+        return self._version_from_tool(executable, line_prefix="veripb ")
 
     def cmdline(self, executable, options, task, rlimits):
         return [executable, task.single_input_file, *options]
