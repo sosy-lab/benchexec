@@ -495,22 +495,20 @@ def _create_link(href, base_dir, runResult=None, href_base=None, value=None):
             replacements.append(("value", str(value)))
 
         if runResult and runResult.log_file:
-            replacements.extend(
-                [
-                    ("logfile_name", os.path.basename(runResult.log_file)),
-                    (
-                        "logfile_path",
-                        os.path.dirname(
-                            os.path.relpath(runResult.log_file, href_base or ".")
-                        )
-                        or ".",
-                    ),
-                    (
-                        "logfile_path_abs",
-                        os.path.dirname(os.path.abspath(runResult.log_file)),
-                    ),
-                ]
-            )
+            replacements += [
+                ("logfile_name", os.path.basename(runResult.log_file)),
+                (
+                    "logfile_path",
+                    os.path.dirname(
+                        os.path.relpath(runResult.log_file, href_base or ".")
+                    )
+                    or ".",
+                ),
+                (
+                    "logfile_path_abs",
+                    os.path.dirname(os.path.abspath(runResult.log_file)),
+                ),
+            ]
         return tuple(replacements)
 
     source_file = (
