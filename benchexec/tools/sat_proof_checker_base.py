@@ -19,7 +19,7 @@ class SatProofCheckerBase(benchexec.tools.template.BaseTool2):
     def determine_result(self, run):
         for line in reversed(run.output):
             if line.startswith("s "):
-                verdict = line.strip().split(" ", 1)[1].strip().upper()
+                verdict = line.removeprefix("s ").strip().upper()
                 if verdict.startswith("VERIFIED"):
                     return result.RESULT_TRUE_PROP
                 if verdict.startswith("NOT VERIFIED"):

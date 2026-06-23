@@ -40,7 +40,7 @@ class Tool(benchexec.tools.template.BaseTool2):
     def determine_result(self, run):
         for line in reversed(run.output):
             if line.startswith("s "):
-                verdict = line.strip().partition(" ")[-1].strip().upper()
+                verdict = line.removeprefix("s ").strip().upper()
                 if verdict.startswith("SATISFIABLE"):
                     return result.RESULT_TRUE_PROP
                 elif verdict.startswith("UNSATISFIABLE"):
