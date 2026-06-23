@@ -110,20 +110,20 @@ def handle_basic_container_args(options, parser=None):
     error_fn = parser.error if parser else sys.exit
 
     def handle_dir_mode(path, mode):
-        path = os.path.abspath(path)
-        if not os.path.isdir(path):
+        abs_path = os.path.abspath(path)
+        if not os.path.isdir(abs_path):
             error_fn(
                 f"Cannot specify directory mode for '{path}' "
                 f"because it does not exist or is no directory."
             )
-        if path in dir_modes:
+        if abs_path in dir_modes:
             error_fn(f"Cannot specify multiple directory modes for '{path}'.")
-        if path == "/proc":
+        if abs_path == "/proc":
             error_fn(
                 "Cannot specify directory mode for /proc, "
                 "this directory is handled specially."
             )
-        dir_modes[path] = mode
+        dir_modes[abs_path] = mode
 
     for path in options.hidden_dir:
         handle_dir_mode(path, DIR_HIDDEN)
