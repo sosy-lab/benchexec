@@ -43,7 +43,3 @@ class TestHrefSubstitution(unittest.TestCase):
 
         link = htmltable._create_link(href, base_dir)
         self.assertEqual(link, "http://example.com/static")
-
-
-if __name__ == "__main__":
-    unittest.main()
