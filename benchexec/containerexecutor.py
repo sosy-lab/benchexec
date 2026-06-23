@@ -116,6 +116,12 @@ def handle_basic_container_args(options, parser=None):
                 f"Cannot specify directory mode for '{path}' "
                 f"because it does not exist or is no directory."
             )
+        if os.path.islink(abs_path):
+            target = os.path.join(os.path.dirname(path), os.readlink(path))
+            error_fn(
+                f"Cannot specify directory mode for '{path}' because it is a symlink. "
+                f"Please specify the directory mode for its target '{target}'."
+            )
         if abs_path in dir_modes:
             error_fn(f"Cannot specify multiple directory modes for '{path}'.")
         if abs_path == "/proc":
