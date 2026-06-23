@@ -10,9 +10,12 @@ import benchexec.tools.starexec_sat_solver
 
 class Tool(benchexec.tools.starexec_sat_solver.Tool):
     """
-    Generic tool-info for SAT Competition solvers distributed as StarExec
-    archives with a starexec_run_bva launcher script in a "bin/" subdirectory.
+    Tool-info for the SAT Competition solver hCad-pbva distributed as a StarExec
+    archive with a starexec_run_bva launcher script in a "bin/" subdirectory.
     """
 
+    def name(self):
+        return "hCad-pbva"
+
     def executable(self, tool_locator):
-        return tool_locator.find_executable("starexec_run_bva", subdir="bin")
+        return tool_locator.find_executable("starexec_run_pbva", subdir="bin")
