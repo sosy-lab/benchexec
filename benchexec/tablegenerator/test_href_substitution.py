@@ -5,8 +5,16 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import collections
 import unittest
 from benchexec.tablegenerator import htmltable
+
+
+DummyTaskId = collections.namedtuple("DummyTaskId", "name")
+
+DummyRunResult = collections.namedtuple(
+    "DummyRunResult", "task_id log_file", defaults=[None]
+)
 
 
 class TestHrefSubstitution(unittest.TestCase):
@@ -14,24 +22,7 @@ class TestHrefSubstitution(unittest.TestCase):
         href = "http://example.com/${value}"
         base_dir = "."
         value = "test-value"
-
-        # We need a dummy runResult for _create_link to work if it tries to get source_file
-        # or we can pass None if we handle it.
-        # Looking at _create_link, it uses runResult to get source_file.
-
-        class DummyTaskId:
-            def __init__(self, name):
-                self.name = name
-
-        class DummyRunResult:
-            def __init__(self, task_name, log_file=None):
-                self.task_id = DummyTaskId(task_name)
-                self.log_file = log_file
-
-            def __getitem__(self, key):
-                return getattr(self, key)
-
-        run_result = DummyRunResult("task1")
+        run_result = DummyRunResult(DummyTaskId("task1"))
 
         # Test basic substitution
         link = htmltable._create_link(href, base_dir, runResult=run_result, value=value)
@@ -41,17 +32,7 @@ class TestHrefSubstitution(unittest.TestCase):
         href = "http://example.com/${inputfile_name}?v=${value}"
         base_dir = "."
         value = "123"
-
-        class DummyTaskId:
-            def __init__(self, name):
-                self.name = name
-
-        class DummyRunResult:
-            def __init__(self, task_name, log_file=None):
-                self.task_id = DummyTaskId(task_name)
-                self.log_file = log_file
-
-        run_result = DummyRunResult("dir/task1.c")
+        run_result = DummyRunResult(DummyTaskId("dir/task1.c"))
 
         link = htmltable._create_link(href, base_dir, runResult=run_result, value=value)
         self.assertEqual(link, "http://example.com/task1.c?v=123")
