@@ -141,6 +141,7 @@ Contributors:
 - [Sam Grayson](https://github.com/charmoniumQ)
 - Peter Häring
 - [Florian Heck](https://github.com/fheck)
+- [Simon Huemmer](https://github.com/Simon1375)
 - [Chinmay Joshi](https://github.com/JawHawk)
 - [George Karpenkov](http://metaworld.me/)
 - [Mike Kazantsev](http://fraggod.net/)
