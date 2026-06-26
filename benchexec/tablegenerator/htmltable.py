@@ -426,16 +426,11 @@ def _prepare_rows_for_js(rows, base_dir, href_base, relevant_id_columns):
         formatted_value = column.format_value(value, "html_cell")
         result = {}
         if column.href:
-            # We use raw_value for the ${value} placeholder.
-            # If the cell is empty, we fall back to the column pattern if it exists.
-            subst_value = raw_value
-            if not subst_value and not formatted_value:
-                subst_value = column.pattern
-            result["href"] = _create_link(
-                column.href, base_dir, run_result, href_base, value=subst_value
-            )
             if not raw_value and not formatted_value:
                 raw_value = column.pattern
+            result["href"] = _create_link(
+                column.href, base_dir, run_result, href_base, value=raw_value
+            )
         if raw_value is not None and not raw_value == "":
             result["raw"] = raw_value
         if formatted_value and formatted_value != raw_value:
