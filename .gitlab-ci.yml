@@ -65,10 +65,10 @@ tests:cgroupsv1:python-3.10:
   variables:
     PYTHON_VERSION: '3.10'
 
-tests:cgroupsv1:python-3.13:
+tests:cgroupsv1:python-3.14:
   <<: *tests-cgroupsv1
   variables:
-    PYTHON_VERSION: '3.13'
+    PYTHON_VERSION: '3.14'
 
 .tests:cgroupsv2: &tests-cgroupsv2
   stage: test
@@ -107,10 +107,15 @@ tests:cgroupsv2:python-3.12:
   variables:
     PYTHON_VERSION: '3.12'
 
-tests:cgroupsv2:python-3.13:
+tests:cgroupsv2:python-3.15:
   <<: *tests-cgroupsv2
   variables:
     PYTHON_VERSION: '3.13'
+
+tests:cgroupsv2:python-3.14:
+  <<: *tests-cgroupsv2
+  variables:
+    PYTHON_VERSION: '3.14'
 
 # Static checks
 flynt:
@@ -127,7 +132,7 @@ flake8:
   stage: test
   image: python:3.10
   before_script:
-    - "pip install 'flake8<6' flake8-awesome"
+    - pip install setuptools flake8 flake8-awesome
   script:
     - flake8
   <<: *pip-cache
@@ -150,7 +155,7 @@ pytype:
   stage: test
   interruptible: true
   # keep version consistent with .github/workflows/ruff.yml
-  image: ghcr.io/astral-sh/ruff:0.14-alpine
+  image: ghcr.io/astral-sh/ruff:0.15-alpine
   before_script:
     - ruff --version
   cache:
@@ -214,26 +219,31 @@ javascript-eslint:
 reuse:
   stage: test
   image:
-    name: fsfe/reuse:3
+    # keep version consistent with .github/workflows/reuse.yml
+    name: fsfe/reuse:6
     entrypoint: [""]
   script:
     - reuse lint
 
 
-# Build Docker images
-# following this guideline: https://docs.gitlab.com/ee/ci/docker/using_kaniko.html
+# Build container images
 .build-docker:
   stage: images
   image:
-    name: gcr.io/kaniko-project/executor:debug
-    entrypoint: [""]
+    name: quay.io/podman/stable
+  variables:
+    BUILD_CONTEXT: "-"
+  tags:
+    - podman
+  before_script:
+    - podman login "$CI_REGISTRY" --username "$CI_REGISTRY_USER" --password "$CI_REGISTRY_PASSWORD"
   script:
-    - mkdir -p /root/.docker
-    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
-    - /kaniko/executor --dockerfile $CI_PROJECT_DIR/$DOCKERFILE --destination $CI_REGISTRY_IMAGE/$IMAGE
-  only:
-    - schedules
-    - web
+    - echo "Building $CI_REGISTRY_IMAGE/$IMAGE from $DOCKERFILE"
+    - podman build --pull -t $CI_REGISTRY_IMAGE/$IMAGE $BUILD_CONTEXT < $CI_PROJECT_DIR/$DOCKERFILE
+    - podman push $CI_REGISTRY_IMAGE/$IMAGE
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+    - if: $CI_PIPELINE_SOURCE == "web"
 
 build-docker:test:python-3.10:
   extends: .build-docker
@@ -258,3 +268,9 @@ build-docker:test:python-3.13:
   variables:
     DOCKERFILE: test/Dockerfile.python-3.13
     IMAGE: test:python-3.13
+
+build-docker:test:python-3.14:
+  extends: .build-docker
+  variables:
+    DOCKERFILE: test/Dockerfile.python-3.14
+    IMAGE: test:python-3.14

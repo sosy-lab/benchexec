@@ -50,6 +50,10 @@ BenchExec always uses the SI standard units:
 
 ### Glossary
 
+- **benchmark definition**: Input file for `benchexec`
+  ([explanation](benchexec.md#input-for-benchexec), [schema](benchmark.dtd), [documented example](benchmark.xml)),
+  consists of one or more *run definitions* and one or more sets of *tasks*.
+
 - **executable**: The executable file that is used to start a tool.
 
 - **option**: A command-line argument for a tool.

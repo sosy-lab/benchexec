@@ -285,7 +285,6 @@ def _call_tool_func(name, args, kwargs):
     @param args: List of arguments to be passed as positional arguments.
     @param kwargs: Dict of arguments to be passed as keyword arguments.
     """
-    global tool
     try:
         return getattr(tool, name)(*args, **kwargs)
     except SystemExit as e:

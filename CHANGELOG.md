@@ -9,6 +9,10 @@ SPDX-License-Identifier: Apache-2.0
 
 # BenchExec Changelog
 
+## BenchExec 3.34 - 2026-02-02
+
+- One new tool-info module.
+
 ## BenchExec 3.33 - 2025-12-18
 
 - One new tool-info module.

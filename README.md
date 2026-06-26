@@ -157,6 +157,7 @@ Contributors:
 - [Simmo Saan](https://github.com/sim642)
 - [Alexander Schremmer](https://www.xing.com/profile/Alexander_Schremmer)
 - [Dennis Simon](https://github.com/DennisSimon)
+- [Saurabh Singh](https://github.com/saurabh12nxf)
 - [Andreas Stahlbauer](http://stahlbauer.net/)
 - [Thomas Stieglmaier](https://stieglmaier.me/)
 - [Martin Yankov](https://github.com/marto97)

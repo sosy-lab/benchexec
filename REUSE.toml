@@ -1,0 +1,27 @@
+version = 1
+SPDX-PackageName = "BenchExec"
+SPDX-PackageDownloadLocation = "https://github.com/sosy-lab/benchexec"
+
+[[annotations]]
+path = ["benchexec/tablegenerator/test_integration/expected/**.html", "benchexec/tablegenerator/test_integration/expected/**.csv", "benchexec/tablegenerator/test_integration/expected/**.tex", "benchexec/tablegenerator/test_integration/results/**", "benchexec/test_integration/expected/**"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2007-2020 Dirk Beyer <https://www.sosy-lab.org>"
+SPDX-License-Identifier = "Apache-2.0"
+
+[[annotations]]
+path = ["benchexec/tablegenerator/react-table/src/tests/__snapshots__/**.snap", "benchexec/tablegenerator/react-table/build/main.min.**"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2019-2020 Dirk Beyer <https://www.sosy-lab.org>"
+SPDX-License-Identifier = "Apache-2.0"
+
+[[annotations]]
+path = "benchexec/tablegenerator/react-table/build/vendors.min.**"
+precedence = "override"
+SPDX-FileCopyrightText = "various authors (full list is bundled and shown on Info tab)"
+SPDX-License-Identifier = "BSD-3-Clause AND CC-BY-4.0 AND MIT AND ISC"
+
+[[annotations]]
+path = ["debian/NEWS", "debian/README.Debian", "debian/benchexec.examples", "debian/changelog", "debian/compat", "debian/control", "debian/copyright", "debian/docs", "debian/install", "debian/source/format", "debian/watch"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2015-2020 Dirk Beyer <https://www.sosy-lab.org>"
+SPDX-License-Identifier = "Apache-2.0"

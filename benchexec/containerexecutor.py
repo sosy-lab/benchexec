@@ -110,20 +110,26 @@ def handle_basic_container_args(options, parser=None):
     error_fn = parser.error if parser else sys.exit
 
     def handle_dir_mode(path, mode):
-        path = os.path.abspath(path)
-        if not os.path.isdir(path):
+        abs_path = os.path.abspath(path)
+        if not os.path.isdir(abs_path):
             error_fn(
                 f"Cannot specify directory mode for '{path}' "
                 f"because it does not exist or is no directory."
             )
-        if path in dir_modes:
+        if os.path.islink(abs_path):
+            target = os.path.join(os.path.dirname(path), os.readlink(path))
+            error_fn(
+                f"Cannot specify directory mode for '{path}' because it is a symlink. "
+                f"Please specify the directory mode for its target '{target}'."
+            )
+        if abs_path in dir_modes:
             error_fn(f"Cannot specify multiple directory modes for '{path}'.")
-        if path == "/proc":
+        if abs_path == "/proc":
             error_fn(
                 "Cannot specify directory mode for /proc, "
                 "this directory is handled specially."
             )
-        dir_modes[path] = mode
+        dir_modes[abs_path] = mode
 
     for path in options.hidden_dir:
         handle_dir_mode(path, DIR_HIDDEN)
@@ -543,7 +549,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                     memlimit=memlimit,
                     memory_nodes=memory_nodes,
                     result_files_patterns=result_files_patterns,
-                    *args,
+                    *args,  # noqa: B026
                     **kwargs,
                 )
                 if result is not None:
@@ -662,7 +668,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 if use_cgroup_ns:
                     container.setup_cgroup_namespace()
                 container.drop_capabilities()
-            except BaseException as e:
+            except BaseException as e:  # noqa: B036
                 # When using runexec, this logging will end up in the output.log file,
                 # where usually the tool output is. This is suboptimal, but probably
                 # better than swallowing it. (In cases where this logs something,
@@ -853,7 +859,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 else:
                     logging.exception("Error in child process of RunExecutor")
                 return CHILD_UNKNOWN_ERROR
-            except BaseException:
+            except BaseException:  # noqa: B036
                 # Need to catch everything because this method always needs to return an
                 # int (we are inside a C callback that requires returning int).
                 logging.exception("Error in child process of RunExecutor")

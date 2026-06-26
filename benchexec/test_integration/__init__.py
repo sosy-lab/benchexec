@@ -753,11 +753,13 @@ class BenchExecIntegrationTests(unittest.TestCase):
                 desc.name,
             )
 
-        generated_files = glob.glob(os.path.join(self.output_dir, "*.xml"))
+        generated_files = glob.glob("*.xml", root_dir=self.output_dir)
         assert generated_files, "error in test, no results generated"
 
         for f in generated_files:
-            result_xml = ElementTree.ElementTree().parse(f)
+            result_xml = ElementTree.ElementTree().parse(
+                os.path.join(self.output_dir, f)
+            )
             actual_description = result_xml.find("description").text
             self.assertEqual(actual_description, test_description.strip())
 
@@ -771,11 +773,13 @@ class BenchExecIntegrationTests(unittest.TestCase):
             },
         )
 
-        generated_files = glob.glob(os.path.join(self.output_dir, "*.xml"))
+        generated_files = glob.glob("*.xml", root_dir=self.output_dir)
         assert generated_files, "error in test, no results generated"
 
         for f in generated_files:
-            result_xml = ElementTree.ElementTree().parse(f)
+            result_xml = ElementTree.ElementTree().parse(
+                os.path.join(self.output_dir, f)
+            )
             environment = result_xml.find("systeminfo").find("environment")
             var_tags = {tag.attrib["name"]: tag for tag in environment.findall("var")}
             self.assertEqual(var_tags["BENCHEXEC_TEST_VAR"].text, "YQEbYg==")

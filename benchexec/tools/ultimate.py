@@ -33,12 +33,7 @@ _OPTION_NO_WRAPPER = "--force-no-wrapper"
 _SVCOMP17_VERSIONS = {"f7c3ed31"}
 _SVCOMP17_FORBIDDEN_FLAGS = {"--full-output", "--architecture"}
 _ULTIMATE_VERSION_REGEX = re.compile(r"^Version is (.*)$", re.MULTILINE)
-# .jar files that are used as launcher arguments with most recent .jar first
-_LAUNCHER_JARS = [
-    "plugins/org.eclipse.equinox.launcher_1.5.800.v20200727-1323.jar",
-    "plugins/org.eclipse.equinox.launcher_1.3.100.v20150511-1540.jar",
-    "plugins/org.eclipse.equinox.launcher_1.6.800.v20240513-1750.jar",
-]
+_JAR_LAUNCHER_PATTERN = r"plugins/org.eclipse.equinox.launcher_*.jar"
 
 
 class UltimateTool(benchexec.tools.template.BaseTool2):
@@ -81,7 +76,7 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
         exe = tool_locator.find_executable("Ultimate.py")
         dir_name = Path(os.path.dirname(exe))
         logging.debug("Checking if %s contains a launcher jar", dir_name)
-        if any((dir_name / rel_launcher).exists() for rel_launcher in _LAUNCHER_JARS):
+        if any(dir_name.glob(_JAR_LAUNCHER_PATTERN)):
             return exe
         msg = (
             f"ERROR: Did find a Ultimate.py in {os.path.dirname(exe)} "
@@ -169,11 +164,12 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
     @functools.lru_cache
     def _get_current_launcher_jar(self, executable):
         ultimate_dir = os.path.dirname(executable)
-        for jar in _LAUNCHER_JARS:
-            launcher_jar = os.path.join(ultimate_dir, jar)
-            if os.path.isfile(launcher_jar):
-                return launcher_jar
-        raise FileNotFoundError(f"No suitable launcher jar found in {ultimate_dir}")
+        launcher_candidates = glob.glob(_JAR_LAUNCHER_PATTERN, root_dir=ultimate_dir)
+        if not launcher_candidates:
+            raise FileNotFoundError(f"No suitable launcher jar found in {ultimate_dir}")
+        if len(launcher_candidates) > 1:
+            raise FileNotFoundError(f"Multiple launcher jars found in {ultimate_dir}")
+        return os.path.join(ultimate_dir, launcher_candidates[0])
 
     @functools.lru_cache
     def version(self, executable):

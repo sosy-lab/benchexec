@@ -7,7 +7,13 @@
 
 import os
 import re
-from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, LP64
+from benchexec.tools.sv_benchmarks_util import (
+    get_data_model_from_task,
+    handle_witness_of_task,
+    TaskFilesConsidered,
+    ILP32,
+    LP64,
+)
 import benchexec.tools.template
 import benchexec.result as result
 import decimal
@@ -38,11 +44,20 @@ class Tool(benchexec.tools.template.BaseTool2):
         data_model_param = get_data_model_from_task(task, {ILP32: "32", LP64: "64"})
         if data_model_param and "--arch" not in options:
             options += ["--arch", data_model_param]
+
+        input_files, witness_options = handle_witness_of_task(
+            task,
+            options,
+            "--witness",
+            TaskFilesConsidered.SINGLE_INPUT_FILE,
+        )
+
         return (
             [executable]
             + ["-p", task.property_file]
             + options
-            + [task.single_input_file]
+            + input_files
+            + witness_options
         )
 
     def determine_result(self, run):

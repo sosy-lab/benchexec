@@ -249,6 +249,24 @@ with several versions of the Linux kernel, including at least kernel versions up
 If a kernel upgrade does not help, please use a different access mode for NFS-mounted directories,
 such as `--hidden-dir` or `--read-only-dir`.
 
+### Problems when writing files in container: `Value too large for defined data type`, `Invalid input`, `Permission denied`
+These symptoms can occur when writing in overlay mode to files
+for which the file or its parent directory is owned by a user or group
+that is not the user+group who started the benchmark run,
+even if the write access would be permitted outside of the container.
+The reason is that inside the container only the starting user and its primary group
+are available, all other users/groups (including supplemental groups of the starting user)
+are mapped to `nobody`/`nogroup`.
+The overlayfs implementations then refuse this.
+Current workarounds can be to use `--full-access-dir` for such directories
+or to avoid using different files/directories owned by different users/groups.
+There is another workaround that BenchExec could apply for certain situations,
+however, due to other disadvantages resulting from it,
+it is currently not enabled.
+If you have a use case that is not resolved by the available workarounds,
+please tell us in [this issue](https://github.com/sosy-lab/benchexec/issues/815)
+such that we can consider implementing it.
+
 ### BenchExec sometimes hangs if many parallel runs are executed
 This happens if we clone the Python process while it is in an inconsistent state.
 Make sure to use BenchExec 3.14 or newer,
