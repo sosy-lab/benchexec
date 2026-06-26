@@ -7,6 +7,7 @@
 
 from abc import ABC, abstractmethod
 import errno
+import functools
 import logging
 import os
 import stat
@@ -18,6 +19,7 @@ CGROUPS_V1 = 1
 CGROUPS_V2 = 2
 
 
+@functools.cache
 def _get_cgroup_version():
     version = None
     try:
@@ -26,6 +28,7 @@ def _get_cgroup_version():
                 mount = mount.split(" ")
                 if mount[2] == "cgroup":
                     version = CGROUPS_V1
+                    break
 
                 # only set v2 if it's the only active mount
                 # we don't support crippled hybrid mode
