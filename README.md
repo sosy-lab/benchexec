@@ -147,6 +147,7 @@ Contributors:
 - [Hugo van Kemenade](https://github.com/hugovk)
 - [Tobias Kleinert](https://github.com/Sowasvonbot)
 - [Michael Lachner](https://github.com/lachnerm)
+- [Anas Lari](https://github.com/anaslari23)
 - [Thomas Lemberger](https://www.sosy-lab.org/people/lemberger/)
 - [Lorenz Leutgeb](https://github.com/lorenzleutgeb)
 - [Sebastian Ott](https://github.com/ottseb)
