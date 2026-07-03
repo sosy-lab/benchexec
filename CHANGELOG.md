@@ -9,6 +9,22 @@ SPDX-License-Identifier: Apache-2.0
 
 # BenchExec Changelog
 
+## BenchExec 3.35 - 2026-07-03
+
+**We are planning to remove support for cgroups v1 from BenchExec in April 2027.**
+More information is in [issue 1267](https://github.com/sosy-lab/benchexec/issues/1267),
+please respond there if this is problematic for you.
+
+- When specifying hyperlinks in table definitions for `table-generator`,
+  one can now use `${value}` in addition to the existing variables
+  in order to refer to the cell's value.
+- Fix bug where directory modes for symlinks were silently ignored,
+  now BenchExec produces an error if this is attempted.
+- Several new and improved tool-info modules, in particular for SAT solvers.
+- Most of the JavaScript code for our HTML tables was migrated to TypeScript.
+  There should be no user-visible changes except for a few small bug fixes,
+  but we are thankful to [@Simon1375](https://github.com/Simon1375) for this valuable maintenance improvement!
+
 ## BenchExec 3.34 - 2026-02-02
 
 - One new tool-info module.
