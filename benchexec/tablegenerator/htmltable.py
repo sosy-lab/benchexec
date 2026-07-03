@@ -426,9 +426,11 @@ def _prepare_rows_for_js(rows, base_dir, href_base, relevant_id_columns):
         formatted_value = column.format_value(value, "html_cell")
         result = {}
         if column.href:
-            result["href"] = _create_link(column.href, base_dir, run_result, href_base)
             if not raw_value and not formatted_value:
                 raw_value = column.pattern
+            result["href"] = _create_link(
+                column.href, base_dir, run_result, href_base, value=raw_value
+            )
         if raw_value is not None and not raw_value == "":
             result["raw"] = raw_value
         if formatted_value and formatted_value != raw_value:
@@ -450,7 +452,9 @@ def _prepare_rows_for_js(rows, base_dir, href_base, relevant_id_columns):
             if getattr(res, k) is not None
         }
         if toolHref:
-            result["href"] = _create_link(toolHref, base_dir, res, href_base)
+            result["href"] = _create_link(
+                toolHref, base_dir, res, href_base, value=res.status
+            )
         result["values"] = values
         return result
 
@@ -474,15 +478,19 @@ def _prepare_rows_for_js(rows, base_dir, href_base, relevant_id_columns):
     return [clean_up_row(row) for row in rows]
 
 
-def _create_link(href, base_dir, runResult=None, href_base=None):
+def _create_link(href, base_dir, runResult=None, href_base=None, value=None):
     def get_replacements(task_file):
         var_prefix = "taskdef_" if task_file.endswith(".yml") else "inputfile_"
-        return (
+        replacements = [
             (var_prefix + "name", os.path.basename(task_file)),
             (var_prefix + "path", os.path.dirname(task_file) or "."),
             (var_prefix + "path_abs", os.path.dirname(os.path.abspath(task_file))),
-        ) + (
-            (
+        ]
+        if value is not None:
+            replacements.append(("value", str(value)))
+
+        if runResult and runResult.log_file:
+            replacements += [
                 ("logfile_name", os.path.basename(runResult.log_file)),
                 (
                     "logfile_path",
@@ -495,10 +503,8 @@ def _create_link(href, base_dir, runResult=None, href_base=None):
                     "logfile_path_abs",
                     os.path.dirname(os.path.abspath(runResult.log_file)),
                 ),
-            )
-            if runResult.log_file
-            else ()
-        )
+            ]
+        return tuple(replacements)
 
     source_file = (
         # os.path.relpath creates os-dependant paths, so standardize the output between OSs
