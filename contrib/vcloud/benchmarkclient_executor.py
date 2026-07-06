@@ -63,7 +63,7 @@ def init(config, benchmark):
                 raise BenchExecException(
                     f"Executable path {executable_for_version} is not relative"
                     " and is not containing the expected mount point in the container"
-                    " {TOOL_DIRECTORY_MOUNT_POINT}."
+                    f" {TOOL_DIRECTORY_MOUNT_POINT}."
                 ) from e
 
         # ensure that executable_for_version is not pointing to a directory
@@ -168,7 +168,8 @@ def execute_benchmark(benchmark, output_handler):
             cmdLine.extend(["--print-new-files", "true"])
         if benchmark.config.containerImage:
             cmdLine.extend(["--containerImage", str(benchmark.config.containerImage)])
-        cmdLine.extend(["--input-format", "yaml-0.0.1"])
+        cmdLine.extend(["--input-format", "yaml"])
+        cmdLine.extend(["--output-dir", benchmark.log_folder])
 
         start_time = benchexec.util.read_local_time()
 
@@ -216,11 +217,10 @@ def formatEnvironment(environment):
 def getCloudInput(benchmark):
     (workingDir, toolpaths) = getToolDataForCloud(benchmark)
 
-    # prepare cloud input, we make all paths absolute, TODO necessary?
-    outputDir = benchmark.log_folder
-    absOutputDir = os.path.abspath(outputDir)
     absWorkingDir = os.path.abspath(workingDir)
     absToolpaths = list(map(os.path.abspath, toolpaths))
+
+    absBaseDir, numberOfRuns = computeBaseDir(benchmark, absToolpaths)
 
     # get requirements
     r = benchmark.requirements
@@ -239,52 +239,16 @@ def getCloudInput(benchmark):
     if rlimits.memory is not None:
         limits["memory"] = rlimits.memory
 
-    # get Runs with args and sourcefiles
-    absSourceFiles = []
-    runDefinitions = []
-    numberOfRuns = 0
-    for runSet in benchmark.run_sets:
-        if not runSet.should_be_executed():
-            continue
-        if STOPPED_BY_INTERRUPT:
-            break
-
-        # get runs
-        runs = []
-        for run in runSet.runs:
-            cmdline = run.cmdline()
-            cmdline = list(map(vcloudutil.force_linux_path, cmdline))
-
-            log_file = os.path.relpath(run.log_file, benchmark.log_folder)
-
-            run_files = []
-            if os.path.exists(run.identifier):
-                run_files.extend(run.sourcefiles)
-                absSourceFiles.extend(map(os.path.abspath, run.sourcefiles))
-            run_files.extend(run.required_files)
-
-            run_def = {"logfile": log_file, "command": cmdline}
-            if run_files:
-                run_def["files"] = run_files
-
-            runs.append(run_def)
-            numberOfRuns += 1
-
-        if runs:
-            runDefinitions.append({"limits": limits, "runs": runs})
+    runDefinitions = buildRunDefinitions(benchmark, limits, absBaseDir)
 
     if not runDefinitions:
         sys.exit("Benchmark has nothing to run.")
 
-    absBaseDir = benchexec.util.common_base_dir(absSourceFiles + absToolpaths)
-    if absBaseDir == "":
-        sys.exit("No common base dir found.")
-
     cloud_input = {
-        "files": absToolpaths,
-        "basedir": absBaseDir,
-        "resultdir": absOutputDir,
-        "execdir": absWorkingDir,
+        "formatVersion": "1.0",
+        "files": [os.path.relpath(p, absBaseDir) for p in absToolpaths],
+        "basedir": os.path.relpath(absBaseDir),
+        "execdir": os.path.relpath(absWorkingDir, absBaseDir),
     }
 
     if benchmark.config.cloudPriority:
@@ -335,6 +299,50 @@ def getToolDataForCloud(benchmark):
             validToolpaths.add(file)
 
     return (workingDir, validToolpaths)
+
+
+def computeBaseDir(benchmark, absToolpaths):
+    absSourceFiles = []
+    numberOfRuns = 0
+    for runSet in activeRunSets(benchmark):
+        for run in runSet.runs:
+            if os.path.exists(run.identifier):
+                absSourceFiles.extend(map(os.path.abspath, run.sourcefiles))
+            numberOfRuns += 1
+
+    absBaseDir = benchexec.util.common_base_dir(absSourceFiles + absToolpaths)
+    if absBaseDir == "":
+        sys.exit("No common base dir found.")
+
+    return absBaseDir, numberOfRuns
+
+
+def buildRunDefinitions(benchmark, limits, absBaseDir):
+    runDefinitions = []
+    for runSet in activeRunSets(benchmark):
+        runs = []
+        for run in runSet.runs:
+            cmdline = list(map(vcloudutil.force_linux_path, run.cmdline()))
+            log_file = os.path.relpath(run.log_file, benchmark.log_folder)
+            run_def = {"logfile": log_file, "command": cmdline}
+            run_files = []
+            if os.path.exists(run.identifier):
+                run_files.extend(run.sourcefiles)
+            run_files.extend(run.required_files)
+            if run_files:
+                run_def["files"] = [os.path.relpath(f, absBaseDir) for f in run_files]
+            runs.append(run_def)
+        if runs:
+            runDefinitions.append({"limits": limits, "runs": runs})
+    return runDefinitions
+
+
+def activeRunSets(benchmark):
+    for runSet in benchmark.run_sets:
+        if STOPPED_BY_INTERRUPT:
+            break
+        if runSet.should_be_executed():
+            yield runSet
 
 
 def handleCloudResults(benchmark, output_handler, start_time, end_time):
