@@ -55,6 +55,8 @@ and equivalently modern versions of other distributions, this is all.
 
 On older Ubuntu versions or those configured for cgroups v1,
 our package automatically configures the necessary cgroup permissions.
+(Note that BenchExec will remove support for this in April 2027,
+cf. [issue #1267][cgroupsv1-issue].)
 Then add the users that should be able to use BenchExec to the group `benchexec`
 (group membership will be effective after the next login of the respective user):
 
@@ -161,7 +163,9 @@ For other distributions, please read the following detailed requirements.
 
 Ideal is to run BenchExec on a system with cgroups v2
 and **Linux 5.19 or newer** (i.e., any kernel since July 2022).
-On older kernels, consider using cgroups v1 in order to get memory measurements (cf. below).
+On older kernels, consider using cgroups v1 in order to get memory measurements (cf. below),
+but note that BenchExec will remove support for cgroups v1 in April 2027
+(cf. [issue #1267][cgroupsv1-issue]).
 
 On non-Ubuntu kernels that are older than version 5.11 (from February 2021),
 you need to avoid using the kernel-based overlay filesystem (cf. below).
@@ -232,6 +236,9 @@ On Debian/Ubuntu, this could be done with the following steps and rebooting afte
 echo 'GRUB_CMDLINE_LINUX_DEFAULT="${GRUB_CMDLINE_LINUX_DEFAULT} systemd.unified_cgroup_hierarchy=0"' | sudo tee /etc/default/grub.d/cgroupsv1-for-benchexec.cfg
 sudo update-grub
 ```
+
+Note that BenchExec will remove support for cgroups v1 in April 2027
+(cf. [issue #1267][cgroupsv1-issue]).
 
 ### Setting up Cgroups v2 on Machines with systemd
 
@@ -403,3 +410,4 @@ Please refer to the [development instructions](DEVELOPMENT.md).
 [pqos]: https://github.com/intel/intel-cmt-cat/tree/master/pqos
 [pqos_wrapper]: https://gitlab.com/sosy-lab/software/pqos-wrapper
 [pystemd]: https://github.com/systemd/pystemd
+[cgroupsv1-issue]: https://github.com/sosy-lab/benchexec/issues/1267
