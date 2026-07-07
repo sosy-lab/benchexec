@@ -33,17 +33,25 @@ Note that the `table-generator` utility requires only Python and works on all pl
 
 ### Debian/Ubuntu
 
-For installing BenchExec on Debian or Ubuntu we recommend installing from our [PPA](https://launchpad.net/~sosy-lab/+archive/ubuntu/benchmarking):
+For installing BenchExec on Ubuntu we recommend installing from our [PPA](https://launchpad.net/~sosy-lab/+archive/ubuntu/benchmarking):
 
     sudo add-apt-repository ppa:sosy-lab/benchmarking
+    sudo apt install benchexec
+
+On Debian and all Debian-derived distributions, such as Ubuntu, Mint, etc.,
+you should be able to use our [SoSy-Lab APT repository](https://apt.sosy-lab.org):
+
+    sudo wget -O /etc/apt/sources.list.d/sosy-lab.sources https://apt.sosy-lab.org/sosy-lab.sources
+    sudo apt update
     sudo apt install benchexec
 
 Alternatively, you can download our `.deb` package from [GitHub](https://github.com/sosy-lab/benchexec/releases)
 and install manually (note that the leading `./` is important, otherwise `apt` will not find the package):
 
-    apt install --install-recommends ./benchexec_*.deb
+    sudo apt install --install-recommends ./benchexec_*.deb
 
-On Ubuntu 21.10 and newer with the default cgroup config, this is all.
+On Ubuntu 21.10 and newer with the default cgroup config,
+and equivalently modern versions of other distributions, this is all.
 
 On older Ubuntu versions or those configured for cgroups v1,
 our package automatically configures the necessary cgroup permissions.
