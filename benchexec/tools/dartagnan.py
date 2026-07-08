@@ -53,7 +53,7 @@ class Tool(benchexec.tools.template.BaseTool2):
                 status = result.RESULT_FALSE_DEREF
             elif "user assertion" in line:
                 status = result.RESULT_FALSE_REACH
-            elif "data race found" in line:
+            elif "data race found" in line or "Flag data-race" in line:
                 status = result.RESULT_FALSE_DATARACE
             elif "Untrackable object found" in line:
                 status = result.RESULT_FALSE_MEMTRACK
