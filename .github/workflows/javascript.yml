@@ -98,3 +98,5 @@ jobs:
           npm run build
           git diff --stat --exit-code
         working-directory: benchexec/tablegenerator/react-table
+
+permissions: {}

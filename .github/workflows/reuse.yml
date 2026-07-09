@@ -18,3 +18,5 @@ jobs:
           persist-credentials: false
       # keep version consistent with .gitlab-ci.yml
       - uses: fsfe/reuse-action@v6
+
+permissions: {}

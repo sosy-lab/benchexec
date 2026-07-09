@@ -33,3 +33,5 @@ jobs:
           # keep version consistent with .gitlab-ci.yml
           version: "==0.15.*"
           args: "format --check --diff"
+
+permissions: {}
