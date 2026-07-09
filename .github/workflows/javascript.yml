@@ -25,7 +25,7 @@ jobs:
           node-version: "lts/iron"
 
       - name: Cache dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.npm
           key: npm-${{ hashFiles('benchexec/tablegenerator/react-table/package-lock.json') }}
@@ -54,7 +54,7 @@ jobs:
           node-version: "lts/iron"
 
       - name: Cache dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.npm
           key: npm-${{ hashFiles('benchexec/tablegenerator/react-table/package-lock.json') }}
@@ -83,7 +83,7 @@ jobs:
           node-version: "lts/iron"
 
       - name: Cache dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.npm
           key: npm-${{ hashFiles('benchexec/tablegenerator/react-table/package-lock.json') }}
