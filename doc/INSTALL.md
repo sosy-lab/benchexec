@@ -36,6 +36,7 @@ Note that the `table-generator` utility requires only Python and works on all pl
 For installing BenchExec on Ubuntu we recommend installing from our [PPA](https://launchpad.net/~sosy-lab/+archive/ubuntu/benchmarking):
 
     sudo add-apt-repository ppa:sosy-lab/benchmarking
+    sudo apt update
     sudo apt install benchexec
 
 On Debian and all Debian-derived distributions, such as Ubuntu, Mint, etc.,
