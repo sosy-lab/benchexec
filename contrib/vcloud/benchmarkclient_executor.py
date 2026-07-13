@@ -228,7 +228,7 @@ def getCloudInput(benchmark):
 
     # get limits
     rlimits = benchmark.rlimits
-    timeLimit = int(rlimits.cputime_hard or DEFAULT_CLOUD_TIMELIMIT)
+    timeLimit = int(rlimits.cputime_hard)
 
     limits_cpu = {"time": {"hard": timeLimit}}
     if rlimits.cpu_cores is not None:
