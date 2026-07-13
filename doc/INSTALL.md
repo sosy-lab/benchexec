@@ -33,20 +33,31 @@ Note that the `table-generator` utility requires only Python and works on all pl
 
 ### Debian/Ubuntu
 
-For installing BenchExec on Debian or Ubuntu we recommend installing from our [PPA](https://launchpad.net/~sosy-lab/+archive/ubuntu/benchmarking):
+For installing BenchExec on Ubuntu we recommend installing from our [PPA](https://launchpad.net/~sosy-lab/+archive/ubuntu/benchmarking):
 
     sudo add-apt-repository ppa:sosy-lab/benchmarking
+    sudo apt update
+    sudo apt install benchexec
+
+On Debian and all Debian-derived distributions, such as Ubuntu, Mint, etc.,
+you should be able to use our [SoSy-Lab APT repository](https://apt.sosy-lab.org):
+
+    sudo wget -O /etc/apt/sources.list.d/sosy-lab.sources https://apt.sosy-lab.org/sosy-lab.sources
+    sudo apt update
     sudo apt install benchexec
 
 Alternatively, you can download our `.deb` package from [GitHub](https://github.com/sosy-lab/benchexec/releases)
 and install manually (note that the leading `./` is important, otherwise `apt` will not find the package):
 
-    apt install --install-recommends ./benchexec_*.deb
+    sudo apt install --install-recommends ./benchexec_*.deb
 
-On Ubuntu 21.10 and newer with the default cgroup config, this is all.
+On Ubuntu 21.10 and newer with the default cgroup config,
+and equivalently modern versions of other distributions, this is all.
 
 On older Ubuntu versions or those configured for cgroups v1,
 our package automatically configures the necessary cgroup permissions.
+(Note that BenchExec will remove support for this in April 2027,
+cf. [issue #1267][cgroupsv1-issue].)
 Then add the users that should be able to use BenchExec to the group `benchexec`
 (group membership will be effective after the next login of the respective user):
 
@@ -153,7 +164,9 @@ For other distributions, please read the following detailed requirements.
 
 Ideal is to run BenchExec on a system with cgroups v2
 and **Linux 5.19 or newer** (i.e., any kernel since July 2022).
-On older kernels, consider using cgroups v1 in order to get memory measurements (cf. below).
+On older kernels, consider using cgroups v1 in order to get memory measurements (cf. below),
+but note that BenchExec will remove support for cgroups v1 in April 2027
+(cf. [issue #1267][cgroupsv1-issue]).
 
 On non-Ubuntu kernels that are older than version 5.11 (from February 2021),
 you need to avoid using the kernel-based overlay filesystem (cf. below).
@@ -224,6 +237,9 @@ On Debian/Ubuntu, this could be done with the following steps and rebooting afte
 echo 'GRUB_CMDLINE_LINUX_DEFAULT="${GRUB_CMDLINE_LINUX_DEFAULT} systemd.unified_cgroup_hierarchy=0"' | sudo tee /etc/default/grub.d/cgroupsv1-for-benchexec.cfg
 sudo update-grub
 ```
+
+Note that BenchExec will remove support for cgroups v1 in April 2027
+(cf. [issue #1267][cgroupsv1-issue]).
 
 ### Setting up Cgroups v2 on Machines with systemd
 
@@ -395,3 +411,4 @@ Please refer to the [development instructions](DEVELOPMENT.md).
 [pqos]: https://github.com/intel/intel-cmt-cat/tree/master/pqos
 [pqos_wrapper]: https://gitlab.com/sosy-lab/software/pqos-wrapper
 [pystemd]: https://github.com/systemd/pystemd
+[cgroupsv1-issue]: https://github.com/sosy-lab/benchexec/issues/1267

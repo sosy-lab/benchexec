@@ -27,7 +27,9 @@ SPDX-License-Identifier: Apache-2.0
   <column title="..." displayUnit="*unit*" scaleFactor="*number*">...</column>
   <!-- If input value has a unit, source unit must be specified for conversion to another unit: -->
   <column title="..." sourceUnit="*source unit*" displayUnit="*unit*" scaleFactor="*number*">...</column>
-  <!-- Table cells can contain configurable link: -->
+  <!-- Table cells can contain configurable link.
+       The link target can contain variable substitutions as in benchmark definitions
+       and also ${value}, which is replaced with the respective cell content.  -->
   <column title="..." href="*path relative to this file or absolute URL*">*(optional) text to appear in all cells of the column*</column>
   <!-- Using a different column to calculate the differences table is also
        possible. If this is used, only the columns with this attribute will be

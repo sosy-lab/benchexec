@@ -79502,8 +79502,9 @@ exports[`Render ReactTable for simple-table-with-links.table.html 1`] = `
         }
        }
       >
-       <div
+       <a
         dangerouslySetInnerHTML={"2.17"}
+        href="https://github.com/sosy-lab/benchexec?value=2.169189428"
        />
       </div>
       <div
@@ -79630,8 +79631,9 @@ exports[`Render ReactTable for simple-table-with-links.table.html 1`] = `
         }
        }
       >
-       <div
+       <a
         dangerouslySetInnerHTML={"2.19"}
+        href="https://github.com/sosy-lab/benchexec?value=2.189887353"
        />
       </div>
       <div
@@ -79758,8 +79760,9 @@ exports[`Render ReactTable for simple-table-with-links.table.html 1`] = `
         }
        }
       >
-       <div
+       <a
         dangerouslySetInnerHTML={"2.23"}
+        href="https://github.com/sosy-lab/benchexec?value=2.22954344"
        />
       </div>
       <div
@@ -79881,8 +79884,9 @@ exports[`Render ReactTable for simple-table-with-links.table.html 1`] = `
         }
        }
       >
-       <div
+       <a
         dangerouslySetInnerHTML={"2.27"}
+        href="https://github.com/sosy-lab/benchexec?value=2.272238619"
        />
       </div>
       <div
@@ -80009,8 +80013,9 @@ exports[`Render ReactTable for simple-table-with-links.table.html 1`] = `
         }
        }
       >
-       <div
+       <a
         dangerouslySetInnerHTML={"2.06"}
+        href="https://github.com/sosy-lab/benchexec?value=2.058647067"
        />
       </div>
       <div

@@ -13,7 +13,10 @@ jobs:
   check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - uses: fsfe/reuse-action@v3
+      # keep version consistent with .gitlab-ci.yml
+      - uses: fsfe/reuse-action@v6
+
+permissions: {}

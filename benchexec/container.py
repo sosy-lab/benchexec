@@ -1031,11 +1031,11 @@ def setup_fuse_overlay(temp_base, work_base):
     cmd = (
         fuse,
         b"-o",
-        b"lowerdir=/"
-        + b",upperdir="
-        + escape_overlayfs_parameters(temp_base)
-        + b",workdir="
-        + escape_overlayfs_parameters(work_fuse),
+        b"lowerdir=/",
+        b"-o",
+        b"upperdir=" + escape_overlayfs_parameters(temp_base),
+        b"-o",
+        b"workdir=" + escape_overlayfs_parameters(work_fuse),
         escape_overlayfs_parameters(temp_fuse),
     )
 
