@@ -219,6 +219,15 @@ def cmdline_for_run(
     args = [os.path.expanduser(arg) for arg in args]
     return args
 
+def _is_strict_requiredfiles(tag):
+    mode = tag.get("mode")
+    if mode not in (None, "strict"):
+        raise BenchExecException(
+            f"Invalid value '{mode}' for attribute 'mode' of <requiredfiles>, "
+            f"only 'strict' is allowed."
+        )
+    return mode == "strict"
+
 
 def get_propertytag(parent):
     tag = util.get_single_child_from_xml(parent, "propertyfile")
@@ -566,7 +575,8 @@ class RunSet(object):
 
         # get run-set specific required files
         required_files_pattern = {
-            tag.text for tag in rundefinitionTag.findall("requiredfiles")
+            (tag.text, _is_strict_requiredfiles(tag))
+            for tag in rundefinitionTag.findall("requiredfiles")
         }
 
         # get all runs, a run contains one sourcefile with options
@@ -646,7 +656,8 @@ class RunSet(object):
                 continue
 
             required_files_pattern = global_required_files_pattern.union(
-                {tag.text for tag in sourcefilesTag.findall("requiredfiles")}
+                (tag.text, _is_strict_requiredfiles(tag))
+                for tag in sourcefilesTag.findall("requiredfiles")
             )
 
             # get lists of filenames
@@ -682,22 +693,22 @@ class RunSet(object):
                         required_files_pattern,
                         appendFileTags,
                     )
-                if run:
+                if run and not run.should_be_skipped:
                     currentRuns.append(run)
 
             # add runs for cases without source files
             for run in sourcefilesTag.findall("withoutfile"):
-                currentRuns.append(
-                    Run(
-                        run.text,
-                        [],
-                        None,
-                        fileOptions,
-                        self,
-                        local_propertytag,
-                        required_files_pattern,
-                    )
+                r = Run(
+                    run.text,
+                    [],
+                    None,
+                    fileOptions,
+                    self,
+                    local_propertytag,
+                    required_files_pattern,
                 )
+                if not r.should_be_skipped:
+                    currentRuns.append(r)
 
             if config.results_per_rundefinition or config.results_per_taskset:
                 # strict naming, use what user has given
@@ -1033,18 +1044,31 @@ class Run(object):
 
         self.required_files = set(required_files)
         rel_sourcefile = os.path.relpath(self.identifier, runSet.benchmark.base_dir)
-        for pattern in required_files_patterns:
-            this_required_files = runSet.expand_filename_pattern(
-                pattern, runSet.benchmark.base_dir, rel_sourcefile
-            )
-            if not this_required_files:
-                logging.warning(
-                    "Pattern %s in requiredfiles tag did not match any file for task %s.",
-                    pattern,
-                    self.identifier,
-                )
-            self.required_files.update(this_required_files)
 
+        self.should_be_skipped = False
+
+        for pattern, strict in required_files_patterns:
+            matched = self.runSet.expand_filename_pattern(
+                pattern, runSet.benchmark.base_dir, sourcefile=rel_sourcefile
+            )
+
+            if not matched:
+                if strict:
+                    logging.info(
+                        "Pattern %s in requiredfiles tag did not match any file for task %s, "
+                        "skipping this task.",
+                        pattern,
+                        self.identifier,
+                    )
+                    self.should_be_skipped = True
+                else:
+                    logging.warning(
+                        "Pattern %s in requiredfiles tag did not match any file for task %s.",
+                        pattern,
+                        self.identifier,
+                    )
+            else:
+                self.required_files.update(matched)
         # combine all options to be used when executing this run
         # (reduce memory-consumption: if 2 lists are equal, do not use the second one)
         self.options = runSet.options + fileOptions if fileOptions else runSet.options
