@@ -219,6 +219,7 @@ def cmdline_for_run(
     args = [os.path.expanduser(arg) for arg in args]
     return args
 
+
 def _is_strict_requiredfiles(tag):
     mode = tag.get("mode")
     if mode not in (None, "strict"):
