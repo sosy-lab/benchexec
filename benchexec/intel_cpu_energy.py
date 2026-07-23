@@ -7,97 +7,92 @@
 
 import collections
 import logging
-import os
-import subprocess
-import signal
-import re
-from benchexec.util import find_executable2
+from pathlib import Path
+from dataclasses import dataclass
 from decimal import Decimal
 
-DOMAIN_PACKAGE = "package"
-DOMAIN_CORE = "core"
-DOMAIN_UNCORE = "uncore"
-DOMAIN_DRAM = "dram"
+rapl_path = Path("/sys/class/powercap/intel-rapl/")
+
+@dataclass
+class Domain:
+    name: str
+    path: Path
+    energy: int
+
+@dataclass
+class Package:
+    name: str
+    path: Path
+    energy: int
+    domains: list[Domain]
 
 
-class EnergyMeasurement(object):
-    def __init__(self, executable):
-        self._executable = executable
-        self._measurement_process = None
+class EnergyMeasurement(object):    
+    def __init__(self):
+        self.running = False
+        self.packages: list[Package] = []
+        for package in sorted(
+        p for p in rapl_path.glob("intel-rapl:*")
+        if p.name.count(":") == 1):
+            p_name = (package/"name").read_text().strip()
+            domains = []
+            for domain in sorted(
+            d for d in package.glob("intel-rapl:*")
+            if d.name.count(":") == 2):
+                d_name = (domain/"name").read_text().strip()
+                domains.append(Domain(d_name, domain, 0))
+
+            self.packages.append(Package(p_name, package, 0, domains))
 
     @classmethod
     def create_if_supported(cls):
-        executable = find_executable2("cpu-energy-meter")
-        if executable is None:  # not available on current system
-            logging.debug(
-                "Energy measurement not available because cpu-energy-meter binary could not be found."
-            )
+        if not rapl_path.exists():
+            logging.debug("Intel RAPL Kernel module for energy measurement not available, try \"modprobe intel-rapl-msr\"")
             return None
-
-        return cls(executable)
+        return cls()
 
     def start(self):
-        """Starts the external measurement program."""
-        assert not self.is_running(), (
-            "Attempted to start an energy measurement while one was already running."
-        )
-
-        self._measurement_process = subprocess.Popen(
-            [self._executable, "-r"],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            universal_newlines=True,
-            bufsize=10_000,
-            preexec_fn=os.setpgrp,  # Prevent delivery of Ctrl+C to subprocess
-        )
+        for package in self.packages:
+            package.energy = int((package.path/"energy_uj").read_text().strip())
+            for domain in package.domains:
+                domain.energy = int((domain.path/"energy_uj").read_text().strip())
+        self.running = True
 
     def stop(self):
-        """Stops the external measurement program and returns the measurement result,
-        if the measurement was running."""
-        consumed_energy = collections.defaultdict(dict)
-        if not self.is_running():
-            return None
-        # cpu-energy-meter expects SIGINT to stop and report its result
-        self._measurement_process.send_signal(signal.SIGINT)
-        (out, err) = self._measurement_process.communicate()
-        assert self._measurement_process.returncode is not None
-        if self._measurement_process.returncode:
-            logging.debug(
-                "Energy measurement terminated with return code %s",
-                self._measurement_process.returncode,
-            )
-        self._measurement_process = None
-        for line in err.splitlines():
-            logging.debug("energy measurement stderr: %s", line)
-        for line in out.splitlines():
-            logging.debug("energy measurement output: %s", line)
-            match = re.match(r"cpu(\d+)_([a-z]+)_joules=(\d+\.?\d*)", line)
-            if not match:
-                continue
+        if not self.running:
+            return self
 
-            cpu, domain, energy = match.groups()
-            cpu = int(cpu)
-            energy = Decimal(energy)
+        for package in self.packages:
+            package.energy = int((package.path/"energy_uj").read_text().strip()) - package.energy
+            for domain in package.domains:
+                domain.energy = int((domain.path/"energy_uj").read_text().strip()) - domain.energy
+        self.running = False
+        return self
 
-            consumed_energy[cpu][domain] = energy
-        return consumed_energy
+    def __str__(self):
+        string = ""
+        for package in self.packages:
+            string += f"{package.name}: {package.energy} uj\n"
+            for domain in package.domains:
+                string += f"    {domain.name}: {domain.energy} uj\n"
+        return string
+    
 
-    def is_running(self):
-        """Returns True if there is currently an instance of the external measurement program running, False otherwise."""
-        return self._measurement_process is not None
-
-
-def format_energy_results(energy):
-    """Take the result of an energy measurement and return a flat dictionary that contains all values."""
-    if not energy:
+def format_energy_results(measurement):
+    if not measurement:
         return {}
     result = {}
-    cpuenergy = Decimal(0)
-    for pkg, domains in energy.items():
-        for domain, value in domains.items():
-            if domain == DOMAIN_PACKAGE:
-                cpuenergy += value
-            result[f"cpuenergy-pkg{pkg}-{domain}"] = value
-    result["cpuenergy"] = cpuenergy
+    total = Decimal(0)
+    for package in measurement.packages:
+        p_energy = Decimal(package.energy) / Decimal(1000000)
+        if not package.name.__eq__("psys"):
+            total += p_energy
+            result[f"cpuenergy-{package.name}"] = p_energy
+        else:
+            result["psys"] = p_energy
+        for domain in package.domains:
+            d_energy = Decimal(domain.energy) / Decimal(1000000)
+            result[f"cpuenergy-{package.name}-{domain.name}"] = d_energy
+    result["cpuenergy"] = total
     result = collections.OrderedDict(sorted(result.items()))
     return result
