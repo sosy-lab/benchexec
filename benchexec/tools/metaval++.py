@@ -62,9 +62,10 @@ class Tool(BaseTool2):
         if lastline.startswith("Witness is correct"):
             return benchexec.result.RESULT_TRUE_PROP
         elif lastline.startswith(
-            "Witness could not be validated"
-        ) or lastline.startswith(
-            "There was an error validating the witness in the backend verifier"
+            (
+                "Witness could not be validated",
+                "There was an error validating the witness in the backend verifier",
+            )
         ):
             if separator in lastline:
                 return (

@@ -45,7 +45,7 @@ def printOut(value, end="\n"):
 
 
 def is_comment(line):
-    return not line or line.startswith("#") or line.startswith("//")
+    return not line or line.startswith(("#", "//"))
 
 
 def flatten(iterable, exclude=[]):

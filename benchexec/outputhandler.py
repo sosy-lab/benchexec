@@ -749,11 +749,11 @@ class OutputHandler:
             hidden = False
 
         if not value_suffix and not isinstance(value, (str, bytes)):
-            if title.startswith("cputime") or title.startswith("walltime"):
+            if title.startswith(("cputime", "walltime")):
                 value_suffix = "s"
             elif title.startswith("cpuenergy"):
                 value_suffix = "J"
-            elif title.startswith("blkio-") or title.startswith("memory"):
+            elif title.startswith(("blkio-", "memory")):
                 value_suffix = "B"
             elif title.startswith("llc"):
                 if not title.startswith("llc_misses"):

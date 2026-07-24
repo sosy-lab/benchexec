@@ -242,7 +242,7 @@ def extract_columns_from_table_definition_file(xmltag, table_definition_file):
 
     def handle_path(path):
         """Convert path from a path relative to table-definition file."""
-        if not path or path.startswith("http://") or path.startswith("https://"):
+        if not path or path.startswith(("http://", "https://")):
             return path
         return os.path.join(os.path.dirname(table_definition_file), path)
 
