@@ -502,7 +502,7 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
             'Please use the default "hidden" directory mode for the temp directory.'
         )
 
-    for _unused_source, full_mountpoint, fstype, options in list(get_mount_points()):
+    for _source, full_mountpoint, fstype, options in list(get_mount_points()):
         if not util.path_is_below(full_mountpoint, mount_base):
             continue
         mountpoint = full_mountpoint[len(mount_base) :] or b"/"
@@ -773,7 +773,7 @@ def get_mount_points():
     with open("/proc/self/mounts", "rb") as mounts:
         # The format of this file is the same as of /etc/fstab (cf. man 5 fstab)
         for mount in mounts:
-            source, target, fstype, options, unused1, unused2 = mount.split(b" ")
+            source, target, fstype, options, _unused1, _unused2 = mount.split(b" ")
             options = set(options.split(b","))
             yield (_decode_path(source), _decode_path(target), fstype, options)
 
@@ -890,7 +890,7 @@ def check_use_fuse_overlayfs(mount_base, dir_modes):
     """
     mount_points = [
         (full_mountpoint, fstype)
-        for _unused_source, full_mountpoint, fstype, _options in get_mount_points()
+        for _source, full_mountpoint, fstype, _options in get_mount_points()
         if util.path_is_below(full_mountpoint, mount_base)
     ]
 
@@ -903,7 +903,7 @@ def check_use_fuse_overlayfs(mount_base, dir_modes):
 
         if mode == DIR_OVERLAY:
             # Check if there are any sub-mounts within the current overlay mount point
-            for sub_mountpoint, _unused_fstype in mount_points:
+            for sub_mountpoint, _fstype in mount_points:
                 if (
                     util.path_is_below(sub_mountpoint, mountpoint)
                     and sub_mountpoint != mountpoint

@@ -662,7 +662,7 @@ class CgroupsV2(Cgroups):
         bytes_read = 0
         bytes_written = 0
         for io_line in self.get_file_lines(self.IO, "stat"):
-            dev_no, *stats = io_line.split(" ")
+            _dev_no, *stats = io_line.split(" ")
             for s in stats:
                 if s.startswith("rbytes="):
                     bytes_read += int(s.split("=")[1])

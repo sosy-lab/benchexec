@@ -138,7 +138,7 @@ class BaseExecutor:
         """
         try:
             logging.debug("Waiting for process %s with pid %s", name, pid)
-            unused_pid, exitcode, ru_child = os.wait4(pid, 0)
+            _pid, exitcode, ru_child = os.wait4(pid, 0)
             return exitcode, ru_child
         except OSError as e:
             if self.PROCESS_KILLED and e.errno == errno.EINTR:
@@ -153,7 +153,7 @@ class BaseExecutor:
                     e.strerror,
                 )
                 try:
-                    unused_pid, exitcode, ru_child = os.wait4(pid, 0)
+                    _pid, exitcode, ru_child = os.wait4(pid, 0)
                     return exitcode, ru_child
                 except OSError:
                     pass  # original error will be handled and this ignored

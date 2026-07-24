@@ -476,7 +476,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         logging.debug("Starting process.")
 
         try:
-            tool_pid, tool_cgroups, result_fn = self._start_execution(
+            tool_pid, _tool_cgroups, result_fn = self._start_execution(
                 args=args,
                 stdin=None,
                 stdout=None,
@@ -497,7 +497,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 self.SUB_PROCESS_PIDS.add(tool_pid)
 
             # wait until process has terminated
-            returnvalue, unused_ru_child, unused = result_fn()
+            returnvalue, _ru_child, _unused = result_fn()
 
         finally:
             # cleanup steps that need to get executed even in case of failure
@@ -905,7 +905,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             def check_child_exit_code():
                 """Check if the child process terminated cleanly
                 and raise an error otherwise."""
-                child_exitcode, unused_child_rusage = self._wait_for_process(
+                child_exitcode, _child_rusage = self._wait_for_process(
                     child_pid, args[0]
                 )
                 child_exitcode = util.ProcessExitCode.from_raw(child_exitcode)
@@ -1259,7 +1259,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             for abs_file in glob.iglob(os.path.normpath(pattern), recursive=True):
                 # We allow the user to match directories and transfer them recursively.
                 if os.path.isdir(abs_file):
-                    for root, _unused_dirs, files in os.walk(abs_file):
+                    for root, _dirs, files in os.walk(abs_file):
                         for file in files:
                             transfer_file(os.path.join(root, file))
                 else:

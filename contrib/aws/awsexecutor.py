@@ -263,7 +263,7 @@ def stop():
 def getAWSInput(benchmark):
     (
         requirements,
-        number_of_runs,
+        _number_of_runs,
         limits_and_num_runs,
         run_definitions,
         source_files,

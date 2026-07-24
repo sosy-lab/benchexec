@@ -566,7 +566,7 @@ class CgroupsV1(Cgroups):
         bytes_written = 0
         for blkio_line in self.get_file_lines(self.IO, BLKIO_BYTES_FILE):
             try:
-                dev_no, io_type, bytes_amount = blkio_line.split(" ")
+                _dev_no, io_type, bytes_amount = blkio_line.split(" ")
                 if io_type == "Read":
                     bytes_read += int(bytes_amount)
                 elif io_type == "Write":

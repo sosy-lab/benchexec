@@ -328,7 +328,7 @@ def run_slurm(benchmark, args, log_file):
         # sometimes `seff` needs a few extra seconds to realize the task has ended
         result = wait_for(get_checked_seff_result, 30, 2)
 
-        slurm_status, exit_code, cpu_time, wall_time, memory_usage = parse_seff(
+        slurm_status, _exit_code, cpu_time, wall_time, memory_usage = parse_seff(
             str(result.stdout)
         )
 

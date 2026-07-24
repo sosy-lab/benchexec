@@ -189,7 +189,7 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
             return False
 
         version = self.version(executable)
-        ult, wrapper = version.split("-")
+        ult, _wrapper = version.split("-")
         major, minor, patch = ult.split(".")
         # all versions before 0.1.24 do not require ultimatedata
         return not (int(major) == 0 and int(minor) < 2 and int(patch) < 24)

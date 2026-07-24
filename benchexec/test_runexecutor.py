@@ -519,7 +519,7 @@ class TestRunExecutor(unittest.TestCase):
                 universal_newlines=True,
             )
             try:
-                runexec_output, unused_err = process.communicate("TEST_TOKEN")
+                runexec_output, _err = process.communicate("TEST_TOKEN")
             except BaseException:
                 # catch everything, we re-raise
                 process.kill()
@@ -667,7 +667,7 @@ class TestRunExecutor(unittest.TestCase):
     def test_append_crash_dump_info(self):
         if not os.path.exists("/bin/sh"):
             self.skipTest("missing /bin/sh")
-        (result, output) = self.execute_run(
+        (_result, output) = self.execute_run(
             "/bin/sh",
             "-c",
             'echo "# An error report file with more information is saved as:";'
@@ -987,7 +987,7 @@ class TestRunExecutorWithContainer(TestRunExecutor):
                 f"result was {result!r},\noutput was\n{output_str}",
             )
             result_files = []
-            for root, _unused_dirs, files in os.walk(output_dir):
+            for root, _dirs, files in os.walk(output_dir):
                 for file in files:
                     result_files.append(
                         os.path.relpath(os.path.join(root, file), output_dir)
