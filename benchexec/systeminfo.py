@@ -45,17 +45,16 @@ class SystemInfo:
         cpuInfoFilename = "/proc/cpuinfo"
         self.cpu_number_of_cores = "unknown"
         if os.path.isfile(cpuInfoFilename) and os.access(cpuInfoFilename, os.R_OK):
-            cpuInfoFile = open(cpuInfoFilename, "rt")
-            cpuInfoLines = [
-                tuple(line.split(":"))
-                for line in cpuInfoFile.read()
-                .replace("\n\n", "\n")
-                .replace("\t", "")
-                .strip("\n")
-                .split("\n")
-            ]
+            with open(cpuInfoFilename, "rt") as cpuInfoFile:
+                cpuInfoLines = [
+                    tuple(line.split(":"))
+                    for line in cpuInfoFile.read()
+                    .replace("\n\n", "\n")
+                    .replace("\t", "")
+                    .strip("\n")
+                    .split("\n")
+                ]
             cpuInfo = dict(cpuInfoLines)
-            cpuInfoFile.close()
             self.cpu_number_of_cores = str(
                 len([line for line in cpuInfoLines if line[0] == "processor"])
             )
@@ -84,12 +83,14 @@ class SystemInfo:
         memInfo = {}
         memInfoFilename = "/proc/meminfo"
         if os.path.isfile(memInfoFilename) and os.access(memInfoFilename, os.R_OK):
-            memInfoFile = open(memInfoFilename, "rt")
-            memInfo = dict(
-                tuple(s.split(": "))
-                for s in memInfoFile.read().replace("\t", "").strip("\n").split("\n")
-            )
-            memInfoFile.close()
+            with open(memInfoFilename, "rt") as memInfoFile:
+                memInfo = dict(
+                    tuple(s.split(": "))
+                    for s in memInfoFile.read()
+                    .replace("\t", "")
+                    .strip("\n")
+                    .split("\n")
+                )
         self.memory = memInfo.get("MemTotal", "unknown").strip()
         if self.memory.endswith(" kB"):
             # kernel uses KiB but names them kB, convert to Byte

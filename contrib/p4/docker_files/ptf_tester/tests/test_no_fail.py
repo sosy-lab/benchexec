@@ -135,6 +135,5 @@ class LongChainOfSwitches(DataplaneBaseTest):
 
 
 def log_to_file(msg):
-    f = open("/app/app.log", "w")
-    f.write(msg + "\n")
-    f.close()
+    with open("/app/app.log", "w") as f:
+        f.write(msg + "\n")

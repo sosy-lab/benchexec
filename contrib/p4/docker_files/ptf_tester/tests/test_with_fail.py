@@ -43,6 +43,5 @@ class OneTest(DataplaneBaseTest):
 
 
 def log_to_file(msg):
-    f = open("/app/app.log", "a")
-    f.write(msg + "\n")
-    f.close()
+    with open("/app/app.log", "a") as f:
+        f.write(msg + "\n")

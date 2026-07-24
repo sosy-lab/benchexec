@@ -17,7 +17,7 @@ class FileWriter:
         If the file exist, it will be OVERWRITTEN without a message!
         """
 
-        self._file = open(filename, "w")
+        self._file = open(filename, "w")  # noqa: SIM115
         self._pos = None
         self.append(content)
 

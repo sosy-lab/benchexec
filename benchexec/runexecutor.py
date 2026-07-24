@@ -206,56 +206,56 @@ def main(argv=None):
         if options.input == options.output:
             parser.error("Input and output files cannot be the same.")
         try:
-            stdin = open(options.input, "rt")
+            stdin = open(options.input, "rt")  # noqa: SIM115
         except OSError as e:
             parser.error(str(e))
     else:
         stdin = None
 
-    cgroup_subsystems = set(options.require_cgroup_subsystem)
-    cgroup_values = {}
-    for arg in options.cgroup_values:
-        try:
-            key, value = arg.split("=", 1)
-            subsystem, option = key.split(".", 1)
-            if not subsystem or not option:
-                raise ValueError()
-        except ValueError:
-            parser.error(
-                f'Cgroup value "{arg}" has invalid format, '
-                f'needs to be "subsystem.option=value".'
-            )
-        cgroup_values[(subsystem, option)] = value
-        cgroup_subsystems.add(subsystem)
-
-    executor = RunExecutor(
-        cleanup_temp_dir=options.cleanup,
-        additional_cgroup_subsystems=list(cgroup_subsystems),
-        use_namespaces=options.container,
-        **container_options,
-    )
-
-    # Ensure that process gets killed on interrupt/kill signal,
-    # and avoid KeyboardInterrupt because it could occur anywhere.
-    def signal_handler_kill(signum, frame):
-        executor.stop()
-
-    signal.signal(signal.SIGTERM, signal_handler_kill)
-    signal.signal(signal.SIGQUIT, signal_handler_kill)
-    signal.signal(signal.SIGINT, signal_handler_kill)
-
-    logging.info("Starting command %s", shlex.join(options.args))
-    if options.container and options.output_directory and options.result_files:
-        logging.info(
-            "Writing output to %s and result files to %s",
-            shlex.quote(options.output),
-            shlex.quote(options.output_directory),
-        )
-    else:
-        logging.info("Writing output to %s", shlex.quote(options.output))
-
-    # actual run execution
     try:
+        cgroup_subsystems = set(options.require_cgroup_subsystem)
+        cgroup_values = {}
+        for arg in options.cgroup_values:
+            try:
+                key, value = arg.split("=", 1)
+                subsystem, option = key.split(".", 1)
+                if not subsystem or not option:
+                    raise ValueError()
+            except ValueError:
+                parser.error(
+                    f'Cgroup value "{arg}" has invalid format, '
+                    f'needs to be "subsystem.option=value".'
+                )
+            cgroup_values[(subsystem, option)] = value
+            cgroup_subsystems.add(subsystem)
+
+        executor = RunExecutor(
+            cleanup_temp_dir=options.cleanup,
+            additional_cgroup_subsystems=list(cgroup_subsystems),
+            use_namespaces=options.container,
+            **container_options,
+        )
+
+        # Ensure that process gets killed on interrupt/kill signal,
+        # and avoid KeyboardInterrupt because it could occur anywhere.
+        def signal_handler_kill(signum, frame):
+            executor.stop()
+
+        signal.signal(signal.SIGTERM, signal_handler_kill)
+        signal.signal(signal.SIGQUIT, signal_handler_kill)
+        signal.signal(signal.SIGINT, signal_handler_kill)
+
+        logging.info("Starting command %s", shlex.join(options.args))
+        if options.container and options.output_directory and options.result_files:
+            logging.info(
+                "Writing output to %s and result files to %s",
+                shlex.quote(options.output),
+                shlex.quote(options.output_directory),
+            )
+        else:
+            logging.info("Writing output to %s", shlex.quote(options.output))
+
+        # actual run execution
         result = executor.execute_run(
             args=options.args,
             output_filename=options.output,
@@ -526,7 +526,8 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             parent_dir = os.path.dirname(output_filename)
             if parent_dir:
                 os.makedirs(parent_dir, exist_ok=True)
-            output_file = open(output_filename, "w")  # override existing file
+            # override existing file
+            output_file = open(output_filename, "w")  # noqa: SIM115
         except OSError as e:
             sys.exit("Could not write to output file: " + str(e))
 
