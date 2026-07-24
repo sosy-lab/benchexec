@@ -5,18 +5,19 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import decimal
 import os
 import re
-from benchexec.tools.sv_benchmarks_util import (
-    get_data_model_from_task,
-    handle_witness_of_task,
-    TaskFilesConsidered,
-    ILP32,
-    LP64,
-)
+
 import benchexec.tools.template
 from benchexec import result
-import decimal
+from benchexec.tools.sv_benchmarks_util import (
+    ILP32,
+    LP64,
+    TaskFilesConsidered,
+    get_data_model_from_task,
+    handle_witness_of_task,
+)
 
 
 class Tool(benchexec.tools.template.BaseTool2):

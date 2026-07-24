@@ -16,23 +16,25 @@ import shlex
 import signal
 import subprocess
 import sys
+import tempfile
 import threading
 import time
-import tempfile
-from typing import cast, Any, Dict, Optional
+from typing import Any, Dict, Optional, cast
 
-from benchexec import __version__
-from benchexec import baseexecutor
-from benchexec import BenchExecException
-from benchexec import containerexecutor
+from benchexec import (
+    BenchExecException,
+    __version__,
+    baseexecutor,
+    containerexecutor,
+    intel_cpu_energy,
+    oomhandler,
+    resources,
+    systeminfo,
+    util,
+)
 from benchexec.cgroups import Cgroups
 from benchexec.filehierarchylimit import FileHierarchyLimitThread
-from benchexec import intel_cpu_energy
-from benchexec import oomhandler
 from benchexec.util import print_decimal
-from benchexec import resources
-from benchexec import systeminfo
-from benchexec import util
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
 

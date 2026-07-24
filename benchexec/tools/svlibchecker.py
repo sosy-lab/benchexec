@@ -7,11 +7,11 @@
 import logging
 
 import benchexec.tools.template
-from benchexec.tools.sv_benchmarks_util import (
-    handle_witness_of_task,
-    TaskFilesConsidered,
-)
 from benchexec import result
+from benchexec.tools.sv_benchmarks_util import (
+    TaskFilesConsidered,
+    handle_witness_of_task,
+)
 
 
 class Tool(benchexec.tools.template.BaseTool2):

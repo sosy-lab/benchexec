@@ -7,8 +7,8 @@
 
 import os
 
-from benchexec import result
 import benchexec.tools.template
+from benchexec import result
 
 
 class Tool(benchexec.tools.template.BaseTool2):

@@ -7,12 +7,11 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import argparse
 import glob
 import os
 import re
-import argparse
 from typing import Tuple
-
 
 NAME_TO_PROP_AND_SUBPROP = {
     "unreach-call": ("unreach-call.prp", None),

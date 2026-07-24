@@ -5,16 +5,16 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import re
 import decimal
-from decimal import Decimal
 import enum
-from math import floor, ceil, log10
 import logging
+import re
+from decimal import Decimal
+from math import ceil, floor, log10
 from typing import Tuple, Union
 
-from benchexec.util import print_decimal
 from benchexec.tablegenerator import util
+from benchexec.util import print_decimal
 
 __all__ = ["Column", "ColumnType", "ColumnMeasureType"]
 

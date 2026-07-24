@@ -4,23 +4,19 @@
 
 # SPDX-License-Identifier: Apache-2.0
 
-import os
+import json
 import logging
-
-import time
+import os
 import threading
-from benchexec import systeminfo
-from p4.p4_run_setup import P4SetupHandler
-from p4.counter import Counter
-
-from benchexec import tooladapter
-from benchexec import util
-from benchexec import BenchExecException
+import time
+from distutils.dir_util import copy_tree
 
 # File handling
 from shutil import copyfile, rmtree
-import json
-from distutils.dir_util import copy_tree
+
+from benchexec import BenchExecException, systeminfo, tooladapter, util
+from p4.counter import Counter
+from p4.p4_run_setup import P4SetupHandler
 
 try:
     import docker
@@ -30,8 +26,7 @@ except ModuleNotFoundError:
     )
 
 try:
-    from pyroute2 import IPRoute
-    from pyroute2 import NetNS
+    from pyroute2 import IPRoute, NetNS
 except ModuleNotFoundError:
     raise BenchExecException(
         "pyroute2 python package not found. Try reinstalling pyroute2"

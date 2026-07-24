@@ -21,12 +21,10 @@ import shutil
 import signal
 import socket
 import struct
-import sys
 import subprocess
+import sys
 
-from benchexec import libc
-from benchexec import seccomp
-from benchexec import util
+from benchexec import libc, seccomp, util
 
 __all__ = [
     "execute_in_namespace",

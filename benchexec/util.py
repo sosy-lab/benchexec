@@ -11,6 +11,7 @@ This module contains some useful functions for Strings, XML or Lists.
 
 import argparse
 import collections
+import ctypes
 import datetime
 import errno
 import fnmatch
@@ -25,9 +26,7 @@ import stat
 import subprocess
 import sys
 from ctypes.util import find_library
-import ctypes
 from xml.etree import ElementTree
-
 
 _BYTE_FACTOR = 1000  # byte in kilobyte
 _FREQUENCY_FACTOR = 1000  # Hz in kHz
@@ -749,7 +748,10 @@ def _debug_current_process(sig, current_frame):
     This code is based on http://stackoverflow.com/a/133384/396730
     """
     # Import modules only if necessary, readline is for shell history support.
-    import code, traceback, readline, threading  # noqa: E401, F401 @UnresolvedImport @UnusedImport
+    import code  # noqa: E401, F401 @UnresolvedImport @UnusedImport
+    import readline
+    import threading
+    import traceback
 
     d = {"_frame": current_frame}  # Allow access to frame object.
     d.update(current_frame.f_globals)  # Unless shadowed by global

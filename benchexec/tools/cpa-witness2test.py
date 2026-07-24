@@ -6,11 +6,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from benchexec.tools import cpachecker
-
-from benchexec.tools.template import ToolNotFoundException
 from benchexec.tools.sv_benchmarks_util import (
     get_single_non_witness_input_file,
 )
+from benchexec.tools.template import ToolNotFoundException
 
 
 class Tool(cpachecker.Tool):

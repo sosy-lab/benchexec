@@ -11,6 +11,7 @@
 
 import logging
 import os
+
 import benchexec.tools.template
 from benchexec import result
 

@@ -16,11 +16,9 @@ import logging
 import os
 import sys
 
-from benchexec import __version__
-from benchexec import BenchExecException
+from benchexec import BenchExecException, __version__, util
 from benchexec.model import Benchmark
 from benchexec.outputhandler import OutputHandler
-from benchexec import util
 
 _BYTE_FACTOR = 1000  # byte in kilobyte
 

@@ -12,15 +12,11 @@ import logging
 import os
 import re
 import sys
-import yaml
 from xml.etree import ElementTree
 
-from benchexec import BenchExecException
-from benchexec import intel_cpu_energy
-from benchexec import result
-from benchexec import tooladapter
-from benchexec import util
+import yaml
 
+from benchexec import BenchExecException, intel_cpu_energy, result, tooladapter, util
 
 MEMLIMIT = "memlimit"
 TIMELIMIT = "timelimit"

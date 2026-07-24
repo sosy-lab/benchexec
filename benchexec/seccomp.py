@@ -8,11 +8,12 @@
 """Utility functions adding a seccomp filter."""
 
 import ctypes
-from ctypes import c_int, c_uint, c_uint32, c_char_p, c_void_p
 import errno
 import logging
 import os
 import threading
+from ctypes import c_char_p, c_int, c_uint, c_uint32, c_void_p
+
 from benchexec import libc
 
 # /usr/include/seccomp.h

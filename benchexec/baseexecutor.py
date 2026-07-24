@@ -12,8 +12,7 @@ import subprocess
 import sys
 import threading
 
-from benchexec import __version__
-from benchexec import util
+from benchexec import __version__, util
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
 

@@ -17,8 +17,7 @@ import sys
 import tempfile
 import time
 
-from benchexec import systeminfo
-from benchexec import util
+from benchexec import systeminfo, util
 from benchexec.cgroups import Cgroups
 
 CGROUP_FALLBACK_PATH = "system.slice/benchexec-cgroup.service"

@@ -7,8 +7,8 @@
 
 import collections
 import unittest
-from benchexec.tablegenerator import htmltable
 
+from benchexec.tablegenerator import htmltable
 
 DummyTaskId = collections.namedtuple("DummyTaskId", "name")
 

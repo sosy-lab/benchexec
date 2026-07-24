@@ -10,8 +10,7 @@ import os
 import threading
 import time
 
-from benchexec import container
-from benchexec import util
+from benchexec import container, util
 
 _CHECK_INTERVAL_SECONDS = 60
 _DURATION_WARNING_THRESHOLD = 1

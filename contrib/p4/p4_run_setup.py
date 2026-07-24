@@ -4,11 +4,12 @@
 
 # SPDX-License-Identifier: Apache-2.0
 
-from benchexec.model import Run
-from benchexec import result
 import json
-import os
 import logging
+import os
+
+from benchexec import result
+from benchexec.model import Run
 
 
 class P4SetupHandler(object):

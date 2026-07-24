@@ -10,13 +10,14 @@ This module contains the Pqos class which is used to interact with pqos_wrapper 
 to allocate equal cache for each thread and isolate cache of two individual threads.
 """
 
-import os
-import logging
-import json
 import grp
+import json
+import logging
+import os
 from signal import SIGINT
-from subprocess import check_output, CalledProcessError, STDOUT, Popen, PIPE
-from benchexec.util import find_executable2, get_capability, check_msr
+from subprocess import PIPE, STDOUT, CalledProcessError, Popen, check_output
+
+from benchexec.util import check_msr, find_executable2, get_capability
 
 
 class Pqos(object):

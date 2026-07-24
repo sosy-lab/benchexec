@@ -5,10 +5,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import os
+
 import ptf
+from ptf import config, testutils
 from ptf.base_tests import BaseTest
-from ptf import config
-from ptf import testutils
 
 
 class DataplaneBaseTest(BaseTest):

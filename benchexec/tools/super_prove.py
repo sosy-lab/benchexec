@@ -5,9 +5,10 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from benchexec import result
-import benchexec.tools.template
 from pathlib import Path
+
+import benchexec.tools.template
+from benchexec import result
 
 
 class Tool(benchexec.tools.template.BaseTool2):

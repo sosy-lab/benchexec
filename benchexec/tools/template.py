@@ -15,17 +15,16 @@ For more information, please refer to
 https://github.com/sosy-lab/benchexec/blob/main/doc/tool-integration.md
 """
 
-from abc import ABCMeta, abstractmethod
-from collections import namedtuple
 import collections
 import copy
-import os
 import logging
+import os
 import subprocess
+from abc import ABCMeta, abstractmethod
+from collections import namedtuple
 
 import benchexec
-from benchexec import result
-from benchexec import util
+from benchexec import result, util
 
 
 class ToolNotFoundException(benchexec.BenchExecException):

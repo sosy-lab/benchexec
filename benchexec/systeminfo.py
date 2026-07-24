@@ -9,12 +9,12 @@
 This module allows to retrieve information about the current system.
 """
 
-from decimal import Decimal
 import glob
 import logging
 import os
 import platform
 import sys
+from decimal import Decimal
 
 from benchexec import util
 

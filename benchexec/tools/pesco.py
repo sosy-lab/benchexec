@@ -6,7 +6,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from benchexec.tools import cpachecker
-
 from benchexec.tools.template import ToolNotFoundException, UnsupportedFeatureException
 
 

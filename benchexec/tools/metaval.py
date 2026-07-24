@@ -12,19 +12,19 @@ import threading
 
 import benchexec.tools.template
 from benchexec.tools.sv_benchmarks_util import (
-    get_witness,
-    get_single_non_witness_input_file,
-    WITNESS_INPUT_FILE_IDENTIFIER,
-    get_data_model_from_task,
-    TaskFilesConsidered,
-    handle_witness_of_task,
-    LP64,
     ILP32,
+    LP64,
+    WITNESS_INPUT_FILE_IDENTIFIER,
+    TaskFilesConsidered,
+    get_data_model_from_task,
+    get_single_non_witness_input_file,
+    get_witness,
+    handle_witness_of_task,
 )
 from benchexec.tools.template import (
     BaseTool2,
-    UnsupportedFeatureException,
     ToolNotFoundException,
+    UnsupportedFeatureException,
 )
 
 

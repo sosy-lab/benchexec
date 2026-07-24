@@ -7,8 +7,8 @@
 
 import collections
 import decimal
-from decimal import Decimal, InvalidOperation
 import itertools
+from decimal import Decimal, InvalidOperation
 
 from benchexec import result
 from benchexec.tablegenerator import util

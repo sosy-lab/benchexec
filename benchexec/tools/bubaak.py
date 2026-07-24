@@ -8,7 +8,7 @@
 
 import benchexec
 from benchexec import result
-from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, LP64
+from benchexec.tools.sv_benchmarks_util import ILP32, LP64, get_data_model_from_task
 
 
 def get_verdict(s: str):

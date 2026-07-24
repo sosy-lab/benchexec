@@ -9,11 +9,10 @@ import copy
 import logging
 import re
 from collections import Counter, defaultdict
-from typing import List, Iterable, Set, Any
-
-from benchexec.tablegenerator.columns import Column, ColumnType
+from typing import Any, Iterable, List, Set
 
 from benchexec.tablegenerator import util
+from benchexec.tablegenerator.columns import Column, ColumnType
 from benchexec.tablegenerator.statistics import ColumnStatistics, StatValue
 
 TEX_HEADER = r"""% Statistics produced by BenchExec, more information at

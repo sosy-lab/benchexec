@@ -10,16 +10,16 @@ import io
 import json
 import logging
 import os
-import requests
 import shutil
 import sys
 import tempfile
-from threading import Event
 import urllib
 import zipfile
+from threading import Event
+
+import requests
 
 import benchexec.util
-
 from benchexec import BenchExecException
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files

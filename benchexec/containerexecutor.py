@@ -6,15 +6,15 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import argparse
+import collections
 import errno
 import glob
 import logging
 import os
-import collections
-import shutil
 import pickle
 import select
 import shlex
+import shutil
 import signal
 import socket
 import subprocess
@@ -22,19 +22,21 @@ import sys
 import tempfile
 import traceback
 
-from benchexec import __version__
-from benchexec import baseexecutor
-from benchexec import BenchExecException
+from benchexec import (
+    BenchExecException,
+    __version__,
+    baseexecutor,
+    container,
+    libc,
+    util,
+)
 from benchexec.cgroups import Cgroups
-from benchexec import container
-from benchexec import libc
-from benchexec import util
 from benchexec.container import (
-    DIR_MODES,
-    DIR_HIDDEN,
-    DIR_READ_ONLY,
-    DIR_OVERLAY,
     DIR_FULL_ACCESS,
+    DIR_HIDDEN,
+    DIR_MODES,
+    DIR_OVERLAY,
+    DIR_READ_ONLY,
     NATIVE_CLONE_CALLBACK_SUPPORTED,
 )
 

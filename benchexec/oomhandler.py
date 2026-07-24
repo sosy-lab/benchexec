@@ -8,10 +8,9 @@
 import logging
 import os
 import threading
+from ctypes import cdll
 
 from benchexec import util
-
-from ctypes import cdll
 
 _libc = cdll.LoadLibrary("libc.so.6")
 _EFD_CLOEXEC = 0x80000  # from <sys/eventfd.h>: mark eventfd as close-on-exec

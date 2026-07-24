@@ -10,8 +10,8 @@ import os
 import re
 import sys
 
-from benchexec import result
 import benchexec.tools.template
+from benchexec import result
 from benchexec.tools.sv_benchmarks_util import (
     get_non_witness_input_files_or_identifier,
     get_witness_options,

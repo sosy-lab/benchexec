@@ -7,12 +7,12 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import subprocess
 import os
-from benchexec import util
-import benchexec.tools.template
-from benchexec import result
 import re
+import subprocess
+
+import benchexec.tools.template
+from benchexec import result, util
 
 
 class Tool(benchexec.tools.template.BaseTool):

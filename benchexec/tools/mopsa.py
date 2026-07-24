@@ -5,8 +5,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from benchexec import result
 import benchexec.tools.template
+from benchexec import result
 from benchexec.tools.sv_benchmarks_util import (
     TaskFilesConsidered,
     handle_witness_of_task,

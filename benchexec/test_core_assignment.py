@@ -6,8 +6,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import itertools
-import unittest
 import math
+import unittest
 
 from benchexec.resources import _get_cpu_cores_per_run0
 

@@ -8,11 +8,12 @@
 import collections
 import logging
 import os
-import subprocess
-import signal
 import re
-from benchexec.util import find_executable2
+import signal
+import subprocess
 from decimal import Decimal
+
+from benchexec.util import find_executable2
 
 DOMAIN_PACKAGE = "package"
 DOMAIN_CORE = "core"

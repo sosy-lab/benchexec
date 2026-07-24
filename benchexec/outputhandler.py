@@ -15,21 +15,18 @@ import logging
 import math
 import os
 import shlex
+import sys
 import threading
 import time
-import sys
+import zipfile
 
 # Need to disable pytype for minidom due to https://github.com/google/pytype/issues/1130
 from xml.dom import minidom  # pytype: disable=pyi-error
 from xml.etree import ElementTree
-import zipfile
 
 import benchexec
-from benchexec.model import MEMLIMIT, TIMELIMIT, CORELIMIT
-from benchexec import filewriter
-from benchexec import intel_cpu_energy
-from benchexec import result
-from benchexec import util
+from benchexec import filewriter, intel_cpu_energy, result, util
+from benchexec.model import CORELIMIT, MEMLIMIT, TIMELIMIT
 
 RESULT_XML_PUBLIC_ID = "+//IDN sosy-lab.org//DTD BenchExec result 3.12//EN"
 RESULT_XML_SYSTEM_ID = "https://www.sosy-lab.org/benchexec/result-3.12.dtd"

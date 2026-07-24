@@ -8,11 +8,11 @@
 import logging
 import re
 
-from benchexec import result
 import benchexec.tools.template
+from benchexec import result
 from benchexec.tools.sv_benchmarks_util import (
-    get_witness_options,
     get_non_witness_input_files,
+    get_witness_options,
 )
 from benchexec.tools.template import ToolNotFoundException
 

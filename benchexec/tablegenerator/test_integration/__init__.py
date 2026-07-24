@@ -14,8 +14,8 @@ import tempfile
 import unittest
 
 import benchexec
-import benchexec.util
 import benchexec.tablegenerator.util
+import benchexec.util
 
 here = os.path.relpath(os.path.dirname(__file__))
 base_dir = os.path.join(here, "..", "..", "..")

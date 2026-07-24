@@ -12,9 +12,9 @@ import logging
 import os
 from urllib.parse import quote as url_quote
 
+import benchexec.util
 from benchexec import __version__
 from benchexec.tablegenerator import util
-import benchexec.util
 
 _REACT_FILES = [
     os.path.join(os.path.dirname(__file__), "react-table", "build", path)

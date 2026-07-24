@@ -163,8 +163,8 @@ def _create_systemd_scope_for_us():
     @return: a boolean indicating whether this succeeded
     """
     try:
-        from pystemd.dbuslib import DBus
         from pystemd.dbusexc import DBusBaseError
+        from pystemd.dbuslib import DBus
         from pystemd.systemd1 import Manager, Unit
 
         with DBus(user_mode=True) as bus, Manager(bus=bus) as manager:

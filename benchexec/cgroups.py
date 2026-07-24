@@ -5,15 +5,14 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from abc import ABC, abstractmethod
 import errno
 import functools
 import logging
 import os
 import stat
+from abc import ABC, abstractmethod
 
 from benchexec import util
-
 
 CGROUPS_V1 = 1
 CGROUPS_V2 = 2

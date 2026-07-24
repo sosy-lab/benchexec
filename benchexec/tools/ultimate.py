@@ -10,24 +10,23 @@ import functools
 import glob
 import logging
 import os
-from pathlib import Path
 import re
 import shlex
 import shutil
 import subprocess
+from pathlib import Path
 from typing import List
 
-from benchexec import result
 import benchexec.tools.template
+from benchexec import result
 from benchexec.tools.sv_benchmarks_util import (
-    get_data_model_from_task,
     ILP32,
     LP64,
-    handle_witness_of_task,
     TaskFilesConsidered,
+    get_data_model_from_task,
+    handle_witness_of_task,
 )
-from benchexec.tools.template import ToolNotFoundException
-from benchexec.tools.template import UnsupportedFeatureException
+from benchexec.tools.template import ToolNotFoundException, UnsupportedFeatureException
 
 _OPTION_NO_WRAPPER = "--force-no-wrapper"
 _SVCOMP17_VERSIONS = {"f7c3ed31"}

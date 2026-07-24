@@ -10,17 +10,16 @@ This module contains some useful functions for Strings, Files and Lists.
 """
 
 import collections
-from decimal import Decimal
 import glob
 import io
 import logging
 import os
-import urllib.request
 import platform
+import urllib.request
+from decimal import Decimal
 from typing import Iterable, List, TypeVar, Union
 
 import benchexec.util
-
 
 # May be extended with higher numbers
 ROMAN_NUMBERS = {

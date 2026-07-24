@@ -10,11 +10,12 @@ import os
 import tempfile
 import unittest
 from unittest.mock import patch
+
 import yaml
 
-from benchexec.model import Benchmark
 import benchexec.result
 from benchexec import util
+from benchexec.model import Benchmark
 
 here = os.path.dirname(__file__)
 base_dir = os.path.join(here, "..")

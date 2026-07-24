@@ -5,8 +5,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from benchexec import util
 import benchexec.tools.smtlib2
+from benchexec import util
 
 
 class Tool(benchexec.tools.smtlib2.Smtlib2Tool):

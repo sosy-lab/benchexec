@@ -23,20 +23,17 @@ import sys
 import time
 import types
 import typing
-from typing import Iterator, List, Optional, Set
 import urllib.parse
 import urllib.request
+import zipfile
+from typing import Iterator, List, Optional, Set
 from xml.etree import ElementTree
 
-from benchexec import __version__, BenchExecException
-from benchexec import model
-from benchexec import result
-from benchexec import tooladapter
 import benchexec.util
-from benchexec.tablegenerator import htmltable, statistics, util, statisticstex
+from benchexec import BenchExecException, __version__, model, result, tooladapter
+from benchexec.tablegenerator import htmltable, statistics, statisticstex, util
 from benchexec.tablegenerator.columns import Column
 from benchexec.tablegenerator.util import TaskId
-import zipfile
 
 # Process pool for parallel work.
 # Some of our loops are CPU-bound (e.g., statistics calculations), thus we use

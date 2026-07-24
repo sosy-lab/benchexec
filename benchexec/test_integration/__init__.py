@@ -13,7 +13,6 @@ import subprocess
 import tempfile
 import unittest
 import zipfile
-
 from xml.etree import ElementTree
 
 here = os.path.dirname(__file__)

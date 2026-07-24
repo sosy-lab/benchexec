@@ -8,10 +8,10 @@
 import benchexec.tools.template
 from benchexec import result
 from benchexec.tools.sv_benchmarks_util import (
-    get_data_model_from_task,
     ILP32,
     LP64,
     TaskFilesConsidered,
+    get_data_model_from_task,
     handle_witness_of_task,
 )
 

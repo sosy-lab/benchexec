@@ -10,21 +10,23 @@ import logging
 import os
 import pprint
 import re
+import shlex
+import shutil
 import subprocess
 import tempfile
 import threading
 import time
 import unittest
-import shlex
-import shutil
 
-from benchexec import container
-from benchexec import containerexecutor
-from benchexec import filehierarchylimit
-from benchexec.runexecutor import RunExecutor
+from benchexec import (
+    container,
+    containerexecutor,
+    filehierarchylimit,
+    runexecutor,
+    util,
+)
 from benchexec.cgroups import Cgroups
-from benchexec import runexecutor
-from benchexec import util
+from benchexec.runexecutor import RunExecutor
 
 here = os.path.dirname(__file__)
 base_dir = os.path.join(here, "..")
