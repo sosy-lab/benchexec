@@ -1152,9 +1152,10 @@ class Run:
                     if energy_key != "cpuenergy":
                         energy_key = "@" + energy_key
                     self.values[energy_key] = energy_value
-            elif key in ["walltime", "cputime", "memory", "cpuenergy"]:
-                self.values[key] = value
-            elif key in visible_columns:
+            elif (
+                key in ["walltime", "cputime", "memory", "cpuenergy"]
+                or key in visible_columns
+            ):
                 self.values[key] = value
             else:
                 self.values["@" + key] = value

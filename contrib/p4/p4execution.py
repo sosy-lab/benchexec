@@ -747,10 +747,7 @@ class P4Execution:
             return False
         else:
             # Check nodes
-            if "nodes" not in self.network_config:
-                logging.debug("No nodes defined in network config")
-                return False
-            elif len(self.network_config["nodes"]) == 0:
+            if "nodes" not in self.network_config or not self.network_config["nodes"]:
                 logging.debug("No nodes defined in network config")
                 return False
 

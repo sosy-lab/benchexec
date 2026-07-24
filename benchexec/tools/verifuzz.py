@@ -41,9 +41,7 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def determine_result(self, run):
         for line in run.output:
-            if "COVER(error-call)" in line:
-                return result.RESULT_DONE
-            elif "COVER(branches)" in line:
+            if "COVER(error-call)" in line or "COVER(branches)" in line:
                 return result.RESULT_DONE
             elif "VERIFUZZ_VERIFICATION_SUCCESSFUL" in line:
                 return result.RESULT_TRUE_PROP
