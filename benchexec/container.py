@@ -441,7 +441,7 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
     make_bind_mount(b"/", mount_base, recursive=True, private=True)
 
     # Ensure each special dir is a mountpoint such that the next loop covers it.
-    for special_dir in dir_modes.keys():
+    for special_dir in dir_modes:
         if special_dir == b"/":
             continue  # handled above
 

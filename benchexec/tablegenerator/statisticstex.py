@@ -63,7 +63,7 @@ class LatexCommand:
         Returns:
             This LatexCommand
         """
-        if part_name in RENAME_FUNCTIONS.keys():
+        if part_name in RENAME_FUNCTIONS:
             part_value = RENAME_FUNCTIONS[part_name](part_value)
         self.__dict__[part_name] = LatexCommand.format_command_part(str(part_value))
         return self

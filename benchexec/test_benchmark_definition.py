@@ -130,7 +130,7 @@ class TestBenchmarkDefinition(unittest.TestCase):
         self.check_task_filter('expectedverdict="true"', ["true_task.yml"])
 
     def test_expected_verdict_false_filter(self):
-        false_tasks = [f for f in ALL_TEST_TASKS.keys() if f.startswith("false")]
+        false_tasks = [f for f in ALL_TEST_TASKS if f.startswith("false")]
         self.check_task_filter('expectedverdict="false"', false_tasks)
 
     def test_expected_verdict_false_subproperty_filter(self):

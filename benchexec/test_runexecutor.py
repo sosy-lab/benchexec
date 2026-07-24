@@ -160,7 +160,7 @@ class TestRunExecutor(unittest.TestCase):
             "pressure-memory-some",
         }
         expected_keys.update(additional_keys)
-        for key in result.keys():
+        for key in result:
             if key.startswith("cputime-cpu"):
                 self.assertRegex(
                     key,

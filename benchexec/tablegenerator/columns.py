@@ -574,10 +574,7 @@ def _get_column_type_heur(
 def _get_scale_factor(unit, source_unit, column):
     if unit is None or unit == source_unit:
         return 1
-    elif (
-        source_unit in UNIT_CONVERSION.keys()
-        and unit in UNIT_CONVERSION[source_unit].keys()
-    ):
+    elif source_unit in UNIT_CONVERSION and unit in UNIT_CONVERSION[source_unit]:
         return UNIT_CONVERSION[source_unit][unit]
     else:
         # If the display unit is different from the source unit, a scale factor must be given explicitly
