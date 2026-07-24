@@ -19,7 +19,7 @@ import sys
 import tempfile
 import threading
 import time
-from typing import Any, Optional, cast
+from typing import Any, cast
 
 from benchexec import (
     BenchExecException,
@@ -278,7 +278,7 @@ def main(argv=None):
             stdin.close()
 
     # exit_code is a util.ProcessExitCode instance
-    exit_code = cast(Optional[util.ProcessExitCode], result.pop("exitcode", None))
+    exit_code = cast(util.ProcessExitCode | None, result.pop("exitcode", None))
 
     def print_optional_result(key, unit=""):
         if key in result:

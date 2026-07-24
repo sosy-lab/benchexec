@@ -11,7 +11,6 @@ import logging
 import re
 from decimal import Decimal
 from math import ceil, floor, log10
-from typing import Union
 
 from benchexec.tablegenerator import util
 from benchexec.util import print_decimal
@@ -432,10 +431,7 @@ def _is_to_cut(value, format_target):
 
 def _get_column_type_heur(
     column, column_values
-) -> Union[  # noqa: TAE002 TODO should really be improved
-    ColumnType,
-    tuple[Union[ColumnType, ColumnMeasureType], str, str, Union[int, Decimal], int],
-]:
+) -> ColumnType | tuple[ColumnType | ColumnMeasureType, str, str, int | Decimal, int]:
     with decimal.localcontext(DECIMAL_CONTEXT):
         if column.title == "status":
             return ColumnType.status

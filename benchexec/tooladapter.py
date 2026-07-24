@@ -12,7 +12,7 @@ This is an internal module for BenchExec and not to be used by tool-info modules
 """
 
 import inspect
-from typing import Union, cast
+from typing import cast
 
 import benchexec.model
 from benchexec.tools.template import BaseTool, BaseTool2, ToolNotFoundException
@@ -94,7 +94,7 @@ class Tool1To2:
         pass
 
 
-def adapt_to_current_version(tool: Union[BaseTool, BaseTool2]) -> CURRENT_BASETOOL:
+def adapt_to_current_version(tool: BaseTool | BaseTool2) -> CURRENT_BASETOOL:
     """
     Given an instance of a tool-info module's class, return an instance that conforms to
     the current API. Might be either the same or a different instance.

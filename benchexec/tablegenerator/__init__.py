@@ -27,7 +27,6 @@ import urllib.parse
 import urllib.request
 import zipfile
 from collections.abc import Iterator
-from typing import Optional
 from xml.etree import ElementTree
 
 import benchexec.util
@@ -115,7 +114,7 @@ def table_definition_lists_result_files(table_definition):
 
 def load_results_from_table_definition(
     table_definition, table_definition_file, options
-) -> "Iterator[Optional[RunSetResult]]":
+) -> "Iterator[RunSetResult | None]":
     """
     Load all results in files that are listed in the given table-definition file.
     @return: a list of RunSetResult objects
@@ -164,7 +163,7 @@ def load_results_from_table_definition(
 
 def handle_union_tag(
     tag, table_definition_file, options, default_columns, columns_relevant_for_diff
-) -> "Optional[RunSetResult]":
+) -> "RunSetResult | None":
     columns = (
         extract_columns_from_table_definition_file(tag, table_definition_file)
         or default_columns
@@ -218,7 +217,7 @@ def get_file_list_from_result_tag(result_tag, table_definition_file):
 
 def load_results_with_table_definition(
     result_files, table_definition, table_definition_file, options
-) -> "Iterator[Optional[RunSetResult]]":
+) -> "Iterator[RunSetResult | None]":
     """
     Load results from given files with column definitions taken from a table-definition file.
     @return: a list of RunSetResult objects
@@ -582,7 +581,7 @@ def load_results(
     run_set_id=None,
     columns=None,
     columns_relevant_for_diff=set(),
-) -> "Iterator[Optional[RunSetResult]]":
+) -> "Iterator[RunSetResult | None]":
     """Version of load_result for multiple input files that will be loaded concurrently."""
     return parallel.map(
         load_result,
@@ -596,7 +595,7 @@ def load_results(
 
 def load_result(
     result_file, options, run_set_id=None, columns=None, columns_relevant_for_diff=set()
-) -> "Optional[RunSetResult]":
+) -> "RunSetResult | None":
     """
     Completely handle loading a single result file.
     @param result_file the file to parse

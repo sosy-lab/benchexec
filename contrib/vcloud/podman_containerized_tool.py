@@ -11,7 +11,6 @@ import shlex
 import subprocess
 import sys
 from pathlib import Path
-from typing import Optional
 
 from benchexec import (
     BenchExecException,
@@ -167,7 +166,7 @@ def _init_container(
 class PodmanContainerizedTool(ContainerizedTool):
     tool_directory: str
     image: str
-    container_id: Optional[str]
+    container_id: str | None
 
     def __init__(self, tool_module, config, image):
         assert config.tool_directory, (
