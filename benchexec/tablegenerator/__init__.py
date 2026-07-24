@@ -1267,7 +1267,7 @@ def create_tables(
         summary_data = types.SimpleNamespace(title=title, rows=rows)
 
         # calculate statistics if necessary
-        if not options.format == ["csv"]:
+        if options.format != ["csv"]:
             summary_data.stats = compute_stats(
                 rows, runSetResults, use_summary, options.correct_only
             )
@@ -1669,7 +1669,7 @@ def main(args=None):
         if len(inputFiles) == 1:
             if not name:
                 name = basename_without_ending(inputFiles[0])
-            if not outputFilePattern == "-":
+            if outputFilePattern != "-":
                 outputFilePattern = "{name}.{ext}"
         else:
             if not name:
@@ -1724,7 +1724,7 @@ def main(args=None):
     rowsDiff = filter_rows_with_differences(rows) if options.write_diff_table else []
 
     logging.info("Generating table...")
-    if not os.path.isdir(outputPath) and not outputFilePattern == "-":
+    if not os.path.isdir(outputPath) and outputFilePattern != "-":
         os.makedirs(outputPath)
     futures = create_tables(
         name, runSetResults, rows, rowsDiff, outputPath, outputFilePattern, options

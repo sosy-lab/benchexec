@@ -127,7 +127,7 @@ def print_tool_info(tool, tool_locator):
     if tool_locator.tool_directory:
         abs_directory = os.path.abspath(tool_locator.tool_directory)
         abs_executable = os.path.abspath(executable)
-        if not os.path.commonpath((abs_directory, abs_executable)) == abs_directory:
+        if os.path.commonpath((abs_directory, abs_executable)) != abs_directory:
             logging.warning("Executable is not within specified tool directory.")
 
     version = None

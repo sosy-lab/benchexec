@@ -67,7 +67,7 @@ def check_cgroup_availability(wait=1):
             line = line.strip()
             if (
                 line
-                and not line == f"sh -c 'sleep {wait}; cat /proc/self/cgroup'"
+                and line != f"sh -c 'sleep {wait}; cat /proc/self/cgroup'"
                 and not all(c == "-" for c in line)
             ):
                 lines.append(line)

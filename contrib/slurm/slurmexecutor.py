@@ -173,7 +173,7 @@ class _Worker(threading.Thread):
                 )
                 if (
                     "terminationreason" not in run_result
-                    or not run_result["terminationreason"] == "killed"
+                    or run_result["terminationreason"] != "killed"
                     or (attempts >= self.benchmark.config.retry >= 0)
                     or STOPPED_BY_INTERRUPT
                 ):

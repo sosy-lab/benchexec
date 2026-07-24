@@ -194,7 +194,7 @@ class BenchExecIntegrationTests(unittest.TestCase):
             self.assertEqual(actual_line, expected_line)
 
     def assertSameRunResults(self, actual_result_xml, other_result_xml):
-        if OVERWRITE_MODE and not actual_result_xml == other_result_xml:
+        if OVERWRITE_MODE and actual_result_xml != other_result_xml:
             shutil.copyfile(actual_result_xml, other_result_xml)
             return
 

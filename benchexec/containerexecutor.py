@@ -143,7 +143,7 @@ def handle_basic_container_args(options, parser=None):
         handle_dir_mode(path, DIR_FULL_ACCESS)
 
     if options.keep_tmp:
-        if "/tmp" in dir_modes and not dir_modes["/tmp"] == DIR_FULL_ACCESS:
+        if "/tmp" in dir_modes and dir_modes["/tmp"] != DIR_FULL_ACCESS:
             error_fn("Cannot specify both --keep-tmp and --hidden-dir /tmp.")
         dir_modes["/tmp"] = DIR_FULL_ACCESS
     elif "/tmp" not in dir_modes:
