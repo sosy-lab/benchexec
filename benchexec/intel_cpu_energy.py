@@ -21,7 +21,7 @@ DOMAIN_UNCORE = "uncore"
 DOMAIN_DRAM = "dram"
 
 
-class EnergyMeasurement(object):
+class EnergyMeasurement:
     def __init__(self, executable):
         self._executable = executable
         self._measurement_process = None

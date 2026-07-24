@@ -42,7 +42,7 @@ SWITCH_IMAGE_NAME = "switch_bmv2"
 PTF_IMAGE_NAME = "ptf_tester"
 
 
-class P4Execution(object):
+class P4Execution:
     """
     This Class is for executing p4 benchmarks. The class creates docker containers representing each
     device in the network. It creates virtual ethernet connections between all the devices. Finally,

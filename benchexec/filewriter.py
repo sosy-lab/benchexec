@@ -6,7 +6,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-class FileWriter(object):
+class FileWriter:
     """
     The class FileWriter is a wrapper for writing content into a file.
     """

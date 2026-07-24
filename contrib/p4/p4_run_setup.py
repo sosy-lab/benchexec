@@ -12,7 +12,7 @@ from benchexec import result
 from benchexec.model import Run
 
 
-class P4SetupHandler(object):
+class P4SetupHandler:
     """
     This class creates a new set of runs in the given benchmark.
     It will create on run for each test in the test_dict. If no

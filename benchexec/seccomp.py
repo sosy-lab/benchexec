@@ -132,7 +132,7 @@ def is_available():
         return _AVAILABLE
 
 
-class SeccompFilter(object):
+class SeccompFilter:
     """
     Encapsulates a seccomp filter that can be incrementally built and loaded.
     This class is a single-use context manager,

@@ -77,7 +77,7 @@ class ColumnType(enum.Enum):
         return self
 
 
-class ColumnMeasureType(object):
+class ColumnMeasureType:
     """
     Column type 'Measure', contains the column's unit and the largest amount of digits after the decimal point.
     """
@@ -98,7 +98,7 @@ class ColumnMeasureType(object):
         return f"{self._type}({self._max_decimal_digits})"
 
 
-class Column(object):
+class Column:
     """
     The class Column contains title, pattern (to identify a line in log_file),
     number_of_significant_digits of a column, the type of the column's values,

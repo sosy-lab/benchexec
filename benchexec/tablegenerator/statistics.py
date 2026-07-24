@@ -22,7 +22,7 @@ nan = Decimal("nan")
 inf = Decimal("inf")
 
 
-class ColumnStatistics(object):
+class ColumnStatistics:
     _fields = frozenset(
         (
             "total",
@@ -52,7 +52,7 @@ class ColumnStatistics(object):
         raise AttributeError("can't set attribute")
 
 
-class StatValue(object):
+class StatValue:
     def __init__(
         self,
         sum,  # noqa: A002

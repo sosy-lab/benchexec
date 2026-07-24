@@ -390,7 +390,7 @@ def cap_first_letter(word: str) -> str:
     return ""
 
 
-class _DummyFuture(object):
+class _DummyFuture:
     def __init__(self, result):
         self._result = result
 
@@ -398,7 +398,7 @@ class _DummyFuture(object):
         return self._result
 
 
-class DummyExecutor(object):
+class DummyExecutor:
     """Executor similar to concurrent.futures.ProcessPoolExecutor
     but executes everything sequentially in the current process.
     This can be useful for debugging.

@@ -66,7 +66,7 @@ TIME_PRECISION = 2
 _BYTE_FACTOR = 1000  # byte in kilobyte
 
 
-class OutputHandler(object):
+class OutputHandler:
     """
     The class OutputHandler manages all outputs to the terminal and to files.
     """
@@ -962,7 +962,7 @@ class OutputHandler(object):
         return filename
 
 
-class Statistics(object):
+class Statistics:
     def __init__(self):
         self.dic = collections.defaultdict(int)
         self.counter = 0

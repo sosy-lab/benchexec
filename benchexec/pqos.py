@@ -20,7 +20,7 @@ from subprocess import PIPE, STDOUT, CalledProcessError, Popen, check_output
 from benchexec.util import check_msr, find_executable2, get_capability
 
 
-class Pqos(object):
+class Pqos:
     """
     The Pqos class defines methods to interact with pqos_wrapper cli.
     """
