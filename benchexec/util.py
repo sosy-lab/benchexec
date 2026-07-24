@@ -367,12 +367,12 @@ def find_executable(program, fallback=None, exitOnError=True, use_current_dir=Tr
 
     if exitOnError:
         if found_non_executable:
-            sys.exit(  # noqa: R503 always raises
+            sys.exit(  # noqa: RET503 always raises
                 f"Could not find '{program}' executable, "
                 f"but found file '{found_non_executable[0]}' that is not executable."
             )
         else:
-            sys.exit(  # noqa: R503 always raises
+            sys.exit(  # noqa: RET503 always raises
                 f"Could not find '{program}' executable."
             )
     else:

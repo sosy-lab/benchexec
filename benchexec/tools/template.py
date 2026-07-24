@@ -103,7 +103,7 @@ class BaseTool2(metaclass=ABCMeta):
 
         @return None or a string with a URL in valid syntax for links on webpages
         """
-        return None  # noqa: R501
+        return None  # noqa: RET501
 
     @abstractmethod
     def executable(self, tool_locator):
@@ -209,7 +209,7 @@ class BaseTool2(metaclass=ABCMeta):
         @param version: a version string as returned by the version() method in the past
         @return None or a string with a URL in valid syntax for links on webpages
         """
-        return None  # noqa: R501
+        return None  # noqa: RET501
 
     def environment(self, executable):
         """
