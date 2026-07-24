@@ -11,7 +11,7 @@ from benchexec.tools.sv_benchmarks_util import (
     handle_witness_of_task,
     TaskFilesConsidered,
 )
-import benchexec.result as result
+from benchexec import result
 
 
 class Tool(benchexec.tools.template.BaseTool2):

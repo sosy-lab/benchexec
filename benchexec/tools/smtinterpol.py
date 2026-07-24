@@ -7,7 +7,7 @@
 
 import subprocess
 
-import benchexec.util as util
+from benchexec import util
 import benchexec.tools.smtlib2
 
 

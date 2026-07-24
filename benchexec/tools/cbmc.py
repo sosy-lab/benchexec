@@ -10,7 +10,7 @@ from xml.etree import ElementTree
 
 from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, LP64
 import benchexec.tools.template
-import benchexec.result as result
+from benchexec import result
 
 
 class Tool(benchexec.tools.template.BaseTool2):

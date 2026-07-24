@@ -13,7 +13,7 @@ import errno
 import logging
 import os
 import threading
-import benchexec.libc as libc
+from benchexec import libc
 
 # /usr/include/seccomp.h
 SCMP_ACT_ALLOW = 0x7FFF0000

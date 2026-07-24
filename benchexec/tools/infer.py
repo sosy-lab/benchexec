@@ -7,7 +7,7 @@
 
 import benchexec.tools.template
 from collections.abc import Mapping
-import benchexec.result as result
+from benchexec import result
 
 
 class Tool(benchexec.tools.template.BaseTool2):

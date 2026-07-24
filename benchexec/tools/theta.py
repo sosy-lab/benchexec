@@ -4,7 +4,7 @@
 # SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
 #
 # SPDX-License-Identifier: Apache-2.0
-import benchexec.result as result
+from benchexec import result
 import benchexec.tools.template
 import functools
 import re

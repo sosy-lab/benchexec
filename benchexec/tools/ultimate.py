@@ -17,7 +17,7 @@ import shutil
 import subprocess
 from typing import List
 
-import benchexec.result as result
+from benchexec import result
 import benchexec.tools.template
 from benchexec.tools.sv_benchmarks_util import (
     get_data_model_from_task,

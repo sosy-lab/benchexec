@@ -8,7 +8,7 @@ import os
 import ptf
 from ptf.base_tests import BaseTest
 from ptf import config
-import ptf.testutils as testutils
+from ptf import testutils
 
 
 class DataplaneBaseTest(BaseTest):

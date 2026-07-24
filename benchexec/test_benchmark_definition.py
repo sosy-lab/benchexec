@@ -14,7 +14,7 @@ import yaml
 
 from benchexec.model import Benchmark
 import benchexec.result
-import benchexec.util as util
+from benchexec import util
 
 here = os.path.dirname(__file__)
 base_dir = os.path.join(here, "..")

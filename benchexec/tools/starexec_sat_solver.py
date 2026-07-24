@@ -7,7 +7,7 @@
 
 import os
 
-import benchexec.result as result
+from benchexec import result
 import benchexec.tools.template
 
 

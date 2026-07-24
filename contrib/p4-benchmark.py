@@ -9,7 +9,7 @@
 import sys
 import logging
 import os
-import benchexec.util as util
+from benchexec import util
 
 from benchexec.benchexec import BenchExecException
 from benchexec.benchexec import BenchExec

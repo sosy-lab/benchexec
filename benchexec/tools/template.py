@@ -24,8 +24,8 @@ import logging
 import subprocess
 
 import benchexec
-import benchexec.result as result
-import benchexec.util as util
+from benchexec import result
+from benchexec import util
 
 
 class ToolNotFoundException(benchexec.BenchExecException):

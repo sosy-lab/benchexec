@@ -8,9 +8,9 @@
 import logging
 from xml.etree import ElementTree
 
-import benchexec.util as util
+from benchexec import util
 import benchexec.tools.template
-import benchexec.result as result
+from benchexec import result
 
 
 class Tool(benchexec.tools.template.BaseTool):

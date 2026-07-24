@@ -29,9 +29,9 @@ import urllib.request
 from xml.etree import ElementTree
 
 from benchexec import __version__, BenchExecException
-import benchexec.model as model
-import benchexec.result as result
-import benchexec.tooladapter as tooladapter
+from benchexec import model
+from benchexec import result
+from benchexec import tooladapter
 import benchexec.util
 from benchexec.tablegenerator import htmltable, statistics, util, statisticstex
 from benchexec.tablegenerator.columns import Column

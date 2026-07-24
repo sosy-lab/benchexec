@@ -15,7 +15,7 @@ from benchexec.tools.sv_benchmarks_util import (
     LP64,
 )
 import benchexec.tools.template
-import benchexec.result as result
+from benchexec import result
 import decimal
 
 
