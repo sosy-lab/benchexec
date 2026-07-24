@@ -125,7 +125,7 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
                 cmd,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
-                universal_newlines=True,
+                text=True,
             )
         except OSError as e:
             logging.warning(
@@ -525,7 +525,7 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
                     [candidate, "-version"],
                     stdout=subprocess.PIPE,
                     stderr=subprocess.STDOUT,
-                    universal_newlines=True,
+                    text=True,
                 )
             except OSError:
                 continue

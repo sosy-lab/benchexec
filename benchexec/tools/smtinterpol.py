@@ -24,7 +24,7 @@ class Tool(benchexec.tools.smtlib2.Smtlib2Tool):
             self.cmdline(executable, ["-version"], []),
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            universal_newlines=True,
+            text=True,
         ).stderr
         line = next(
             line for line in stderr.splitlines() if line.startswith("SMTInterpol")

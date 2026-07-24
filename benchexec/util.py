@@ -668,7 +668,7 @@ def add_files_to_git_repository(base_dir, files, description):
         cwd=base_dir,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
-        universal_newlines=True,
+        text=True,
     )
     if gitRoot.returncode != 0:
         printOut(
@@ -683,7 +683,7 @@ def add_files_to_git_repository(base_dir, files, description):
         cwd=gitRootDir,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
-        universal_newlines=True,
+        text=True,
     )
     if gitStatus.returncode != 0:
         printOut("Git status failed! Output was:\n" + gitStatus.stderr)
@@ -707,7 +707,7 @@ def add_files_to_git_repository(base_dir, files, description):
         ["git", "commit", "--file=-", "--quiet"],
         input=description,
         cwd=gitRootDir,
-        universal_newlines=True,
+        text=True,
     )
     if gitCommit.returncode != 0:
         printOut("Git commit failed!")
