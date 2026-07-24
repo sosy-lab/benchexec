@@ -113,7 +113,7 @@ class TestCpuCoresPerRun(unittest.TestCase):
             maxThreads = self.cpus * (self.cores // 4)
             if maxThreads == 0:
                 # Test for runs that are split over cpus
-                cpus_per_run = int(math.ceil(2 / (self.cores // 2)))
+                cpus_per_run = math.ceil(2 / (self.cores // 2))
                 maxThreads = self.cpus // cpus_per_run
         self.assertInvalid(2, maxThreads + 1)
         if not self.twoCore_assignment:
@@ -130,7 +130,7 @@ class TestCpuCoresPerRun(unittest.TestCase):
             maxThreads = self.cpus * (self.cores // 6)
             if maxThreads == 0:
                 # Test for runs that are split over cpus
-                cpus_per_run = int(math.ceil(3 / (self.cores // 2)))
+                cpus_per_run = math.ceil(3 / (self.cores // 2))
                 maxThreads = self.cpus // cpus_per_run
 
         self.assertInvalid(3, maxThreads + 1)
@@ -148,7 +148,7 @@ class TestCpuCoresPerRun(unittest.TestCase):
             maxThreads = self.cpus * (self.cores // 8)
             if maxThreads == 0:
                 # Test for runs that are split over cpus
-                cpus_per_run = int(math.ceil(4 / (self.cores // 2)))
+                cpus_per_run = math.ceil(4 / (self.cores // 2))
                 maxThreads = self.cpus // cpus_per_run
 
         self.assertInvalid(4, maxThreads + 1)
@@ -166,7 +166,7 @@ class TestCpuCoresPerRun(unittest.TestCase):
             maxThreads = (self.cpus * self.cores) // 16
             if maxThreads == 0:
                 # Test for runs that are split over cpus
-                cpus_per_run = int(math.ceil(8 / (self.cores // 2)))
+                cpus_per_run = math.ceil(8 / (self.cores // 2))
                 maxThreads = self.cpus // cpus_per_run
         if not maxThreads:
             self.skipTest(

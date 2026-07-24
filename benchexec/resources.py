@@ -215,7 +215,7 @@ def _get_cpu_cores_per_run0(
     coreLimit_rounded_up = int(math.ceil(coreLimit / core_size) * core_size)
     assert coreLimit <= coreLimit_rounded_up < (coreLimit + core_size)
 
-    units_per_run = int(math.ceil(coreLimit_rounded_up / unit_size))
+    units_per_run = math.ceil(coreLimit_rounded_up / unit_size)
     if units_per_run > 1 and units_per_run * num_of_threads > unit_count:
         sys.exit(
             f"Cannot split runs over multiple CPUs/memory regions "
@@ -223,7 +223,7 @@ def _get_cpu_cores_per_run0(
             f"Please reduce the number of threads to {unit_count // units_per_run}."
         )
 
-    runs_per_unit = int(math.ceil(num_of_threads / unit_count))
+    runs_per_unit = math.ceil(num_of_threads / unit_count)
     assert units_per_run == 1 or runs_per_unit == 1
     if units_per_run == 1 and runs_per_unit * coreLimit > unit_size:
         sys.exit(
