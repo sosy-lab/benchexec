@@ -82,7 +82,7 @@ class BaseTool2(object, metaclass=ABCMeta):
     """
     List of path patterns that is used by the default implementation of program_files().
     Not necessary if this method is overwritten.
-    """  # noqa: B018"
+    """  # noqa: B018
 
     # Methods that provide general (run-independent) information about the tool
 
