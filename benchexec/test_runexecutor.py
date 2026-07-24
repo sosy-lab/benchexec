@@ -744,9 +744,8 @@ class TestRunExecutor(unittest.TestCase):
         subprocess.run(["rm", "-r", os.path.dirname(temp_dir)], check=True)
 
     def test_require_cgroup_invalid(self):
-        with self.assertLogs(level=logging.ERROR) as log:
-            with self.assertRaises(SystemExit):
-                RunExecutor(additional_cgroup_subsystems=["invalid"])
+        with self.assertLogs(level=logging.ERROR) as log, self.assertRaises(SystemExit):
+            RunExecutor(additional_cgroup_subsystems=["invalid"])
 
         self.assertIn(
             'Cgroup subsystem "invalid" was required but is not available',
@@ -1375,24 +1374,26 @@ class TestRunExecutorUnits(unittest.TestCase):
 
     def test_get_debug_output_with_error_report_and_invalid_utf8(self):
         invalid_utf8 = b"\xff"
-        with tempfile.NamedTemporaryFile(mode="w+b", delete=False) as report_file:
-            with tempfile.NamedTemporaryFile(mode="w+b") as output:
-                output_content = f"""Dummy output
+        with (
+            tempfile.NamedTemporaryFile(mode="w+b", delete=False) as report_file,
+            tempfile.NamedTemporaryFile(mode="w+b") as output,
+        ):
+            output_content = f"""Dummy output
 # An error report file with more information is saved as:
 # {report_file.name}
 More output
 """.encode()  # noqa: E800 false alarm
-                report_content = b"Report output\nMore lines"
-                output_content += invalid_utf8
-                report_content += invalid_utf8
+            report_content = b"Report output\nMore lines"
+            output_content += invalid_utf8
+            report_content += invalid_utf8
 
-                output.write(output_content)
-                output.flush()
-                output.seek(0)
-                report_file.write(report_content)
-                report_file.flush()
+            output.write(output_content)
+            output.flush()
+            output.seek(0)
+            report_file.write(report_content)
+            report_file.flush()
 
-                runexecutor._get_debug_output_after_crash(output.name, "")
+            runexecutor._get_debug_output_after_crash(output.name, "")
 
-                self.assertFalse(os.path.exists(report_file.name))
-                self.assertEqual(output.read(), output_content + report_content)
+            self.assertFalse(os.path.exists(report_file.name))
+            self.assertEqual(output.read(), output_content + report_content)

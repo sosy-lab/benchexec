@@ -361,14 +361,13 @@ def run_slurm(benchmark, args, log_file):
             }.get(slurm_status, slurm_status)
 
         # Runexec would populate the first 6 lines with metadata
-        with open(log_file, "w+") as file:
-            with open(tmp_log, "r") as log_source:
-                content = log_source.read()
-                file.write(shlex.join(args))
-                file.write("\n\n\n" + "-" * 80 + "\n\n\n")
-                file.write(content)
-                if content == "":
-                    file.write("Original log file did not contain anything.")
+        with open(log_file, "w+") as file, open(tmp_log, "r") as log_source:
+            content = log_source.read()
+            file.write(shlex.join(args))
+            file.write("\n\n\n" + "-" * 80 + "\n\n\n")
+            file.write(content)
+            if content == "":
+                file.write("Original log file did not contain anything.")
 
         if benchmark.config.debug:
             with open(log_file + ".debug_info", "w+") as file:

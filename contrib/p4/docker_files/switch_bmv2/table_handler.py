@@ -37,9 +37,11 @@ def main():
                 fstdin.write(CLI_command + "\n")
                 final_command += "; " + CLI_command
 
-        with open("/app/table_command_output.txt", "w") as fout:
-            with open("/app/table_input.txt", "r") as pyargs:
-                subprocess.run(PATH_TO_CLI, stdin=pyargs, stdout=fout)
+        with (
+            open("/app/table_command_output.txt", "w") as fout,
+            open("/app/table_input.txt", "r") as pyargs,
+        ):
+            subprocess.run(PATH_TO_CLI, stdin=pyargs, stdout=fout)
 
 
 if __name__ == "__main__":

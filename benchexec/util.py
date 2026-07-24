@@ -497,27 +497,26 @@ def shrink_text_file(filename, max_size, removal_marker=None):
     # Then we copy the content of C into B, overwriting what is there.
     # Afterwards we truncate the file after A+C.
 
-    with open(filename, "r+b") as output_file:
-        with open(filename, "rb") as input_file:
-            # Position outputFile between A and B
-            output_file.seek(max_size // 2)
-            output_file.readline()  # jump to end of current line so that we truncate at line boundaries
-            if output_file.tell() == file_size:
-                # readline jumped to end of file because of a long line
-                return
+    with open(filename, "r+b") as output_file, open(filename, "rb") as input_file:
+        # Position outputFile between A and B
+        output_file.seek(max_size // 2)
+        output_file.readline()  # jump to end of current line so that we truncate at line boundaries
+        if output_file.tell() == file_size:
+            # readline jumped to end of file because of a long line
+            return
 
-            if removal_marker:
-                output_file.write(removal_marker.encode())
+        if removal_marker:
+            output_file.write(removal_marker.encode())
 
-            # Position inputFile between B and C
-            # jump to beginning of second part we want to keep from end of file
-            input_file.seek(-max_size // 2, os.SEEK_END)
-            input_file.readline()  # jump to end of current line so that we truncate at line boundaries
+        # Position inputFile between B and C
+        # jump to beginning of second part we want to keep from end of file
+        input_file.seek(-max_size // 2, os.SEEK_END)
+        input_file.readline()  # jump to end of current line so that we truncate at line boundaries
 
-            # Copy C over B
-            copy_all_lines_from_to(input_file, output_file)
+        # Copy C over B
+        copy_all_lines_from_to(input_file, output_file)
 
-            output_file.truncate()
+        output_file.truncate()
 
 
 def read_file(*path):
