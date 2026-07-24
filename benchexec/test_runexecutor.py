@@ -260,14 +260,10 @@ class TestRunExecutor(unittest.TestCase):
         self.check_result_keys(result)
 
     def test_wrong_command(self):
-        (result, _) = self.execute_run(
-            "/does/not/exist", expect_terminationreason="failed"
-        )
+        self.execute_run("/does/not/exist", expect_terminationreason="failed")
 
     def test_wrong_command_extern(self):
-        (result, _) = self.execute_run(
-            "/does/not/exist", expect_terminationreason="failed"
-        )
+        self.execute_run("/does/not/exist", expect_terminationreason="failed")
 
     def test_cputime_hardlimit(self):
         if not os.path.exists("/bin/sh"):

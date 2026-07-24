@@ -510,7 +510,6 @@ def handleCloudResults(benchmark, output_handler, start_time, end_time):
             # Move all output files from "sibling of log-file" to
             # "sibling of parent directory".
             raw_path = run.log_file[: -len(".log")]
-            dirname, filename = os.path.split(raw_path)
             aws_files_directory = raw_path + ".files"
             benchexec_files_directory = run.result_files_folder
             if os.path.isdir(aws_files_directory) and not os.path.isdir(

@@ -413,7 +413,6 @@ def handleCloudResults(benchmark, output_handler, start_time, end_time):
             # BenchExec expects.
             # Move all output files from "sibling of log-file" to "sibling of parent directory".
             rawPath = run.log_file[: -len(".log")]
-            dirname, filename = os.path.split(rawPath)
             vcloudFilesDirectory = rawPath + ".files"
             benchexecFilesDirectory = run.result_files_folder
             if os.path.isdir(vcloudFilesDirectory) and not os.path.isdir(
