@@ -363,7 +363,7 @@ class CgroupsV2(Cgroups):
     KILL = "kill"
 
     def __init__(self, subsystems):
-        super(CgroupsV2, self).__init__(subsystems)
+        super().__init__(subsystems)
 
         self.path = (
             next(iter(self.subsystems.values())) if len(self.subsystems) else None

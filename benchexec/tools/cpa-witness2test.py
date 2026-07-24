@@ -19,7 +19,7 @@ class Tool(cpachecker.Tool):
 
     def executable(self, tool_locator):
         # Makes sure that CPAchecker can be called, shows a warning otherwise
-        super(Tool, self).executable(tool_locator)
+        super().executable(tool_locator)
         # The following will perform these lookups (if --tool-directory is not given)
         # and pick the first one that is found:
         # 1. cpa-witness2test in PATH

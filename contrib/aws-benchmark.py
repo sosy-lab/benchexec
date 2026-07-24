@@ -35,7 +35,7 @@ class Benchmark(benchexec.benchexec.BenchExec):
     DEFAULT_OUTPUT_PATH = "test/results/"
 
     def create_argument_parser(self):
-        parser = super(Benchmark, self).create_argument_parser()
+        parser = super().create_argument_parser()
 
         aws_args = parser.add_argument_group("Options for using Amazon AWS Cloud")
         aws_args.add_argument(
@@ -82,7 +82,7 @@ class Benchmark(benchexec.benchexec.BenchExec):
             logging.warning(
                 "AWS flag was not specified. Benchexec will be executed only on the local machine."
             )
-            executor = super(Benchmark, self).load_executor()
+            executor = super().load_executor()
 
         return executor
 

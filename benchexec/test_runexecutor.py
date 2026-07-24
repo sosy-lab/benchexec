@@ -952,7 +952,7 @@ class TestRunExecutorWithContainer(TestRunExecutor):
         ] + list(args)
 
     def execute_run(self, *args, **kwargs):
-        return super(TestRunExecutorWithContainer, self).execute_run(
+        return super().execute_run(
             workingDir="/tmp",
             *args,  # noqa: B026
             **kwargs,
@@ -1364,7 +1364,7 @@ class TestRunExecutorWithContainer(TestRunExecutor):
 
 class _StopRunThread(threading.Thread):
     def __init__(self, delay, runexecutor):
-        super(_StopRunThread, self).__init__()
+        super().__init__()
         self.daemon = True
         self.delay = delay
         self.runexecutor = runexecutor

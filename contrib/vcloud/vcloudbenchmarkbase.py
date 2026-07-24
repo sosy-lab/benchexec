@@ -19,7 +19,7 @@ class VcloudBenchmarkBase(benchexec.benchexec.BenchExec):
     """
 
     def create_argument_parser(self):
-        parser = super(VcloudBenchmarkBase, self).create_argument_parser()
+        parser = super().create_argument_parser()
         vcloud_args = parser.add_argument_group("Options for using VerifierCloud")
         self.add_vcloud_args(vcloud_args)
 
@@ -111,4 +111,4 @@ class VcloudBenchmarkBase(benchexec.benchexec.BenchExec):
 
     def check_existing_results(self, benchmark):
         if not self.config.reprocessResults:
-            super(VcloudBenchmarkBase, self).check_existing_results(benchmark)
+            super().check_existing_results(benchmark)

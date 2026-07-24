@@ -30,7 +30,7 @@ class FileHierarchyLimitThread(threading.Thread):
         pid_to_kill,
         callbackFn=lambda reason: None,
     ):
-        super(FileHierarchyLimitThread, self).__init__()
+        super().__init__()
         self.name = "FileHierarchyLimitThread-" + self.name
 
         assert os.path.isdir(path)

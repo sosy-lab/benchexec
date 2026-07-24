@@ -345,7 +345,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             Whether to allow processes in the contain to access cgroups.
             Only supported on systems with cgroupsv2.
         """
-        super(ContainerExecutor, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._use_namespaces = use_namespaces
         if not use_namespaces:
             return
@@ -425,7 +425,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         """Given the temp directory that is created for each run, return the path to the
         directory where files created by the tool are stored."""
         if not self._use_namespaces:
-            return super(ContainerExecutor, self)._get_result_files_base(temp_dir)
+            return super()._get_result_files_base(temp_dir)
         else:
             return os.path.join(temp_dir, "temp")
 
@@ -524,7 +524,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         **kwargs,
     ):
         if not self._use_namespaces:
-            return super(ContainerExecutor, self)._start_execution(*args, **kwargs)
+            return super()._start_execution(*args, **kwargs)
         else:
             if result_files_patterns:
                 if not output_dir:

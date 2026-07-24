@@ -44,7 +44,7 @@ class KillProcessOnOomThread(threading.Thread):
     """
 
     def __init__(self, cgroups, pid_to_kill, callbackFn=lambda reason: None):
-        super(KillProcessOnOomThread, self).__init__()
+        super().__init__()
         self.name = "KillProcessOnOomThread-" + self.name
         self._finished = threading.Event()
         self._pid_to_kill = pid_to_kill

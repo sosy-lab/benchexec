@@ -253,7 +253,7 @@ class CgroupsV1(Cgroups):
 
     def __init__(self, subsystems):
         assert set(subsystems.keys()) <= self.known_subsystems
-        super(CgroupsV1, self).__init__(subsystems)
+        super().__init__(subsystems)
 
         # for error messages:
         self.denied_subsystems = {}

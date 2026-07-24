@@ -113,7 +113,7 @@ class _CheckCgroupsThread(threading.Thread):
     error = None
 
     def __init__(self, options):
-        super(_CheckCgroupsThread, self).__init__()
+        super().__init__()
         self.options = options
 
     def run(self):
