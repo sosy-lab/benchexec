@@ -15,7 +15,6 @@ import shlex
 import shutil
 import subprocess
 from pathlib import Path
-from typing import List
 
 import benchexec.tools.template
 from benchexec import result
@@ -229,7 +228,7 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
         )
         raise UnsupportedFeatureException(msg)
 
-    def _get_additional_data_model_from_task(self, options, task) -> List[str]:
+    def _get_additional_data_model_from_task(self, options, task) -> list[str]:
         data_model_param = get_data_model_from_task(
             task, {ILP32: "32bit", LP64: "64bit"}
         )
@@ -545,7 +544,7 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
         return rtr
 
     @staticmethod
-    def _is_sublist_or_equal(small: List, big: List) -> bool:
+    def _is_sublist_or_equal(small: list, big: list) -> bool:
         for i in range(len(big) - len(small) + 1):
             for j in range(len(small)):
                 if str(big[i + j]) != str(small[j]):

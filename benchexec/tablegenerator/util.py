@@ -16,8 +16,9 @@ import logging
 import os
 import platform
 import urllib.request
+from collections.abc import Iterable
 from decimal import Decimal
-from typing import Iterable, List, TypeVar, Union
+from typing import TypeVar, Union
 
 import benchexec.util
 
@@ -244,7 +245,7 @@ def prettylist(list_):
     return uniqueList[0] if len(uniqueList) == 1 else "[" + "; ".join(uniqueList) + "]"
 
 
-def merge_lists(list_of_lists: Iterable[Iterable[_T]]) -> List[_T]:
+def merge_lists(list_of_lists: Iterable[Iterable[_T]]) -> list[_T]:
     """
     This function merges several sequences, e.g. [A,C] + [A,B] --> [A,B,C].
     It keeps the order of elements.
@@ -279,7 +280,7 @@ def merge_lists(list_of_lists: Iterable[Iterable[_T]]) -> List[_T]:
     return result_list
 
 
-def find_common_elements(sequences: Iterable[Iterable[_T]]) -> List[_T]:
+def find_common_elements(sequences: Iterable[Iterable[_T]]) -> list[_T]:
     """Return the common elements in some sequences (keeping order)."""
     # We take care to iterate sequences and all its elements only once
     # such that it works with generators as well and is efficient.
