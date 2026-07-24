@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # SPDX-FileCopyrightText: 2020-2021 CASTOR Software Research Centre
 # <https://www.castor.kth.se/>
 # SPDX-FileCopyrightText: 2020-2021 Johan Paulsson
