@@ -68,7 +68,7 @@ This works similarly to BenchExec, however, instead of delegating each run to `r
    * `-t <hh:mm:ss>` CPU timelimit (generally, SLURM will round up to nearest minute)
    * `-c <cpus>` number of cpus 
    * `--threads-per-core=1` only use one thread per core
-   * `--mem-per-cpu <mem/cpus>` memory allocaiton in MBs per cpu
+   * `--mem-per-cpu <mem/cpus>` memory allocation in MBs per cpu
    * `--ntasks=1` number of tasks per node
 
 3. The script parses the resulting job ID, and after the job finishes, runs `seff` to gather resource usage data:

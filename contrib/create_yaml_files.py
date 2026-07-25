@@ -107,7 +107,7 @@ def parse_args():
         dest="change_filename",
         action="store_false",
         default=True,
-        help="do not shorten file names by removing the verdicts and avoiding collissions, but keep name as-is",
+        help="do not shorten file names by removing the verdicts and avoiding collisions, but keep name as-is",
     )
     parser.add_argument(
         "--no-collisions-across-directories",
@@ -181,7 +181,7 @@ if __name__ == "__main__":
                 ]
             return collisions
 
-        # store original colissions for rename
+        # store original collisions for rename
         collisions = _compute_collisions(curr_task, tasks_to_new_names_and_yml)
         counter = 1
         while _compute_collisions(curr_task, tasks_to_new_names_and_yml):

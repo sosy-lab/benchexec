@@ -24,7 +24,7 @@ class P4SetupHandler(object):
 
     def update_runsets(self):
         for runSet in self.benchmark.run_sets:
-            # Divide the defined run into multiple run if necessery. Check len of runs: If 0, the setup went wrong.
+            # Divide the defined run into multiple run if necessary. Check len of runs: If 0, the setup went wrong.
             if len(runSet.runs) > 0:
                 old_run = runSet.runs[0]
                 expected_result_filename = old_run.identifier

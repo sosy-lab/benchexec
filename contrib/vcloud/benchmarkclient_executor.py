@@ -367,7 +367,7 @@ def handleCloudResults(benchmark, output_handler, start_time, end_time):
             outputDir,
         )
 
-    # Write worker host informations in xml
+    # Write worker host information in xml
     parseAndSetCloudWorkerHostInformation(outputDir, output_handler, benchmark)
 
     # write results in runs and handle output after all runs are done

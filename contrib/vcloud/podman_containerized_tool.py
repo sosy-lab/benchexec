@@ -46,7 +46,7 @@ def _init_container(
         path = Path(path)
         resolved_path = path.resolve()
 
-        # paths erlier in sys.path take precedence
+        # paths earlier in sys.path take precedence
         if not resolved_path.is_dir() or resolved_path in seen_paths:
             continue
 

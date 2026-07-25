@@ -50,7 +50,7 @@ PTF_IMAGE_NAME = "ptf_tester"
 class P4Execution(object):
     """
     This Class is for executing p4 benchmarks. The class creates docker containers representing each
-    device in the network. It creates virutal ethenet connections between all the devices. Finally,
+    device in the network. It creates virtual ethernet connections between all the devices. Finally,
     it sets up a test container connected to all the nodes in the network.
     """
 
@@ -184,7 +184,7 @@ class P4Execution(object):
 
     def execute_benchmark(self, benchmark, output_handler):
         """
-        Excecutes the benchmark.
+        Executes the benchmark.
         """
 
         self.start_container_listening()
@@ -307,7 +307,7 @@ class P4Execution(object):
 
     def setup_network(self):
         """
-        Creates the managment network, connectes all nodes and the ptf tester
+        Creates the management network, connects all nodes and the ptf tester
         to the network.
         """
         try:
@@ -362,7 +362,7 @@ class P4Execution(object):
             iface_device1 = ""
             iface_device2 = ""
 
-            # If connectiong to switch. Make sure it is setup
+            # If connecting to switch. Make sure it is setup
             if link["type"] == "Node_to_Switch":
                 switch_is_setup = os.path.exists(f"/proc/{pid_device2}/ns/net")
                 # Wait until switch is setup
@@ -591,7 +591,7 @@ class P4Execution(object):
 
     def start_containers(self):
         """
-        Start all containers. This is done with thread. This function does not gurantees that
+        Start all containers. This is done with thread. This function does not guarantees that
         containers are started.
         """
         containers_to_start = self.nodes + self.switches
@@ -614,7 +614,7 @@ class P4Execution(object):
     def start_container_listening(self):
         """
         This will set all the nodes and switches up for testing. This means all nodes runs
-        the ptf agent script and all switches run the switch starup command. All the ports and their
+        the ptf agent script and all switches run the switch startup command. All the ports and their
         configuration are set automatically.
         """
 
@@ -658,7 +658,7 @@ class P4Execution(object):
                 )
             )
 
-        # Wait for all to setup befor leaveing the method
+        # Wait for all to setup before leaving the method
         [x.start() for x in container_threads]
         [x.join() for x in container_threads]
 
@@ -671,7 +671,7 @@ class P4Execution(object):
 
     def thread_setup_switch(self, switch_container, switch_command):
         """
-        Sets up a switch. Ment to be ran in a thread.
+        Sets up a switch. Meant to be run in a thread.
         """
         ns = NetNS(switch_container.name)
 
@@ -745,7 +745,7 @@ class P4Execution(object):
 
     def network_file_isValid(self):
         """
-        Simple chech throught the network file
+        Simple check through the network file
         """
         if not self.network_config:
             logging.debug("No network file is defined for validation")
