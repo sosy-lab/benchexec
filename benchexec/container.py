@@ -850,7 +850,7 @@ def escape_overlayfs_parameters(s):
     In addition to escaping ",", which separates mount options,
     we need to escape ":", which overlayfs uses to separate multiple lower dirs
     (cf. https://www.kernel.org/doc/Documentation/filesystems/overlayfs.txt).
-    Also, the path shall be nomalized to avoid issues with "//" in the beginning
+    Also, the path shall be normalized to avoid issues with "//" in the beginning
     (cf. https://github.com/sosy-lab/benchexec/pull/1062).
     """
     assert s[0] == ord(b"/"), "Path must be absolute"

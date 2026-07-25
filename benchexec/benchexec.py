@@ -5,7 +5,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-"""This module contians the tool benchexec for executing a whole benchmark (suite).
+"""This module contains the tool benchexec for executing a whole benchmark (suite).
 To use it, instantiate the "benchexec.benchexec.BenchExec"
 and either call "instance.start()" or "benchexec.benchexec.main(instance)".
 """

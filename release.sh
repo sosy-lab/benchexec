@@ -127,7 +127,7 @@ git tag -s "$VERSION" -m "Release $VERSION"
 
 
 # Upload and finish
-read -p "Everything finished, do you want to release version '$VERSION' publically? (y/n) " -n 1 -r
+read -p "Everything finished, do you want to release version '$VERSION' publicly? (y/n) " -n 1 -r
 echo
 if ! [[ $REPLY =~ ^[Yy]$ ]]; then
   exit 0

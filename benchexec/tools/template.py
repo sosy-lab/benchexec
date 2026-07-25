@@ -90,7 +90,7 @@ class BaseTool2(object, metaclass=ABCMeta):
     def name(self):
         """
         Return the name of the tool, formatted for humans.
-        This method always needs to be overriden, and typically just contains
+        This method always needs to be overridden, and typically just contains
 
         return "My Toolname"
 
@@ -244,7 +244,7 @@ class BaseTool2(object, metaclass=ABCMeta):
         "newEnv": Before the execution, the values are assigned to the real environment-identifiers.
                   This will override existing values.
         "additionalEnv": Before the execution, the values are appended to the real environment-identifiers.
-                  The seperator for the appending must be given in this method,
+                  The separator for the appending must be given in this method,
                   so that the operation "realValue + additionalValue" is a valid value.
                   For example in the PATH-variable the additionalValue starts with a ":".
         @param executable: the path to the executable of the tool (typically the result of executable())
@@ -690,7 +690,7 @@ class BaseTool(object):
     def name(self):
         """
         Return the name of the tool, formatted for humans.
-        This function should always be overriden.
+        This function should always be overridden.
         @return a non-empty string
         """
         return "UNKOWN"
@@ -790,7 +790,7 @@ class BaseTool(object):
         "newEnv": Before the execution, the values are assigned to the real environment-identifiers.
                   This will override existing values.
         "additionalEnv": Before the execution, the values are appended to the real environment-identifiers.
-                  The seperator for the appending must be given in this method,
+                  The separator for the appending must be given in this method,
                   so that the operation "realValue + additionalValue" is a valid value.
                   For example in the PATH-variable the additionalValue starts with a ":".
         @param executable: the path to the executable of the tool (typically the result of executable())

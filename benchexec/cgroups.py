@@ -344,7 +344,7 @@ class Cgroups(ABC):
 
     @abstractmethod
     def can_limit_swap(self):
-        """Check wether cgroups can be used to limit swap usage."""
+        """Check whether cgroups can be used to limit swap usage."""
         pass
 
     @abstractmethod

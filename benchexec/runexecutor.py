@@ -1138,7 +1138,7 @@ def _get_debug_output_after_crash(output_filename, base_path):
     "# An error report file with more information is saved as:"
     and the file name of the dump file on the next line.
     @param output_filename name of log file with tool output
-    @param base_path string that needs to be preprended to paths for lookup of files
+    @param base_path string that needs to be prepended to paths for lookup of files
     """
     logging.debug("Analysing output for crash info.")
     foundDumpFile = False

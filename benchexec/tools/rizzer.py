@@ -16,7 +16,7 @@ class Tool(fizzer.Tool):
     def name(self):
         """
         Return the name of the tool, formatted for humans.
-        This method always needs to be overriden, and typically just contains
+        This method always needs to be overridden, and typically just contains
         return "My Toolname"
         @return a non-empty string
         """

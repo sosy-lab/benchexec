@@ -69,7 +69,7 @@ class Tool(benchexec.tools.template.BaseTool2):
             elif line.startswith("Result: DONE"):
                 return result.RESULT_DONE
             elif line.startswith("Result: ERROR"):
-                # matches ERROR and ERROR followed by some reason in parantheses
+                # matches ERROR and ERROR followed by some reason in parentheses
                 # e.g., "ERROR (TRUE)" or "ERROR(TRUE)"
                 return re.search(r"ERROR(\s*\(.*\))?", line).group(0)
         return result.RESULT_UNKNOWN

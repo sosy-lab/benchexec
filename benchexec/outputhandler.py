@@ -786,9 +786,9 @@ class OutputHandler(object):
     ):
         """
         @param sourcefile: title of a sourcefile
-        @param status: status of programm
-        @param cputime_delta: time from running the programm
-        @param walltime_delta: time from running the programm
+        @param status: status of program
+        @param cputime_delta: time from running the program
+        @param walltime_delta: time from running the program
         @param columns: list of columns with a title or a value
         @param isFirstLine: boolean for different output of headline and other lines
         @return: a line for the outputFile

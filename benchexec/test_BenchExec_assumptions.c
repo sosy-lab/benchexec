@@ -19,7 +19,7 @@
 // Here we test all the assumptions about the Linux kernel and libc ABI
 // (mostly about values of constant macros from headers)
 // that are hard-coded in BenchExec's source.
-// Because these values are part of the ABI, they are guranteed to stay
+// Because these values are part of the ABI, they are guaranteed to stay
 // unchanged, but they might have different values on each architecture.
 // Unfortunately, there is no way for us to read these values during runtime.
 // Testing with https://godbolt.org/z/vdPYWv confirms that these hold
