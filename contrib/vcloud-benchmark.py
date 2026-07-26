@@ -17,13 +17,13 @@ import urllib.request
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from vcloud import vcloudutil  # noqa E402
-from vcloud.vcloudbenchmarkbase import VcloudBenchmarkBase  # noqa E402
+from vcloud import vcloudutil  # noqa: E402
+from vcloud.vcloudbenchmarkbase import VcloudBenchmarkBase  # noqa: E402
 
-import benchexec.benchexec  # noqa E402
-import benchexec.model  # noqa E402
-import benchexec.tools  # noqa E402
-from benchexec import BenchExecException, __version__  # noqa E402
+import benchexec.benchexec  # noqa: E402
+import benchexec.model  # noqa: E402
+import benchexec.tools  # noqa: E402
+from benchexec import BenchExecException, __version__  # noqa: E402
 
 _ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "vcloud"))
 IVY_JAR_NAME = "ivy-2.5.0.jar"
@@ -37,7 +37,7 @@ def download_required_jars(config):
     # download ivy if needed
     if not os.path.isfile(IVY_PATH):
         # let the process exit if an exception occurs.
-        urllib.request.urlretrieve(IVY_DOWNLOAD_URL, IVY_PATH)  # noqa S310
+        urllib.request.urlretrieve(IVY_DOWNLOAD_URL, IVY_PATH)  # noqa: S310
 
     # prepare command
     cmd = ["java", "-jar", "lib/" + IVY_JAR_NAME]

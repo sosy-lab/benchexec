@@ -128,15 +128,6 @@ flynt:
     - flynt . --exclude node_modules --line-length 10000 --aggressive --fail-on-change --dry-run
   <<: *pip-cache
 
-flake8:
-  stage: test
-  image: python:3.10
-  before_script:
-    - pip install setuptools flake8 flake8-awesome
-  script:
-    - flake8
-  <<: *pip-cache
-
 pytype:
   stage: test
   before_script:

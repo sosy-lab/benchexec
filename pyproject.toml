@@ -127,19 +127,104 @@ exclude = [
 ]
 
 [tool.ruff]
+line-length = 88
 extend-include = ["bin/*"]
+extend-exclude = [
+    # code copied by build system
+    "build",
+    # Created locally by IDE plugins
+    ".ropeproject",
+    # scripts from JS modules
+    "node_modules",
+]
 
 [tool.ruff.lint]
-# TODO: Enable more checks.
-#select = ["ALL"]
-[tool.ruff.lint.per-file-ignores]
-'bin/*' = [
-    # imports need to come after sys.path changes
-    'E402',
+select = [
+    "A", # flake8-builtins
+    "B", # flake8-bugbear
+    #"C4", # flake8-comprehensions
+    "E", # pycodestyle errors
+    #"EXE", # flake8-executable
+    "F", # pyflakes
+    "G", # flake8-logging-format
+    #"I", # isort
+    "N", # pep8-naming
+    "PGH", # pygrep-hooks
+    #"PT", # Activate if migrated to pytest
+    "R", # flake8-return
+    "RUF101", # migrate to updated rulenames
+    "S", # bandit
+    "T10", # flake8-debugger
+    "T20", # flake8-print
+    "W", # pycodestyle warnings
 ]
-'benchexec/test*.py' = [
+
+ignore = [
+    # temporarily disabled for historic reasons: line length, naming
+    "E501",
+    "N801",
+    "N802",
+    "N803",
+    "N806",
+    "N815",
+    # warnings about mutable default values trigger too often
+    "B006",
+    # https://github.com/globality-corp/flake8-logging-format/issues/49
+    "G004",
+    # using a result variable instead of early return allows later addition of logic
+    "RET504",
+    # elif/else after return/raise/continue/break is not necessary but can be easier to read
+    "RET505",
+    "RET506",
+    "RET507",
+    "RET508",
+    # no warnings about assert
+    "B011",
+    "S101",
+    # no warnings about pickle,
+    "S301",
+    "S403",
+    # no warnings about XML parsing
+    "S318",
+    "S405",
+    "S408",
+    # no warnings about all uses of subprocess
+    "S404",
+    "S603",
+    "S607",
+    # several scripts use print() for their output, so allow it
+    "T201",
+    "T203",
+    #
+    "B904",
+    "B905",
+    "N999",
+    "RET503",
+    "S113",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"bin/*" = [
+    # imports need to come after sys.path changes
+    "E402",
+]
+"benchexec/containerexecutor.py" = [
+    # references to /tmp are for other reasons
+    "S108",
+]
+"benchexec/test*.py" = [
     # wildcard imports significantly shorten test code,
-    'F405',
+    "F405",
+    # accessing /tmp is ok
+    "S108",
+]
+"benchexec/tools/*.py" = [
+    # Tool-info modules are not garbage-collected anyway, caching is ok
+    "B019",
+]
+"contrib/create_yaml_files.py" = [
+    # should be refactored completely first (everything in functions)
+    "B023",
 ]
 
 [tool.pytest.ini_options]

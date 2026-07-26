@@ -24,7 +24,6 @@ class Tool(SatProofCheckerBase):
         return "https://www21.in.tum.de/~lammich/grat/"
 
     def cmdline(self, executable, options, task, rlimits):
-
         # GRATchk requires a mode as its first argument: gratchk (sat|unsat) DIMACS PROOF
         # The mode must be the first benchexec option; remaining options are the proof file(s).
         return [executable, options[0], task.single_input_file, *options[1:]]

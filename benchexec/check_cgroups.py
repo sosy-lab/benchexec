@@ -119,7 +119,7 @@ class _CheckCgroupsThread(threading.Thread):
     def run(self):
         try:
             check_cgroup_availability(self.options.wait)
-        except BaseException as e:  # noqa: B036
+        except BaseException as e:
             self.error = e
 
 

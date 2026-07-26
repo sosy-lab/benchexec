@@ -73,7 +73,7 @@ for executing the tests can be started with:
       test/setup_cgroupsv2_in_container.sh bash
 
 We also check our code using the static-analysis tools
-[flake8](http://flake8.pycqa.org) and [ruff](https://github.com/astral-sh/ruff/).
+[ruff](https://github.com/astral-sh/ruff/).
 If you find a rule that should not be enforced in your opinion,
 please raise an issue.
 

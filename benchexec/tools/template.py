@@ -82,7 +82,7 @@ class BaseTool2(object, metaclass=ABCMeta):
     """
     List of path patterns that is used by the default implementation of program_files().
     Not necessary if this method is overwritten.
-    """  # noqa: B018"
+    """
 
     # Methods that provide general (run-independent) information about the tool
 
@@ -104,7 +104,7 @@ class BaseTool2(object, metaclass=ABCMeta):
 
         @return None or a string with a URL in valid syntax for links on webpages
         """
-        return None  # noqa: R501
+        return None  # noqa: RET501
 
     @abstractmethod
     def executable(self, tool_locator):
@@ -210,7 +210,7 @@ class BaseTool2(object, metaclass=ABCMeta):
         @param version: a version string as returned by the version() method in the past
         @return None or a string with a URL in valid syntax for links on webpages
         """
-        return None  # noqa: R501
+        return None  # noqa: RET501
 
     def environment(self, executable):
         """
