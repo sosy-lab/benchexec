@@ -107,7 +107,7 @@ tests:cgroupsv2:python-3.12:
   variables:
     PYTHON_VERSION: '3.12'
 
-tests:cgroupsv2:python-3.15:
+tests:cgroupsv2:python-3.13:
   <<: *tests-cgroupsv2
   variables:
     PYTHON_VERSION: '3.13'
