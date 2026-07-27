@@ -301,13 +301,14 @@ def getToolDataForCloud(benchmark):
 
 
 def computeBaseDir(benchmark, absToolpaths):
-    absSourceFiles = []
+    absInputFiles = []
     for runSet in activeRunSets(benchmark):
         for run in runSet.runs:
             if os.path.exists(run.identifier):
-                absSourceFiles.extend(map(os.path.abspath, run.sourcefiles))
+                absInputFiles.extend(map(os.path.abspath, run.sourcefiles))
+            absInputFiles.extend(map(os.path.abspath, run.required_files))
 
-    absBaseDir = benchexec.util.common_base_dir(absSourceFiles + absToolpaths)
+    absBaseDir = benchexec.util.common_base_dir(absInputFiles + absToolpaths)
     return absBaseDir
 
 
