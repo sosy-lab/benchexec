@@ -221,9 +221,7 @@ def getCloudInput(benchmark):
     absWorkingDir = os.path.abspath(workingDir)
     absToolpaths = list(map(os.path.abspath, toolpaths))
 
-    absBaseDir, numberOfRuns = computeBaseDir(benchmark, absToolpaths)
-
-    # get requirements
+    absBaseDir = computeBaseDir(benchmark, absToolpaths)
     r = benchmark.requirements
 
     # get limits
@@ -269,7 +267,7 @@ def getCloudInput(benchmark):
 
     return yaml.dump(
         cloud_input, default_flow_style=False, allow_unicode=True
-    ), numberOfRuns
+    ), len(runs)
 
 
 def getToolDataForCloud(benchmark):
@@ -302,15 +300,13 @@ def getToolDataForCloud(benchmark):
 
 def computeBaseDir(benchmark, absToolpaths):
     absSourceFiles = []
-    numberOfRuns = 0
     for runSet in activeRunSets(benchmark):
         for run in runSet.runs:
             if os.path.exists(run.identifier):
                 absSourceFiles.extend(map(os.path.abspath, run.sourcefiles))
-            numberOfRuns += 1
 
     absBaseDir = benchexec.util.common_base_dir(absSourceFiles + absToolpaths)
-    return absBaseDir, numberOfRuns
+    return absBaseDir
 
 
 def buildRunDefinitions(benchmark, absBaseDir):
