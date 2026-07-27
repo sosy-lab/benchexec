@@ -310,9 +310,6 @@ def computeBaseDir(benchmark, absToolpaths):
             numberOfRuns += 1
 
     absBaseDir = benchexec.util.common_base_dir(absSourceFiles + absToolpaths)
-    if absBaseDir == "":
-        sys.exit("No common base dir found.")
-
     return absBaseDir, numberOfRuns
 
 
