@@ -15,7 +15,7 @@ from math import ceil, floor, log10
 from benchexec.tablegenerator import util
 from benchexec.util import print_decimal
 
-__all__ = ["Column", "ColumnType", "ColumnMeasureType"]
+__all__ = ["Column", "ColumnMeasureType", "ColumnType"]
 
 # It's important to make sure on *all* entry points / methods which perform arithmetics that the correct
 # rounding / context is used by using a local context.

@@ -19,11 +19,11 @@ from decimal import Decimal
 from benchexec import util
 
 __all__ = [
+    "CPUThrottleCheck",
+    "SwapCheck",
+    "SystemInfo",
     "has_swap",
     "is_turbo_boost_enabled",
-    "CPUThrottleCheck",
-    "SystemInfo",
-    "SwapCheck",
 ]
 
 _TURBO_BOOST_FILE = "/sys/devices/system/cpu/cpufreq/boost"
