@@ -83,7 +83,7 @@ UNIT_CONVERSION = {
 def handle_error(message, *args):
     """Log error message and terminate program."""
     logging.error(message, *args)
-    exit(1)
+    sys.exit(1)
 
 
 def parse_table_definition_file(file):
