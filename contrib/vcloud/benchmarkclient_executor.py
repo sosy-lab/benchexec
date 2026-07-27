@@ -388,7 +388,7 @@ def handleCloudResults(benchmark, output_handler, start_time, end_time):
                     values = parseCloudRunResultFile(dataFile)
                     if not benchmark.config.debug:
                         os.remove(dataFile)
-                except IOError as e:
+                except OSError as e:
                     logging.warning(
                         "Cannot extract measured values from output for file %s: %s",
                         run.identifier,
@@ -478,7 +478,7 @@ def parseAndSetCloudWorkerHostInformation(outputDir, output_handler, benchmark):
             output_handler.all_created_files.add(filePath)
         else:
             os.remove(filePath)
-    except IOError:
+    except OSError:
         logging.warning("Host information file not found: %s", filePath)
 
 
