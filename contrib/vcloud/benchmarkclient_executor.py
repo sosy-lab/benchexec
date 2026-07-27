@@ -302,7 +302,9 @@ def getToolDataForCloud(benchmark):
 
 def computeBaseDir(benchmark, absToolpaths):
     absInputFiles = []
-    for runSet in activeRunSets(benchmark):
+    for runSet in benchmark.run_sets:
+        if not runSet.should_be_executed():
+            continue
         for run in runSet.runs:
             if os.path.exists(run.identifier):
                 absInputFiles.extend(map(os.path.abspath, run.sourcefiles))
@@ -314,7 +316,9 @@ def computeBaseDir(benchmark, absToolpaths):
 
 def buildRunDefinitions(benchmark, absBaseDir):
     runs = []
-    for runSet in activeRunSets(benchmark):
+    for runSet in benchmark.run_sets:
+        if not runSet.should_be_executed():
+            continue
         for run in runSet.runs:
             cmdline = list(map(vcloudutil.force_linux_path, run.cmdline()))
             log_file = os.path.relpath(run.log_file, benchmark.log_folder)
@@ -327,14 +331,6 @@ def buildRunDefinitions(benchmark, absBaseDir):
                 run_def["files"] = [os.path.relpath(f, absBaseDir) for f in run_files]
             runs.append(run_def)
     return runs
-
-
-def activeRunSets(benchmark):
-    for runSet in benchmark.run_sets:
-        if STOPPED_BY_INTERRUPT:
-            break
-        if runSet.should_be_executed():
-            yield runSet
 
 
 def handleCloudResults(benchmark, output_handler, start_time, end_time):
