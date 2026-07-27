@@ -224,15 +224,13 @@ def getCloudInput(benchmark):
     absBaseDir = computeBaseDir(benchmark, absToolpaths)
     r = benchmark.requirements
 
-    # get limits
     rlimits = benchmark.rlimits
-    timeLimit = int(rlimits.cputime_hard)
+    limits = {"hardtime_s": rlimits.cputime_hard}
 
-    limits = {"hardtime_s": timeLimit}
     if rlimits.cpu_cores is not None:
         limits["cores"] = rlimits.cpu_cores
     if rlimits.walltime is not None:
-        limits["walltime_s"] = int(rlimits.walltime)
+        limits["walltime_s"] = rlimits.walltime
     if rlimits.memory is not None:
         limits["memory_b"] = rlimits.memory
 
@@ -255,8 +253,12 @@ def getCloudInput(benchmark):
         cloud_input["resultFilePatterns"] = list(benchmark.result_files_patterns)
 
     requirements = {
-        "cores": r.cpu_cores if r.cpu_cores is not None else DEFAULT_CLOUD_CPUCORE_REQUIREMENT,
-        "memory_b": r.memory if r.memory is not None else DEFAULT_CLOUD_MEMORY_REQUIREMENT,
+        "cores": r.cpu_cores
+        if r.cpu_cores is not None
+        else DEFAULT_CLOUD_CPUCORE_REQUIREMENT,
+        "memory_b": r.memory
+        if r.memory is not None
+        else DEFAULT_CLOUD_MEMORY_REQUIREMENT,
     }
     if r.cpu_model:
         requirements["cpumodels"] = [m.strip() for m in r.cpu_model.split(",")]
@@ -265,9 +267,9 @@ def getCloudInput(benchmark):
     cloud_input["limits"] = limits
     cloud_input["runs"] = runs
 
-    return yaml.dump(
-        cloud_input, default_flow_style=False, allow_unicode=True
-    ), len(runs)
+    return yaml.dump(cloud_input, default_flow_style=False, allow_unicode=True), len(
+        runs
+    )
 
 
 def getToolDataForCloud(benchmark):
