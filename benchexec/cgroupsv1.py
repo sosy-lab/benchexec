@@ -133,8 +133,7 @@ def _find_own_cgroups():
     """
     try:
         with open("/proc/self/cgroup", "rt") as ownCgroupsFile:
-            for cgroup in _parse_proc_pid_cgroup(ownCgroupsFile):
-                yield cgroup
+            yield from _parse_proc_pid_cgroup(ownCgroupsFile)
     except OSError:
         logging.exception("Cannot read /proc/self/cgroup")
 

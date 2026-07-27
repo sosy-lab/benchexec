@@ -221,8 +221,7 @@ class Cgroups(ABC):
         with open(
             os.path.join(self.subsystems[subsystem], f"{subsystem}.{option}")
         ) as f:
-            for line in f:
-                yield line
+            yield from f
 
     def get_key_value_pairs(self, subsystem, filename):
         """
