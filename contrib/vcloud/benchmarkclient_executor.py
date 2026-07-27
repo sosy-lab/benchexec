@@ -214,7 +214,7 @@ def stop():
 def formatEnvironment(environment):
     return ";".join(f"{k}={v}" for k, v in environment.get("newEnv", {}).items())
 
-
+# Refer to https://gitlab.com/sosy-lab/software/benchcloud/-/blob/develop/doc/BenchmarkClient.md for the cloud input format
 def getCloudInput(benchmark):
     (workingDir, toolpaths) = getToolDataForCloud(benchmark)
 
