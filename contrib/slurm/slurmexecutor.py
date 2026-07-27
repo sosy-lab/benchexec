@@ -372,8 +372,8 @@ def run_slurm(benchmark, args, log_file):
         if benchmark.config.debug:
             with open(log_file + ".debug_info", "w+") as file:
                 file.write(f"jobid: {jobid}\n")
-                file.write(f"seff output: {str(result.stdout)}\n")
-                file.write(f"Parsed data: {str(ret)}\n")
+                file.write(f"seff output: {result.stdout!s}\n")
+                file.write(f"Parsed data: {ret!s}\n")
 
         return ret
 
