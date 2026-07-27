@@ -1010,7 +1010,7 @@ def filter_rows_with_differences(rows):
 
     def get_index_of_column(name, cols):
         assert cols, f"Cannot look for column '{name}' in empty column list"
-        for i in range(0, len(cols)):
+        for i in range(len(cols)):
             if cols[i].title == name:
                 return i
         assert False, f"Column '{name}' not found in columns '{cols}'"
