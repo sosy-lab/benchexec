@@ -470,7 +470,6 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             self._cgroups.subsystems.keys()
         )
         tool_pid = None
-        tool_cgroups = None
         returnvalue = 0
 
         logging.debug("Starting process.")
