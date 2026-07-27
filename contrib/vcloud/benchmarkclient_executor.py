@@ -230,19 +230,17 @@ def getCloudInput(benchmark):
     rlimits = benchmark.rlimits
     timeLimit = int(rlimits.cputime_hard)
 
-    limits_cpu = {"time": {"hard": timeLimit}}
+    limits = {"hardtime_s": timeLimit}
     if rlimits.cpu_cores is not None:
-        limits_cpu["cores"] = rlimits.cpu_cores
-
-    limits = {"cpu": limits_cpu}
+        limits["cores"] = rlimits.cpu_cores
     if rlimits.walltime is not None:
-        limits["walltime"] = int(rlimits.walltime)
+        limits["walltime_s"] = int(rlimits.walltime)
     if rlimits.memory is not None:
-        limits["memory"] = rlimits.memory
+        limits["memory_b"] = rlimits.memory
 
-    runDefinitions = buildRunDefinitions(benchmark, limits, absBaseDir)
+    runs = buildRunDefinitions(benchmark, absBaseDir)
 
-    if not runDefinitions:
+    if not runs:
         sys.exit("Benchmark has nothing to run.")
 
     cloud_input = {
@@ -255,19 +253,19 @@ def getCloudInput(benchmark):
     if benchmark.config.cloudPriority:
         cloud_input["priority"] = benchmark.config.cloudPriority
 
-    cloud_input["memoryreq"] = (
-        r.memory if r.memory is not None else DEFAULT_CLOUD_MEMORY_REQUIREMENT
-    )
-    cloud_input["corereq"] = (
-        r.cpu_cores if r.cpu_cores is not None else DEFAULT_CLOUD_CPUCORE_REQUIREMENT
-    )
-    if r.cpu_model:
-        cloud_input["cpumodels"] = [r.cpu_model]
-
     if benchmark.result_files_patterns:
         cloud_input["resultFilePatterns"] = list(benchmark.result_files_patterns)
 
-    cloud_input["runsets"] = runDefinitions
+    requirements = {
+        "cores": r.cpu_cores if r.cpu_cores is not None else DEFAULT_CLOUD_CPUCORE_REQUIREMENT,
+        "memory_b": r.memory if r.memory is not None else DEFAULT_CLOUD_MEMORY_REQUIREMENT,
+    }
+    if r.cpu_model:
+        requirements["cpumodels"] = [m.strip() for m in r.cpu_model.split(",")]
+    cloud_input["requirements"] = requirements
+
+    cloud_input["limits"] = limits
+    cloud_input["runs"] = runs
 
     return yaml.dump(
         cloud_input, default_flow_style=False, allow_unicode=True
@@ -318,10 +316,9 @@ def computeBaseDir(benchmark, absToolpaths):
     return absBaseDir, numberOfRuns
 
 
-def buildRunDefinitions(benchmark, limits, absBaseDir):
-    runDefinitions = []
+def buildRunDefinitions(benchmark, absBaseDir):
+    runs = []
     for runSet in activeRunSets(benchmark):
-        runs = []
         for run in runSet.runs:
             cmdline = list(map(vcloudutil.force_linux_path, run.cmdline()))
             log_file = os.path.relpath(run.log_file, benchmark.log_folder)
@@ -333,9 +330,7 @@ def buildRunDefinitions(benchmark, limits, absBaseDir):
             if run_files:
                 run_def["files"] = [os.path.relpath(f, absBaseDir) for f in run_files]
             runs.append(run_def)
-        if runs:
-            runDefinitions.append({"limits": limits, "runs": runs})
-    return runDefinitions
+    return runs
 
 
 def activeRunSets(benchmark):
