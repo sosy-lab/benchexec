@@ -40,7 +40,7 @@ def main(benchexec=None, argv=None):
     @param benchexec: An instance of BenchExec for executing benchmarks.
     @param argv: optionally the list of command-line options to use
     """
-    if sys.version_info < (3,):
+    if sys.version_info < (3,):  # noqa: UP036 nicer errors for Python 2 users
         sys.exit("benchexec needs Python 3 to run.")
 
     if os.getuid() != 0:

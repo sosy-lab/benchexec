@@ -217,7 +217,7 @@ def is_debian():
         with open("/etc/os-release") as f:
             return any(
                 (line.startswith(("ID=", "ID_LIKE="))) and "debian" in line
-                for line in f.readlines()
+                for line in f
             )
     except OSError:
         return False

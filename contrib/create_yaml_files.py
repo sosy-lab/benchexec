@@ -130,7 +130,7 @@ if __name__ == "__main__":
     for verification_set in verification_set_files:
         sets_to_tasks[verification_set] = []
         with open(verification_set, "r") as inp:
-            for line in inp.readlines():
+            for line in inp:
                 line = line.strip()
                 if not line:
                     continue
