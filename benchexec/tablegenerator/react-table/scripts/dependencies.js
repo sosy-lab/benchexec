@@ -99,7 +99,7 @@ checker.init(
         // Many license texts differ only in a small header.
         // Because we show the copyright and the license name separately anyway,
         // we can remove such prefixes and increase the chance of deduplication.
-        // This list is a heuristic of currently occuring prefixes.
+        // This list is a heuristic of currently occurring prefixes.
         [
           "The ISC License",
           "MIT License",

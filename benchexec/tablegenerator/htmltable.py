@@ -246,7 +246,7 @@ def _prepare_benchmark_setup_data(
 
 
 def _get_task_counts(rows):
-    """Calculcate number of true/false tasks and maximum achievable score."""
+    """Calculate number of true/false tasks and maximum achievable score."""
     count_true = count_false = 0
     max_score = None
     for row in rows:

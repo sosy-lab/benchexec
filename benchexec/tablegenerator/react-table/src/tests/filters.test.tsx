@@ -121,7 +121,7 @@ const generalRows: TableRow[] = [
   },
 ];
 
-//Function to test filtering by regex for data set 'rows' (return number of truely returnd values)
+//Function to test filtering by regex for data set 'rows' (return number of truly returned values)
 const getFilteredNumericalData = (regex: string): NumericRow[] =>
   numericRows.filter((row) =>
     applyNumericFilter({ id: "test", value: regex }, row),

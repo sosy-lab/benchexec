@@ -274,7 +274,7 @@ export class CopyableNode extends React.Component<CopyableNodeProps> {
  * shared with a second given URL) and the rest.
  * Both given URLs can be URL or Location instances.
  * Returns [prefix, rest] as an array of strings.
- * The "rest" always conains a least the file-part of the first URL
+ * The "rest" always contains at least the file-part of the first URL
  * (after the last slash).
  * Protocol, query part and hash of the URL is dropped.
  */
@@ -1164,7 +1164,7 @@ const getTaskIdParts = (
  *
  * @returns {Number} The result of the addition
  */
-// WHEN EDITING THIS FUNCTION, ALSO EDIT THE COPY OF THIS FUNCTION IN src/woerks/scrips/stats.worker.js
+// WHEN EDITING THIS FUNCTION, ALSO EDIT THE COPY OF THIS FUNCTION IN src/workers/scripts/stats.worker.js
 const safeAdd = (a: number | string, b: number | string): number => {
   const aNum: number = typeof a === "string" ? Number(a) : a;
   const bNum: number = typeof b === "string" ? Number(b) : b;

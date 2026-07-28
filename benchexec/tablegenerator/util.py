@@ -72,7 +72,7 @@ def get_file_list(shortFile):
     fileList = glob.glob(expandedFile)
 
     # sort alphabetical,
-    # if list is emtpy, sorting returns None, so better do not sort
+    # if list is empty, sorting returns None, so better do not sort
     if len(fileList) != 0:
         fileList.sort()
     else:
