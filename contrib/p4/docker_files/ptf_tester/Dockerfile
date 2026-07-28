@@ -4,7 +4,7 @@
 
 # SPDX-License-Identifier: Apache-2.0
 
-#This dockerfile defines the container responisble for executing the tests.
+#This dockerfile defines the container responsible for executing the tests.
 #It uses the ptf test framework to do so
 
 FROM ubuntu:18.04

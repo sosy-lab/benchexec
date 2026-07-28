@@ -125,7 +125,7 @@ class _Worker(threading.Thread):
     working_queue = queue.Queue()
 
     def __init__(self, benchmark, output_handler, run_finished_callback):
-        threading.Thread.__init__(self)  # constuctor of superclass
+        threading.Thread.__init__(self)  # constructor of superclass
         self.run_finished_callback = run_finished_callback
         self.benchmark = benchmark
         self.output_handler = output_handler
