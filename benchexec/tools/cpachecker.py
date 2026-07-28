@@ -24,7 +24,7 @@ class Tool(benchexec.tools.template.BaseTool2):
     Tool info for CPAchecker, the Configurable Software-Verification Platform.
 
     Both binary and source distributions of CPAchecker are supported.
-    If the source of CPAchecker is present, it is checked wether the compiled binaries
+    If the source of CPAchecker is present, it is checked whether the compiled binaries
     are outdated and need to be regenerated.
     Additional statistics can be extracted from the output of CPAchecker
     and added to the result tables.

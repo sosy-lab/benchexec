@@ -164,7 +164,7 @@ class SwapCheck(object):
 
     def has_swapped(self):
         """
-        Check whether any swapping occured on this system since this instance was created.
+        Check whether any swapping occurred on this system since this instance was created.
         @return a boolean value
         """
         new_values = self._read_swap_count()

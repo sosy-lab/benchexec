@@ -45,7 +45,7 @@ class Pqos(object):
 
             @__type: The type of command being executed (monitoring or l3ca)
             @function_name: The name of the function being executed in pqos_wrapper
-            @suppress_warning: A boolean to decide wether to print warning on failing execution
+            @suppress_warning: A boolean to decide whether to print warning on failing execution
         """
         if self.executable_path:
             args_list = [self.executable_path] + list(args)
@@ -219,7 +219,7 @@ class Pqos(object):
                     )
             else:
                 logging.warning(
-                    "Insufficient capabilities for pqos_wrapper, Please set capabilitiy cap_sys_rawio with e,p for pqos_wrapper"
+                    "Insufficient capabilities for pqos_wrapper, Please set capability cap_sys_rawio with e,p for pqos_wrapper"
                 )
         msr = check_msr()
         if msr["loaded"]:

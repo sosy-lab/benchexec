@@ -595,7 +595,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         #        collects result of grandchild and passes it to parent
         # grandchild: child of child process (PID 2 in inner namespace), exec()s tool
 
-        # We need the following communication steps between these proceses:
+        # We need the following communication steps between these processes:
         # 1a) grandchild tells parent its PID (in outer namespace).
         # 1b) grandchild tells parent that it is ready and measurement should begin.
         # 2) parent tells grandchild that measurement has begun and tool should

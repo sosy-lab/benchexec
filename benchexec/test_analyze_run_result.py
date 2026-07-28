@@ -182,7 +182,7 @@ class TestResult(unittest.TestCase):
 
     def test_exitcode(self):
         def returnvalue(value):
-            """Encode an exit of aprogram as it would be returned by os.wait"""
+            """Encode an exit of a program as it would be returned by os.wait"""
             return ProcessExitCode(raw=value << 8, value=value, signal=None)
 
         run = self.create_run(info_result=RESULT_UNKNOWN)

@@ -261,7 +261,7 @@ class _Worker(threading.Thread):
     def __init__(
         self, benchmark, my_cpus, my_memory_nodes, output_handler, run_finished_callback
     ):
-        threading.Thread.__init__(self)  # constuctor of superclass
+        threading.Thread.__init__(self)  # constructor of superclass
         self.run_finished_callback = run_finished_callback
         self.benchmark = benchmark
         self.my_cpus = my_cpus

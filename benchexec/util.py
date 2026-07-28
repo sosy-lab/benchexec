@@ -691,7 +691,7 @@ def add_files_to_git_repository(base_dir, files, description):
         return
 
     if gitStatus.stdout:
-        printOut("Git repository has local changes, not commiting results.")
+        printOut("Git repository has local changes, not committing results.")
         return
 
     # add files to staging area
