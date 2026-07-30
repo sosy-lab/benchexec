@@ -107,7 +107,7 @@ mprotect.errcheck = _check_errno
 PROT_NONE = 0x0  # /usr/include/bits/mman-linux.h
 MAP_GROWSDOWN = 0x00100  # /usr/include/bits/mman.h
 MAP_STACK = 0x20000  # /usr/include/bits/mman.h
-from mmap import (  # noqa: F401
+from mmap import (  # noqa: E402, F401
     MAP_ANONYMOUS,
     MAP_PRIVATE,
     PROT_EXEC,

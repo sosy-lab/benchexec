@@ -93,15 +93,18 @@ class TestUnit(unittest.TestCase):
             self.assertEqual(v, util.cap_first_letter(k))
 
     def test_merge_lists(self):
-        l = (1, 2, 3)  # make sure merge_lists does not modify it
-        self.assertListEqual(list(l), util.merge_lists([l]))
-        self.assertListEqual(list(l), util.merge_lists([l, l]))
-        self.assertListEqual(list(l), util.merge_lists([l, l, l, l, l, l, l]))
-        self.assertListEqual(list(l), util.merge_lists([[], l, l, []]))
-        self.assertListEqual(list(l), util.merge_lists([[1, 2, 3], [1, 2], [1]]))
-        self.assertListEqual(list(l), util.merge_lists([[1, 2, 3], [2, 3], [3]]))
-        self.assertListEqual(list(l), util.merge_lists([[1], [1, 2], [1, 2, 3]]))
-        self.assertListEqual(list(l), util.merge_lists([[3], [2, 3], [1, 2, 3]]))
+        values = (1, 2, 3)  # make sure merge_lists does not modify it
+        self.assertListEqual(list(values), util.merge_lists([values]))
+        self.assertListEqual(list(values), util.merge_lists([values, values]))
+        self.assertListEqual(
+            list(values),
+            util.merge_lists([values, values, values, values, values, values, values]),
+        )
+        self.assertListEqual(list(values), util.merge_lists([[], values, values, []]))
+        self.assertListEqual(list(values), util.merge_lists([[1, 2, 3], [1, 2], [1]]))
+        self.assertListEqual(list(values), util.merge_lists([[1, 2, 3], [2, 3], [3]]))
+        self.assertListEqual(list(values), util.merge_lists([[1], [1, 2], [1, 2, 3]]))
+        self.assertListEqual(list(values), util.merge_lists([[3], [2, 3], [1, 2, 3]]))
         self.assertListEqual(
             [1, 2, 3, 4, 5, 6], util.merge_lists([[1, 2, 4, 6], [1, 2, 3, 4, 5]])
         )

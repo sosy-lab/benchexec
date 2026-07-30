@@ -137,8 +137,13 @@ extend-include = ["bin/*"]
     # imports need to come after sys.path changes
     'E402',
 ]
+'contrib/vcloud-benchmark.py' = [
+    # imports need to come after sys.path changes
+    'E402',
+]
 'benchexec/test*.py' = [
     # wildcard imports significantly shorten test code,
+    'F403',
     'F405',
 ]
 

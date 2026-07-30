@@ -27,7 +27,6 @@ import urllib.parse
 import urllib.request
 import zipfile
 from collections.abc import Iterator
-from typing import List, Optional, Set
 from xml.etree import ElementTree
 
 import benchexec.util
