@@ -837,7 +837,7 @@ def is_child_process_of_us(pid: int) -> bool:
         with open(f"/proc/{pid}/status") as status_file:
             for line in status_file:
                 if line.startswith("PPid:"):
-                    ppid = int(line.split(":", maxsplit=1)[1].strip())
+                    ppid = int(line.removeprefix("PPid:").strip())
                     break
     except FileNotFoundError:
         pass  # Process terminated in the meantime.

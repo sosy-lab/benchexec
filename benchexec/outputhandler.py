@@ -903,8 +903,7 @@ class OutputHandler:
         """
         Formats the file name of a program for printing on console.
         """
-        if fileName.startswith(runSet.common_prefix):
-            fileName = fileName[len(runSet.common_prefix) :]
+        fileName = fileName.removeprefix(runSet.common_prefix)
         return fileName.ljust(runSet.max_length_of_filename + 4)
 
     def _write_rough_result_xml_to_file(self, xml, filename):
