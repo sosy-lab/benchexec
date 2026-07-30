@@ -220,14 +220,18 @@ def cmdline_for_run(
     return args
 
 
-def _is_strict_requiredfiles(tag):
-    mode = tag.get("mode")
-    if mode not in (None, "strict"):
+_REQUIREDFILES_MODES = ("fail", "warn", "ignore", "skip")
+_REQUIREDFILES_MODES_WITHOUT_SKIP = ("fail", "warn", "ignore")
+
+
+def _get_requiredfiles_mode(tag, allowed_modes=_REQUIREDFILES_MODES):
+    mode = tag.get("mode", "warn")
+    if mode not in allowed_modes:
         raise BenchExecException(
             f"Invalid value '{mode}' for attribute 'mode' of <requiredfiles>, "
-            f"only 'strict' is allowed."
+            f"only {', '.join(allowed_modes)} are allowed."
         )
-    return mode == "strict"
+    return mode
 
 
 def get_propertytag(parent):
@@ -413,14 +417,24 @@ class Benchmark(object):
         # get required files
         self._required_files = set()
         for required_files_tag in rootTag.findall("requiredfiles"):
+            mode = _get_requiredfiles_mode(
+                required_files_tag, _REQUIREDFILES_MODES_WITHOUT_SKIP
+            )
             required_files = util.expand_filename_pattern(
                 required_files_tag.text, self.base_dir
             )
             if not required_files:
-                logging.warning(
-                    "Pattern %s in requiredfiles tag did not match any file.",
-                    required_files_tag.text,
-                )
+                if mode == "fail":
+                    raise BenchExecException(
+                        f"Pattern {required_files_tag.text} in requiredfiles tag "
+                        f"did not match any file."
+                    )
+                elif mode == "warn":
+                    logging.warning(
+                        "Pattern %s in requiredfiles tag did not match any file.",
+                        required_files_tag.text,
+                    )
+                # mode == "ignore": stay silent
             self._required_files = self._required_files.union(required_files)
 
         # get requirements
@@ -441,10 +455,18 @@ class Benchmark(object):
             self.result_files_patterns = ["."]
 
         # get benchmarks
+        self._skipped_run_count = 0
         self.run_sets = []
         for i, rundefinitionTag in enumerate(rootTag.findall("rundefinition")):
             self.run_sets.append(
                 RunSet(rundefinitionTag, self, i + 1, globalSourcefilesTags)
+            )
+
+        if self._skipped_run_count != 0:
+            logging.warning(
+                "Skipped %d run(s) because a required-files pattern with "
+                'mode="skip" did not match any file.',
+                self._skipped_run_count,
             )
 
         if not self.run_sets:
@@ -506,6 +528,9 @@ class Benchmark(object):
     def required_files(self):
         assert self.executable is not None, "executor needs to set tool executable"
         return self._required_files.union(self.tool.program_files(self.executable))
+
+    def count_skipped_run(self):
+        self._skipped_run_count += 1
 
     def working_directory(self):
         assert self.executable is not None, "executor needs to set tool executable"
@@ -576,7 +601,7 @@ class RunSet(object):
 
         # get run-set specific required files
         required_files_pattern = {
-            (tag.text, _is_strict_requiredfiles(tag))
+            (tag.text, _get_requiredfiles_mode(tag))
             for tag in rundefinitionTag.findall("requiredfiles")
         }
 
@@ -657,7 +682,7 @@ class RunSet(object):
                 continue
 
             required_files_pattern = global_required_files_pattern.union(
-                (tag.text, _is_strict_requiredfiles(tag))
+                (tag.text, _get_requiredfiles_mode(tag))
                 for tag in sourcefilesTag.findall("requiredfiles")
             )
 
@@ -1048,28 +1073,30 @@ class Run(object):
 
         self.should_be_skipped = False
 
-        for pattern, strict in required_files_patterns:
+        for pattern, mode in required_files_patterns:
             matched = self.runSet.expand_filename_pattern(
                 pattern, runSet.benchmark.base_dir, sourcefile=rel_sourcefile
             )
 
-            if not matched:
-                if strict:
-                    logging.info(
-                        "Pattern %s in requiredfiles tag did not match any file for task %s, "
-                        "skipping this task.",
-                        pattern,
-                        self.identifier,
-                    )
-                    self.should_be_skipped = True
-                else:
-                    logging.warning(
-                        "Pattern %s in requiredfiles tag did not match any file for task %s.",
-                        pattern,
-                        self.identifier,
-                    )
-            else:
+            if matched:
                 self.required_files.update(matched)
+                continue
+
+            if mode == "fail":
+                raise BenchExecException(
+                    f"Pattern {pattern} in requiredfiles tag did not match any file "
+                    f"for task {self.identifier}."
+                )
+            elif mode == "warn":
+                logging.warning(
+                    "Pattern %s in requiredfiles tag did not match any file for task %s.",
+                    pattern,
+                    self.identifier,
+                )
+            elif mode == "skip":
+                self.should_be_skipped = True
+                runSet.benchmark.count_skipped_run()
+            # mode == "ignore": silently keep the run without the missing file
         # combine all options to be used when executing this run
         # (reduce memory-consumption: if 2 lists are equal, do not use the second one)
         self.options = runSet.options + fileOptions if fileOptions else runSet.options

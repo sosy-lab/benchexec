@@ -29,7 +29,7 @@ SPDX-License-Identifier: Apache-2.0
 
 <!ATTLIST rundefinition name CDATA #IMPLIED>
 
-<!ATTLIST requiredfiles mode (strict) #IMPLIED>
+<!ATTLIST requiredfiles mode (fail|warn|ignore|skip) #IMPLIED>
 
 <!ATTLIST benchmark tool CDATA #REQUIRED>
 <!ATTLIST benchmark displayName CDATA #IMPLIED>
