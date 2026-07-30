@@ -43,7 +43,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         """
         return tool_locator.find_executable("sbt-fizzer.py")
 
-    @functools.lru_cache(maxsize=None)
+    @functools.cache
     def version(self, executable):
         """
         Determine a version string for this tool, if available.
