@@ -10,21 +10,23 @@ import logging
 import os
 import pprint
 import re
+import shlex
+import shutil
 import subprocess
 import tempfile
 import threading
 import time
 import unittest
-import shlex
-import shutil
 
-from benchexec import container
-from benchexec import containerexecutor
-from benchexec import filehierarchylimit
-from benchexec.runexecutor import RunExecutor
+from benchexec import (
+    container,
+    containerexecutor,
+    filehierarchylimit,
+    runexecutor,
+    util,
+)
 from benchexec.cgroups import Cgroups
-from benchexec import runexecutor
-from benchexec import util
+from benchexec.runexecutor import RunExecutor
 
 here = os.path.dirname(__file__)
 base_dir = os.path.join(here, "..")
@@ -950,7 +952,7 @@ class TestRunExecutorWithContainer(TestRunExecutor):
         ] + list(args)
 
     def execute_run(self, *args, **kwargs):
-        return super(TestRunExecutorWithContainer, self).execute_run(
+        return super().execute_run(
             workingDir="/tmp",
             *args,  # noqa: B026
             **kwargs,
@@ -1362,7 +1364,7 @@ class TestRunExecutorWithContainer(TestRunExecutor):
 
 class _StopRunThread(threading.Thread):
     def __init__(self, delay, runexecutor):
-        super(_StopRunThread, self).__init__()
+        super().__init__()
         self.daemon = True
         self.delay = delay
         self.runexecutor = runexecutor

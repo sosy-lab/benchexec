@@ -7,8 +7,8 @@
 
 import collections
 import decimal
-from decimal import Decimal, InvalidOperation
 import itertools
+from decimal import Decimal, InvalidOperation
 
 from benchexec import result
 from benchexec.tablegenerator import util
@@ -22,7 +22,7 @@ nan = Decimal("nan")
 inf = Decimal("inf")
 
 
-class ColumnStatistics(object):
+class ColumnStatistics:
     _fields = frozenset(
         (
             "total",
@@ -43,7 +43,7 @@ class ColumnStatistics(object):
     def __getattr__(self, name):
         # This is called for fields that have not been set previously, default is None
         if name in ColumnStatistics._fields:
-            return None  # noqa: R501 specifying None explicitly is clearer
+            return None  # noqa: RET501 specifying None explicitly is clearer
         raise AttributeError("can't get attribute " + name)
 
     def __setattr__(self, name, value):
@@ -52,12 +52,12 @@ class ColumnStatistics(object):
         raise AttributeError("can't set attribute")
 
 
-class StatValue(object):
+class StatValue:
     def __init__(
         self,
-        sum,  # noqa: A002
-        min=None,  # noqa: A002
-        max=None,  # noqa: A002
+        sum,
+        min=None,
+        max=None,
         avg=None,
         median=None,
         stdev=None,

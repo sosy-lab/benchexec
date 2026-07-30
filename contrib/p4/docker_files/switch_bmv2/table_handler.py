@@ -4,9 +4,9 @@
 
 # SPDX-License-Identifier: Apache-2.0
 
+import argparse
 import json
 import subprocess
-import argparse
 
 PATH_TO_TABLE_JSON = "/app/ip_table.json"
 PATH_TO_CLI = "/usr/local/behavioral-model/tools/runtime_CLI.py"

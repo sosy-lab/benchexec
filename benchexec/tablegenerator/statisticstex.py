@@ -9,11 +9,11 @@ import copy
 import logging
 import re
 from collections import Counter, defaultdict
-from typing import List, Iterable, Set, Any
-
-from benchexec.tablegenerator.columns import Column, ColumnType
+from collections.abc import Iterable
+from typing import Any
 
 from benchexec.tablegenerator import util
+from benchexec.tablegenerator.columns import Column, ColumnType
 from benchexec.tablegenerator.statistics import ColumnStatistics, StatValue
 
 TEX_HEADER = r"""% Statistics produced by BenchExec, more information at
@@ -63,7 +63,7 @@ class LatexCommand:
         Returns:
             This LatexCommand
         """
-        if part_name in RENAME_FUNCTIONS.keys():
+        if part_name in RENAME_FUNCTIONS:
             part_value = RENAME_FUNCTIONS[part_name](part_value)
         self.__dict__[part_name] = LatexCommand.format_command_part(str(part_value))
         return self
@@ -136,8 +136,8 @@ class LatexCommand:
 
 def write_tex_command_table(
     out,
-    run_sets: List,
-    stats: List[List[ColumnStatistics]],
+    run_sets: list,
+    stats: list[list[ColumnStatistics]],
     **kwargs,
 ):
     # Saving the formatted benchmarkname and niceName with the id of the runset to prevent latter formatting
@@ -197,7 +197,7 @@ def write_tex_command_table(
 
 
 def _statistics_has_value_for(
-    all_column_stats: List[List[ColumnStatistics]], field: str
+    all_column_stats: list[list[ColumnStatistics]], field: str
 ):
     """Checks the appearance of the given field in at least one of the given ColumnStatistics
 
@@ -220,9 +220,9 @@ def _statistics_has_value_for(
 
 def _provide_latex_commands(
     run_set,
-    stat_list: List[ColumnStatistics],
+    stat_list: list[ColumnStatistics],
     current_command: LatexCommand,
-    skipped_columns: Set[str],
+    skipped_columns: set[str],
 ) -> Iterable[LatexCommand]:
     """
     Provides all LatexCommands for a given run_set + stat_list combination
@@ -278,7 +278,7 @@ def _column_statistic_to_latex_command(
     init_command: LatexCommand,
     column_statistic: ColumnStatistics,
     parent_column: Column,
-    skipped_columns: Set[str],
+    skipped_columns: set[str],
 ) -> Iterable[LatexCommand]:
     """Parses a ColumnStatistics to Latex Commands and yields them
 

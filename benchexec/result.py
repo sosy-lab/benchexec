@@ -204,7 +204,7 @@ class Property(collections.namedtuple("Property", "filename is_svcomp name")):
             return cached
 
         open_func = (
-            (lambda f: io.TextIOWrapper(urllib.request.urlopen(f)))  # noqa: S310
+            (lambda f: io.TextIOWrapper(urllib.request.urlopen(f)))
             if util.is_url(propertyfile)
             else open
         )

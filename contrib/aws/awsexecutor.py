@@ -10,16 +10,16 @@ import io
 import json
 import logging
 import os
-import requests
 import shutil
 import sys
 import tempfile
-from threading import Event
 import urllib
 import zipfile
+from threading import Event
+
+import requests
 
 import benchexec.util
-
 from benchexec import BenchExecException
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
@@ -233,7 +233,7 @@ def execute_benchmark(benchmark, output_handler):
             logging.debug("Handling url: %s", aws_s3_link)
             aws_s3_link_encoded = urllib.parse.quote(aws_s3_link, safe=":/")
             logging.debug("Downloading file from url: %s", aws_s3_link_encoded)
-            result_file = requests.get(aws_s3_link_encoded)  # noqa: S113
+            result_file = requests.get(aws_s3_link_encoded)
             with zipfile.ZipFile(io.BytesIO(result_file.content)) as zipf:
                 zipf.extractall(benchmark.log_folder)
     except KeyboardInterrupt:

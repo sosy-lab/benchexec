@@ -5,15 +5,14 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import benchexec.tools.template
-import benchexec.result as result
-
-import tempfile
+import logging
 import re
 import subprocess
-import logging
+import tempfile
 
-from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, LP64
+import benchexec.tools.template
+from benchexec import result
+from benchexec.tools.sv_benchmarks_util import ILP32, LP64, get_data_model_from_task
 
 
 class Tool(benchexec.tools.template.BaseTool2):
@@ -52,7 +51,7 @@ class Tool(benchexec.tools.template.BaseTool2):
                     cmd,
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,
-                    universal_newlines=True,
+                    text=True,
                 )
             except OSError as e:
                 logging.warning("Unable to determine AProVE version: %s", e.strerror)
@@ -83,13 +82,9 @@ class Tool(benchexec.tools.template.BaseTool2):
             return result.RESULT_ERROR
 
         first_output_line = run.output[0]
-        if "YES" in first_output_line:
+        if "YES" in first_output_line or "TRUE" in first_output_line:
             return result.RESULT_TRUE_PROP
-        elif "TRUE" in first_output_line:
-            return result.RESULT_TRUE_PROP
-        elif "FALSE" in first_output_line:
-            return result.RESULT_FALSE_TERMINATION
-        elif "NO" in first_output_line:
+        elif "FALSE" in first_output_line or "NO" in first_output_line:
             return result.RESULT_FALSE_TERMINATION
         else:
             return result.RESULT_UNKNOWN

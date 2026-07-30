@@ -9,11 +9,12 @@
 Unit tests for pqos module
 """
 
-import json
 import copy
+import json
 import unittest
 from subprocess import CalledProcessError
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+
 from benchexec.pqos import Pqos
 
 mock_pqos_wrapper_output = {
@@ -100,7 +101,7 @@ def mock_check_output_capability_error(args_list, **kwargs):
     """
     if "-c" in args_list:
         return mock_check_output(args_list, **kwargs)
-    mock_check_output_error(args_list, **kwargs)  # noqa: R503 always raises
+    mock_check_output_error(args_list, **kwargs)
 
 
 class MockPopen:

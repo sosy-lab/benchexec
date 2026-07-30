@@ -8,8 +8,8 @@
 import re
 from functools import cache
 
-import benchexec.result as result
 import benchexec.tools.template
+from benchexec import result
 
 
 class Tool(benchexec.tools.template.BaseTool2):

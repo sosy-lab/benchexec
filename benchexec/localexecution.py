@@ -13,17 +13,18 @@ import sys
 import threading
 import time
 
-from benchexec import BenchExecException
+from benchexec import (
+    BenchExecException,
+    containerexecutor,
+    resources,
+    systeminfo,
+    tooladapter,
+    util,
+)
 from benchexec.cgroups import Cgroups
-from benchexec import containerexecutor
-from benchexec import resources
-from benchexec.runexecutor import RunExecutor
-from benchexec.pqos import Pqos
-from benchexec import systeminfo
-from benchexec import tooladapter
-from benchexec import util
 from benchexec.intel_cpu_energy import EnergyMeasurement
-
+from benchexec.pqos import Pqos
+from benchexec.runexecutor import RunExecutor
 
 WORKER_THREADS = []
 STOPPED_BY_INTERRUPT = False

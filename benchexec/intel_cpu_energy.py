@@ -8,11 +8,12 @@
 import collections
 import logging
 import os
-import subprocess
-import signal
 import re
-from benchexec.util import find_executable2
+import signal
+import subprocess
 from decimal import Decimal
+
+from benchexec.util import find_executable2
 
 DOMAIN_PACKAGE = "package"
 DOMAIN_CORE = "core"
@@ -20,7 +21,7 @@ DOMAIN_UNCORE = "uncore"
 DOMAIN_DRAM = "dram"
 
 
-class EnergyMeasurement(object):
+class EnergyMeasurement:
     def __init__(self, executable):
         self._executable = executable
         self._measurement_process = None

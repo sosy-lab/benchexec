@@ -10,24 +10,22 @@ import functools
 import glob
 import logging
 import os
-from pathlib import Path
 import re
 import shlex
 import shutil
 import subprocess
-from typing import List
+from pathlib import Path
 
-import benchexec.result as result
 import benchexec.tools.template
+from benchexec import result
 from benchexec.tools.sv_benchmarks_util import (
-    get_data_model_from_task,
     ILP32,
     LP64,
-    handle_witness_of_task,
     TaskFilesConsidered,
+    get_data_model_from_task,
+    handle_witness_of_task,
 )
-from benchexec.tools.template import ToolNotFoundException
-from benchexec.tools.template import UnsupportedFeatureException
+from benchexec.tools.template import ToolNotFoundException, UnsupportedFeatureException
 
 _OPTION_NO_WRAPPER = "--force-no-wrapper"
 _SVCOMP17_VERSIONS = {"f7c3ed31"}
@@ -127,7 +125,7 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
                 cmd,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
-                universal_newlines=True,
+                text=True,
             )
         except OSError as e:
             logging.warning(
@@ -230,7 +228,7 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
         )
         raise UnsupportedFeatureException(msg)
 
-    def _get_additional_data_model_from_task(self, options, task) -> List[str]:
+    def _get_additional_data_model_from_task(self, options, task) -> list[str]:
         data_model_param = get_data_model_from_task(
             task, {ILP32: "32bit", LP64: "64bit"}
         )
@@ -352,7 +350,6 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
         assert all(cmdline), (
             f"cmdline contains empty or None argument when using {mode} mode: {cmdline}"
         )
-        pass
 
     def program_files(self, executable):
         paths = (
@@ -527,7 +524,7 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
                     [candidate, "-version"],
                     stdout=subprocess.PIPE,
                     stderr=subprocess.STDOUT,
-                    universal_newlines=True,
+                    text=True,
                 )
             except OSError:
                 continue
@@ -546,7 +543,7 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
         return rtr
 
     @staticmethod
-    def _is_sublist_or_equal(small: List, big: List) -> bool:
+    def _is_sublist_or_equal(small: list, big: list) -> bool:
         for i in range(len(big) - len(small) + 1):
             for j in range(len(small)):
                 if str(big[i + j]) != str(small[j]):

@@ -5,7 +5,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import benchexec.tools.fizzer as fizzer
+from benchexec.tools import fizzer
 
 
 class Tool(fizzer.Tool):

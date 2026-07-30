@@ -21,34 +21,32 @@ import shutil
 import signal
 import socket
 import struct
-import sys
 import subprocess
+import sys
 
-from benchexec import libc
-from benchexec import seccomp
-from benchexec import util
+from benchexec import libc, seccomp, util
 
 __all__ = [
-    "execute_in_namespace",
-    "setup_user_mapping",
-    "activate_network_interface",
-    "duplicate_mount_hierarchy",
-    "determine_directory_mode",
-    "get_mount_points",
-    "remount_with_additional_flags",
-    "make_overlay_mount",
-    "mount_proc",
-    "make_bind_mount",
-    "get_my_pid_from_procfs",
-    "drop_capabilities",
-    "wait_for_child_and_forward_signals",
-    "setup_container_system_config",
-    "setup_cgroup_namespace",
-    "CONTAINER_UID",
     "CONTAINER_GID",
     "CONTAINER_HOME",
     "CONTAINER_HOSTNAME",
+    "CONTAINER_UID",
+    "activate_network_interface",
     "check_apparmor_userns_restriction",
+    "determine_directory_mode",
+    "drop_capabilities",
+    "duplicate_mount_hierarchy",
+    "execute_in_namespace",
+    "get_mount_points",
+    "get_my_pid_from_procfs",
+    "make_bind_mount",
+    "make_overlay_mount",
+    "mount_proc",
+    "remount_with_additional_flags",
+    "setup_cgroup_namespace",
+    "setup_container_system_config",
+    "setup_user_mapping",
+    "wait_for_child_and_forward_signals",
 ]
 
 
@@ -274,13 +272,13 @@ def _generate_native_clone_child_callback():
       PyOS_AfterFork_Child();
       return func_p();
     }
-    """  # noqa: B018
+    """
     # We compile this code and disassemble it with
     """
     gcc -Os -fPIC -shared -fomit-frame-pointer -march=native clone_child_callback.c \
         -o clone_child_callback.o
     objdump -d --disassembler-options=suffix clone_child_callback.o
-    """  # noqa: B018
+    """
     # This gives the following code (machine code left, assembler right)
     #
     # <clone_child_callback>:

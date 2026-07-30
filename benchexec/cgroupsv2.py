@@ -17,7 +17,6 @@ import sys
 import tempfile
 import threading
 import time
-import typing
 from decimal import Decimal
 
 from benchexec import systeminfo, util
@@ -163,8 +162,8 @@ def _create_systemd_scope_for_us():
     @return: a boolean indicating whether this succeeded
     """
     try:
-        from pystemd.dbuslib import DBus
         from pystemd.dbusexc import DBusBaseError
+        from pystemd.dbuslib import DBus
         from pystemd.systemd1 import Manager, Unit
 
         with DBus(user_mode=True) as bus, Manager(bus=bus) as manager:
@@ -363,14 +362,14 @@ class CgroupsV2(Cgroups):
     KILL = "kill"
 
     def __init__(self, subsystems):
-        super(CgroupsV2, self).__init__(subsystems)
+        super().__init__(subsystems)
 
         self.path = (
             next(iter(self.subsystems.values())) if len(self.subsystems) else None
         )
 
         # Store reference to child cgroup if we delegated controllers to it.
-        self._delegated_to: typing.Optional[CgroupsV2] = None
+        self._delegated_to: CgroupsV2 | None = None
 
     @classmethod
     def from_system(cls, cgroup_procinfo=None):

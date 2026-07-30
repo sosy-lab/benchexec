@@ -5,15 +5,14 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from abc import ABC, abstractmethod
 import errno
 import functools
 import logging
 import os
 import stat
+from abc import ABC, abstractmethod
 
 from benchexec import util
-
 
 CGROUPS_V1 = 1
 CGROUPS_V2 = 2
@@ -173,7 +172,6 @@ class Cgroups(ABC):
 
         @param critical_cgroups: set of unusable but required cgroups
         """
-        pass
 
     @abstractmethod
     def create_fresh_child_cgroup(self, subsystems, prefix=None):
@@ -285,7 +283,6 @@ class Cgroups(ABC):
         Read the cputime usage of this cgroup. CPU cgroup needs to be available.
         @return cputime usage in seconds
         """
-        pass
 
     @abstractmethod
     def read_max_mem_usage(self):
@@ -310,12 +307,10 @@ class Cgroups(ABC):
     @abstractmethod
     def read_allowed_cpus(self):
         """Get the list of all CPU cores allowed by this cgroup."""
-        pass
 
     @abstractmethod
     def read_allowed_memory_banks(self):
         """Get the list of all memory banks allowed by this cgroup."""
-        pass
 
     @abstractmethod
     def read_io_stat(self):
@@ -336,7 +331,6 @@ class Cgroups(ABC):
     @abstractmethod
     def read_hierarchical_memory_limit(self):
         """Read the memory limit that applies to the current cgroup or any parent."""
-        pass
 
     @abstractmethod
     def read_oom_kill_count(self):
@@ -345,7 +339,6 @@ class Cgroups(ABC):
     @abstractmethod
     def can_limit_swap(self):
         """Check wether cgroups can be used to limit swap usage."""
-        pass
 
     @abstractmethod
     def disable_swap(self):

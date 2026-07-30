@@ -15,17 +15,16 @@ For more information, please refer to
 https://github.com/sosy-lab/benchexec/blob/main/doc/tool-integration.md
 """
 
-from abc import ABCMeta, abstractmethod
-from collections import namedtuple
 import collections
 import copy
-import os
 import logging
+import os
 import subprocess
+from abc import ABCMeta, abstractmethod
+from collections import namedtuple
 
 import benchexec
-import benchexec.result as result
-import benchexec.util as util
+from benchexec import result, util
 
 
 class ToolNotFoundException(benchexec.BenchExecException):
@@ -33,18 +32,14 @@ class ToolNotFoundException(benchexec.BenchExecException):
     Raised when a tool's executable cannot be found.
     """
 
-    pass
-
 
 class UnsupportedFeatureException(benchexec.BenchExecException):
     """
     Raised when a tool or its tool-info module does not support a requested feature.
     """
 
-    pass
 
-
-class BaseTool2(object, metaclass=ABCMeta):
+class BaseTool2(metaclass=ABCMeta):
     """
     This class serves both as a template for tool-info implementations,
     and as an abstract super class for them.
@@ -104,7 +99,7 @@ class BaseTool2(object, metaclass=ABCMeta):
 
         @return None or a string with a URL in valid syntax for links on webpages
         """
-        return None  # noqa: R501
+        return None  # noqa: RET501
 
     @abstractmethod
     def executable(self, tool_locator):
@@ -159,7 +154,7 @@ class BaseTool2(object, metaclass=ABCMeta):
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 stdin=subprocess.DEVNULL,
-                universal_newlines=True,
+                text=True,
             )
         except OSError as e:
             logging.warning(
@@ -210,7 +205,7 @@ class BaseTool2(object, metaclass=ABCMeta):
         @param version: a version string as returned by the version() method in the past
         @return None or a string with a URL in valid syntax for links on webpages
         """
-        return None  # noqa: R501
+        return None  # noqa: RET501
 
     def environment(self, executable):
         """
@@ -355,7 +350,6 @@ class BaseTool2(object, metaclass=ABCMeta):
         OPTIONAL, called before tool-info module is no longer used,
         but no strict guarantee about this.
         """
-        pass
 
     # Classes that are used in parameters above
 
@@ -618,7 +612,7 @@ class BaseTool2(object, metaclass=ABCMeta):
             return self.text
 
 
-class BaseTool(object):
+class BaseTool:
     """
     This class serves both as a template for tool-info implementations,
     and as an abstract super class for them.
@@ -639,7 +633,7 @@ class BaseTool(object):
     """
     List of path patterns that is used by the default implementation of program_files().
     Not necessary if this method is overwritten.
-    """  # noqa: B018
+    """
 
     def executable(self):
         """

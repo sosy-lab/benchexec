@@ -11,8 +11,8 @@ import benchexec.result
 from benchexec.tools.sv_benchmarks_util import (
     ILP32,
     LP64,
-    get_data_model_from_task,
     TaskFilesConsidered,
+    get_data_model_from_task,
     handle_witness_of_task,
 )
 from benchexec.tools.template import BaseTool2

@@ -9,28 +9,28 @@
 This module allows to retrieve information about the current system.
 """
 
-from decimal import Decimal
 import glob
 import logging
 import os
 import platform
 import sys
+from decimal import Decimal
 
 from benchexec import util
 
 __all__ = [
+    "CPUThrottleCheck",
+    "SwapCheck",
+    "SystemInfo",
     "has_swap",
     "is_turbo_boost_enabled",
-    "CPUThrottleCheck",
-    "SystemInfo",
-    "SwapCheck",
 ]
 
 _TURBO_BOOST_FILE = "/sys/devices/system/cpu/cpufreq/boost"
 _TURBO_BOOST_FILE_PSTATE = "/sys/devices/system/cpu/intel_pstate/no_turbo"
 
 
-class SystemInfo(object):
+class SystemInfo:
     def __init__(self):
         """
         This function finds some information about the computer.
@@ -104,7 +104,7 @@ class SystemInfo(object):
         self.environment.pop("TEMP", None)
 
 
-class CPUThrottleCheck(object):
+class CPUThrottleCheck:
     """
     Class for checking whether the CPU has throttled during some time period.
     """
@@ -144,7 +144,7 @@ class CPUThrottleCheck(object):
         return False
 
 
-class SwapCheck(object):
+class SwapCheck:
     """
     Class for checking whether the system has swapped during some period.
     """
@@ -217,7 +217,7 @@ def is_debian():
             return any(
                 (line.startswith("ID=") or line.startswith("ID_LIKE="))
                 and "debian" in line
-                for line in f.readlines()
+                for line in f
             )
     except OSError:
         return False

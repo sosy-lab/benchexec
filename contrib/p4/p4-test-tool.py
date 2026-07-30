@@ -21,5 +21,4 @@ class Tool(benchexec.tools.template.BaseTool2):
         for line in run.output:
             if "OK" in line:
                 return benchexec.result.RESULT_CLASS_TRUE
-        else:
-            return benchexec.result.RESULT_CLASS_FALSE
+        return benchexec.result.RESULT_CLASS_FALSE

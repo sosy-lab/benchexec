@@ -23,20 +23,18 @@ import sys
 import time
 import types
 import typing
-from typing import Iterator, List, Optional, Set
 import urllib.parse
 import urllib.request
+import zipfile
+from collections.abc import Iterator
+from typing import List, Optional, Set
 from xml.etree import ElementTree
 
-from benchexec import __version__, BenchExecException
-import benchexec.model as model
-import benchexec.result as result
-import benchexec.tooladapter as tooladapter
 import benchexec.util
-from benchexec.tablegenerator import htmltable, statistics, util, statisticstex
+from benchexec import BenchExecException, __version__, model, result, tooladapter
+from benchexec.tablegenerator import htmltable, statistics, statisticstex, util
 from benchexec.tablegenerator.columns import Column
 from benchexec.tablegenerator.util import TaskId
-import zipfile
 
 # Process pool for parallel work.
 # Some of our loops are CPU-bound (e.g., statistics calculations), thus we use
@@ -117,7 +115,7 @@ def table_definition_lists_result_files(table_definition):
 
 def load_results_from_table_definition(
     table_definition, table_definition_file, options
-) -> "Iterator[Optional[RunSetResult]]":
+) -> "Iterator[RunSetResult | None]":
     """
     Load all results in files that are listed in the given table-definition file.
     @return: a list of RunSetResult objects
@@ -166,7 +164,7 @@ def load_results_from_table_definition(
 
 def handle_union_tag(
     tag, table_definition_file, options, default_columns, columns_relevant_for_diff
-) -> "Optional[RunSetResult]":
+) -> "RunSetResult | None":
     columns = (
         extract_columns_from_table_definition_file(tag, table_definition_file)
         or default_columns
@@ -220,7 +218,7 @@ def get_file_list_from_result_tag(result_tag, table_definition_file):
 
 def load_results_with_table_definition(
     result_files, table_definition, table_definition_file, options
-) -> "Iterator[Optional[RunSetResult]]":
+) -> "Iterator[RunSetResult | None]":
     """
     Load results from given files with column definitions taken from a table-definition file.
     @return: a list of RunSetResult objects
@@ -350,7 +348,7 @@ def load_tool(result):
         return loaded_tool
 
 
-class RunSetResult(object):
+class RunSetResult:
     """
     The Class RunSetResult contains all the results of one execution of a run set:
     the sourcefiles tags (with sourcefiles + values), the columns to show
@@ -368,10 +366,10 @@ class RunSetResult(object):
         self._xml_results = xml_results
         self.attributes = attributes
         # Copy the columns since they may be modified
-        self.columns: List[Column] = copy.deepcopy(columns)
+        self.columns: list[Column] = copy.deepcopy(columns)
         self.summary = summary
-        self.columns_relevant_for_diff: Set[str] = columns_relevant_for_diff
-        self.results: List[RunResult]
+        self.columns_relevant_for_diff: set[str] = columns_relevant_for_diff
+        self.results: list[RunResult]
 
     def get_tasks(self) -> Iterator[TaskId]:
         """
@@ -584,7 +582,7 @@ def load_results(
     run_set_id=None,
     columns=None,
     columns_relevant_for_diff=set(),
-) -> "Iterator[Optional[RunSetResult]]":
+) -> "Iterator[RunSetResult | None]":
     """Version of load_result for multiple input files that will be loaded concurrently."""
     return parallel.map(
         load_result,
@@ -598,7 +596,7 @@ def load_results(
 
 def load_result(
     result_file, options, run_set_id=None, columns=None, columns_relevant_for_diff=set()
-) -> "Optional[RunSetResult]":
+) -> "RunSetResult | None":
     """
     Completely handle loading a single result file.
     @param result_file the file to parse
@@ -734,7 +732,7 @@ def apply_task_list(runset_results, tasks):
     return missing
 
 
-class RunResult(object):
+class RunResult:
     """
     The class RunResult contains the results of a single verification run.
     """
@@ -913,7 +911,7 @@ class RunResult(object):
         )
 
 
-class Row(object):
+class Row:
     """
     The class Row contains all the results for one sourcefile (a list of RunResult instances).
     It is identified by the name of the source file and optional additional data
@@ -1013,7 +1011,7 @@ def filter_rows_with_differences(rows):
 
     def get_index_of_column(name, cols):
         assert cols, f"Cannot look for column '{name}' in empy column list"
-        for i in range(0, len(cols)):
+        for i in range(len(cols)):
             if cols[i].title == name:
                 return i
         assert False, f"Column '{name}' not found in columns '{cols}'"
@@ -1333,10 +1331,10 @@ def write_csv_table(
         if any(values):
             # name may contain paths, so standardize the output across OSs
             out.write(util.fix_path_if_on_windows(name))
-            for i in range(num_id_columns):  # noqa: B007
+            for i in range(num_id_columns):
                 out.write(sep)
             for value, count in zip(values, value_repetitions):
-                for i in range(count):  # noqa: B007
+                for i in range(count):
                     out.write(sep)
                     if value:
                         out.write(value)
@@ -1390,7 +1388,7 @@ def write_table_in_format(template_format, outfile, options, **kwargs):
             system = platform.system()
             try:
                 if system == "Windows":
-                    os.startfile(  # pytype: disable=module-attr # noqa: S606
+                    os.startfile(  # pytype: disable=module-attr
                         os.path.normpath(outfile), "open"
                     )
                 else:

@@ -8,19 +8,18 @@
 import argparse
 import contextlib
 import copy
-import logging
 import inspect
+import logging
 import os
 import sys
+
 import yaml
 
 import benchexec
 import benchexec.benchexec
-from benchexec import model
-from benchexec import tooladapter
-from benchexec import util
-from benchexec.tooladapter import CURRENT_BASETOOL
 import benchexec.tools.template
+from benchexec import model, tooladapter, util
+from benchexec.tooladapter import CURRENT_BASETOOL
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
 

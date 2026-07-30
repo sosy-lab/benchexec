@@ -16,23 +16,25 @@ import shlex
 import signal
 import subprocess
 import sys
+import tempfile
 import threading
 import time
-import tempfile
-from typing import cast, Any, Dict, Optional
+from typing import Any, cast
 
-from benchexec import __version__
-from benchexec import baseexecutor
-from benchexec import BenchExecException
-from benchexec import containerexecutor
+from benchexec import (
+    BenchExecException,
+    __version__,
+    baseexecutor,
+    containerexecutor,
+    intel_cpu_energy,
+    oomhandler,
+    resources,
+    systeminfo,
+    util,
+)
 from benchexec.cgroups import Cgroups
 from benchexec.filehierarchylimit import FileHierarchyLimitThread
-from benchexec import intel_cpu_energy
-from benchexec import oomhandler
 from benchexec.util import print_decimal
-from benchexec import resources
-from benchexec import systeminfo
-from benchexec import util
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
@@ -276,7 +278,7 @@ def main(argv=None):
             stdin.close()
 
     # exit_code is a util.ProcessExitCode instance
-    exit_code = cast(Optional[util.ProcessExitCode], result.pop("exitcode", None))
+    exit_code = cast(util.ProcessExitCode | None, result.pop("exitcode", None))
 
     def print_optional_result(key, unit=""):
         if key in result:
@@ -323,7 +325,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         @param cleanup_temp_dir Whether to remove the temporary directories created for the run.
         @param additional_cgroup_subsystems List of additional cgroup subsystems that should be required and used for runs.
         """
-        super(RunExecutor, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._termination_reason = None
         self._should_cleanup_temp_dir = cleanup_temp_dir
         self._cgroup_subsystems = additional_cgroup_subsystems
@@ -616,7 +618,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         error_filename=None,
         write_header=True,
         **kwargs,
-    ) -> Dict[str, Any]:  # pytype: disable=signature-mismatch
+    ) -> dict[str, Any]:  # pytype: disable=signature-mismatch
         """
         This function executes a given command with resource limits,
         and writes the output to a file.
@@ -1101,7 +1103,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
 
     def stop(self):
         self._set_termination_reason("killed")
-        super(RunExecutor, self).stop()
+        super().stop()
 
 
 def _reduce_file_size_if_necessary(fileName, maxSize):
@@ -1202,7 +1204,7 @@ class _TimelimitThread(threading.Thread):
         cores,
         callbackFn=lambda reason: None,
     ):
-        super(_TimelimitThread, self).__init__()
+        super().__init__()
         self.name = "TimelimitThread-" + self.name
         self.finished = threading.Event()
 

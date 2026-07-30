@@ -6,8 +6,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import itertools
-import unittest
 import math
+import unittest
 
 from benchexec.resources import _get_cpu_cores_per_run0
 
@@ -561,7 +561,7 @@ class TestCpuCoresPerRun_singleCPU_no_ht(TestCpuCoresPerRun):
     ht = True
     use_ht = False
 
-    oneCore_assignment = [[x] for x in range(0, 4)]
+    oneCore_assignment = [[x] for x in range(4)]
     twoCore_assignment = [[0, 1], [2, 3]]
     threeCore_assignment = [[0, 1, 2]]
     fourCore_assignment = [[0, 1, 2, 3]]

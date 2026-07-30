@@ -8,9 +8,9 @@
 import logging
 from xml.etree import ElementTree
 
-from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, LP64
 import benchexec.tools.template
-import benchexec.result as result
+from benchexec import result
+from benchexec.tools.sv_benchmarks_util import ILP32, LP64, get_data_model_from_task
 
 
 class Tool(benchexec.tools.template.BaseTool2):
@@ -65,9 +65,7 @@ class Tool(benchexec.tools.template.BaseTool2):
                 if messages:
                     # for now, use only the first error message if there are several
                     msg = messages[0].findtext("text")
-                    if msg == "Out of memory":
-                        status = "OUT OF MEMORY"
-                    elif msg == "SAT checker ran out of memory":
+                    if msg == "Out of memory" or msg == "SAT checker ran out of memory":
                         status = "OUT OF MEMORY"
                     elif msg:
                         status = f"ERROR ({msg})"
@@ -139,10 +137,12 @@ class Tool(benchexec.tools.template.BaseTool2):
         elif run.exit_code.value == 64 and "Usage error!" in output:
             status = "INVALID ARGUMENTS"
 
-        elif run.exit_code.value == 6 and "Out of memory" in output:
-            status = "OUT OF MEMORY"
-
-        elif run.exit_code.value == 6 and "SAT checker ran out of memory" in output:
+        elif (
+            run.exit_code.value == 6
+            and "Out of memory" in output
+            or run.exit_code.value == 6
+            and "SAT checker ran out of memory" in output
+        ):
             status = "OUT OF MEMORY"
 
         else:

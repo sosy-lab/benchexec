@@ -37,5 +37,5 @@ Variables ending with "tag" contain references to XML tag objects created by the
 __version__ = "3.36-dev"
 
 
-class BenchExecException(Exception):  # noqa: N818 backwards compatibility
+class BenchExecException(Exception):
     pass

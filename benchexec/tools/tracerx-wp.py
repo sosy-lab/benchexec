@@ -5,7 +5,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import benchexec.tools.tracerx as tracerx
+from benchexec.tools import tracerx
 
 
 class Tool(tracerx.Tool):

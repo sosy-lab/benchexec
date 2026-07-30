@@ -10,8 +10,8 @@
 """
 
 import ctypes as _ctypes
-from ctypes import c_int, c_uint32, c_long, c_ulong, c_size_t, c_char_p, c_void_p
 import os as _os
+from ctypes import c_char_p, c_int, c_long, c_size_t, c_uint32, c_ulong, c_void_p
 
 _libc = _ctypes.CDLL("libc.so.6", use_errno=True)
 """Reference to standard C library."""
@@ -107,14 +107,13 @@ mprotect.errcheck = _check_errno
 PROT_NONE = 0x0  # /usr/include/bits/mman-linux.h
 MAP_GROWSDOWN = 0x00100  # /usr/include/bits/mman.h
 MAP_STACK = 0x20000  # /usr/include/bits/mman.h
-from mmap import (  # noqa: F401 E402
+from mmap import (  # noqa: F401
+    MAP_ANONYMOUS,
+    MAP_PRIVATE,
     PROT_EXEC,
     PROT_READ,
     PROT_WRITE,
-    MAP_ANONYMOUS,
-    MAP_PRIVATE,
 )  # @UnusedImport imported for users of this module
-
 
 mount = _libc.mount
 """Mount a filesystem."""

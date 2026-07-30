@@ -8,12 +8,12 @@
 import tempfile
 import unittest
 
-from benchexec.result import *  # noqa: F403 @UnusedWildImport everything is tested
+from benchexec.result import *
 from benchexec.result import (
     _SCORE_CORRECT_FALSE,
     _SCORE_CORRECT_TRUE,
-    _SCORE_WRONG_TRUE,
     _SCORE_WRONG_FALSE,
+    _SCORE_WRONG_TRUE,
 )
 
 

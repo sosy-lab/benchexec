@@ -17,8 +17,7 @@ import sys
 import tempfile
 import time
 
-from benchexec import systeminfo
-from benchexec import util
+from benchexec import systeminfo, util
 from benchexec.cgroups import Cgroups
 
 CGROUP_FALLBACK_PATH = "system.slice/benchexec-cgroup.service"
@@ -254,7 +253,7 @@ class CgroupsV1(Cgroups):
 
     def __init__(self, subsystems):
         assert set(subsystems.keys()) <= self.known_subsystems
-        super(CgroupsV1, self).__init__(subsystems)
+        super().__init__(subsystems)
 
         # for error messages:
         self.denied_subsystems = {}

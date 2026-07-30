@@ -11,6 +11,7 @@ This module contains some useful functions for Strings, XML or Lists.
 
 import argparse
 import collections
+import ctypes
 import datetime
 import errno
 import fnmatch
@@ -25,9 +26,7 @@ import stat
 import subprocess
 import sys
 from ctypes.util import find_library
-import ctypes
 from xml.etree import ElementTree
-
 
 _BYTE_FACTOR = 1000  # byte in kilobyte
 _FREQUENCY_FACTOR = 1000  # Hz in kHz
@@ -146,8 +145,6 @@ class InputValueError(ValueError, argparse.ArgumentTypeError):
     for both inputs to called methods (should raise ValueError)
     and for inputs from user (in type handlers for argparse.add_argument).
     """
-
-    pass
 
 
 def parse_int_list(s):
@@ -368,14 +365,12 @@ def find_executable(program, fallback=None, exitOnError=True, use_current_dir=Tr
 
     if exitOnError:
         if found_non_executable:
-            sys.exit(  # noqa: R503 always raises
+            sys.exit(
                 f"Could not find '{program}' executable, "
                 f"but found file '{found_non_executable[0]}' that is not executable."
             )
         else:
-            sys.exit(  # noqa: R503 always raises
-                f"Could not find '{program}' executable."
-            )
+            sys.exit(f"Could not find '{program}' executable.")
     else:
         return fallback
 
@@ -647,7 +642,6 @@ def try_set_signal_handler(signal_name, handler):
 
 def dummy_fn(*args, **kwargs):
     """Dummy function that accepts all parameters but does nothing."""
-    pass
 
 
 def add_files_to_git_repository(base_dir, files, description):
@@ -669,7 +663,7 @@ def add_files_to_git_repository(base_dir, files, description):
         cwd=base_dir,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
-        universal_newlines=True,
+        text=True,
     )
     if gitRoot.returncode != 0:
         printOut(
@@ -684,7 +678,7 @@ def add_files_to_git_repository(base_dir, files, description):
         cwd=gitRootDir,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
-        universal_newlines=True,
+        text=True,
     )
     if gitStatus.returncode != 0:
         printOut("Git status failed! Output was:\n" + gitStatus.stderr)
@@ -708,7 +702,7 @@ def add_files_to_git_repository(base_dir, files, description):
         ["git", "commit", "--file=-", "--quiet"],
         input=description,
         cwd=gitRootDir,
-        universal_newlines=True,
+        text=True,
     )
     if gitCommit.returncode != 0:
         printOut("Git commit failed!")
@@ -749,7 +743,9 @@ def _debug_current_process(sig, current_frame):
     This code is based on http://stackoverflow.com/a/133384/396730
     """
     # Import modules only if necessary, readline is for shell history support.
-    import code, traceback, readline, threading  # noqa: E401, F401 @UnresolvedImport @UnusedImport
+    import code
+    import threading
+    import traceback
 
     d = {"_frame": current_frame}  # Allow access to frame object.
     d.update(current_frame.f_globals)  # Unless shadowed by global

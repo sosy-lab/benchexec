@@ -5,9 +5,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, LP64
 import benchexec.tools.template
-import benchexec.result as result
+from benchexec import result
+from benchexec.tools.sv_benchmarks_util import ILP32, LP64, get_data_model_from_task
 
 
 class Tool(benchexec.tools.template.BaseTool2):
@@ -41,15 +41,13 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def determine_result(self, run):
         for line in run.output:
-            if "COVER(error-call)" in line:
-                return result.RESULT_DONE
-            elif "COVER(branches)" in line:
+            if "COVER(error-call)" in line or "COVER(branches)" in line:
                 return result.RESULT_DONE
             elif "VERIFUZZ_VERIFICATION_SUCCESSFUL" in line:
                 return result.RESULT_TRUE_PROP
-            elif "VERIFUZZ_VERIFICATION_FAILED" in line:
-                return result.RESULT_FALSE_REACH
-            elif "FALSE(unreach-call)" in line:
+            elif (
+                "VERIFUZZ_VERIFICATION_FAILED" in line or "FALSE(unreach-call)" in line
+            ):
                 return result.RESULT_FALSE_REACH
             elif "FALSE(no-overflow)" in line:
                 return result.RESULT_FALSE_OVERFLOW

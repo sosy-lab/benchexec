@@ -5,18 +5,18 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import re
 import decimal
-from decimal import Decimal
 import enum
-from math import floor, ceil, log10
 import logging
-from typing import Tuple, Union
+import re
+from decimal import Decimal
+from math import ceil, floor, log10
+from typing import Union
 
-from benchexec.util import print_decimal
 from benchexec.tablegenerator import util
+from benchexec.util import print_decimal
 
-__all__ = ["Column", "ColumnType", "ColumnMeasureType"]
+__all__ = ["Column", "ColumnMeasureType", "ColumnType"]
 
 # It's important to make sure on *all* entry points / methods which perform arithmetics that the correct
 # rounding / context is used by using a local context.
@@ -77,7 +77,7 @@ class ColumnType(enum.Enum):
         return self
 
 
-class ColumnMeasureType(object):
+class ColumnMeasureType:
     """
     Column type 'Measure', contains the column's unit and the largest amount of digits after the decimal point.
     """
@@ -98,7 +98,7 @@ class ColumnMeasureType(object):
         return f"{self._type}({self._max_decimal_digits})"
 
 
-class Column(object):
+class Column:
     """
     The class Column contains title, pattern (to identify a line in log_file),
     number_of_significant_digits of a column, the type of the column's values,
@@ -434,7 +434,7 @@ def _get_column_type_heur(
     column, column_values
 ) -> Union[  # noqa: TAE002 TODO should really be improved
     ColumnType,
-    Tuple[Union[ColumnType, ColumnMeasureType], str, str, Union[int, Decimal], int],
+    tuple[ColumnType | ColumnMeasureType, str, str, int | Decimal, int],
 ]:
     with decimal.localcontext(DECIMAL_CONTEXT):
         if column.title == "status":
@@ -578,10 +578,7 @@ def _get_column_type_heur(
 def _get_scale_factor(unit, source_unit, column):
     if unit is None or unit == source_unit:
         return 1
-    elif (
-        source_unit in UNIT_CONVERSION.keys()
-        and unit in UNIT_CONVERSION[source_unit].keys()
-    ):
+    elif source_unit in UNIT_CONVERSION and unit in UNIT_CONVERSION[source_unit].keys():
         return UNIT_CONVERSION[source_unit][unit]
     else:
         # If the display unit is different from the source unit, a scale factor must be given explicitly

@@ -10,17 +10,17 @@ This module contains some useful functions for Strings, Files and Lists.
 """
 
 import collections
-from decimal import Decimal
 import glob
 import io
 import logging
 import os
-import urllib.request
 import platform
-from typing import Iterable, List, TypeVar, Union
+import urllib.request
+from collections.abc import Iterable
+from decimal import Decimal
+from typing import TypeVar
 
 import benchexec.util
-
 
 # May be extended with higher numbers
 ROMAN_NUMBERS = {
@@ -103,7 +103,7 @@ def open_url_seekable(path_url, mode="rt"):
     copying it into a buffer if necessary."""
 
     logging.debug("Making request to '%s'", path_url)
-    response = urllib.request.urlopen(path_url)  # noqa: S310
+    response = urllib.request.urlopen(path_url)
     logging.debug("Got response %s", response.info())
 
     try:
@@ -245,7 +245,7 @@ def prettylist(list_):
     return uniqueList[0] if len(uniqueList) == 1 else "[" + "; ".join(uniqueList) + "]"
 
 
-def merge_lists(list_of_lists: Iterable[Iterable[_T]]) -> List[_T]:
+def merge_lists(list_of_lists: Iterable[Iterable[_T]]) -> list[_T]:
     """
     This function merges several sequences, e.g. [A,C] + [A,B] --> [A,B,C].
     It keeps the order of elements.
@@ -280,7 +280,7 @@ def merge_lists(list_of_lists: Iterable[Iterable[_T]]) -> List[_T]:
     return result_list
 
 
-def find_common_elements(sequences: Iterable[Iterable[_T]]) -> List[_T]:
+def find_common_elements(sequences: Iterable[Iterable[_T]]) -> list[_T]:
     """Return the common elements in some sequences (keeping order)."""
     # We take care to iterate sequences and all its elements only once
     # such that it works with generators as well and is efficient.
@@ -315,7 +315,7 @@ def normalize_line_endings(text):
     return text.replace("\r\n", "\n")
 
 
-def number_to_roman_string(number: Union[int, str]) -> str:
+def number_to_roman_string(number: int | str) -> str:
     """Converts a positive number into the roman form.
 
     For example:
@@ -391,7 +391,7 @@ def cap_first_letter(word: str) -> str:
     return ""
 
 
-class _DummyFuture(object):
+class _DummyFuture:
     def __init__(self, result):
         self._result = result
 
@@ -399,7 +399,7 @@ class _DummyFuture(object):
         return self._result
 
 
-class DummyExecutor(object):
+class DummyExecutor:
     """Executor similar to concurrent.futures.ProcessPoolExecutor
     but executes everything sequentially in the current process.
     This can be useful for debugging.

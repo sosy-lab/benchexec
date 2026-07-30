@@ -11,12 +11,12 @@ import os
 import tempfile
 import unittest
 from unittest.mock import patch
+
 import yaml
 
-from benchexec import BenchExecException
-from benchexec.model import Benchmark
 import benchexec.result
-import benchexec.util as util
+from benchexec import BenchExecException, util
+from benchexec.model import Benchmark
 
 here = os.path.dirname(__file__)
 base_dir = os.path.join(here, "..")
@@ -133,7 +133,7 @@ class TestBenchmarkDefinition(unittest.TestCase):
         self.check_task_filter('expectedverdict="true"', ["true_task.yml"])
 
     def test_expected_verdict_false_filter(self):
-        false_tasks = [f for f in ALL_TEST_TASKS.keys() if f.startswith("false")]
+        false_tasks = [f for f in ALL_TEST_TASKS if f.startswith("false")]
         self.check_task_filter('expectedverdict="false"', false_tasks)
 
     def test_expected_verdict_false_subproperty_filter(self):
@@ -225,9 +225,7 @@ class TestBenchmarkDefinition(unittest.TestCase):
             benchmark = self.parse_benchmark_definition(benchmark_definition)
         run_ids = [run.identifier for run in benchmark.run_sets[0].runs]
         self.assertListEqual(run_ids, [])
-        matching_messages = [
-            message for message in log.output if "Skipped" in message
-        ]
+        matching_messages = [message for message in log.output if "Skipped" in message]
         self.assertEqual(len(matching_messages), 1)
         self.assertIn("1 run", matching_messages[0])
 
@@ -248,7 +246,7 @@ class TestBenchmarkDefinition(unittest.TestCase):
         )
         with self.assertRaises(BenchExecException):
             self.parse_benchmark_definition(benchmark_definition)
-            
+
     def test_requiredfiles_skip_mode_skips_only_runs_with_missing_files(self):
         # checking the arithmetics into a bit more detail
         benchmark_definition = """
@@ -281,7 +279,9 @@ class TestBenchmarkDefinition(unittest.TestCase):
         # each of the two "*.yml"-including <tasks> blocks resolves (via the mock) to
         # all of ALL_TEST_TASKS plus "other_task.yml" - all of those get skipped,
         # and the single summary message must report both blocks combined
-        expected_skipped_count = 4 * len(mock_expand_filename_pattern("*.yml", base_dir))
+        expected_skipped_count = 4 * len(
+            mock_expand_filename_pattern("*.yml", base_dir)
+        )
         with self.assertLogs(level="WARNING") as log:
             benchmark = self.parse_benchmark_definition(benchmark_definition)
         run_ids = [run.identifier for run in benchmark.run_sets[0].runs]

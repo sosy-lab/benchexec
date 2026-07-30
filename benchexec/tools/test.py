@@ -38,7 +38,7 @@ class ToolInfoModuleTest(unittest.TestCase):
                 self.fail(f"Loading tool-info module {tool_info_name} failed: {e}")
 
 
-class Config(object):
+class Config:
     """Dummy config object for test"""
 
     container = False

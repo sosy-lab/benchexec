@@ -6,15 +6,15 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import argparse
+import collections
 import errno
 import glob
 import logging
 import os
-import collections
-import shutil
 import pickle
 import select
 import shlex
+import shutil
 import signal
 import socket
 import subprocess
@@ -22,19 +22,21 @@ import sys
 import tempfile
 import traceback
 
-from benchexec import __version__
-from benchexec import baseexecutor
-from benchexec import BenchExecException
+from benchexec import (
+    BenchExecException,
+    __version__,
+    baseexecutor,
+    container,
+    libc,
+    util,
+)
 from benchexec.cgroups import Cgroups
-from benchexec import container
-from benchexec import libc
-from benchexec import util
 from benchexec.container import (
-    DIR_MODES,
-    DIR_HIDDEN,
-    DIR_READ_ONLY,
-    DIR_OVERLAY,
     DIR_FULL_ACCESS,
+    DIR_HIDDEN,
+    DIR_MODES,
+    DIR_OVERLAY,
+    DIR_READ_ONLY,
     NATIVE_CLONE_CALLBACK_SUPPORTED,
 )
 
@@ -343,7 +345,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             Whether to allow processes in the contain to access cgroups.
             Only supported on systems with cgroupsv2.
         """
-        super(ContainerExecutor, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._use_namespaces = use_namespaces
         if not use_namespaces:
             return
@@ -423,7 +425,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         """Given the temp directory that is created for each run, return the path to the
         directory where files created by the tool are stored."""
         if not self._use_namespaces:
-            return super(ContainerExecutor, self)._get_result_files_base(temp_dir)
+            return super()._get_result_files_base(temp_dir)
         else:
             return os.path.join(temp_dir, "temp")
 
@@ -432,7 +434,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
     def execute_run(
         self,
         args,
-        workingDir=None,  # noqa: N803 backwards-compatibility
+        workingDir=None,
         output_dir=None,
         result_files_patterns=[],
         rootDir=None,
@@ -522,7 +524,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         **kwargs,
     ):
         if not self._use_namespaces:
-            return super(ContainerExecutor, self)._start_execution(*args, **kwargs)
+            return super()._start_execution(*args, **kwargs)
         else:
             if result_files_patterns:
                 if not output_dir:
@@ -609,8 +611,8 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         # might read the bytes it has sent itself.
 
         # Error codes from child to parent
-        CHILD_OSERROR = 128  # noqa: N806 local constant
-        CHILD_UNKNOWN_ERROR = 129  # noqa: N806 local constant
+        CHILD_OSERROR = 128
+        CHILD_UNKNOWN_ERROR = 129
 
         # "downstream" pipe parent->grandchild
         from_parent, to_grandchild = os.pipe()
@@ -622,9 +624,9 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         # and finally the parent sends its completion marker.
         # After the run, the child sends the result of the grand child and then waits
         # for the post_run marker, before it terminates.
-        MARKER_USER_MAPPING_COMPLETED = b"A"  # noqa: N806 local constant
-        MARKER_PARENT_COMPLETED = b"B"  # noqa: N806 local constant
-        MARKER_PARENT_POST_RUN_COMPLETED = b"C"  # noqa: N806 local constant
+        MARKER_USER_MAPPING_COMPLETED = b"A"
+        MARKER_PARENT_COMPLETED = b"B"
+        MARKER_PARENT_POST_RUN_COMPLETED = b"C"
 
         # If the current directory is within one of the bind mounts we create,
         # we need to cd into this directory again, otherwise we would not see the

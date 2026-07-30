@@ -5,18 +5,18 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import unittest
 import types
+import unittest
 
-from benchexec.util import ProcessExitCode
 from benchexec.model import Run
 from benchexec.result import (
-    RESULT_FALSE_REACH,
     RESULT_ERROR,
-    RESULT_UNKNOWN,
+    RESULT_FALSE_REACH,
     RESULT_TRUE_PROP,
+    RESULT_UNKNOWN,
 )
 from benchexec.tools.template import BaseTool
+from benchexec.util import ProcessExitCode
 
 normal_result = ProcessExitCode(raw=0, value=0, signal=None)
 

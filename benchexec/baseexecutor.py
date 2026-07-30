@@ -12,8 +12,7 @@ import subprocess
 import sys
 import threading
 
-from benchexec import __version__
-from benchexec import util
+from benchexec import __version__, util
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
@@ -46,7 +45,7 @@ def handle_basic_executor_options(options):
     util.setup_logging(level=logLevel)
 
 
-class BaseExecutor(object):
+class BaseExecutor:
     """Class for starting and handling processes."""
 
     def __init__(self):

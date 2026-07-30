@@ -7,12 +7,10 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import argparse
 import glob
 import os
 import re
-import argparse
-from typing import Tuple
-
 
 NAME_TO_PROP_AND_SUBPROP = {
     "unreach-call": ("unreach-call.prp", None),
@@ -38,7 +36,7 @@ def _get_prop(property_file, property_dir, task_dir):
     return os.path.relpath(os.path.join(property_dir, property_file), task_dir)
 
 
-def handle_c(task_file, args) -> Tuple[str, dict]:
+def handle_c(task_file, args) -> tuple[str, dict]:
     """Create yml task definition for the given file.
     Return a tuple of a recommended new task name and the yml info as dictionary.
 
@@ -132,7 +130,7 @@ if __name__ == "__main__":
     for verification_set in verification_set_files:
         sets_to_tasks[verification_set] = []
         with open(verification_set, "r") as inp:
-            for line in inp.readlines():
+            for line in inp:
                 line = line.strip()
                 if not line:
                     continue

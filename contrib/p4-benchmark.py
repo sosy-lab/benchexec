@@ -6,13 +6,12 @@
 
 # For instructions on how to use this program, se README in /p4.
 
-import sys
 import logging
 import os
-import benchexec.util as util
+import sys
 
-from benchexec.benchexec import BenchExecException
-from benchexec.benchexec import BenchExec
+from benchexec import util
+from benchexec.benchexec import BenchExec, BenchExecException
 
 
 class P4BenchExec(BenchExec):

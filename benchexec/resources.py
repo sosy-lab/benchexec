@@ -21,8 +21,8 @@ from benchexec import util
 __all__ = [
     "check_memory_size",
     "get_cpu_cores_per_run",
-    "get_memory_banks_per_run",
     "get_cpu_package_for_core",
+    "get_memory_banks_per_run",
 ]
 
 
