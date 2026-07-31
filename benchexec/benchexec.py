@@ -493,10 +493,10 @@ def add_container_args(parser):
 
 def parse_time_arg(s):
     """
-    Parse a time stamp in the "year-month-day hour-minute" format.
+    Parse a time stamp in the "year-month-day hour:minute:second" format.
     """
     try:
-        return datetime.datetime.strptime(s, "%Y-%m-%d %H:%M:%S")
+        return datetime.datetime.strptime(s, "%Y-%m-%d %H:%M:%S").astimezone()
     except ValueError as e:
         raise argparse.ArgumentTypeError(e)
 
