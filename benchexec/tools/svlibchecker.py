@@ -70,11 +70,11 @@ class Tool(benchexec.tools.template.BaseTool2):
         for line in reversed(run.output):
             if line.startswith(verification_result_identifier):
                 line = line.removeprefix(verification_result_identifier).strip()
-                if "correct" == line:
+                if line == "correct":
                     return result.RESULT_TRUE_PROP
-                elif "incorrect" == line:
+                elif line == "incorrect":
                     return result.RESULT_FALSE_PROP
-                elif "unknown" == line:
+                elif line == "unknown":
                     return result.RESULT_UNKNOWN
                 else:
                     logging.warning("unrecognized verification result: '%s'", line)

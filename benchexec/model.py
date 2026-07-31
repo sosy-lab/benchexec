@@ -280,7 +280,7 @@ class Benchmark:
             rootTag = ElementTree.ElementTree().parse(benchmark_file)
         except ElementTree.ParseError as e:
             sys.exit(f"Benchmark file {benchmark_file} is invalid: {e}")
-        if "benchmark" != rootTag.tag:
+        if rootTag.tag != "benchmark":
             sys.exit(
                 f"Benchmark file {benchmark_file} is invalid: "
                 f"Its root element is not named 'benchmark'."

@@ -70,9 +70,9 @@ class Tool(benchexec.tools.template.BaseTool2):
         @return: status of PySvLib after executing a run
         """
         for line in reversed(run.output):
-            if "correct" == line:
+            if line == "correct":
                 return result.RESULT_TRUE_PROP
-            elif "incorrect" == line:
+            elif line == "incorrect":
                 return result.RESULT_FALSE_PROP
 
         # We could not find a definitive result in the output

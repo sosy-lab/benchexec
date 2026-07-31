@@ -36,13 +36,13 @@ class Tool(benchexec.tools.template.BaseTool2):
         if len(run.output) != 1:
             return result.RESULT_ERROR
         line = run.output[0].strip()
-        if "sat" == line:
+        if line == "sat":
             return result.RESULT_TRUE_PROP
-        elif "unsat" == line:
+        elif line == "unsat":
             return result.RESULT_FALSE_REACH
-        elif "unknown" == line or line.startswith("UNKNOWN"):
+        elif line == "unknown" or line.startswith("UNKNOWN"):
             return result.RESULT_UNKNOWN
-        elif "timeout" == line:
+        elif line == "timeout":
             return result.RESULT_TIMEOUT
         else:
             return result.RESULT_ERROR

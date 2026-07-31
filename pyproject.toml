@@ -251,7 +251,6 @@ ignore = [
     "SIM110",  #  reimplemented-builtin
     "SIM112",  #  uncapitalized-environment-variables
     "SIM116",  #  if-else-block-instead-of-dict-lookup
-    "SIM300",  #  yoda-conditions
     "SLF001",  #  private-member-access
     "SLOT002",  # no-slots-in-namedtuple-subclass
     "T201",  #    print

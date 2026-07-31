@@ -101,7 +101,7 @@ def parse_table_definition_file(file):
         handle_error("Could not read result file %s: %s", file, e)
     except ElementTree.ParseError as e:
         handle_error("Table file %s is invalid: %s", file, e)
-    if "table" != tableGenFile.tag:
+    if tableGenFile.tag != "table":
         handle_error(
             "Table file %s is invalid: It's root element is not named 'table'.", file
         )
