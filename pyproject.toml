@@ -224,7 +224,6 @@ ignore = [
     # TODO adopt pytest assertions
     "PT009",  #   pytest-unittest-assertion
     "PT015",  #   pytest-assert-always-false
-    "PT018",  #   pytest-composite-assertion
     "PT027",  #   pytest-unittest-raises-assertion
     # TODO adopt pathlib
     "PTH1",

@@ -57,7 +57,8 @@ class Tool1To2:
                 f"or upgrade the tool-info module."
             )
 
-        assert tool_locator.use_path and tool_locator.use_current
+        assert tool_locator.use_path
+        assert tool_locator.use_current
         # This is the behavior that old tool-info modules are expected to have.
         try:
             return self._wrapped.executable()
