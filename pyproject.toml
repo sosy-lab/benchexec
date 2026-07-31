@@ -196,7 +196,6 @@ ignore = [
     "FBT003",  #  boolean-positional-value-in-call
     "FIX002",  #  line-contains-todo
     "FURB110",  # if-exp-instead-of-or-operator
-    "G004",  #    logging-f-string
     "ICN001",  #  unconventional-import-alias
     "INP001",  #  implicit-namespace-package
     # TODO improve naming

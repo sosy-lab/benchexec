@@ -244,7 +244,7 @@ def run_slurm(benchmark, args, log_file):
         sys.exit("No scratchdir present. Please specify using --scratchdir <path>.")
     elif not os.path.exists(benchmark.config.scratchdir):
         os.makedirs(benchmark.config.scratchdir)
-        logging.debug(f"Created scratchdir: {benchmark.config.scratchdir}")
+        logging.debug("Created scratchdir: %s", benchmark.config.scratchdir)
     elif not os.path.isdir(benchmark.config.scratchdir):
         sys.exit(
             f"Scratchdir {benchmark.config.scratchdir} not a directory. Please specify using --scratchdir <path>."
@@ -385,7 +385,7 @@ memory_pattern = re.compile(r"Memory Utilized: (\d+\.\d+) MB")
 
 
 def parse_seff(result):
-    logging.debug(f"Got output from seff: {result}")
+    logging.debug("Got output from seff: %s", result)
     exit_code_match = exit_code_pattern.search(result)
     cpu_time_match = cpu_time_pattern.search(result)
     wall_time_match = wall_time_pattern.search(result)
@@ -407,7 +407,11 @@ def parse_seff(result):
     memory_usage = float(memory_match.group(1)) * 1000000 if memory_match else None
 
     logging.debug(
-        f"Exit code: {exit_code}, memory usage: {memory_usage}, walltime: {wall_time}, cpu time: {cpu_time}"
+        "Exit code: %s, memory usage: %s, walltime: %s, cpu time: %s",
+        exit_code,
+        memory_usage,
+        wall_time,
+        cpu_time,
     )
 
     return slurm_status, exit_code, cpu_time, wall_time, memory_usage
