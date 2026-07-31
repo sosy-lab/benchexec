@@ -790,7 +790,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                         stderr=stderr,
                         env=env,
                         close_fds=False,
-                        preexec_fn=grandchild,
+                        preexec_fn=grandchild,  # noqa: PLW1509
                     )
                 except (OSError, RuntimeError) as e:
                     logging.critical("Cannot start process: %s", e)

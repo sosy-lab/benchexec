@@ -49,7 +49,7 @@ class EnergyMeasurement:
             stderr=subprocess.PIPE,
             universal_newlines=True,
             bufsize=10_000,
-            preexec_fn=os.setpgrp,  # Prevent delivery of Ctrl+C to subprocess
+            preexec_fn=os.setpgrp,  # Prevent delivery of Ctrl+C to subprocess  # noqa: PLW1509
         )
 
     def stop(self):

@@ -336,7 +336,7 @@ def main(argv=None):
     """
     A simple command-line interface to print information provided by a tool info.
     """
-    if sys.version_info < (3,):
+    if sys.version_info < (3,):  # noqa: UP036 nicer errors for Python 2 users
         sys.exit("benchexec.test_tool_info needs Python 3 to run.")
     if argv is None:
         argv = sys.argv

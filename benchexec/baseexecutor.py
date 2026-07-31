@@ -118,7 +118,7 @@ class BaseExecutor:
             env=env,
             cwd=cwd,
             close_fds=True,
-            preexec_fn=pre_subprocess,
+            preexec_fn=pre_subprocess,  # noqa: PLW1509
         )
 
         def wait_and_get_result():

@@ -40,7 +40,7 @@ class TestStatValue(unittest.TestCase):
     def test_three_values(self):
         v1 = Decimal("0.123")
         v2 = Decimal("4.56")
-        v3 = Decimal("789")
+        v3 = Decimal("789")  # noqa: FURB157 deliberate for testing
         for t in [[v1, v2, v3], [v3, v2, v1], [v2, v1, v3]]:
             s = StatValue.from_list(t)
             self.assertEqual(s.sum, v1 + v2 + v3)

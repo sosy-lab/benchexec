@@ -748,7 +748,7 @@ def _debug_current_process(sig, current_frame):
     """
     # Import modules only if necessary, readline is for shell history support.
     import code  # noqa: E401, F401 @UnresolvedImport @UnusedImport
-    import readline
+    import readline  # noqa: F401
     import threading
     import traceback
 

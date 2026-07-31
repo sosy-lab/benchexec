@@ -109,7 +109,7 @@ class LatexCommand:
         return command_as_string
 
     def __repr__(self):
-        return "\\StoreBenchExecResult{%s}{%s}{%s}{%s}{%s}{%s}" % (
+        return "\\StoreBenchExecResult{%s}{%s}{%s}{%s}{%s}{%s}" % (  # noqa: UP031 %s better readable than {} here
             self.benchmark_name,
             self.runset_name,
             self.column_title,

@@ -1593,7 +1593,7 @@ def setup_process(options):
 
 
 def main(args=None):
-    if sys.version_info < (3,):
+    if sys.version_info < (3,):  # noqa: UP036 nicer errors for Python 2 users
         sys.exit("table-generator needs Python 3 to run.")
 
     arg_parser = create_argument_parser()
