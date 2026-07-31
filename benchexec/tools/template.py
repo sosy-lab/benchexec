@@ -95,7 +95,7 @@ class BaseTool2(metaclass=ABCMeta):
 
         @return a non-empty string
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def project_url(self):
         """
@@ -118,7 +118,7 @@ class BaseTool2(metaclass=ABCMeta):
         @param tool_locator: an instance of class ToolLocator
         @return a string pointing to an executable file
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def version(self, executable):
         """

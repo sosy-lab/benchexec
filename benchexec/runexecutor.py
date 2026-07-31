@@ -220,7 +220,7 @@ def main(argv=None):
                 key, value = arg.split("=", 1)
                 subsystem, option = key.split(".", 1)
                 if not subsystem or not option:
-                    raise ValueError()
+                    raise ValueError
             except ValueError:
                 parser.error(
                     f'Cgroup value "{arg}" has invalid format, '
