@@ -481,8 +481,7 @@ class CgroupsV2(Cgroups):
         Produces a log message for the user if one of the conditions is not fulfilled.
         @return A boolean value.
         """
-        # TODO
-        # We can assume that creation of child cgroups works,
+        # TODO We can assume that creation of child cgroups works,
         # because we only use cgroups if we were able to move the current process
         # into a child cgroup in initialize().
         return super().require_subsystem(subsystem, log_method)

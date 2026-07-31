@@ -138,6 +138,9 @@ ignore = [
     "D212",  # style question
     "LOG015",  # we always use the root logger
     "PIE790",  # arguably better readable if function contains "pass" instead of just docstring
+    "TD002",  # missing-todo-author: we do not enforce strict todo-comment structure
+    "TD003",  # missing-todo-link: we do not enforce strict todo-comment structurek
+    "TD004",  # missing-todo-colon: we do not enforce strict todo-comment structuren
     # checks from ruff's default selection that should be worked on
     "B006",   # TODO
     "BLE001",  # TODO check each case, some are required
@@ -253,10 +256,6 @@ ignore = [
     "SLOT002",  # no-slots-in-namedtuple-subclass
     "T201",  #    print
     "TC006",  #   runtime-cast-value
-    "TD002",  #   missing-todo-author
-    "TD003",  #   missing-todo-link
-    "TD004",  #   missing-todo-colon
-    "TD005",  #   missing-todo-description
     "TRY003",  #  raise-vanilla-args
     "TRY300",  #  try-consider-else
     "TRY301",  #  raise-within-try
