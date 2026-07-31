@@ -154,7 +154,7 @@ class TestPqos(unittest.TestCase):
         """
         pqos = Pqos()
         self.assertIsInstance(pqos, Pqos)
-        self.assertIsNotNone(pqos.executable_path, True)
+        self.assertIsNotNone(pqos.executable_path)
 
     @patch("benchexec.pqos.find_executable2", return_value=None)
     def test_pqos_init_error(self, mock_find_executable):
@@ -164,7 +164,7 @@ class TestPqos(unittest.TestCase):
         """
         pqos = Pqos()
         self.assertIsInstance(pqos, Pqos)
-        self.assertIsNone(pqos.executable_path, False)
+        self.assertIsNone(pqos.executable_path)
 
     @patch("benchexec.pqos.find_executable2", return_value="/path/to/pqos_wrapper/lib")
     @patch("benchexec.pqos.check_output", side_effect=mock_check_output)
