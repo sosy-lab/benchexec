@@ -277,7 +277,7 @@ class TestPqos(unittest.TestCase):
         pqos.start_monitoring([[0, 1, 2]])
         ret = pqos.stop_monitoring()
         self.assertDictEqual(ret, flatten_mon_data)
-        self.assertEqual(pqos.mon_process, None)
+        self.assertIsNone(pqos.mon_process)
 
     @patch("benchexec.pqos.find_executable2", return_value="/path/to/pqos_wrapper/lib")
     @patch("benchexec.pqos.Popen", side_effect=mock_popen)
@@ -288,7 +288,7 @@ class TestPqos(unittest.TestCase):
         pqos = Pqos()
         ret = pqos.stop_monitoring()
         self.assertDictEqual(ret, {})
-        self.assertEqual(pqos.mon_process, None)
+        self.assertIsNone(pqos.mon_process)
 
     @patch("benchexec.pqos.find_executable2", return_value="/path/to/pqos_wrapper/lib")
     @patch("benchexec.pqos.check_output", side_effect=mock_check_output)
@@ -304,7 +304,7 @@ class TestPqos(unittest.TestCase):
         pqos.mon_process.returncode = 1
         ret = pqos.stop_monitoring()
         self.assertDictEqual(ret, {})
-        self.assertEqual(pqos.mon_process, None)
+        self.assertIsNone(pqos.mon_process)
 
     def test_pqos_flatten_mon_data(self):
         """
