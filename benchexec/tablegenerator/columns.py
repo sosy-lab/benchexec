@@ -148,9 +148,7 @@ class Column:
             if relevant_for_diff is None:
                 self.relevant_for_diff = False
             else:
-                self.relevant_for_diff = (
-                    True if relevant_for_diff.lower() == "true" else False
-                )
+                self.relevant_for_diff = relevant_for_diff.lower() == "true"
             self.display_title = display_title
 
             # expected maximum width (in characters)
