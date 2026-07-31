@@ -334,7 +334,7 @@ class BaseTool2(metaclass=ABCMeta):
         """
         return result.RESULT_DONE
 
-    def get_value_from_output(self, output, identifier):
+    def get_value_from_output(self, output, identifier):  # noqa: B027 does not need to be overridden
         """
         OPTIONAL, extract a statistic value from the output of the tool.
         This value will be added to the resulting tables.
@@ -348,8 +348,9 @@ class BaseTool2(metaclass=ABCMeta):
         @param identifier: The user-specified identifier for the statistic item.
         @return a (possibly empty) string, optional with HTML tags
         """
+        pass
 
-    def close(self):
+    def close(self):  # noqa: B027 does not need to be overridden
         """
         OPTIONAL, called before tool-info module is no longer used,
         but no strict guarantee about this.
