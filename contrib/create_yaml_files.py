@@ -117,6 +117,24 @@ def parse_args():
     return parser.parse_args()
 
 
+def compute_collisions(curr_task, old_name, tasks_to_new_names_and_yml):
+    task_basename = os.path.basename(curr_task)
+    if args.collisions_across_dirs:
+        collisions = [
+            k
+            for k, v in tasks_to_new_names_and_yml.items()
+            if os.path.basename(v[0]).lower()[:-1] == task_basename.lower()[:-1]
+            and k != old_name
+        ]
+    else:
+        collisions = [
+            k
+            for k, v in tasks_to_new_names_and_yml.items()
+            if v[0].lower()[:-1] == task_basename.lower()[:-1] and k != old_name
+        ]
+    return collisions
+
+
 sets_to_tasks = {}
 all_tasks = set()
 
@@ -162,33 +180,16 @@ if __name__ == "__main__":
         curr_task = new_info[0]
         yml_info = new_info[1]
 
-        def _compute_collisions(curr_task, tasks_to_new_names_and_yml):
-            task_basename = os.path.basename(curr_task)
-            if args.collisions_across_dirs:
-                collisions = [
-                    k
-                    for k, v in tasks_to_new_names_and_yml.items()
-                    if os.path.basename(v[0]).lower()[:-1] == task_basename.lower()[:-1]
-                    and k != old_name
-                ]
-            else:
-                collisions = [
-                    k
-                    for k, v in tasks_to_new_names_and_yml.items()
-                    if v[0].lower()[:-1] == task_basename.lower()[:-1] and k != old_name
-                ]
-            return collisions
-
         # store original collisions for rename
-        collisions = _compute_collisions(curr_task, tasks_to_new_names_and_yml)
+        collisions = compute_collisions(curr_task, old_name, tasks_to_new_names_and_yml)
         counter = 1
-        while _compute_collisions(curr_task, tasks_to_new_names_and_yml):
+        while compute_collisions(curr_task, old_name, tasks_to_new_names_and_yml):
             curr_task = f"{curr_task[:-2]}-{counter}{curr_task[-2:]}"
             counter += 1
         tasks_to_new_names_and_yml[old_name][0] = curr_task
         for other in collisions:
             new_name = tasks_to_new_names_and_yml[other][0]
-            while _compute_collisions(new_name, tasks_to_new_names_and_yml):
+            while compute_collisions(new_name, old_name, tasks_to_new_names_and_yml):
                 new_name = f"{new_name[:-2]}-{counter}{new_name[-2:]}"
                 counter += 1
             tasks_to_new_names_and_yml[other][0] = new_name
