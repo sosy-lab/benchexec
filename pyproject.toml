@@ -209,7 +209,6 @@ ignore = [
     "N815",  #    mixed-case-variable-in-class-scope
     "PERF203",  # try-except-in-loop
     "PERF401",  # manual-list-comprehension
-    "PGH004",  #  blanket-noqa
     "PLC0415",  # import-outside-top-level
     "PLR0911",  # too-many-return-statements
     "PLR0912",  # too-many-branches
