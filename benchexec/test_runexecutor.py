@@ -1029,10 +1029,8 @@ class TestRunExecutorWithContainer(TestRunExecutor):
         self.check_result_files("echo TEST_TOKEN > TEST_FILE", [], [])
 
     def test_result_file_empty_pattern(self):
-        self.assertRaises(
-            ValueError,
-            lambda: self.check_result_files("echo TEST_TOKEN > TEST_FILE", [""], []),
-        )
+        with self.assertRaises(ValueError):
+            self.check_result_files("echo TEST_TOKEN > TEST_FILE", [""], [])
 
     def test_result_file_partial_match(self):
         self.check_result_files(
@@ -1076,12 +1074,10 @@ class TestRunExecutorWithContainer(TestRunExecutor):
         )
 
     def test_result_file_illegal_relative_traversal(self):
-        self.assertRaises(
-            ValueError,
-            lambda: self.check_result_files(
+        with self.assertRaises(ValueError):
+            self.check_result_files(
                 "echo TEST_TOKEN > TEST_FILE", ["foo/../../bar"], []
-            ),
-        )
+            )
 
     def test_result_file_recursive_pattern(self):
         self.check_result_files(

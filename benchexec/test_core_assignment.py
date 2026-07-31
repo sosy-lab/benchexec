@@ -29,14 +29,10 @@ class TestCpuCoresPerRun(unittest.TestCase):
             )
 
     def assertInvalid(self, coreLimit, num_of_threads):
-        self.assertRaises(
-            SystemExit,
-            _get_cpu_cores_per_run0,
-            coreLimit,
-            num_of_threads,
-            self.use_ht,
-            *self.machine(),
-        )
+        with self.assertRaises(SystemExit):
+            _get_cpu_cores_per_run0(
+                coreLimit, num_of_threads, self.use_ht, *self.machine()
+            )
 
     def machine(self):
         """Create the necessary parameters of _get_cpu_cores_per_run0 for a specific machine."""
@@ -207,16 +203,8 @@ class TestCpuCoresPerRun_singleCPU_HT(TestCpuCoresPerRun_singleCPU):
 
     def test_halfPhysicalCore(self):
         # Cannot run if we have only half of one physical core
-        self.assertRaises(
-            SystemExit,
-            _get_cpu_cores_per_run0,
-            1,
-            1,
-            True,
-            [0],
-            {0: [0, 1]},
-            {0: [0, 1]},
-        )
+        with self.assertRaises(SystemExit):
+            _get_cpu_cores_per_run0(1, 1, True, [0], {0: [0, 1]}, {0: [0, 1]})
 
 
 class TestCpuCoresPerRun_dualCPU_HT(TestCpuCoresPerRun):
