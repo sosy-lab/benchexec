@@ -257,8 +257,7 @@ class P4Execution:
 
                 try:
                     with open(run.log_file, "w") as ouputFile:
-                        for _i in range(6):
-                            ouputFile.write("\n")
+                        ouputFile.writelines("\n" for _i in range(6))
 
                         # for result in test_results:
                         ouputFile.write(test_output + "\n")
