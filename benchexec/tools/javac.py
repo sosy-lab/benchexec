@@ -6,7 +6,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import benchexec.tools.template
-import benchexec.util as util
+from benchexec import util
 
 
 class Tool(benchexec.tools.template.BaseTool):

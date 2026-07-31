@@ -5,8 +5,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from decimal import Decimal
 import unittest
+from decimal import Decimal
 
 from benchexec.tablegenerator import util
 
@@ -138,6 +138,6 @@ class TestUnit(unittest.TestCase):
         self.assertEqual(Decimal("-1.234"), util.to_decimal("-1.234"))
 
     def test_to_decimal_numeric(self):
-        self.assertEqual(Decimal("-1"), util.to_decimal(-1))
-        self.assertEqual(Decimal(-1.234), util.to_decimal(-1.234))
+        self.assertEqual(Decimal("-1"), util.to_decimal(-1))  # noqa: FURB157 deliberate for testing
+        self.assertEqual(Decimal(-1.234), util.to_decimal(-1.234))  # noqa: RUF032 deliberate for testing
         self.assertEqual(Decimal("-1.234"), util.to_decimal(Decimal("-1.234")))

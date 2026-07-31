@@ -16,23 +16,25 @@ import shlex
 import signal
 import subprocess
 import sys
+import tempfile
 import threading
 import time
-import tempfile
-from typing import cast, Any, Dict, Optional
+from typing import Any, cast
 
-from benchexec import __version__
-from benchexec import baseexecutor
-from benchexec import BenchExecException
-from benchexec import containerexecutor
+from benchexec import (
+    BenchExecException,
+    __version__,
+    baseexecutor,
+    containerexecutor,
+    intel_cpu_energy,
+    oomhandler,
+    resources,
+    systeminfo,
+    util,
+)
 from benchexec.cgroups import Cgroups
 from benchexec.filehierarchylimit import FileHierarchyLimitThread
-from benchexec import intel_cpu_energy
-from benchexec import oomhandler
 from benchexec.util import print_decimal
-from benchexec import resources
-from benchexec import systeminfo
-from benchexec import util
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
@@ -204,56 +206,56 @@ def main(argv=None):
         if options.input == options.output:
             parser.error("Input and output files cannot be the same.")
         try:
-            stdin = open(options.input, "rt")
+            stdin = open(options.input, "rt")  # noqa: SIM115
         except OSError as e:
             parser.error(str(e))
     else:
         stdin = None
 
-    cgroup_subsystems = set(options.require_cgroup_subsystem)
-    cgroup_values = {}
-    for arg in options.cgroup_values:
-        try:
-            key, value = arg.split("=", 1)
-            subsystem, option = key.split(".", 1)
-            if not subsystem or not option:
-                raise ValueError()
-        except ValueError:
-            parser.error(
-                f'Cgroup value "{arg}" has invalid format, '
-                f'needs to be "subsystem.option=value".'
-            )
-        cgroup_values[(subsystem, option)] = value
-        cgroup_subsystems.add(subsystem)
-
-    executor = RunExecutor(
-        cleanup_temp_dir=options.cleanup,
-        additional_cgroup_subsystems=list(cgroup_subsystems),
-        use_namespaces=options.container,
-        **container_options,
-    )
-
-    # Ensure that process gets killed on interrupt/kill signal,
-    # and avoid KeyboardInterrupt because it could occur anywhere.
-    def signal_handler_kill(signum, frame):
-        executor.stop()
-
-    signal.signal(signal.SIGTERM, signal_handler_kill)
-    signal.signal(signal.SIGQUIT, signal_handler_kill)
-    signal.signal(signal.SIGINT, signal_handler_kill)
-
-    logging.info("Starting command %s", shlex.join(options.args))
-    if options.container and options.output_directory and options.result_files:
-        logging.info(
-            "Writing output to %s and result files to %s",
-            shlex.quote(options.output),
-            shlex.quote(options.output_directory),
-        )
-    else:
-        logging.info("Writing output to %s", shlex.quote(options.output))
-
-    # actual run execution
     try:
+        cgroup_subsystems = set(options.require_cgroup_subsystem)
+        cgroup_values = {}
+        for arg in options.cgroup_values:
+            try:
+                key, value = arg.split("=", 1)
+                subsystem, option = key.split(".", 1)
+                if not subsystem or not option:
+                    raise ValueError()
+            except ValueError:
+                parser.error(
+                    f'Cgroup value "{arg}" has invalid format, '
+                    f'needs to be "subsystem.option=value".'
+                )
+            cgroup_values[(subsystem, option)] = value
+            cgroup_subsystems.add(subsystem)
+
+        executor = RunExecutor(
+            cleanup_temp_dir=options.cleanup,
+            additional_cgroup_subsystems=list(cgroup_subsystems),
+            use_namespaces=options.container,
+            **container_options,
+        )
+
+        # Ensure that process gets killed on interrupt/kill signal,
+        # and avoid KeyboardInterrupt because it could occur anywhere.
+        def signal_handler_kill(signum, frame):
+            executor.stop()
+
+        signal.signal(signal.SIGTERM, signal_handler_kill)
+        signal.signal(signal.SIGQUIT, signal_handler_kill)
+        signal.signal(signal.SIGINT, signal_handler_kill)
+
+        logging.info("Starting command %s", shlex.join(options.args))
+        if options.container and options.output_directory and options.result_files:
+            logging.info(
+                "Writing output to %s and result files to %s",
+                shlex.quote(options.output),
+                shlex.quote(options.output_directory),
+            )
+        else:
+            logging.info("Writing output to %s", shlex.quote(options.output))
+
+        # actual run execution
         result = executor.execute_run(
             args=options.args,
             output_filename=options.output,
@@ -276,7 +278,7 @@ def main(argv=None):
             stdin.close()
 
     # exit_code is a util.ProcessExitCode instance
-    exit_code = cast(Optional[util.ProcessExitCode], result.pop("exitcode", None))
+    exit_code = cast(util.ProcessExitCode | None, result.pop("exitcode", None))
 
     def print_optional_result(key, unit=""):
         if key in result:
@@ -323,7 +325,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         @param cleanup_temp_dir Whether to remove the temporary directories created for the run.
         @param additional_cgroup_subsystems List of additional cgroup subsystems that should be required and used for runs.
         """
-        super(RunExecutor, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._termination_reason = None
         self._should_cleanup_temp_dir = cleanup_temp_dir
         self._cgroup_subsystems = additional_cgroup_subsystems
@@ -505,7 +507,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             run_environment = {}
         else:
             run_environment = os.environ.copy()
-        for key in environments.get("keepEnv", {}).keys():
+        for key in environments.get("keepEnv", {}):
             if key in os.environ:
                 run_environment[key] = os.environ[key]
         for key, value in environments.get("newEnv", {}).items():
@@ -524,7 +526,8 @@ class RunExecutor(containerexecutor.ContainerExecutor):
             parent_dir = os.path.dirname(output_filename)
             if parent_dir:
                 os.makedirs(parent_dir, exist_ok=True)
-            output_file = open(output_filename, "w")  # override existing file
+            # override existing file
+            output_file = open(output_filename, "w")  # noqa: SIM115
         except OSError as e:
             sys.exit("Could not write to output file: " + str(e))
 
@@ -616,7 +619,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
         error_filename=None,
         write_header=True,
         **kwargs,
-    ) -> Dict[str, Any]:  # pytype: disable=signature-mismatch
+    ) -> dict[str, Any]:  # pytype: disable=signature-mismatch
         """
         This function executes a given command with resource limits,
         and writes the output to a file.
@@ -720,7 +723,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
 
         self.cgroups.handle_errors(critical_cgroups)
 
-        for (subsystem, option), _ in cgroupValues.items():
+        for subsystem, option in cgroupValues:
             if subsystem not in self._cgroup_subsystems:
                 sys.exit(
                     f'Cannot set option "{option}" for subsystem "{subsystem}" '
@@ -1101,7 +1104,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
 
     def stop(self):
         self._set_termination_reason("killed")
-        super(RunExecutor, self).stop()
+        super().stop()
 
 
 def _reduce_file_size_if_necessary(fileName, maxSize):
@@ -1202,7 +1205,7 @@ class _TimelimitThread(threading.Thread):
         cores,
         callbackFn=lambda reason: None,
     ):
-        super(_TimelimitThread, self).__init__()
+        super().__init__()
         self.name = "TimelimitThread-" + self.name
         self.finished = threading.Event()
 

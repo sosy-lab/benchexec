@@ -16,16 +16,14 @@ import logging
 import os
 import sys
 
-from benchexec import __version__
-from benchexec import BenchExecException
+from benchexec import BenchExecException, __version__, util
 from benchexec.model import Benchmark
 from benchexec.outputhandler import OutputHandler
-from benchexec import util
 
 _BYTE_FACTOR = 1000  # byte in kilobyte
 
 
-class BenchExec(object):
+class BenchExec:
     """
     The main class of BenchExec.
     It is designed to be extended by inheritance, and for example
@@ -495,10 +493,10 @@ def add_container_args(parser):
 
 def parse_time_arg(s):
     """
-    Parse a time stamp in the "year-month-day hour-minute" format.
+    Parse a time stamp in the "year-month-day hour:minute:second" format.
     """
     try:
-        return datetime.datetime.strptime(s, "%Y-%m-%d %H:%M:%S")
+        return datetime.datetime.strptime(s, "%Y-%m-%d %H:%M:%S").astimezone()
     except ValueError as e:
         raise argparse.ArgumentTypeError(e)
 
@@ -512,7 +510,7 @@ def main(benchexec=None, argv=None):
     @param benchexec: An instance of BenchExec for executing benchmarks.
     @param argv: optionally the list of command-line options to use
     """
-    if sys.version_info < (3,):
+    if sys.version_info < (3,):  # noqa: UP036 nicer errors for Python 2 users
         sys.exit("benchexec needs Python 3 to run.")
 
     try:

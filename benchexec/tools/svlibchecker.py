@@ -7,11 +7,11 @@
 import logging
 
 import benchexec.tools.template
+from benchexec import result
 from benchexec.tools.sv_benchmarks_util import (
-    handle_witness_of_task,
     TaskFilesConsidered,
+    handle_witness_of_task,
 )
-import benchexec.result as result
 
 
 class Tool(benchexec.tools.template.BaseTool2):
@@ -69,7 +69,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         verification_result_identifier = "Verification result:"
         for line in reversed(run.output):
             if line.startswith(verification_result_identifier):
-                line = line[len(verification_result_identifier) :].strip()
+                line = line.removeprefix(verification_result_identifier).strip()
                 if "correct" == line:
                     return result.RESULT_TRUE_PROP
                 elif "incorrect" == line:
@@ -79,7 +79,12 @@ class Tool(benchexec.tools.template.BaseTool2):
                 else:
                     logging.warning("unrecognized verification result: '%s'", line)
             elif line.startswith("Error:"):
-                return result.RESULT_ERROR + " (" + line[len("Error:") :].strip() + ")"
+                return (
+                    result.RESULT_ERROR
+                    + " ("
+                    + line.removeprefix("Error:").strip()
+                    + ")"
+                )
 
         # if no result was found, return error
         return result.RESULT_ERROR

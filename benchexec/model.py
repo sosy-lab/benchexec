@@ -12,15 +12,11 @@ import logging
 import os
 import re
 import sys
-import yaml
 from xml.etree import ElementTree
 
-from benchexec import BenchExecException
-from benchexec import intel_cpu_energy
-from benchexec import result
-from benchexec import tooladapter
-from benchexec import util
+import yaml
 
+from benchexec import BenchExecException, intel_cpu_energy, result, tooladapter, util
 
 MEMLIMIT = "memlimit"
 TIMELIMIT = "timelimit"
@@ -238,7 +234,7 @@ def get_propertytag(parent):
     return tag
 
 
-class Benchmark(object):
+class Benchmark:
     """
     The class Benchmark manages the import of source files, options, columns and
     the tool from a benchmark_file.
@@ -529,7 +525,7 @@ class Benchmark(object):
         return columns
 
 
-class RunSet(object):
+class RunSet:
     """
     The class RunSet manages the import of files and options of a run set.
     """
@@ -987,7 +983,7 @@ class RunSet(object):
         return fileList
 
 
-class SourcefileSet(object):
+class SourcefileSet:
     """
     A SourcefileSet contains a list of runs and a name.
     """
@@ -1001,7 +997,7 @@ class SourcefileSet(object):
 _logged_missing_property_files = set()
 
 
-class Run(object):
+class Run:
     """
     A Run contains some sourcefile, some options, propertyfiles and some other stuff, that is needed for the Run.
     """
@@ -1156,9 +1152,10 @@ class Run(object):
                     if energy_key != "cpuenergy":
                         energy_key = "@" + energy_key
                     self.values[energy_key] = energy_value
-            elif key in ["walltime", "cputime", "memory", "cpuenergy"]:
-                self.values[key] = value
-            elif key in visible_columns:
+            elif (
+                key in ["walltime", "cputime", "memory", "cpuenergy"]
+                or key in visible_columns
+            ):
                 self.values[key] = value
             else:
                 self.values["@" + key] = value
@@ -1256,7 +1253,7 @@ class Run(object):
         return is_cpulimit or is_walllimit
 
 
-class Column(object):
+class Column:
     """
     The class Column contains text, title and number_of_digits of a column.
     """
@@ -1268,7 +1265,7 @@ class Column(object):
         self.value = ""
 
 
-class Requirements(object):
+class Requirements:
     """
     This class wrappes the values for the requirements.
     It parses the tags from XML to get those values.
@@ -1287,7 +1284,9 @@ class Requirements(object):
                 if self.cpu_model is None:
                     self.cpu_model = cpu_model
                 else:
-                    raise Exception("Double specification of required CPU model.")
+                    raise BenchExecException(
+                        "Double specification of required CPU model."
+                    )
 
             cpu_cores = requireTag.get("cpuCores", None)
             if cpu_cores:
@@ -1295,7 +1294,9 @@ class Requirements(object):
                     if cpu_cores is not None:
                         self.cpu_cores = int(cpu_cores)
                 else:
-                    raise Exception("Double specification of required CPU cores.")
+                    raise BenchExecException(
+                        "Double specification of required CPU cores."
+                    )
 
             memory = requireTag.get("memory", None)
             if memory:
@@ -1311,7 +1312,7 @@ class Requirements(object):
                         except ValueError:
                             self.memory = util.parse_memory_value(memory)
                 else:
-                    raise Exception("Double specification of required memory.")
+                    raise BenchExecException("Double specification of required memory.")
 
         # TODO check, if we have enough requirements to reach the limits
         # TODO is this really enough? we need some overhead!
@@ -1326,10 +1327,14 @@ class Requirements(object):
             self.cpu_model = config.cpu_model
 
         if self.cpu_cores is not None and self.cpu_cores <= 0:
-            raise Exception(f"Invalid value {self.cpu_cores} for required CPU cores.")
+            raise BenchExecException(
+                f"Invalid value {self.cpu_cores} for required CPU cores."
+            )
 
         if self.memory is not None and self.memory <= 0:
-            raise Exception(f"Invalid value {self.memory} for required memory.")
+            raise BenchExecException(
+                f"Invalid value {self.memory} for required memory."
+            )
 
     def __str__(self):
         s = ""

@@ -6,7 +6,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-class FileWriter(object):
+class FileWriter:
     """
     The class FileWriter is a wrapper for writing content into a file.
     """
@@ -17,7 +17,7 @@ class FileWriter(object):
         If the file exist, it will be OVERWRITTEN without a message!
         """
 
-        self._file = open(filename, "w")
+        self._file = open(filename, "w")  # noqa: SIM115
         self._pos = None
         self.append(content)
 

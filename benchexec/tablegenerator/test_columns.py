@@ -5,13 +5,13 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from decimal import Decimal
 import unittest
+from decimal import Decimal
 
 from benchexec.tablegenerator.columns import (
     Column,
-    ColumnType,
     ColumnMeasureType,
+    ColumnType,
 )
 from benchexec.tablegenerator.util import TableDefinitionError
 

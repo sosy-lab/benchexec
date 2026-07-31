@@ -8,10 +8,9 @@
 import logging
 import os
 import threading
+from ctypes import cdll
 
 from benchexec import util
-
-from ctypes import cdll
 
 _libc = cdll.LoadLibrary("libc.so.6")
 _EFD_CLOEXEC = 0x80000  # from <sys/eventfd.h>: mark eventfd as close-on-exec
@@ -45,7 +44,7 @@ class KillProcessOnOomThread(threading.Thread):
     """
 
     def __init__(self, cgroups, pid_to_kill, callbackFn=lambda reason: None):
-        super(KillProcessOnOomThread, self).__init__()
+        super().__init__()
         self.name = "KillProcessOnOomThread-" + self.name
         self._finished = threading.Event()
         self._pid_to_kill = pid_to_kill

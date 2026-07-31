@@ -5,9 +5,8 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import benchexec.util as util
 import benchexec.tools.template
-import benchexec.result as result
+from benchexec import result, util
 
 
 class Tool(benchexec.tools.template.BaseTool):
@@ -32,9 +31,7 @@ class Tool(benchexec.tools.template.BaseTool):
     def determine_result(self, returncode, returnsignal, output, isTimeout):
         output = "\n".join(output)
         status = result.RESULT_UNKNOWN
-        if "error" in output:
-            status = result.RESULT_UNKNOWN
-        elif "UNKNOWN" in output:
+        if "error" in output or "UNKNOWN" in output:
             status = result.RESULT_UNKNOWN
         elif "TRUE" in output:
             status = result.RESULT_TRUE_PROP

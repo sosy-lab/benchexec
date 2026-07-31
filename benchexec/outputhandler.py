@@ -15,21 +15,18 @@ import logging
 import math
 import os
 import shlex
+import sys
 import threading
 import time
-import sys
+import zipfile
 
 # Need to disable pytype for minidom due to https://github.com/google/pytype/issues/1130
 from xml.dom import minidom  # pytype: disable=pyi-error
 from xml.etree import ElementTree
-import zipfile
 
 import benchexec
-from benchexec.model import MEMLIMIT, TIMELIMIT, CORELIMIT
-from benchexec import filewriter
-from benchexec import intel_cpu_energy
-from benchexec import result
-from benchexec import util
+from benchexec import filewriter, intel_cpu_energy, result, util
+from benchexec.model import CORELIMIT, MEMLIMIT, TIMELIMIT
 
 RESULT_XML_PUBLIC_ID = "+//IDN sosy-lab.org//DTD BenchExec result 3.12//EN"
 RESULT_XML_SYSTEM_ID = "https://www.sosy-lab.org/benchexec/result-3.12.dtd"
@@ -69,7 +66,7 @@ TIME_PRECISION = 2
 _BYTE_FACTOR = 1000  # byte in kilobyte
 
 
-class OutputHandler(object):
+class OutputHandler:
     """
     The class OutputHandler manages all outputs to the terminal and to files.
     """
@@ -752,11 +749,11 @@ class OutputHandler(object):
             hidden = False
 
         if not value_suffix and not isinstance(value, (str, bytes)):
-            if title.startswith("cputime") or title.startswith("walltime"):
+            if title.startswith(("cputime", "walltime")):
                 value_suffix = "s"
             elif title.startswith("cpuenergy"):
                 value_suffix = "J"
-            elif title.startswith("blkio-") or title.startswith("memory"):
+            elif title.startswith(("blkio-", "memory")):
                 value_suffix = "B"
             elif title.startswith("llc"):
                 if not title.startswith("llc_misses"):
@@ -906,8 +903,7 @@ class OutputHandler(object):
         """
         Formats the file name of a program for printing on console.
         """
-        if fileName.startswith(runSet.common_prefix):
-            fileName = fileName[len(runSet.common_prefix) :]
+        fileName = fileName.removeprefix(runSet.common_prefix)
         return fileName.ljust(runSet.max_length_of_filename + 4)
 
     def _write_rough_result_xml_to_file(self, xml, filename):
@@ -965,7 +961,7 @@ class OutputHandler(object):
         return filename
 
 
-class Statistics(object):
+class Statistics:
     def __init__(self):
         self.dic = collections.defaultdict(int)
         self.counter = 0

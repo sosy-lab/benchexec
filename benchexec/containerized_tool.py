@@ -30,7 +30,7 @@ tool: tooladapter.CURRENT_BASETOOL = None
 
 
 @tooladapter.CURRENT_BASETOOL.register  # mark as instance of CURRENT_BASETOOL
-class ContainerizedTool(object):
+class ContainerizedTool:
     """Wrapper for an instance of any subclass of one of the base-tool classes in
     benchexec.tools.template.
     The module and the subclass instance will be loaded in a subprocess that has been

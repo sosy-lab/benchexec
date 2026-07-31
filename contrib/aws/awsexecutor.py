@@ -10,16 +10,16 @@ import io
 import json
 import logging
 import os
-import requests
 import shutil
 import sys
 import tempfile
-from threading import Event
 import urllib
 import zipfile
+from threading import Event
+
+import requests
 
 import benchexec.util
-
 from benchexec import BenchExecException
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
@@ -263,7 +263,7 @@ def stop():
 def getAWSInput(benchmark):
     (
         requirements,
-        number_of_runs,
+        _number_of_runs,
         limits_and_num_runs,
         run_definitions,
         source_files,
@@ -510,7 +510,6 @@ def handleCloudResults(benchmark, output_handler, start_time, end_time):
             # Move all output files from "sibling of log-file" to
             # "sibling of parent directory".
             raw_path = run.log_file[: -len(".log")]
-            dirname, filename = os.path.split(raw_path)
             aws_files_directory = raw_path + ".files"
             benchexec_files_directory = run.result_files_folder
             if os.path.isdir(aws_files_directory) and not os.path.isdir(

@@ -173,7 +173,7 @@ class _Worker(threading.Thread):
                 )
                 if (
                     "terminationreason" not in run_result
-                    or not run_result["terminationreason"] == "killed"
+                    or run_result["terminationreason"] != "killed"
                     or (attempts >= self.benchmark.config.retry >= 0)
                     or STOPPED_BY_INTERRUPT
                 ):
@@ -328,7 +328,7 @@ def run_slurm(benchmark, args, log_file):
         # sometimes `seff` needs a few extra seconds to realize the task has ended
         result = wait_for(get_checked_seff_result, 30, 2)
 
-        slurm_status, exit_code, cpu_time, wall_time, memory_usage = parse_seff(
+        slurm_status, _exit_code, cpu_time, wall_time, memory_usage = parse_seff(
             str(result.stdout)
         )
 
@@ -361,20 +361,19 @@ def run_slurm(benchmark, args, log_file):
             }.get(slurm_status, slurm_status)
 
         # Runexec would populate the first 6 lines with metadata
-        with open(log_file, "w+") as file:
-            with open(tmp_log, "r") as log_source:
-                content = log_source.read()
-                file.write(shlex.join(args))
-                file.write("\n\n\n" + "-" * 80 + "\n\n\n")
-                file.write(content)
-                if content == "":
-                    file.write("Original log file did not contain anything.")
+        with open(log_file, "w+") as file, open(tmp_log, "r") as log_source:
+            content = log_source.read()
+            file.write(shlex.join(args))
+            file.write("\n\n\n" + "-" * 80 + "\n\n\n")
+            file.write(content)
+            if content == "":
+                file.write("Original log file did not contain anything.")
 
         if benchmark.config.debug:
             with open(log_file + ".debug_info", "w+") as file:
                 file.write(f"jobid: {jobid}\n")
-                file.write(f"seff output: {str(result.stdout)}\n")
-                file.write(f"Parsed data: {str(ret)}\n")
+                file.write(f"seff output: {result.stdout!s}\n")
+                file.write(f"Parsed data: {ret!s}\n")
 
         return ret
 

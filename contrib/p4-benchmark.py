@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # SPDX-FileCopyrightText: 2020-2021 CASTOR Software Research Centre
 # <https://www.castor.kth.se/>
 # SPDX-FileCopyrightText: 2020-2021 Johan Paulsson
@@ -6,13 +8,12 @@
 
 # For instructions on how to use this program, se README in /p4.
 
-import sys
 import logging
 import os
-import benchexec.util as util
+import sys
 
-from benchexec.benchexec import BenchExecException
-from benchexec.benchexec import BenchExec
+from benchexec import util
+from benchexec.benchexec import BenchExec, BenchExecException
 
 
 class P4BenchExec(BenchExec):
@@ -39,7 +40,7 @@ def main(benchexec=None, argv=None):
     @param benchexec: An instance of BenchExec for executing benchmarks.
     @param argv: optionally the list of command-line options to use
     """
-    if sys.version_info < (3,):
+    if sys.version_info < (3,):  # noqa: UP036 nicer errors for Python 2 users
         sys.exit("benchexec needs Python 3 to run.")
 
     if os.getuid() != 0:

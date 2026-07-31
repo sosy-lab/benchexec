@@ -9,11 +9,12 @@
 Unit tests for pqos module
 """
 
-import json
 import copy
+import json
 import unittest
 from subprocess import CalledProcessError
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+
 from benchexec.pqos import Pqos
 
 mock_pqos_wrapper_output = {

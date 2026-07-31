@@ -15,17 +15,16 @@ For more information, please refer to
 https://github.com/sosy-lab/benchexec/blob/main/doc/tool-integration.md
 """
 
-from abc import ABCMeta, abstractmethod
-from collections import namedtuple
 import collections
 import copy
-import os
 import logging
+import os
 import subprocess
+from abc import ABCMeta, abstractmethod
+from collections import namedtuple
 
 import benchexec
-import benchexec.result as result
-import benchexec.util as util
+from benchexec import result, util
 
 
 class ToolNotFoundException(benchexec.BenchExecException):
@@ -44,7 +43,7 @@ class UnsupportedFeatureException(benchexec.BenchExecException):
     pass
 
 
-class BaseTool2(object, metaclass=ABCMeta):
+class BaseTool2(metaclass=ABCMeta):
     """
     This class serves both as a template for tool-info implementations,
     and as an abstract super class for them.
@@ -82,7 +81,7 @@ class BaseTool2(object, metaclass=ABCMeta):
     """
     List of path patterns that is used by the default implementation of program_files().
     Not necessary if this method is overwritten.
-    """  # noqa: B018"
+    """  # noqa: B018
 
     # Methods that provide general (run-independent) information about the tool
 
@@ -159,7 +158,7 @@ class BaseTool2(object, metaclass=ABCMeta):
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 stdin=subprocess.DEVNULL,
-                universal_newlines=True,
+                text=True,
             )
         except OSError as e:
             logging.warning(
@@ -335,7 +334,7 @@ class BaseTool2(object, metaclass=ABCMeta):
         """
         return result.RESULT_DONE
 
-    def get_value_from_output(self, output, identifier):
+    def get_value_from_output(self, output, identifier):  # noqa: B027 does not need to be overridden
         """
         OPTIONAL, extract a statistic value from the output of the tool.
         This value will be added to the resulting tables.
@@ -349,8 +348,9 @@ class BaseTool2(object, metaclass=ABCMeta):
         @param identifier: The user-specified identifier for the statistic item.
         @return a (possibly empty) string, optional with HTML tags
         """
+        pass
 
-    def close(self):
+    def close(self):  # noqa: B027 does not need to be overridden
         """
         OPTIONAL, called before tool-info module is no longer used,
         but no strict guarantee about this.
@@ -618,7 +618,7 @@ class BaseTool2(object, metaclass=ABCMeta):
             return self.text
 
 
-class BaseTool(object):
+class BaseTool:
     """
     This class serves both as a template for tool-info implementations,
     and as an abstract super class for them.

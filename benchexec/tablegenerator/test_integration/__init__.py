@@ -14,8 +14,8 @@ import tempfile
 import unittest
 
 import benchexec
-import benchexec.util
 import benchexec.tablegenerator.util
+import benchexec.util
 
 here = os.path.relpath(os.path.dirname(__file__))
 base_dir = os.path.join(here, "..", "..", "..")
@@ -757,7 +757,7 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
                 table_prefix="cbmc.2015-12-11_1211.results.Simple",
             )
         except subprocess.CalledProcessError as e:
-            if "HTTP Error" or "urlopen error" in e.output:
+            if "HTTP Error" in e.output or "urlopen error" in e.output:
                 self.skipTest("HTTP access to GitHub failed")
             else:
                 raise

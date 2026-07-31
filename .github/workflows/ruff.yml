@@ -36,7 +36,7 @@ jobs:
         uses: astral-sh/ruff-action@v4.1.0
         with:
           # keep version consistent with .gitlab-ci.yml
-          version: "==0.15.*"
+          version: "==0.16.*"
           args: "format --check --diff"
 
 permissions: {}

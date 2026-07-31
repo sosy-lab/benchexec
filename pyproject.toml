@@ -132,15 +132,28 @@ extend-include = ["bin/*"]
 [tool.ruff.lint]
 # TODO: Enable more checks.
 #select = ["ALL"]
+ignore = [
+    "B006",   # TODO
+    "BLE001",  # TODO check each case, some are required
+    "LOG015",  # we always use the root logger
+    "PLE0704",  # TODO check whether this works as it should
+    "PLW1510",  # TODO
+    "PIE790",  # arguably better readable if function contains "pass" instead of just docstring
+    "RUF012",  # TODO find out good strategy of dealing with these
+    "RUF100",  # TODO fix after removing flake8
+    "RUF101",  # TODO fix after removing flake8
+    "SIM102",  # TODO sometimes better readable?
+    "SIM114",  # TODO sometimes better readable?
+    "TRY201",  # TODO after checking whether runtime behavior changes
+    "UP022",  # TODO after checking whether runtime behavior changes
+]
+
 [tool.ruff.lint.per-file-ignores]
-'bin/*' = [
-    # imports need to come after sys.path changes
-    'E402',
+"benchexec/tools/*.py" = [
+    "B019",  # caching of instance methods is not problematic here, we just have one long-lived instance
+    "N999",  # we import these modules manually, names do not need to be valid Python
 ]
-'benchexec/test*.py' = [
-    # wildcard imports significantly shorten test code,
-    'F405',
-]
+"contrib/p4/p4-test-tool.py" = ["N999"]  # same as above
 
 [tool.pytest.ini_options]
 filterwarnings = [
