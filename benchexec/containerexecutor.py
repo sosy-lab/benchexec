@@ -307,7 +307,9 @@ def main(argv=None):
         )
     except (BenchExecException, OSError) as e:
         if options.debug:
-            logging.exception(e)
+            logging.exception(
+                "Error during execution of %s", shlex.quote(options.args[0])
+            )
         sys.exit(f"Cannot execute {shlex.quote(options.args[0])}: {e}.")
     return result.signal or result.value
 
