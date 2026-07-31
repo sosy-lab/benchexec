@@ -723,7 +723,7 @@ class RunExecutor(containerexecutor.ContainerExecutor):
 
         self.cgroups.handle_errors(critical_cgroups)
 
-        for (subsystem, option), _ in cgroupValues.items():
+        for subsystem, option in cgroupValues:
             if subsystem not in self._cgroup_subsystems:
                 sys.exit(
                     f'Cannot set option "{option}" for subsystem "{subsystem}" '

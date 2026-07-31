@@ -808,7 +808,7 @@ def setup_fuse_overlay_upperdir(upperdir):
                 _decode_path(mountpoint)
             )
 
-    for _device_id, mounts in device_id_to_mounts.items():
+    for mounts in device_id_to_mounts.values():
         # Skip single mounts
         if len(mounts) <= 1:
             continue
