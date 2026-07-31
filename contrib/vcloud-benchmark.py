@@ -37,7 +37,7 @@ def download_required_jars(config):
     # download ivy if needed
     if not os.path.isfile(IVY_PATH):
         # let the process exit if an exception occurs.
-        urllib.request.urlretrieve(IVY_DOWNLOAD_URL, IVY_PATH)  # noqa S310
+        urllib.request.urlretrieve(IVY_DOWNLOAD_URL, IVY_PATH)
 
     # prepare command
     cmd = ["java", "-jar", "lib/" + IVY_JAR_NAME]
@@ -62,7 +62,7 @@ def download_required_jars(config):
         return_code = subprocess.run(
             cmd,
             cwd=_ROOT_DIR,
-            shell=vcloudutil.is_windows(),  # noqa: S602
+            shell=vcloudutil.is_windows(),
         ).returncode
         if return_code != 0:
             sys.exit(

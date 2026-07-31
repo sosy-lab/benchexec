@@ -43,7 +43,7 @@ class ColumnStatistics:
     def __getattr__(self, name):
         # This is called for fields that have not been set previously, default is None
         if name in ColumnStatistics._fields:
-            return None  # noqa: R501 specifying None explicitly is clearer
+            return None  # noqa: RET501 specifying None explicitly is clearer
         raise AttributeError("can't get attribute " + name)
 
     def __setattr__(self, name, value):

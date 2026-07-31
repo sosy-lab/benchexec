@@ -367,14 +367,12 @@ def find_executable(program, fallback=None, exitOnError=True, use_current_dir=Tr
 
     if exitOnError:
         if found_non_executable:
-            sys.exit(  # noqa: R503 always raises
+            sys.exit(
                 f"Could not find '{program}' executable, "
                 f"but found file '{found_non_executable[0]}' that is not executable."
             )
         else:
-            sys.exit(  # noqa: R503 always raises
-                f"Could not find '{program}' executable."
-            )
+            sys.exit(f"Could not find '{program}' executable.")
     else:
         return fallback
 
@@ -747,7 +745,7 @@ def _debug_current_process(sig, current_frame):
     This code is based on http://stackoverflow.com/a/133384/396730
     """
     # Import modules only if necessary, readline is for shell history support.
-    import code  # noqa: E401, F401 @UnresolvedImport @UnusedImport
+    import code
     import readline  # noqa: F401
     import threading
     import traceback

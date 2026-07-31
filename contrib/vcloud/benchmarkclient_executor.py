@@ -175,7 +175,7 @@ def execute_benchmark(benchmark, output_handler):
             cmdLine,
             stdin=subprocess.PIPE,
             universal_newlines=True,
-            shell=vcloudutil.is_windows(),  # noqa: S602
+            shell=vcloudutil.is_windows(),
         )
         try:
             cloud.communicate(cloudInput)

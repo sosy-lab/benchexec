@@ -9,7 +9,7 @@ import tempfile
 import unittest
 
 # ruff: noqa: F405 would need a lot of imports here otherwise
-from benchexec.result import *  # noqa: F403 @UnusedWildImport everything is tested
+from benchexec.result import *  # noqa: F403 everything is tested
 from benchexec.result import (
     _SCORE_CORRECT_FALSE,
     _SCORE_CORRECT_TRUE,

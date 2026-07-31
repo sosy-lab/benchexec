@@ -144,8 +144,6 @@ ignore = [
     "PLE0704",  # TODO check whether this works as it should
     "PLW1510",  # TODO
     "RUF012",  # TODO find out good strategy of dealing with these
-    "RUF100",  # TODO fix after removing flake8
-    "RUF101",  # TODO fix after removing flake8
     "SIM102",  # TODO sometimes better readable?
     "SIM114",  # TODO sometimes better readable?
     "TRY201",  # TODO after checking whether runtime behavior changes
@@ -239,7 +237,6 @@ ignore = [
     "RET508",  #  superfluous-else-break
     "RSE102",  #  unnecessary-paren-on-raise-exception
     "RUF005",  #  collection-literal-concatenation
-    "RUF102",  #  invalid-rule-code
     "S101",  #    assert
     "S108",  #    hardcoded-temp-file
     "S113",  #    request-without-timeout

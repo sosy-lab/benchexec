@@ -436,7 +436,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
     def execute_run(
         self,
         args,
-        workingDir=None,  # noqa: N803 backwards-compatibility
+        workingDir=None,
         output_dir=None,
         result_files_patterns=[],
         rootDir=None,
@@ -612,8 +612,8 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         # might read the bytes it has sent itself.
 
         # Error codes from child to parent
-        CHILD_OSERROR = 128  # noqa: N806 local constant
-        CHILD_UNKNOWN_ERROR = 129  # noqa: N806 local constant
+        CHILD_OSERROR = 128
+        CHILD_UNKNOWN_ERROR = 129
 
         # "downstream" pipe parent->grandchild
         from_parent, to_grandchild = os.pipe()
@@ -625,9 +625,9 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         # and finally the parent sends its completion marker.
         # After the run, the child sends the result of the grand child and then waits
         # for the post_run marker, before it terminates.
-        MARKER_USER_MAPPING_COMPLETED = b"A"  # noqa: N806 local constant
-        MARKER_PARENT_COMPLETED = b"B"  # noqa: N806 local constant
-        MARKER_PARENT_POST_RUN_COMPLETED = b"C"  # noqa: N806 local constant
+        MARKER_USER_MAPPING_COMPLETED = b"A"
+        MARKER_PARENT_COMPLETED = b"B"
+        MARKER_PARENT_POST_RUN_COMPLETED = b"C"
 
         # If the current directory is within one of the bind mounts we create,
         # we need to cd into this directory again, otherwise we would not see the
@@ -671,7 +671,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 if use_cgroup_ns:
                     container.setup_cgroup_namespace()
                 container.drop_capabilities()
-            except BaseException as e:  # noqa: B036
+            except BaseException as e:
                 # When using runexec, this logging will end up in the output.log file,
                 # where usually the tool output is. This is suboptimal, but probably
                 # better than swallowing it. (In cases where this logs something,
@@ -862,7 +862,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 else:
                     logging.exception("Error in child process of RunExecutor")
                 return CHILD_UNKNOWN_ERROR
-            except BaseException:  # noqa: B036
+            except BaseException:
                 # Need to catch everything because this method always needs to return an
                 # int (we are inside a C callback that requires returning int).
                 logging.exception("Error in child process of RunExecutor")
