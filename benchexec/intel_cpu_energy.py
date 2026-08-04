@@ -101,17 +101,13 @@ def update_values(measurement):
     for package in measurement.packages:
         new_energy = int(get_path_content(package.path / "energy_uj"))
         if new_energy < package.energy.value:
-            new_energy += int(
-                get_path_content(package.path / "max_energy_range_uj")
-            )
+            new_energy += int(get_path_content(package.path / "max_energy_range_uj"))
         package.energy.value = new_energy - package.energy.value
 
         for domain in package.domains:
             new_energy = int(get_path_content(domain.path / "energy_uj"))
             if new_energy < domain.energy.value:
-                new_energy += int(
-                    get_path_content(domain.path / "max_energy_range_uj")
-                )
+                new_energy += int(get_path_content(domain.path / "max_energy_range_uj"))
             domain.energy.value = new_energy - domain.energy.value
 
 
