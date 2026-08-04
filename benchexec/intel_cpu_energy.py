@@ -59,7 +59,7 @@ class EnergyMeasurement(object):
         return cls()
 
     def start(self):
-        """Start the measruement by reading initial values"""
+        """Start the measurement by reading initial values"""
         for package in self.packages:
             package.energy = int((package.path / "energy_uj").read_text().strip())
             for domain in package.domains:
@@ -67,7 +67,7 @@ class EnergyMeasurement(object):
         self.running = True
 
     def stop(self):
-        """Stop the measurement if it hasn't been stopped already
+        """Stop the measurement if it hasn't been stopped already and calculate difference between end and start values
         This method has to return self because of the way the old cpu-energy-meter was implemented,
         changing this would require changing the readout in every other file"""
         if not self.running:
@@ -99,14 +99,15 @@ def convert_to_joules(energy):
 
 
 def format_energy_results(measurement):
-    """Take the result of an energy measurement and return a flat dictionary that contains all values."""
+    """Take the result of an energy measurement and return a flat dictionary that contains all values
+    cpuenergy is calculated as total energy consumed by all packages"""
     if not measurement:
         return {}
     result = {}
     total = Decimal(0)
     for package in measurement.packages:
         p_energy = convert_to_joules(package.energy)
-        if not package.name == "psys":
+        if not package.name == "psys":   #psys describes energy usage of the entire system and is therefore not relevant for us
             total += p_energy
             result[f"cpuenergy-{package.name}"] = p_energy
         else:
