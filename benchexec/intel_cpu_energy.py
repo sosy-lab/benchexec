@@ -60,10 +60,7 @@ class EnergyMeasurement(object):
 
     def start(self):
         """Start the measurement by reading initial values"""
-        for package in self.packages:
-            package.energy = int((package.path / "energy_uj").read_text().strip())
-            for domain in package.domains:
-                domain.energy = int((domain.path / "energy_uj").read_text().strip())
+        update_values(self)
         self.running = True
 
     def stop(self):
@@ -72,15 +69,7 @@ class EnergyMeasurement(object):
         changing this would require changing the readout in every other file"""
         if not self.running:
             return self
-
-        for package in self.packages:
-            package.energy = (
-                int((package.path / "energy_uj").read_text().strip()) - package.energy
-            )
-            for domain in package.domains:
-                domain.energy = (
-                    int((domain.path / "energy_uj").read_text().strip()) - domain.energy
-                )
+        update_values(self)
         self.running = False
         return self
 
@@ -91,6 +80,26 @@ class EnergyMeasurement(object):
             for domain in package.domains:
                 string += f"    {domain.name}: {domain.energy} uj\n"
         return string
+
+
+def update_values(measurement):
+    """this updates the values of the measurement either to the initial values at start or the delta values at stop
+    we can use the same code because the energy values are initialized with 0"""
+    for package in measurement.packages:
+        new_energy = int((package.path / "energy_uj").read_text().strip())
+        if new_energy < package.energy:
+            new_energy += int(
+                (package.path / "max_energy_range_uj").read_text().strip()
+            )
+        package.energy = new_energy - package.energy
+
+        for domain in package.domains:
+            new_energy = int((domain.path / "energy_uj").read_text().strip())
+            if new_energy < domain.energy:
+                new_energy += int(
+                    (domain.path / "max_energy_range_uj").read_text().strip()
+                )
+            domain.energy = new_energy - domain.energy
 
 
 def convert_to_joules(energy):
@@ -107,7 +116,9 @@ def format_energy_results(measurement):
     total = Decimal(0)
     for package in measurement.packages:
         p_energy = convert_to_joules(package.energy)
-        if not package.name == "psys":   #psys describes energy usage of the entire system and is therefore not relevant for us
+        if (
+            not package.name == "psys"
+        ):  # psys describes energy usage of the entire system and is therefore not relevant for us
             total += p_energy
             result[f"cpuenergy-{package.name}"] = p_energy
         else:
@@ -122,8 +133,10 @@ def format_energy_results(measurement):
 
 if __name__ == "__main__":
     measurement = EnergyMeasurement.create_if_supported()
+    print(measurement)
     print("starting measurement")
     measurement.start()
+    print(measurement)
     if len(sys.argv) < 2:
         sleep(3)
     else:
