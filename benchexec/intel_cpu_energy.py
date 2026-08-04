@@ -44,12 +44,12 @@ class EnergyMeasurement(object):
         for package in sorted(
             p for p in rapl_path.glob("intel-rapl:*") if p.name.count(":") == 1
         ):
-            p_name = (package / "name").read_text().strip()
+            p_name = get_path_content(package / "name")
             domains = []
             for domain in sorted(
                 d for d in package.glob("intel-rapl:*") if d.name.count(":") == 2
             ):
-                d_name = (domain / "name").read_text().strip()
+                d_name = get_path_content(domain / "name")
                 domains.append(Domain(d_name, domain, EnergyWrapper(0)))
 
             self.packages.append(Package(p_name, package, EnergyWrapper(0), domains))
@@ -87,22 +87,30 @@ class EnergyMeasurement(object):
         return string
 
 
+def get_path_content(path):
+    try:
+        content = path.read_text().strip()
+        return content
+    except OSError as error:
+        print(f"cannot read {path}: {error}")
+
+
 def update_values(measurement):
     """this updates the values of the measurement either to the initial values at start or the delta values at stop
     we can use the same code because the energy values are initialized with 0"""
     for package in measurement.packages:
-        new_energy = int((package.path / "energy_uj").read_text().strip())
+        new_energy = int(get_path_content(package.path / "energy_uj"))
         if new_energy < package.energy.value:
             new_energy += int(
-                (package.path / "max_energy_range_uj").read_text().strip()
+                get_path_content(package.path / "max_energy_range_uj")
             )
         package.energy.value = new_energy - package.energy.value
 
         for domain in package.domains:
-            new_energy = int((domain.path / "energy_uj").read_text().strip())
+            new_energy = int(get_path_content(domain.path / "energy_uj"))
             if new_energy < domain.energy.value:
                 new_energy += int(
-                    (domain.path / "max_energy_range_uj").read_text().strip()
+                    get_path_content(domain.path / "max_energy_range_uj")
                 )
             domain.energy.value = new_energy - domain.energy.value
 
@@ -121,7 +129,7 @@ def format_energy_results(measurement):
     total = Decimal(0)
     for package in measurement.packages:
         p_energy = convert_to_joules(package.energy.value)
-        # psys describes energy usage of the entire system and is therefore not relevant for us
+        # psys describes energy usage of the entire system and is therefore not relevant for cpuenergy
         if not package.name == "psys":
             total += p_energy
             result[f"cpuenergy-{package.name}"] = p_energy
