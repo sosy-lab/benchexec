@@ -93,6 +93,11 @@ class EnergyMeasurement(object):
         return string
 
 
+def convert_to_joules(energy):
+    """The values read from the energy_uj file are in microjoules and need to be converted to joules"""
+    return Decimal(energy) / Decimal(1000000)
+
+
 def format_energy_results(measurement):
     """Take the result of an energy measurement and return a flat dictionary that contains all values."""
     if not measurement:
@@ -100,14 +105,14 @@ def format_energy_results(measurement):
     result = {}
     total = Decimal(0)
     for package in measurement.packages:
-        p_energy = Decimal(package.energy) / Decimal(1000000)
+        p_energy = convert_to_joules(package.energy)
         if not package.name == "psys":
             total += p_energy
             result[f"cpuenergy-{package.name}"] = p_energy
         else:
             result["psys"] = p_energy
         for domain in package.domains:
-            d_energy = Decimal(domain.energy) / Decimal(1000000)
+            d_energy = convert_to_joules(domain.energy)
             result[f"cpuenergy-{package.name}-{domain.name}"] = d_energy
     result["cpuenergy"] = total
     result = collections.OrderedDict(sorted(result.items()))
@@ -124,3 +129,4 @@ if __name__ == "__main__":
         subprocess.run(sys.argv[1:])
     measurement.stop()
     print(measurement)
+    print(format_energy_results(measurement))
