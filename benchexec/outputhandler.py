@@ -423,6 +423,9 @@ class OutputHandler:
             not self.results_per_rundefinition and len(runSet.blocks) > 1
         ):
             runSet.block_xml_files = {}
+            taskset_files_only = (
+                self.results_per_taskset and not self.results_per_rundefinition
+            )
             block_names = collections.Counter(block.name for block in runSet.blocks)
             duplicate_block_names = {
                 block_name for block_name, count in block_names.items() if count > 1
@@ -445,7 +448,8 @@ class OutputHandler:
                     "last_modified_time": time.monotonic(),
                 }
                 self.all_created_files.add(blockFileName)
-                self.xml_file_names.append(blockFileName)
+                if taskset_files_only:
+                    self.xml_file_names.append(blockFileName)
 
     def output_for_skipping_run_set(self, runSet, reason=None):
         """
