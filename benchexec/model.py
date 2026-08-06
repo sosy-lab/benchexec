@@ -67,8 +67,8 @@ def substitute_vars(oldList, runSet=None, task_file=None):
             ),
             ("logfile_path", os.path.dirname(runSet.log_folder) or "."),
             ("logfile_path_abs", os.path.abspath(runSet.log_folder)),
-            ("rundefinition_name", runSet.real_name if runSet.real_name else ""),
-            ("test_name", runSet.real_name if runSet.real_name else ""),
+            ("rundefinition_name", runSet.real_name or ""),
+            ("test_name", runSet.real_name or ""),
         ]
 
     if task_file:
