@@ -168,7 +168,6 @@ ignore = [
     "B011",  #    assert-false
     "B904",  #    raise-without-from-inside-except
     "B905",  #    zip-without-explicit-strict
-    "C420",  #    unnecessary-dict-comprehension-for-iterable
     "C901",  #    complex-structure
     "CPY001",  #  missing-copyright-notice
     # TODO improve comments

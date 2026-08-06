@@ -401,7 +401,7 @@ class CgroupsV2(Cgroups):
         # basic support always available in v2, this supports everything we use
         subsystems.add(cls.CPU)
 
-        return cls({k: cgroup_path for k in subsystems})
+        return cls(dict.fromkeys(subsystems, cgroup_path))
 
     def create_fresh_child_cgroup(self, subsystems, prefix=CGROUP_NAME_PREFIX):
         """
@@ -425,7 +425,7 @@ class CgroupsV2(Cgroups):
         if self.KILL in self.subsystems:
             child_subsystems.add(self.KILL)
 
-        return CgroupsV2({c: child_path for c in child_subsystems})
+        return CgroupsV2(dict.fromkeys(child_subsystems, child_path))
 
     def create_fresh_child_cgroup_for_delegation(self, prefix="delegate_"):
         """
