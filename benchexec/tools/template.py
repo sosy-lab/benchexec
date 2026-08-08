@@ -693,7 +693,7 @@ class BaseTool:
         This function should always be overridden.
         @return a non-empty string
         """
-        return "UNKOWN"
+        return "UNKNOWN"
 
     def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
         """
