@@ -5,6 +5,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import threading
 import collections
 import logging
 from pathlib import Path
@@ -65,7 +66,7 @@ class EnergyMeasurement(object):
 
     def start(self):
         """Start the measurement by reading initial values"""
-        update_values(self)
+        self.update_values()
         self.running = True
 
     def stop(self):
@@ -74,9 +75,24 @@ class EnergyMeasurement(object):
         changing this would require changing the readout in every other file"""
         if not self.running:
             return self
-        update_values(self)
+        self.update_values()
         self.running = False
         return self
+
+    def update_values(measurement):
+        """this updates the values of the measurement either to the initial values at start or the delta values at stop
+        we can use the same code because the energy values are initialized with 0"""
+        for package in measurement.packages:
+            new_energy = int(get_path_content(package.path / "energy_uj"))
+            if new_energy < package.energy.value:
+                new_energy += int(get_path_content(package.path / "max_energy_range_uj"))
+            package.energy.value = new_energy - package.energy.value
+
+            for domain in package.domains:
+                new_energy = int(get_path_content(domain.path / "energy_uj"))
+                if new_energy < domain.energy.value:
+                    new_energy += int(get_path_content(domain.path / "max_energy_range_uj"))
+                domain.energy.value = new_energy - domain.energy.value
 
     def __str__(self):
         string = ""
@@ -95,20 +111,6 @@ def get_path_content(path):
         print(f"cannot read {path}: {error}")
 
 
-def update_values(measurement):
-    """this updates the values of the measurement either to the initial values at start or the delta values at stop
-    we can use the same code because the energy values are initialized with 0"""
-    for package in measurement.packages:
-        new_energy = int(get_path_content(package.path / "energy_uj"))
-        if new_energy < package.energy.value:
-            new_energy += int(get_path_content(package.path / "max_energy_range_uj"))
-        package.energy.value = new_energy - package.energy.value
-
-        for domain in package.domains:
-            new_energy = int(get_path_content(domain.path / "energy_uj"))
-            if new_energy < domain.energy.value:
-                new_energy += int(get_path_content(domain.path / "max_energy_range_uj"))
-            domain.energy.value = new_energy - domain.energy.value
 
 
 def convert_to_joules(energy):
