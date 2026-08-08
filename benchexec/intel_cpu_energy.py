@@ -20,27 +20,52 @@ rapl_path = Path("/sys/class/powercap/intel-rapl/")
 
 @dataclass
 class EnergyWrapper:  # This wrapper is needed to keep immutability in the Domain and Package classes while still allowing energy values to be updated
-    value: int
+    last_value: int
+    total: int = 0
+
+
+class AreaOfMeasurement:
+    def update_value(self):
+        """update the energy values of current domain or package, this checks for overflows as well"""
+        new_energy = int(get_path_content(self.path / "energy_uj"))
+        if self.energy.total == 0 and self.energy.last_value == 0:  # first measurement
+            self.energy.last_value = new_energy
+
+        elif new_energy <= self.energy.last_value:  # overflow
+            overflow_border = int(get_path_content(self.path / "max_energy_range_uj"))
+            self.energy.total += overflow_border - self.energy.last_value + new_energy
+            self.energy.last_value = new_energy
+
+        else:
+            self.energy.total += new_energy - self.energy.last_value
+            self.energy.last_value = new_energy
 
 
 @dataclass(frozen=True)
-class Domain:
+class Domain(AreaOfMeasurement):
     name: str
     path: Path
     energy: EnergyWrapper
 
 
 @dataclass(frozen=True)
-class Package:
+class Package(AreaOfMeasurement):
     name: str
     path: Path
     energy: EnergyWrapper
     domains: list[Domain]
 
+    def update_value(self):
+        """This enables cleaner updating of values by eliminating the need for nested loops"""
+        super().update_value()
+        for domain in self.domains:
+            domain.update_value()
+
 
 class EnergyMeasurement(object):
     def __init__(self):
-        self.running = False
+        self.update_thread = threading.Thread(target=self.update_values)
+        self.stop_event = threading.Event()
         self.packages: list[Package] = []
         for package in sorted(
             p for p in rapl_path.glob("intel-rapl:*") if p.name.count(":") == 1
@@ -65,41 +90,38 @@ class EnergyMeasurement(object):
         return cls()
 
     def start(self):
-        """Start the measurement by reading initial values"""
-        self.update_values()
-        self.running = True
+        """Start the measurement"""
+        self.stop_event.clear()
+        self.update_thread.start()
 
     def stop(self):
-        """Stop the measurement if it hasn't been stopped already and calculate difference between end and start values
+        """Stop the measurement if it hasn't been stopped already
         This method has to return self because of the way the old cpu-energy-meter was implemented,
         changing this would require changing the readout in every other file"""
-        if not self.running:
+        if not self.update_thread.is_alive():
             return self
-        self.update_values()
-        self.running = False
+        self.stop_event.set()
+        self.update_thread.join()
         return self
 
-    def update_values(measurement):
-        """this updates the values of the measurement either to the initial values at start or the delta values at stop
-        we can use the same code because the energy values are initialized with 0"""
-        for package in measurement.packages:
-            new_energy = int(get_path_content(package.path / "energy_uj"))
-            if new_energy < package.energy.value:
-                new_energy += int(get_path_content(package.path / "max_energy_range_uj"))
-            package.energy.value = new_energy - package.energy.value
+    def update_all(self):
+        """this updates the counter for total energy consumed across all packages and domains"""
+        for package in self.packages:
+            package.update_value()
 
-            for domain in package.domains:
-                new_energy = int(get_path_content(domain.path / "energy_uj"))
-                if new_energy < domain.energy.value:
-                    new_energy += int(get_path_content(domain.path / "max_energy_range_uj"))
-                domain.energy.value = new_energy - domain.energy.value
+    def update_values(self):
+        """this method is run by a thread to constantly sample energy values for overhead protection"""
+        self.update_all()
+        while not self.stop_event.wait(timeout=1.0):
+            self.update_all
+        self.update_all()
 
     def __str__(self):
         string = ""
         for package in self.packages:
-            string += f"{package.name}: {package.energy.value} uj\n"
+            string += f"{package.name}: {package.energy.total} uj\n"
             for domain in package.domains:
-                string += f"    {domain.name}: {domain.energy.value} uj\n"
+                string += f"    {domain.name}: {domain.energy.total} uj\n"
         return string
 
 
@@ -109,8 +131,6 @@ def get_path_content(path):
         return content
     except OSError as error:
         print(f"cannot read {path}: {error}")
-
-
 
 
 def convert_to_joules(energy):
@@ -126,7 +146,7 @@ def format_energy_results(measurement):
     result = {}
     total = Decimal(0)
     for package in measurement.packages:
-        p_energy = convert_to_joules(package.energy.value)
+        p_energy = convert_to_joules(package.energy.total)
         # psys describes energy usage of the entire system and is therefore not relevant for cpuenergy
         if not package.name == "psys":
             total += p_energy
@@ -134,7 +154,7 @@ def format_energy_results(measurement):
         else:
             result["psys"] = p_energy
         for domain in package.domains:
-            d_energy = convert_to_joules(domain.energy.value)
+            d_energy = convert_to_joules(domain.energy.total)
             result[f"cpuenergy-{package.name}-{domain.name}"] = d_energy
     result["cpuenergy"] = total
     result = collections.OrderedDict(sorted(result.items()))
