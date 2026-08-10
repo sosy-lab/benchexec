@@ -41,7 +41,7 @@ class Tool(benchexec.tools.template.BaseTool2):
     def determine_result(self, run):
         status = result.RESULT_ERROR
         for line in run.output:
-            if "unsupported property" in line:
+            if "unsupported property" in line or "unknown function" in line:
                 status = result.RESULT_ERROR
             elif "FAIL" in line:
                 status = result.RESULT_FALSE_PROP
@@ -53,7 +53,7 @@ class Tool(benchexec.tools.template.BaseTool2):
                 status = result.RESULT_FALSE_DEREF
             elif "user assertion" in line:
                 status = result.RESULT_FALSE_REACH
-            elif "data race found" in line:
+            elif "data race found" in line or "Flag data-race" in line:
                 status = result.RESULT_FALSE_DATARACE
             elif "Untrackable object found" in line:
                 status = result.RESULT_FALSE_MEMTRACK
