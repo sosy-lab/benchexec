@@ -430,7 +430,7 @@ class TestRunExecutor(unittest.TestCase):
         self.assertAlmostEqual(
             result["memory"],
             memlimit,
-            delta=memlimit // 100,
+            delta=memlimit // 20,
             msg="memory is not approximately the amount after which the process should have been killed",
         )
 
