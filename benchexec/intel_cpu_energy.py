@@ -63,9 +63,12 @@ class Package(AreaOfMeasurement):
 
 
 class EnergyMeasurement(object):
+    error_event = threading.Event()
+
     def __init__(self):
         self.update_thread = threading.Thread(target=self.update_values)
         self.stop_event = threading.Event()
+        EnergyMeasurement.error_event.clear()
         self.packages: list[Package] = []
         for package in sorted(
             p for p in rapl_path.glob("intel-rapl:*") if p.name.count(":") == 1
@@ -112,9 +115,22 @@ class EnergyMeasurement(object):
     def update_values(self):
         """this method is run by a thread to constantly sample energy values for overhead protection"""
         self.update_all()
-        while not self.stop_event.wait(timeout=1.0):
-            self.update_all
+        while not self.stop_event.wait(
+            timeout=1.0
+        ) and not EnergyMeasurement.error_event.wait(timeout=1.0):
+            self.update_all()
+        if EnergyMeasurement.error_event.is_set():
+            print("Energy measurement failed, defaulting to 0")
+            self.reset_values()
+            return
         self.update_all()
+
+    def reset_values(self):
+        """reset all values to 0 in case of failure"""
+        for p in self.packages:
+            p.energy.total = 0
+            for d in p.domains:
+                d.energy.total = 0
 
     def __str__(self):
         string = ""
@@ -126,11 +142,16 @@ class EnergyMeasurement(object):
 
 
 def get_path_content(path):
+    """if reading file fails the error event signals the thread that something went wrong
+    and stops further measurement"""
     try:
         content = path.read_text().strip()
         return content
     except OSError as error:
         print(f"cannot read {path}: {error}")
+        EnergyMeasurement.error_event.set()
+        return "0"
+    # because the int() function throws a seperate error on None values
 
 
 def convert_to_joules(energy):
@@ -170,7 +191,7 @@ if __name__ == "__main__":
     measurement.start()
     print(measurement)
     if len(sys.argv) < 2:
-        sleep(3)
+        sleep(10)
     else:
         subprocess.run(sys.argv[1:])
     measurement.stop()
