@@ -17,7 +17,7 @@ from benchexec.util import print_decimal
 
 __all__ = ["Column", "ColumnMeasureType", "ColumnType"]
 
-# It's important to make sure on *all* entry points / methods which perform arithmetics that the correct
+# It's important to make sure on *all* entry points / methods which perform arithmetic that the correct
 # rounding / context is used by using a local context.
 DECIMAL_CONTEXT = decimal.Context(rounding=decimal.ROUND_HALF_UP)
 
