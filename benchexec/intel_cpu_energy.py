@@ -140,7 +140,8 @@ def convert_to_joules(energy):
 
 def format_energy_results(measurement):
     """Take the result of an energy measurement and return a flat dictionary that contains all values
-    cpuenergy is calculated as total energy consumed by all packages"""
+    cpuenergy is calculated as total energy consumed by all packages
+    package names are unique, we don't have to worry about collisions"""
     if not measurement:
         return {}
     result = {}
@@ -161,6 +162,7 @@ def format_energy_results(measurement):
     return result
 
 
+# for testing
 if __name__ == "__main__":
     measurement = EnergyMeasurement.create_if_supported()
     print(measurement)
