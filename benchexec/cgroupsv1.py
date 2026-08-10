@@ -17,8 +17,7 @@ import sys
 import tempfile
 import time
 
-from benchexec import systeminfo
-from benchexec import util
+from benchexec import systeminfo, util
 from benchexec.cgroups import Cgroups
 
 CGROUP_FALLBACK_PATH = "system.slice/benchexec-cgroup.service"
@@ -134,8 +133,7 @@ def _find_own_cgroups():
     """
     try:
         with open("/proc/self/cgroup", "rt") as ownCgroupsFile:
-            for cgroup in _parse_proc_pid_cgroup(ownCgroupsFile):
-                yield cgroup
+            yield from _parse_proc_pid_cgroup(ownCgroupsFile)
     except OSError:
         logging.exception("Cannot read /proc/self/cgroup")
 
@@ -254,7 +252,7 @@ class CgroupsV1(Cgroups):
 
     def __init__(self, subsystems):
         assert set(subsystems.keys()) <= self.known_subsystems
-        super(CgroupsV1, self).__init__(subsystems)
+        super().__init__(subsystems)
 
         # for error messages:
         self.denied_subsystems = {}
@@ -567,7 +565,7 @@ class CgroupsV1(Cgroups):
         bytes_written = 0
         for blkio_line in self.get_file_lines(self.IO, BLKIO_BYTES_FILE):
             try:
-                dev_no, io_type, bytes_amount = blkio_line.split(" ")
+                _dev_no, io_type, bytes_amount = blkio_line.split(" ")
                 if io_type == "Read":
                     bytes_read += int(bytes_amount)
                 elif io_type == "Write":

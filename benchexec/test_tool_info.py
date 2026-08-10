@@ -8,19 +8,18 @@
 import argparse
 import contextlib
 import copy
-import logging
 import inspect
+import logging
 import os
 import sys
+
 import yaml
 
 import benchexec
 import benchexec.benchexec
-from benchexec import model
-from benchexec import tooladapter
-from benchexec import util
-from benchexec.tooladapter import CURRENT_BASETOOL
 import benchexec.tools.template
+from benchexec import model, tooladapter, util
+from benchexec.tooladapter import CURRENT_BASETOOL
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
 
@@ -92,7 +91,7 @@ def log_if_unsupported(msg):
     """Catch any exception in block and log it with a message about an unsupported feature"""
     try:
         yield  # call code block to be executed
-    except BaseException as e:  # noqa: B036
+    except BaseException as e:
         logging.warning(
             "Tool-info module does not support %s: “%s”",
             msg,
@@ -128,13 +127,13 @@ def print_tool_info(tool, tool_locator):
     if tool_locator.tool_directory:
         abs_directory = os.path.abspath(tool_locator.tool_directory)
         abs_executable = os.path.abspath(executable)
-        if not os.path.commonpath((abs_directory, abs_executable)) == abs_directory:
+        if os.path.commonpath((abs_directory, abs_executable)) != abs_directory:
             logging.warning("Executable is not within specified tool directory.")
 
     version = None
     try:
         version = tool.version(executable)
-    except BaseException:  # noqa: B036
+    except BaseException:
         logging.warning("Determining version failed:", exc_info=1)
     if version:
         print_value("Version", tool.version(executable))
@@ -327,7 +326,7 @@ def analyze_tool_output(tool, file, dummy_cmdline):
             result,
             extra_line=True,
         )
-    except BaseException:  # noqa: B036
+    except BaseException:
         logging.warning(
             "Tool module failed to analyze result in “%s”:", file.name, exc_info=1
         )
@@ -337,7 +336,7 @@ def main(argv=None):
     """
     A simple command-line interface to print information provided by a tool info.
     """
-    if sys.version_info < (3,):
+    if sys.version_info < (3,):  # noqa: UP036 nicer errors for Python 2 users
         sys.exit("benchexec.test_tool_info needs Python 3 to run.")
     if argv is None:
         argv = sys.argv

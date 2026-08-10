@@ -90,7 +90,7 @@ files
 
       const typesOfCols = plotInstance.possibleValues.map((col) => col.type);
 
-      /* Objects of all first occuring columns with an unique type attribute as well as all runsets.
+      /* Objects of all first occurring columns with an unique type attribute as well as all runsets.
          Overriding of toString() method is used for better identifying test cases. */
       const selectionOptions: SelectionOption[] = plotInstance.possibleValues
         .filter((col, index) => typesOfCols.indexOf(col.type) === index)

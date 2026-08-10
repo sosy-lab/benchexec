@@ -5,33 +5,38 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-name: Ruff
+name: Ruff for Python Code
 
 on: [push, pull_request]
 
 jobs:
   check:
+    name: Code quality
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - name: Checkout repository
+        uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - uses: astral-sh/ruff-action@v4.1.0
+      - name: Run Ruff
+        uses: astral-sh/ruff-action@v4.1.0
         with:
           # keep version consistent with .gitlab-ci.yml
-          version: "==0.15.*"
+          version: "==0.16.*"
 
   format:
     name: Code format
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - name: Checkout repository
+        uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - uses: astral-sh/ruff-action@v4.1.0
+      - name: Run Ruff
+        uses: astral-sh/ruff-action@v4.1.0
         with:
           # keep version consistent with .gitlab-ci.yml
-          version: "==0.15.*"
+          version: "==0.16.*"
           args: "format --check --diff"
 
 permissions: {}

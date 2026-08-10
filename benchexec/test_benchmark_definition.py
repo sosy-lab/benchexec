@@ -10,11 +10,12 @@ import os
 import tempfile
 import unittest
 from unittest.mock import patch
+
 import yaml
 
-from benchexec.model import Benchmark
 import benchexec.result
-import benchexec.util as util
+from benchexec import util
+from benchexec.model import Benchmark
 
 here = os.path.dirname(__file__)
 base_dir = os.path.join(here, "..")
@@ -129,7 +130,7 @@ class TestBenchmarkDefinition(unittest.TestCase):
         self.check_task_filter('expectedverdict="true"', ["true_task.yml"])
 
     def test_expected_verdict_false_filter(self):
-        false_tasks = [f for f in ALL_TEST_TASKS.keys() if f.startswith("false")]
+        false_tasks = [f for f in ALL_TEST_TASKS if f.startswith("false")]
         self.check_task_filter('expectedverdict="false"', false_tasks)
 
     def test_expected_verdict_false_subproperty_filter(self):

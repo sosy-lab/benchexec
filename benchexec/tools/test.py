@@ -34,11 +34,11 @@ class ToolInfoModuleTest(unittest.TestCase):
                 logging.warning(
                     "Cannot load tool-info module %s: %s", tool_info_name, e
                 )
-            except BaseException as e:  # noqa: B036
+            except BaseException as e:
                 self.fail(f"Loading tool-info module {tool_info_name} failed: {e}")
 
 
-class Config(object):
+class Config:
     """Dummy config object for test"""
 
     container = False

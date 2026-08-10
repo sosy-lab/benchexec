@@ -5,10 +5,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import os
+
 import ptf
+from ptf import config, testutils
 from ptf.base_tests import BaseTest
-from ptf import config
-import ptf.testutils as testutils
 
 TYPE_IPV4 = 0x0800
 
@@ -135,6 +135,5 @@ class LongChainOfSwitches(DataplaneBaseTest):
 
 
 def log_to_file(msg):
-    f = open("/app/app.log", "w")
-    f.write(msg + "\n")
-    f.close()
+    with open("/app/app.log", "w") as f:
+        f.write(msg + "\n")

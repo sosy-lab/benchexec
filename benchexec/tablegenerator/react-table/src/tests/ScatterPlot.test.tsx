@@ -120,7 +120,7 @@ describe("Scatter Plot with columns of same runset should match HTML snapshot", 
 
 describe("Scatter Plot with columns of different runsets should match HTML snapshot", () => {
   const toolIdxesOfCols = colsWithToolRef.map((col) => col.toolIdx);
-  /* Objects of all first occuring columns of all runsets of the format {runsetIdx}-{colIdx}.
+  /* Objects of all first occurring columns of all runsets of the format {runsetIdx}-{colIdx}.
      Overriding of toString() method is used for better identifying test cases. */
   const selectionOptions: SelectionOption[] = colsWithToolRef
     .filter((col, index) => toolIdxesOfCols.indexOf(col.toolIdx) === index)
@@ -148,7 +148,7 @@ describe("Scatter Plot with columns of different runsets should match HTML snaps
 
 describe("Scatter Plot with columns of different types should match HTML snapshot", () => {
   const typesOfCols = colsWithToolRef.map((col) => col.type);
-  /* Objects of all first occuring columns with an unique type attribute of the format {runsetIdx}-{colIdx}.
+  /* Objects of all first occurring columns with an unique type attribute of the format {runsetIdx}-{colIdx}.
      Overriding of toString() method is used for better identifying test cases. */
   const selectionOptions: SelectionOption[] = colsWithToolRef
     .filter((col, index) => typesOfCols.indexOf(col.type) === index)

@@ -125,7 +125,7 @@ class _Worker(threading.Thread):
     working_queue = queue.Queue()
 
     def __init__(self, benchmark, output_handler, run_finished_callback):
-        threading.Thread.__init__(self)  # constuctor of superclass
+        threading.Thread.__init__(self)  # constructor of superclass
         self.run_finished_callback = run_finished_callback
         self.benchmark = benchmark
         self.output_handler = output_handler
@@ -148,7 +148,7 @@ class _Worker(threading.Thread):
                 logging.critical(e)
             except BenchExecException as e:
                 logging.critical(e)
-            except BaseException:  # noqa: B036
+            except BaseException:
                 logging.exception("Exception during run execution")
             self.run_finished_callback()
             _Worker.working_queue.task_done()
@@ -173,7 +173,7 @@ class _Worker(threading.Thread):
                 )
                 if (
                     "terminationreason" not in run_result
-                    or not run_result["terminationreason"] == "killed"
+                    or run_result["terminationreason"] != "killed"
                     or (attempts >= self.benchmark.config.retry >= 0)
                     or STOPPED_BY_INTERRUPT
                 ):
@@ -244,7 +244,7 @@ def run_slurm(benchmark, args, log_file):
         sys.exit("No scratchdir present. Please specify using --scratchdir <path>.")
     elif not os.path.exists(benchmark.config.scratchdir):
         os.makedirs(benchmark.config.scratchdir)
-        logging.debug(f"Created scratchdir: {benchmark.config.scratchdir}")
+        logging.debug("Created scratchdir: %s", benchmark.config.scratchdir)
     elif not os.path.isdir(benchmark.config.scratchdir):
         sys.exit(
             f"Scratchdir {benchmark.config.scratchdir} not a directory. Please specify using --scratchdir <path>."
@@ -328,7 +328,7 @@ def run_slurm(benchmark, args, log_file):
         # sometimes `seff` needs a few extra seconds to realize the task has ended
         result = wait_for(get_checked_seff_result, 30, 2)
 
-        slurm_status, exit_code, cpu_time, wall_time, memory_usage = parse_seff(
+        slurm_status, _exit_code, cpu_time, wall_time, memory_usage = parse_seff(
             str(result.stdout)
         )
 
@@ -361,20 +361,19 @@ def run_slurm(benchmark, args, log_file):
             }.get(slurm_status, slurm_status)
 
         # Runexec would populate the first 6 lines with metadata
-        with open(log_file, "w+") as file:
-            with open(tmp_log, "r") as log_source:
-                content = log_source.read()
-                file.write(shlex.join(args))
-                file.write("\n\n\n" + "-" * 80 + "\n\n\n")
-                file.write(content)
-                if content == "":
-                    file.write("Original log file did not contain anything.")
+        with open(log_file, "w+") as file, open(tmp_log, "r") as log_source:
+            content = log_source.read()
+            file.write(shlex.join(args))
+            file.write("\n\n\n" + "-" * 80 + "\n\n\n")
+            file.write(content)
+            if content == "":
+                file.write("Original log file did not contain anything.")
 
         if benchmark.config.debug:
             with open(log_file + ".debug_info", "w+") as file:
                 file.write(f"jobid: {jobid}\n")
-                file.write(f"seff output: {str(result.stdout)}\n")
-                file.write(f"Parsed data: {str(ret)}\n")
+                file.write(f"seff output: {result.stdout!s}\n")
+                file.write(f"Parsed data: {ret!s}\n")
 
         return ret
 
@@ -386,7 +385,7 @@ memory_pattern = re.compile(r"Memory Utilized: (\d+\.\d+) MB")
 
 
 def parse_seff(result):
-    logging.debug(f"Got output from seff: {result}")
+    logging.debug("Got output from seff: %s", result)
     exit_code_match = exit_code_pattern.search(result)
     cpu_time_match = cpu_time_pattern.search(result)
     wall_time_match = wall_time_pattern.search(result)
@@ -408,7 +407,11 @@ def parse_seff(result):
     memory_usage = float(memory_match.group(1)) * 1000000 if memory_match else None
 
     logging.debug(
-        f"Exit code: {exit_code}, memory usage: {memory_usage}, walltime: {wall_time}, cpu time: {cpu_time}"
+        "Exit code: %s, memory usage: %s, walltime: %s, cpu time: %s",
+        exit_code,
+        memory_usage,
+        wall_time,
+        cpu_time,
     )
 
     return slurm_status, exit_code, cpu_time, wall_time, memory_usage

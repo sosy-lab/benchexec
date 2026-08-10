@@ -8,12 +8,13 @@
 import tempfile
 import unittest
 
-from benchexec.result import *  # noqa: F403 @UnusedWildImport everything is tested
+# ruff: noqa: F405 would need a lot of imports here otherwise
+from benchexec.result import *  # noqa: F403 everything is tested
 from benchexec.result import (
     _SCORE_CORRECT_FALSE,
     _SCORE_CORRECT_TRUE,
-    _SCORE_WRONG_TRUE,
     _SCORE_WRONG_FALSE,
+    _SCORE_WRONG_TRUE,
 )
 
 
@@ -103,11 +104,11 @@ class TestResult(unittest.TestCase):
 
     def test_Property_max_score_not_available(self):
         self.assertEqual(0, self.prop_call.max_score(ExpectedResult(None, None)))
-        self.assertEqual(None, self.prop_call.max_score(None))
+        self.assertIsNone(self.prop_call.max_score(None))
 
     def test_Property_max_score_smt(self):
-        self.assertEqual(None, self.prop_sat.max_score(ExpectedResult(True, None)))
-        self.assertEqual(None, self.prop_sat.max_score(ExpectedResult(False, None)))
+        self.assertIsNone(self.prop_sat.max_score(ExpectedResult(True, None)))
+        self.assertIsNone(self.prop_sat.max_score(ExpectedResult(False, None)))
 
     def test_Property_max_score_svcomp(self):
         self.assertEqual(

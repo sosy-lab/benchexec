@@ -12,9 +12,9 @@ import logging
 import os
 from urllib.parse import quote as url_quote
 
+import benchexec.util
 from benchexec import __version__
 from benchexec.tablegenerator import util
-import benchexec.util
 
 _REACT_FILES = [
     os.path.join(os.path.dirname(__file__), "react-table", "build", path)
@@ -246,7 +246,7 @@ def _prepare_benchmark_setup_data(
 
 
 def _get_task_counts(rows):
-    """Calculcate number of true/false tasks and maximum achievable score."""
+    """Calculate number of true/false tasks and maximum achievable score."""
     count_true = count_false = 0
     max_score = None
     for row in rows:
@@ -431,7 +431,7 @@ def _prepare_rows_for_js(rows, base_dir, href_base, relevant_id_columns):
             result["href"] = _create_link(
                 column.href, base_dir, run_result, href_base, value=raw_value
             )
-        if raw_value is not None and not raw_value == "":
+        if raw_value is not None and raw_value != "":
             result["raw"] = raw_value
         if formatted_value and formatted_value != raw_value:
             result["html"] = formatted_value

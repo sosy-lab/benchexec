@@ -40,7 +40,7 @@ jobs:
         working-directory: benchexec/tablegenerator/react-table
 
   tests:
-    name: Running tests
+    name: Run tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository

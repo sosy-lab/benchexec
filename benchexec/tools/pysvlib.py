@@ -7,11 +7,11 @@
 import logging
 
 import benchexec.tools.template
+from benchexec import result
 from benchexec.tools.sv_benchmarks_util import (
-    handle_witness_of_task,
     TaskFilesConsidered,
+    handle_witness_of_task,
 )
-import benchexec.result as result
 
 
 class Tool(benchexec.tools.template.BaseTool2):
@@ -70,9 +70,9 @@ class Tool(benchexec.tools.template.BaseTool2):
         @return: status of PySvLib after executing a run
         """
         for line in reversed(run.output):
-            if "correct" == line:
+            if line == "correct":
                 return result.RESULT_TRUE_PROP
-            elif "incorrect" == line:
+            elif line == "incorrect":
                 return result.RESULT_FALSE_PROP
 
         # We could not find a definitive result in the output

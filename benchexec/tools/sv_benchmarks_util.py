@@ -172,10 +172,7 @@ def get_witness_options(options, task, witness_options):
         the return value will be ["-w", "witness_file"]
     """
 
-    if (
-        isinstance(task.options, dict)
-        and WITNESS_INPUT_FILE_IDENTIFIER in task.options.keys()
-    ):
+    if isinstance(task.options, dict) and WITNESS_INPUT_FILE_IDENTIFIER in task.options:
         if not any(witness_option in options for witness_option in witness_options):
             additional_options = []
             for witness_option in witness_options:

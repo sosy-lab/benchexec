@@ -11,8 +11,8 @@ import benchexec.result
 from benchexec.tools.sv_benchmarks_util import (
     ILP32,
     LP64,
-    get_data_model_from_task,
     TaskFilesConsidered,
+    get_data_model_from_task,
     handle_witness_of_task,
 )
 from benchexec.tools.template import BaseTool2
@@ -62,9 +62,10 @@ class Tool(BaseTool2):
         if lastline.startswith("Witness is correct"):
             return benchexec.result.RESULT_TRUE_PROP
         elif lastline.startswith(
-            "Witness could not be validated"
-        ) or lastline.startswith(
-            "There was an error validating the witness in the backend verifier"
+            (
+                "Witness could not be validated",
+                "There was an error validating the witness in the backend verifier",
+            )
         ):
             if separator in lastline:
                 return (

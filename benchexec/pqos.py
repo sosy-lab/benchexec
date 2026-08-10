@@ -10,16 +10,17 @@ This module contains the Pqos class which is used to interact with pqos_wrapper 
 to allocate equal cache for each thread and isolate cache of two individual threads.
 """
 
-import os
-import logging
-import json
 import grp
+import json
+import logging
+import os
 from signal import SIGINT
-from subprocess import check_output, CalledProcessError, STDOUT, Popen, PIPE
-from benchexec.util import find_executable2, get_capability, check_msr
+from subprocess import PIPE, STDOUT, CalledProcessError, Popen, check_output
+
+from benchexec.util import check_msr, find_executable2, get_capability
 
 
-class Pqos(object):
+class Pqos:
     """
     The Pqos class defines methods to interact with pqos_wrapper cli.
     """
@@ -39,13 +40,13 @@ class Pqos(object):
                     "(cf. https://gitlab.com/sosy-lab/software/pqos-wrapper)."
                 )
 
-    def execute_command(self, __type, function, suppress_warning, *args):
+    def execute_command(self, cmd_type, function, suppress_warning, *args):
         """
         Execute a given pqos_wrapper command and log the output
 
-            @__type: The type of command being executed (monitoring or l3ca)
+            @cmd_type: The type of command being executed (monitoring or l3ca)
             @function_name: The name of the function being executed in pqos_wrapper
-            @suppress_warning: A boolean to decide wether to print warning on failing execution
+            @suppress_warning: A boolean to decide whether to print warning on failing execution
         """
         if self.executable_path:
             args_list = [self.executable_path] + list(args)
@@ -62,15 +63,15 @@ class Pqos(object):
                 return True
             except CalledProcessError as e:
                 if self.show_warnings and (not suppress_warning):
-                    self.print_error_message(e.output, __type, args_list)
+                    self.print_error_message(e.output, cmd_type, args_list)
         return False
 
-    def print_error_message(self, err, __type, args_list):
+    def print_error_message(self, err, cmd_type, args_list):
         """
         Prints error message returned from pqos_wrapper
 
             @err: The error output returned by pqos_wrapper
-            @__type: The type of command being executed (monitoring or l3ca)
+            @cmd_type: The type of command being executed (monitoring or l3ca)
             @args_list: The command being executed as a list
         """
         msg_prefix = {
@@ -79,12 +80,12 @@ class Pqos(object):
         }
         try:
             ret = json.loads(err)
-            logging.warning("%s...%s", msg_prefix[__type], ret["message"])
+            logging.warning("%s...%s", msg_prefix[cmd_type], ret["message"])
             self.check_for_errors()
         except ValueError:
             logging.warning(
                 "%s...Unable to execute command %s",
-                msg_prefix[__type],
+                msg_prefix[cmd_type],
                 " ".join(args_list),
             )
 
@@ -219,7 +220,7 @@ class Pqos(object):
                     )
             else:
                 logging.warning(
-                    "Insufficient capabilities for pqos_wrapper, Please set capabilitiy cap_sys_rawio with e,p for pqos_wrapper"
+                    "Insufficient capabilities for pqos_wrapper, Please set capability cap_sys_rawio with e,p for pqos_wrapper"
                 )
         msr = check_msr()
         if msr["loaded"]:

@@ -5,14 +5,14 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from decimal import Decimal
-import unittest
-from benchexec.util import ProcessExitCode
-import tempfile
 import os
 import stat
+import tempfile
+import unittest
+from decimal import Decimal
 
 from benchexec import util
+from benchexec.util import ProcessExitCode
 
 
 class TestParse(unittest.TestCase):

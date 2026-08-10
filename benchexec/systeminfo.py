@@ -9,28 +9,28 @@
 This module allows to retrieve information about the current system.
 """
 
-from decimal import Decimal
 import glob
 import logging
 import os
 import platform
 import sys
+from decimal import Decimal
 
 from benchexec import util
 
 __all__ = [
+    "CPUThrottleCheck",
+    "SwapCheck",
+    "SystemInfo",
     "has_swap",
     "is_turbo_boost_enabled",
-    "CPUThrottleCheck",
-    "SystemInfo",
-    "SwapCheck",
 ]
 
 _TURBO_BOOST_FILE = "/sys/devices/system/cpu/cpufreq/boost"
 _TURBO_BOOST_FILE_PSTATE = "/sys/devices/system/cpu/intel_pstate/no_turbo"
 
 
-class SystemInfo(object):
+class SystemInfo:
     def __init__(self):
         """
         This function finds some information about the computer.
@@ -45,17 +45,16 @@ class SystemInfo(object):
         cpuInfoFilename = "/proc/cpuinfo"
         self.cpu_number_of_cores = "unknown"
         if os.path.isfile(cpuInfoFilename) and os.access(cpuInfoFilename, os.R_OK):
-            cpuInfoFile = open(cpuInfoFilename, "rt")
-            cpuInfoLines = [
-                tuple(line.split(":"))
-                for line in cpuInfoFile.read()
-                .replace("\n\n", "\n")
-                .replace("\t", "")
-                .strip("\n")
-                .split("\n")
-            ]
+            with open(cpuInfoFilename, "rt") as cpuInfoFile:
+                cpuInfoLines = [
+                    tuple(line.split(":"))
+                    for line in cpuInfoFile.read()
+                    .replace("\n\n", "\n")
+                    .replace("\t", "")
+                    .strip("\n")
+                    .split("\n")
+                ]
             cpuInfo = dict(cpuInfoLines)
-            cpuInfoFile.close()
             self.cpu_number_of_cores = str(
                 len([line for line in cpuInfoLines if line[0] == "processor"])
             )
@@ -84,12 +83,14 @@ class SystemInfo(object):
         memInfo = {}
         memInfoFilename = "/proc/meminfo"
         if os.path.isfile(memInfoFilename) and os.access(memInfoFilename, os.R_OK):
-            memInfoFile = open(memInfoFilename, "rt")
-            memInfo = dict(
-                tuple(s.split(": "))
-                for s in memInfoFile.read().replace("\t", "").strip("\n").split("\n")
-            )
-            memInfoFile.close()
+            with open(memInfoFilename, "rt") as memInfoFile:
+                memInfo = dict(
+                    tuple(s.split(": "))
+                    for s in memInfoFile.read()
+                    .replace("\t", "")
+                    .strip("\n")
+                    .split("\n")
+                )
         self.memory = memInfo.get("MemTotal", "unknown").strip()
         if self.memory.endswith(" kB"):
             # kernel uses KiB but names them kB, convert to Byte
@@ -104,7 +105,7 @@ class SystemInfo(object):
         self.environment.pop("TEMP", None)
 
 
-class CPUThrottleCheck(object):
+class CPUThrottleCheck:
     """
     Class for checking whether the CPU has throttled during some time period.
     """
@@ -144,7 +145,7 @@ class CPUThrottleCheck(object):
         return False
 
 
-class SwapCheck(object):
+class SwapCheck:
     """
     Class for checking whether the system has swapped during some period.
     """
@@ -164,7 +165,7 @@ class SwapCheck(object):
 
     def has_swapped(self):
         """
-        Check whether any swapping occured on this system since this instance was created.
+        Check whether any swapping occurred on this system since this instance was created.
         @return a boolean value
         """
         new_values = self._read_swap_count()
@@ -215,9 +216,8 @@ def is_debian():
     try:
         with open("/etc/os-release") as f:
             return any(
-                (line.startswith("ID=") or line.startswith("ID_LIKE="))
-                and "debian" in line
-                for line in f.readlines()
+                (line.startswith(("ID=", "ID_LIKE="))) and "debian" in line
+                for line in f
             )
     except OSError:
         return False

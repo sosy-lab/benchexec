@@ -15,7 +15,7 @@ SPDX-License-Identifier: Apache-2.0
 <benchmark displayName="Calculate Pi" tool="calculatepi" timelimit="900s" memlimit="100 MB" cpuCores="1">
   <tasks>
     <!-- <withoutfile> defines tasks that do not need an input file.
-         calculatepi exects a single int that is the number of desired digits
+         calculatepi expects a single int that is the number of desired digits
          for the output of Pi. -->
     <withoutfile>1000 </withoutfile>
     <withoutfile>2000 </withoutfile>

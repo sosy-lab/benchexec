@@ -17,7 +17,6 @@ import sys
 import tempfile
 import threading
 import time
-import typing
 from decimal import Decimal
 
 from benchexec import systeminfo, util
@@ -163,8 +162,8 @@ def _create_systemd_scope_for_us():
     @return: a boolean indicating whether this succeeded
     """
     try:
-        from pystemd.dbuslib import DBus
         from pystemd.dbusexc import DBusBaseError
+        from pystemd.dbuslib import DBus
         from pystemd.systemd1 import Manager, Unit
 
         with DBus(user_mode=True) as bus, Manager(bus=bus) as manager:
@@ -363,14 +362,14 @@ class CgroupsV2(Cgroups):
     KILL = "kill"
 
     def __init__(self, subsystems):
-        super(CgroupsV2, self).__init__(subsystems)
+        super().__init__(subsystems)
 
         self.path = (
             next(iter(self.subsystems.values())) if len(self.subsystems) else None
         )
 
         # Store reference to child cgroup if we delegated controllers to it.
-        self._delegated_to: typing.Optional[CgroupsV2] = None
+        self._delegated_to: CgroupsV2 | None = None
 
     @classmethod
     def from_system(cls, cgroup_procinfo=None):
@@ -402,7 +401,7 @@ class CgroupsV2(Cgroups):
         # basic support always available in v2, this supports everything we use
         subsystems.add(cls.CPU)
 
-        return cls({k: cgroup_path for k in subsystems})
+        return cls(dict.fromkeys(subsystems, cgroup_path))
 
     def create_fresh_child_cgroup(self, subsystems, prefix=CGROUP_NAME_PREFIX):
         """
@@ -426,7 +425,7 @@ class CgroupsV2(Cgroups):
         if self.KILL in self.subsystems:
             child_subsystems.add(self.KILL)
 
-        return CgroupsV2({c: child_path for c in child_subsystems})
+        return CgroupsV2(dict.fromkeys(child_subsystems, child_path))
 
     def create_fresh_child_cgroup_for_delegation(self, prefix="delegate_"):
         """
@@ -482,8 +481,7 @@ class CgroupsV2(Cgroups):
         Produces a log message for the user if one of the conditions is not fulfilled.
         @return A boolean value.
         """
-        # TODO
-        # We can assume that creation of child cgroups works,
+        # TODO We can assume that creation of child cgroups works,
         # because we only use cgroups if we were able to move the current process
         # into a child cgroup in initialize().
         return super().require_subsystem(subsystem, log_method)
@@ -663,7 +661,7 @@ class CgroupsV2(Cgroups):
         bytes_read = 0
         bytes_written = 0
         for io_line in self.get_file_lines(self.IO, "stat"):
-            dev_no, *stats = io_line.split(" ")
+            _dev_no, *stats = io_line.split(" ")
             for s in stats:
                 if s.startswith("rbytes="):
                     bytes_read += int(s.split("=")[1])

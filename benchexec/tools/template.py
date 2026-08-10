@@ -15,17 +15,16 @@ For more information, please refer to
 https://github.com/sosy-lab/benchexec/blob/main/doc/tool-integration.md
 """
 
-from abc import ABCMeta, abstractmethod
-from collections import namedtuple
 import collections
 import copy
-import os
 import logging
+import os
 import subprocess
+from abc import ABCMeta, abstractmethod
+from collections import namedtuple
 
 import benchexec
-import benchexec.result as result
-import benchexec.util as util
+from benchexec import result, util
 
 
 class ToolNotFoundException(benchexec.BenchExecException):
@@ -44,7 +43,7 @@ class UnsupportedFeatureException(benchexec.BenchExecException):
     pass
 
 
-class BaseTool2(object, metaclass=ABCMeta):
+class BaseTool2(metaclass=ABCMeta):
     """
     This class serves both as a template for tool-info implementations,
     and as an abstract super class for them.
@@ -82,7 +81,7 @@ class BaseTool2(object, metaclass=ABCMeta):
     """
     List of path patterns that is used by the default implementation of program_files().
     Not necessary if this method is overwritten.
-    """  # noqa: B018"
+    """
 
     # Methods that provide general (run-independent) information about the tool
 
@@ -90,13 +89,13 @@ class BaseTool2(object, metaclass=ABCMeta):
     def name(self):
         """
         Return the name of the tool, formatted for humans.
-        This method always needs to be overriden, and typically just contains
+        This method always needs to be overridden, and typically just contains
 
         return "My Toolname"
 
         @return a non-empty string
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def project_url(self):
         """
@@ -104,7 +103,7 @@ class BaseTool2(object, metaclass=ABCMeta):
 
         @return None or a string with a URL in valid syntax for links on webpages
         """
-        return None  # noqa: R501
+        return None  # noqa: RET501
 
     @abstractmethod
     def executable(self, tool_locator):
@@ -119,7 +118,7 @@ class BaseTool2(object, metaclass=ABCMeta):
         @param tool_locator: an instance of class ToolLocator
         @return a string pointing to an executable file
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def version(self, executable):
         """
@@ -159,7 +158,7 @@ class BaseTool2(object, metaclass=ABCMeta):
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 stdin=subprocess.DEVNULL,
-                universal_newlines=True,
+                text=True,
             )
         except OSError as e:
             logging.warning(
@@ -210,7 +209,7 @@ class BaseTool2(object, metaclass=ABCMeta):
         @param version: a version string as returned by the version() method in the past
         @return None or a string with a URL in valid syntax for links on webpages
         """
-        return None  # noqa: R501
+        return None  # noqa: RET501
 
     def environment(self, executable):
         """
@@ -244,7 +243,7 @@ class BaseTool2(object, metaclass=ABCMeta):
         "newEnv": Before the execution, the values are assigned to the real environment-identifiers.
                   This will override existing values.
         "additionalEnv": Before the execution, the values are appended to the real environment-identifiers.
-                  The seperator for the appending must be given in this method,
+                  The separator for the appending must be given in this method,
                   so that the operation "realValue + additionalValue" is a valid value.
                   For example in the PATH-variable the additionalValue starts with a ":".
         @param executable: the path to the executable of the tool (typically the result of executable())
@@ -335,7 +334,7 @@ class BaseTool2(object, metaclass=ABCMeta):
         """
         return result.RESULT_DONE
 
-    def get_value_from_output(self, output, identifier):
+    def get_value_from_output(self, output, identifier):  # noqa: B027 does not need to be overridden
         """
         OPTIONAL, extract a statistic value from the output of the tool.
         This value will be added to the resulting tables.
@@ -349,8 +348,9 @@ class BaseTool2(object, metaclass=ABCMeta):
         @param identifier: The user-specified identifier for the statistic item.
         @return a (possibly empty) string, optional with HTML tags
         """
+        pass
 
-    def close(self):
+    def close(self):  # noqa: B027 does not need to be overridden
         """
         OPTIONAL, called before tool-info module is no longer used,
         but no strict guarantee about this.
@@ -618,7 +618,7 @@ class BaseTool2(object, metaclass=ABCMeta):
             return self.text
 
 
-class BaseTool(object):
+class BaseTool:
     """
     This class serves both as a template for tool-info implementations,
     and as an abstract super class for them.
@@ -639,7 +639,7 @@ class BaseTool(object):
     """
     List of path patterns that is used by the default implementation of program_files().
     Not necessary if this method is overwritten.
-    """  # noqa: B018
+    """
 
     def executable(self):
         """
@@ -690,10 +690,10 @@ class BaseTool(object):
     def name(self):
         """
         Return the name of the tool, formatted for humans.
-        This function should always be overriden.
+        This function should always be overridden.
         @return a non-empty string
         """
-        return "UNKOWN"
+        return "UNKNOWN"
 
     def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
         """
@@ -790,7 +790,7 @@ class BaseTool(object):
         "newEnv": Before the execution, the values are assigned to the real environment-identifiers.
                   This will override existing values.
         "additionalEnv": Before the execution, the values are appended to the real environment-identifiers.
-                  The seperator for the appending must be given in this method,
+                  The separator for the appending must be given in this method,
                   so that the operation "realValue + additionalValue" is a valid value.
                   For example in the PATH-variable the additionalValue starts with a ":".
         @param executable: the path to the executable of the tool (typically the result of executable())

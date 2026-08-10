@@ -5,7 +5,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import benchexec.tools.cpachecker as cpachecker
+from benchexec.tools import cpachecker
 
 
 class Tool(cpachecker.Tool):

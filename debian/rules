@@ -14,7 +14,7 @@
 
 export PYBUILD_NAME=benchexec
 
-# Our tests need some additional files in {build_dir} to execute succesfully
+# Our tests need some additional files in {build_dir} to execute successfully
 export PYBUILD_BEFORE_TEST=cp -r {dir}/bin {dir}/doc {build_dir}/
 export PYBUILD_AFTER_TEST=rm -r {build_dir}/bin {build_dir}/doc
 export PYBUILD_TEST_ARGS=-k 'not TestRunExecutor'

@@ -11,6 +11,7 @@ This module contains some useful functions for Strings, XML or Lists.
 
 import argparse
 import collections
+import ctypes
 import datetime
 import errno
 import fnmatch
@@ -25,9 +26,7 @@ import stat
 import subprocess
 import sys
 from ctypes.util import find_library
-import ctypes
 from xml.etree import ElementTree
-
 
 _BYTE_FACTOR = 1000  # byte in kilobyte
 _FREQUENCY_FACTOR = 1000  # Hz in kHz
@@ -46,7 +45,7 @@ def printOut(value, end="\n"):
 
 
 def is_comment(line):
-    return not line or line.startswith("#") or line.startswith("//")
+    return not line or line.startswith(("#", "//"))
 
 
 def flatten(iterable, exclude=[]):
@@ -368,14 +367,12 @@ def find_executable(program, fallback=None, exitOnError=True, use_current_dir=Tr
 
     if exitOnError:
         if found_non_executable:
-            sys.exit(  # noqa: R503 always raises
+            sys.exit(
                 f"Could not find '{program}' executable, "
                 f"but found file '{found_non_executable[0]}' that is not executable."
             )
         else:
-            sys.exit(  # noqa: R503 always raises
-                f"Could not find '{program}' executable."
-            )
+            sys.exit(f"Could not find '{program}' executable.")
     else:
         return fallback
 
@@ -443,7 +440,7 @@ def rmtree(path, ignore_errors=False, onerror=None):
         def onerror(*args):
             raise
 
-    for root, dirs, _unused_files in os.walk(path):
+    for root, dirs, _files in os.walk(path):
         for directory in dirs:
             try:
                 abs_directory = os.path.join(root, directory)
@@ -498,27 +495,26 @@ def shrink_text_file(filename, max_size, removal_marker=None):
     # Then we copy the content of C into B, overwriting what is there.
     # Afterwards we truncate the file after A+C.
 
-    with open(filename, "r+b") as output_file:
-        with open(filename, "rb") as input_file:
-            # Position outputFile between A and B
-            output_file.seek(max_size // 2)
-            output_file.readline()  # jump to end of current line so that we truncate at line boundaries
-            if output_file.tell() == file_size:
-                # readline jumped to end of file because of a long line
-                return
+    with open(filename, "r+b") as output_file, open(filename, "rb") as input_file:
+        # Position outputFile between A and B
+        output_file.seek(max_size // 2)
+        output_file.readline()  # jump to end of current line so that we truncate at line boundaries
+        if output_file.tell() == file_size:
+            # readline jumped to end of file because of a long line
+            return
 
-            if removal_marker:
-                output_file.write(removal_marker.encode())
+        if removal_marker:
+            output_file.write(removal_marker.encode())
 
-            # Position inputFile between B and C
-            # jump to beginning of second part we want to keep from end of file
-            input_file.seek(-max_size // 2, os.SEEK_END)
-            input_file.readline()  # jump to end of current line so that we truncate at line boundaries
+        # Position inputFile between B and C
+        # jump to beginning of second part we want to keep from end of file
+        input_file.seek(-max_size // 2, os.SEEK_END)
+        input_file.readline()  # jump to end of current line so that we truncate at line boundaries
 
-            # Copy C over B
-            copy_all_lines_from_to(input_file, output_file)
+        # Copy C over B
+        copy_all_lines_from_to(input_file, output_file)
 
-            output_file.truncate()
+        output_file.truncate()
 
 
 def read_file(*path):
@@ -669,7 +665,7 @@ def add_files_to_git_repository(base_dir, files, description):
         cwd=base_dir,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
-        universal_newlines=True,
+        text=True,
     )
     if gitRoot.returncode != 0:
         printOut(
@@ -684,14 +680,14 @@ def add_files_to_git_repository(base_dir, files, description):
         cwd=gitRootDir,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
-        universal_newlines=True,
+        text=True,
     )
     if gitStatus.returncode != 0:
         printOut("Git status failed! Output was:\n" + gitStatus.stderr)
         return
 
     if gitStatus.stdout:
-        printOut("Git repository has local changes, not commiting results.")
+        printOut("Git repository has local changes, not committing results.")
         return
 
     # add files to staging area
@@ -708,7 +704,7 @@ def add_files_to_git_repository(base_dir, files, description):
         ["git", "commit", "--file=-", "--quiet"],
         input=description,
         cwd=gitRootDir,
-        universal_newlines=True,
+        text=True,
     )
     if gitCommit.returncode != 0:
         printOut("Git commit failed!")
@@ -749,7 +745,10 @@ def _debug_current_process(sig, current_frame):
     This code is based on http://stackoverflow.com/a/133384/396730
     """
     # Import modules only if necessary, readline is for shell history support.
-    import code, traceback, readline, threading  # noqa: E401, F401 @UnresolvedImport @UnusedImport
+    import code
+    import readline  # noqa: F401
+    import threading
+    import traceback
 
     d = {"_frame": current_frame}  # Allow access to frame object.
     d.update(current_frame.f_globals)  # Unless shadowed by global
@@ -836,7 +835,7 @@ def is_child_process_of_us(pid: int) -> bool:
         with open(f"/proc/{pid}/status") as status_file:
             for line in status_file:
                 if line.startswith("PPid:"):
-                    ppid = int(line.split(":", maxsplit=1)[1].strip())
+                    ppid = int(line.removeprefix("PPid:").strip())
                     break
     except FileNotFoundError:
         pass  # Process terminated in the meantime.

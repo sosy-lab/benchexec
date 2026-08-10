@@ -6,6 +6,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import subprocess
+import sys
 import unittest
 
 from benchexec import check_cgroups
@@ -49,7 +50,7 @@ class TestCheckCgroups(unittest.TestCase):
         """
         tmp = check_cgroups.check_cgroup_availability
         try:
-            check_cgroups.check_cgroup_availability = lambda wait: exit(1)
+            check_cgroups.check_cgroup_availability = lambda wait: sys.exit(1)
 
             with self.assertRaises(SystemExit):
                 check_cgroups.main([])

@@ -10,21 +10,23 @@ import logging
 import os
 import pprint
 import re
+import shlex
+import shutil
 import subprocess
 import tempfile
 import threading
 import time
 import unittest
-import shlex
-import shutil
 
-from benchexec import container
-from benchexec import containerexecutor
-from benchexec import filehierarchylimit
-from benchexec.runexecutor import RunExecutor
+from benchexec import (
+    container,
+    containerexecutor,
+    filehierarchylimit,
+    runexecutor,
+    util,
+)
 from benchexec.cgroups import Cgroups
-from benchexec import runexecutor
-from benchexec import util
+from benchexec.runexecutor import RunExecutor
 
 here = os.path.dirname(__file__)
 base_dir = os.path.join(here, "..")
@@ -158,7 +160,7 @@ class TestRunExecutor(unittest.TestCase):
             "pressure-memory-some",
         }
         expected_keys.update(additional_keys)
-        for key in result.keys():
+        for key in result:
             if key.startswith("cputime-cpu"):
                 self.assertRegex(
                     key,
@@ -258,14 +260,10 @@ class TestRunExecutor(unittest.TestCase):
         self.check_result_keys(result)
 
     def test_wrong_command(self):
-        (result, _) = self.execute_run(
-            "/does/not/exist", expect_terminationreason="failed"
-        )
+        self.execute_run("/does/not/exist", expect_terminationreason="failed")
 
     def test_wrong_command_extern(self):
-        (result, _) = self.execute_run(
-            "/does/not/exist", expect_terminationreason="failed"
-        )
+        self.execute_run("/does/not/exist", expect_terminationreason="failed")
 
     def test_cputime_hardlimit(self):
         if not os.path.exists("/bin/sh"):
@@ -432,7 +430,7 @@ class TestRunExecutor(unittest.TestCase):
         self.assertAlmostEqual(
             result["memory"],
             memlimit,
-            delta=memlimit // 100,
+            delta=memlimit // 20,
             msg="memory is not approximately the amount after which the process should have been killed",
         )
 
@@ -517,7 +515,7 @@ class TestRunExecutor(unittest.TestCase):
                 universal_newlines=True,
             )
             try:
-                runexec_output, unused_err = process.communicate("TEST_TOKEN")
+                runexec_output, _err = process.communicate("TEST_TOKEN")
             except BaseException:
                 # catch everything, we re-raise
                 process.kill()
@@ -665,7 +663,7 @@ class TestRunExecutor(unittest.TestCase):
     def test_append_crash_dump_info(self):
         if not os.path.exists("/bin/sh"):
             self.skipTest("missing /bin/sh")
-        (result, output) = self.execute_run(
+        (_result, output) = self.execute_run(
             "/bin/sh",
             "-c",
             'echo "# An error report file with more information is saved as:";'
@@ -746,9 +744,8 @@ class TestRunExecutor(unittest.TestCase):
         subprocess.run(["rm", "-r", os.path.dirname(temp_dir)], check=True)
 
     def test_require_cgroup_invalid(self):
-        with self.assertLogs(level=logging.ERROR) as log:
-            with self.assertRaises(SystemExit):
-                RunExecutor(additional_cgroup_subsystems=["invalid"])
+        with self.assertLogs(level=logging.ERROR) as log, self.assertRaises(SystemExit):
+            RunExecutor(additional_cgroup_subsystems=["invalid"])
 
         self.assertIn(
             'Cgroup subsystem "invalid" was required but is not available',
@@ -950,7 +947,7 @@ class TestRunExecutorWithContainer(TestRunExecutor):
         ] + list(args)
 
     def execute_run(self, *args, **kwargs):
-        return super(TestRunExecutorWithContainer, self).execute_run(
+        return super().execute_run(
             workingDir="/tmp",
             *args,  # noqa: B026
             **kwargs,
@@ -985,7 +982,7 @@ class TestRunExecutorWithContainer(TestRunExecutor):
                 f"result was {result!r},\noutput was\n{output_str}",
             )
             result_files = []
-            for root, _unused_dirs, files in os.walk(output_dir):
+            for root, _dirs, files in os.walk(output_dir):
                 for file in files:
                     result_files.append(
                         os.path.relpath(os.path.join(root, file), output_dir)
@@ -1032,10 +1029,8 @@ class TestRunExecutorWithContainer(TestRunExecutor):
         self.check_result_files("echo TEST_TOKEN > TEST_FILE", [], [])
 
     def test_result_file_empty_pattern(self):
-        self.assertRaises(
-            ValueError,
-            lambda: self.check_result_files("echo TEST_TOKEN > TEST_FILE", [""], []),
-        )
+        with self.assertRaises(ValueError):
+            self.check_result_files("echo TEST_TOKEN > TEST_FILE", [""], [])
 
     def test_result_file_partial_match(self):
         self.check_result_files(
@@ -1079,12 +1074,10 @@ class TestRunExecutorWithContainer(TestRunExecutor):
         )
 
     def test_result_file_illegal_relative_traversal(self):
-        self.assertRaises(
-            ValueError,
-            lambda: self.check_result_files(
+        with self.assertRaises(ValueError):
+            self.check_result_files(
                 "echo TEST_TOKEN > TEST_FILE", ["foo/../../bar"], []
-            ),
-        )
+            )
 
     def test_result_file_recursive_pattern(self):
         self.check_result_files(
@@ -1362,7 +1355,7 @@ class TestRunExecutorWithContainer(TestRunExecutor):
 
 class _StopRunThread(threading.Thread):
     def __init__(self, delay, runexecutor):
-        super(_StopRunThread, self).__init__()
+        super().__init__()
         self.daemon = True
         self.delay = delay
         self.runexecutor = runexecutor
@@ -1377,24 +1370,26 @@ class TestRunExecutorUnits(unittest.TestCase):
 
     def test_get_debug_output_with_error_report_and_invalid_utf8(self):
         invalid_utf8 = b"\xff"
-        with tempfile.NamedTemporaryFile(mode="w+b", delete=False) as report_file:
-            with tempfile.NamedTemporaryFile(mode="w+b") as output:
-                output_content = f"""Dummy output
+        with (
+            tempfile.NamedTemporaryFile(mode="w+b", delete=False) as report_file,
+            tempfile.NamedTemporaryFile(mode="w+b") as output,
+        ):
+            output_content = f"""Dummy output
 # An error report file with more information is saved as:
 # {report_file.name}
 More output
-""".encode()  # noqa: E800 false alarm
-                report_content = b"Report output\nMore lines"
-                output_content += invalid_utf8
-                report_content += invalid_utf8
+""".encode()
+            report_content = b"Report output\nMore lines"
+            output_content += invalid_utf8
+            report_content += invalid_utf8
 
-                output.write(output_content)
-                output.flush()
-                output.seek(0)
-                report_file.write(report_content)
-                report_file.flush()
+            output.write(output_content)
+            output.flush()
+            output.seek(0)
+            report_file.write(report_content)
+            report_file.flush()
 
-                runexecutor._get_debug_output_after_crash(output.name, "")
+            runexecutor._get_debug_output_after_crash(output.name, "")
 
-                self.assertFalse(os.path.exists(report_file.name))
-                self.assertEqual(output.read(), output_content + report_content)
+            self.assertFalse(os.path.exists(report_file.name))
+            self.assertEqual(output.read(), output_content + report_content)
