@@ -135,6 +135,7 @@ Contributors:
 - [Montgomery Carter](https://github.com/MontyCarter)
 - [Po-Chun Chien](https://github.com/Po-Chun-Chien)
 - [Andreas Donig](https://github.com/adonig)
+- [Jiayi Du](https://github.com/Jah-yee)
 - [Florian Eder](https://github.com/schroeding)
 - [Karlheinz Friedberger](https://www.sosy-lab.org/people/friedberger)
 - [Robin Gloster](https://github.com/globin)
@@ -155,7 +156,9 @@ Contributors:
 - Stefan Löwe
 - [Stephan Lukasczyk](https://github.com/stephanlukasczyk)
 - [Tobias Meggendorfer](https://github.com/incaseoftrouble)
+- [Martin Pýcha](https://github.com/martinpycha)
 - Alexander von Rhein
+- [Rotzbua](https://github.com/Rotzbua)
 - [Simmo Saan](https://github.com/sim642)
 - [Alexander Schremmer](https://www.xing.com/profile/Alexander_Schremmer)
 - [Dennis Simon](https://github.com/DennisSimon)
