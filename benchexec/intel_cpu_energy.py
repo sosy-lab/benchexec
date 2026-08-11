@@ -70,6 +70,11 @@ class EnergyMeasurement(object):
         self.stop_event = threading.Event()
         EnergyMeasurement.error_event.clear()
         self.packages: list[Package] = []
+
+        """We are searching for all available packages and domains
+        Each one has a name file as well as the energy measurement related files
+        example package name path: /sys/class/powercap/intel-rapl/intel-rapl:0/name
+        example domain name path: /sys/class/powercap/intel-rapl/intel-rapl:0/intel-rapl:0:0/name"""
         for package in sorted(
             p for p in rapl_path.glob("intel-rapl:*") if p.name.count(":") == 1
         ):
@@ -174,7 +179,7 @@ def format_energy_results(measurement):
             total += p_energy
             result[f"cpuenergy-{package.name}"] = p_energy
         else:
-            result["psys"] = p_energy
+            result["systemenergy"] = p_energy
         for domain in package.domains:
             d_energy = convert_to_joules(domain.energy.total)
             result[f"cpuenergy-{package.name}-{domain.name}"] = d_energy
