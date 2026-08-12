@@ -5,14 +5,14 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import threading
 import collections
 import logging
-from pathlib import Path
+import subprocess
+import sys
+import threading
 from dataclasses import dataclass
 from decimal import Decimal
-import sys
-import subprocess
+from pathlib import Path
 from time import sleep
 
 rapl_path = Path("/sys/class/powercap/intel-rapl/")
@@ -62,7 +62,7 @@ class Package(AreaOfMeasurement):
             domain.update_value()
 
 
-class EnergyMeasurement(object):
+class EnergyMeasurement:
     error_event = threading.Event()
 
     def __init__(self):
@@ -175,7 +175,7 @@ def format_energy_results(measurement):
     for package in measurement.packages:
         p_energy = convert_to_joules(package.energy.total)
         # psys describes energy usage of the entire system and is therefore not relevant for cpuenergy
-        if not package.name == "psys":
+        if package.name != "psys":
             total += p_energy
             result[f"cpuenergy-{package.name}"] = p_energy
         else:
