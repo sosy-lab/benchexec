@@ -1179,10 +1179,7 @@ def get_regression_count(rows, ignoreFlappingTimeouts):  # for options.dump_coun
         return run_result.status and run_result.status.startswith(status)
 
     def any_status_is(run_results, status):
-        for run_result in run_results:
-            if status_is(run_result, status):
-                return True
-        return False
+        return any(status_is(run_result, status) for run_result in run_results)
 
     regressions = 0
     for row in rows:
