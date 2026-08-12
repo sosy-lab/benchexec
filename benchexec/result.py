@@ -5,11 +5,11 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import collections
 import io
 import os
 import re
 import urllib.request
+from typing import NamedTuple
 
 from benchexec import util
 
@@ -114,10 +114,11 @@ _SCORE_WRONG_TRUE = -32
 _SCORE_FACTOR_WRONG_WITNESS = 1
 
 
-class ExpectedResult(collections.namedtuple("ExpectedResult", "result subproperty")):
+class ExpectedResult(NamedTuple):
     """Stores the expected result and respective information for a task"""
 
-    __slots__ = ()  # reduce per-instance memory consumption
+    result: bool | None
+    subproperty: str | None
 
     def __str__(self):
         result = {True: "true", False: "false"}.get(self.result, "")
@@ -135,10 +136,17 @@ class ExpectedResult(collections.namedtuple("ExpectedResult", "result subpropert
         return ExpectedResult(match.group(1) == "true", match.group(3))
 
 
-class Property(collections.namedtuple("Property", "filename is_svcomp name")):
-    """Stores information about a property"""
+class Property(NamedTuple):
+    """
+    Stores information about a property.
+    While this class is technically a tuple,
+    this should be seen as an implementation detail and the order of elements in the
+    tuple should not be considered. New fields may be added in the future.
+    """
 
-    __slots__ = ()  # reduce per-instance memory consumption
+    filename: str | None
+    is_svcomp: bool
+    name: str
 
     _cache = {}  # cache for Property instances / OSErrors on creation
 

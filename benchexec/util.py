@@ -10,7 +10,6 @@ This module contains some useful functions for Strings, XML or Lists.
 """
 
 import argparse
-import collections
 import ctypes
 import datetime
 import errno
@@ -26,6 +25,7 @@ import stat
 import subprocess
 import sys
 from ctypes.util import find_library
+from typing import NamedTuple
 from xml.etree import ElementTree
 
 _BYTE_FACTOR = 1000  # byte in kilobyte
@@ -548,11 +548,19 @@ def is_url(path_or_url):
     return "://" in path_or_url or path_or_url.startswith("file:")
 
 
-class ProcessExitCode(collections.namedtuple("ProcessExitCode", "raw value signal")):
-    """Tuple for storing the exit status indication given by a os.wait() call.
+class ProcessExitCode(NamedTuple):
+    """
+    Class for storing the exit status indication given by a os.wait() call.
     Only value or signal are present, not both
     (a process cannot return a value when it is killed by a signal).
+    While this class is technically a tuple,
+    this should be seen as an implementation detail and the order of elements in the
+    tuple should not be considered. New fields may be added in the future.
     """
+
+    raw: int
+    value: int | None
+    signal: int | None
 
     @classmethod
     def from_raw(cls, exitcode):

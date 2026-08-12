@@ -21,7 +21,7 @@ import logging
 import os
 import subprocess
 from abc import ABCMeta, abstractmethod
-from collections import namedtuple
+from typing import NamedTuple
 
 import benchexec
 from benchexec import result, util
@@ -360,8 +360,20 @@ class BaseTool2(metaclass=ABCMeta):
     # Classes that are used in parameters above
 
     class ToolLocator(
-        namedtuple("ToolLocator", ["tool_directory", "use_path", "use_current"])
+        NamedTuple(
+            "ToolLocator",
+            [("tool_directory", str | None), ("use_path", bool), ("use_current", bool)],
+        )
     ):
+        """
+        Allows searching for an executable in the user-specified way.
+        While this class is technically a tuple, this fact and all defined fields
+        should be seen as an implementation detail and not used.
+        A given instance should be used only for calling the the find_executable() method.
+        """
+
+        __slots__ = ()  # reduce per-instance memory consumption
+
         def find_executable(self, executable_name, subdir=""):
             assert os.path.basename(executable_name) == executable_name, (
                 "Executable needs to be a simple file name"
@@ -407,8 +419,14 @@ class BaseTool2(metaclass=ABCMeta):
             return super().__new__(cls, tool_directory, use_path, use_current)
 
     class Task(
-        namedtuple(
-            "Task", ["input_files_or_empty", "identifier", "property_file", "options"]
+        NamedTuple(
+            "Task",
+            [
+                ("input_files_or_empty", collections.abc.Sequence[str]),
+                ("identifier", str | None),
+                ("property_file", str | None),
+                ("options", dict | None),
+            ],
         )
     ):
         """
@@ -428,6 +446,8 @@ class BaseTool2(metaclass=ABCMeta):
             working directory) or None otherwise
         options: content of the "options" key in the task-definition file (if present)
         """
+
+        __slots__ = ()  # reduce per-instance memory consumption
 
         def __new__(cls, input_files, identifier, property_file, options):
             input_files = tuple(input_files)  # make input_files immutable
@@ -502,12 +522,7 @@ class BaseTool2(metaclass=ABCMeta):
                     "Tool does not support tasks with more than one input file"
                 )
 
-    class ResourceLimits(
-        namedtuple(
-            "ResourceLimits",
-            ["cputime", "cputime_hard", "walltime", "memory", "cpu_cores"],
-        )
-    ):
+    class ResourceLimits(NamedTuple):
         """
         Represent resource limits of a run. While this class is technically a tuple,
         this should be seen as an implementation detail and the order of elements in the
@@ -523,23 +538,25 @@ class BaseTool2(metaclass=ABCMeta):
         memory: Memory limit in bytes
         cpu_cores: Number of CPU cores allowed to be used
 
-        The CPU-time limits will either both have a value of both be None.
+        The CPU-time limits will either both have a value or both be None.
         """
 
-        def __new__(
-            cls,
-            cputime=None,
-            cputime_hard=None,
-            walltime=None,
-            memory=None,
-            cpu_cores=None,
-        ):
-            return super().__new__(
-                cls, cputime, cputime_hard, walltime, memory, cpu_cores
-            )
+        cputime: int | None = None
+        cputime_hard: int | None = None
+        walltime: int | None = None
+        memory: int | None = None
+        cpu_cores: int | None = None
 
     class Run(
-        namedtuple("Run", ["cmdline", "exit_code", "output", "termination_reason"])
+        NamedTuple(
+            "Run",
+            [
+                ("cmdline", collections.abc.Sequence[str]),
+                ("exit_code", util.ProcessExitCode),
+                ("output", "BaseTool2.RunOutput"),
+                ("termination_reason", str | None),
+            ],
+        )
     ):
         """
         Represent a run (one tool execution) and its result. While this class is
@@ -547,7 +564,7 @@ class BaseTool2(metaclass=ABCMeta):
         and the order of elements in the tuple should not be considered.
         New fields may be added in the future.
 
-        Explanation of files:
+        Explanation of fields:
         @param cmdline: command line as executed (as sequence of strings)
         @param exit_code: an instance of class benchexec.util.ProcessExitCode
             (contains return code or the signal that led to termination)
@@ -556,6 +573,8 @@ class BaseTool2(metaclass=ABCMeta):
             (cf. https://github.com/sosy-lab/benchexec/blob/main/doc/run-results.md,
             useful to distinguish between program killed because of error and timeout)
         """
+
+        __slots__ = ()  # reduce per-instance memory consumption
 
         def __new__(cls, cmdline, exit_code, output, termination_reason):
             cmdline = tuple(cmdline)  # make cmdline immutable
