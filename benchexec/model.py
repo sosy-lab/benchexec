@@ -1002,6 +1002,8 @@ class Run:
     A Run contains some sourcefile, some options, propertyfiles and some other stuff, that is needed for the Run.
     """
 
+    _cmdline: list[str] | None  # stores cmdline() result for later
+
     def __init__(
         self,
         identifier,
