@@ -533,8 +533,9 @@ class CgroupsV2(Cgroups):
             # no cgroup available at all, likely a container
 
             # Podman detection from https://github.com/containers/podman/issues/3586
-            if os.getenv("container") == "podman" or os.path.exists(
-                "/run/.containerenv"
+            if (
+                os.getenv("container") == "podman"  # noqa: SIM112 lowercase variable created by other tools
+                or os.path.exists("/run/.containerenv")
             ):
                 sys.exit(_ERROR_PODMAN)
 
