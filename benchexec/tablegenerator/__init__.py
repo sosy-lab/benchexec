@@ -936,7 +936,7 @@ class Row:
 
 def get_property_of_task(
     task_name, base_path, property_string, property_file, expected_result
-):
+) -> tuple[result.Property | None, result.ExpectedResult | None]:
     if property_string is None:
         return (None, None)
 

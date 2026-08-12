@@ -9,7 +9,6 @@
 This module contains some useful functions for Strings, Files and Lists.
 """
 
-import collections
 import glob
 import io
 import logging
@@ -18,9 +17,10 @@ import platform
 import urllib.request
 from collections.abc import Iterable
 from decimal import Decimal
-from typing import TypeVar
+from typing import NamedTuple, TypeVar
 
 import benchexec.util
+from benchexec import result
 
 # May be extended with higher numbers
 ROMAN_NUMBERS = {
@@ -36,12 +36,14 @@ ROMAN_NUMBERS = {
 _T = TypeVar("_T")
 
 
-class TaskId(
-    collections.namedtuple(
-        "TaskId", "name property expected_result witness_category runset"
-    )
-):
+class TaskId(NamedTuple):
     """Uniquely identifies a task (name of input file, property, etc.)."""
+
+    name: str
+    property: result.Property | None
+    expected_result: result.ExpectedResult | None
+    witness_category: str | None
+    runset: str | None
 
     field_names = [
         "Task name",
@@ -50,8 +52,6 @@ class TaskId(
         "Witness category",
         "Run set",
     ]
-
-    __slots__ = ()  # reduce per-instance memory consumption
 
     def __str__(self):
         return "'" + ", ".join(str(s) for s in self if s) + "'"
