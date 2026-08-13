@@ -461,8 +461,7 @@ def _prepare_rows_for_js(rows, base_dir, href_base, relevant_id_columns):
         return result
 
     def clean_up_row(row):
-        result = {}
-        result["id"] = [
+        id_parts = [
             str(id_part)
             for id_part, relevant in zip(row.id, relevant_id_columns)
             if id_part and relevant
@@ -470,9 +469,12 @@ def _prepare_rows_for_js(rows, base_dir, href_base, relevant_id_columns):
         # Replace first part of id (task name, which is always shown) with short name
         assert relevant_id_columns[0]
         # row.short_filename may contain paths, so standardize the output across OSs
-        result["id"][0] = util.fix_path_if_on_windows(row.short_filename)
+        id_parts[0] = util.fix_path_if_on_windows(row.short_filename)
 
-        result["results"] = [clean_up_results(res) for res in row.results]
+        result = {
+            "id": id_parts,
+            "results": [clean_up_results(res) for res in row.results],
+        }
         if row.has_sourcefile:
             result["href"] = _create_link(row.id.name, base_dir)
         return result
