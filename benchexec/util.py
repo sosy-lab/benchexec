@@ -789,18 +789,19 @@ def get_capability(filename):
 
         @filename: The complete path to the file
     """
-    res = {"capabilities": [], "set": []}
     libcap_path = find_library("cap")
     libcap = ctypes.cdll.LoadLibrary(libcap_path)
     cap_t = libcap.cap_get_file(ctypes.create_string_buffer(filename.encode()))
     libcap.cap_to_text.restype = ctypes.c_char_p
     cap_object = libcap.cap_to_text(cap_t, None)
     libcap.cap_free(cap_t)
-    if cap_object is not None:
-        cap_string = cap_object.decode()
-        res["capabilities"] = (cap_string.split("+")[0])[2:].split(",")
-        res["set"] = list(cap_string.split("+")[1])
-    return res
+    if not cap_object:
+        return ([], [])
+
+    cap_string = cap_object.decode()
+    capabilities = (cap_string.split("+")[0])[2:].split(",")
+    capability_set = list(cap_string.split("+")[1])
+    return (capabilities, capability_set)
 
 
 def check_msr():

@@ -212,12 +212,12 @@ class Pqos:
         This method logs a detailed error on a failed pqos_error command.
         """
         try:
-            cap = get_capability(self.executable_path)
+            capabilities, capability_set = get_capability(self.executable_path)
         except OSError:
             logging.warning("Unable to find capabilities for %s", self.executable_path)
         else:
-            if self.CAP_SYS_RAWIO in cap["capabilities"]:
-                if not all(x in cap["set"] for x in ["e", "p"]):
+            if self.CAP_SYS_RAWIO in capabilities:
+                if not all(x in capability_set for x in ["e", "p"]):
                     logging.warning(
                         "Insufficient capabilities for pqos_wrapper, Please add e,p in cap_sys_rawio capability set of pqos_wrapper"
                     )
