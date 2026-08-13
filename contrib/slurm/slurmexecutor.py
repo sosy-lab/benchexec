@@ -129,7 +129,7 @@ class _Worker(threading.Thread):
         self.run_finished_callback = run_finished_callback
         self.benchmark = benchmark
         self.output_handler = output_handler
-        self.setDaemon(True)
+        self.daemon = True
 
         self.start()
 
