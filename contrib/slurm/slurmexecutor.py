@@ -262,7 +262,7 @@ def run_slurm(benchmark, args, log_file):
             "srun",
             "--quit-on-interrupt",
             "-t",
-            str(srun_timelimit),
+            srun_timelimit,
             "-c",
             str(cpus),
             "--mem",
