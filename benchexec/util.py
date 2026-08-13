@@ -789,14 +789,9 @@ def get_capability(filename):
 
         @filename: The complete path to the file
     """
-    res = {"capabilities": [], "set": [], "error": False}
-    try:
-        libcap_path = find_library("cap")
-        libcap = ctypes.cdll.LoadLibrary(libcap_path)
-    except OSError:
-        res["error"] = True
-        logging.warning("Unable to find capabilities for %s", filename)
-        return res
+    res = {"capabilities": [], "set": []}
+    libcap_path = find_library("cap")
+    libcap = ctypes.cdll.LoadLibrary(libcap_path)
     cap_t = libcap.cap_get_file(ctypes.create_string_buffer(filename.encode()))
     libcap.cap_to_text.restype = ctypes.c_char_p
     cap_object = libcap.cap_to_text(cap_t, None)
