@@ -165,7 +165,11 @@ def _create_systemd_scope_for_us():
         from pystemd.dbusexc import DBusBaseError
         from pystemd.dbuslib import DBus
         from pystemd.systemd1 import Manager, Unit
+    except ImportError:
+        logging.debug("pystemd could not be imported.")
+        return False
 
+    try:
         with DBus(user_mode=True) as bus, Manager(bus=bus) as manager:
             unit_params = {
                 # workaround for not declared parameters, remove in the future
@@ -222,9 +226,7 @@ def _create_systemd_scope_for_us():
             logging.debug("Process moved to a fresh systemd scope: %s", name.decode())
             return True
 
-    except ImportError:
-        logging.debug("pystemd could not be imported.")
-    except DBusBaseError as e:  # pytype: disable=name-error
+    except DBusBaseError as e:  # pytype: disable=mro-error
         if -e.errno in [errno.ENOENT, errno.ENOMEDIUM]:
             logging.debug("No user DBus found, not using pystemd: %s", e)
         else:
