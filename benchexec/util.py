@@ -363,7 +363,7 @@ def find_executable(program, fallback=None, exitOnError=True, use_current_dir=Tr
     if fallback is not None and os.path.isfile(fallback):
         if os.access(fallback, os.X_OK):
             return fallback
-        found_non_executable.append(name)
+        found_non_executable.append(fallback)
 
     if exitOnError:
         if found_non_executable:
