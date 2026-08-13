@@ -351,7 +351,7 @@ def main(argv=None):
         "--tool-directory",
         help="look for tool in given directory",
         metavar="DIR",
-        type=benchexec.util.non_empty_str,
+        type=util.non_empty_str,
     )
     parser.add_argument(
         "--tool-output",
