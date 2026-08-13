@@ -442,8 +442,8 @@ def rmtree(path, ignore_errors=False, onerror=None):
 
     for root, dirs, _files in os.walk(path):
         for directory in dirs:
+            abs_directory = os.path.join(root, directory)
             try:
-                abs_directory = os.path.join(root, directory)
                 os.chmod(abs_directory, stat.S_IRWXU)
             except OSError as e:
                 onerror(os.chmod, abs_directory, e)

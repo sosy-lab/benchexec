@@ -67,9 +67,9 @@ def execute_benchmark(benchmark, output_handler):
         aws_endpoint = conf["Endpoint"]
         aws_token = conf["UserToken"]
 
-    try:
-        start_time = benchexec.util.read_local_time()
+    start_time = benchexec.util.read_local_time()
 
+    try:
         # Create
         logging.info("Sending http-request for the specific upload destinations")
         url = REQUEST_URL["create"].format(aws_endpoint, aws_token)
