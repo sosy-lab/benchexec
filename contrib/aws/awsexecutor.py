@@ -13,7 +13,7 @@ import os
 import shutil
 import sys
 import tempfile
-import urllib
+import urllib.parse
 import zipfile
 from threading import Event
 

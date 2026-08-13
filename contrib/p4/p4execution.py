@@ -20,6 +20,8 @@ from p4.p4_run_setup import P4SetupHandler
 
 try:
     import docker
+    import docker.errors
+    import docker.types
 except ModuleNotFoundError:
     raise BenchExecException(
         "Python-docker package not found. Try reinstalling python docker module"
