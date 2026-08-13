@@ -259,7 +259,7 @@ def _try_fallback_cgroup():
     return False
 
 
-def _find_cgroup_mount():
+def _find_cgroup_mount() -> pathlib.Path | None:
     """
     Return the mountpoint of the cgroupv2 unified hierarchy.
     @return Path mountpoint
@@ -274,7 +274,7 @@ def _find_cgroup_mount():
         logging.exception("Cannot read /proc/mounts")
 
 
-def _find_own_cgroups():
+def _find_own_cgroups() -> pathlib.Path | None:
     """
     For all subsystems, return the information in which (sub-)cgroup this process is in.
     (Each process is in exactly cgroup in each hierarchy.)
@@ -287,13 +287,17 @@ def _find_own_cgroups():
         logging.exception("Cannot read /proc/self/cgroup")
 
 
-def _parse_proc_pid_cgroup(cgroup_file):
+def _parse_proc_pid_cgroup(cgroup_file) -> pathlib.Path | None:
     """
-    Parse a /proc/*/cgroup file into tuples of (subsystem,cgroup).
+    Parse a /proc/*/cgroup file into full path to our cgroup.
     @param content: An iterable over the lines of the file.
-    @return: a generator of tuples
+    @return: a path
     """
     mountpoint = _find_cgroup_mount()
+    if not mountpoint:
+        return None
+
+    path = None
     for line in cgroup_file:
         own_cgroup = line.strip().split(":")[2][1:]
         if own_cgroup.startswith("../"):
@@ -303,6 +307,9 @@ def _parse_proc_pid_cgroup(cgroup_file):
             logging.debug("Process is in unusable out-of-tree cgroup '%s'", own_cgroup)
             return None
         path = mountpoint / own_cgroup
+
+    if not path:
+        logging.warning("Unexpected empty /proc/self/cgroup file")
 
     return path
 
