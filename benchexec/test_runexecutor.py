@@ -915,7 +915,7 @@ class TestRunExecutorWithContainer(TestRunExecutor):
         try:
             container.execute_in_namespace(lambda: 0)
         except OSError as e:
-            self.skipTest(f"Namespaces not supported: {os.strerror(e.errno)}")
+            self.skipTest(f"Namespaces not supported: {e.strerror}")
 
         dir_modes = kwargs.pop(
             "dir_modes",
