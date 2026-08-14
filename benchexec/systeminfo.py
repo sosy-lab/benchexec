@@ -125,18 +125,21 @@ class CPUThrottleCheck:
         """
         Create an instance that monitors the given list of cores (or all CPUs).
         """
-        self.cpu_throttle_count = {}
-        cores = [str(core) for core in cores] if cores else ["*"]
-        for core in cores:
-            for file in glob.iglob(
+        self.files = [
+            f
+            for core in (cores or ["*"])
+            for f in glob.iglob(
                 f"/sys/devices/system/cpu/cpu{core}/thermal_throttle/*_throttle_count"
-            ):
-                try:
-                    self.cpu_throttle_count[file] = int(util.read_file(file))
-                except Exception as e:
-                    logging.warning(
-                        "Cannot read throttling count of CPU from kernel: %s", e
-                    )
+            )
+        ]
+        self.cpu_throttle_count = self._read_cpu_throttle_count()
+
+    def _read_cpu_throttle_count(self):
+        try:
+            return {f: int(util.read_file(f)) for f in self.files}
+        except (OSError, ValueError) as e:
+            logging.warning("Could not read throttling count of CPU from kernel: %s", e)
+            return {}
 
     def has_throttled(self):
         """
@@ -144,15 +147,11 @@ class CPUThrottleCheck:
         throttled since this instance was created.
         @return a boolean value
         """
-        for file, value in self.cpu_throttle_count.items():
-            try:
-                new_value = int(util.read_file(file))
-                if new_value > value:
-                    return True
-            except Exception as e:
-                logging.warning(
-                    "Cannot read throttling count of CPU from kernel: %s", e
-                )
+        new_values = self._read_cpu_throttle_count()
+        for key, new_value in new_values.items():
+            old_value = self.cpu_throttle_count.get(key, 0)
+            if new_value > old_value:
+                return True
         return False
 
 
