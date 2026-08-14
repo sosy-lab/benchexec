@@ -41,7 +41,6 @@ class SystemInfo:
 
         # get info about CPU
         cpuInfo = {}
-        self.cpu_max_frequency = None
         cpuInfoFilename = "/proc/cpuinfo"
         self.cpu_number_of_cores = "unknown"
         if os.path.isfile(cpuInfoFilename) and os.access(cpuInfoFilename, os.R_OK):
@@ -65,17 +64,19 @@ class SystemInfo:
             .replace("(TM)", "")
             .replace("(tm)", "")
         )
-        if "cpu MHz" in cpuInfo:
-            freq_hz = Decimal(cpuInfo["cpu MHz"]) * 1000 * 1000  # convert to Hz
-            self.cpu_max_frequency = int((freq_hz).to_integral_value())
 
         # Modern CPUs do not have a constant frequency and can be limited.
         # We want the maximum frequency that the CPU could use,
-        # and if we can read it we will overwrite the value from above.
+        # and if we can not read it fall back to nominal frequency from cpuinfo.
         freqInfoFilename = "/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq"
         cpu_max_frequency = util.try_read_file(freqInfoFilename)
         if cpu_max_frequency:
             self.cpu_max_frequency = int(cpu_max_frequency) * 1000  # convert to Hz
+        elif "cpu MHz" in cpuInfo:
+            freq_hz = Decimal(cpuInfo["cpu MHz"]) * 1000 * 1000  # convert to Hz
+            self.cpu_max_frequency = int((freq_hz).to_integral_value())
+        else:
+            self.cpu_max_frequency = None
 
         self.cpu_turboboost = is_turbo_boost_enabled()
 
