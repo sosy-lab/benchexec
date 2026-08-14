@@ -59,10 +59,10 @@ class SystemInfo:
             )
         self.cpu_model = (
             cpuInfo.get("model name", "unknown")
-            .strip()
             .replace("(R)", "")
             .replace("(TM)", "")
             .replace("(tm)", "")
+            .strip()
         )
 
         # Modern CPUs do not have a constant frequency and can be limited.
