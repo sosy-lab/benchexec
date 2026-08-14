@@ -170,8 +170,9 @@ class SwapCheck:
                 for k, v in util.read_key_value_pairs_from_file("/proc/vmstat")
                 if k in ["pswpin", "pswpout"]
             }
-        except Exception as e:
+        except (OSError, ValueError) as e:
             logging.warning("Cannot read swap count from kernel: %s", e)
+            return {}
 
     def has_swapped(self):
         """
