@@ -95,7 +95,7 @@ class SystemInfo:
         self.memory = memInfo.get("MemTotal", "unknown").strip()
         if self.memory.endswith(" kB"):
             # kernel uses KiB but names them kB, convert to Byte
-            self.memory = int(self.memory[:-3]) * 1024
+            self.memory = int(self.memory.removesuffix(" kB")) * 1024
 
         self.environment = os.environ.copy()
         # The following variables are overridden by runexec anyway.
