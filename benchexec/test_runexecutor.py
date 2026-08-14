@@ -39,9 +39,6 @@ trivial_run_grace_time = 0.2
 class TestRunExecutor(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        if not hasattr(cls, "assertRegex"):
-            cls.assertRegex = cls.assertRegexpMatches
-
         cls.cgroups = Cgroups.initialize()
 
         cls.echo = shutil.which("echo") or "/bin/echo"
