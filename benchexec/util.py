@@ -790,6 +790,8 @@ def get_capability(filename):
         @filename: The complete path to the file
     """
     libcap_path = find_library("cap")
+    if not libcap_path:
+        raise FileNotFoundError
     libcap = ctypes.cdll.LoadLibrary(libcap_path)
     cap_t = libcap.cap_get_file(ctypes.create_string_buffer(filename.encode()))
     libcap.cap_to_text.restype = ctypes.c_char_p
