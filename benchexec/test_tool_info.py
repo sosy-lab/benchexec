@@ -134,7 +134,7 @@ def print_tool_info(tool, tool_locator):
     try:
         version = tool.version(executable)
     except BaseException:
-        logging.warning("Determining version failed:", exc_info=1)
+        logging.warning("Determining version failed:", exc_info=True)
     if version:
         print_value("Version", tool.version(executable))
         if version[0] < "0" or version[0] > "9":
@@ -328,7 +328,7 @@ def analyze_tool_output(tool, file, dummy_cmdline):
         )
     except BaseException:
         logging.warning(
-            "Tool module failed to analyze result in “%s”:", file.name, exc_info=1
+            "Tool module failed to analyze result in “%s”:", file.name, exc_info=True
         )
 
 
