@@ -30,6 +30,38 @@ _TURBO_BOOST_FILE = "/sys/devices/system/cpu/cpufreq/boost"
 _TURBO_BOOST_FILE_PSTATE = "/sys/devices/system/cpu/intel_pstate/no_turbo"
 
 
+def _read_cpu_info() -> list[list[str]]:
+    """
+    Return key-value pairs from /proc/cpuinfo. Keys occur once per CPU core,
+    so the result is a list of lists with pairs, not a dict.
+    Values may still have white space or be the empty string.
+    On error an empty list is returned.
+    """
+    try:
+        with open("/proc/cpuinfo", "rt") as cpuinfo:
+            return [
+                line.strip().replace("\t", "").split(":", maxsplit=2)
+                for line in cpuinfo
+                if line.strip()
+            ]
+    except OSError as e:
+        logging.warning("Could not read CPU information from kernel: %s", e)
+        return []
+
+
+def _read_memory_info() -> dict[str, str]:
+    """Return key-value pairs from /proc/meminfo.  On error an empty dict is returned."""
+    try:
+        with open("/proc/meminfo", "rt") as meminfo:
+            return dict(
+                line.strip().replace("\t", "").split(": ", maxsplit=2)
+                for line in meminfo
+            )
+    except OSError as e:
+        logging.warning("Could not read memory information from kernel: %s", e)
+        return {}
+
+
 class SystemInfo:
     def __init__(self):
         """
@@ -40,23 +72,11 @@ class SystemInfo:
         self.os = platform.platform(aliased=True)
 
         # get info about CPU
-        cpuInfo = {}
-        cpuInfoFilename = "/proc/cpuinfo"
-        self.cpu_number_of_cores = "unknown"
-        if os.path.isfile(cpuInfoFilename) and os.access(cpuInfoFilename, os.R_OK):
-            with open(cpuInfoFilename, "rt") as cpuInfoFile:
-                cpuInfoLines = [
-                    tuple(line.split(":"))
-                    for line in cpuInfoFile.read()
-                    .replace("\n\n", "\n")
-                    .replace("\t", "")
-                    .strip("\n")
-                    .split("\n")
-                ]
-            cpuInfo = dict(cpuInfoLines)
-            self.cpu_number_of_cores = str(
-                len([line for line in cpuInfoLines if line[0] == "processor"])
-            )
+        cpuInfoLines = _read_cpu_info()
+        cpuInfo = dict(cpuInfoLines)
+        self.cpu_number_of_cores = (
+            str(sum(1 for key, _ in cpuInfoLines if key == "processor")) or "unknown"
+        )
         self.cpu_model = (
             cpuInfo.get("model name", "unknown")
             .replace("(R)", "")
@@ -81,17 +101,7 @@ class SystemInfo:
         self.cpu_turboboost = is_turbo_boost_enabled()
 
         # get info about memory
-        memInfo = {}
-        memInfoFilename = "/proc/meminfo"
-        if os.path.isfile(memInfoFilename) and os.access(memInfoFilename, os.R_OK):
-            with open(memInfoFilename, "rt") as memInfoFile:
-                memInfo = dict(
-                    tuple(s.split(": "))
-                    for s in memInfoFile.read()
-                    .replace("\t", "")
-                    .strip("\n")
-                    .split("\n")
-                )
+        memInfo = _read_memory_info()
         self.memory = memInfo.get("MemTotal", "unknown").strip()
         if self.memory.endswith(" kB"):
             # kernel uses KiB but names them kB, convert to Byte
