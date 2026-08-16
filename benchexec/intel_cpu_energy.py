@@ -64,7 +64,7 @@ class Package(AreaOfMeasurement):
 
 class EnergyMeasurement:
     error_event = threading.Event()
-    interval = 1000  #default measurement interval in seconds
+    interval = 1000  # default measurement interval in seconds
 
     def __init__(self):
         self.update_thread = threading.Thread(target=self.update_values)
@@ -126,9 +126,7 @@ class EnergyMeasurement:
         self.update_all()
         while not self.stop_event.wait(
             timeout=self.interval
-        ) and not EnergyMeasurement.error_event.wait(
-            timeout=self.interval
-        ):
+        ) and not EnergyMeasurement.error_event.wait(timeout=self.interval):
             self.update_all()
         if EnergyMeasurement.error_event.is_set():
             logging.error("Energy measurement failed")
@@ -146,8 +144,14 @@ class EnergyMeasurement:
             for constraint_name in package.path.glob("constraint_*_name"):
                 if get_path_content(constraint_name) == "short_term":
                     constraint_prefix = constraint_name.name.removesuffix("_name")
-                    constraint_value = int(get_path_content(package.path / f"{constraint_prefix}_power_limit_uw"))
-                    max_range = int(get_path_content(package.path / "max_energy_range_uj"))
+                    constraint_value = int(
+                        get_path_content(
+                            package.path / f"{constraint_prefix}_power_limit_uw"
+                        )
+                    )
+                    max_range = int(
+                        get_path_content(package.path / "max_energy_range_uj")
+                    )
                     if constraint_value == 0 or max_range == 0:
                         print(f"failed interval {package.name}")
                         return
@@ -172,7 +176,8 @@ def get_path_content(path):
         content = path.read_text().strip()
         return content
     except OSError as error:
-        logging.debug(f"cannot read {path}: {error}")
+        message = f"cannot read {path}: {error}"
+        logging.debug(message)
         EnergyMeasurement.error_event.set()
         return "0"
     # because the int() function throws a seperate error on None values
