@@ -64,7 +64,7 @@ class Package(AreaOfMeasurement):
 
 class EnergyMeasurement:
     error_event = threading.Event()
-    interval = 1.0  # measurement intervall in seconds
+    interval = 1000  #default measurement interval in seconds
 
     def __init__(self):
         self.update_thread = threading.Thread(target=self.update_values)
@@ -88,6 +88,7 @@ class EnergyMeasurement:
                 domains.append(Domain(d_name, domain, EnergyWrapper(0)))
 
             self.packages.append(Package(p_name, package, EnergyWrapper(0), domains))
+        self.calculate_interval()
 
     @classmethod
     def create_if_supported(cls):
@@ -124,15 +125,36 @@ class EnergyMeasurement:
         """this method is run by a thread to constantly sample energy values for overhead protection"""
         self.update_all()
         while not self.stop_event.wait(
-            timeout=EnergyMeasurement.interval
+            timeout=self.interval
         ) and not EnergyMeasurement.error_event.wait(
-            timeout=EnergyMeasurement.interval
+            timeout=self.interval
         ):
             self.update_all()
         if EnergyMeasurement.error_event.is_set():
             logging.error("Energy measurement failed")
             return
         self.update_all()
+
+    def calculate_interval(self):
+        """calculate measurement interval from short term power limit
+        each package has various constraints numbered from 0, therefore we have to check
+        each constraint name to find the number correlating to the short term limit
+        Example limit file name would be "constraint_1_power_limit_uw
+        We choose the smallest calculated interval as a worst case assumption"""
+        intervals = []
+        for package in self.packages:
+            for constraint_name in package.path.glob("constraint_*_name"):
+                if get_path_content(constraint_name) == "short_term":
+                    constraint_prefix = constraint_name.name.removesuffix("_name")
+                    constraint_value = int(get_path_content(package.path / f"{constraint_prefix}_power_limit_uw"))
+                    max_range = int(get_path_content(package.path / "max_energy_range_uj"))
+                    if constraint_value == 0 or max_range == 0:
+                        print(f"failed interval {package.name}")
+                        return
+                    intervals.append(max_range / constraint_value)
+
+        if intervals != []:
+            self.interval = min(intervals)
 
     def __str__(self):
         string = ""
