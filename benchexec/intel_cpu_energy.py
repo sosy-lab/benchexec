@@ -64,6 +64,7 @@ class Package(AreaOfMeasurement):
 
 class EnergyMeasurement:
     error_event = threading.Event()
+    interval = 1.0  # measurement intervall in seconds
 
     def __init__(self):
         self.update_thread = threading.Thread(target=self.update_values)
@@ -106,6 +107,8 @@ class EnergyMeasurement:
         """Stop the measurement if it hasn't been stopped already
         This method has to return self because of the way the old cpu-energy-meter was implemented,
         changing this would require changing the readout in every other file"""
+        if EnergyMeasurement.error_event.is_set():
+            return None
         if not self.update_thread.is_alive():
             return self
         self.stop_event.set()
@@ -121,21 +124,15 @@ class EnergyMeasurement:
         """this method is run by a thread to constantly sample energy values for overhead protection"""
         self.update_all()
         while not self.stop_event.wait(
-            timeout=1.0
-        ) and not EnergyMeasurement.error_event.wait(timeout=1.0):
+            timeout=EnergyMeasurement.interval
+        ) and not EnergyMeasurement.error_event.wait(
+            timeout=EnergyMeasurement.interval
+        ):
             self.update_all()
         if EnergyMeasurement.error_event.is_set():
-            print("Energy measurement failed, defaulting to 0")
-            self.reset_values()
+            logging.error("Energy measurement failed")
             return
         self.update_all()
-
-    def reset_values(self):
-        """reset all values to 0 in case of failure"""
-        for p in self.packages:
-            p.energy.total = 0
-            for d in p.domains:
-                d.energy.total = 0
 
     def __str__(self):
         string = ""
@@ -153,7 +150,7 @@ def get_path_content(path):
         content = path.read_text().strip()
         return content
     except OSError as error:
-        print(f"cannot read {path}: {error}")
+        logging.debug(f"cannot read {path}: {error}")
         EnergyMeasurement.error_event.set()
         return "0"
     # because the int() function throws a seperate error on None values
