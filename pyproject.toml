@@ -226,7 +226,6 @@ ignore = [
     "PTH1",
     "PTH20",
     "PTH211",  #  os-symlink
-    "PYI024",  #  collections-named-tuple
     "RET503",  #  implicit-return
     "RET504",  #  unnecessary-assign
     "RET505",  #  superfluous-else-return
@@ -243,11 +242,8 @@ ignore = [
     "S607",  #    start-process-with-partial-path
     "SIM105",  #  suppressible-exception
     "SIM108",  #  if-else-block-instead-of-if-exp
-    "SIM110",  #  reimplemented-builtin
-    "SIM112",  #  uncapitalized-environment-variables
     "SIM116",  #  if-else-block-instead-of-dict-lookup
     "SLF001",  #  private-member-access
-    "SLOT002",  # no-slots-in-namedtuple-subclass
     "T201",  #    print
     "TC006",  #   runtime-cast-value
     "TRY003",  #  raise-vanilla-args

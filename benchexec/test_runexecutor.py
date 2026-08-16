@@ -733,15 +733,19 @@ class TestRunExecutor(unittest.TestCase):
         )
         self.check_exitcode(result, 0, "exit code of /bin/sh is not zero")
         temp_dir = output[-1]
+        base_dir = os.path.dirname(temp_dir)
         test_file = os.path.join(temp_dir, "test")
-        subprocess.run(["test", "-f", test_file], check=True)
+        self.assertTrue(os.path.isfile(test_file))
         self.assertEqual(
             "tmp", os.path.basename(temp_dir), "unexpected name of temp dir"
         )
         self.assertNotEqual(
             "/tmp", temp_dir, "temp dir should not be the global temp dir"
         )
-        subprocess.run(["rm", "-r", os.path.dirname(temp_dir)], check=True)
+        self.assertNotEqual(
+            "/tmp", base_dir, "base dir should not be the global temp dir"
+        )
+        shutil.rmtree(base_dir)
 
     def test_require_cgroup_invalid(self):
         with self.assertLogs(level=logging.ERROR) as log, self.assertRaises(SystemExit):

@@ -9,7 +9,6 @@
 This module contains some useful functions for Strings, Files and Lists.
 """
 
-import collections
 import glob
 import io
 import logging
@@ -18,9 +17,10 @@ import platform
 import urllib.request
 from collections.abc import Iterable
 from decimal import Decimal
-from typing import TypeVar
+from typing import NamedTuple, TypeVar
 
 import benchexec.util
+from benchexec import result
 
 # May be extended with higher numbers
 ROMAN_NUMBERS = {
@@ -36,12 +36,14 @@ ROMAN_NUMBERS = {
 _T = TypeVar("_T")
 
 
-class TaskId(
-    collections.namedtuple(
-        "TaskId", "name property expected_result witness_category runset"
-    )
-):
+class TaskId(NamedTuple):
     """Uniquely identifies a task (name of input file, property, etc.)."""
+
+    name: str
+    property: result.Property | None
+    expected_result: result.ExpectedResult | None
+    witness_category: str | None
+    runset: str | None
 
     field_names = [
         "Task name",
@@ -50,8 +52,6 @@ class TaskId(
         "Witness category",
         "Run set",
     ]
-
-    __slots__ = ()  # reduce per-instance memory consumption
 
     def __str__(self):
         return "'" + ", ".join(str(s) for s in self if s) + "'"
@@ -347,13 +347,14 @@ def number_to_roman_string(number: int | str) -> str:
     highest_power = 1
     while highest_power <= number:
         highest_power *= 10
-    highest_power /= 10
+    highest_power //= 10
 
     # Displaying each "digit" (with zeros) in roman number format. For example number = 933:
     # Start with 900 -> CM, then subtract 900 from 933.
     # Now convert 30 -> XXX, subtract it from 33 and append it to output_string (CM + XXX = CMXXX).
     # Last convert 3 -> III and subtract it from 3 and append it to output_string (CMXXXIII).
     while number > 0:
+        assert highest_power in ROMAN_NUMBERS
         if number >= highest_power:
             prefix = int(number / highest_power)
             number -= prefix * highest_power
@@ -375,7 +376,7 @@ def number_to_roman_string(number: int | str) -> str:
             else:
                 raise ValueError("Unexpected prefix %s", prefix)
         else:
-            highest_power /= 10
+            highest_power //= 10
 
     return output_string
 

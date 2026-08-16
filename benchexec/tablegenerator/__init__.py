@@ -936,7 +936,7 @@ class Row:
 
 def get_property_of_task(
     task_name, base_path, property_string, property_file, expected_result
-):
+) -> tuple[result.Property | None, result.ExpectedResult | None]:
     if property_string is None:
         return (None, None)
 
@@ -1179,10 +1179,7 @@ def get_regression_count(rows, ignoreFlappingTimeouts):  # for options.dump_coun
         return run_result.status and run_result.status.startswith(status)
 
     def any_status_is(run_results, status):
-        for run_result in run_results:
-            if status_is(run_result, status):
-                return True
-        return False
+        return any(status_is(run_result, status) for run_result in run_results)
 
     regressions = 0
     for row in rows:

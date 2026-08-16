@@ -36,7 +36,7 @@ def _get_prop(property_file, property_dir, task_dir):
     return os.path.relpath(os.path.join(property_dir, property_file), task_dir)
 
 
-def handle_c(task_file, args) -> tuple[str, dict]:
+def handle_c(task_file: str, args) -> tuple[str, tuple[str, list[str]]]:
     """Create yml task definition for the given file.
     Return a tuple of a recommended new task name and the yml info as dictionary.
 

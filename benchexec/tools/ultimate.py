@@ -449,11 +449,7 @@ class UltimateTool(benchexec.tools.template.BaseTool2):
             "Reason: overapproximation of bitwiseComplement",
         ]
 
-        for trigger in triggers:
-            if trigger in line:
-                return True
-
-        return False
+        return any(trigger in line for trigger in triggers)
 
     @staticmethod
     def _determine_result_with_property_file(run):

@@ -7,6 +7,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import benchexec
+import benchexec.tools.template
 from benchexec import result
 
 
