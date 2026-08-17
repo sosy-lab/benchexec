@@ -256,7 +256,7 @@ def getCloudInput(benchmark):
     requirements = {"cores": r.cpu_cores, "memory_b": r.memory}
 
     if r.cpu_model:
-        requirements["cpumodels"] = [m.strip() for m in r.cpu_model.split(",")]
+        requirements["cpumodels"] = r.cpu_model
     cloud_input["requirements"] = requirements
 
     cloud_input["limits"] = limits
