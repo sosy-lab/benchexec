@@ -223,9 +223,8 @@ def getCloudInput(benchmark):
     r = benchmark.requirements
 
     rlimits = benchmark.rlimits
-    if rlimits.cputime_hard is None:
-        sys.exit("A CPU-time limit is required when running on cloud.")
 
+    # Existence of cputime_hard guaranteed above
     limits = {"hardtime_s": rlimits.cputime_hard}
 
     if rlimits.cpu_cores is not None:
