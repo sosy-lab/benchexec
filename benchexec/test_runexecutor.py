@@ -18,6 +18,8 @@ import threading
 import time
 import unittest
 
+import pytest
+
 from benchexec import (
     container,
     containerexecutor,
@@ -40,6 +42,28 @@ dd = shutil.which("dd") or "/bin/dd"
 echo = shutil.which("echo") or "/bin/echo"
 grep = shutil.which("grep") or "/bin/grep"
 sleep = shutil.which("sleep") or "/bin/sleep"
+
+
+requires_fuse_overlayfs = pytest.mark.skipif(
+    not container.get_fuse_overlayfs_executable(), reason="requires fuse-overlayfs"
+)
+requires_lxcfs = pytest.mark.skipif(
+    not os.path.exists("/var/lib/lxcfs/proc"), reason="requires LXCFS"
+)
+requires_cat = pytest.mark.skipif(not os.path.exists(cat), reason="requires /bin/cat")
+requires_dd = pytest.mark.skipif(not os.path.exists(dd), reason="requires /bin/dd")
+requires_echo = pytest.mark.skipif(
+    not os.path.exists(echo), reason="requires /bin/echo"
+)
+requires_grep = pytest.mark.skipif(
+    not os.path.exists(grep), reason="requires /bin/grep"
+)
+requires_sh = pytest.mark.skipif(
+    not os.path.exists("/bin/sh"), reason="requires /bin/sh"
+)
+requires_sleep = pytest.mark.skipif(
+    not os.path.exists(sleep), reason="requires /bin/sleep"
+)
 
 
 class TestRunExecutor(unittest.TestCase):
@@ -187,20 +211,17 @@ class TestRunExecutor(unittest.TestCase):
         else:
             self.assertEqual(int(result["exitsignal"]), exitcode.signal, msg)
 
+    @requires_echo
     def test_command_output(self):
-        if not os.path.exists(echo):
-            self.skipTest("missing echo")
         (_, output) = self.execute_run(echo, "TEST_TOKEN")
         self.check_command_in_output(output, f"{echo} TEST_TOKEN")
         self.assertEqual(output[-1], "TEST_TOKEN", "run output misses command output")
         for line in output[1:-1]:
             self.assertRegex(line, "^-*$", "unexpected text in run output")
 
+    @requires_echo
+    @requires_sh
     def test_command_error_output(self):
-        if not os.path.exists(echo):
-            self.skipTest("missing echo")
-        if not os.path.exists("/bin/sh"):
-            self.skipTest("missing /bin/sh")
 
         def execute_Run_intern(*args, **kwargs):
             (error_fd, error_filename) = tempfile.mkstemp(".log", "error_", text=True)
@@ -236,9 +257,8 @@ class TestRunExecutor(unittest.TestCase):
         for line in error_lines[1:]:
             self.assertRegex(line, "^-*$", "unexpected text in run error output")
 
+    @requires_echo
     def test_command_result(self):
-        if not os.path.exists(echo):
-            self.skipTest("missing echo")
         (result, _) = self.execute_run(echo, "TEST_TOKEN")
         self.check_exitcode(result, 0, "exit code of echo is not zero")
         self.assertAlmostEqual(
@@ -262,9 +282,8 @@ class TestRunExecutor(unittest.TestCase):
     def test_wrong_command_extern(self):
         self.execute_run("/does/not/exist", expect_terminationreason="failed")
 
+    @requires_sh
     def test_cputime_hardlimit(self):
-        if not os.path.exists("/bin/sh"):
-            self.skipTest("missing /bin/sh")
         with self.skip_if_logs("Time limit cannot be specified without cpuacct cgroup"):
             (result, output) = self.execute_run(
                 "/bin/sh",
@@ -290,9 +309,8 @@ class TestRunExecutor(unittest.TestCase):
         for line in output[1:]:
             self.assertRegex(line, "^-*$", "unexpected text in run output")
 
+    @requires_sh
     def test_cputime_softlimit(self):
-        if not os.path.exists("/bin/sh"):
-            self.skipTest("missing /bin/sh")
         with self.skip_if_logs(
             "Soft time limit cannot be specified without cpuacct cgroup"
         ):
@@ -320,9 +338,8 @@ class TestRunExecutor(unittest.TestCase):
         for line in output[1:]:
             self.assertRegex(line, "^-*$", "unexpected text in run output")
 
+    @requires_sleep
     def test_walltime_limit(self):
-        if not os.path.exists(sleep):
-            self.skipTest("missing sleep")
         (result, output) = self.execute_run(
             sleep, "10", walltimelimit=1, expect_terminationreason="walltime"
         )
@@ -346,9 +363,8 @@ class TestRunExecutor(unittest.TestCase):
         for line in output[1:]:
             self.assertRegex(line, "^-*$", "unexpected text in run output")
 
+    @requires_sh
     def test_cputime_walltime_limit(self):
-        if not os.path.exists("/bin/sh"):
-            self.skipTest("missing /bin/sh")
         with self.skip_if_logs("Time limit cannot be specified without cpuacct cgroup"):
             (result, output) = self.execute_run(
                 "/bin/sh",
@@ -376,9 +392,8 @@ class TestRunExecutor(unittest.TestCase):
         for line in output[1:]:
             self.assertRegex(line, "^-*$", "unexpected text in run output")
 
+    @requires_sh
     def test_all_timelimits(self):
-        if not os.path.exists("/bin/sh"):
-            self.skipTest("missing /bin/sh")
         with self.skip_if_logs("Time limit cannot be specified without cpuacct cgroup"):
             (result, output) = self.execute_run(
                 "/bin/sh",
@@ -407,9 +422,8 @@ class TestRunExecutor(unittest.TestCase):
         for line in output[1:]:
             self.assertRegex(line, "^-*$", "unexpected text in run output")
 
+    @requires_dd
     def test_memory_limit(self):
-        if not os.path.exists(dd):
-            self.skipTest("missing dd")
         memlimit = 100_000_000
         cmd = [
             dd,
@@ -435,9 +449,8 @@ class TestRunExecutor(unittest.TestCase):
         for line in output[1:]:
             self.assertRegex(line, "^-*$", "unexpected text in run output")
 
+    @requires_cat
     def test_input_is_redirected_from_devnull(self):
-        if not os.path.exists(cat):
-            self.skipTest("missing cat")
         (result, output) = self.execute_run(cat, walltimelimit=1)
 
         self.check_exitcode(result, 0, "exit code of process is not 0")
@@ -460,9 +473,8 @@ class TestRunExecutor(unittest.TestCase):
         for line in output[1:]:
             self.assertRegex(line, "^-*$", "unexpected text in run output")
 
+    @requires_cat
     def test_input_is_redirected_from_file(self):
-        if not os.path.exists(cat):
-            self.skipTest("missing cat")
         with tempfile.TemporaryFile() as tmp:
             tmp.write(b"TEST_TOKEN")
             tmp.flush()
@@ -490,10 +502,8 @@ class TestRunExecutor(unittest.TestCase):
         for line in output[1:-1]:
             self.assertRegex(line, "^-*$", "unexpected text in run output")
 
+    @requires_cat
     def test_input_is_redirected_from_stdin(self):
-        if not os.path.exists(cat):
-            self.skipTest("missing cat")
-
         (output_fd, output_filename) = tempfile.mkstemp(".log", "output_", text=True)
         cmd = self.get_runexec_cmdline(
             "--input",
@@ -555,9 +565,8 @@ class TestRunExecutor(unittest.TestCase):
         for line in output[1:-1]:
             self.assertRegex(line, "^-*$", "unexpected text in run output")
 
+    @requires_sh
     def test_append_environment_variable(self):
-        if not os.path.exists("/bin/sh"):
-            self.skipTest("missing /bin/sh")
         (_, output) = self.execute_run("/bin/sh", "-c", "echo $PATH")
         path = output[-1]
         (_, output) = self.execute_run(
@@ -568,17 +577,15 @@ class TestRunExecutor(unittest.TestCase):
         )
         self.assertEqual(output[-1], path + ":TEST_TOKEN")
 
+    @requires_sh
     def test_new_environment_variable(self):
-        if not os.path.exists("/bin/sh"):
-            self.skipTest("missing /bin/sh")
         (_, output) = self.execute_run(
             "/bin/sh", "-c", "echo $PATH", environments={"newEnv": {"PATH": "/usr/bin"}}
         )
         self.assertEqual(output[-1], "/usr/bin")
 
+    @requires_sleep
     def test_stop_run(self):
-        if not os.path.exists(sleep):
-            self.skipTest("missing sleep")
         thread = _StopRunThread(1, self.runexecutor)
         thread.start()
         (result, output) = self.execute_run(
@@ -657,9 +664,8 @@ class TestRunExecutor(unittest.TestCase):
         self.assertIn(self.REDUCE_WARNING_MSG, new_content)
         self.assertTrue(new_content.startswith(line))
 
+    @requires_sh
     def test_append_crash_dump_info(self):
-        if not os.path.exists("/bin/sh"):
-            self.skipTest("missing /bin/sh")
         (_result, output) = self.execute_run(
             "/bin/sh",
             "-c",
@@ -672,9 +678,8 @@ class TestRunExecutor(unittest.TestCase):
             output[-1], "TEST_TOKEN", "log file misses content from crash dump file"
         )
 
+    @requires_echo
     def test_integration(self):
-        if not os.path.exists(echo):
-            self.skipTest("missing echo")
         (result, output) = self.execute_run_extern(echo, "TEST_TOKEN")
         self.check_exitcode_extern(result, 0, "exit code of echo is not zero")
         self.check_result_keys(result, "returnvalue")
@@ -684,9 +689,8 @@ class TestRunExecutor(unittest.TestCase):
         for line in output[1:-1]:
             self.assertRegex(line, "^-*$", "unexpected text in run output")
 
+    @requires_sh
     def test_home_and_tmp_is_separate(self):
-        if not os.path.exists("/bin/sh"):
-            self.skipTest("missing /bin/sh")
         (result, output) = self.execute_run("/bin/sh", "-c", "echo $HOME $TMPDIR")
         self.check_exitcode(result, 0, "exit code of /bin/sh is not zero")
         self.assertRegex(
@@ -695,9 +699,8 @@ class TestRunExecutor(unittest.TestCase):
             "HOME or TMPDIR variable does not contain expected temporary directory",
         )
 
+    @requires_sh
     def test_temp_dirs_are_removed(self):
-        if not os.path.exists("/bin/sh"):
-            self.skipTest("missing /bin/sh")
         (result, output) = self.execute_run("/bin/sh", "-c", "echo $HOME $TMPDIR")
         self.check_exitcode(result, 0, "exit code of /bin/sh is not zero")
         home_dir = output[-1].split(" ")[0]
@@ -711,9 +714,8 @@ class TestRunExecutor(unittest.TestCase):
             f"temporary temp directory {temp_dir} was not cleaned up",
         )
 
+    @requires_sh
     def test_home_is_writable(self):
-        if not os.path.exists("/bin/sh"):
-            self.skipTest("missing /bin/sh")
         (result, output) = self.execute_run("/bin/sh", "-c", "touch $HOME/TEST_FILE")
         self.check_exitcode(
             result,
@@ -721,9 +723,8 @@ class TestRunExecutor(unittest.TestCase):
             f"Failed to write to $HOME/TEST_FILE, output was\n{output}",
         )
 
+    @requires_sh
     def test_no_cleanup_temp(self):
-        if not os.path.exists("/bin/sh"):
-            self.skipTest("missing /bin/sh")
         self.setUp(cleanup_temp_dir=False)  # create RunExecutor with desired parameter
         (result, output) = self.execute_run(
             "/bin/sh", "-c", 'echo "$TMPDIR"; echo "" > "$TMPDIR/test"'
@@ -753,13 +754,12 @@ class TestRunExecutor(unittest.TestCase):
             "\n".join(log.output),
         )
 
+    @requires_cat
     def test_require_cgroup_cpu(self):
         try:
             self.setUp(additional_cgroup_subsystems=["cpu"])
         except SystemExit as e:
             self.skipTest(e)
-        if not os.path.exists(cat):
-            self.skipTest("missing cat")
         if self.cgroups.version != 1:
             self.skipTest("not relevant in unified hierarchy")
         (result, output) = self.execute_run(cat, "/proc/self/cgroup")
@@ -769,9 +769,8 @@ class TestRunExecutor(unittest.TestCase):
                 return  # Success
         self.fail("Not in expected cgroup for subsystem cpu:\n" + "\n".join(output))
 
+    @requires_echo
     def test_set_cgroup_cpu_shares(self):
-        if not os.path.exists(echo):
-            self.skipTest("missing echo")
         try:
             if self.cgroups.version == 1:
                 self.setUp(additional_cgroup_subsystems=["cpu"])
@@ -788,9 +787,8 @@ class TestRunExecutor(unittest.TestCase):
         # Just assert that execution was successful,
         # testing that the value was actually set is much more difficult.
 
+    @requires_echo
     def test_nested_runexec(self):
-        if not os.path.exists(echo):
-            self.skipTest("missing echo")
         self.setUp(
             dir_modes={
                 # Do not mark /home hidden, would fail with python from virtualenv
@@ -819,9 +817,8 @@ class TestRunExecutor(unittest.TestCase):
             inner_output[-1], "TEST_TOKEN", "run output misses command output"
         )
 
+    @requires_echo
     def test_starttime(self):
-        if not os.path.exists(echo):
-            self.skipTest("missing echo")
         before = util.read_local_time()
         (result, _) = self.execute_run(echo)
         after = util.read_local_time()
@@ -831,10 +828,11 @@ class TestRunExecutor(unittest.TestCase):
         self.assertLessEqual(before, run_starttime)
         self.assertLessEqual(run_starttime, after)
 
+    @requires_grep
+    @requires_sh
+    @requires_sleep
     def test_frozen_process(self):
         # https://github.com/sosy-lab/benchexec/issues/840
-        if not os.path.exists(sleep):
-            self.skipTest("missing sleep")
         if self.cgroups.version == 1 and not os.path.exists("/sys/fs/cgroup/freezer"):
             self.skipTest("missing freezer cgroup")
         self.setUp(
@@ -963,6 +961,7 @@ class TestRunExecutorWithContainer(TestRunExecutor):
     def test_no_cleanup_temp(self):
         self.skipTest("not relevant in container")
 
+    @requires_sh
     def check_result_files(
         self, shell_cmd, result_files_patterns, expected_result_files
     ):
@@ -1112,9 +1111,8 @@ class TestRunExecutorWithContainer(TestRunExecutor):
         count_msg = next(msg for msg in log.output if " output files matched" in msg)
         self.assertIn(f"{file_count} output files matched", count_msg)
 
+    @requires_sh
     def test_file_count_limit(self):
-        if not os.path.exists("/bin/sh"):
-            self.skipTest("missing /bin/sh")
         self.setUp(container_tmpfs=False)  # create RunExecutor with desired parameter
         filehierarchylimit._CHECK_INTERVAL_SECONDS = 0.1
         (result, output) = self.execute_run(
@@ -1131,9 +1129,8 @@ class TestRunExecutorWithContainer(TestRunExecutor):
         for line in output[1:]:
             self.assertRegex(line, "^-*$", "unexpected text in run output")
 
+    @requires_sh
     def test_file_size_limit(self):
-        if not os.path.exists("/bin/sh"):
-            self.skipTest("missing /bin/sh")
         self.setUp(container_tmpfs=False)  # create RunExecutor with desired parameter
         filehierarchylimit._CHECK_INTERVAL_SECONDS = 0.1
         (result, output) = self.execute_run(
@@ -1177,9 +1174,9 @@ class TestRunExecutorWithContainer(TestRunExecutor):
         finally:
             shutil.rmtree(temp_dir)
 
+    @requires_grep
+    @requires_lxcfs
     def test_cpuinfo_with_lxcfs(self):
-        if not os.path.exists("/var/lib/lxcfs/proc"):
-            self.skipTest("missing lxcfs")
         result, output = self.execute_run(
             grep, "^processor", "/proc/cpuinfo", cores=[0]
         )
@@ -1188,9 +1185,8 @@ class TestRunExecutorWithContainer(TestRunExecutor):
         cpus = [int(line.split()[2]) for line in output if line.startswith("processor")]
         self.assertListEqual(cpus, [0], "Unexpected CPU cores visible in container")
 
+    @requires_lxcfs
     def test_sys_cpu_with_lxcfs(self):
-        if not os.path.exists("/var/lib/lxcfs/proc"):
-            self.skipTest("missing lxcfs")
         result, output = self.execute_run(
             cat, "/sys/devices/system/cpu/online", cores=[0]
         )
@@ -1199,9 +1195,8 @@ class TestRunExecutorWithContainer(TestRunExecutor):
         cpus = util.parse_int_list(output[-1])
         self.assertListEqual(cpus, [0], "Unexpected CPU cores online in container")
 
+    @requires_lxcfs
     def test_uptime_with_lxcfs(self):
-        if not os.path.exists("/var/lib/lxcfs/proc"):
-            self.skipTest("missing lxcfs")
         result, output = self.execute_run(cat, "/proc/uptime")
         self.check_result_keys(result)
         self.check_exitcode(result, 0, "exit code for reading uptime is not zero")
@@ -1210,9 +1205,8 @@ class TestRunExecutorWithContainer(TestRunExecutor):
             uptime, 10, f"Uptime {uptime}s unexpectedly high in container"
         )
 
+    @requires_lxcfs
     def test_uptime_without_lxcfs(self):
-        if not os.path.exists("/var/lib/lxcfs/proc"):
-            self.skipTest("missing lxcfs")
         # create RunExecutor with desired parameter
         self.setUp(container_system_config=False)
         result, output = self.execute_run(cat, "/proc/uptime")
@@ -1224,9 +1218,8 @@ class TestRunExecutorWithContainer(TestRunExecutor):
             uptime, 10, f"Uptime {uptime}s unexpectedly low in container"
         )
 
+    @requires_fuse_overlayfs
     def test_fuse_overlay(self):
-        if not container.get_fuse_overlayfs_executable():
-            self.skipTest("fuse-overlayfs not available")
         with tempfile.TemporaryDirectory(prefix="BenchExec_test_") as temp_dir:
             test_file_path = os.path.join(temp_dir, "test_file")
             with open(test_file_path, "wb") as test_file:
@@ -1260,10 +1253,8 @@ class TestRunExecutorWithContainer(TestRunExecutor):
                 f"File '{test_file_path}' content is incorrect. Expected 'TEST_TOKEN', but got:\n{test_token}",
             )
 
+    @requires_fuse_overlayfs
     def test_triple_nested_runexec(self):
-        if not container.get_fuse_overlayfs_executable():
-            self.skipTest("missing fuse-overlayfs")
-
         # Check if COV_CORE_SOURCE environment variable is set and remove it.
         # This is necessary because the coverage tool will not work in the nested runexec.
         coverage_env_var = os.environ.pop("COV_CORE_SOURCE", None)
