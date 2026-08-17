@@ -253,9 +253,8 @@ def getCloudInput(benchmark):
     if benchmark.config.cloudPriority:
         cloud_input["priority"] = benchmark.config.cloudPriority
 
-    if benchmark.result_files_patterns:
-        # Pattern be relative to the directory where the run is executed
-        cloud_input["resultFilePatterns"] = list(benchmark.result_files_patterns)
+    # Patterns should be relative to the directory where the run is executed
+    cloud_input["resultFilePatterns"] = benchmark.result_files_patterns
 
     requirements = {
         "cores": r.cpu_cores
