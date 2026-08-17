@@ -35,17 +35,17 @@ runexec = os.path.join(bin_dir, "runexec")
 
 trivial_run_grace_time = 0.2
 
+cat = shutil.which("cat") or "/bin/cat"
+dd = shutil.which("dd") or "/bin/dd"
+echo = shutil.which("echo") or "/bin/echo"
+grep = shutil.which("grep") or "/bin/grep"
+sleep = shutil.which("sleep") or "/bin/sleep"
+
 
 class TestRunExecutor(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.cgroups = Cgroups.initialize()
-
-        cls.echo = shutil.which("echo") or "/bin/echo"
-        cls.sleep = shutil.which("sleep") or "/bin/sleep"
-        cls.cat = shutil.which("cat") or "/bin/cat"
-        cls.dd = shutil.which("dd") or "/bin/dd"
-        cls.grep = shutil.which("grep") or "/bin/grep"
 
     def setUp(self, *args, **kwargs):
         with self.skip_if_logs(
@@ -188,16 +188,16 @@ class TestRunExecutor(unittest.TestCase):
             self.assertEqual(int(result["exitsignal"]), exitcode.signal, msg)
 
     def test_command_output(self):
-        if not os.path.exists(self.echo):
+        if not os.path.exists(echo):
             self.skipTest("missing echo")
-        (_, output) = self.execute_run(self.echo, "TEST_TOKEN")
-        self.check_command_in_output(output, f"{self.echo} TEST_TOKEN")
+        (_, output) = self.execute_run(echo, "TEST_TOKEN")
+        self.check_command_in_output(output, f"{echo} TEST_TOKEN")
         self.assertEqual(output[-1], "TEST_TOKEN", "run output misses command output")
         for line in output[1:-1]:
             self.assertRegex(line, "^-*$", "unexpected text in run output")
 
     def test_command_error_output(self):
-        if not os.path.exists(self.echo):
+        if not os.path.exists(echo):
             self.skipTest("missing echo")
         if not os.path.exists("/bin/sh"):
             self.skipTest("missing /bin/sh")
@@ -215,7 +215,7 @@ class TestRunExecutor(unittest.TestCase):
                 os.remove(error_filename)
 
         (output_lines, error_lines) = execute_Run_intern(
-            "/bin/sh", "-c", f"{self.echo} ERROR_TOKEN >&2"
+            "/bin/sh", "-c", f"{echo} ERROR_TOKEN >&2"
         )
         self.assertEqual(
             error_lines[-1], "ERROR_TOKEN", "run error output misses command output"
@@ -225,9 +225,9 @@ class TestRunExecutor(unittest.TestCase):
         for line in error_lines[1:-1]:
             self.assertRegex(line, "^-*$", "unexpected text in run error output")
 
-        (output_lines, error_lines) = execute_Run_intern(self.echo, "OUT_TOKEN")
-        self.check_command_in_output(output_lines, f"{self.echo} OUT_TOKEN")
-        self.check_command_in_output(error_lines, f"{self.echo} OUT_TOKEN")
+        (output_lines, error_lines) = execute_Run_intern(echo, "OUT_TOKEN")
+        self.check_command_in_output(output_lines, f"{echo} OUT_TOKEN")
+        self.check_command_in_output(error_lines, f"{echo} OUT_TOKEN")
         self.assertEqual(
             output_lines[-1], "OUT_TOKEN", "run output misses command output"
         )
@@ -237,9 +237,9 @@ class TestRunExecutor(unittest.TestCase):
             self.assertRegex(line, "^-*$", "unexpected text in run error output")
 
     def test_command_result(self):
-        if not os.path.exists(self.echo):
+        if not os.path.exists(echo):
             self.skipTest("missing echo")
-        (result, _) = self.execute_run(self.echo, "TEST_TOKEN")
+        (result, _) = self.execute_run(echo, "TEST_TOKEN")
         self.check_exitcode(result, 0, "exit code of echo is not zero")
         self.assertAlmostEqual(
             result["walltime"],
@@ -321,10 +321,10 @@ class TestRunExecutor(unittest.TestCase):
             self.assertRegex(line, "^-*$", "unexpected text in run output")
 
     def test_walltime_limit(self):
-        if not os.path.exists(self.sleep):
+        if not os.path.exists(sleep):
             self.skipTest("missing sleep")
         (result, output) = self.execute_run(
-            self.sleep, "10", walltimelimit=1, expect_terminationreason="walltime"
+            sleep, "10", walltimelimit=1, expect_terminationreason="walltime"
         )
 
         self.check_exitcode(result, 9, "exit code of killed process is not 9")
@@ -342,7 +342,7 @@ class TestRunExecutor(unittest.TestCase):
                 msg="cputime of sleep is not approximately zero",
             )
 
-        self.check_command_in_output(output, f"{self.sleep} 10")
+        self.check_command_in_output(output, f"{sleep} 10")
         for line in output[1:]:
             self.assertRegex(line, "^-*$", "unexpected text in run output")
 
@@ -408,11 +408,11 @@ class TestRunExecutor(unittest.TestCase):
             self.assertRegex(line, "^-*$", "unexpected text in run output")
 
     def test_memory_limit(self):
-        if not os.path.exists(self.dd):
+        if not os.path.exists(dd):
             self.skipTest("missing dd")
         memlimit = 100_000_000
         cmd = [
-            self.dd,
+            dd,
             "if=/dev/zero",
             "of=/dev/null",
             f"ibs={memlimit}",
@@ -436,9 +436,9 @@ class TestRunExecutor(unittest.TestCase):
             self.assertRegex(line, "^-*$", "unexpected text in run output")
 
     def test_input_is_redirected_from_devnull(self):
-        if not os.path.exists(self.cat):
+        if not os.path.exists(cat):
             self.skipTest("missing cat")
-        (result, output) = self.execute_run(self.cat, walltimelimit=1)
+        (result, output) = self.execute_run(cat, walltimelimit=1)
 
         self.check_exitcode(result, 0, "exit code of process is not 0")
         self.assertAlmostEqual(
@@ -456,18 +456,18 @@ class TestRunExecutor(unittest.TestCase):
             )
         self.check_result_keys(result)
 
-        self.check_command_in_output(output, self.cat)
+        self.check_command_in_output(output, cat)
         for line in output[1:]:
             self.assertRegex(line, "^-*$", "unexpected text in run output")
 
     def test_input_is_redirected_from_file(self):
-        if not os.path.exists(self.cat):
+        if not os.path.exists(cat):
             self.skipTest("missing cat")
         with tempfile.TemporaryFile() as tmp:
             tmp.write(b"TEST_TOKEN")
             tmp.flush()
             tmp.seek(0)
-            (result, output) = self.execute_run(self.cat, stdin=tmp, walltimelimit=1)
+            (result, output) = self.execute_run(cat, stdin=tmp, walltimelimit=1)
 
         self.check_exitcode(result, 0, "exit code of process is not 0")
         self.assertAlmostEqual(
@@ -485,13 +485,13 @@ class TestRunExecutor(unittest.TestCase):
             )
         self.check_result_keys(result)
 
-        self.check_command_in_output(output, self.cat)
+        self.check_command_in_output(output, cat)
         self.assertEqual(output[-1], "TEST_TOKEN", "run output misses command output")
         for line in output[1:-1]:
             self.assertRegex(line, "^-*$", "unexpected text in run output")
 
     def test_input_is_redirected_from_stdin(self):
-        if not os.path.exists(self.cat):
+        if not os.path.exists(cat):
             self.skipTest("missing cat")
 
         (output_fd, output_filename) = tempfile.mkstemp(".log", "output_", text=True)
@@ -500,7 +500,7 @@ class TestRunExecutor(unittest.TestCase):
             "-",
             "--walltime",
             "1",
-            self.cat,
+            cat,
             output_filename=output_filename,
         )
         try:
@@ -550,7 +550,7 @@ class TestRunExecutor(unittest.TestCase):
             )
         self.check_result_keys(result, "returnvalue")
 
-        self.check_command_in_output(output, self.cat)
+        self.check_command_in_output(output, cat)
         self.assertEqual(output[-1], "TEST_TOKEN", "run output misses command output")
         for line in output[1:-1]:
             self.assertRegex(line, "^-*$", "unexpected text in run output")
@@ -577,12 +577,12 @@ class TestRunExecutor(unittest.TestCase):
         self.assertEqual(output[-1], "/usr/bin")
 
     def test_stop_run(self):
-        if not os.path.exists(self.sleep):
+        if not os.path.exists(sleep):
             self.skipTest("missing sleep")
         thread = _StopRunThread(1, self.runexecutor)
         thread.start()
         (result, output) = self.execute_run(
-            self.sleep, "10", expect_terminationreason="killed"
+            sleep, "10", expect_terminationreason="killed"
         )
         thread.join()
 
@@ -601,7 +601,7 @@ class TestRunExecutor(unittest.TestCase):
                 msg="cputime of sleep is not approximately zero",
             )
 
-        self.check_command_in_output(output, f"{self.sleep} 10")
+        self.check_command_in_output(output, f"{sleep} 10")
         for line in output[1:]:
             self.assertRegex(line, "^-*$", "unexpected text in run output")
 
@@ -673,13 +673,13 @@ class TestRunExecutor(unittest.TestCase):
         )
 
     def test_integration(self):
-        if not os.path.exists(self.echo):
+        if not os.path.exists(echo):
             self.skipTest("missing echo")
-        (result, output) = self.execute_run_extern(self.echo, "TEST_TOKEN")
+        (result, output) = self.execute_run_extern(echo, "TEST_TOKEN")
         self.check_exitcode_extern(result, 0, "exit code of echo is not zero")
         self.check_result_keys(result, "returnvalue")
 
-        self.check_command_in_output(output, f"{self.echo} TEST_TOKEN")
+        self.check_command_in_output(output, f"{echo} TEST_TOKEN")
         self.assertEqual(output[-1], "TEST_TOKEN", "run output misses command output")
         for line in output[1:-1]:
             self.assertRegex(line, "^-*$", "unexpected text in run output")
@@ -758,11 +758,11 @@ class TestRunExecutor(unittest.TestCase):
             self.setUp(additional_cgroup_subsystems=["cpu"])
         except SystemExit as e:
             self.skipTest(e)
-        if not os.path.exists(self.cat):
+        if not os.path.exists(cat):
             self.skipTest("missing cat")
         if self.cgroups.version != 1:
             self.skipTest("not relevant in unified hierarchy")
-        (result, output) = self.execute_run(self.cat, "/proc/self/cgroup")
+        (result, output) = self.execute_run(cat, "/proc/self/cgroup")
         self.check_exitcode(result, 0, "exit code of cat is not zero")
         for line in output:
             if re.match(r"^[0-9]*:([^:]*,)?cpu(,[^:]*)?:/(.*/)?benchmark_.*$", line):
@@ -770,7 +770,7 @@ class TestRunExecutor(unittest.TestCase):
         self.fail("Not in expected cgroup for subsystem cpu:\n" + "\n".join(output))
 
     def test_set_cgroup_cpu_shares(self):
-        if not os.path.exists(self.echo):
+        if not os.path.exists(echo):
             self.skipTest("missing echo")
         try:
             if self.cgroups.version == 1:
@@ -783,13 +783,13 @@ class TestRunExecutor(unittest.TestCase):
             cgValues = {("cpu", "shares"): 42}
         else:
             cgValues = {("memory", "high"): 420000000}
-        (result, _) = self.execute_run(self.echo, cgroupValues=cgValues)
+        (result, _) = self.execute_run(echo, cgroupValues=cgValues)
         self.check_exitcode(result, 0, "exit code of echo is not zero")
         # Just assert that execution was successful,
         # testing that the value was actually set is much more difficult.
 
     def test_nested_runexec(self):
-        if not os.path.exists(self.echo):
+        if not os.path.exists(echo):
             self.skipTest("missing echo")
         self.setUp(
             dir_modes={
@@ -799,7 +799,7 @@ class TestRunExecutor(unittest.TestCase):
                 "/sys/fs/cgroup": containerexecutor.DIR_FULL_ACCESS,
             }
         )
-        inner_args = ["--", self.echo, "TEST_TOKEN"]
+        inner_args = ["--", echo, "TEST_TOKEN"]
 
         with tempfile.NamedTemporaryFile(
             mode="r", prefix="inner_output_", suffix=".log"
@@ -814,16 +814,16 @@ class TestRunExecutor(unittest.TestCase):
         logging.info("Inner output:\n%s", "\n".join(inner_output))
         self.check_result_keys(outer_result, "returnvalue")
         self.check_exitcode(outer_result, 0, "exit code of inner runexec is not zero")
-        self.check_command_in_output(inner_output, f"{self.echo} TEST_TOKEN")
+        self.check_command_in_output(inner_output, f"{echo} TEST_TOKEN")
         self.assertEqual(
             inner_output[-1], "TEST_TOKEN", "run output misses command output"
         )
 
     def test_starttime(self):
-        if not os.path.exists(self.echo):
+        if not os.path.exists(echo):
             self.skipTest("missing echo")
         before = util.read_local_time()
-        (result, _) = self.execute_run(self.echo)
+        (result, _) = self.execute_run(echo)
         after = util.read_local_time()
         self.check_result_keys(result)
         run_starttime = result["starttime"]
@@ -833,7 +833,7 @@ class TestRunExecutor(unittest.TestCase):
 
     def test_frozen_process(self):
         # https://github.com/sosy-lab/benchexec/issues/840
-        if not os.path.exists(self.sleep):
+        if not os.path.exists(sleep):
             self.skipTest("missing sleep")
         if self.cgroups.version == 1 and not os.path.exists("/sys/fs/cgroup/freezer"):
             self.skipTest("missing freezer cgroup")
@@ -1181,7 +1181,7 @@ class TestRunExecutorWithContainer(TestRunExecutor):
         if not os.path.exists("/var/lib/lxcfs/proc"):
             self.skipTest("missing lxcfs")
         result, output = self.execute_run(
-            self.grep, "^processor", "/proc/cpuinfo", cores=[0]
+            grep, "^processor", "/proc/cpuinfo", cores=[0]
         )
         self.check_result_keys(result)
         self.check_exitcode(result, 0, "exit code for reading cpuinfo is not zero")
@@ -1192,7 +1192,7 @@ class TestRunExecutorWithContainer(TestRunExecutor):
         if not os.path.exists("/var/lib/lxcfs/proc"):
             self.skipTest("missing lxcfs")
         result, output = self.execute_run(
-            self.cat, "/sys/devices/system/cpu/online", cores=[0]
+            cat, "/sys/devices/system/cpu/online", cores=[0]
         )
         self.check_result_keys(result)
         self.check_exitcode(result, 0, "exit code for reading online CPUs is not zero")
@@ -1202,7 +1202,7 @@ class TestRunExecutorWithContainer(TestRunExecutor):
     def test_uptime_with_lxcfs(self):
         if not os.path.exists("/var/lib/lxcfs/proc"):
             self.skipTest("missing lxcfs")
-        result, output = self.execute_run(self.cat, "/proc/uptime")
+        result, output = self.execute_run(cat, "/proc/uptime")
         self.check_result_keys(result)
         self.check_exitcode(result, 0, "exit code for reading uptime is not zero")
         uptime = float(output[-1].split(" ")[0])
@@ -1215,7 +1215,7 @@ class TestRunExecutorWithContainer(TestRunExecutor):
             self.skipTest("missing lxcfs")
         # create RunExecutor with desired parameter
         self.setUp(container_system_config=False)
-        result, output = self.execute_run(self.cat, "/proc/uptime")
+        result, output = self.execute_run(cat, "/proc/uptime")
         self.check_result_keys(result)
         self.check_exitcode(result, 0, "exit code for reading uptime is not zero")
         uptime = float(output[-1].split(" ")[0])
@@ -1243,8 +1243,8 @@ class TestRunExecutorWithContainer(TestRunExecutor):
             result, output = self.execute_run(
                 "/bin/sh",
                 "-c",
-                f"if [ $({self.cat} {test_file_path}) != TEST_TOKEN ]; then exit 1; fi; \
-                {self.echo} TOKEN_CHANGED >{test_file_path}",
+                f"if [ $({cat} {test_file_path}) != TEST_TOKEN ]; then exit 1; fi; \
+                {echo} TOKEN_CHANGED >{test_file_path}",
             )
             self.check_result_keys(result, "returnvalue")
             self.check_exitcode(result, 0, "exit code of inner runexec is not zero")
@@ -1317,7 +1317,7 @@ class TestRunExecutorWithContainer(TestRunExecutor):
             inner_cmd = [
                 "/bin/sh",
                 "-c",
-                f"if [ $({self.cat} {test_file}) != TEST_TOKEN ]; then exit 1; fi; {self.echo} TOKEN_CHANGED >{test_file}",
+                f"if [ $({cat} {test_file}) != TEST_TOKEN ]; then exit 1; fi; {echo} TOKEN_CHANGED >{test_file}",
             ]
             combined_cmd = outer_cmd + mid_cmd + inner_cmd
 
