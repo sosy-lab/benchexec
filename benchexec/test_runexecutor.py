@@ -44,24 +44,20 @@ grep = shutil.which("grep") or "/bin/grep"
 sleep = shutil.which("sleep") or "/bin/sleep"
 
 
-requires_fuse_overlayfs = pytest.mark.skipif(
+requires_fuse_overlayfs = pytest.mark.xfail(
     not container.get_fuse_overlayfs_executable(), reason="requires fuse-overlayfs"
 )
-requires_lxcfs = pytest.mark.skipif(
+requires_lxcfs = pytest.mark.xfail(
     not os.path.exists("/var/lib/lxcfs/proc"), reason="requires LXCFS"
 )
-requires_cat = pytest.mark.skipif(not os.path.exists(cat), reason="requires /bin/cat")
-requires_dd = pytest.mark.skipif(not os.path.exists(dd), reason="requires /bin/dd")
-requires_echo = pytest.mark.skipif(
-    not os.path.exists(echo), reason="requires /bin/echo"
-)
-requires_grep = pytest.mark.skipif(
-    not os.path.exists(grep), reason="requires /bin/grep"
-)
-requires_sh = pytest.mark.skipif(
+requires_cat = pytest.mark.xfail(not os.path.exists(cat), reason="requires /bin/cat")
+requires_dd = pytest.mark.xfail(not os.path.exists(dd), reason="requires /bin/dd")
+requires_echo = pytest.mark.xfail(not os.path.exists(echo), reason="requires /bin/echo")
+requires_grep = pytest.mark.xfail(not os.path.exists(grep), reason="requires /bin/grep")
+requires_sh = pytest.mark.xfail(
     not os.path.exists("/bin/sh"), reason="requires /bin/sh"
 )
-requires_sleep = pytest.mark.skipif(
+requires_sleep = pytest.mark.xfail(
     not os.path.exists(sleep), reason="requires /bin/sleep"
 )
 
@@ -91,7 +87,7 @@ class TestRunExecutor(unittest.TestCase):
                 record.levelno == logging.ERROR and record.msg.startswith(error_msg)
                 for record in log.records
             ):
-                self.skipTest(e)
+                pytest.xfail(str(e))
             raise e
 
     def execute_run(self, *args, expect_terminationreason=None, **kwargs):
@@ -758,8 +754,8 @@ class TestRunExecutor(unittest.TestCase):
     def test_require_cgroup_cpu(self):
         try:
             self.setUp(additional_cgroup_subsystems=["cpu"])
-        except SystemExit as e:
-            self.skipTest(e)
+        except SystemExit:
+            pytest.xfail("cgroups not available")
         if self.cgroups.version != 1:
             self.skipTest("not relevant in unified hierarchy")
         (result, output) = self.execute_run(cat, "/proc/self/cgroup")
@@ -776,8 +772,8 @@ class TestRunExecutor(unittest.TestCase):
                 self.setUp(additional_cgroup_subsystems=["cpu"])
             else:
                 self.setUp(additional_cgroup_subsystems=["memory"])
-        except SystemExit as e:
-            self.skipTest(e)
+        except SystemExit:
+            pytest.xfail("cgroups not available")
         if self.cgroups.version == 1:
             cgValues = {("cpu", "shares"): 42}
         else:
@@ -834,7 +830,7 @@ class TestRunExecutor(unittest.TestCase):
     def test_frozen_process(self):
         # https://github.com/sosy-lab/benchexec/issues/840
         if self.cgroups.version == 1 and not os.path.exists("/sys/fs/cgroup/freezer"):
-            self.skipTest("missing freezer cgroup")
+            pytest.xfail("missing freezer cgroup")
         self.setUp(
             dir_modes={
                 "/": containerexecutor.DIR_READ_ONLY,
@@ -913,7 +909,7 @@ class TestRunExecutorWithContainer(TestRunExecutor):
         try:
             container.execute_in_namespace(lambda: 0)
         except OSError as e:
-            self.skipTest(f"Namespaces not supported: {e.strerror}")
+            pytest.xfail(reason=f"Namespaces not supported: {e.strerror}")
 
         dir_modes = kwargs.pop(
             "dir_modes",

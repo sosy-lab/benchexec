@@ -10,6 +10,8 @@ import sys
 import unittest
 from unittest.mock import patch
 
+import pytest
+
 from benchexec import check_cgroups
 
 
@@ -23,26 +25,20 @@ class TestCheckCgroups(unittest.TestCase):
                 **kwargs,
             )
         except subprocess.CalledProcessError as e:
-            if e.returncode != 1:  # 1 is expected if cgroups are not available
-                print(e.output)
-                raise e
+            if e.returncode == 1:
+                pytest.xfail("cgroups not availalle")
+            raise e
 
     def test_extern_command(self):
         self.execute_run_extern()
 
+    @pytest.mark.xfail(raises=SystemExit, reason="cgroups not available")
     def test_simple(self):
-        try:
-            check_cgroups.main(["--no-thread"])
-        except SystemExit as e:
-            # expected if cgroups are not available
-            self.skipTest(e)
+        check_cgroups.main(["--no-thread"])
 
+    @pytest.mark.xfail(raises=SystemExit, reason="cgroups not available")
     def test_threaded(self):
-        try:
-            check_cgroups.main([])
-        except SystemExit as e:
-            # expected if cgroups are not available
-            self.skipTest(e)
+        check_cgroups.main([])
 
     @patch(
         "benchexec.check_cgroups.check_cgroup_availability",
