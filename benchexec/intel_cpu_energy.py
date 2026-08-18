@@ -64,7 +64,7 @@ class Package(AreaOfMeasurement):
 
 class EnergyMeasurement:
     error_event = threading.Event()
-    interval = 1000  # default measurement interval in seconds
+    interval = 1000  # default measurement interval in seconds, derived from an assumed worst case of 250W energy consumption
 
     def __init__(self):
         self.update_thread = threading.Thread(target=self.update_values)
@@ -108,12 +108,16 @@ class EnergyMeasurement:
         """Stop the measurement if it hasn't been stopped already
         This method has to return self because of the way the old cpu-energy-meter was implemented,
         changing this would require changing the readout in every other file"""
-        if EnergyMeasurement.error_event.is_set():
-            return None
-        if not self.update_thread.is_alive():
+        if (
+            not self.update_thread.is_alive()
+            and not EnergyMeasurement.error_event.is_set()
+        ):
             return self
         self.stop_event.set()
         self.update_thread.join()
+        if EnergyMeasurement.error_event.is_set():
+            logging.error("Energy measurement failed")
+            return None
         return self
 
     def update_all(self):
@@ -129,7 +133,6 @@ class EnergyMeasurement:
         ) and not EnergyMeasurement.error_event.wait(timeout=self.interval):
             self.update_all()
         if EnergyMeasurement.error_event.is_set():
-            logging.error("Energy measurement failed")
             return
         self.update_all()
 
@@ -153,7 +156,9 @@ class EnergyMeasurement:
                         get_path_content(package.path / "max_energy_range_uj")
                     )
                     if constraint_value == 0 or max_range == 0:
-                        print(f"failed interval {package.name}")
+                        logging.debug(
+                            "failed to read a constraint value for EnergyMeasurement"
+                        )
                         return
                     intervals.append(max_range / constraint_value)
 
@@ -216,6 +221,7 @@ def format_energy_results(measurement):
 if __name__ == "__main__":
     measurement = EnergyMeasurement.create_if_supported()
     print(measurement)
+    print(f"interval: {measurement.interval}")
     print("starting measurement")
     measurement.start()
     print(measurement)
@@ -223,6 +229,6 @@ if __name__ == "__main__":
         sleep(10)
     else:
         subprocess.run(sys.argv[1:])
-    measurement.stop()
-    print(measurement)
-    print(format_energy_results(measurement))
+    result = measurement.stop()
+    print(result)
+    print(format_energy_results(result))
