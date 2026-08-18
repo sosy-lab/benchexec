@@ -74,7 +74,6 @@ class TestUnit(unittest.TestCase):
 
         for k, v in test_data.items():
             self.assertEqual(v, util.number_to_roman_string(k))
-            self.assertEqual(str(v), util.number_to_roman_string(k))
 
         self.assertRaises(ValueError, util.number_to_roman_string, -1)
         self.assertRaises(ValueError, util.number_to_roman_string, 0)
