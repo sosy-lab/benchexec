@@ -67,7 +67,6 @@ class EnergyMeasurement:
     interval = 1000  # default measurement interval in seconds, derived from an assumed worst case of 250W energy consumption
 
     def __init__(self):
-        self.update_thread = threading.Thread(target=self.update_values)
         self.stop_event = threading.Event()
         EnergyMeasurement.error_event.clear()
         self.packages: list[Package] = []
@@ -101,6 +100,7 @@ class EnergyMeasurement:
 
     def start(self):
         """Start the measurement"""
+        self.update_thread = threading.Thread(target=self.update_values)
         self.stop_event.clear()
         self.update_thread.start()
 
