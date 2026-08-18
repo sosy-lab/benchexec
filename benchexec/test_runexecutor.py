@@ -429,9 +429,12 @@ class TestRunExecutor(unittest.TestCase):
             f"obs={memlimit}",
             "count=1",
         ]
-        (result, output) = self.execute_run(
-            *cmd, memlimit=memlimit, expect_terminationreason="memory"
-        )
+        with self.skip_if_logs(
+            "Memory limit specified, but cannot be implemented without cgroup support"
+        ):
+            (result, output) = self.execute_run(
+                *cmd, memlimit=memlimit, expect_terminationreason="memory"
+            )
 
         self.check_exitcode(result, 9, "exit code of killed process is not 9")
         self.assertAlmostEqual(
@@ -888,8 +891,14 @@ wait $child_pid
             "-c",
             script_v1 if self.cgroups.version == 1 else script_v2,
             walltimelimit=1,
-            expect_terminationreason="walltime",
+            expect_terminationreason=["walltime", None],
         )
+        if (
+            "mkdir: cannot create directory" in output[-1]
+            and "/sys/fs/cgroup" in output[-1]
+        ):
+            pytest.xfail(output[-1])
+        self.assertEqual(result.get("terminationreason"), "walltime")
         self.check_exitcode(result, 9, "exit code of killed process is not 9")
         self.assertAlmostEqual(
             result["walltime"],
@@ -1173,9 +1182,10 @@ class TestRunExecutorWithContainer(TestRunExecutor):
     @requires_grep
     @requires_lxcfs
     def test_cpuinfo_with_lxcfs(self):
-        result, output = self.execute_run(
-            grep, "^processor", "/proc/cpuinfo", cores=[0]
-        )
+        with self.skip_if_logs("Cannot limit CPU cores without cpuset cgroup"):
+            result, output = self.execute_run(
+                grep, "^processor", "/proc/cpuinfo", cores=[0]
+            )
         self.check_result_keys(result)
         self.check_exitcode(result, 0, "exit code for reading cpuinfo is not zero")
         cpus = [int(line.split()[2]) for line in output if line.startswith("processor")]
@@ -1183,9 +1193,10 @@ class TestRunExecutorWithContainer(TestRunExecutor):
 
     @requires_lxcfs
     def test_sys_cpu_with_lxcfs(self):
-        result, output = self.execute_run(
-            cat, "/sys/devices/system/cpu/online", cores=[0]
-        )
+        with self.skip_if_logs("Cannot limit CPU cores without cpuset cgroup"):
+            result, output = self.execute_run(
+                cat, "/sys/devices/system/cpu/online", cores=[0]
+            )
         self.check_result_keys(result)
         self.check_exitcode(result, 0, "exit code for reading online CPUs is not zero")
         cpus = util.parse_int_list(output[-1])
