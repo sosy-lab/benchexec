@@ -63,12 +63,10 @@ class Package(AreaOfMeasurement):
 
 
 class EnergyMeasurement:
-    error_event = threading.Event()
     interval = 1000  # default measurement interval in seconds, derived from an assumed worst case of 250W energy consumption
 
     def __init__(self):
         self.stop_event = threading.Event()
-        EnergyMeasurement.error_event.clear()
         self.packages: list[Package] = []
 
         """We are searching for all available packages and domains
@@ -108,15 +106,11 @@ class EnergyMeasurement:
         """Stop the measurement if it hasn't been stopped already
         This method has to return self because of the way the old cpu-energy-meter was implemented,
         changing this would require changing the readout in every other file"""
-        if (
-            not self.update_thread.is_alive()
-            and not EnergyMeasurement.error_event.is_set()
-        ):
+        if not self.update_thread.is_alive() and not self.packages is None:
             return self
         self.stop_event.set()
         self.update_thread.join()
-        if EnergyMeasurement.error_event.is_set():
-            logging.error("Energy measurement failed")
+        if self.packages is None:
             return None
         return self
 
@@ -127,14 +121,15 @@ class EnergyMeasurement:
 
     def update_values(self):
         """this method is run by a thread to constantly sample energy values for overhead protection"""
-        self.update_all()
-        while not self.stop_event.wait(
-            timeout=self.interval
-        ) and not EnergyMeasurement.error_event.wait(timeout=self.interval):
+        try:
             self.update_all()
-        if EnergyMeasurement.error_event.is_set():
+            while not self.stop_event.wait(timeout=self.interval):
+                self.update_all()
+            self.update_all()
+        except (OSError, ValueError, TypeError) as error:
+            logging.error("Energy measurement failed")
+            self.packages = None    #to prevent accidental accessing
             return
-        self.update_all()
 
     def calculate_interval(self):
         """calculate measurement interval from short term power limit
@@ -183,8 +178,7 @@ def get_path_content(path):
     except OSError as error:
         message = f"cannot read {path}: {error}"
         logging.debug(message)
-        EnergyMeasurement.error_event.set()
-        return "0"
+        raise error
     # because the int() function throws a seperate error on None values
 
 
@@ -223,6 +217,7 @@ if __name__ == "__main__":
     print(measurement)
     print(f"interval: {measurement.interval}")
     print("starting measurement")
+    measurement.interval = 1.0
     measurement.start()
     print(measurement)
     if len(sys.argv) < 2:
