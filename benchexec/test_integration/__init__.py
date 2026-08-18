@@ -367,10 +367,7 @@ class BenchExecIntegrationTests(unittest.TestCase):
         parser.resolvers.add(DTDResolver())
 
         for xml_file in xml_files:
-            try:
-                etree.parse(xml_file, parser=parser)
-            except etree.XMLSyntaxError as e:
-                self.assertIsNone(e)
+            etree.parse(xml_file, parser=parser)
 
     def test_run_results_information(self):
         expected_xml = os.path.join(

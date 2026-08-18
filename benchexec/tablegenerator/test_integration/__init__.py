@@ -758,6 +758,8 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             )
         except subprocess.CalledProcessError as e:
             if "HTTP Error" in e.output or "urlopen error" in e.output:
+                # Need to use "skip" instead of "xfail" because in CI we use "--runxfail"
+                # but do not want the test to break CI # if GitHub is unreachable.
                 self.skipTest("HTTP access to GitHub failed")
             else:
                 raise
