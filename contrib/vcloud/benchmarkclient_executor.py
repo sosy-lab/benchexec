@@ -13,6 +13,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+import yaml
+
 import benchexec.util
 from benchexec import BenchExecException
 from benchexec.tooladapter import CURRENT_BASETOOL, create_tool_locator
@@ -20,10 +22,6 @@ from benchexec.tooladapter import CURRENT_BASETOOL, create_tool_locator
 from . import vcloudutil
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
-
-DEFAULT_CLOUD_MEMORY_REQUIREMENT = 7_000_000_000  # 7 GB
-DEFAULT_CLOUD_CPUCORE_REQUIREMENT = 2  # one core with hyperthreading
-DEFAULT_CLOUD_CPUMODEL_REQUIREMENT = ""  # empty string matches every model
 
 STOPPED_BY_INTERRUPT = False
 
@@ -63,7 +61,7 @@ def init(config, benchmark):
                 raise BenchExecException(
                     f"Executable path {executable_for_version} is not relative"
                     " and is not containing the expected mount point in the container"
-                    " {TOOL_DIRECTORY_MOUNT_POINT}."
+                    f" {TOOL_DIRECTORY_MOUNT_POINT}."
                 ) from e
 
         # ensure that executable_for_version is not pointing to a directory
@@ -114,7 +112,7 @@ def execute_benchmark(benchmark, output_handler):
         # build input for cloud
         (cloudInput, numberOfRuns) = getCloudInput(benchmark)
         if benchmark.config.debug:
-            cloudInputFile = os.path.join(benchmark.log_folder, "cloudInput.txt")
+            cloudInputFile = os.path.join(benchmark.log_folder, "cloudInput.yml")
             benchexec.util.write_file(cloudInput, cloudInputFile)
             output_handler.all_created_files.add(cloudInputFile)
         meta_information = json.dumps(
@@ -168,6 +166,8 @@ def execute_benchmark(benchmark, output_handler):
             cmdLine.extend(["--print-new-files", "true"])
         if benchmark.config.containerImage:
             cmdLine.extend(["--containerImage", str(benchmark.config.containerImage)])
+        cmdLine.extend(["--input-format", "yaml"])
+        cmdLine.extend(["--output-dir", benchmark.log_folder])
 
         start_time = benchexec.util.read_local_time()
 
@@ -212,122 +212,58 @@ def formatEnvironment(environment):
     return ";".join(f"{k}={v}" for k, v in environment.get("newEnv", {}).items())
 
 
-def toTabList(items):
-    return "\t".join(map(str, items))
-
-
+# Refer to https://gitlab.com/sosy-lab/software/benchcloud/-/blob/develop/doc/BenchmarkClient.md for the cloud input format
 def getCloudInput(benchmark):
-    (
-        requirements,
-        numberOfRuns,
-        limitsAndNumRuns,
-        runDefinitions,
-        sourceFiles,
-    ) = getBenchmarkDataForCloud(benchmark)
     (workingDir, toolpaths) = getToolDataForCloud(benchmark)
 
-    # prepare cloud input, we make all paths absolute, TODO necessary?
-    outputDir = benchmark.log_folder
-    absOutputDir = os.path.abspath(outputDir)
     absWorkingDir = os.path.abspath(workingDir)
     absToolpaths = list(map(os.path.abspath, toolpaths))
-    absSourceFiles = list(map(os.path.abspath, sourceFiles))
-    absBaseDir = benchexec.util.common_base_dir(absSourceFiles + absToolpaths)
 
-    if absBaseDir == "":
-        sys.exit("No common base dir found.")
-
-    numOfRunDefLinesAndPriorityStr = [numberOfRuns + 1]  # add 1 for the headerline
-    if benchmark.config.cloudPriority:
-        numOfRunDefLinesAndPriorityStr.append(benchmark.config.cloudPriority)
-
-    # build the input for the cloud,
-    # see external vcloud/README.txt for details.
-    cloudInput = [
-        toTabList(absToolpaths),
-        toTabList([absBaseDir, absOutputDir, absWorkingDir]),
-        toTabList(requirements),
-    ]
-    if benchmark.result_files_patterns:
-        if len(benchmark.result_files_patterns) > 1:
-            sys.exit("Multiple result-files patterns not supported in cloud mode.")
-        cloudInput.append(benchmark.result_files_patterns[0])
-
-    cloudInput.extend(
-        [toTabList(numOfRunDefLinesAndPriorityStr), toTabList(limitsAndNumRuns)]
-    )
-    cloudInput.extend(runDefinitions)
-    return ("\n".join(cloudInput), numberOfRuns)
-
-
-def getBenchmarkDataForCloud(benchmark):
-    # get requirements
+    absBaseDir = computeBaseDir(benchmark, absToolpaths)
     r = benchmark.requirements
-    memRequirement = bytes_to_mb(
-        DEFAULT_CLOUD_MEMORY_REQUIREMENT if r.memory is None else r.memory
-    )
-    requirements = [
-        memRequirement,
-        DEFAULT_CLOUD_CPUCORE_REQUIREMENT if r.cpu_cores is None else r.cpu_cores,
-        DEFAULT_CLOUD_CPUMODEL_REQUIREMENT if r.cpu_model is None else r.cpu_model,
-    ]
 
-    # get limits and number of Runs
-    timeLimit = benchmark.rlimits.cputime_hard
-    memLimit = bytes_to_mb(benchmark.rlimits.memory) or memRequirement
-    coreLimit = benchmark.rlimits.cpu_cores
-    wallTimeLimit = benchmark.rlimits.walltime
-    numberOfRuns = sum(
-        len(runSet.runs) for runSet in benchmark.run_sets if runSet.should_be_executed()
-    )
-    limitsAndNumRuns = [numberOfRuns, timeLimit, memLimit]
-    if coreLimit is not None:
-        limitsAndNumRuns.append(coreLimit)
-    else:
-        limitsAndNumRuns.append("-")
-    if wallTimeLimit is not None:
-        # WallTimeLimit has to be the 5th element of limitsAndNumRuns
-        assert len(limitsAndNumRuns) == 4
-        limitsAndNumRuns.append(wallTimeLimit)
-    else:
-        limitsAndNumRuns.append("-")
+    rlimits = benchmark.rlimits
 
-    # get Runs with args and sourcefiles
-    sourceFiles = []
-    runDefinitions = []
-    for runSet in benchmark.run_sets:
-        if not runSet.should_be_executed():
-            continue
-        if STOPPED_BY_INTERRUPT:
-            break
+    # Existence of cputime_hard guaranteed above
+    limits = {"hardtime_s": rlimits.cputime_hard}
 
-        # get runs
-        for run in runSet.runs:
-            cmdline = run.cmdline()
-            cmdline = list(map(vcloudutil.force_linux_path, cmdline))
+    if rlimits.cpu_cores is not None:
+        limits["cores"] = rlimits.cpu_cores
+    if rlimits.walltime is not None:
+        limits["walltime_s"] = rlimits.walltime
+    if rlimits.memory is not None:
+        limits["memory_b"] = rlimits.memory
 
-            # we assume, that VCloud-client only splits its input at tabs,
-            # so we can use all other chars for the info, that is needed to run the tool.
-            argString = json.dumps(cmdline)
-            assert "\t" not in argString  # cannot call toTabList(), if there is a tab
+    runs = buildRunDefinitions(benchmark, absBaseDir)
 
-            log_file = os.path.relpath(run.log_file, benchmark.log_folder)
-            if os.path.exists(run.identifier):
-                runDefinitions.append(
-                    toTabList(
-                        [argString, log_file] + run.sourcefiles + run.required_files
-                    )
-                )
-            else:
-                runDefinitions.append(
-                    toTabList([argString, log_file] + run.required_files)
-                )
-            sourceFiles.extend(run.sourcefiles)
-
-    if not runDefinitions:
+    if not runs:
         sys.exit("Benchmark has nothing to run.")
 
-    return (requirements, numberOfRuns, limitsAndNumRuns, runDefinitions, sourceFiles)
+    cloud_input = {
+        "formatVersion": "1.0",
+        "files": [os.path.relpath(p, absBaseDir) for p in absToolpaths],
+        "basedir": os.path.relpath(absBaseDir),
+        "execdir": os.path.relpath(absWorkingDir, absBaseDir),
+    }
+
+    if benchmark.config.cloudPriority:
+        cloud_input["priority"] = benchmark.config.cloudPriority
+
+    # Patterns should be relative to the directory where the run is executed
+    cloud_input["resultFilePatterns"] = benchmark.result_files_patterns
+
+    requirements = {"cores": r.cpu_cores, "memory_b": r.memory}
+
+    if r.cpu_model:
+        requirements["cpumodels"] = r.cpu_model
+    cloud_input["requirements"] = requirements
+
+    cloud_input["limits"] = limits
+    cloud_input["runs"] = runs
+
+    return yaml.dump(cloud_input, default_flow_style=False, allow_unicode=True), len(
+        runs
+    )
 
 
 def getToolDataForCloud(benchmark):
@@ -356,6 +292,39 @@ def getToolDataForCloud(benchmark):
             validToolpaths.add(file)
 
     return (workingDir, validToolpaths)
+
+
+def computeBaseDir(benchmark, absToolpaths):
+    absInputFiles = []
+    for runSet in benchmark.run_sets:
+        if not runSet.should_be_executed():
+            continue
+        for run in runSet.runs:
+            if os.path.exists(run.identifier):
+                absInputFiles.extend(map(os.path.abspath, run.sourcefiles))
+            absInputFiles.extend(map(os.path.abspath, run.required_files))
+
+    absBaseDir = benchexec.util.common_base_dir(absInputFiles + absToolpaths)
+    return absBaseDir
+
+
+def buildRunDefinitions(benchmark, absBaseDir):
+    runs = []
+    for runSet in benchmark.run_sets:
+        if not runSet.should_be_executed():
+            continue
+        for run in runSet.runs:
+            cmdline = list(map(vcloudutil.force_linux_path, run.cmdline()))
+            log_file = os.path.relpath(run.log_file, benchmark.log_folder)
+            run_def = {"logfile": log_file, "command": cmdline}
+            run_files = []
+            if os.path.exists(run.identifier):
+                run_files.extend(run.sourcefiles)
+            run_files.extend(run.required_files)
+            if run_files:
+                run_def["files"] = [os.path.relpath(f, absBaseDir) for f in run_files]
+            runs.append(run_def)
+    return runs
 
 
 def handleCloudResults(benchmark, output_handler, start_time, end_time):
@@ -490,9 +459,3 @@ def parseCloudRunResultFile(filePath):
                 yield key, value
 
     return vcloudutil.parse_vcloud_run_result(read_items())
-
-
-def bytes_to_mb(mb):
-    if mb is None:
-        return None
-    return int(mb / 1000 / 1000)
