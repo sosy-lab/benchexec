@@ -106,7 +106,7 @@ class EnergyMeasurement:
         """Stop the measurement if it hasn't been stopped already
         This method has to return self because of the way the old cpu-energy-meter was implemented,
         changing this would require changing the readout in every other file"""
-        if not self.update_thread.is_alive() and not self.packages is None:
+        if not self.update_thread.is_alive() and self.packages is not None:
             return self
         self.stop_event.set()
         self.update_thread.join()
@@ -126,9 +126,9 @@ class EnergyMeasurement:
             while not self.stop_event.wait(timeout=self.interval):
                 self.update_all()
             self.update_all()
-        except (OSError, ValueError, TypeError) as error:
+        except (OSError, ValueError, TypeError):
             logging.error("Energy measurement failed")
-            self.packages = None    #to prevent accidental accessing
+            self.packages = None  # to prevent accidental accessing
             return
 
     def calculate_interval(self):
