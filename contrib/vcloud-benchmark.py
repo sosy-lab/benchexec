@@ -7,6 +7,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import getpass
 import logging
 import os
 import subprocess
@@ -124,6 +125,11 @@ class VcloudBenchmark(VcloudBenchmarkBase):
         return "--v" + pname
 
     def load_executor(self):
+        if getpass.getuser() == "root":
+            logging.warning(
+                "Benchmarking as root user is not advisable! Please execute this script as normal user!"
+            )
+
         download_required_jars(self.config)
 
         import vcloud.benchmarkclient_executor as executor
