@@ -14,11 +14,11 @@ import sys
 import tempfile
 import urllib.request
 
+from vcloud import vcloudutil
+from vcloud.vcloudbenchmarkbase import VcloudBenchmarkBase
+
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
-from vcloud import vcloudutil  # noqa: E402
-from vcloud.vcloudbenchmarkbase import VcloudBenchmarkBase  # noqa: E402
 
 import benchexec.benchexec  # noqa: E402
 import benchexec.model  # noqa: E402
@@ -121,7 +121,8 @@ benchexec.model.load_tool_info = hook_load_tool_info
 
 class VcloudBenchmark(VcloudBenchmarkBase):
     """
-    Benchmark class that defines the load_executor function.
+    An extension of BenchExec
+    that executes the benchmarks in the VerifierCloud.
     """
 
     def load_executor(self):
