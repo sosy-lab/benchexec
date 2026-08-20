@@ -125,6 +125,19 @@ class VcloudBenchmark(VcloudBenchmarkBase):
     that executes the benchmarks in the VerifierCloud.
     """
 
+    def add_vcloud_args(self, vcloud_args):
+        vcloud_args.add_argument(
+            "--no-ivy-cache",
+            dest="noIvyCache",
+            action="store_true",
+            help="Prevents ivy from caching the downloaded jar files. This prevents clashes due to concurrent access to the cache.",
+        )
+        # add arguments from the base class.
+        super().add_vcloud_args(vcloud_args)
+
+    def get_param_name(self, pname):
+        return "--v" + pname
+
     def load_executor(self):
         download_required_jars(self.config)
 
