@@ -23,7 +23,7 @@ mock_pqos_wrapper_output = {
         "returncode": 0,
         "function": "pqos_init",
         "error": False,
-        "message": "MSR interface intialised",
+        "message": "MSR interface initialised",
     },
     "check_capability": {
         "function_output": {"mem_size": 32, "cdp_on": 0, "num_classes": 4},
