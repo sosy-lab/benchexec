@@ -278,6 +278,8 @@ skip = 	"""\
         ./benchexec/tools/aprove.py,\
         ./benchexec/tools/gratchk.py,\
         ./benchexec/tools/gratgen.py,\
+        ./benchexec/model.py,\
+        ./contrib/vcloud-benchmark.py,\
         ./benchexec/tablegenerator/react-table/src/tests/utils.test.tsx,\
         ./benchexec/tablegenerator/react-table/src/utils/utils.tsx,\
 		./benchexec/tablegenerator/test_integration/results/test.2015-03-03_1815.logfiles,\

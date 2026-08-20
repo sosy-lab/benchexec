@@ -111,10 +111,8 @@ def hook_load_tool_info(tool_name, config):
         sys.exit(
             f'Unsupported tool "{tool_name}" specified, class "Tool" is missing: {ae}'
         )
-    except TypeError as te:  # codespell:ignore te
-        sys.exit(
-            f'Unsupported tool "{tool_name}" specified. TypeError: {te}'    # codespell:ignore te
-        )
+    except TypeError as te:
+        sys.exit(f'Unsupported tool "{tool_name}" specified. TypeError: {te}')
     return tool_module, tool
 
 

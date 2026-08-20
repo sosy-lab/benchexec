@@ -177,10 +177,8 @@ def load_tool_info(tool_name: str, config):
         sys.exit(
             f'Unsupported tool "{tool_name}" specified, class "Tool" is missing: {ae}'
         )
-    except TypeError as te:  # codespell:ignore te
-        sys.exit(
-            f'Unsupported tool "{tool_name}" specified. TypeError: {te}'    # codespell:ignore te
-        )
+    except TypeError as te:
+        sys.exit(f'Unsupported tool "{tool_name}" specified. TypeError: {te}')
     assert isinstance(tool, tooladapter.CURRENT_BASETOOL)
     return tool_module, tool
 
