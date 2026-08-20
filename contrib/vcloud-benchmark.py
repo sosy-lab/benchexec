@@ -30,8 +30,6 @@ IVY_JAR_NAME = "ivy-2.5.0.jar"
 IVY_PATH = os.path.join(_ROOT_DIR, "lib", IVY_JAR_NAME)
 IVY_DOWNLOAD_URL = "https://www.sosy-lab.org/ivy/org.apache.ivy/ivy/" + IVY_JAR_NAME
 
-original_load_tool_info = benchexec.model.load_tool_info
-
 
 def download_required_jars(config):
     # download ivy if needed
@@ -75,29 +73,19 @@ def download_required_jars(config):
             temp_dir.cleanup()
 
 
-def hook_load_tool_info(tool_name, config):
+def load_tool_info_in_container(tool_name, config):
     """
-    Load the tool-info class.
+    Load the tool-info class inside a Podman container.
     @param tool_name: The name of the tool-info module.
     Either a full Python package name or a name within the benchexec.tools package.
     @return: A tuple of the full name of the used tool-info module and an instance of the tool-info class.
     """
-    if not config.containerImage:
-        return original_load_tool_info(tool_name, config)
-
-    if not config.tool_directory:
-        raise BenchExecException(
-            "Using a container image is currently only supported "
-            "if the tool directory is explicitly provided. Please set it "
-            "using the --tool-directory option."
-        )
-
     tool_module = tool_name if "." in tool_name else f"benchexec.tools.{tool_name}"
 
     try:
-        import vcloud.podman_containerized_tool as pod
+        from vcloud.podman_containerized_tool import PodmanContainerizedTool
 
-        tool = pod.PodmanContainerizedTool(tool_module, config, config.containerImage)
+        tool = PodmanContainerizedTool(tool_module, config, config.containerImage)
 
     except ImportError as ie:
         logging.debug(
@@ -114,9 +102,6 @@ def hook_load_tool_info(tool_name, config):
     except TypeError as te:
         sys.exit(f'Unsupported tool "{tool_name}" specified. TypeError: {te}')
     return tool_module, tool
-
-
-benchexec.model.load_tool_info = hook_load_tool_info
 
 
 class VcloudBenchmark(VcloudBenchmarkBase):
@@ -152,6 +137,17 @@ class VcloudBenchmark(VcloudBenchmarkBase):
             "using the VerifierCloud internal API.",
             __version__,
         )
+
+        if self.config.containerImage:
+            if not self.config.tool_directory:
+                raise BenchExecException(
+                    "Using a container image is currently only supported "
+                    "if the tool directory is explicitly provided. Please set it "
+                    "using the --tool-directory option."
+                )
+
+            # Monkey-patch BenchExec to load tool-info module in Podman container.
+            benchexec.model.load_tool_info = load_tool_info_in_container
 
         return executor
 
