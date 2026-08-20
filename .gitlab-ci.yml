@@ -158,6 +158,21 @@ check-format:
   script:
     - "ruff format --check --diff"
 
+# check for spelling mistakes
+codespell:
+  stage: test
+  interruptible: true
+  before_script:
+    - pip install codespell
+  script:
+    - codespell
+  variables:
+    PYTHON_VERSION: '3.10'
+  cache:
+    key: "${CI_JOB_NAME}"
+    paths:
+      - ".cache/pip"
+
 
 # For HTML tables, test that bundled files are uptodate
 javascript-build:
