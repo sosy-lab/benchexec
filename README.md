@@ -134,7 +134,7 @@ Contributors:
 - [Thomas Bunk](https://github.com/TBunk)
 - [Montgomery Carter](https://github.com/MontyCarter)
 - [Po-Chun Chien](https://github.com/Po-Chun-Chien)
-- [Andreas Donig](https://github.com/adonig)
+- [Andreas Donig](https://github.com/adonig)    <!-- codespell:ignore -->
 - [Jiayi Du](https://github.com/Jah-yee)
 - [Florian Eder](https://github.com/schroeding)
 - [Karlheinz Friedberger](https://www.sosy-lab.org/people/friedberger)

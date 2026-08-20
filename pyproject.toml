@@ -266,3 +266,19 @@ filterwarnings = [
 ]
 python_files = ["test_*.py", "test_integration/__init__.py", "test.py"]
 norecursedirs = ["contrib/p4/docker_files", "build", "benchexec/tablegenerator/react-table"]
+
+[tool.codespell]
+skip = 	"""\
+        ./BenchExec.egg-info,\
+		./benchexec/tablegenerator/react-table/build,\
+		./benchexec/tablegenerator/react-table/node_modules,\
+        ./benchexec/tablegenerator/test_integration/expected,\
+		*.min.js,package-lock.json,*.snap,\
+        ./pyproject.toml,\
+        ./benchexec/tools/aprove.py,\
+        ./benchexec/tools/gratchk.py,\
+        ./benchexec/tools/gratgen.py,\
+        ./benchexec/tablegenerator/react-table/src/tests/utils.test.tsx,\
+        ./benchexec/tablegenerator/react-table/src/utils/utils.tsx,\
+		./benchexec/tablegenerator/test_integration/results/test.2015-03-03_1815.logfiles
+        """
