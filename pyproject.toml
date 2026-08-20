@@ -280,5 +280,6 @@ skip = 	"""\
         ./benchexec/tools/gratgen.py,\
         ./benchexec/tablegenerator/react-table/src/tests/utils.test.tsx,\
         ./benchexec/tablegenerator/react-table/src/utils/utils.tsx,\
-		./benchexec/tablegenerator/test_integration/results/test.2015-03-03_1815.logfiles
+		./benchexec/tablegenerator/test_integration/results/test.2015-03-03_1815.logfiles,\
+        ./benchexec/tablegenerator/react-table/src/tests/task_definition_files/property_files_multiline_string.yml
         """

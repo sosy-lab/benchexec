@@ -9,12 +9,12 @@ format_version: "1.0"
 
 input_files: "false_other_sub_task.yml"
 
-properties:   
-  - property_file: "te\       # codespell:ignore te
+properties:
+  - property_file: "te\
     st.p\
-    rp" 
+    rp"
     expected_verdict: false
-    subproperty: "othe\       # codespell:ignore othe
+    subproperty: "othe\
       r_subpr\
       oper\
       ty"

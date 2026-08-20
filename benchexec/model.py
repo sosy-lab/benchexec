@@ -179,8 +179,8 @@ def load_tool_info(tool_name: str, config):
         )
     except TypeError as te:  # codespell:ignore te
         sys.exit(
-            f'Unsupported tool "{tool_name}" specified. TypeError: {te}'
-        )  # codespell:ignore te
+            f'Unsupported tool "{tool_name}" specified. TypeError: {te}'    # codespell:ignore te
+        )
     assert isinstance(tool, tooladapter.CURRENT_BASETOOL)
     return tool_module, tool
 

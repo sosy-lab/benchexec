@@ -113,8 +113,8 @@ def hook_load_tool_info(tool_name, config):
         )
     except TypeError as te:  # codespell:ignore te
         sys.exit(
-            f'Unsupported tool "{tool_name}" specified. TypeError: {te}'
-        )  # codespell:ignore te
+            f'Unsupported tool "{tool_name}" specified. TypeError: {te}'    # codespell:ignore te
+        )
     return tool_module, tool
 
 
