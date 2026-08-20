@@ -325,12 +325,12 @@ def load_tool(result):
                 "cannot extract values from log files.",
                 tool_module,
             )
-        except TypeError as te:     # codespell:ignore te
+        except TypeError as te:  # codespell:ignore te
             logging.warning(
                 'Unsupported module "%s", cannot extract values from log files '
                 "(TypeError: %s).",
                 tool_module,
-                te,     # codespell:ignore te
+                te,  # codespell:ignore te
             )
         return None
 

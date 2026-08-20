@@ -14,7 +14,7 @@ import sys
 import tempfile
 import urllib.request
 
-sys.dont_write_bytecode = True  # prevent creation of .pyc files 
+sys.dont_write_bytecode = True  # prevent creation of .pyc files
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from vcloud import vcloudutil  # noqa: E402
@@ -111,8 +111,10 @@ def hook_load_tool_info(tool_name, config):
         sys.exit(
             f'Unsupported tool "{tool_name}" specified, class "Tool" is missing: {ae}'
         )
-    except TypeError as te:     # codespell:ignore te
-        sys.exit(f'Unsupported tool "{tool_name}" specified. TypeError: {te}')  # codespell:ignore te
+    except TypeError as te:  # codespell:ignore te
+        sys.exit(
+            f'Unsupported tool "{tool_name}" specified. TypeError: {te}'
+        )  # codespell:ignore te
     return tool_module, tool
 
 
