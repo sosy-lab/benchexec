@@ -150,7 +150,6 @@ ignore = [
     "SIM102",  # TODO sometimes better readable?
     "SIM114",  # TODO sometimes better readable?
     "TRY201",  # TODO after checking whether runtime behavior changes
-    "UP022",  # TODO after checking whether runtime behavior changes
     # TODO below are non-default checks that should be investigated
     # TODO more type arguments
     "ANN001",  #  missing-type-function-argument

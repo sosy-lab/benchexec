@@ -49,8 +49,7 @@ class Tool(benchexec.tools.template.BaseTool2):
             try:
                 process = subprocess.run(
                     cmd,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE,
+                    capture_output=True,
                     text=True,
                 )
             except OSError as e:

@@ -671,8 +671,7 @@ def add_files_to_git_repository(base_dir, files, description):
     gitRoot = subprocess.run(
         ["git", "rev-parse", "--show-toplevel"],
         cwd=base_dir,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
+        capture_output=True,
         text=True,
     )
     if gitRoot.returncode != 0:
@@ -686,8 +685,7 @@ def add_files_to_git_repository(base_dir, files, description):
     gitStatus = subprocess.run(
         ["git", "status", "--porcelain", "--untracked-files=no"],
         cwd=gitRootDir,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
+        capture_output=True,
         text=True,
     )
     if gitStatus.returncode != 0:
