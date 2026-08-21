@@ -53,9 +53,9 @@ dev = [
     "lxml",
     "pytest",
     # Duplicate info here from systemd extra:
-    "pystemd >= 0.7.0; platform_system != 'Windows'",
+    "pystemd >= 0.7.0; platform_system == 'Linux'",
 ]
-systemd = ["pystemd >= 0.7.0; platform_system != 'Windows'"]
+systemd = ["pystemd >= 0.7.0; platform_system == 'Linux'"]
 
 [project.scripts]
 benchexec = "benchexec.benchexec:main"
