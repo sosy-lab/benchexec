@@ -100,8 +100,8 @@ def load_tool_info_in_container(tool_name, config):
         sys.exit(
             f'Unsupported tool "{tool_name}" specified, class "Tool" is missing: {ae}'
         )
-    except TypeError as te:
-        sys.exit(f'Unsupported tool "{tool_name}" specified. TypeError: {te}')
+    except TypeError as type_error:
+        sys.exit(f'Unsupported tool "{tool_name}" specified. TypeError: {type_error}')
     return tool_module, tool
 
 
