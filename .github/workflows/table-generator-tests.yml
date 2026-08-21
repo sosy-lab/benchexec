@@ -21,7 +21,8 @@ jobs:
   test-table-generator:
     name: ${{ matrix.os }} (Python ${{ matrix.python-version }})
     runs-on: ${{ matrix.os }}
-    container: ${{ matrix.os == 'ubuntu-latest' && format('registry.gitlab.com/sosy-lab/software/benchexec/test:python-{0}', matrix.python-version) || '' }}
+    # own image, rebuilt weekly
+    container: ${{ matrix.os == 'ubuntu-latest' && format('registry.gitlab.com/sosy-lab/software/benchexec/test:python-{0}', matrix.python-version) || '' }}  # zizmor: ignore[unpinned-images]
 
     strategy:
       fail-fast: false
