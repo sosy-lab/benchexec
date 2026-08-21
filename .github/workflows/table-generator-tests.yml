@@ -9,6 +9,8 @@ name: Table-generator tests
 
 on:
   push:
+    # Skip on branches because these tests are also run on GitLab,
+    # but run on main for Windows + Mac.
     branches: [main]
   pull_request:
 
