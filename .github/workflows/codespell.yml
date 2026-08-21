@@ -29,10 +29,10 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.13"
+          python-version: "3.14"
 
       - name: Install codespell
-        run: pip install codespell
+        run: pip install codespell==2.4.3
 
       - name: Run codespell
         run: codespell

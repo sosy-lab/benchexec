@@ -163,7 +163,7 @@ codespell:
   stage: test
   interruptible: true
   before_script:
-    - pip install codespell
+    - pip install codespell==2.4.3
   script:
     - codespell
   variables:
