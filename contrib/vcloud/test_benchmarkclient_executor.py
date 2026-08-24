@@ -5,10 +5,10 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import collections
 import os
 import tempfile
 import unittest
+from dataclasses import dataclass, field, replace
 from unittest.mock import MagicMock, patch
 
 import yaml
@@ -20,46 +20,28 @@ from contrib.vcloud import benchmarkclient_executor
 here = os.path.dirname(__file__)
 TEST_TASKS_DIR = os.path.join(here, "..", "..", "test", "tasks")
 
-VCloudConfig = collections.namedtuple(
-    "VCloudConfig",
-    [
-        "name",
-        "output_path",
-        "container",
-        "timelimit",
-        "walltimelimit",
-        "memorylimit",
-        "corelimit",
-        "num_of_threads",
-        "results_per_rundefinition",
-        "results_per_taskset",
-        "selected_run_definitions",
-        "selected_sourcefile_sets",
-        "description_file",
-        "cloudPriority",
-        "additional_files",
-        "cpu_model",
-    ],
-)
 
-DEFAULT_CONFIG = VCloudConfig(
-    name=None,
-    output_path="test/",
-    container=False,
-    timelimit=None,
-    walltimelimit=None,
-    memorylimit=None,
-    corelimit=None,
-    num_of_threads=None,
-    results_per_rundefinition=False,
-    results_per_taskset=False,
-    selected_run_definitions=None,
-    selected_sourcefile_sets=None,
-    description_file=None,
-    cloudPriority=None,
-    additional_files=[],
-    cpu_model=None,
-)
+@dataclass(frozen=True)
+class VCloudConfig:
+    name: str | None = None
+    output_path: str = "test/"
+    container: bool = False
+    timelimit: int | None = None
+    walltimelimit: int | None = None
+    memorylimit: int | None = None
+    corelimit: int | None = None
+    num_of_threads: int | None = None
+    results_per_rundefinition: bool = False
+    results_per_taskset: bool = False
+    selected_run_definitions: list | None = None
+    selected_sourcefile_sets: list | None = None
+    description_file: str | None = None
+    cloudPriority: str | None = None
+    additional_files: list = field(default_factory=list)
+    cpu_model: str | None = None
+
+
+DEFAULT_CONFIG = VCloudConfig()
 
 
 class TestInit(unittest.TestCase):
@@ -160,7 +142,7 @@ class TestCloudInput(unittest.TestCase):
 
     def test_input_files(self):
         extra_file = os.path.join(TEST_TASKS_DIR, "other.prp")
-        config = DEFAULT_CONFIG._replace(additional_files=[extra_file])
+        config = replace(DEFAULT_CONFIG, additional_files=[extra_file])
         cloud_input, _ = self._get_cloud_input(
             """
             <benchmark tool="dummy" hardtimelimit="30">
@@ -179,7 +161,7 @@ class TestCloudInput(unittest.TestCase):
         self.assertCountEqual(cloud_input["files"], ["test.sh", "other.prp"])
 
     def test_invalid_additional_file_exits(self):
-        config = DEFAULT_CONFIG._replace(additional_files=["/no/such/file"])
+        config = replace(DEFAULT_CONFIG, additional_files=["/no/such/file"])
         with self.assertRaises(SystemExit):
             self._get_cloud_input(
                 """
@@ -279,7 +261,7 @@ class TestCloudInput(unittest.TestCase):
         )
 
     def test_unselected_rundefinition_is_excluded(self):
-        config = DEFAULT_CONFIG._replace(selected_run_definitions=["run1"])
+        config = replace(DEFAULT_CONFIG, selected_run_definitions=["run1"])
         cloud_input, n_runs = self._get_cloud_input(
             """
             <benchmark tool="dummy" hardtimelimit="30">
@@ -300,7 +282,7 @@ class TestCloudInput(unittest.TestCase):
         )
 
     def test_no_matching_rundefinition_selected_exits(self):
-        config = DEFAULT_CONFIG._replace(selected_run_definitions=["nonexistent"])
+        config = replace(DEFAULT_CONFIG, selected_run_definitions=["nonexistent"])
         with self.assertRaises(SystemExit):
             self._get_cloud_input(
                 """
@@ -356,7 +338,7 @@ class TestCloudInput(unittest.TestCase):
         self.assertEqual(cloud_input["resultFilePatterns"], [])
 
     def test_priority_from_config(self):
-        config = DEFAULT_CONFIG._replace(cloudPriority="HIGH")
+        config = replace(DEFAULT_CONFIG, cloudPriority="HIGH")
         cloud_input, _ = self._get_cloud_input(
             """
             <benchmark tool="dummy" hardtimelimit="30">
