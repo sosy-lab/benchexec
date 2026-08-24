@@ -368,7 +368,3 @@ class TestCloudInput(unittest.TestCase):
             config=config,
         )
         self.assertEqual(cloud_input["priority"], "HIGH")
-
-
-if __name__ == "__main__":
-    unittest.main()
