@@ -225,12 +225,12 @@ def getCloudInput(benchmark):
     rlimits = benchmark.rlimits
 
     # Existence of cputime_hard guaranteed above
-    limits = {"hardtime_s": rlimits.cputime_hard}
+    limits = {"cputime_hard_s": rlimits.cputime_hard}
 
     if rlimits.cpu_cores is not None:
         limits["cores"] = rlimits.cpu_cores
     if rlimits.walltime is not None:
-        limits["walltime_s"] = rlimits.walltime
+        limits["walltime_hard_s"] = rlimits.walltime
     if rlimits.memory is not None:
         limits["memory_b"] = rlimits.memory
 
