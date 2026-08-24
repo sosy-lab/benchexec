@@ -140,12 +140,13 @@ class TestCloudInput(unittest.TestCase):
         self.assertEqual(n_runs, 1)
         self.assertEqual(len(cloud_input["runs"]), 1)
 
-    def test_input_files(self):
+    def test_input_files_and_dirs(self):
         extra_file = os.path.join(TEST_TASKS_DIR, "other.prp")
         config = replace(DEFAULT_CONFIG, additional_files=[extra_file])
         cloud_input, _ = self._get_cloud_input(
             """
             <benchmark tool="dummy" hardtimelimit="30">
+              <requiredfiles>test.prp</requiredfiles>
               <rundefinition>
                 <tasks><withoutfile>task1</withoutfile></tasks>
               </rundefinition>
@@ -158,7 +159,9 @@ class TestCloudInput(unittest.TestCase):
         self.assertTrue(
             os.path.isdir(os.path.join(cloud_input["basedir"], cloud_input["execdir"]))
         )
-        self.assertCountEqual(cloud_input["files"], ["test.sh", "other.prp"])
+        self.assertCountEqual(
+            cloud_input["files"], ["test.sh", "test.prp", "other.prp"]
+        )
 
     def test_invalid_additional_file_exits(self):
         config = replace(DEFAULT_CONFIG, additional_files=["/no/such/file"])
