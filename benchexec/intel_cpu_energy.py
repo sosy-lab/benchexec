@@ -40,6 +40,10 @@ class AreaOfMeasurement:
             self.energy.total += new_energy - self.energy.last_value
             self.energy.last_value = new_energy
 
+    def reset_value(self):
+        self.energy.total = 0
+        self.energy.last_value = 0
+
 
 @dataclass(frozen=True)
 class Domain(AreaOfMeasurement):
@@ -60,6 +64,11 @@ class Package(AreaOfMeasurement):
         super().update_value()
         for domain in self.domains:
             domain.update_value()
+
+    def reset_value(self):
+        super().reset_value()
+        for domain in self.domains:
+            domain.reset_value()
 
 
 class EnergyMeasurement:
@@ -98,6 +107,8 @@ class EnergyMeasurement:
 
     def start(self):
         """Start the measurement"""
+        for package in self.packages:
+            package.reset_value()
         self.update_thread = threading.Thread(target=self.update_values)
         self.stop_event.clear()
         self.update_thread.start()
