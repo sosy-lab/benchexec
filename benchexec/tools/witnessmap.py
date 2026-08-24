@@ -7,8 +7,8 @@
 
 import benchexec.tools.template
 from benchexec.tools.sv_benchmarks_util import (
-    handle_witness_of_task,
     TaskFilesConsidered,
+    handle_witness_of_task,
 )
 
 

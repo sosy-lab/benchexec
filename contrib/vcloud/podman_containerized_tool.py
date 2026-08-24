@@ -11,7 +11,6 @@ import shlex
 import subprocess
 import sys
 from pathlib import Path
-from typing import Optional
 
 from benchexec import (
     BenchExecException,
@@ -46,7 +45,7 @@ def _init_container(
         path = Path(path)
         resolved_path = path.resolve()
 
-        # paths erlier in sys.path take precedence
+        # paths earlier in sys.path take precedence
         if not resolved_path.is_dir() or resolved_path in seen_paths:
             continue
 
@@ -79,8 +78,7 @@ def _init_container(
     try:
         res = subprocess.run(
             command,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            capture_output=True,
             stdin=subprocess.DEVNULL,
             check=True,
         )
@@ -108,8 +106,7 @@ def _init_container(
         container_pid = (
             subprocess.run(
                 ["podman", "inspect", "--format", "{{.State.Pid}}", container_id],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
+                capture_output=True,
                 stdin=subprocess.DEVNULL,
                 check=True,
             )
@@ -167,7 +164,7 @@ def _init_container(
 class PodmanContainerizedTool(ContainerizedTool):
     tool_directory: str
     image: str
-    container_id: Optional[str]
+    container_id: str | None
 
     def __init__(self, tool_module, config, image):
         assert config.tool_directory, (

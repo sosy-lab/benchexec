@@ -5,7 +5,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import benchexec.tools.condtest as condtest
+from benchexec.tools import condtest
 
 
 class Tool(condtest.Tool):

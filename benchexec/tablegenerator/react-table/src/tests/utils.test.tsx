@@ -173,7 +173,7 @@ describe("hashRouting helpers", () => {
       expect(constructHashURL(baseUrl, params)).toEqual(expected);
     });
 
-    test("should construct URL hash with provided parameters and keep the exisiting parameters", () => {
+    test("should construct URL hash with provided parameters and keep the existing parameters", () => {
       const baseUrl = "http://example.com?existingKey=existingValue";
       const params = { key1: "value1", key2: "value2" };
 
@@ -185,7 +185,7 @@ describe("hashRouting helpers", () => {
       expect(constructHashURL(baseUrl, params)).toEqual(expected);
     });
 
-    test("should return the same URL with exisiting params if no parameters are provided", () => {
+    test("should return the same URL with existing params if no parameters are provided", () => {
       const baseUrl = "http://example.com?exisitingKey=existingValue";
       const params: Record<
         string,
@@ -212,7 +212,7 @@ describe("hashRouting helpers", () => {
       expect(constructHashURL(baseUrl, params)).toEqual(expected);
     });
 
-    test("should remove exisiting parameters if they are updated to undefined", () => {
+    test("should remove existing parameters if they are updated to undefined", () => {
       const baseUrl = "http://example.com?key1=value1&key2=value2";
       const params = { key2: undefined };
 
@@ -224,7 +224,7 @@ describe("hashRouting helpers", () => {
       expect(constructHashURL(baseUrl, params)).toEqual(expected);
     });
 
-    test("should remove exisiting parameters if they are updated to null", () => {
+    test("should remove existing parameters if they are updated to null", () => {
       const baseUrl = "http://example.com?key1=value1&key2=value2";
       const params = { key2: null };
 
@@ -236,7 +236,7 @@ describe("hashRouting helpers", () => {
       expect(constructHashURL(baseUrl, params)).toEqual(expected);
     });
 
-    test("should not remove exisiting parameters if they are updated to falsy values", () => {
+    test("should not remove existing parameters if they are updated to falsy values", () => {
       const baseUrl = "http://example.com?key1=value1&key2=value2&key3=value3";
       const params = {
         key1: "",
@@ -1217,7 +1217,7 @@ describe("textSortMethod", () => {
     expect(textSortMethod(smaller, bigger)).toBeLessThan(0);
   });
 
-  test("should sort strings with different values without case sensitivy", () => {
+  test("should sort strings with different values without case sensitivity", () => {
     const smaller = { raw: "a" };
     const bigger = { raw: "B" };
     expect(textSortMethod(bigger, smaller)).toBeGreaterThan(0);

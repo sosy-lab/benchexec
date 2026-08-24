@@ -415,13 +415,13 @@ const applyMatcher = (matcher: Matcher) => (data: TableRow[]) => {
   if (!isNil(matcher.id)) {
     const { value: idValue, values: idValues } = matcher.id ?? {};
     if (idValue) {
-      // pre computing RegExp of idValue after excaping the special characters
+      // pre computing RegExp of idValue after escaping the special characters
       const regexToCompare = makeRegExp(idValue);
       diffd = diffd.filter(({ id }) =>
         id.some((idName) => idName === idValue || regexToCompare.test(idName)),
       );
     } else if (Array.isArray(idValues)) {
-      // pre computing RegExp of each element of idValues array after excaping the special characters
+      // pre computing RegExp of each element of idValues array after escaping the special characters
       const idValuesWithRegex = idValues.map((filterValue) => ({
         filterRegex: makeRegExp(filterValue),
         filterValue,

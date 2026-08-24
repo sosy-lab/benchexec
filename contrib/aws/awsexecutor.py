@@ -10,16 +10,16 @@ import io
 import json
 import logging
 import os
-import requests
 import shutil
 import sys
 import tempfile
-from threading import Event
-import urllib
+import urllib.parse
 import zipfile
+from threading import Event
+
+import requests
 
 import benchexec.util
-
 from benchexec import BenchExecException
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
@@ -67,9 +67,9 @@ def execute_benchmark(benchmark, output_handler):
         aws_endpoint = conf["Endpoint"]
         aws_token = conf["UserToken"]
 
-    try:
-        start_time = benchexec.util.read_local_time()
+    start_time = benchexec.util.read_local_time()
 
+    try:
         # Create
         logging.info("Sending http-request for the specific upload destinations")
         url = REQUEST_URL["create"].format(aws_endpoint, aws_token)
@@ -233,7 +233,7 @@ def execute_benchmark(benchmark, output_handler):
             logging.debug("Handling url: %s", aws_s3_link)
             aws_s3_link_encoded = urllib.parse.quote(aws_s3_link, safe=":/")
             logging.debug("Downloading file from url: %s", aws_s3_link_encoded)
-            result_file = requests.get(aws_s3_link_encoded)  # noqa: S113
+            result_file = requests.get(aws_s3_link_encoded)
             with zipfile.ZipFile(io.BytesIO(result_file.content)) as zipf:
                 zipf.extractall(benchmark.log_folder)
     except KeyboardInterrupt:
@@ -263,7 +263,7 @@ def stop():
 def getAWSInput(benchmark):
     (
         requirements,
-        number_of_runs,
+        _number_of_runs,
         limits_and_num_runs,
         run_definitions,
         source_files,
@@ -510,7 +510,6 @@ def handleCloudResults(benchmark, output_handler, start_time, end_time):
             # Move all output files from "sibling of log-file" to
             # "sibling of parent directory".
             raw_path = run.log_file[: -len(".log")]
-            dirname, filename = os.path.split(raw_path)
             aws_files_directory = raw_path + ".files"
             benchexec_files_directory = run.result_files_folder
             if os.path.isdir(aws_files_directory) and not os.path.isdir(

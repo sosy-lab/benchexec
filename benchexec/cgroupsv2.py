@@ -17,7 +17,6 @@ import sys
 import tempfile
 import threading
 import time
-import typing
 from decimal import Decimal
 
 from benchexec import systeminfo, util
@@ -163,10 +162,14 @@ def _create_systemd_scope_for_us():
     @return: a boolean indicating whether this succeeded
     """
     try:
-        from pystemd.dbuslib import DBus
         from pystemd.dbusexc import DBusBaseError
+        from pystemd.dbuslib import DBus
         from pystemd.systemd1 import Manager, Unit
+    except ImportError:
+        logging.debug("pystemd could not be imported.")
+        return False
 
+    try:
         with DBus(user_mode=True) as bus, Manager(bus=bus) as manager:
             unit_params = {
                 # workaround for not declared parameters, remove in the future
@@ -223,9 +226,7 @@ def _create_systemd_scope_for_us():
             logging.debug("Process moved to a fresh systemd scope: %s", name.decode())
             return True
 
-    except ImportError:
-        logging.debug("pystemd could not be imported.")
-    except DBusBaseError as e:  # pytype: disable=name-error
+    except DBusBaseError as e:  # pytype: disable=mro-error
         if -e.errno in [errno.ENOENT, errno.ENOMEDIUM]:
             logging.debug("No user DBus found, not using pystemd: %s", e)
         else:
@@ -260,7 +261,7 @@ def _try_fallback_cgroup():
     return False
 
 
-def _find_cgroup_mount():
+def _find_cgroup_mount() -> pathlib.Path | None:
     """
     Return the mountpoint of the cgroupv2 unified hierarchy.
     @return Path mountpoint
@@ -275,7 +276,7 @@ def _find_cgroup_mount():
         logging.exception("Cannot read /proc/mounts")
 
 
-def _find_own_cgroups():
+def _find_own_cgroups() -> pathlib.Path | None:
     """
     For all subsystems, return the information in which (sub-)cgroup this process is in.
     (Each process is in exactly cgroup in each hierarchy.)
@@ -288,13 +289,17 @@ def _find_own_cgroups():
         logging.exception("Cannot read /proc/self/cgroup")
 
 
-def _parse_proc_pid_cgroup(cgroup_file):
+def _parse_proc_pid_cgroup(cgroup_file) -> pathlib.Path | None:
     """
-    Parse a /proc/*/cgroup file into tuples of (subsystem,cgroup).
+    Parse a /proc/*/cgroup file into full path to our cgroup.
     @param content: An iterable over the lines of the file.
-    @return: a generator of tuples
+    @return: a path
     """
     mountpoint = _find_cgroup_mount()
+    if not mountpoint:
+        return None
+
+    path = None
     for line in cgroup_file:
         own_cgroup = line.strip().split(":")[2][1:]
         if own_cgroup.startswith("../"):
@@ -304,6 +309,9 @@ def _parse_proc_pid_cgroup(cgroup_file):
             logging.debug("Process is in unusable out-of-tree cgroup '%s'", own_cgroup)
             return None
         path = mountpoint / own_cgroup
+
+    if not path:
+        logging.warning("Unexpected empty /proc/self/cgroup file")
 
     return path
 
@@ -363,14 +371,14 @@ class CgroupsV2(Cgroups):
     KILL = "kill"
 
     def __init__(self, subsystems):
-        super(CgroupsV2, self).__init__(subsystems)
+        super().__init__(subsystems)
 
         self.path = (
             next(iter(self.subsystems.values())) if len(self.subsystems) else None
         )
 
         # Store reference to child cgroup if we delegated controllers to it.
-        self._delegated_to: typing.Optional[CgroupsV2] = None
+        self._delegated_to: CgroupsV2 | None = None
 
     @classmethod
     def from_system(cls, cgroup_procinfo=None):
@@ -402,7 +410,7 @@ class CgroupsV2(Cgroups):
         # basic support always available in v2, this supports everything we use
         subsystems.add(cls.CPU)
 
-        return cls({k: cgroup_path for k in subsystems})
+        return cls(dict.fromkeys(subsystems, cgroup_path))
 
     def create_fresh_child_cgroup(self, subsystems, prefix=CGROUP_NAME_PREFIX):
         """
@@ -426,7 +434,7 @@ class CgroupsV2(Cgroups):
         if self.KILL in self.subsystems:
             child_subsystems.add(self.KILL)
 
-        return CgroupsV2({c: child_path for c in child_subsystems})
+        return CgroupsV2(dict.fromkeys(child_subsystems, child_path))
 
     def create_fresh_child_cgroup_for_delegation(self, prefix="delegate_"):
         """
@@ -482,8 +490,7 @@ class CgroupsV2(Cgroups):
         Produces a log message for the user if one of the conditions is not fulfilled.
         @return A boolean value.
         """
-        # TODO
-        # We can assume that creation of child cgroups works,
+        # TODO We can assume that creation of child cgroups works,
         # because we only use cgroups if we were able to move the current process
         # into a child cgroup in initialize().
         return super().require_subsystem(subsystem, log_method)
@@ -535,8 +542,9 @@ class CgroupsV2(Cgroups):
             # no cgroup available at all, likely a container
 
             # Podman detection from https://github.com/containers/podman/issues/3586
-            if os.getenv("container") == "podman" or os.path.exists(
-                "/run/.containerenv"
+            if (
+                os.getenv("container") == "podman"  # noqa: SIM112 lowercase variable created by other tools
+                or os.path.exists("/run/.containerenv")
             ):
                 sys.exit(_ERROR_PODMAN)
 
@@ -663,7 +671,7 @@ class CgroupsV2(Cgroups):
         bytes_read = 0
         bytes_written = 0
         for io_line in self.get_file_lines(self.IO, "stat"):
-            dev_no, *stats = io_line.split(" ")
+            _dev_no, *stats = io_line.split(" ")
             for s in stats:
                 if s.startswith("rbytes="):
                     bytes_read += int(s.split("=")[1])

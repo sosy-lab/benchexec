@@ -9,28 +9,60 @@
 This module allows to retrieve information about the current system.
 """
 
-from decimal import Decimal
 import glob
 import logging
 import os
 import platform
 import sys
+from decimal import Decimal
 
 from benchexec import util
 
 __all__ = [
+    "CPUThrottleCheck",
+    "SwapCheck",
+    "SystemInfo",
     "has_swap",
     "is_turbo_boost_enabled",
-    "CPUThrottleCheck",
-    "SystemInfo",
-    "SwapCheck",
 ]
 
 _TURBO_BOOST_FILE = "/sys/devices/system/cpu/cpufreq/boost"
 _TURBO_BOOST_FILE_PSTATE = "/sys/devices/system/cpu/intel_pstate/no_turbo"
 
 
-class SystemInfo(object):
+def _read_cpu_info() -> list[list[str]]:
+    """
+    Return key-value pairs from /proc/cpuinfo. Keys occur once per CPU core,
+    so the result is a list of lists with pairs, not a dict.
+    Values may still have white space or be the empty string.
+    On error an empty list is returned.
+    """
+    try:
+        with open("/proc/cpuinfo", "rt") as cpuinfo:
+            return [
+                line.strip().replace("\t", "").split(":", maxsplit=2)
+                for line in cpuinfo
+                if line.strip()
+            ]
+    except OSError as e:
+        logging.warning("Could not read CPU information from kernel: %s", e)
+        return []
+
+
+def _read_memory_info() -> dict[str, str]:
+    """Return key-value pairs from /proc/meminfo.  On error an empty dict is returned."""
+    try:
+        with open("/proc/meminfo", "rt") as meminfo:
+            return dict(
+                line.strip().replace("\t", "").split(": ", maxsplit=2)
+                for line in meminfo
+            )
+    except OSError as e:
+        logging.warning("Could not read memory information from kernel: %s", e)
+        return {}
+
+
+class SystemInfo:
     def __init__(self):
         """
         This function finds some information about the computer.
@@ -40,60 +72,40 @@ class SystemInfo(object):
         self.os = platform.platform(aliased=True)
 
         # get info about CPU
-        cpuInfo = {}
-        self.cpu_max_frequency = None
-        cpuInfoFilename = "/proc/cpuinfo"
-        self.cpu_number_of_cores = "unknown"
-        if os.path.isfile(cpuInfoFilename) and os.access(cpuInfoFilename, os.R_OK):
-            cpuInfoFile = open(cpuInfoFilename, "rt")
-            cpuInfoLines = [
-                tuple(line.split(":"))
-                for line in cpuInfoFile.read()
-                .replace("\n\n", "\n")
-                .replace("\t", "")
-                .strip("\n")
-                .split("\n")
-            ]
-            cpuInfo = dict(cpuInfoLines)
-            cpuInfoFile.close()
-            self.cpu_number_of_cores = str(
-                len([line for line in cpuInfoLines if line[0] == "processor"])
-            )
+        cpuInfoLines = _read_cpu_info()
+        cpuInfo = dict(cpuInfoLines)
+        self.cpu_number_of_cores = (
+            str(sum(1 for key, _ in cpuInfoLines if key == "processor")) or "unknown"
+        )
         self.cpu_model = (
             cpuInfo.get("model name", "unknown")
-            .strip()
             .replace("(R)", "")
             .replace("(TM)", "")
             .replace("(tm)", "")
+            .strip()
         )
-        if "cpu MHz" in cpuInfo:
-            freq_hz = Decimal(cpuInfo["cpu MHz"]) * 1000 * 1000  # convert to Hz
-            self.cpu_max_frequency = int((freq_hz).to_integral_value())
 
         # Modern CPUs do not have a constant frequency and can be limited.
         # We want the maximum frequency that the CPU could use,
-        # and if we can read it we will overwrite the value from above.
+        # and if we can not read it fall back to nominal frequency from cpuinfo.
         freqInfoFilename = "/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq"
         cpu_max_frequency = util.try_read_file(freqInfoFilename)
         if cpu_max_frequency:
             self.cpu_max_frequency = int(cpu_max_frequency) * 1000  # convert to Hz
+        elif "cpu MHz" in cpuInfo:
+            freq_hz = Decimal(cpuInfo["cpu MHz"]) * 1000 * 1000  # convert to Hz
+            self.cpu_max_frequency = int((freq_hz).to_integral_value())
+        else:
+            self.cpu_max_frequency = None
 
         self.cpu_turboboost = is_turbo_boost_enabled()
 
         # get info about memory
-        memInfo = {}
-        memInfoFilename = "/proc/meminfo"
-        if os.path.isfile(memInfoFilename) and os.access(memInfoFilename, os.R_OK):
-            memInfoFile = open(memInfoFilename, "rt")
-            memInfo = dict(
-                tuple(s.split(": "))
-                for s in memInfoFile.read().replace("\t", "").strip("\n").split("\n")
-            )
-            memInfoFile.close()
+        memInfo = _read_memory_info()
         self.memory = memInfo.get("MemTotal", "unknown").strip()
         if self.memory.endswith(" kB"):
             # kernel uses KiB but names them kB, convert to Byte
-            self.memory = int(self.memory[:-3]) * 1024
+            self.memory = int(self.memory.removesuffix(" kB")) * 1024
 
         self.environment = os.environ.copy()
         # The following variables are overridden by runexec anyway.
@@ -104,7 +116,7 @@ class SystemInfo(object):
         self.environment.pop("TEMP", None)
 
 
-class CPUThrottleCheck(object):
+class CPUThrottleCheck:
     """
     Class for checking whether the CPU has throttled during some time period.
     """
@@ -113,18 +125,21 @@ class CPUThrottleCheck(object):
         """
         Create an instance that monitors the given list of cores (or all CPUs).
         """
-        self.cpu_throttle_count = {}
-        cores = [str(core) for core in cores] if cores else ["*"]
-        for core in cores:
-            for file in glob.iglob(
+        self.files = [
+            f
+            for core in (cores or ["*"])
+            for f in glob.iglob(
                 f"/sys/devices/system/cpu/cpu{core}/thermal_throttle/*_throttle_count"
-            ):
-                try:
-                    self.cpu_throttle_count[file] = int(util.read_file(file))
-                except Exception as e:
-                    logging.warning(
-                        "Cannot read throttling count of CPU from kernel: %s", e
-                    )
+            )
+        ]
+        self.cpu_throttle_count = self._read_cpu_throttle_count()
+
+    def _read_cpu_throttle_count(self):
+        try:
+            return {f: int(util.read_file(f)) for f in self.files}
+        except (OSError, ValueError) as e:
+            logging.warning("Could not read throttling count of CPU from kernel: %s", e)
+            return {}
 
     def has_throttled(self):
         """
@@ -132,19 +147,15 @@ class CPUThrottleCheck(object):
         throttled since this instance was created.
         @return a boolean value
         """
-        for file, value in self.cpu_throttle_count.items():
-            try:
-                new_value = int(util.read_file(file))
-                if new_value > value:
-                    return True
-            except Exception as e:
-                logging.warning(
-                    "Cannot read throttling count of CPU from kernel: %s", e
-                )
+        new_values = self._read_cpu_throttle_count()
+        for key, new_value in new_values.items():
+            old_value = self.cpu_throttle_count.get(key, 0)
+            if new_value > old_value:
+                return True
         return False
 
 
-class SwapCheck(object):
+class SwapCheck:
     """
     Class for checking whether the system has swapped during some period.
     """
@@ -159,12 +170,13 @@ class SwapCheck(object):
                 for k, v in util.read_key_value_pairs_from_file("/proc/vmstat")
                 if k in ["pswpin", "pswpout"]
             }
-        except Exception as e:
+        except (OSError, ValueError) as e:
             logging.warning("Cannot read swap count from kernel: %s", e)
+            return {}
 
     def has_swapped(self):
         """
-        Check whether any swapping occured on this system since this instance was created.
+        Check whether any swapping occurred on this system since this instance was created.
         @return a boolean value
         """
         new_values = self._read_swap_count()
@@ -215,9 +227,8 @@ def is_debian():
     try:
         with open("/etc/os-release") as f:
             return any(
-                (line.startswith("ID=") or line.startswith("ID_LIKE="))
-                and "debian" in line
-                for line in f.readlines()
+                (line.startswith(("ID=", "ID_LIKE="))) and "debian" in line
+                for line in f
             )
     except OSError:
         return False

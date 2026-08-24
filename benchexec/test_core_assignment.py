@@ -6,8 +6,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import itertools
-import unittest
 import math
+import unittest
 
 from benchexec.resources import _get_cpu_cores_per_run0
 
@@ -29,14 +29,10 @@ class TestCpuCoresPerRun(unittest.TestCase):
             )
 
     def assertInvalid(self, coreLimit, num_of_threads):
-        self.assertRaises(
-            SystemExit,
-            _get_cpu_cores_per_run0,
-            coreLimit,
-            num_of_threads,
-            self.use_ht,
-            *self.machine(),
-        )
+        with self.assertRaises(SystemExit):
+            _get_cpu_cores_per_run0(
+                coreLimit, num_of_threads, self.use_ht, *self.machine()
+            )
 
     def machine(self):
         """Create the necessary parameters of _get_cpu_cores_per_run0 for a specific machine."""
@@ -113,7 +109,7 @@ class TestCpuCoresPerRun(unittest.TestCase):
             maxThreads = self.cpus * (self.cores // 4)
             if maxThreads == 0:
                 # Test for runs that are split over cpus
-                cpus_per_run = int(math.ceil(2 / (self.cores // 2)))
+                cpus_per_run = math.ceil(2 / (self.cores // 2))
                 maxThreads = self.cpus // cpus_per_run
         self.assertInvalid(2, maxThreads + 1)
         if not self.twoCore_assignment:
@@ -130,7 +126,7 @@ class TestCpuCoresPerRun(unittest.TestCase):
             maxThreads = self.cpus * (self.cores // 6)
             if maxThreads == 0:
                 # Test for runs that are split over cpus
-                cpus_per_run = int(math.ceil(3 / (self.cores // 2)))
+                cpus_per_run = math.ceil(3 / (self.cores // 2))
                 maxThreads = self.cpus // cpus_per_run
 
         self.assertInvalid(3, maxThreads + 1)
@@ -148,7 +144,7 @@ class TestCpuCoresPerRun(unittest.TestCase):
             maxThreads = self.cpus * (self.cores // 8)
             if maxThreads == 0:
                 # Test for runs that are split over cpus
-                cpus_per_run = int(math.ceil(4 / (self.cores // 2)))
+                cpus_per_run = math.ceil(4 / (self.cores // 2))
                 maxThreads = self.cpus // cpus_per_run
 
         self.assertInvalid(4, maxThreads + 1)
@@ -166,7 +162,7 @@ class TestCpuCoresPerRun(unittest.TestCase):
             maxThreads = (self.cpus * self.cores) // 16
             if maxThreads == 0:
                 # Test for runs that are split over cpus
-                cpus_per_run = int(math.ceil(8 / (self.cores // 2)))
+                cpus_per_run = math.ceil(8 / (self.cores // 2))
                 maxThreads = self.cpus // cpus_per_run
         if not maxThreads:
             self.skipTest(
@@ -207,16 +203,8 @@ class TestCpuCoresPerRun_singleCPU_HT(TestCpuCoresPerRun_singleCPU):
 
     def test_halfPhysicalCore(self):
         # Cannot run if we have only half of one physical core
-        self.assertRaises(
-            SystemExit,
-            _get_cpu_cores_per_run0,
-            1,
-            1,
-            True,
-            [0],
-            {0: [0, 1]},
-            {0: [0, 1]},
-        )
+        with self.assertRaises(SystemExit):
+            _get_cpu_cores_per_run0(1, 1, True, [0], {0: [0, 1]}, {0: [0, 1]})
 
 
 class TestCpuCoresPerRun_dualCPU_HT(TestCpuCoresPerRun):
@@ -561,7 +549,7 @@ class TestCpuCoresPerRun_singleCPU_no_ht(TestCpuCoresPerRun):
     ht = True
     use_ht = False
 
-    oneCore_assignment = [[x] for x in range(0, 4)]
+    oneCore_assignment = [[x] for x in range(4)]
     twoCore_assignment = [[0, 1], [2, 3]]
     threeCore_assignment = [[0, 1, 2]]
     fourCore_assignment = [[0, 1, 2, 3]]

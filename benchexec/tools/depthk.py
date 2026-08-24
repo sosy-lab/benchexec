@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # This file is part of BenchExec, a framework for reliable benchmarking:
 # https://github.com/sosy-lab/benchexec
 #
@@ -7,18 +5,18 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import subprocess
 import os
-import benchexec.util as util
-import benchexec.tools.template
-import benchexec.result as result
 import re
+import subprocess
+
+import benchexec.tools.template
+from benchexec import result, util
 
 
 class Tool(benchexec.tools.template.BaseTool):
     """
     This class serves as tool adaptor for DepthK
-    Autor: Williame Rocha - williame.rocha10@gmail.com - Federal University of Amazonas, Brazil.
+    Author: Williame Rocha - williame.rocha10@gmail.com - Federal University of Amazonas, Brazil.
     """
 
     REQUIRED_PATHS = [

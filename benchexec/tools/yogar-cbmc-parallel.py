@@ -5,7 +5,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import benchexec.util as util
+from benchexec import util
 
 yogar_cbmc = __import__("benchexec.tools.yogar-cbmc", fromlist=["Tool"])
 

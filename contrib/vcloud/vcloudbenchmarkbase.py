@@ -19,7 +19,7 @@ class VcloudBenchmarkBase(benchexec.benchexec.BenchExec):
     """
 
     def create_argument_parser(self):
-        parser = super(VcloudBenchmarkBase, self).create_argument_parser()
+        parser = super().create_argument_parser()
         vcloud_args = parser.add_argument_group("Options for using VerifierCloud")
         self.add_vcloud_args(vcloud_args)
 
@@ -92,12 +92,6 @@ class VcloudBenchmarkBase(benchexec.benchexec.BenchExec):
             help="Specify files or paths that shall also be transferred and be made available to the run in the cloud.",
         )
         vcloud_args.add_argument(
-            "--no-ivy-cache",
-            dest="noIvyCache",
-            action="store_true",
-            help="Prevents ivy from caching the downloaded jar files. This prevents clashes due to concurrent access to the cache.",
-        )
-        vcloud_args.add_argument(
             self.get_param_name("cloudContainerImage"),
             dest="containerImage",
             metavar="IMAGE",
@@ -106,9 +100,6 @@ class VcloudBenchmarkBase(benchexec.benchexec.BenchExec):
             help="Use the specified container image for the execution of the benchmark.",
         )
 
-    def get_param_name(self, pname):
-        return "--v" + pname
-
     def check_existing_results(self, benchmark):
         if not self.config.reprocessResults:
-            super(VcloudBenchmarkBase, self).check_existing_results(benchmark)
+            super().check_existing_results(benchmark)

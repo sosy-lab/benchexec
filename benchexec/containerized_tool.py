@@ -30,7 +30,7 @@ tool: tooladapter.CURRENT_BASETOOL = None
 
 
 @tooladapter.CURRENT_BASETOOL.register  # mark as instance of CURRENT_BASETOOL
-class ContainerizedTool(object):
+class ContainerizedTool:
     """Wrapper for an instance of any subclass of one of the base-tool classes in
     benchexec.tools.template.
     The module and the subclass instance will be loaded in a subprocess that has been
@@ -39,7 +39,7 @@ class ContainerizedTool(object):
 
     Because we use the multiprocessing module and thus communication is done
     via serialization with pickle, this is not a secure solution:
-    Code from the tool-info module can use pickle to execute arbitary code
+    Code from the tool-info module can use pickle to execute arbitrary code
     in the main BenchExec process.
     But the use of containers in BenchExec is for safety and robustness, not security.
     """

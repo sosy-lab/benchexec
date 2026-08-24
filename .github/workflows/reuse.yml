@@ -11,12 +11,15 @@ on: [push, pull_request]
 
 jobs:
   check:
+    name: Run REUSE tool
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - name: Checkout repository
+        uses: actions/checkout@v7
         with:
           persist-credentials: false
+      - name: Run REUSE tool
       # keep version consistent with .gitlab-ci.yml
-      - uses: fsfe/reuse-action@v6
+        uses: fsfe/reuse-action@v6
 
 permissions: {}

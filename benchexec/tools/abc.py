@@ -5,11 +5,11 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import re
 import logging
+import re
 
-import benchexec.result as result
 import benchexec.tools.template
+from benchexec import result
 
 
 class Tool(benchexec.tools.template.BaseTool2):
@@ -52,9 +52,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         @return: status of ABC after executing a run
         """
         for line in run.output[::-1]:
-            if line.startswith("Property proved") or line.startswith(
-                "Networks are equivalent"
-            ):
+            if line.startswith(("Property proved", "Networks are equivalent")):
                 return result.RESULT_TRUE_PROP
             elif "was asserted in frame" in line or line.startswith(
                 "Networks are NOT EQUIVALENT"

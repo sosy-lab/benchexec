@@ -10,8 +10,8 @@ import os
 import re
 import sys
 
-import benchexec.result as result
 import benchexec.tools.template
+from benchexec import result
 from benchexec.tools.sv_benchmarks_util import (
     get_non_witness_input_files_or_identifier,
     get_witness_options,
@@ -24,7 +24,7 @@ class Tool(benchexec.tools.template.BaseTool2):
     Tool info for CPAchecker, the Configurable Software-Verification Platform.
 
     Both binary and source distributions of CPAchecker are supported.
-    If the source of CPAchecker is present, it is checked wether the compiled binaries
+    If the source of CPAchecker is present, it is checked whether the compiled binaries
     are outdated and need to be regenerated.
     Additional statistics can be extracted from the output of CPAchecker
     and added to the result tables.
@@ -81,11 +81,11 @@ class Tool(benchexec.tools.template.BaseTool2):
 
                 if has_jar:
                     if src_mtime > os.stat(jar_file).st_mtime:
-                        sys.exit("CPAchecker JAR is not uptodate, run 'ant jar'!")
+                        sys.exit("CPAchecker JAR is not up-to-date, run 'ant jar'!")
 
                 elif has_cls:
                     if src_mtime > self._find_newest_mtime(cls_dir):
-                        sys.exit("CPAchecker build is not uptodate, run 'ant'!")
+                        sys.exit("CPAchecker build is not up-to-date, run 'ant'!")
         except OSError as e:
             logging.warning(
                 "Could not determine whether CPAchecker needs to be rebuilt: %s", e

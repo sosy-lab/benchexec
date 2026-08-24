@@ -53,9 +53,9 @@ dev = [
     "lxml",
     "pytest",
     # Duplicate info here from systemd extra:
-    "pystemd >= 0.7.0; platform_system != 'Windows'",
+    "pystemd >= 0.7.0; platform_system == 'Linux'",
 ]
-systemd = ["pystemd >= 0.7.0; platform_system != 'Windows'"]
+systemd = ["pystemd >= 0.7.0; platform_system == 'Linux'"]
 
 [project.scripts]
 benchexec = "benchexec.benchexec:main"
@@ -130,17 +130,134 @@ exclude = [
 extend-include = ["bin/*"]
 
 [tool.ruff.lint]
-# TODO: Enable more checks.
-#select = ["ALL"]
+select = ["ALL"]
+ignore = [
+    # checks that we do not want
+    "COM812",  # trailing comma automatically handled by formatting
+    "D203",  # style question
+    "D212",  # style question
+    "LOG015",  # we always use the root logger
+    "PIE790",  # arguably better readable if function contains "pass" instead of just docstring
+    "TD002",  # missing-todo-author: we do not enforce strict todo-comment structure
+    "TD003",  # missing-todo-link: we do not enforce strict todo-comment structurek
+    "TD004",  # missing-todo-colon: we do not enforce strict todo-comment structuren
+    # checks from ruff's default selection that should be worked on
+    "B006",   # TODO
+    "BLE001",  # TODO check each case, some are required
+    "PLE0704",  # TODO check whether this works as it should
+    "PLW1510",  # TODO
+    "RUF012",  # TODO find out good strategy of dealing with these
+    "SIM102",  # TODO sometimes better readable?
+    "SIM114",  # TODO sometimes better readable?
+    "TRY201",  # TODO after checking whether runtime behavior changes
+    # TODO below are non-default checks that should be investigated
+    # TODO more type arguments
+    "ANN001",  #  missing-type-function-argument
+    "ANN002",  #  missing-type-args
+    "ANN003",  #  missing-type-kwargs
+    "ANN201",  #  missing-return-type-undocumented-public-function
+    "ANN202",  #  missing-return-type-private-function
+    "ANN204",  #  missing-return-type-special-method
+    "ANN205",  #  missing-return-type-static-method
+    "ANN206",  #  missing-return-type-class-method
+    "ANN401",  #  any-type
+    "ARG001",  #  unused-function-argument
+    "ARG002",  #  unused-method-argument
+    "ARG005",  #  unused-lambda-argument
+    "B011",  #    assert-false
+    "B904",  #    raise-without-from-inside-except
+    "B905",  #    zip-without-explicit-strict
+    "C901",  #    complex-structure
+    "CPY001",  #  missing-copyright-notice
+    # TODO improve comments
+    "D100",  #    undocumented-public-module
+    "D101",  #    undocumented-public-class
+    "D102",  #    undocumented-public-method
+    "D103",  #    undocumented-public-function
+    "D104",  #    undocumented-public-package
+    "D105",  #    undocumented-magic-method
+    "D106",  #    undocumented-public-nested-class
+    "D107",  #    undocumented-public-init
+    "D200",  #    unnecessary-multiline-docstring
+    "D202",  #    blank-line-after-function
+    "D205",  #    missing-blank-line-after-summary
+    "D209",  #    new-line-after-last-paragraph
+    "D213",  #    multi-line-summary-second-line
+    "D400",  #    missing-trailing-period
+    "D401",  #    non-imperative-mood
+    "D402",  #    signature-in-docstring
+    "D403",  #    first-word-uncapitalized
+    "D404",  #    docstring-starts-with-this
+    "D413",  #    missing-blank-line-after-last-section
+    "D415",  #    missing-terminal-punctuation
+    "E501",  #    line-too-long
+    "EM101",  #   raw-string-in-exception
+    "EM102",  #   f-string-in-exception
+    "FBT002",  #  boolean-default-value-positional-argument
+    "FBT003",  #  boolean-positional-value-in-call
+    "FIX002",  #  line-contains-todo
+    "ICN001",  #  unconventional-import-alias
+    "INP001",  #  implicit-namespace-package
+    # TODO improve naming
+    "N801",  #    invalid-class-name
+    "N802",  #    invalid-function-name
+    "N803",  #    invalid-argument-name
+    "N806",  #    non-lowercase-variable-in-function
+    "N815",  #    mixed-case-variable-in-class-scope
+    "PERF203",  # try-except-in-loop
+    "PERF401",  # manual-list-comprehension
+    "PLC0415",  # import-outside-top-level
+    "PLR0911",  # too-many-return-statements
+    "PLR0912",  # too-many-branches
+    "PLR0913",  # too-many-arguments
+    "PLR0915",  # too-many-statements
+    "PLR0917",  # too-many-positional-arguments
+    "PLR1714",  # repeated-equality-comparison
+    "PLR2004",  # magic-value-comparison
+    "PLR5501",  # collapsible-else-if
+    "PLW0603",  # global-statement
+    "PLW2901",  # redefined-loop-name
+    # TODO adopt pytest assertions
+    "PT009",  #   pytest-unittest-assertion
+    "PT015",  #   pytest-assert-always-false
+    "PT027",  #   pytest-unittest-raises-assertion
+    # TODO adopt pathlib
+    "PTH1",
+    "PTH20",
+    "PTH211",  #  os-symlink
+    "RET503",  #  implicit-return
+    "RET504",  #  unnecessary-assign
+    "RET505",  #  superfluous-else-return
+    "RET506",  #  superfluous-else-raise
+    "RET507",  #  superfluous-else-continue
+    "RET508",  #  superfluous-else-break
+    "RUF005",  #  collection-literal-concatenation
+    "S101",  #    assert
+    "S108",  #    hardcoded-temp-file
+    "S113",  #    request-without-timeout
+    "S301",  #    suspicious-pickle-usage
+    "S318",  #    suspicious-xml-mini-dom-usage
+    "S603",  #    subprocess-without-shell-equals-true
+    "S607",  #    start-process-with-partial-path
+    "SIM105",  #  suppressible-exception
+    "SIM108",  #  if-else-block-instead-of-if-exp
+    "SIM116",  #  if-else-block-instead-of-dict-lookup
+    "SLF001",  #  private-member-access
+    "T201",  #    print
+    "TC006",  #   runtime-cast-value
+    "TRY003",  #  raise-vanilla-args
+    "TRY300",  #  try-consider-else
+    "TRY301",  #  raise-within-try
+    "TRY400",  #  error-instead-of-exception
+    "UP015",  #   redundant-open-modes
+]
+
 [tool.ruff.lint.per-file-ignores]
-'bin/*' = [
-    # imports need to come after sys.path changes
-    'E402',
+"benchexec/tools/*.py" = [
+    "B019",  # caching of instance methods is not problematic here, we just have one long-lived instance
+    "N999",  # we import these modules manually, names do not need to be valid Python
 ]
-'benchexec/test*.py' = [
-    # wildcard imports significantly shorten test code,
-    'F405',
-]
+"contrib/p4/p4-test-tool.py" = ["N999"]  # same as above
 
 [tool.pytest.ini_options]
 filterwarnings = [

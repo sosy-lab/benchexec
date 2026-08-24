@@ -5,18 +5,18 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import unittest
 import types
+import unittest
+import unittest.mock
 
-from benchexec.util import ProcessExitCode
 from benchexec.model import Run
 from benchexec.result import (
-    RESULT_FALSE_REACH,
     RESULT_ERROR,
-    RESULT_UNKNOWN,
+    RESULT_FALSE_REACH,
     RESULT_TRUE_PROP,
+    RESULT_UNKNOWN,
 )
-from benchexec.tools.template import BaseTool
+from benchexec.util import ProcessExitCode
 
 normal_result = ProcessExitCode(raw=0, value=0, signal=None)
 
@@ -36,12 +36,8 @@ class TestResult(unittest.TestCase):
         runSet.benchmark.name = "Test"
         runSet.benchmark.instance = "Test"
         runSet.benchmark.rlimits = {}
-        runSet.benchmark.tool = BaseTool()
-
-        def determine_result(run):
-            return info_result
-
-        runSet.benchmark.tool.determine_result = determine_result
+        runSet.benchmark.tool = unittest.mock.NonCallableMock()
+        runSet.benchmark.tool.determine_result.return_value = info_result
 
         run = Run(
             identifier="test.c",
@@ -182,7 +178,7 @@ class TestResult(unittest.TestCase):
 
     def test_exitcode(self):
         def returnvalue(value):
-            """Encode an exit of aprogram as it would be returned by os.wait"""
+            """Encode an exit of a program as it would be returned by os.wait"""
             return ProcessExitCode(raw=value << 8, value=value, signal=None)
 
         run = self.create_run(info_result=RESULT_UNKNOWN)

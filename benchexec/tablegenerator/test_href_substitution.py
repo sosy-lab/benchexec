@@ -5,16 +5,21 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import collections
 import unittest
+from dataclasses import dataclass
+
 from benchexec.tablegenerator import htmltable
+from benchexec.tablegenerator.util import TaskId
 
 
-DummyTaskId = collections.namedtuple("DummyTaskId", "name")
+def DummyTaskId(name):
+    return TaskId(name, None, None, None, None)
 
-DummyRunResult = collections.namedtuple(
-    "DummyRunResult", "task_id log_file", defaults=[None]
-)
+
+@dataclass(frozen=True)
+class DummyRunResult:
+    task_id: TaskId
+    log_file: str | None = None
 
 
 class TestHrefSubstitution(unittest.TestCase):

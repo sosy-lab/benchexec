@@ -6,9 +6,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import re
-import benchexec.result as result
+
 import benchexec.tools.template
-from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, LP64
+from benchexec import result
+from benchexec.tools.sv_benchmarks_util import ILP32, LP64, get_data_model_from_task
 
 
 class Tool(benchexec.tools.template.BaseTool2):
@@ -69,7 +70,7 @@ class Tool(benchexec.tools.template.BaseTool2):
             elif line.startswith("Result: DONE"):
                 return result.RESULT_DONE
             elif line.startswith("Result: ERROR"):
-                # matches ERROR and ERROR followed by some reason in parantheses
+                # matches ERROR and ERROR followed by some reason in parentheses
                 # e.g., "ERROR (TRUE)" or "ERROR(TRUE)"
                 return re.search(r"ERROR(\s*\(.*\))?", line).group(0)
         return result.RESULT_UNKNOWN

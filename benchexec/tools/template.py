@@ -15,17 +15,16 @@ For more information, please refer to
 https://github.com/sosy-lab/benchexec/blob/main/doc/tool-integration.md
 """
 
-from abc import ABCMeta, abstractmethod
-from collections import namedtuple
 import collections
 import copy
-import os
 import logging
+import os
 import subprocess
+from abc import ABCMeta, abstractmethod
+from typing import NamedTuple
 
 import benchexec
-import benchexec.result as result
-import benchexec.util as util
+from benchexec import result, util
 
 
 class ToolNotFoundException(benchexec.BenchExecException):
@@ -44,7 +43,7 @@ class UnsupportedFeatureException(benchexec.BenchExecException):
     pass
 
 
-class BaseTool2(object, metaclass=ABCMeta):
+class BaseTool2(metaclass=ABCMeta):
     """
     This class serves both as a template for tool-info implementations,
     and as an abstract super class for them.
@@ -82,7 +81,7 @@ class BaseTool2(object, metaclass=ABCMeta):
     """
     List of path patterns that is used by the default implementation of program_files().
     Not necessary if this method is overwritten.
-    """  # noqa: B018"
+    """
 
     # Methods that provide general (run-independent) information about the tool
 
@@ -90,13 +89,13 @@ class BaseTool2(object, metaclass=ABCMeta):
     def name(self):
         """
         Return the name of the tool, formatted for humans.
-        This method always needs to be overriden, and typically just contains
+        This method always needs to be overridden, and typically just contains
 
         return "My Toolname"
 
         @return a non-empty string
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def project_url(self):
         """
@@ -104,7 +103,7 @@ class BaseTool2(object, metaclass=ABCMeta):
 
         @return None or a string with a URL in valid syntax for links on webpages
         """
-        return None  # noqa: R501
+        return None  # noqa: RET501
 
     @abstractmethod
     def executable(self, tool_locator):
@@ -119,7 +118,7 @@ class BaseTool2(object, metaclass=ABCMeta):
         @param tool_locator: an instance of class ToolLocator
         @return a string pointing to an executable file
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def version(self, executable):
         """
@@ -156,10 +155,9 @@ class BaseTool2(object, metaclass=ABCMeta):
         try:
             process = subprocess.run(
                 [executable, arg],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
+                capture_output=True,
                 stdin=subprocess.DEVNULL,
-                universal_newlines=True,
+                text=True,
             )
         except OSError as e:
             logging.warning(
@@ -210,7 +208,7 @@ class BaseTool2(object, metaclass=ABCMeta):
         @param version: a version string as returned by the version() method in the past
         @return None or a string with a URL in valid syntax for links on webpages
         """
-        return None  # noqa: R501
+        return None  # noqa: RET501
 
     def environment(self, executable):
         """
@@ -244,7 +242,7 @@ class BaseTool2(object, metaclass=ABCMeta):
         "newEnv": Before the execution, the values are assigned to the real environment-identifiers.
                   This will override existing values.
         "additionalEnv": Before the execution, the values are appended to the real environment-identifiers.
-                  The seperator for the appending must be given in this method,
+                  The separator for the appending must be given in this method,
                   so that the operation "realValue + additionalValue" is a valid value.
                   For example in the PATH-variable the additionalValue starts with a ":".
         @param executable: the path to the executable of the tool (typically the result of executable())
@@ -335,7 +333,7 @@ class BaseTool2(object, metaclass=ABCMeta):
         """
         return result.RESULT_DONE
 
-    def get_value_from_output(self, output, identifier):
+    def get_value_from_output(self, output, identifier):  # noqa: B027 does not need to be overridden
         """
         OPTIONAL, extract a statistic value from the output of the tool.
         This value will be added to the resulting tables.
@@ -349,8 +347,9 @@ class BaseTool2(object, metaclass=ABCMeta):
         @param identifier: The user-specified identifier for the statistic item.
         @return a (possibly empty) string, optional with HTML tags
         """
+        pass
 
-    def close(self):
+    def close(self):  # noqa: B027 does not need to be overridden
         """
         OPTIONAL, called before tool-info module is no longer used,
         but no strict guarantee about this.
@@ -360,8 +359,20 @@ class BaseTool2(object, metaclass=ABCMeta):
     # Classes that are used in parameters above
 
     class ToolLocator(
-        namedtuple("ToolLocator", ["tool_directory", "use_path", "use_current"])
+        NamedTuple(
+            "ToolLocator",
+            [("tool_directory", str | None), ("use_path", bool), ("use_current", bool)],
+        )
     ):
+        """
+        Allows searching for an executable in the user-specified way.
+        While this class is technically a tuple, this fact and all defined fields
+        should be seen as an implementation detail and not used.
+        A given instance should be used only for calling the the find_executable() method.
+        """
+
+        __slots__ = ()  # reduce per-instance memory consumption
+
         def find_executable(self, executable_name, subdir=""):
             assert os.path.basename(executable_name) == executable_name, (
                 "Executable needs to be a simple file name"
@@ -371,17 +382,17 @@ class BaseTool2(object, metaclass=ABCMeta):
                 # join automatically handles the case where subdir is the empty string
                 dirs.append(os.path.join(self.tool_directory, subdir))
             if self.use_path:
-                dirs.extend(benchexec.util.get_path())
+                dirs.extend(util.get_path())
             if self.use_current:
                 dirs.append(os.curdir)
                 if subdir:
                     dirs.append(subdir)
 
-            executable = benchexec.util.find_executable2(executable_name, dirs)
+            executable = util.find_executable2(executable_name, dirs)
             if executable:
                 return executable
 
-            other_file = benchexec.util.find_executable2(executable_name, dirs, os.F_OK)
+            other_file = util.find_executable2(executable_name, dirs, os.F_OK)
             if other_file:
                 raise ToolNotFoundException(
                     f"Could not find executable '{executable_name}', "
@@ -407,8 +418,14 @@ class BaseTool2(object, metaclass=ABCMeta):
             return super().__new__(cls, tool_directory, use_path, use_current)
 
     class Task(
-        namedtuple(
-            "Task", ["input_files_or_empty", "identifier", "property_file", "options"]
+        NamedTuple(
+            "Task",
+            [
+                ("input_files_or_empty", collections.abc.Sequence[str]),
+                ("identifier", str | None),
+                ("property_file", str | None),
+                ("options", dict | None),
+            ],
         )
     ):
         """
@@ -428,6 +445,8 @@ class BaseTool2(object, metaclass=ABCMeta):
             working directory) or None otherwise
         options: content of the "options" key in the task-definition file (if present)
         """
+
+        __slots__ = ()  # reduce per-instance memory consumption
 
         def __new__(cls, input_files, identifier, property_file, options):
             input_files = tuple(input_files)  # make input_files immutable
@@ -502,12 +521,7 @@ class BaseTool2(object, metaclass=ABCMeta):
                     "Tool does not support tasks with more than one input file"
                 )
 
-    class ResourceLimits(
-        namedtuple(
-            "ResourceLimits",
-            ["cputime", "cputime_hard", "walltime", "memory", "cpu_cores"],
-        )
-    ):
+    class ResourceLimits(NamedTuple):
         """
         Represent resource limits of a run. While this class is technically a tuple,
         this should be seen as an implementation detail and the order of elements in the
@@ -523,23 +537,25 @@ class BaseTool2(object, metaclass=ABCMeta):
         memory: Memory limit in bytes
         cpu_cores: Number of CPU cores allowed to be used
 
-        The CPU-time limits will either both have a value of both be None.
+        The CPU-time limits will either both have a value or both be None.
         """
 
-        def __new__(
-            cls,
-            cputime=None,
-            cputime_hard=None,
-            walltime=None,
-            memory=None,
-            cpu_cores=None,
-        ):
-            return super().__new__(
-                cls, cputime, cputime_hard, walltime, memory, cpu_cores
-            )
+        cputime: int | None = None
+        cputime_hard: int | None = None
+        walltime: int | None = None
+        memory: int | None = None
+        cpu_cores: int | None = None
 
     class Run(
-        namedtuple("Run", ["cmdline", "exit_code", "output", "termination_reason"])
+        NamedTuple(
+            "Run",
+            [
+                ("cmdline", collections.abc.Sequence[str]),
+                ("exit_code", util.ProcessExitCode),
+                ("output", "BaseTool2.RunOutput"),
+                ("termination_reason", str | None),
+            ],
+        )
     ):
         """
         Represent a run (one tool execution) and its result. While this class is
@@ -547,7 +563,7 @@ class BaseTool2(object, metaclass=ABCMeta):
         and the order of elements in the tuple should not be considered.
         New fields may be added in the future.
 
-        Explanation of files:
+        Explanation of fields:
         @param cmdline: command line as executed (as sequence of strings)
         @param exit_code: an instance of class benchexec.util.ProcessExitCode
             (contains return code or the signal that led to termination)
@@ -556,6 +572,8 @@ class BaseTool2(object, metaclass=ABCMeta):
             (cf. https://github.com/sosy-lab/benchexec/blob/main/doc/run-results.md,
             useful to distinguish between program killed because of error and timeout)
         """
+
+        __slots__ = ()  # reduce per-instance memory consumption
 
         def __new__(cls, cmdline, exit_code, output, termination_reason):
             cmdline = tuple(cmdline)  # make cmdline immutable
@@ -618,7 +636,7 @@ class BaseTool2(object, metaclass=ABCMeta):
             return self.text
 
 
-class BaseTool(object):
+class BaseTool:
     """
     This class serves both as a template for tool-info implementations,
     and as an abstract super class for them.
@@ -639,7 +657,7 @@ class BaseTool(object):
     """
     List of path patterns that is used by the default implementation of program_files().
     Not necessary if this method is overwritten.
-    """  # noqa: B018
+    """
 
     def executable(self):
         """
@@ -690,10 +708,10 @@ class BaseTool(object):
     def name(self):
         """
         Return the name of the tool, formatted for humans.
-        This function should always be overriden.
+        This function should always be overridden.
         @return a non-empty string
         """
-        return "UNKOWN"
+        return "UNKNOWN"
 
     def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
         """
@@ -790,7 +808,7 @@ class BaseTool(object):
         "newEnv": Before the execution, the values are assigned to the real environment-identifiers.
                   This will override existing values.
         "additionalEnv": Before the execution, the values are appended to the real environment-identifiers.
-                  The seperator for the appending must be given in this method,
+                  The separator for the appending must be given in this method,
                   so that the operation "realValue + additionalValue" is a valid value.
                   For example in the PATH-variable the additionalValue starts with a ":".
         @param executable: the path to the executable of the tool (typically the result of executable())

@@ -21,7 +21,7 @@ For integrating from within Python instantiate the benchexec.benchexec.BenchExec
 and either call "instance.start()" or "benchexec.benchexec.main(instance)".
 """
 
-import benchexec.benchexec
+import benchexec.benchexec  # noqa: E402 import need to be after sys.path changes
 
 if __name__ == "__main__":
     sys.exit(benchexec.benchexec.main())

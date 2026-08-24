@@ -48,7 +48,7 @@ stages:
     # Start lxcfs
     - lxcfs /var/lib/lxcfs &
   script:
-    - sudo -u $PRIMARY_USER python -m pytest -ra --cov -k "not tablegenerator"
+    - sudo -u $PRIMARY_USER python -m pytest --runxfail -ra --cov -k "not tablegenerator"
   after_script:
     - sudo -u $PRIMARY_USER coverage xml
   tags:
@@ -80,7 +80,7 @@ tests:cgroupsv1:python-3.14:
     # Install BenchExec with `dev` dependencies
     - pip install --user ".[dev]"
   script:
-    - python -m pytest -ra --cov
+    - python -m pytest --runxfail -ra --cov
   after_script:
     - coverage xml
   tags:
@@ -107,7 +107,7 @@ tests:cgroupsv2:python-3.12:
   variables:
     PYTHON_VERSION: '3.12'
 
-tests:cgroupsv2:python-3.15:
+tests:cgroupsv2:python-3.13:
   <<: *tests-cgroupsv2
   variables:
     PYTHON_VERSION: '3.13'
@@ -118,25 +118,6 @@ tests:cgroupsv2:python-3.14:
     PYTHON_VERSION: '3.14'
 
 # Static checks
-flynt:
-  # Use flynt (https://github.com/ikamensh/flynt) for converting string formatting to f-strings
-  stage: test
-  image: python:3.10
-  before_script:
-    - pip install flynt
-  script:
-    - flynt . --exclude node_modules --line-length 10000 --aggressive --fail-on-change --dry-run
-  <<: *pip-cache
-
-flake8:
-  stage: test
-  image: python:3.10
-  before_script:
-    - pip install setuptools flake8 flake8-awesome
-  script:
-    - flake8
-  <<: *pip-cache
-
 pytype:
   stage: test
   before_script:
@@ -155,7 +136,7 @@ pytype:
   stage: test
   interruptible: true
   # keep version consistent with .github/workflows/ruff.yml
-  image: ghcr.io/astral-sh/ruff:0.15-alpine
+  image: ghcr.io/astral-sh/ruff:0.16-alpine
   before_script:
     - ruff --version
   cache:

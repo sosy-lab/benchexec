@@ -6,9 +6,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import re
-import benchexec.result as result
+
 import benchexec.tools.template
-from benchexec.tools.sv_benchmarks_util import get_data_model_from_task, ILP32, LP64
+from benchexec import result
+from benchexec.tools.sv_benchmarks_util import ILP32, LP64, get_data_model_from_task
 
 
 class Tool(benchexec.tools.template.BaseTool2):
@@ -21,7 +22,7 @@ class Tool(benchexec.tools.template.BaseTool2):
     def name(self):
         """
         Return the name of the tool, formatted for humans.
-        This method always needs to be overriden, and typically just contains
+        This method always needs to be overridden, and typically just contains
         return "My Toolname"
         @return a non-empty string
         """

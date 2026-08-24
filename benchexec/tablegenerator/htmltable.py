@@ -12,9 +12,9 @@ import logging
 import os
 from urllib.parse import quote as url_quote
 
+import benchexec.util
 from benchexec import __version__
 from benchexec.tablegenerator import util
-import benchexec.util
 
 _REACT_FILES = [
     os.path.join(os.path.dirname(__file__), "react-table", "build", path)
@@ -189,9 +189,11 @@ def _prepare_benchmark_setup_data(
             else list(zip(values, runSetWidths))
         )
 
-        return dict(  # noqa: C408
-            id=rowName.lower().split(" ")[0], name=rowName, content=valuesAndWidths
-        )
+        return {
+            "id": rowName.lower().split(" ")[0],
+            "name": rowName,
+            "content": valuesAndWidths,
+        }
 
     titles = [
         column.format_title()
@@ -199,22 +201,22 @@ def _prepare_benchmark_setup_data(
         for column in runSetResult.columns
     ]
     runSetWidths1 = [1] * sum(runSetWidths)
-    titleRow = dict(  # noqa: C408
-        id="columnTitles",
+    titleRow = {
+        "id": "columnTitles",
         # commonFileNamePrefix may contain paths, so standardize the output across OSs
-        name=util.fix_path_if_on_windows(commonFileNamePrefix),
-        content=list(zip(titles, runSetWidths1)),
-    )
+        "name": util.fix_path_if_on_windows(commonFileNamePrefix),
+        "content": list(zip(titles, runSetWidths1)),
+    }
 
     property_row = None
     if not relevant_id_columns[1]:  # property is the same for all tasks
         common_property = runSetResults[0].results[0].task_id[1]
         if common_property:
-            property_row = dict(  # noqa: C408
-                id="property",
-                name="Properties",
-                content=[[common_property.name, sum(runSetWidths)]],
-            )
+            property_row = {
+                "id": "property",
+                "name": "Properties",
+                "content": [[common_property.name, sum(runSetWidths)]],
+            }
 
     return {
         "tool": get_row("Tool", cell_format=tool_data_cell, collapse=True),
@@ -246,7 +248,7 @@ def _prepare_benchmark_setup_data(
 
 
 def _get_task_counts(rows):
-    """Calculcate number of true/false tasks and maximum achievable score."""
+    """Calculate number of true/false tasks and maximum achievable score."""
     count_true = count_false = 0
     max_score = None
     for row in rows:
@@ -431,7 +433,7 @@ def _prepare_rows_for_js(rows, base_dir, href_base, relevant_id_columns):
             result["href"] = _create_link(
                 column.href, base_dir, run_result, href_base, value=raw_value
             )
-        if raw_value is not None and not raw_value == "":
+        if raw_value is not None and raw_value != "":
             result["raw"] = raw_value
         if formatted_value and formatted_value != raw_value:
             result["html"] = formatted_value
@@ -459,8 +461,7 @@ def _prepare_rows_for_js(rows, base_dir, href_base, relevant_id_columns):
         return result
 
     def clean_up_row(row):
-        result = {}
-        result["id"] = [
+        id_parts = [
             str(id_part)
             for id_part, relevant in zip(row.id, relevant_id_columns)
             if id_part and relevant
@@ -468,9 +469,12 @@ def _prepare_rows_for_js(rows, base_dir, href_base, relevant_id_columns):
         # Replace first part of id (task name, which is always shown) with short name
         assert relevant_id_columns[0]
         # row.short_filename may contain paths, so standardize the output across OSs
-        result["id"][0] = util.fix_path_if_on_windows(row.short_filename)
+        id_parts[0] = util.fix_path_if_on_windows(row.short_filename)
 
-        result["results"] = [clean_up_results(res) for res in row.results]
+        result = {
+            "id": id_parts,
+            "results": [clean_up_results(res) for res in row.results],
+        }
         if row.has_sourcefile:
             result["href"] = _create_link(row.id.name, base_dir)
         return result

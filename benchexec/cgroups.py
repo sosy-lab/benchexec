@@ -5,15 +5,14 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from abc import ABC, abstractmethod
 import errno
 import functools
 import logging
 import os
 import stat
+from abc import ABC, abstractmethod
 
 from benchexec import util
-
 
 CGROUPS_V1 = 1
 CGROUPS_V2 = 2
@@ -222,8 +221,7 @@ class Cgroups(ABC):
         with open(
             os.path.join(self.subsystems[subsystem], f"{subsystem}.{option}")
         ) as f:
-            for line in f:
-                yield line
+            yield from f
 
     def get_key_value_pairs(self, subsystem, filename):
         """
@@ -344,7 +342,7 @@ class Cgroups(ABC):
 
     @abstractmethod
     def can_limit_swap(self):
-        """Check wether cgroups can be used to limit swap usage."""
+        """Check whether cgroups can be used to limit swap usage."""
         pass
 
     @abstractmethod

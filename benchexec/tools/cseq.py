@@ -6,7 +6,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import benchexec.tools.template
-import benchexec.result as result
+from benchexec import result
 
 
 class CSeqTool(benchexec.tools.template.BaseTool2):
@@ -32,7 +32,7 @@ class CSeqTool(benchexec.tools.template.BaseTool2):
         are either absolute or have been made relative to the designated working directory.
         @param executable: the path to the executable of the tool (typically the result of executable())
         @param options: a list of options, in the same order as given in the XML-file.
-        @param task: instance of class Task containg the property and input file
+        @param task: instance of class Task containing the property and input file
                             This tool info module only supports one input file.
         @param rlimits: This dictionary contains resource-limits for a run,
                         for example: time-limit, soft-time-limit, hard-time-limit, memory-limit, cpu-core-limit.
