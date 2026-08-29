@@ -92,12 +92,6 @@ class VcloudBenchmarkBase(benchexec.benchexec.BenchExec):
             help="Specify files or paths that shall also be transferred and be made available to the run in the cloud.",
         )
         vcloud_args.add_argument(
-            "--no-ivy-cache",
-            dest="noIvyCache",
-            action="store_true",
-            help="Prevents ivy from caching the downloaded jar files. This prevents clashes due to concurrent access to the cache.",
-        )
-        vcloud_args.add_argument(
             self.get_param_name("cloudContainerImage"),
             dest="containerImage",
             metavar="IMAGE",
@@ -105,9 +99,6 @@ class VcloudBenchmarkBase(benchexec.benchexec.BenchExec):
             type=str,
             help="Use the specified container image for the execution of the benchmark.",
         )
-
-    def get_param_name(self, pname):
-        return "--v" + pname
 
     def check_existing_results(self, benchmark):
         if not self.config.reprocessResults:

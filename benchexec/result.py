@@ -121,7 +121,7 @@ class ExpectedResult(NamedTuple):
     subproperty: str | None
 
     def __str__(self):
-        result = {True: "true", False: "false"}.get(self.result, "")
+        result = {True: "true", False: "false", None: ""}[self.result]
         if result and self.subproperty:
             return f"{result}({self.subproperty})"
         return result

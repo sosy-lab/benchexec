@@ -75,7 +75,7 @@ class Tool(benchexec.tools.template.BaseTool2):
                 + options
                 + ["-p", task.property_file, task.single_input_file]
             )
-        assert False, "Unexpected version " + self._version
+        assert False, f"Unexpected version {self._version}"
 
     def determine_result(self, run):
         output = run.output

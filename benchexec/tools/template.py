@@ -155,8 +155,7 @@ class BaseTool2(metaclass=ABCMeta):
         try:
             process = subprocess.run(
                 [executable, arg],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
+                capture_output=True,
                 stdin=subprocess.DEVNULL,
                 text=True,
             )
@@ -383,17 +382,17 @@ class BaseTool2(metaclass=ABCMeta):
                 # join automatically handles the case where subdir is the empty string
                 dirs.append(os.path.join(self.tool_directory, subdir))
             if self.use_path:
-                dirs.extend(benchexec.util.get_path())
+                dirs.extend(util.get_path())
             if self.use_current:
                 dirs.append(os.curdir)
                 if subdir:
                     dirs.append(subdir)
 
-            executable = benchexec.util.find_executable2(executable_name, dirs)
+            executable = util.find_executable2(executable_name, dirs)
             if executable:
                 return executable
 
-            other_file = benchexec.util.find_executable2(executable_name, dirs, os.F_OK)
+            other_file = util.find_executable2(executable_name, dirs, os.F_OK)
             if other_file:
                 raise ToolNotFoundException(
                     f"Could not find executable '{executable_name}', "

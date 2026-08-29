@@ -10,6 +10,7 @@ import os
 import re
 import threading
 
+import benchexec.result
 import benchexec.tools.template
 from benchexec.tools.sv_benchmarks_util import (
     ILP32,
