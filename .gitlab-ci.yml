@@ -167,7 +167,7 @@ codespell:
   script:
     - codespell
   variables:
-    PYTHON_VERSION: '3.10'
+    PYTHON_VERSION: '3.14'
   cache:
     key: "${CI_JOB_NAME}"
     paths:

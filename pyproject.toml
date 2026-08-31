@@ -270,23 +270,19 @@ norecursedirs = ["contrib/p4/docker_files", "build", "benchexec/tablegenerator/r
 [tool.codespell]
 builtin = "clear,rare,informal,usage,names"
 summary = true
-# aprove.py is skipped because of the tool name AProVE,
-# gratchk.py and gratgen.py because of GRAT.
-skip = """\
-    BenchExec.egg-info,\
-    ./benchexec/tablegenerator/react-table/build,\
-    ./benchexec/tablegenerator/react-table/node_modules,\
-    ./benchexec/tablegenerator/test_integration/expected,\
-    ./benchexec/tablegenerator/test_integration/results/test.2015-03-03_1815.logfiles,\
-    ./benchexec/tablegenerator/react-table/src/tests/task_definition_files/property_files_multiline_string.yml,\
-    ./benchexec/tools/aprove.py,\
-    ./benchexec/tools/gratchk.py,\
-    ./benchexec/tools/gratgen.py,\
-    ./benchexec/tablegenerator/react-table/src/data/dependencies.json,\
-    pyproject.toml,\
-    package-lock.json,\
-    *.snap,\
-    *.pdf\
-"""
-
+skip = [
+    "./BenchExec.egg-info",
+    "./benchexec/tablegenerator/react-table/build",
+    "node_modules",
+    "./benchexec/tablegenerator/test_integration/expected",
+    "*.min.js",
+    "package-lock.json",
+    "*.snap",
+    "*.pdf",
+    "./benchexec/tools/aprove.py",  # because of AProVE, codespell:ignore aprove
+    "./benchexec/tools/gratchk.py",  # because of GRAT, codespell:ignore grat
+    "./benchexec/tools/gratgen.py",  # because of GRAT, codespell:ignore grat
+    "./benchexec/tablegenerator/test_integration/results/test.2015-03-03_1815.logfiles",
+    "./benchexec/tablegenerator/react-table/src/tests/task_definition_files/property_files_multiline_string.yml",
+]
 ignore-words-list = "notIn"
