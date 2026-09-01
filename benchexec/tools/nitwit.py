@@ -8,8 +8,8 @@
 import logging
 import os
 
-import benchexec.result as result
 import benchexec.tools.template
+from benchexec import result
 from benchexec.tools.sv_benchmarks_util import (
     TaskFilesConsidered,
     handle_witness_of_task,

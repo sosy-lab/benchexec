@@ -6,8 +6,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import os
+
 import benchexec.tools.template
-import benchexec.result as result
+from benchexec import result
 from benchexec.tools.template import ToolNotFoundException
 
 
@@ -74,7 +75,7 @@ class Tool(benchexec.tools.template.BaseTool2):
                 + options
                 + ["-p", task.property_file, task.single_input_file]
             )
-        assert False, "Unexpected version " + self._version
+        assert False, f"Unexpected version {self._version}"
 
     def determine_result(self, run):
         output = run.output

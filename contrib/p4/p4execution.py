@@ -4,34 +4,31 @@
 
 # SPDX-License-Identifier: Apache-2.0
 
-import os
+import json
 import logging
-
-import time
+import os
 import threading
-from benchexec import systeminfo
-from p4.p4_run_setup import P4SetupHandler
-from p4.counter import Counter
-
-from benchexec import tooladapter
-from benchexec import util
-from benchexec import BenchExecException
+import time
+from distutils.dir_util import copy_tree
 
 # File handling
 from shutil import copyfile, rmtree
-import json
-from distutils.dir_util import copy_tree
+
+from benchexec import BenchExecException, systeminfo, tooladapter, util
+from p4.counter import Counter
+from p4.p4_run_setup import P4SetupHandler
 
 try:
     import docker
+    import docker.errors
+    import docker.types
 except ModuleNotFoundError:
     raise BenchExecException(
         "Python-docker package not found. Try reinstalling python docker module"
     )
 
 try:
-    from pyroute2 import IPRoute
-    from pyroute2 import NetNS
+    from pyroute2 import IPRoute, NetNS
 except ModuleNotFoundError:
     raise BenchExecException(
         "pyroute2 python package not found. Try reinstalling pyroute2"
@@ -47,7 +44,7 @@ SWITCH_IMAGE_NAME = "switch_bmv2"
 PTF_IMAGE_NAME = "ptf_tester"
 
 
-class P4Execution(object):
+class P4Execution:
     """
     This Class is for executing p4 benchmarks. The class creates docker containers representing each
     device in the network. It creates virtual ethernet connections between all the devices. Finally,
@@ -262,8 +259,7 @@ class P4Execution(object):
 
                 try:
                     with open(run.log_file, "w") as ouputFile:
-                        for _i in range(6):
-                            ouputFile.write("\n")
+                        ouputFile.writelines("\n" for _i in range(6))
 
                         # for result in test_results:
                         ouputFile.write(test_output + "\n")
@@ -725,7 +721,7 @@ class P4Execution(object):
         os.mkdir(switch_path + "/tables")
 
         # Create log file for switch to use
-        open(switch_path + "/log/switch_log.txt", "x")
+        open(switch_path + "/log/switch_log.txt", "x").close()
         copy_tree(self.switch_source_path + "/P4", switch_path + "/P4")
         copy_tree(self.switch_source_path + "/tables", switch_path + "/tables")
 
@@ -752,10 +748,7 @@ class P4Execution(object):
             return False
         else:
             # Check nodes
-            if "nodes" not in self.network_config:
-                logging.debug("No nodes defined in network config")
-                return False
-            elif len(self.network_config["nodes"]) == 0:
+            if "nodes" not in self.network_config or not self.network_config["nodes"]:
                 logging.debug("No nodes defined in network config")
                 return False
 

@@ -11,7 +11,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
-import os
 import sys
 
 import benchexec.benchexec
@@ -19,12 +18,6 @@ import benchexec.tools
 import benchexec.util
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
-
-# Add ./benchmark/tools to __path__ of benchexec.tools package
-# such that additional tool-wrapper modules can be placed in this directory.
-benchexec.tools.__path__ = [
-    os.path.join(os.path.dirname(__file__), "benchmark", "tools")
-] + benchexec.tools.__path__
 
 
 class Benchmark(benchexec.benchexec.BenchExec):
@@ -34,7 +27,7 @@ class Benchmark(benchexec.benchexec.BenchExec):
     """
 
     def create_argument_parser(self):
-        parser = super(Benchmark, self).create_argument_parser()
+        parser = super().create_argument_parser()
 
         slurm_args = parser.add_argument_group("Options for using SLURM")
         slurm_args.add_argument(
@@ -73,7 +66,7 @@ class Benchmark(benchexec.benchexec.BenchExec):
             logging.warning(
                 "SLURM flag was not specified. Benchexec will be executed only on the local machine."
             )
-            executor = super(Benchmark, self).load_executor()
+            executor = super().load_executor()
 
         return executor
 

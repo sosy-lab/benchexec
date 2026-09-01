@@ -5,41 +5,39 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import collections
-import logging
 import os
 import tempfile
 import unittest
+from dataclasses import dataclass
 from unittest.mock import patch
+
 import yaml
 
-from benchexec import BenchExecException
-from benchexec.model import Benchmark
 import benchexec.result
-import benchexec.util as util
+from benchexec import util
+from benchexec.model import Benchmark
 
 here = os.path.dirname(__file__)
 base_dir = os.path.join(here, "..")
 test_dir = os.path.join(base_dir, "test", "tasks")
 
-DummyConfig = collections.namedtuple(
-    "DummyConfig",
-    [
-        "name",
-        "output_path",
-        "container",
-        "timelimit",
-        "walltimelimit",
-        "memorylimit",
-        "corelimit",
-        "num_of_threads",
-        "results_per_rundefinition",
-        "results_per_taskset",
-        "selected_run_definitions",
-        "selected_sourcefile_sets",
-        "description_file",
-    ],
-)(None, "test", False, None, None, None, None, None, False, False, None, None, None)
+
+@dataclass(frozen=True)
+class DummyConfig:
+    name = None
+    output_path = "test"
+    container = False
+    timelimit = None
+    walltimelimit = None
+    memorylimit = None
+    corelimit = None
+    num_of_threads = None
+    results_per_rundefinition = False
+    results_per_taskset = False
+    selected_run_definitions = None
+    selected_sourcefile_sets = None
+    description_file = None
+
 
 ALL_TEST_TASKS = {
     "false_other_sub_task.yml": "other_subproperty",
@@ -88,7 +86,7 @@ class TestBenchmarkDefinition(unittest.TestCase):
 
             # Because we mocked everything that accesses the file system,
             # we can parse the benchmark definition although task files do not exist.
-            return Benchmark(temp.name, DummyConfig, util.read_local_time())
+            return Benchmark(temp.name, DummyConfig(), util.read_local_time())
 
     def check_task_filter(self, filter_attr, expected):
         # The following three benchmark definitions are equivalent, we check each.
@@ -133,7 +131,7 @@ class TestBenchmarkDefinition(unittest.TestCase):
         self.check_task_filter('expectedverdict="true"', ["true_task.yml"])
 
     def test_expected_verdict_false_filter(self):
-        false_tasks = [f for f in ALL_TEST_TASKS.keys() if f.startswith("false")]
+        false_tasks = [f for f in ALL_TEST_TASKS if f.startswith("false")]
         self.check_task_filter('expectedverdict="false"', false_tasks)
 
     def test_expected_verdict_false_subproperty_filter(self):

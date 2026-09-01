@@ -5,9 +5,10 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+from collections.abc import Mapping
+
 import benchexec.result
 import benchexec.tools.template
-from collections.abc import Mapping
 
 
 class Tool(benchexec.tools.template.BaseTool2):

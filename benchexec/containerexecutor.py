@@ -6,15 +6,15 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import argparse
+import collections
 import errno
 import glob
 import logging
 import os
-import collections
-import shutil
 import pickle
 import select
 import shlex
+import shutil
 import signal
 import socket
 import subprocess
@@ -22,19 +22,21 @@ import sys
 import tempfile
 import traceback
 
-from benchexec import __version__
-from benchexec import baseexecutor
-from benchexec import BenchExecException
+from benchexec import (
+    BenchExecException,
+    __version__,
+    baseexecutor,
+    container,
+    libc,
+    util,
+)
 from benchexec.cgroups import Cgroups
-from benchexec import container
-from benchexec import libc
-from benchexec import util
 from benchexec.container import (
-    DIR_MODES,
-    DIR_HIDDEN,
-    DIR_READ_ONLY,
-    DIR_OVERLAY,
     DIR_FULL_ACCESS,
+    DIR_HIDDEN,
+    DIR_MODES,
+    DIR_OVERLAY,
+    DIR_READ_ONLY,
     NATIVE_CLONE_CALLBACK_SUPPORTED,
 )
 
@@ -141,7 +143,7 @@ def handle_basic_container_args(options, parser=None):
         handle_dir_mode(path, DIR_FULL_ACCESS)
 
     if options.keep_tmp:
-        if "/tmp" in dir_modes and not dir_modes["/tmp"] == DIR_FULL_ACCESS:
+        if "/tmp" in dir_modes and dir_modes["/tmp"] != DIR_FULL_ACCESS:
             error_fn("Cannot specify both --keep-tmp and --hidden-dir /tmp.")
         dir_modes["/tmp"] = DIR_FULL_ACCESS
     elif "/tmp" not in dir_modes:
@@ -305,7 +307,9 @@ def main(argv=None):
         )
     except (BenchExecException, OSError) as e:
         if options.debug:
-            logging.exception(e)
+            logging.exception(
+                "Error during execution of %s", shlex.quote(options.args[0])
+            )
         sys.exit(f"Cannot execute {shlex.quote(options.args[0])}: {e}.")
     return result.signal or result.value
 
@@ -343,7 +347,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             Whether to allow processes in the contain to access cgroups.
             Only supported on systems with cgroupsv2.
         """
-        super(ContainerExecutor, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._use_namespaces = use_namespaces
         if not use_namespaces:
             return
@@ -423,7 +427,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         """Given the temp directory that is created for each run, return the path to the
         directory where files created by the tool are stored."""
         if not self._use_namespaces:
-            return super(ContainerExecutor, self)._get_result_files_base(temp_dir)
+            return super()._get_result_files_base(temp_dir)
         else:
             return os.path.join(temp_dir, "temp")
 
@@ -432,7 +436,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
     def execute_run(
         self,
         args,
-        workingDir=None,  # noqa: N803 backwards-compatibility
+        workingDir=None,
         output_dir=None,
         result_files_patterns=[],
         rootDir=None,
@@ -468,13 +472,12 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             self._cgroups.subsystems.keys()
         )
         tool_pid = None
-        tool_cgroups = None
         returnvalue = 0
 
         logging.debug("Starting process.")
 
         try:
-            tool_pid, tool_cgroups, result_fn = self._start_execution(
+            tool_pid, _tool_cgroups, result_fn = self._start_execution(
                 args=args,
                 stdin=None,
                 stdout=None,
@@ -495,7 +498,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 self.SUB_PROCESS_PIDS.add(tool_pid)
 
             # wait until process has terminated
-            returnvalue, unused_ru_child, unused = result_fn()
+            returnvalue, _ru_child, _unused = result_fn()
 
         finally:
             # cleanup steps that need to get executed even in case of failure
@@ -522,7 +525,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         **kwargs,
     ):
         if not self._use_namespaces:
-            return super(ContainerExecutor, self)._start_execution(*args, **kwargs)
+            return super()._start_execution(*args, **kwargs)
         else:
             if result_files_patterns:
                 if not output_dir:
@@ -609,8 +612,8 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         # might read the bytes it has sent itself.
 
         # Error codes from child to parent
-        CHILD_OSERROR = 128  # noqa: N806 local constant
-        CHILD_UNKNOWN_ERROR = 129  # noqa: N806 local constant
+        CHILD_OSERROR = 128
+        CHILD_UNKNOWN_ERROR = 129
 
         # "downstream" pipe parent->grandchild
         from_parent, to_grandchild = os.pipe()
@@ -622,9 +625,9 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
         # and finally the parent sends its completion marker.
         # After the run, the child sends the result of the grand child and then waits
         # for the post_run marker, before it terminates.
-        MARKER_USER_MAPPING_COMPLETED = b"A"  # noqa: N806 local constant
-        MARKER_PARENT_COMPLETED = b"B"  # noqa: N806 local constant
-        MARKER_PARENT_POST_RUN_COMPLETED = b"C"  # noqa: N806 local constant
+        MARKER_USER_MAPPING_COMPLETED = b"A"
+        MARKER_PARENT_COMPLETED = b"B"
+        MARKER_PARENT_POST_RUN_COMPLETED = b"C"
 
         # If the current directory is within one of the bind mounts we create,
         # we need to cd into this directory again, otherwise we would not see the
@@ -668,7 +671,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 if use_cgroup_ns:
                     container.setup_cgroup_namespace()
                 container.drop_capabilities()
-            except BaseException as e:  # noqa: B036
+            except BaseException as e:
                 # When using runexec, this logging will end up in the output.log file,
                 # where usually the tool output is. This is suboptimal, but probably
                 # better than swallowing it. (In cases where this logs something,
@@ -787,7 +790,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                         stderr=stderr,
                         env=env,
                         close_fds=False,
-                        preexec_fn=grandchild,
+                        preexec_fn=grandchild,  # noqa: PLW1509
                     )
                 except (OSError, RuntimeError) as e:
                     logging.critical("Cannot start process: %s", e)
@@ -859,7 +862,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
                 else:
                     logging.exception("Error in child process of RunExecutor")
                 return CHILD_UNKNOWN_ERROR
-            except BaseException:  # noqa: B036
+            except BaseException:
                 # Need to catch everything because this method always needs to return an
                 # int (we are inside a C callback that requires returning int).
                 logging.exception("Error in child process of RunExecutor")
@@ -903,7 +906,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             def check_child_exit_code():
                 """Check if the child process terminated cleanly
                 and raise an error otherwise."""
-                child_exitcode, unused_child_rusage = self._wait_for_process(
+                child_exitcode, _child_rusage = self._wait_for_process(
                     child_pid, args[0]
                 )
                 child_exitcode = util.ProcessExitCode.from_raw(child_exitcode)
@@ -1257,7 +1260,7 @@ class ContainerExecutor(baseexecutor.BaseExecutor):
             for abs_file in glob.iglob(os.path.normpath(pattern), recursive=True):
                 # We allow the user to match directories and transfer them recursively.
                 if os.path.isdir(abs_file):
-                    for root, _unused_dirs, files in os.walk(abs_file):
+                    for root, _dirs, files in os.walk(abs_file):
                         for file in files:
                             transfer_file(os.path.join(root, file))
                 else:

@@ -13,17 +13,18 @@ import sys
 import threading
 import time
 
-from benchexec import BenchExecException
+from benchexec import (
+    BenchExecException,
+    containerexecutor,
+    resources,
+    systeminfo,
+    tooladapter,
+    util,
+)
 from benchexec.cgroups import Cgroups
-from benchexec import containerexecutor
-from benchexec import resources
-from benchexec.runexecutor import RunExecutor
-from benchexec.pqos import Pqos
-from benchexec import systeminfo
-from benchexec import tooladapter
-from benchexec import util
 from benchexec.intel_cpu_energy import EnergyMeasurement
-
+from benchexec.pqos import Pqos
+from benchexec.runexecutor import RunExecutor
 
 WORKER_THREADS = []
 STOPPED_BY_INTERRUPT = False
@@ -268,7 +269,7 @@ class _Worker(threading.Thread):
         self.my_memory_nodes = my_memory_nodes
         self.output_handler = output_handler
         self.run_executor = RunExecutor(**benchmark.config.containerargs)
-        self.setDaemon(True)
+        self.daemon = True
 
         self.start()
 
@@ -287,7 +288,7 @@ class _Worker(threading.Thread):
                 logging.critical(e)
             except BenchExecException as e:
                 logging.critical(e)
-            except BaseException:  # noqa: B036
+            except BaseException:
                 logging.exception("Exception during run execution")
             self.run_finished_callback()
             _Worker.working_queue.task_done()

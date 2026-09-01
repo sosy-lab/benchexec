@@ -13,7 +13,6 @@ import subprocess
 import tempfile
 import unittest
 import zipfile
-
 from xml.etree import ElementTree
 
 here = os.path.dirname(__file__)
@@ -195,7 +194,7 @@ class BenchExecIntegrationTests(unittest.TestCase):
             self.assertEqual(actual_line, expected_line)
 
     def assertSameRunResults(self, actual_result_xml, other_result_xml):
-        if OVERWRITE_MODE and not actual_result_xml == other_result_xml:
+        if OVERWRITE_MODE and actual_result_xml != other_result_xml:
             shutil.copyfile(actual_result_xml, other_result_xml)
             return
 
@@ -368,10 +367,7 @@ class BenchExecIntegrationTests(unittest.TestCase):
         parser.resolvers.add(DTDResolver())
 
         for xml_file in xml_files:
-            try:
-                etree.parse(xml_file, parser=parser)
-            except etree.XMLSyntaxError as e:
-                self.assertIsNone(e)
+            etree.parse(xml_file, parser=parser)
 
     def test_run_results_information(self):
         expected_xml = os.path.join(
@@ -532,15 +528,14 @@ class BenchExecIntegrationTests(unittest.TestCase):
         )
 
     def test_generated_files_per_rundef_tags_many_names_partial_rundefinition(self):
-        try:
+        with self.assertRaises(subprocess.CalledProcessError) as e:
             self.run_benchexec_and_compare_expected_files(
                 "--results-per-rundefinition",
                 test_file=os.path.join(
                     here, "tags-many-names-partial-rundefinition.xml"
                 ),
             )
-        except subprocess.CalledProcessError as e:
-            self.assertIn("Mix of named and unnamed run definitions", e.output)
+        assert "Mix of named and unnamed run definitions" in e.exception.output
 
     def test_generated_files_per_rundef_tags_many_names_partial_tasks(self):
         self.run_benchexec_and_compare_expected_files(
@@ -570,13 +565,12 @@ class BenchExecIntegrationTests(unittest.TestCase):
         )
 
     def test_generated_files_per_taskset_tags_single_names_rundefinition(self):
-        try:
+        with self.assertRaises(subprocess.CalledProcessError) as e:
             self.run_benchexec_and_compare_expected_files(
                 "--results-per-taskset",
                 test_file=os.path.join(here, "tags-single-names-rundefinition.xml"),
             )
-        except subprocess.CalledProcessError as e:
-            self.assertIn("Unnamed task set found", e.output)
+        assert "Unnamed task set found" in e.exception.output
 
     def test_generated_files_per_taskset_tags_single_names_tasks(self):
         self.run_benchexec_and_compare_expected_files(
@@ -588,13 +582,12 @@ class BenchExecIntegrationTests(unittest.TestCase):
         )
 
     def test_generated_files_per_taskset_tags_single_names_none(self):
-        try:
+        with self.assertRaises(subprocess.CalledProcessError) as e:
             self.run_benchexec_and_compare_expected_files(
                 "--results-per-taskset",
                 test_file=os.path.join(here, "tags-single-names-none.xml"),
             )
-        except subprocess.CalledProcessError as e:
-            self.assertIn("Unnamed task set found", e.output)
+        assert "Unnamed task set found" in e.exception.output
 
     def test_generated_files_per_taskset_tags_many_names_all(self):
         self.run_benchexec_and_compare_expected_files(
@@ -614,33 +607,30 @@ class BenchExecIntegrationTests(unittest.TestCase):
         )
 
     def test_generated_files_per_taskset_tags_many_names_partial_rundefinition(self):
-        try:
+        with self.assertRaises(subprocess.CalledProcessError) as e:
             self.run_benchexec_and_compare_expected_files(
                 "--results-per-taskset",
                 test_file=os.path.join(
                     here, "tags-many-names-partial-rundefinition.xml"
                 ),
             )
-        except subprocess.CalledProcessError as e:
-            self.assertIn("Mix of named and unnamed run definitions", e.output)
+        assert "Mix of named and unnamed run definitions" in e.exception.output
 
     def test_generated_files_per_taskset_tags_many_names_partial_tasks(self):
-        try:
+        with self.assertRaises(subprocess.CalledProcessError) as e:
             self.run_benchexec_and_compare_expected_files(
                 "--results-per-taskset",
                 test_file=os.path.join(here, "tags-many-names-partial-tasks.xml"),
             )
-        except subprocess.CalledProcessError as e:
-            self.assertIn("Unnamed task set found", e.output)
+        assert "Unnamed task set found" in e.exception.output
 
     def test_generated_files_per_taskset_tags_many_names_duplicate_tasks(self):
-        try:
+        with self.assertRaises(subprocess.CalledProcessError) as e:
             self.run_benchexec_and_compare_expected_files(
                 "--results-per-taskset",
                 test_file=os.path.join(here, "tags-many-names-duplicate-tasks.xml"),
             )
-        except subprocess.CalledProcessError as e:
-            self.assertIn("task sets with the following duplicate names", e.output)
+        assert "task sets with the following duplicate names" in e.exception.output
 
     def test_generated_files_both_tags_single_names_all(self):
         self.run_benchexec_and_compare_expected_files(
@@ -653,14 +643,13 @@ class BenchExecIntegrationTests(unittest.TestCase):
         )
 
     def test_generated_files_both_tags_single_names_rundefinition(self):
-        try:
+        with self.assertRaises(subprocess.CalledProcessError) as e:
             self.run_benchexec_and_compare_expected_files(
                 "--results-per-rundefinition",
                 "--results-per-taskset",
                 test_file=os.path.join(here, "tags-single-names-rundefinition.xml"),
             )
-        except subprocess.CalledProcessError as e:
-            self.assertIn("Unnamed task set found", e.output)
+        assert "Unnamed task set found" in e.exception.output
 
     def test_generated_files_both_tags_single_names_tasks(self):
         self.run_benchexec_and_compare_expected_files(
@@ -673,14 +662,13 @@ class BenchExecIntegrationTests(unittest.TestCase):
         )
 
     def test_generated_files_both_tags_single_names_none(self):
-        try:
+        with self.assertRaises(subprocess.CalledProcessError) as e:
             self.run_benchexec_and_compare_expected_files(
                 "--results-per-rundefinition",
                 "--results-per-taskset",
                 test_file=os.path.join(here, "tags-single-names-none.xml"),
             )
-        except subprocess.CalledProcessError as e:
-            self.assertIn("Unnamed task set found", e.output)
+        assert "Unnamed task set found" in e.exception.output
 
     def test_generated_files_both_tags_many_names_all(self):
         self.run_benchexec_and_compare_expected_files(
@@ -704,7 +692,7 @@ class BenchExecIntegrationTests(unittest.TestCase):
         )
 
     def test_generated_files_both_tags_many_names_partial_rundefinition(self):
-        try:
+        with self.assertRaises(subprocess.CalledProcessError) as e:
             self.run_benchexec_and_compare_expected_files(
                 "--results-per-rundefinition",
                 "--results-per-taskset",
@@ -712,28 +700,25 @@ class BenchExecIntegrationTests(unittest.TestCase):
                     here, "tags-many-names-partial-rundefinition.xml"
                 ),
             )
-        except subprocess.CalledProcessError as e:
-            self.assertIn("Mix of named and unnamed run definitions", e.output)
+        assert "Mix of named and unnamed run definitions" in e.exception.output
 
     def test_generated_files_both_tags_many_names_partial_tasks(self):
-        try:
+        with self.assertRaises(subprocess.CalledProcessError) as e:
             self.run_benchexec_and_compare_expected_files(
                 "--results-per-rundefinition",
                 "--results-per-taskset",
                 test_file=os.path.join(here, "tags-many-names-partial-tasks.xml"),
             )
-        except subprocess.CalledProcessError as e:
-            self.assertIn("Unnamed task set found", e.output)
+        assert "Unnamed task set found" in e.exception.output
 
     def test_generated_files_both_tags_many_names_duplicate_tasks(self):
-        try:
+        with self.assertRaises(subprocess.CalledProcessError) as e:
             self.run_benchexec_and_compare_expected_files(
                 "--results-per-rundefinition",
                 "--results-per-taskset",
                 test_file=os.path.join(here, "tags-many-names-duplicate-tasks.xml"),
             )
-        except subprocess.CalledProcessError as e:
-            self.assertIn("task sets with the following duplicate names", e.output)
+        assert "task sets with the following duplicate names" in e.exception.output
 
     def test_description(self):
         test_description = """

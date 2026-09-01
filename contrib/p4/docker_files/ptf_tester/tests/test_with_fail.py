@@ -5,10 +5,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import os
+
 import ptf
+from ptf import config, testutils
 from ptf.base_tests import BaseTest
-from ptf import config
-import ptf.testutils as testutils
 
 
 class DataplaneBaseTest(BaseTest):
@@ -43,6 +43,5 @@ class OneTest(DataplaneBaseTest):
 
 
 def log_to_file(msg):
-    f = open("/app/app.log", "a")
-    f.write(msg + "\n")
-    f.close()
+    with open("/app/app.log", "a") as f:
+        f.write(msg + "\n")

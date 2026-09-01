@@ -15,40 +15,38 @@ import fcntl
 import logging
 import os
 import re
-import resource  # noqa: F401 @UnusedImport necessary to eagerly import this module
+import resource  # noqa: F401 necessary to eagerly import this module
 import shlex
 import shutil
 import signal
 import socket
 import struct
-import sys
 import subprocess
+import sys
 
-from benchexec import libc
-from benchexec import seccomp
-from benchexec import util
+from benchexec import libc, seccomp, util
 
 __all__ = [
-    "execute_in_namespace",
-    "setup_user_mapping",
-    "activate_network_interface",
-    "duplicate_mount_hierarchy",
-    "determine_directory_mode",
-    "get_mount_points",
-    "remount_with_additional_flags",
-    "make_overlay_mount",
-    "mount_proc",
-    "make_bind_mount",
-    "get_my_pid_from_procfs",
-    "drop_capabilities",
-    "wait_for_child_and_forward_signals",
-    "setup_container_system_config",
-    "setup_cgroup_namespace",
-    "CONTAINER_UID",
     "CONTAINER_GID",
     "CONTAINER_HOME",
     "CONTAINER_HOSTNAME",
+    "CONTAINER_UID",
+    "activate_network_interface",
     "check_apparmor_userns_restriction",
+    "determine_directory_mode",
+    "drop_capabilities",
+    "duplicate_mount_hierarchy",
+    "execute_in_namespace",
+    "get_mount_points",
+    "get_my_pid_from_procfs",
+    "make_bind_mount",
+    "make_overlay_mount",
+    "mount_proc",
+    "remount_with_additional_flags",
+    "setup_cgroup_namespace",
+    "setup_container_system_config",
+    "setup_user_mapping",
+    "wait_for_child_and_forward_signals",
 ]
 
 
@@ -274,13 +272,13 @@ def _generate_native_clone_child_callback():
       PyOS_AfterFork_Child();
       return func_p();
     }
-    """  # noqa: B018
+    """
     # We compile this code and disassemble it with
     """
     gcc -Os -fPIC -shared -fomit-frame-pointer -march=native clone_child_callback.c \
         -o clone_child_callback.o
     objdump -d --disassembler-options=suffix clone_child_callback.o
-    """  # noqa: B018
+    """
     # This gives the following code (machine code left, assembler right)
     #
     # <clone_child_callback>:
@@ -443,7 +441,7 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
     make_bind_mount(b"/", mount_base, recursive=True, private=True)
 
     # Ensure each special dir is a mountpoint such that the next loop covers it.
-    for special_dir in dir_modes.keys():
+    for special_dir in dir_modes:
         if special_dir == b"/":
             continue  # handled above
 
@@ -504,7 +502,7 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
             'Please use the default "hidden" directory mode for the temp directory.'
         )
 
-    for _unused_source, full_mountpoint, fstype, options in list(get_mount_points()):
+    for _source, full_mountpoint, fstype, options in list(get_mount_points()):
         if not util.path_is_below(full_mountpoint, mount_base):
             continue
         mountpoint = full_mountpoint[len(mount_base) :] or b"/"
@@ -591,8 +589,9 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
                         if use_fuse:
                             # We tried to use overlayfs before, but it failed.
                             # No need to try again, just log the error accordingly.
-                            if os.getenv("container") == "podman" or os.path.exists(
-                                "/run/.containerenv"
+                            if (
+                                os.getenv("container") == "podman"  # noqa: SIM112 lowercase variable created by other tools
+                                or os.path.exists("/run/.containerenv")
                             ):
                                 # benchexec running in a container without /dev/fuse
                                 raise OSError(
@@ -775,7 +774,7 @@ def get_mount_points():
     with open("/proc/self/mounts", "rb") as mounts:
         # The format of this file is the same as of /etc/fstab (cf. man 5 fstab)
         for mount in mounts:
-            source, target, fstype, options, unused1, unused2 = mount.split(b" ")
+            source, target, fstype, options, _unused1, _unused2 = mount.split(b" ")
             options = set(options.split(b","))
             yield (_decode_path(source), _decode_path(target), fstype, options)
 
@@ -810,7 +809,7 @@ def setup_fuse_overlay_upperdir(upperdir):
                 _decode_path(mountpoint)
             )
 
-    for _device_id, mounts in device_id_to_mounts.items():
+    for mounts in device_id_to_mounts.values():
         # Skip single mounts
         if len(mounts) <= 1:
             continue
@@ -892,7 +891,7 @@ def check_use_fuse_overlayfs(mount_base, dir_modes):
     """
     mount_points = [
         (full_mountpoint, fstype)
-        for _unused_source, full_mountpoint, fstype, _options in get_mount_points()
+        for _source, full_mountpoint, fstype, _options in get_mount_points()
         if util.path_is_below(full_mountpoint, mount_base)
     ]
 
@@ -905,7 +904,7 @@ def check_use_fuse_overlayfs(mount_base, dir_modes):
 
         if mode == DIR_OVERLAY:
             # Check if there are any sub-mounts within the current overlay mount point
-            for sub_mountpoint, _unused_fstype in mount_points:
+            for sub_mountpoint, _fstype in mount_points:
                 if (
                     util.path_is_below(sub_mountpoint, mountpoint)
                     and sub_mountpoint != mountpoint

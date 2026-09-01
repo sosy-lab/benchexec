@@ -10,8 +10,7 @@ import os
 import threading
 import time
 
-from benchexec import container
-from benchexec import util
+from benchexec import container, util
 
 _CHECK_INTERVAL_SECONDS = 60
 _DURATION_WARNING_THRESHOLD = 1
@@ -31,7 +30,7 @@ class FileHierarchyLimitThread(threading.Thread):
         pid_to_kill,
         callbackFn=lambda reason: None,
     ):
-        super(FileHierarchyLimitThread, self).__init__()
+        super().__init__()
         self.name = "FileHierarchyLimitThread-" + self.name
 
         assert os.path.isdir(path)

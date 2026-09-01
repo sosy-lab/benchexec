@@ -8,12 +8,13 @@
 """Utility functions adding a seccomp filter."""
 
 import ctypes
-from ctypes import c_int, c_uint, c_uint32, c_char_p, c_void_p
 import errno
 import logging
 import os
 import threading
-import benchexec.libc as libc
+from ctypes import c_char_p, c_int, c_uint, c_uint32, c_void_p
+
+from benchexec import libc
 
 # /usr/include/seccomp.h
 SCMP_ACT_ALLOW = 0x7FFF0000
@@ -131,7 +132,7 @@ def is_available():
         return _AVAILABLE
 
 
-class SeccompFilter(object):
+class SeccompFilter:
     """
     Encapsulates a seccomp filter that can be incrementally built and loaded.
     This class is a single-use context manager,

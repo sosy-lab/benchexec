@@ -23,20 +23,17 @@ import sys
 import time
 import types
 import typing
-from typing import Iterator, List, Optional, Set
 import urllib.parse
 import urllib.request
+import zipfile
+from collections.abc import Iterator
 from xml.etree import ElementTree
 
-from benchexec import __version__, BenchExecException
-import benchexec.model as model
-import benchexec.result as result
-import benchexec.tooladapter as tooladapter
 import benchexec.util
-from benchexec.tablegenerator import htmltable, statistics, util, statisticstex
+from benchexec import BenchExecException, __version__, model, result, tooladapter
+from benchexec.tablegenerator import htmltable, statistics, statisticstex, util
 from benchexec.tablegenerator.columns import Column
 from benchexec.tablegenerator.util import TaskId
-import zipfile
 
 # Process pool for parallel work.
 # Some of our loops are CPU-bound (e.g., statistics calculations), thus we use
@@ -86,7 +83,7 @@ UNIT_CONVERSION = {
 def handle_error(message, *args):
     """Log error message and terminate program."""
     logging.error(message, *args)
-    exit(1)
+    sys.exit(1)
 
 
 def parse_table_definition_file(file):
@@ -104,7 +101,7 @@ def parse_table_definition_file(file):
         handle_error("Could not read result file %s: %s", file, e)
     except ElementTree.ParseError as e:
         handle_error("Table file %s is invalid: %s", file, e)
-    if "table" != tableGenFile.tag:
+    if tableGenFile.tag != "table":
         handle_error(
             "Table file %s is invalid: It's root element is not named 'table'.", file
         )
@@ -117,7 +114,7 @@ def table_definition_lists_result_files(table_definition):
 
 def load_results_from_table_definition(
     table_definition, table_definition_file, options
-) -> "Iterator[Optional[RunSetResult]]":
+) -> "Iterator[RunSetResult | None]":
     """
     Load all results in files that are listed in the given table-definition file.
     @return: a list of RunSetResult objects
@@ -166,7 +163,7 @@ def load_results_from_table_definition(
 
 def handle_union_tag(
     tag, table_definition_file, options, default_columns, columns_relevant_for_diff
-) -> "Optional[RunSetResult]":
+) -> "RunSetResult | None":
     columns = (
         extract_columns_from_table_definition_file(tag, table_definition_file)
         or default_columns
@@ -220,7 +217,7 @@ def get_file_list_from_result_tag(result_tag, table_definition_file):
 
 def load_results_with_table_definition(
     result_files, table_definition, table_definition_file, options
-) -> "Iterator[Optional[RunSetResult]]":
+) -> "Iterator[RunSetResult | None]":
     """
     Load results from given files with column definitions taken from a table-definition file.
     @return: a list of RunSetResult objects
@@ -245,7 +242,7 @@ def extract_columns_from_table_definition_file(xmltag, table_definition_file):
 
     def handle_path(path):
         """Convert path from a path relative to table-definition file."""
-        if not path or path.startswith("http://") or path.startswith("https://"):
+        if not path or path.startswith(("http://", "https://")):
             return path
         return os.path.join(os.path.dirname(table_definition_file), path)
 
@@ -350,7 +347,7 @@ def load_tool(result):
         return loaded_tool
 
 
-class RunSetResult(object):
+class RunSetResult:
     """
     The Class RunSetResult contains all the results of one execution of a run set:
     the sourcefiles tags (with sourcefiles + values), the columns to show
@@ -368,10 +365,10 @@ class RunSetResult(object):
         self._xml_results = xml_results
         self.attributes = attributes
         # Copy the columns since they may be modified
-        self.columns: List[Column] = copy.deepcopy(columns)
+        self.columns: list[Column] = copy.deepcopy(columns)
         self.summary = summary
-        self.columns_relevant_for_diff: Set[str] = columns_relevant_for_diff
-        self.results: List[RunResult]
+        self.columns_relevant_for_diff: set[str] = columns_relevant_for_diff
+        self.results: list[RunResult]
 
     def get_tasks(self) -> Iterator[TaskId]:
         """
@@ -584,7 +581,7 @@ def load_results(
     run_set_id=None,
     columns=None,
     columns_relevant_for_diff=set(),
-) -> "Iterator[Optional[RunSetResult]]":
+) -> "Iterator[RunSetResult | None]":
     """Version of load_result for multiple input files that will be loaded concurrently."""
     return parallel.map(
         load_result,
@@ -598,7 +595,7 @@ def load_results(
 
 def load_result(
     result_file, options, run_set_id=None, columns=None, columns_relevant_for_diff=set()
-) -> "Optional[RunSetResult]":
+) -> "RunSetResult | None":
     """
     Completely handle loading a single result file.
     @param result_file the file to parse
@@ -734,7 +731,7 @@ def apply_task_list(runset_results, tasks):
     return missing
 
 
-class RunResult(object):
+class RunResult:
     """
     The class RunResult contains the results of a single verification run.
     """
@@ -913,7 +910,7 @@ class RunResult(object):
         )
 
 
-class Row(object):
+class Row:
     """
     The class Row contains all the results for one sourcefile (a list of RunResult instances).
     It is identified by the name of the source file and optional additional data
@@ -939,7 +936,7 @@ class Row(object):
 
 def get_property_of_task(
     task_name, base_path, property_string, property_file, expected_result
-):
+) -> tuple[result.Property | None, result.ExpectedResult | None]:
     if property_string is None:
         return (None, None)
 
@@ -1013,7 +1010,7 @@ def filter_rows_with_differences(rows):
 
     def get_index_of_column(name, cols):
         assert cols, f"Cannot look for column '{name}' in empty column list"
-        for i in range(0, len(cols)):
+        for i in range(len(cols)):
             if cols[i].title == name:
                 return i
         assert False, f"Column '{name}' not found in columns '{cols}'"
@@ -1182,10 +1179,7 @@ def get_regression_count(rows, ignoreFlappingTimeouts):  # for options.dump_coun
         return run_result.status and run_result.status.startswith(status)
 
     def any_status_is(run_results, status):
-        for run_result in run_results:
-            if status_is(run_result, status):
-                return True
-        return False
+        return any(status_is(run_result, status) for run_result in run_results)
 
     regressions = 0
     for row in rows:
@@ -1270,7 +1264,7 @@ def create_tables(
         summary_data = types.SimpleNamespace(title=title, rows=rows)
 
         # calculate statistics if necessary
-        if not options.format == ["csv"]:
+        if options.format != ["csv"]:
             summary_data.stats = compute_stats(
                 rows, runSetResults, use_summary, options.correct_only
             )
@@ -1596,7 +1590,7 @@ def setup_process(options):
 
 
 def main(args=None):
-    if sys.version_info < (3,):
+    if sys.version_info < (3,):  # noqa: UP036 nicer errors for Python 2 users
         sys.exit("table-generator needs Python 3 to run.")
 
     arg_parser = create_argument_parser()
@@ -1672,7 +1666,7 @@ def main(args=None):
         if len(inputFiles) == 1:
             if not name:
                 name = basename_without_ending(inputFiles[0])
-            if not outputFilePattern == "-":
+            if outputFilePattern != "-":
                 outputFilePattern = "{name}.{ext}"
         else:
             if not name:
@@ -1727,7 +1721,7 @@ def main(args=None):
     rowsDiff = filter_rows_with_differences(rows) if options.write_diff_table else []
 
     logging.info("Generating table...")
-    if not os.path.isdir(outputPath) and not outputFilePattern == "-":
+    if not os.path.isdir(outputPath) and outputFilePattern != "-":
         os.makedirs(outputPath)
     futures = create_tables(
         name, runSetResults, rows, rowsDiff, outputPath, outputFilePattern, options

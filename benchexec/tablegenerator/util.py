@@ -9,18 +9,18 @@
 This module contains some useful functions for Strings, Files and Lists.
 """
 
-import collections
-from decimal import Decimal
 import glob
 import io
 import logging
 import os
-import urllib.request
 import platform
-from typing import Iterable, List, TypeVar, Union
+import urllib.request
+from collections.abc import Iterable
+from decimal import Decimal
+from typing import NamedTuple, TypeVar
 
 import benchexec.util
-
+from benchexec import result
 
 # May be extended with higher numbers
 ROMAN_NUMBERS = {
@@ -36,12 +36,14 @@ ROMAN_NUMBERS = {
 _T = TypeVar("_T")
 
 
-class TaskId(
-    collections.namedtuple(
-        "TaskId", "name property expected_result witness_category runset"
-    )
-):
+class TaskId(NamedTuple):
     """Uniquely identifies a task (name of input file, property, etc.)."""
+
+    name: str
+    property: result.Property | None
+    expected_result: result.ExpectedResult | None
+    witness_category: str | None
+    runset: str | None
 
     field_names = [
         "Task name",
@@ -50,8 +52,6 @@ class TaskId(
         "Witness category",
         "Run set",
     ]
-
-    __slots__ = ()  # reduce per-instance memory consumption
 
     def __str__(self):
         return "'" + ", ".join(str(s) for s in self if s) + "'"
@@ -245,7 +245,7 @@ def prettylist(list_):
     return uniqueList[0] if len(uniqueList) == 1 else "[" + "; ".join(uniqueList) + "]"
 
 
-def merge_lists(list_of_lists: Iterable[Iterable[_T]]) -> List[_T]:
+def merge_lists(list_of_lists: Iterable[Iterable[_T]]) -> list[_T]:
     """
     This function merges several sequences, e.g. [A,C] + [A,B] --> [A,B,C].
     It keeps the order of elements.
@@ -280,7 +280,7 @@ def merge_lists(list_of_lists: Iterable[Iterable[_T]]) -> List[_T]:
     return result_list
 
 
-def find_common_elements(sequences: Iterable[Iterable[_T]]) -> List[_T]:
+def find_common_elements(sequences: Iterable[Iterable[_T]]) -> list[_T]:
     """Return the common elements in some sequences (keeping order)."""
     # We take care to iterate sequences and all its elements only once
     # such that it works with generators as well and is efficient.
@@ -315,7 +315,7 @@ def normalize_line_endings(text):
     return text.replace("\r\n", "\n")
 
 
-def number_to_roman_string(number: Union[int, str]) -> str:
+def number_to_roman_string(number: int | str) -> str:
     """Converts a positive number into the roman form.
 
     For example:
@@ -347,13 +347,14 @@ def number_to_roman_string(number: Union[int, str]) -> str:
     highest_power = 1
     while highest_power <= number:
         highest_power *= 10
-    highest_power /= 10
+    highest_power //= 10
 
     # Displaying each "digit" (with zeros) in roman number format. For example number = 933:
     # Start with 900 -> CM, then subtract 900 from 933.
     # Now convert 30 -> XXX, subtract it from 33 and append it to output_string (CM + XXX = CMXXX).
     # Last convert 3 -> III and subtract it from 3 and append it to output_string (CMXXXIII).
     while number > 0:
+        assert highest_power in ROMAN_NUMBERS
         if number >= highest_power:
             prefix = int(number / highest_power)
             number -= prefix * highest_power
@@ -375,7 +376,7 @@ def number_to_roman_string(number: Union[int, str]) -> str:
             else:
                 raise ValueError("Unexpected prefix %s", prefix)
         else:
-            highest_power /= 10
+            highest_power //= 10
 
     return output_string
 
@@ -391,7 +392,7 @@ def cap_first_letter(word: str) -> str:
     return ""
 
 
-class _DummyFuture(object):
+class _DummyFuture:
     def __init__(self, result):
         self._result = result
 
@@ -399,7 +400,7 @@ class _DummyFuture(object):
         return self._result
 
 
-class DummyExecutor(object):
+class DummyExecutor:
     """Executor similar to concurrent.futures.ProcessPoolExecutor
     but executes everything sequentially in the current process.
     This can be useful for debugging.
