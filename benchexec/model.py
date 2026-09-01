@@ -220,18 +220,17 @@ def cmdline_for_run(
     return args
 
 
-_REQUIREDFILES_MODES = ("fail", "warn", "ignore", "skip")
-_REQUIREDFILES_MODES_WITHOUT_SKIP = ("fail", "warn", "ignore")
+_REQUIREDFILES_MODES = ("fail", "warn", "ignore", "skip-run")
 
 
-def _get_requiredfiles_mode(tag, allowed_modes=_REQUIREDFILES_MODES):
-    mode = tag.get("mode", "warn")
-    if mode not in allowed_modes:
+def _get_requiredfiles_ifmissingmode(tag, allowed_modes=_REQUIREDFILES_MODES):
+    missing_files_mode = tag.get("ifmissing", "warn")
+    if missing_files_mode not in allowed_modes:
         raise BenchExecException(
-            f"Invalid value '{mode}' for attribute 'mode' of <requiredfiles>, "
+            f"Invalid value '{missing_files_mode}' for attribute 'ifmissing' of <requiredfiles>, "
             f"only {', '.join(allowed_modes)} are allowed."
         )
-    return mode
+    return missing_files_mode
 
 
 def get_propertytag(parent):
@@ -417,8 +416,8 @@ class Benchmark(object):
         # get required files
         self._required_files = set()
         for required_files_tag in rootTag.findall("requiredfiles"):
-            mode = _get_requiredfiles_mode(
-                required_files_tag, _REQUIREDFILES_MODES_WITHOUT_SKIP
+            mode = _get_requiredfiles_ifmissingmode(
+                required_files_tag, _REQUIREDFILES_MODES
             )
             required_files = util.expand_filename_pattern(
                 required_files_tag.text, self.base_dir
@@ -465,7 +464,7 @@ class Benchmark(object):
         if self._skipped_run_count != 0:
             logging.warning(
                 "Skipped %d run(s) because a required-files pattern with "
-                'mode="skip" did not match any file.',
+                'mode="skip-run" did not match any file.',
                 self._skipped_run_count,
             )
 
@@ -601,7 +600,7 @@ class RunSet(object):
 
         # get run-set specific required files
         required_files_pattern = {
-            (tag.text, _get_requiredfiles_mode(tag))
+            (tag.text, _get_requiredfiles_ifmissingmode(tag))
             for tag in rundefinitionTag.findall("requiredfiles")
         }
 
@@ -682,7 +681,7 @@ class RunSet(object):
                 continue
 
             required_files_pattern = global_required_files_pattern.union(
-                (tag.text, _get_requiredfiles_mode(tag))
+                (tag.text, _get_requiredfiles_ifmissingmode(tag))
                 for tag in sourcefilesTag.findall("requiredfiles")
             )
 
@@ -1055,6 +1054,17 @@ class Run(object):
         required_files=[],
         expected_results={},
     ):
+        """
+        Create a Run.
+
+        Note: A Run may be created in a state where it should not actually be
+        executed (e.g., because required files are missing and the missing-files
+        mode is "skip-run"). In that case "should_be_skipped" is set to True and the
+        caller is responsible for discarding this Run instead of using it.
+        Ideally no object would be created at all in this case, but that would
+        require substantial restructuring of the code responsible for the
+        creation of Run.
+        """
         # identifier is used for name of logfile, substitution, result-category
         assert identifier
         self.identifier = identifier
@@ -1080,9 +1090,7 @@ class Run(object):
 
             if matched:
                 self.required_files.update(matched)
-                continue
-
-            if mode == "fail":
+            elif mode == "fail":
                 raise BenchExecException(
                     f"Pattern {pattern} in requiredfiles tag did not match any file "
                     f"for task {self.identifier}."
@@ -1093,7 +1101,7 @@ class Run(object):
                     pattern,
                     self.identifier,
                 )
-            elif mode == "skip":
+            elif mode == "skip-run":
                 self.should_be_skipped = True
                 runSet.benchmark.count_skipped_run()
             # mode == "ignore": silently keep the run without the missing file
@@ -1172,6 +1180,7 @@ class Run(object):
         self.category = result.CATEGORY_UNKNOWN
 
     def cmdline(self):
+        assert not self.should_be_skipped
         assert self.runSet.benchmark.executable is not None, (
             "executor needs to set tool executable"
         )
@@ -1194,6 +1203,7 @@ class Run(object):
         @param visible_columns: a set of keys of values that should be visible by default
             (i.e., not marked as hidden), apart from those that BenchExec shows by default anyway
         """
+        assert not self.should_be_skipped
         exitcode = values.pop("exitcode", None)
         if exitcode is not None:
             if exitcode.signal:
@@ -1243,6 +1253,7 @@ class Run(object):
 
     def _analyze_result(self, exitcode, output, termination_reason):
         """Return status according to result and output of tool."""
+        assert not self.should_be_skipped
 
         # Ask tool info.
         tool_status = None
