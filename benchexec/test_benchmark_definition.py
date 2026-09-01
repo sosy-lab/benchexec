@@ -5,19 +5,18 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import logging
 import os
 import tempfile
 import unittest
-import logging
 from dataclasses import dataclass
 from unittest.mock import patch
 
 import yaml
 
 import benchexec.result
-from benchexec import util
+from benchexec import BenchExecException, util
 from benchexec.model import Benchmark
-from benchexec import BenchExecException
 
 here = os.path.dirname(__file__)
 base_dir = os.path.join(here, "..")
