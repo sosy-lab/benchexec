@@ -8,6 +8,7 @@
 import os
 import tempfile
 import unittest
+import logging
 from dataclasses import dataclass
 from unittest.mock import patch
 
@@ -16,6 +17,7 @@ import yaml
 import benchexec.result
 from benchexec import util
 from benchexec.model import Benchmark
+from benchexec import BenchExecException
 
 here = os.path.dirname(__file__)
 base_dir = os.path.join(here, "..")
@@ -183,7 +185,7 @@ class TestBenchmarkDefinition(unittest.TestCase):
 
     def test_requiredfiles_warn_mode_missing_file_keeps_run(self):
         benchmark_definition = self.single_task_benchmark_definition(
-            '<requiredfiles mode="warn">missing-file.txt</requiredfiles>'
+            '<requiredfiles ifmissing="warn">missing-file.txt</requiredfiles>'
         )
         with self.assertLogs(level="WARNING") as log:
             benchmark = self.parse_benchmark_definition(benchmark_definition)
@@ -195,11 +197,11 @@ class TestBenchmarkDefinition(unittest.TestCase):
 
     def test_requiredfiles_ignore_mode_missing_file_keeps_run_silently(self):
         benchmark_definition = self.single_task_benchmark_definition(
-            '<requiredfiles mode="ignore">missing-file.txt</requiredfiles>'
+            '<requiredfiles ifmissing="ignore">missing-file.txt</requiredfiles>'
         )
         with self.assertLogs(level="DEBUG") as log:
             # emit one debug message ourselves so assertLogs does not fail
-            # if <requiredfiles mode="ignore"> stays completely silent
+            # if <requiredfiles ifmissing="ignore"> stays completely silent
             logging.debug("start of test_requiredfiles_ignore_mode test")
             benchmark = self.parse_benchmark_definition(benchmark_definition)
         run_ids = [run.identifier for run in benchmark.run_sets[0].runs]
@@ -210,14 +212,14 @@ class TestBenchmarkDefinition(unittest.TestCase):
 
     def test_requiredfiles_fail_mode_missing_file_raises(self):
         benchmark_definition = self.single_task_benchmark_definition(
-            '<requiredfiles mode="fail">missing-file.txt</requiredfiles>'
+            '<requiredfiles ifmissing="fail">missing-file.txt</requiredfiles>'
         )
         with self.assertRaises(BenchExecException):
             self.parse_benchmark_definition(benchmark_definition)
 
     def test_requiredfiles_skip_mode_missing_file_skips_run(self):
         benchmark_definition = self.single_task_benchmark_definition(
-            '<requiredfiles mode="skip">missing-file.txt</requiredfiles>'
+            '<requiredfiles ifmissing="skip-run">missing-file.txt</requiredfiles>'
         )
         with self.assertLogs(level="WARNING") as log:
             benchmark = self.parse_benchmark_definition(benchmark_definition)
@@ -229,7 +231,7 @@ class TestBenchmarkDefinition(unittest.TestCase):
 
     def test_requiredfiles_skip_mode_matching_file_keeps_run(self):
         benchmark_definition = self.single_task_benchmark_definition(
-            '<requiredfiles mode="skip">some-existing-file.txt</requiredfiles>'
+            '<requiredfiles ifmissing="skip-run">some-existing-file.txt</requiredfiles>'
         )
         benchmark = self.parse_benchmark_definition(benchmark_definition)
         run_ids = [run.identifier for run in benchmark.run_sets[0].runs]
@@ -240,7 +242,7 @@ class TestBenchmarkDefinition(unittest.TestCase):
 
     def test_requiredfiles_invalid_mode_raises(self):
         benchmark_definition = self.single_task_benchmark_definition(
-            '<requiredfiles mode="bogus">missing-file.txt</requiredfiles>'
+            '<requiredfiles ifmissing="bogus">missing-file.txt</requiredfiles>'
         )
         with self.assertRaises(BenchExecException):
             self.parse_benchmark_definition(benchmark_definition)
@@ -252,23 +254,23 @@ class TestBenchmarkDefinition(unittest.TestCase):
               <propertyfile>test.prp</propertyfile>
               <rundefinition>
                 <tasks>
-                  <requiredfiles mode="skip">missing-file.txt</requiredfiles>
+                  <requiredfiles ifmissing="skip-run">missing-file.txt</requiredfiles>
                   <include>*.yml</include>
                 </tasks>
                 <tasks>
-                    <requiredfiles mode="skip">missing-file.txt</requiredfiles>
+                    <requiredfiles ifmissing="skip-run">missing-file.txt</requiredfiles>
                     <include>*.yml</include>
                 </tasks>
                 <tasks>
-                    <requiredfiles mode="skip">missing-file.txt</requiredfiles>
+                    <requiredfiles ifmissing="skip-run">missing-file.txt</requiredfiles>
                     <include>*.yml</include>
                     </tasks>
                 <tasks>
-                    <requiredfiles mode="skip">missing-file.txt</requiredfiles>
+                    <requiredfiles ifmissing="skip-run">missing-file.txt</requiredfiles>
                     <include>*.yml</include>
                 </tasks>
                 <tasks>
-                  <requiredfiles mode="skip">present-file.txt</requiredfiles>
+                  <requiredfiles ifmissing="skip-run">present-file.txt</requiredfiles>
                   <include>true_task.yml</include>
                 </tasks>
               </rundefinition>

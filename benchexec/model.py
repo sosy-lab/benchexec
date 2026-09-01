@@ -217,6 +217,10 @@ def cmdline_for_run(
 
 
 _REQUIREDFILES_MODES = ("fail", "warn", "ignore", "skip-run")
+# "skip-run" drops individual runs and is only meaningful where required files
+# are declared per task. A benchmark-level pattern either matches for all runs
+# or for none, so skipping there would mean skipping the whole benchmark.
+_REQUIREDFILES_MODES_WITHOUT_SKIP = ("fail", "warn", "ignore")
 
 
 def _get_requiredfiles_ifmissingmode(tag, allowed_modes=_REQUIREDFILES_MODES):
@@ -412,19 +416,19 @@ class Benchmark:
         # get required files
         self._required_files = set()
         for required_files_tag in rootTag.findall("requiredfiles"):
-            mode = _get_requiredfiles_ifmissingmode(
-                required_files_tag, _REQUIREDFILES_MODES
+            missing_files_mode = _get_requiredfiles_ifmissingmode(
+                required_files_tag, _REQUIREDFILES_MODES_WITHOUT_SKIP
             )
             required_files = util.expand_filename_pattern(
                 required_files_tag.text, self.base_dir
             )
             if not required_files:
-                if mode == "fail":
+                if missing_files_mode == "fail":
                     raise BenchExecException(
                         f"Pattern {required_files_tag.text} in requiredfiles tag "
                         f"did not match any file."
                     )
-                elif mode == "warn":
+                elif missing_files_mode == "warn":
                     logging.warning(
                         "Pattern %s in requiredfiles tag did not match any file.",
                         required_files_tag.text,
@@ -460,7 +464,7 @@ class Benchmark:
         if self._skipped_run_count != 0:
             logging.warning(
                 "Skipped %d run(s) because a required-files pattern with "
-                'mode="skip-run" did not match any file.',
+                'ifmissing="skip-run" did not match any file.',
                 self._skipped_run_count,
             )
 
@@ -1056,8 +1060,8 @@ class Run:
         Create a Run.
 
         Note: A Run may be created in a state where it should not actually be
-        executed (e.g., because required files are missing and the missing-files
-        mode is "skip-run"). In that case "should_be_skipped" is set to True and the
+        executed (e.g., because required files are missing and ifmissing is
+        "skip-run"). In that case "should_be_skipped" is set to True and the
         caller is responsible for discarding this Run instead of using it.
         Ideally no object would be created at all in this case, but that would
         require substantial restructuring of the code responsible for the
@@ -1081,25 +1085,25 @@ class Run:
 
         self.should_be_skipped = False
 
-        for pattern, mode in required_files_patterns:
+        for pattern, missing_files_mode in required_files_patterns:
             matched = self.runSet.expand_filename_pattern(
                 pattern, runSet.benchmark.base_dir, sourcefile=rel_sourcefile
             )
 
             if matched:
                 self.required_files.update(matched)
-            elif mode == "fail":
+            elif missing_files_mode == "fail":
                 raise BenchExecException(
                     f"Pattern {pattern} in requiredfiles tag did not match any file "
                     f"for task {self.identifier}."
                 )
-            elif mode == "warn":
+            elif missing_files_mode == "warn":
                 logging.warning(
                     "Pattern %s in requiredfiles tag did not match any file for task %s.",
                     pattern,
                     self.identifier,
                 )
-            elif mode == "skip-run":
+            elif missing_files_mode == "skip-run":
                 self.should_be_skipped = True
                 runSet.benchmark.count_skipped_run()
             # mode == "ignore": silently keep the run without the missing file
