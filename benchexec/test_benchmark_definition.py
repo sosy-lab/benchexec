@@ -5,6 +5,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import logging
 import os
 import tempfile
 import unittest
@@ -14,7 +15,7 @@ from unittest.mock import patch
 import yaml
 
 import benchexec.result
-from benchexec import util
+from benchexec import BenchExecException, util
 from benchexec.model import Benchmark
 
 here = os.path.dirname(__file__)
@@ -52,6 +53,8 @@ ALL_TEST_TASKS = {
 def mock_expand_filename_pattern(pattern, base_dir):
     if pattern == "*.yml":
         return list(ALL_TEST_TASKS.keys()) + ["other_task.yml"]
+    if pattern == "missing-file.txt":
+        return []
     return [pattern]
 
 
@@ -155,3 +158,134 @@ class TestBenchmarkDefinition(unittest.TestCase):
         benchmark = self.parse_benchmark_definition(benchmark_definition)
         run_ids = [run.identifier for run in benchmark.run_sets[0].runs]
         self.assertListEqual(run_ids, ["false_sub_task.yml", "false_sub2_task.yml"])
+
+    def single_task_benchmark_definition(self, requiredfiles_tag):
+        return f"""
+            <benchmark tool="dummy">
+              <propertyfile>test.prp</propertyfile>
+              <rundefinition>
+                {requiredfiles_tag}
+                <tasks><include>true_task.yml</include></tasks>
+              </rundefinition>
+            </benchmark>
+            """
+
+    def test_requiredfiles_default_mode_missing_file_keeps_run(self):
+        benchmark_definition = self.single_task_benchmark_definition(
+            "<requiredfiles>missing-file.txt</requiredfiles>"
+        )
+        with self.assertLogs(level="WARNING") as log:
+            benchmark = self.parse_benchmark_definition(benchmark_definition)
+        run_ids = [run.identifier for run in benchmark.run_sets[0].runs]
+        self.assertListEqual(run_ids, ["true_task.yml"])
+        self.assertTrue(
+            any("did not match any file" in message for message in log.output)
+        )
+
+    def test_requiredfiles_warn_mode_missing_file_keeps_run(self):
+        benchmark_definition = self.single_task_benchmark_definition(
+            '<requiredfiles ifmissing="warn">missing-file.txt</requiredfiles>'
+        )
+        with self.assertLogs(level="WARNING") as log:
+            benchmark = self.parse_benchmark_definition(benchmark_definition)
+        run_ids = [run.identifier for run in benchmark.run_sets[0].runs]
+        self.assertListEqual(run_ids, ["true_task.yml"])
+        self.assertTrue(
+            any("did not match any file" in message for message in log.output)
+        )
+
+    def test_requiredfiles_ignore_mode_missing_file_keeps_run_silently(self):
+        benchmark_definition = self.single_task_benchmark_definition(
+            '<requiredfiles ifmissing="ignore">missing-file.txt</requiredfiles>'
+        )
+        with self.assertLogs(level="DEBUG") as log:
+            # emit one debug message ourselves so assertLogs does not fail
+            # if <requiredfiles ifmissing="ignore"> stays completely silent
+            logging.debug("start of test_requiredfiles_ignore_mode test")
+            benchmark = self.parse_benchmark_definition(benchmark_definition)
+        run_ids = [run.identifier for run in benchmark.run_sets[0].runs]
+        self.assertListEqual(run_ids, ["true_task.yml"])
+        self.assertFalse(
+            any("did not match any file" in message for message in log.output)
+        )
+
+    def test_requiredfiles_fail_mode_missing_file_raises(self):
+        benchmark_definition = self.single_task_benchmark_definition(
+            '<requiredfiles ifmissing="fail">missing-file.txt</requiredfiles>'
+        )
+        with self.assertRaises(BenchExecException):
+            self.parse_benchmark_definition(benchmark_definition)
+
+    def test_requiredfiles_skip_mode_missing_file_skips_run(self):
+        benchmark_definition = self.single_task_benchmark_definition(
+            '<requiredfiles ifmissing="skip-run">missing-file.txt</requiredfiles>'
+        )
+        with self.assertLogs(level="WARNING") as log:
+            benchmark = self.parse_benchmark_definition(benchmark_definition)
+        run_ids = [run.identifier for run in benchmark.run_sets[0].runs]
+        self.assertListEqual(run_ids, [])
+        matching_messages = [message for message in log.output if "Skipped" in message]
+        self.assertEqual(len(matching_messages), 1)
+        self.assertIn("1 run", matching_messages[0])
+
+    def test_requiredfiles_skip_mode_matching_file_keeps_run(self):
+        benchmark_definition = self.single_task_benchmark_definition(
+            '<requiredfiles ifmissing="skip-run">some-existing-file.txt</requiredfiles>'
+        )
+        benchmark = self.parse_benchmark_definition(benchmark_definition)
+        run_ids = [run.identifier for run in benchmark.run_sets[0].runs]
+        self.assertListEqual(run_ids, ["true_task.yml"])
+        self.assertIn(
+            "some-existing-file.txt", benchmark.run_sets[0].runs[0].required_files
+        )
+
+    def test_requiredfiles_invalid_mode_raises(self):
+        benchmark_definition = self.single_task_benchmark_definition(
+            '<requiredfiles ifmissing="bogus">missing-file.txt</requiredfiles>'
+        )
+        with self.assertRaises(BenchExecException):
+            self.parse_benchmark_definition(benchmark_definition)
+
+    def test_requiredfiles_skip_mode_skips_only_runs_with_missing_files(self):
+        # checking the arithmetics into a bit more detail
+        benchmark_definition = """
+            <benchmark tool="dummy">
+              <propertyfile>test.prp</propertyfile>
+              <rundefinition>
+                <tasks>
+                  <requiredfiles ifmissing="skip-run">missing-file.txt</requiredfiles>
+                  <include>*.yml</include>
+                </tasks>
+                <tasks>
+                    <requiredfiles ifmissing="skip-run">missing-file.txt</requiredfiles>
+                    <include>*.yml</include>
+                </tasks>
+                <tasks>
+                    <requiredfiles ifmissing="skip-run">missing-file.txt</requiredfiles>
+                    <include>*.yml</include>
+                    </tasks>
+                <tasks>
+                    <requiredfiles ifmissing="skip-run">missing-file.txt</requiredfiles>
+                    <include>*.yml</include>
+                </tasks>
+                <tasks>
+                  <requiredfiles ifmissing="skip-run">present-file.txt</requiredfiles>
+                  <include>true_task.yml</include>
+                </tasks>
+              </rundefinition>
+            </benchmark>
+            """
+        # each of the two "*.yml"-including <tasks> blocks resolves (via the mock) to
+        # all of ALL_TEST_TASKS plus "other_task.yml" - all of those get skipped,
+        # and the single summary message must report both blocks combined
+        expected_skipped_count = 4 * len(
+            mock_expand_filename_pattern("*.yml", base_dir)
+        )
+        with self.assertLogs(level="WARNING") as log:
+            benchmark = self.parse_benchmark_definition(benchmark_definition)
+        run_ids = [run.identifier for run in benchmark.run_sets[0].runs]
+        self.assertListEqual(run_ids, ["true_task.yml"])
+        matching_messages = [m for m in log.output if "Skipped" in m]
+        # exactly one summary message for the whole benchmark, not one per <tasks> block
+        self.assertEqual(len(matching_messages), 1)
+        self.assertIn(f"Skipped {expected_skipped_count} run(s)", matching_messages[0])

@@ -216,6 +216,23 @@ def cmdline_for_run(
     return args
 
 
+_REQUIREDFILES_MODES = ("fail", "warn", "ignore", "skip-run")
+# "skip-run" drops individual runs and is only meaningful where required files
+# are declared per task. A benchmark-level pattern either matches for all runs
+# or for none, so skipping there would mean skipping the whole benchmark.
+_REQUIREDFILES_MODES_WITHOUT_SKIP = ("fail", "warn", "ignore")
+
+
+def _get_requiredfiles_ifmissingmode(tag, allowed_modes=_REQUIREDFILES_MODES):
+    missing_files_mode = tag.get("ifmissing", "warn")
+    if missing_files_mode not in allowed_modes:
+        raise BenchExecException(
+            f"Invalid value '{missing_files_mode}' for attribute 'ifmissing' of <requiredfiles>, "
+            f"only {', '.join(allowed_modes)} are allowed."
+        )
+    return missing_files_mode
+
+
 def get_propertytag(parent):
     tag = util.get_single_child_from_xml(parent, "propertyfile")
     if tag is None:
@@ -399,14 +416,24 @@ class Benchmark:
         # get required files
         self._required_files = set()
         for required_files_tag in rootTag.findall("requiredfiles"):
+            missing_files_mode = _get_requiredfiles_ifmissingmode(
+                required_files_tag, _REQUIREDFILES_MODES_WITHOUT_SKIP
+            )
             required_files = util.expand_filename_pattern(
                 required_files_tag.text, self.base_dir
             )
             if not required_files:
-                logging.warning(
-                    "Pattern %s in requiredfiles tag did not match any file.",
-                    required_files_tag.text,
-                )
+                if missing_files_mode == "fail":
+                    raise BenchExecException(
+                        f"Pattern {required_files_tag.text} in requiredfiles tag "
+                        f"did not match any file."
+                    )
+                elif missing_files_mode == "warn":
+                    logging.warning(
+                        "Pattern %s in requiredfiles tag did not match any file.",
+                        required_files_tag.text,
+                    )
+                # mode == "ignore": stay silent
             self._required_files = self._required_files.union(required_files)
 
         # get requirements
@@ -427,10 +454,18 @@ class Benchmark:
             self.result_files_patterns = ["."]
 
         # get benchmarks
+        self._skipped_run_count = 0
         self.run_sets = []
         for i, rundefinitionTag in enumerate(rootTag.findall("rundefinition")):
             self.run_sets.append(
                 RunSet(rundefinitionTag, self, i + 1, globalSourcefilesTags)
+            )
+
+        if self._skipped_run_count != 0:
+            logging.warning(
+                "Skipped %d run(s) because a required-files pattern with "
+                'ifmissing="skip-run" did not match any file.',
+                self._skipped_run_count,
             )
 
         if not self.run_sets:
@@ -492,6 +527,9 @@ class Benchmark:
     def required_files(self):
         assert self.executable is not None, "executor needs to set tool executable"
         return self._required_files.union(self.tool.program_files(self.executable))
+
+    def count_skipped_run(self):
+        self._skipped_run_count += 1
 
     def working_directory(self):
         assert self.executable is not None, "executor needs to set tool executable"
@@ -562,7 +600,8 @@ class RunSet:
 
         # get run-set specific required files
         required_files_pattern = {
-            tag.text for tag in rundefinitionTag.findall("requiredfiles")
+            (tag.text, _get_requiredfiles_ifmissingmode(tag))
+            for tag in rundefinitionTag.findall("requiredfiles")
         }
 
         # get all runs, a run contains one sourcefile with options
@@ -642,7 +681,8 @@ class RunSet:
                 continue
 
             required_files_pattern = global_required_files_pattern.union(
-                {tag.text for tag in sourcefilesTag.findall("requiredfiles")}
+                (tag.text, _get_requiredfiles_ifmissingmode(tag))
+                for tag in sourcefilesTag.findall("requiredfiles")
             )
 
             # get lists of filenames
@@ -678,22 +718,22 @@ class RunSet:
                         required_files_pattern,
                         appendFileTags,
                     )
-                if run:
+                if run and not run.should_be_skipped:
                     currentRuns.append(run)
 
             # add runs for cases without source files
             for run in sourcefilesTag.findall("withoutfile"):
-                currentRuns.append(
-                    Run(
-                        run.text,
-                        [],
-                        None,
-                        fileOptions,
-                        self,
-                        local_propertytag,
-                        required_files_pattern,
-                    )
+                r = Run(
+                    run.text,
+                    [],
+                    None,
+                    fileOptions,
+                    self,
+                    local_propertytag,
+                    required_files_pattern,
                 )
+                if not r.should_be_skipped:
+                    currentRuns.append(r)
 
             if config.results_per_rundefinition or config.results_per_taskset:
                 # strict naming, use what user has given
@@ -1016,6 +1056,17 @@ class Run:
         required_files=[],
         expected_results={},
     ):
+        """
+        Create a Run.
+
+        Note: A Run may be created in a state where it should not actually be
+        executed (e.g., because required files are missing and ifmissing is
+        "skip-run"). In that case "should_be_skipped" is set to True and the
+        caller is responsible for discarding this Run instead of using it.
+        Ideally no object would be created at all in this case, but that would
+        require substantial restructuring of the code responsible for the
+        creation of Run.
+        """
         # identifier is used for name of logfile, substitution, result-category
         assert identifier
         self.identifier = identifier
@@ -1031,18 +1082,31 @@ class Run:
 
         self.required_files = set(required_files)
         rel_sourcefile = os.path.relpath(self.identifier, runSet.benchmark.base_dir)
-        for pattern in required_files_patterns:
-            this_required_files = runSet.expand_filename_pattern(
-                pattern, runSet.benchmark.base_dir, rel_sourcefile
+
+        self.should_be_skipped = False
+
+        for pattern, missing_files_mode in required_files_patterns:
+            matched = self.runSet.expand_filename_pattern(
+                pattern, runSet.benchmark.base_dir, sourcefile=rel_sourcefile
             )
-            if not this_required_files:
+
+            if matched:
+                self.required_files.update(matched)
+            elif missing_files_mode == "fail":
+                raise BenchExecException(
+                    f"Pattern {pattern} in requiredfiles tag did not match any file "
+                    f"for task {self.identifier}."
+                )
+            elif missing_files_mode == "warn":
                 logging.warning(
                     "Pattern %s in requiredfiles tag did not match any file for task %s.",
                     pattern,
                     self.identifier,
                 )
-            self.required_files.update(this_required_files)
-
+            elif missing_files_mode == "skip-run":
+                self.should_be_skipped = True
+                runSet.benchmark.count_skipped_run()
+            # mode == "ignore": silently keep the run without the missing file
         # combine all options to be used when executing this run
         # (reduce memory-consumption: if 2 lists are equal, do not use the second one)
         self.options = runSet.options + fileOptions if fileOptions else runSet.options
@@ -1118,6 +1182,7 @@ class Run:
         self.category = result.CATEGORY_UNKNOWN
 
     def cmdline(self):
+        assert not self.should_be_skipped
         assert self.runSet.benchmark.executable is not None, (
             "executor needs to set tool executable"
         )
@@ -1140,6 +1205,7 @@ class Run:
         @param visible_columns: a set of keys of values that should be visible by default
             (i.e., not marked as hidden), apart from those that BenchExec shows by default anyway
         """
+        assert not self.should_be_skipped
         exitcode = values.pop("exitcode", None)
         if exitcode is not None:
             if exitcode.signal:
@@ -1190,6 +1256,7 @@ class Run:
 
     def _analyze_result(self, exitcode, output, termination_reason):
         """Return status according to result and output of tool."""
+        assert not self.should_be_skipped
 
         # Ask tool info.
         tool_status = None
