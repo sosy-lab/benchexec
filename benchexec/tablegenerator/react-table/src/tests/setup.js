@@ -92,7 +92,7 @@ expect.addSnapshotSerializer({
     !val.children[0],
 });
 
-// Serializer that simplies the dangerouslySetInnerHTML attribute
+// Serializer that simplifies the dangerouslySetInnerHTML attribute
 expect.addSnapshotSerializer({
   print: (val, serialize) => serialize(val.__html),
   test: (val) => val && val.hasOwnProperty("__html"),
