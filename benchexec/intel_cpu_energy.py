@@ -74,7 +74,6 @@ class Package(AreaOfMeasurement):
 
 
 class EnergyMeasurement:
-    interval = 1000  # default measurement interval in seconds, derived from an assumed worst case of 250W energy consumption
 
     def __init__(self):
         self.stop_event = threading.Event()
@@ -98,9 +97,9 @@ class EnergyMeasurement:
                     domains.append(Domain(d_name, domain, EnergyWrapper(0)))
 
                 self.packages.append(Package(p_name, package, EnergyWrapper(0), domains))
+            self.interval = self._calculate_interval()
         except OSError:
             logging.error("initialisation of energy measurements failed")
-        self.calculate_interval()
 
     @classmethod
     def create_if_supported(cls):
@@ -117,7 +116,7 @@ class EnergyMeasurement:
             return
         for package in self.packages:
             package.reset_value()
-        self.update_all()
+        self._update_values()
         self.update_thread = threading.Thread(target=self._thread_measure)
         self.stop_event.clear()
         self.update_thread.start()
@@ -145,8 +144,8 @@ class EnergyMeasurement:
         """this method is run by a thread to constantly sample energy values for overhead protection"""
         try:
             while not self.stop_event.wait(timeout=self.interval):
-                self.update_all()
-            self.update_all()
+                self._update_values()
+            self._update_values()
         except (OSError, ValueError, TypeError):
             logging.error("Energy measurement failed")
             self.packages = None  # to prevent accidental accessing
@@ -158,7 +157,7 @@ class EnergyMeasurement:
         each constraint name to find the number correlating to the short term limit
         Example limit file name would be "constraint_1_power_limit_uw
         We choose the smallest calculated interval as a worst case assumption"""
-        intervals = []
+        min_interval = 0
         for package in self.packages:
             for constraint_name in package.path.glob("constraint_*_name"):
                 if read_file(constraint_name) == "short_term":
@@ -175,11 +174,14 @@ class EnergyMeasurement:
                         logging.debug(
                             "failed to read a constraint value for EnergyMeasurement"
                         )
-                        return
-                    intervals.append(max_range / constraint_value)
+                        return 500    # default measurement interval in seconds, derived from an assumed worst case of 500W energy consumption
+                    if min_interval == 0:
+                        min_interval = max_range / constraint_value
+                    min_interval = min(min_interval, (max_range / constraint_value))
 
-        if intervals != []:
-            self.interval = min(intervals)
+        if not min_interval:
+            return 500
+        return min_interval
 
     def __str__(self):
         string = ""
