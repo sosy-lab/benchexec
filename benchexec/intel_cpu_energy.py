@@ -14,6 +14,7 @@ from dataclasses import dataclass
 from decimal import Decimal
 from pathlib import Path
 from time import sleep
+
 from benchexec.util import read_file
 
 rapl_path = Path("/sys/class/powercap/intel-rapl/")
@@ -23,6 +24,7 @@ rapl_path = Path("/sys/class/powercap/intel-rapl/")
 class EnergyWrapper:  # This wrapper is needed to keep immutability in the Domain and Package classes while still allowing energy values to be updated
     last_value: int
     total: int = 0
+
 
 @dataclass(frozen=True)
 class AreaOfMeasurement:
@@ -74,7 +76,6 @@ class Package(AreaOfMeasurement):
 
 
 class EnergyMeasurement:
-
     def __init__(self):
         self.stop_event = threading.Event()
         self.packages: list[Package] = []
@@ -96,7 +97,9 @@ class EnergyMeasurement:
                     d_name = read_file(domain / "name")
                     domains.append(Domain(d_name, domain, EnergyWrapper(0)))
 
-                self.packages.append(Package(p_name, package, EnergyWrapper(0), domains))
+                self.packages.append(
+                    Package(p_name, package, EnergyWrapper(0), domains)
+                )
             self.interval = self._calculate_interval()
         except OSError:
             logging.error("initialisation of energy measurements failed")
@@ -112,7 +115,7 @@ class EnergyMeasurement:
 
     def start(self):
         """Start the measurement"""
-        if self.packages is None:    #measurements failed in a privious run
+        if self.packages is None:  # measurements failed in a privious run
             return
         for package in self.packages:
             package.reset_value()
@@ -163,18 +166,14 @@ class EnergyMeasurement:
                 if read_file(constraint_name) == "short_term":
                     constraint_prefix = constraint_name.name.removesuffix("_name")
                     constraint_value = int(
-                        read_file(
-                            package.path / f"{constraint_prefix}_power_limit_uw"
-                        )
+                        read_file(package.path / f"{constraint_prefix}_power_limit_uw")
                     )
-                    max_range = int(
-                        read_file(package.path / "max_energy_range_uj")
-                    )
+                    max_range = int(read_file(package.path / "max_energy_range_uj"))
                     if constraint_value == 0 or max_range == 0:
                         logging.debug(
                             "failed to read a constraint value for EnergyMeasurement"
                         )
-                        return 500    # default measurement interval in seconds, derived from an assumed worst case of 500W energy consumption
+                        return 500  # default measurement interval in seconds, derived from an assumed worst case of 500W energy consumption
                     if min_interval == 0:
                         min_interval = max_range / constraint_value
                     min_interval = min(min_interval, (max_range / constraint_value))

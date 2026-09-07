@@ -9,10 +9,10 @@ import collections
 import os
 import tempfile
 import unittest
+from decimal import Decimal
 from pathlib import Path
 from time import sleep
 from unittest.mock import patch
-from decimal import Decimal
 
 from benchexec import intel_cpu_energy as energy
 
