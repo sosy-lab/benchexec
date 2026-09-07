@@ -112,9 +112,6 @@ class TestCloudInput(unittest.TestCase):
 
     def _normalize_cloud_input(self, cloud_input):
         normalized = dict(cloud_input)
-        # The top-level "files" list comes from a set internally, so its
-        # order is not guaranteed.
-        normalized["files"] = sorted(normalized["files"])
         # We always assume the expected input YAML files are relative to REPO_ROOT
         normalized["basedir"] = os.path.relpath(cloud_input["basedir"], REPO_ROOT)
         return normalized

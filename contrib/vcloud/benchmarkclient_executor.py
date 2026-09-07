@@ -245,7 +245,8 @@ def getCloudInput(benchmark):
 
     cloud_input = {
         "formatVersion": "1.0",
-        "files": [os.path.relpath(p, absBaseDir) for p in absToolpaths],
+        # Sorted for deterministic output
+        "files": sorted(os.path.relpath(p, absBaseDir) for p in absToolpaths),
         "basedir": os.path.relpath(absBaseDir),
         "execdir": os.path.relpath(absWorkingDir, absBaseDir),
     }
