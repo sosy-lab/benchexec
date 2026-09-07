@@ -77,6 +77,7 @@ class EnergyMeasurement:
     def __init__(self):
         self.stop_event = threading.Event()
         self.packages: list[Package] = []
+        self.update_thread = None
 
         """We are searching for all available packages and domains
         Each one has a name file as well as the energy measurement related files
@@ -117,6 +118,8 @@ class EnergyMeasurement:
         """Stop the measurement if it hasn't been stopped already
         This method has to return self because of the way the old cpu-energy-meter was implemented,
         changing this would require changing the readout in every other file"""
+        if self.update_thread is None:
+            return None
         if not self.update_thread.is_alive() and self.packages is not None:
             return self
         self.stop_event.set()
