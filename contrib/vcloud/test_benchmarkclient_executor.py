@@ -11,8 +11,6 @@ import unittest
 from dataclasses import dataclass, field, replace
 from unittest.mock import MagicMock, patch
 
-import yaml
-
 from benchexec import util
 from benchexec.model import Benchmark
 from contrib.vcloud import benchmarkclient_executor
@@ -112,8 +110,8 @@ class TestCloudInput(unittest.TestCase):
 
     def _get_cloud_input(self, xml_content, config=DEFAULT_CONFIG, tool=None):
         benchmark = self._parse_benchmark(xml_content, config, tool=tool)
-        yaml_str, n_runs = benchmarkclient_executor.getCloudInput(benchmark)
-        return yaml.safe_load(yaml_str), n_runs
+        cloud_input = benchmarkclient_executor.getCloudInput(benchmark)
+        return cloud_input, len(cloud_input["runs"])
 
     def test_minimal(self):
         # one task with no inputs, no result files, only cputime_hard set

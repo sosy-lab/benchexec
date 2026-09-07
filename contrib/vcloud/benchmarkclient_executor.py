@@ -110,7 +110,11 @@ def get_system_info():
 def execute_benchmark(benchmark, output_handler):
     if not _JustReprocessResults:
         # build input for cloud
-        (cloudInput, numberOfRuns) = getCloudInput(benchmark)
+        cloud_input = getCloudInput(benchmark)
+        numberOfRuns = len(cloud_input["runs"])
+        cloudInput = yaml.dump(
+            cloud_input, default_flow_style=False, allow_unicode=True
+        )
         if benchmark.config.debug:
             cloudInputFile = os.path.join(benchmark.log_folder, "cloudInput.yml")
             benchexec.util.write_file(cloudInput, cloudInputFile)
@@ -261,9 +265,7 @@ def getCloudInput(benchmark):
     cloud_input["limits"] = limits
     cloud_input["runs"] = runs
 
-    return yaml.dump(cloud_input, default_flow_style=False, allow_unicode=True), len(
-        runs
-    )
+    return cloud_input
 
 
 def getToolDataForCloud(benchmark):
