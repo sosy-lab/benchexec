@@ -103,6 +103,7 @@ class EnergyMeasurement:
             self.interval = self._calculate_interval()
         except OSError:
             logging.error("initialisation of energy measurements failed")
+            return
 
     @classmethod
     def create_if_supported(cls):
