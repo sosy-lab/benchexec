@@ -118,7 +118,7 @@ class EnergyMeasurement:
         for package in self.packages:
             package.reset_value()
         self.update_all()
-        self.update_thread = threading.Thread(target=self.update_values)
+        self.update_thread = threading.Thread(target=self._thread_measure)
         self.stop_event.clear()
         self.update_thread.start()
 
@@ -136,12 +136,12 @@ class EnergyMeasurement:
             return None
         return self
 
-    def update_all(self):
+    def _update_values(self):
         """this updates the counter for total energy consumed across all packages and domains"""
         for package in self.packages:
             package.update_value()
 
-    def update_values(self):
+    def _thread_measure(self):
         """this method is run by a thread to constantly sample energy values for overhead protection"""
         try:
             while not self.stop_event.wait(timeout=self.interval):
@@ -152,7 +152,7 @@ class EnergyMeasurement:
             self.packages = None  # to prevent accidental accessing
             return
 
-    def calculate_interval(self):
+    def _calculate_interval(self):
         """calculate measurement interval from short term power limit
         each package has various constraints numbered from 0, therefore we have to check
         each constraint name to find the number correlating to the short term limit
