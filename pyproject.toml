@@ -265,3 +265,23 @@ filterwarnings = [
 ]
 python_files = ["test_*.py", "test_integration/__init__.py", "test.py"]
 norecursedirs = ["contrib/p4/docker_files", "build", "benchexec/tablegenerator/react-table"]
+
+[tool.codespell]
+builtin = "clear,rare,informal,usage,names"
+summary = true
+skip = [
+    "./BenchExec.egg-info",
+    "./benchexec/tablegenerator/react-table/build",
+    "node_modules",
+    "./benchexec/tablegenerator/test_integration/expected",
+    "*.min.js",
+    "package-lock.json",
+    "*.snap",
+    "*.pdf",
+    "./benchexec/tools/aprove.py",  # because of AProVE, codespell:ignore aprove
+    "./benchexec/tools/gratchk.py",  # because of GRAT, codespell:ignore grat
+    "./benchexec/tools/gratgen.py",  # because of GRAT, codespell:ignore grat
+    "./benchexec/tablegenerator/test_integration/results/test.2015-03-03_1815.logfiles",
+    "./benchexec/tablegenerator/react-table/src/tests/task_definition_files/property_files_multiline_string.yml",
+]
+ignore-words-list = "notIn"

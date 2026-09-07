@@ -325,12 +325,12 @@ def load_tool(result):
                 "cannot extract values from log files.",
                 tool_module,
             )
-        except TypeError as te:
+        except TypeError as type_error:
             logging.warning(
                 'Unsupported module "%s", cannot extract values from log files '
                 "(TypeError: %s).",
                 tool_module,
-                te,
+                type_error,
             )
         return None
 

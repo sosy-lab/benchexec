@@ -283,7 +283,7 @@ def _generate_native_clone_child_callback():
     #
     # <clone_child_callback>:
     # Store address in rdx:
-    #     48 ba 88 99 aa bb cc    movabsq $0xffeeddccbbaa9988,%rdx
+    #     48 ba 88 99 aa bb cc    movabsq $0xffeeddccbbaa9988,%rdx  # codespell:ignore ba
     #     dd ee ff
     # Allocate space on stack:
     #     48 83 ec 18             subq   $0x18,%rsp

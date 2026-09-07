@@ -17,7 +17,7 @@ coveriteam = __import__(
 
 class Tool(coveriteam.Tool):
     """
-    Tool infor for Graves, a verifier selector based on Graph Neural Networks
+    Tool info for Graves, a verifier selector based on Graph Neural Networks
     We inherit Coveriteam's infrastructure.
     """
 

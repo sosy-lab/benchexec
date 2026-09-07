@@ -30,7 +30,7 @@ class VcloudBenchmarkBase(benchexec.benchexec.BenchExec):
             self.get_param_name("cloudMaster"),
             dest="cloudMaster",
             metavar="HOST",
-            help="Sets the master host of the VerifierCloud instance to be used. If this is a HTTP URL, the web interface is used.",
+            help="Sets the host of the VerifierCloud instance to be used. If this is a HTTP URL, the web interface is used.",
         )
 
         vcloud_args.add_argument(

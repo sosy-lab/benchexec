@@ -385,7 +385,7 @@ def _prepare_stats(all_column_stats, rows, columns):
 
 
 def _prepare_run_sets_for_js(run_sets):
-    # Almost all run_set attributes are relevant, use blacklist here
+    # Almost all run_set attributes are relevant, use blocklist here
     run_set_exclude_keys = {"filename"}
 
     def prepare_column(column):
