@@ -6,17 +6,30 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import os
-import tempfile
 import unittest
 from dataclasses import dataclass, field, replace
 from unittest.mock import MagicMock, patch
+
+import yaml
 
 from benchexec import util
 from benchexec.model import Benchmark
 from contrib.vcloud import benchmarkclient_executor
 
 here = os.path.dirname(__file__)
-TEST_TASKS_DIR = os.path.join(here, "..", "..", "test", "tasks")
+REPO_ROOT = os.path.join(here, "..", "..")
+TEST_TASKS_DIR = os.path.join(REPO_ROOT, "test", "tasks")
+
+INPUT_DIR = os.path.join(here, "test_integration")
+EXPECTED_DIR = os.path.join(INPUT_DIR, "expected")
+
+TOOL_DIR = os.path.join(INPUT_DIR, "tool")
+MOCK_TOOL_FILE = os.path.join(TOOL_DIR, "mock_tool.sh")
+
+# Set to True to let the tests overwrite the expected YAML files with the actual result
+# from parsing the test-integration/*.xml files using benchmarkclient_executor.getCloudInput
+# Use this to update expected files if necessary. Do not commit this flag set to True!
+OVERWRITE_MODE = False
 
 
 @dataclass(frozen=True)
@@ -66,288 +79,148 @@ class TestInit(unittest.TestCase):
 
 class TestCloudInput(unittest.TestCase):
     """
-    Tests for benchmarkclient_executor.getCloudInput() to check that the runs and required files generated for
-    the cloud are correct.
+    Tests for benchmarkclient_executor.getCloudInput() to check that the runs and
+    required files generated for the cloud are correct.
     """
-
-    def setUp(self):
-        self.tmpdir = tempfile.mkdtemp()
-        self.tool_file = os.path.join(TEST_TASKS_DIR, "test.sh")
-        open(self.tool_file, "w").close()
-
-    def tearDown(self):
-        os.remove(self.tool_file)
 
     def _make_mock_tool(self, working_directory=None):
         tool = MagicMock()
         tool.name.return_value = "MockTool"
-        tool.working_directory.return_value = working_directory or self.tmpdir
-        tool.program_files.return_value = {self.tool_file}
+        tool.working_directory.return_value = working_directory or TOOL_DIR
+        tool.program_files.return_value = {MOCK_TOOL_FILE}
         tool.cmdline.return_value = ["mock-tool"]
         tool.environment.return_value = {}
         return tool
 
-    def _parse_benchmark(self, xml_content, config=DEFAULT_CONFIG, tool=None):
+    def _parse_benchmark(self, input_file, config=DEFAULT_CONFIG, tool=None):
         mock_tool = tool or self._make_mock_tool()
         with patch(
             "benchexec.model.load_tool_info",
             return_value=("benchexec.tools.mock", mock_tool),
         ):
-            with tempfile.NamedTemporaryFile(
-                suffix=".xml",
-                mode="w",
-                delete=False,
-                dir=TEST_TASKS_DIR,
-            ) as f:
-                f.write(xml_content)
-                xml_path = f.name
-            try:
-                benchmark = Benchmark(xml_path, config, util.read_local_time())
-            finally:
-                os.remove(xml_path)
-        benchmark.executable = self.tool_file
+            benchmark = Benchmark(
+                os.path.join(INPUT_DIR, input_file), config, util.read_local_time()
+            )
+        benchmark.executable = MOCK_TOOL_FILE
         return benchmark
 
-    def _get_cloud_input(self, xml_content, config=DEFAULT_CONFIG, tool=None):
-        benchmark = self._parse_benchmark(xml_content, config, tool=tool)
-        cloud_input = benchmarkclient_executor.getCloudInput(benchmark)
-        return cloud_input, len(cloud_input["runs"])
+    def _get_cloud_input(self, input_file, config=DEFAULT_CONFIG, tool=None):
+        benchmark = self._parse_benchmark(input_file, config, tool=tool)
+        return benchmarkclient_executor.getCloudInput(benchmark)
+
+    def _normalize_cloud_input(self, cloud_input):
+        normalized = dict(cloud_input)
+        # The top-level "files" list comes from a set internally, so its
+        # order is not guaranteed.
+        normalized["files"] = sorted(normalized["files"])
+        # We always assume the expected input YAML files are relative to REPO_ROOT
+        normalized["basedir"] = os.path.relpath(cloud_input["basedir"], REPO_ROOT)
+        return normalized
+
+    def _overwrite_expected(self, actual, expected_file_name):
+        expected_file = os.path.join(EXPECTED_DIR, expected_file_name)
+        util.write_file(
+            yaml.dump(
+                actual, default_flow_style=False, sort_keys=True, allow_unicode=True
+            ),
+            expected_file,
+        )
+
+    def assertCloudInputMatchesExpected(self, cloud_input, expected_file_name):
+        actual = self._normalize_cloud_input(cloud_input)
+
+        if OVERWRITE_MODE:
+            self._overwrite_expected(actual, expected_file_name)
+            return
+
+        expected_file = os.path.join(EXPECTED_DIR, expected_file_name)
+        expected = yaml.safe_load(util.read_file(expected_file))
+        self.assertEqual(actual, expected)
 
     def test_minimal(self):
-        # one task with no inputs, no result files, only cputime_hard set
-        cloud_input, n_runs = self._get_cloud_input("""
-            <benchmark tool="dummy" hardtimelimit="30">
-              <rundefinition>
-                <tasks><withoutfile>task1</withoutfile></tasks>
-              </rundefinition>
-            </benchmark>
-        """)
-        self.assertEqual(cloud_input["formatVersion"], "1.0")
-        self.assertCountEqual(cloud_input["files"], ["test.sh"])
-
-        self.assertEqual(cloud_input["limits"]["cputime_hard_s"], 30)
-        self.assertNotIn("walltime_hard_s", cloud_input["limits"])
-        self.assertNotIn("memory_b", cloud_input["limits"])
-        self.assertNotIn("cores", cloud_input["limits"])
-        self.assertNotIn("priority", cloud_input)
-        self.assertIsNone(cloud_input["requirements"]["cores"])
-        self.assertIsNone(cloud_input["requirements"]["memory_b"])
-        self.assertNotIn("cpumodels", cloud_input["requirements"])
-        self.assertEqual(cloud_input["resultFilePatterns"], ["."])
-
-        self.assertEqual(n_runs, 1)
+        cloud_input = self._get_cloud_input("minimal.xml")
         self.assertEqual(len(cloud_input["runs"]), 1)
+        self.assertCloudInputMatchesExpected(cloud_input, "minimal.yml")
 
     def test_input_files_and_dirs(self):
         extra_file = os.path.join(TEST_TASKS_DIR, "other.prp")
         config = replace(DEFAULT_CONFIG, additional_files=[extra_file])
-        cloud_input, _ = self._get_cloud_input(
-            """
-            <benchmark tool="dummy" hardtimelimit="30">
-              <requiredfiles>test.prp</requiredfiles>
-              <rundefinition>
-                <tasks><withoutfile>task1</withoutfile></tasks>
-              </rundefinition>
-            </benchmark>
-            """,
-            config=config,
-        )
+        cloud_input = self._get_cloud_input("input_files_and_dirs.xml", config=config)
 
         self.assertTrue(os.path.isdir(cloud_input["basedir"]))
         self.assertTrue(
             os.path.isdir(os.path.join(cloud_input["basedir"], cloud_input["execdir"]))
         )
-        self.assertCountEqual(
-            cloud_input["files"], ["test.sh", "test.prp", "other.prp"]
-        )
+        self.assertCloudInputMatchesExpected(cloud_input, "input_files_and_dirs.yml")
 
     def test_invalid_additional_file_exits(self):
         config = replace(DEFAULT_CONFIG, additional_files=["/no/such/file"])
         with self.assertRaises(SystemExit):
-            self._get_cloud_input(
-                """
-                <benchmark tool="dummy" hardtimelimit="30">
-                  <rundefinition>
-                    <tasks><withoutfile>task1</withoutfile></tasks>
-                  </rundefinition>
-                </benchmark>
-                """,
-                config=config,
-            )
+            self._get_cloud_input("minimal.xml", config=config)
 
     def test_invalid_working_directory_exits(self):
         tool = self._make_mock_tool(working_directory="/no/such/directory")
         with self.assertRaises(SystemExit):
-            self._get_cloud_input(
-                """
-                <benchmark tool="dummy" hardtimelimit="30">
-                  <rundefinition>
-                    <tasks><withoutfile>task1</withoutfile></tasks>
-                  </rundefinition>
-                </benchmark>
-                """,
-                tool=tool,
-            )
+            self._get_cloud_input("minimal.xml", tool=tool)
 
     def test_single_rundefinition_multiple_tasks_with_input(self):
-        cloud_input, n_runs = self._get_cloud_input("""
-            <benchmark tool="dummy" hardtimelimit="30">
-              <propertyfile>test.prp</propertyfile>
-              <rundefinition>
-                <tasks>
-                  <include>true_task.yml</include>
-                  <include>false_task.yml</include>
-                </tasks>
-              </rundefinition>
-            </benchmark>
-        """)
-        expected_runs = [
-            {
-                "logfile": "true_task.yml.log",
-                "command": ["mock-tool"],
-                "files": ["true_task.yml", "test.prp"],
-            },
-            {
-                "logfile": "false_task.yml.log",
-                "command": ["mock-tool"],
-                "files": ["false_task.yml", "test.prp"],
-            },
-        ]
-        self.assertEqual(n_runs, len(expected_runs))
-        self.assertCountEqual(cloud_input["runs"], expected_runs)
+        cloud_input = self._get_cloud_input(
+            "single_rundefinition_multiple_tasks_with_input.xml"
+        )
+        self.assertEqual(len(cloud_input["runs"]), 2)
+        self.assertCloudInputMatchesExpected(
+            cloud_input, "single_rundefinition_multiple_tasks_with_input.yml"
+        )
 
     def test_single_run_definition_multiple_tasks_without_inputs(self):
-        cloud_input, n_runs = self._get_cloud_input("""
-            <benchmark tool="dummy" hardtimelimit="30">
-              <rundefinition>
-                <tasks>
-                  <withoutfile>task1</withoutfile>
-                  <withoutfile>task2</withoutfile>
-                </tasks>
-                <tasks>
-                  <withoutfile>task3</withoutfile>
-                </tasks>
-              </rundefinition>
-            </benchmark>
-        """)
-        self.assertEqual(n_runs, 3)
-        self.assertCountEqual(
-            cloud_input["runs"],
-            [
-                {"logfile": "task1.log", "command": ["mock-tool"]},
-                {"logfile": "task2.log", "command": ["mock-tool"]},
-                {"logfile": "task3.log", "command": ["mock-tool"]},
-            ],
+        cloud_input = self._get_cloud_input(
+            "single_run_definition_multiple_tasks_without_inputs.xml"
+        )
+        self.assertEqual(len(cloud_input["runs"]), 3)
+        self.assertCloudInputMatchesExpected(
+            cloud_input, "single_run_definition_multiple_tasks_without_inputs.yml"
         )
 
     def test_multiple_rundefinitions_multiple_tasks_without_inputs(self):
-        cloud_input, n_runs = self._get_cloud_input("""
-            <benchmark tool="dummy" hardtimelimit="30">
-              <rundefinition name="run1">
-                <tasks><withoutfile>task1</withoutfile></tasks>
-              </rundefinition>
-              <rundefinition name="run2">
-                <tasks><withoutfile>task2</withoutfile></tasks>
-              </rundefinition>
-            </benchmark>
-        """)
+        cloud_input = self._get_cloud_input("multiple_rundefinitions.xml")
         # All run definitions should be flattened for the cloud input file
-        self.assertEqual(n_runs, 2)
-        self.assertCountEqual(
-            cloud_input["runs"],
-            [
-                {"logfile": "run1.task1.log", "command": ["mock-tool"]},
-                {"logfile": "run2.task2.log", "command": ["mock-tool"]},
-            ],
-        )
+        self.assertEqual(len(cloud_input["runs"]), 2)
+        self.assertCloudInputMatchesExpected(cloud_input, "multiple_rundefinitions.yml")
 
     def test_unselected_rundefinition_is_excluded(self):
         config = replace(DEFAULT_CONFIG, selected_run_definitions=["run1"])
-        cloud_input, n_runs = self._get_cloud_input(
-            """
-            <benchmark tool="dummy" hardtimelimit="30">
-              <rundefinition name="run1">
-                <tasks><withoutfile>task1</withoutfile></tasks>
-              </rundefinition>
-              <rundefinition name="run2">
-                <tasks><withoutfile>task2</withoutfile></tasks>
-              </rundefinition>
-            </benchmark>
-            """,
-            config=config,
+        cloud_input = self._get_cloud_input(
+            "multiple_rundefinitions.xml", config=config
         )
-        self.assertEqual(n_runs, 1)
-        self.assertCountEqual(
-            cloud_input["runs"],
-            [{"logfile": "run1.task1.log", "command": ["mock-tool"]}],
+        self.assertEqual(len(cloud_input["runs"]), 1)
+        self.assertCloudInputMatchesExpected(
+            cloud_input, "unselected_rundefinition_is_excluded.yml"
         )
 
     def test_no_matching_rundefinition_selected_exits(self):
         config = replace(DEFAULT_CONFIG, selected_run_definitions=["nonexistent"])
         with self.assertRaises(SystemExit):
-            self._get_cloud_input(
-                """
-                <benchmark tool="dummy" hardtimelimit="30">
-                  <rundefinition name="run1">
-                    <tasks><withoutfile>task1</withoutfile></tasks>
-                  </rundefinition>
-                </benchmark>
-                """,
-                config=config,
-            )
+            self._get_cloud_input("multiple_rundefinitions.xml", config=config)
 
     def test_limits_and_requirements_set(self):
-        cloud_input, _ = self._get_cloud_input("""
-            <benchmark tool="dummy" hardtimelimit="60" walltimelimit="120"
-                       memlimit="4 GB" cpuCores="2">
-              <require cpuCores="1" memory="4 GB" cpuModel="Intel"/>
-              <rundefinition>
-                <tasks><withoutfile>task1</withoutfile></tasks>
-              </rundefinition>
-            </benchmark>
-        """)
-
-        self.assertEqual(cloud_input["limits"]["cputime_hard_s"], 60)
-        self.assertEqual(cloud_input["limits"]["walltime_hard_s"], 120)
-
-        self.assertEqual(cloud_input["limits"]["memory_b"], 4_000_000_000)
-        self.assertEqual(cloud_input["limits"]["cores"], 2)
-        self.assertEqual(cloud_input["requirements"]["cores"], 1)
-        self.assertEqual(cloud_input["requirements"]["memory_b"], 4_000_000_000)
-        self.assertEqual(cloud_input["requirements"]["cpumodels"], "Intel")
+        cloud_input = self._get_cloud_input("limits_and_requirements_set.xml")
+        self.assertCloudInputMatchesExpected(
+            cloud_input, "limits_and_requirements_set.yml"
+        )
 
     def test_result_file_patterns_set(self):
-        cloud_input, _ = self._get_cloud_input("""
-            <benchmark tool="dummy" hardtimelimit="30">
-              <resultfiles>*.log</resultfiles>
-              <rundefinition>
-                <tasks><withoutfile>task1</withoutfile></tasks>
-              </rundefinition>
-            </benchmark>
-        """)
-        self.assertEqual(cloud_input["resultFilePatterns"], ["*.log"])
+        cloud_input = self._get_cloud_input("result_file_patterns_set.xml")
+        self.assertCloudInputMatchesExpected(
+            cloud_input, "result_file_patterns_set.yml"
+        )
 
     def test_result_file_patterns_empty(self):
-        cloud_input, _ = self._get_cloud_input("""
-            <benchmark tool="dummy" hardtimelimit="30">
-              <resultfiles></resultfiles>
-              <rundefinition>
-                <tasks><withoutfile>task1</withoutfile></tasks>
-              </rundefinition>
-            </benchmark>
-        """)
-        self.assertEqual(cloud_input["resultFilePatterns"], [])
+        cloud_input = self._get_cloud_input("result_file_patterns_empty.xml")
+        self.assertCloudInputMatchesExpected(
+            cloud_input, "result_file_patterns_empty.yml"
+        )
 
     def test_priority_from_config(self):
         config = replace(DEFAULT_CONFIG, cloudPriority="HIGH")
-        cloud_input, _ = self._get_cloud_input(
-            """
-            <benchmark tool="dummy" hardtimelimit="30">
-              <rundefinition>
-                <tasks><withoutfile>task1</withoutfile></tasks>
-              </rundefinition>
-            </benchmark>
-            """,
-            config=config,
-        )
-        self.assertEqual(cloud_input["priority"], "HIGH")
+        cloud_input = self._get_cloud_input("minimal.xml", config=config)
+        self.assertCloudInputMatchesExpected(cloud_input, "priority_from_config.yml")
