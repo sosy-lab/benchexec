@@ -211,5 +211,5 @@ class TestEnergyMeasurement(unittest.TestCase):
             self.assertEqual(result.packages[0].domains[0].energy.total, 9900)
 
     def test_conversion(self):
-        self.assertEqual(Decimal((10,0)), energy.convert_to_joules(10000000))
-        self.assertEqual(Decimal((1,234)), energy.convert_to_joules(1234000))
+        self.assertEqual(Decimal("10.0"), energy.convert_to_joules(10000000))
+        self.assertEqual(Decimal("1.234"), energy.convert_to_joules(1234000))

@@ -112,6 +112,8 @@ class EnergyMeasurement:
 
     def start(self):
         """Start the measurement"""
+        if self.packages is None:    #measurements failed in a privious run
+            return
         for package in self.packages:
             package.reset_value()
         self.update_all()
@@ -141,7 +143,6 @@ class EnergyMeasurement:
     def update_values(self):
         """this method is run by a thread to constantly sample energy values for overhead protection"""
         try:
-            self.update_all()
             while not self.stop_event.wait(timeout=self.interval):
                 self.update_all()
             self.update_all()
