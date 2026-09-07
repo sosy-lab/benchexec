@@ -84,18 +84,21 @@ class EnergyMeasurement:
         Each one has a name file as well as the energy measurement related files
         example package name path: /sys/class/powercap/intel-rapl/intel-rapl:0/name
         example domain name path: /sys/class/powercap/intel-rapl/intel-rapl:0/intel-rapl:0:0/name"""
-        for package in sorted(
-            p for p in rapl_path.glob("intel-rapl:*") if p.name.count(":") == 1
-        ):
-            p_name = get_path_content(package / "name")
-            domains = []
-            for domain in sorted(
-                d for d in package.glob("intel-rapl:*") if d.name.count(":") == 2
+        try:
+            for package in sorted(
+                p for p in rapl_path.glob("intel-rapl:*") if p.name.count(":") == 1
             ):
-                d_name = get_path_content(domain / "name")
-                domains.append(Domain(d_name, domain, EnergyWrapper(0)))
+                p_name = get_path_content(package / "name")
+                domains = []
+                for domain in sorted(
+                    d for d in package.glob("intel-rapl:*") if d.name.count(":") == 2
+                ):
+                    d_name = get_path_content(domain / "name")
+                    domains.append(Domain(d_name, domain, EnergyWrapper(0)))
 
-            self.packages.append(Package(p_name, package, EnergyWrapper(0), domains))
+                self.packages.append(Package(p_name, package, EnergyWrapper(0), domains))
+        except OSError:
+            logging.error("initialisation of energy measurements failed")
         self.calculate_interval()
 
     @classmethod
