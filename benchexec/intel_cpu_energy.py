@@ -23,11 +23,17 @@ class EnergyWrapper:  # This wrapper is needed to keep immutability in the Domai
     last_value: int
     total: int = 0
 
-
+@dataclass(frozen=True)
 class AreaOfMeasurement:
+    name: str
+    path: Path
+    energy: EnergyWrapper
+
     def update_value(self):
         """update the energy values of current domain or package, this checks for overflows as well"""
         new_energy = int(get_path_content(self.path / "energy_uj"))
+        if new_energy < 0:
+            raise ValueError("unexpected negative value")
         if self.energy.total == 0 and self.energy.last_value == 0:  # first measurement
             self.energy.last_value = new_energy
 
@@ -47,16 +53,11 @@ class AreaOfMeasurement:
 
 @dataclass(frozen=True)
 class Domain(AreaOfMeasurement):
-    name: str
-    path: Path
-    energy: EnergyWrapper
+    pass
 
 
 @dataclass(frozen=True)
 class Package(AreaOfMeasurement):
-    name: str
-    path: Path
-    energy: EnergyWrapper
     domains: list[Domain]
 
     def update_value(self):
@@ -110,6 +111,7 @@ class EnergyMeasurement:
         """Start the measurement"""
         for package in self.packages:
             package.reset_value()
+        self.update_all()
         self.update_thread = threading.Thread(target=self.update_values)
         self.stop_event.clear()
         self.update_thread.start()
