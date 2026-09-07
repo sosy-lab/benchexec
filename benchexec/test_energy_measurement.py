@@ -12,6 +12,7 @@ import unittest
 from pathlib import Path
 from time import sleep
 from unittest.mock import patch
+from decimal import Decimal
 
 from benchexec import intel_cpu_energy as energy
 
@@ -208,3 +209,7 @@ class TestEnergyMeasurement(unittest.TestCase):
             self.assertIsNotNone(result)
             self.assertEqual(result.packages[0].energy.total, 9000)
             self.assertEqual(result.packages[0].domains[0].energy.total, 9900)
+
+    def test_conversion(self):
+        self.assertEqual(Decimal((10,0)), energy.convert_to_joules(10000000))
+        self.assertEqual(Decimal((1,234)), energy.convert_to_joules(1234000))
