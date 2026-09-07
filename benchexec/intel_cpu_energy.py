@@ -14,6 +14,7 @@ from dataclasses import dataclass
 from decimal import Decimal
 from pathlib import Path
 from time import sleep
+from benchexec.util import read_file
 
 rapl_path = Path("/sys/class/powercap/intel-rapl/")
 
@@ -31,14 +32,14 @@ class AreaOfMeasurement:
 
     def update_value(self):
         """update the energy values of current domain or package, this checks for overflows as well"""
-        new_energy = int(get_path_content(self.path / "energy_uj"))
+        new_energy = int(read_file(self.path / "energy_uj"))
         if new_energy < 0:
             raise ValueError("unexpected negative value")
         if self.energy.total == 0 and self.energy.last_value == 0:  # first measurement
             self.energy.last_value = new_energy
 
         elif new_energy <= self.energy.last_value:  # overflow
-            overflow_border = int(get_path_content(self.path / "max_energy_range_uj"))
+            overflow_border = int(read_file(self.path / "max_energy_range_uj"))
             self.energy.total += overflow_border - self.energy.last_value + new_energy
             self.energy.last_value = new_energy
 
@@ -88,12 +89,12 @@ class EnergyMeasurement:
             for package in sorted(
                 p for p in rapl_path.glob("intel-rapl:*") if p.name.count(":") == 1
             ):
-                p_name = get_path_content(package / "name")
+                p_name = read_file(package / "name")
                 domains = []
                 for domain in sorted(
                     d for d in package.glob("intel-rapl:*") if d.name.count(":") == 2
                 ):
-                    d_name = get_path_content(domain / "name")
+                    d_name = read_file(domain / "name")
                     domains.append(Domain(d_name, domain, EnergyWrapper(0)))
 
                 self.packages.append(Package(p_name, package, EnergyWrapper(0), domains))
@@ -160,15 +161,15 @@ class EnergyMeasurement:
         intervals = []
         for package in self.packages:
             for constraint_name in package.path.glob("constraint_*_name"):
-                if get_path_content(constraint_name) == "short_term":
+                if read_file(constraint_name) == "short_term":
                     constraint_prefix = constraint_name.name.removesuffix("_name")
                     constraint_value = int(
-                        get_path_content(
+                        read_file(
                             package.path / f"{constraint_prefix}_power_limit_uw"
                         )
                     )
                     max_range = int(
-                        get_path_content(package.path / "max_energy_range_uj")
+                        read_file(package.path / "max_energy_range_uj")
                     )
                     if constraint_value == 0 or max_range == 0:
                         logging.debug(
@@ -187,19 +188,6 @@ class EnergyMeasurement:
             for domain in package.domains:
                 string += f"    {domain.name}: {domain.energy.total} uj\n"
         return string
-
-
-def get_path_content(path):
-    """if reading file fails the error event signals the thread that something went wrong
-    and stops further measurement"""
-    try:
-        content = path.read_text().strip()
-        return content
-    except OSError as error:
-        message = f"cannot read {path}: {error}"
-        logging.debug(message)
-        raise error
-    # because the int() function throws a seperate error on None values
 
 
 def convert_to_joules(energy):

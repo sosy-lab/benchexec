@@ -59,22 +59,6 @@ class TestEnergyMeasurement(unittest.TestCase):
             self.assertEqual(result.packages[0].energy.total, 2000)
             self.assertEqual(result.packages[0].domains[0].energy.total, 200)
 
-    def test_get_path_content(self):
-        with patch.object(energy, "rapl_path", self.rapl_mock):
-            self.assertEqual(
-                energy.get_path_content(self.package_mock / "name"), "package"
-            )
-            self.assertRaises(
-                OSError, energy.get_path_content, (self.rapl_mock / "does_not_exist")
-            )
-            self.assertEqual(
-                energy.get_path_content(self.package_mock / "energy_uj"), "2000"
-            )
-            os.chmod((self.package_mock / "name"), 0)
-            self.assertRaises(
-                OSError, energy.get_path_content, (self.package_mock / "name")
-            )
-
     def test_format_results(self):
         with patch.object(energy, "rapl_path", self.rapl_mock):
             measurement = energy.EnergyMeasurement.create_if_supported()
