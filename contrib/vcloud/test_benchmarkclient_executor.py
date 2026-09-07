@@ -63,8 +63,9 @@ class TestInit(unittest.TestCase):
         config = MagicMock(reprocessResults=False)
         benchmark = MagicMock()
         benchmark.rlimits.cputime_hard = None
-        with self.assertRaises(SystemExit):
+        with self.assertRaises(SystemExit) as cm:
             benchmarkclient_executor.init(config, benchmark)
+        self.assertIn("CPU-time limit", str(cm.exception))
 
     def test_unsupported_environment_configuration_exits(self):
         config = MagicMock(
@@ -73,8 +74,9 @@ class TestInit(unittest.TestCase):
         benchmark = MagicMock()
         benchmark.rlimits.cputime_hard = 30
         benchmark.environment.return_value = {"keepEnv": {"PATH": "/usr/bin"}}
-        with self.assertRaises(SystemExit):
+        with self.assertRaises(SystemExit) as cm:
             benchmarkclient_executor.init(config, benchmark)
+        self.assertIn("environment configuration", str(cm.exception))
 
 
 class TestCloudInput(unittest.TestCase):
@@ -155,13 +157,17 @@ class TestCloudInput(unittest.TestCase):
 
     def test_invalid_additional_file_exits(self):
         config = VCloudConfig(additional_files=["/no/such/file"])
-        with self.assertRaises(SystemExit):
+        with self.assertRaises(SystemExit) as cm:
             self._get_cloud_input("minimal.xml", config=config)
+        self.assertIn("Missing file", str(cm.exception))
+        self.assertIn("/no/such/file", str(cm.exception))
 
     def test_invalid_working_directory_exits(self):
         tool = self._make_mock_tool(working_directory="/no/such/directory")
-        with self.assertRaises(SystemExit):
+        with self.assertRaises(SystemExit) as cm:
             self._get_cloud_input("minimal.xml", tool=tool)
+        self.assertIn("Missing working directory", str(cm.exception))
+        self.assertIn("/no/such/directory", str(cm.exception))
 
     def test_single_rundefinition_multiple_tasks_with_input(self):
         cloud_input = self._get_cloud_input(
@@ -199,8 +205,9 @@ class TestCloudInput(unittest.TestCase):
 
     def test_no_matching_rundefinition_selected_exits(self):
         config = VCloudConfig(selected_run_definitions=["nonexistent"])
-        with self.assertRaises(SystemExit):
+        with self.assertRaises(SystemExit) as cm:
             self._get_cloud_input("multiple_rundefinitions.xml", config=config)
+        self.assertIn("nothing to run", str(cm.exception))
 
     def test_limits_and_requirements_set(self):
         cloud_input = self._get_cloud_input("limits_and_requirements_set.xml")
