@@ -7,7 +7,7 @@
 
 import os
 import unittest
-from dataclasses import dataclass, field, replace
+from dataclasses import dataclass, field
 from unittest.mock import MagicMock, patch
 
 import yaml
@@ -144,7 +144,7 @@ class TestCloudInput(unittest.TestCase):
 
     def test_input_files_and_dirs(self):
         extra_file = os.path.join(TEST_TASKS_DIR, "other.prp")
-        config = replace(DEFAULT_CONFIG, additional_files=[extra_file])
+        config = VCloudConfig(additional_files=[extra_file])
         cloud_input = self._get_cloud_input("input_files_and_dirs.xml", config=config)
 
         self.assertTrue(os.path.isdir(cloud_input["basedir"]))
@@ -154,7 +154,7 @@ class TestCloudInput(unittest.TestCase):
         self.assertCloudInputMatchesExpected(cloud_input, "input_files_and_dirs.yml")
 
     def test_invalid_additional_file_exits(self):
-        config = replace(DEFAULT_CONFIG, additional_files=["/no/such/file"])
+        config = VCloudConfig(additional_files=["/no/such/file"])
         with self.assertRaises(SystemExit):
             self._get_cloud_input("minimal.xml", config=config)
 
@@ -188,7 +188,7 @@ class TestCloudInput(unittest.TestCase):
         self.assertCloudInputMatchesExpected(cloud_input, "multiple_rundefinitions.yml")
 
     def test_unselected_rundefinition_is_excluded(self):
-        config = replace(DEFAULT_CONFIG, selected_run_definitions=["run1"])
+        config = VCloudConfig(selected_run_definitions=["run1"])
         cloud_input = self._get_cloud_input(
             "multiple_rundefinitions.xml", config=config
         )
@@ -198,7 +198,7 @@ class TestCloudInput(unittest.TestCase):
         )
 
     def test_no_matching_rundefinition_selected_exits(self):
-        config = replace(DEFAULT_CONFIG, selected_run_definitions=["nonexistent"])
+        config = VCloudConfig(selected_run_definitions=["nonexistent"])
         with self.assertRaises(SystemExit):
             self._get_cloud_input("multiple_rundefinitions.xml", config=config)
 
@@ -221,6 +221,6 @@ class TestCloudInput(unittest.TestCase):
         )
 
     def test_priority_from_config(self):
-        config = replace(DEFAULT_CONFIG, cloudPriority="HIGH")
+        config = VCloudConfig(cloudPriority="HIGH")
         cloud_input = self._get_cloud_input("minimal.xml", config=config)
         self.assertCloudInputMatchesExpected(cloud_input, "priority_from_config.yml")
