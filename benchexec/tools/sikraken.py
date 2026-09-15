@@ -54,6 +54,6 @@ class Tool(benchexec.tools.template.BaseTool2):
             options += [data_model_param]
         # --coverage/--reach are only understood from Sikraken 2.0.0 on
         version = tuple(int(p) for p in re.findall(r"\d+", self.version(executable)))
-        if task.property_file and version >= (2, 0, 0):
+        if task.property_file and version >= (2, 0, 1):
             options += self._coverage_options(task.property_file)
         return [executable] + options + [task.single_input_file]
