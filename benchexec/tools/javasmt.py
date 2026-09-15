@@ -19,8 +19,7 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     JavaSMT decides the satisfiability of a single SMT-LIB 2 formula, so tasks
     with more than one input file are not supported. If a memory limit is
-    specified for BenchExec, it is passed to the JVM with the parameter -Xmx,
-    because the JVM would otherwise choose a heap size independently of it.
+    specified for BenchExec, it is passed to the JVM with the parameter -Xmx.
 
     The tool directory is the JavaSMT project directory. It needs to contain:
     - javasmt, the launcher script that assembles the classpath
@@ -70,6 +69,8 @@ class Tool(benchexec.tools.template.BaseTool2):
         return [executable, *heap, *options, task.single_input_file]
 
     def determine_result(self, run):
+        # JavaSMT exits with code 1 after printing "unknown",
+        # so the answer is checked before the exit code.
         for line in run.output:
             line = line.strip()
             if line == "sat":
