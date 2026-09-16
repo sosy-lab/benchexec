@@ -252,7 +252,6 @@ class TestBenchmarkDefinition(unittest.TestCase):
             self.parse_benchmark_definition(benchmark_definition)
 
     def test_requiredfiles_skip_mode_skips_only_runs_with_missing_files(self):
-        # checking the arithmetics into a bit more detail
         benchmark_definition = """
             <benchmark tool="dummy">
               <propertyfile>test.prp</propertyfile>
