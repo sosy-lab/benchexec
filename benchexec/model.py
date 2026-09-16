@@ -994,7 +994,7 @@ class RunSet:
 
         return run
 
-    def expand_filename_pattern(self, pattern, base_dir, sourcefile=None):
+    def expand_filename_pattern(self, pattern, base_dir, sourcefile=None, log_if_empty=True):
         """
         The function expand_filename_pattern expands a filename pattern to a sorted list
         of filenames. The pattern can contain variables and wildcards.
@@ -1017,7 +1017,7 @@ class RunSet:
         # sort alphabetical,
         fileList.sort()
 
-        if not fileList:
+        if not fileList and log_if_empty:
             logging.warning("No files found matching %r.", pattern)
 
         return fileList
@@ -1087,7 +1087,7 @@ class Run:
 
         for pattern, missing_files_mode in required_files_patterns:
             matched = self.runSet.expand_filename_pattern(
-                pattern, runSet.benchmark.base_dir, sourcefile=rel_sourcefile
+                pattern, runSet.benchmark.base_dir, sourcefile=rel_sourcefile, log_if_empty=False,
             )
 
             if matched:
