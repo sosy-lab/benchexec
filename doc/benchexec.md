@@ -83,13 +83,13 @@ The tag `<resultfiles>` inside the `<benchmark>` tag specifies
 (only supported if [container mode](container.md) is not turned off).
 
 The tag `<requiredfiles>` specifies files that the benchmarked tool needs
-in addition to the input files
-(only relevant if [container mode](container.md) is used,
-where only the required files are made available to the tool).
-It contains a file-name pattern, which may use the variables listed above.
+in addition to the input files.
+In the future this may affect what files are made available to the tool
+in container mode (cf. #702),
+so far it is mostly relevant when combining BenchExec with job-distribution systems.
+The tag must a file-name pattern, which may use the variables listed above.
 The tag can appear inside `<benchmark>`, `<rundefinition>`, and `<tasks>`;
 inside the latter two the pattern is expanded separately for each task.
-
 The optional attribute `ifmissing` determines what happens
 if the pattern does not match any file:
 
@@ -108,10 +108,6 @@ did not produce a witness file:
 ```XML
 <requiredfiles ifmissing="skip-run">../results/witness-generation.files/${taskdef_name}/output/witness.yml</requiredfiles>
 ```
-
-
-
-
 
 ### Defining Tasks for BenchExec
 Typically, tasks for `benchexec` correspond to an input file of the benchmarked tool.
