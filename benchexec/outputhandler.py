@@ -65,6 +65,8 @@ LEN_OF_STATUS = 25
 TIME_PRECISION = 2
 _BYTE_FACTOR = 1000  # byte in kilobyte
 
+_INTERMEDIATE_WRITE_INTERVAL = 0  # seconds between writes of intermediate results
+
 
 class OutputHandler:
     """
@@ -603,9 +605,12 @@ class OutputHandler:
             self.statistics.add_result(run)
 
             # we don't want to write this file to often, it can slow down the whole script,
-            # so we wait at least 10 seconds between two write-actions
+            # so we wait a while between two write-actions
             currentTime = time.monotonic()
-            if currentTime - run.runSet.xml_file_last_modified_time > 60:
+            if (
+                currentTime - run.runSet.xml_file_last_modified_time
+                > _INTERMEDIATE_WRITE_INTERVAL
+            ):
                 self._write_rough_result_xml_to_file(
                     run.runSet.xml, run.runSet.xml_file_name
                 )
@@ -622,7 +627,10 @@ class OutputHandler:
                         continue
 
                     block_info = run.runSet.block_xml_files[block.name]
-                    if currentTime - block_info["last_modified_time"] > 60:
+                    if (
+                        currentTime - block_info["last_modified_time"]
+                        > _INTERMEDIATE_WRITE_INTERVAL
+                    ):
                         # Recreate block XML with current runs
                         block_xml = self.runs_to_xml(run.runSet, block.runs, block.name)
                         block_xml.set("starttime", run.runSet.xml.get("starttime"))
