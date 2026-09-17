@@ -79,8 +79,39 @@ that is in the same directory as each input file, use
 ```
 
 The tag `<resultfiles>` inside the `<benchmark>` tag specifies
-[which files should be copied to the output directory](container.md#retrieving-result-files)
+which files should be copied to the output directory (container.md#retrieving-result-files)
 (only supported if [container mode](container.md) is not turned off).
+
+The tag `<requiredfiles>` specifies files that the benchmarked tool needs
+in addition to the input files
+(only relevant if [container mode](container.md) is used,
+where only the required files are made available to the tool).
+It contains a file-name pattern, which may use the variables listed above.
+The tag can appear inside `<benchmark>`, `<rundefinition>`, and `<tasks>`;
+inside the latter two the pattern is expanded separately for each task.
+
+The optional attribute `ifmissing` determines what happens
+if the pattern does not match any file:
+
+- `warn` (default): a warning is logged and the run is executed anyway
+- `fail`: benchmarking is aborted with an error
+- `ignore`: the run is executed without the file and nothing is logged
+- `skip-run`: the affected run is not executed at all,
+  and a summary of how many runs were skipped is logged;
+  this is only allowed inside `<rundefinition>` and `<tasks>`,
+  because a pattern directly inside `<benchmark>` is not task-specific
+  and skipping would affect all runs
+
+For example, to skip all tasks for which a previous benchmark run
+did not produce a witness file:
+
+```XML
+<requiredfiles ifmissing="skip-run">../results/witness-generation.files/${taskdef_name}/output/witness.yml</requiredfiles>
+```
+
+
+
+
 
 ### Defining Tasks for BenchExec
 Typically, tasks for `benchexec` correspond to an input file of the benchmarked tool.
