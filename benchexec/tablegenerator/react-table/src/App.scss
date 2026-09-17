@@ -886,7 +886,7 @@ $plot-select-button-height: 25px;
   }
 
   /* Selection of Quantile Plot whose content is dependent on user input.
-     The setting tries to take up to 60% of the container width, while excessing content will be shrinked in the dropdown preview. */
+     The setting tries to take up to 60% of the container width, while excessing content will be shrunk in the dropdown preview. */
   .setting.flexible-width {
     flex: 1 0 60%;
     max-width: max-content;
@@ -934,7 +934,7 @@ $plot-select-button-height: 25px;
     min-width: 0;
 
     /* Each settings tries to take up to 45% of the container width, but at least 250px and never more than the maximal content needs,
-      while excessing content will be shrinked in the dropdown preview. */
+      while excessing content will be shrunk in the dropdown preview. */
     .setting {
       flex: 1 1 45%;
       min-width: 250px;

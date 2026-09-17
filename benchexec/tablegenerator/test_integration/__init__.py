@@ -223,9 +223,7 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
     def test_no_files_given(self):
         self.assertEqual(
             1,
-            subprocess.run(
-                tablegenerator, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-            ).returncode,
+            subprocess.run(tablegenerator, capture_output=True).returncode,
             "expected error return code",
         )
 
@@ -238,9 +236,7 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
         ]
         self.assertEqual(
             2,
-            subprocess.run(
-                cmdline, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-            ).returncode,
+            subprocess.run(cmdline, capture_output=True).returncode,
             "expected error return code",
         )
 
@@ -248,9 +244,7 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
         cmdline = [*tablegenerator, "-x", os.path.join(here, "table-only-columns.xml")]
         self.assertEqual(
             2,
-            subprocess.run(
-                cmdline, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-            ).returncode,
+            subprocess.run(cmdline, capture_output=True).returncode,
             "expected error return code",
         )
 
@@ -758,6 +752,8 @@ class TableGeneratorIntegrationTests(unittest.TestCase):
             )
         except subprocess.CalledProcessError as e:
             if "HTTP Error" in e.output or "urlopen error" in e.output:
+                # Need to use "skip" instead of "xfail" because in CI we use "--runxfail"
+                # but do not want the test to break CI # if GitHub is unreachable.
                 self.skipTest("HTTP access to GitHub failed")
             else:
                 raise

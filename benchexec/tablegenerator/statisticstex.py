@@ -127,11 +127,8 @@ class LatexCommand:
             name,
         )
 
-        name = re.split("[^a-zA-Z]", name)
-
-        name = "".join(util.cap_first_letter(word) for word in name)
-
-        return name
+        parts = re.split("[^a-zA-Z]", name)
+        return "".join(util.cap_first_letter(word) for word in parts)
 
 
 def write_tex_command_table(

@@ -5,12 +5,13 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import benchexec.result
 import benchexec.tools.template
 
 
 class Tool(benchexec.tools.template.BaseTool2):
     # Needed for benchexec to run, but irrelevant for p4 extension
-    def executable(self, tool):
+    def executable(self, tool_locator):
         return "/"
 
     def name(self):

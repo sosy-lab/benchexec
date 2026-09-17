@@ -23,7 +23,7 @@ mock_pqos_wrapper_output = {
         "returncode": 0,
         "function": "pqos_init",
         "error": False,
-        "message": "MSR interface intialised",
+        "message": "MSR interface initialised",
     },
     "check_capability": {
         "function_output": {"mem_size": 32, "cdp_on": 0, "num_classes": 4},
@@ -54,19 +54,19 @@ mock_pqos_wrapper_output = {
         "returncode": 0,
         "function": "monitor_events",
         "error": False,
-        "message": "Event monitoring successfull",
+        "message": "Event monitoring successful",
     },
     "reset_monitoring": {
         "returncode": 0,
         "function": "reset_monitoring",
         "error": False,
-        "message": "Reset monitoring successfull",
+        "message": "Reset monitoring successful",
     },
     "reset_resources": {
         "returncode": 0,
         "function": "reset_resources",
         "error": False,
-        "message": "Resource reset successfull",
+        "message": "Resource reset successful",
     },
 }
 

@@ -160,7 +160,7 @@ So the recommendation is (as always) to use the container mode and not use the `
 
 On certain Intel CPUs, BenchExec supports isolation of L3 cache between parallel runs
 if [pqos_wrapper](https://gitlab.com/sosy-lab/software/pqos-wrapper)
-and the [pqos library](https://github.com/intel/intel-cmt-cat/tree/master/pqos) are installed.
+and the [pqos library](https://github.com/intel/intel-cmt-cat/tree/master/pqos) are installed. <!-- codespell:ignore master -->
 If possible, the L3 cache of the CPU is separated into partitions
 and each run is assigned to one partition.
 This has the effect that each run has the same amount of L3 cache available

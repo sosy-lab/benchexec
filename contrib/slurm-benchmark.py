@@ -11,7 +11,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
-import os
 import sys
 
 import benchexec.benchexec
@@ -19,12 +18,6 @@ import benchexec.tools
 import benchexec.util
 
 sys.dont_write_bytecode = True  # prevent creation of .pyc files
-
-# Add ./benchmark/tools to __path__ of benchexec.tools package
-# such that additional tool-wrapper modules can be placed in this directory.
-benchexec.tools.__path__ = [
-    os.path.join(os.path.dirname(__file__), "benchmark", "tools")
-] + benchexec.tools.__path__
 
 
 class Benchmark(benchexec.benchexec.BenchExec):
