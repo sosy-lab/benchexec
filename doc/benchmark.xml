@@ -41,6 +41,8 @@ SPDX-License-Identifier: Apache-2.0
     <!-- <propertyfile> defines a property file with the specification to check (for software verification).
          The optional attribute can be used to filter tasks. -->
     <!-- <propertyfile expectedverdict="true, false, false(<subproperty>), or unknown">*file.prp*</propertyfile> -->
+    <!-- <requiredfiles> may be used here, too, where the pattern is expanded per task. -->
+    <!-- <requiredfiles ifmissing="skip-run">${taskdef_name}/witness.yml</requiredfiles> -->
 
     <!-- <option> may be used here, too. -->
   </tasks>
@@ -56,5 +58,12 @@ SPDX-License-Identifier: Apache-2.0
   <!-- Copy all result files from below the working directory to the output directory
        (this is redundant because it is the default). -->
   <resultfiles>.</resultfiles>
+
+  <!-- <requiredfiles> defines files the tool needs in addition to the input files
+       (can appear multiple times, also inside <rundefinition> and <tasks>).
+       The optional attribute ifmissing defines what happens if the pattern matches no file:
+       warn (default), fail, ignore, or skip-run (do not execute the affected run,
+       only allowed inside <rundefinition> and <tasks>). -->
+  <requiredfiles ifmissing="warn">*file-name pattern for required files*</requiredfiles>
 
 </benchmark>
