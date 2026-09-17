@@ -80,9 +80,16 @@ class Tool(benchexec.tools.template.BaseTool2):
             elif line == "unknown":
                 return result.RESULT_UNKNOWN
 
-        # JavaSMT reports unsupported operations and parse failures as Java exceptions,
-        # for example for the solvers that cannot parse SMT-LIB2 at all.
-        # Report the exception class, such that the reason is visible in the table.
+        # JavaSMT reports expected failures with a message on stderr (see JavaSMTMain).
+        # Report the kind of failure, such that the reason is visible in the table.
+        for line in run.output:
+            line = line.strip()
+            for message, reason in self._ERROR_REASONS.items():
+                if message in line:
+                    return f"ERROR ({reason})"
+
+        # Unexpected failures, e.g., in a solver binding, terminate JavaSMT with an
+        # uncaught Java exception. Report the exception class.
         for line in run.output:
             line = line.strip()
             if line.startswith("Exception in thread"):
@@ -91,6 +98,18 @@ class Tool(benchexec.tools.template.BaseTool2):
         # An unspecific error lets BenchExec name the signal that killed the run,
         # such as "SEGMENTATION FAULT", or report the exit code of the tool.
         return result.RESULT_ERROR
+
+    # Error messages of JavaSMTMain, mapped to the reason that is shown in the table.
+    # The order matters: the more specific parsing messages come first.
+    _ERROR_REASONS = {
+        "does not support parsing SMT-LIB2 input": "no parser",
+        "Could not parse SMT2 file": "parsing",
+        "contains no (check-sat) command": "no check-sat",
+        "Could not read SMT2 file": "input file",
+        "Invalid configuration": "configuration",
+        "Could not process command line arguments": "arguments",
+        "No SMT2 file given": "arguments",
+    }
 
     @staticmethod
     def _exception_class(line):
