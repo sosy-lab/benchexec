@@ -79,7 +79,7 @@ that is in the same directory as each input file, use
 ```
 
 The tag `<resultfiles>` inside the `<benchmark>` tag specifies
-which files should be copied to the output directory (container.md#retrieving-result-files)
+[which files should be copied to the output directory](container.md#retrieving-result-files)
 (only supported if [container mode](container.md) is not turned off).
 
 The tag `<requiredfiles>` specifies files that the benchmarked tool needs
