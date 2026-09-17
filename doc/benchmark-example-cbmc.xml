@@ -35,6 +35,9 @@ SPDX-License-Identifier: Apache-2.0
        (here two group of files from SV-COMP15 declared in a separate file). -->
   <tasks name="ControlFlowInteger">
     <includesfile>programs/ControlFlowInteger.set</includesfile>
+    <!-- <requiredfiles> declares additional files the tool needs for each task.
+         With ifmissing="skip-run", tasks without a matching file are not executed. -->
+    <!-- <requiredfiles ifmissing="skip-run">${inputfile_path}/witness.graphml</requiredfiles> -->
   </tasks>
 
   <tasks name="Simple.set">

@@ -9,6 +9,15 @@ SPDX-License-Identifier: Apache-2.0
 
 # BenchExec Changelog
 
+## BenchExec 3.36 - not yet released
+
+- `<requiredfiles>` tags now support an optional `mode` attribute
+  that controls what happens if a pattern does not match any file:
+  `mode="fail"` lets BenchExec fail, `mode="warn"` (the default, previous
+  behavior) logs a warning per affected task, `mode="ignore"` stays silent,
+  and `mode="skip"` skips the affected task (a single summary message
+  reports how many tasks were skipped this way, not one message per task).
+
 ## BenchExec 3.35 - 2026-07-03
 
 **We are planning to remove support for cgroups v1 from BenchExec in April 2027.**
