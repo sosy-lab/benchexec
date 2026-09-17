@@ -53,9 +53,9 @@ dev = [
     "lxml",
     "pytest",
     # Duplicate info here from systemd extra:
-    "pystemd >= 0.7.0; platform_system != 'Windows'",
+    "pystemd >= 0.7.0; platform_system == 'Linux'",
 ]
-systemd = ["pystemd >= 0.7.0; platform_system != 'Windows'"]
+systemd = ["pystemd >= 0.7.0; platform_system == 'Linux'"]
 
 [project.scripts]
 benchexec = "benchexec.benchexec:main"
@@ -150,7 +150,6 @@ ignore = [
     "SIM102",  # TODO sometimes better readable?
     "SIM114",  # TODO sometimes better readable?
     "TRY201",  # TODO after checking whether runtime behavior changes
-    "UP022",  # TODO after checking whether runtime behavior changes
     # TODO below are non-default checks that should be investigated
     # TODO more type arguments
     "ANN001",  #  missing-type-function-argument
@@ -168,7 +167,6 @@ ignore = [
     "B011",  #    assert-false
     "B904",  #    raise-without-from-inside-except
     "B905",  #    zip-without-explicit-strict
-    "C420",  #    unnecessary-dict-comprehension-for-iterable
     "C901",  #    complex-structure
     "CPY001",  #  missing-copyright-notice
     # TODO improve comments
@@ -198,7 +196,6 @@ ignore = [
     "FBT002",  #  boolean-default-value-positional-argument
     "FBT003",  #  boolean-positional-value-in-call
     "FIX002",  #  line-contains-todo
-    "FURB110",  # if-exp-instead-of-or-operator
     "ICN001",  #  unconventional-import-alias
     "INP001",  #  implicit-namespace-package
     # TODO improve naming
@@ -228,7 +225,6 @@ ignore = [
     "PTH1",
     "PTH20",
     "PTH211",  #  os-symlink
-    "PYI024",  #  collections-named-tuple
     "RET503",  #  implicit-return
     "RET504",  #  unnecessary-assign
     "RET505",  #  superfluous-else-return
@@ -245,11 +241,8 @@ ignore = [
     "S607",  #    start-process-with-partial-path
     "SIM105",  #  suppressible-exception
     "SIM108",  #  if-else-block-instead-of-if-exp
-    "SIM110",  #  reimplemented-builtin
-    "SIM112",  #  uncapitalized-environment-variables
     "SIM116",  #  if-else-block-instead-of-dict-lookup
     "SLF001",  #  private-member-access
-    "SLOT002",  # no-slots-in-namedtuple-subclass
     "T201",  #    print
     "TC006",  #   runtime-cast-value
     "TRY003",  #  raise-vanilla-args
@@ -272,3 +265,23 @@ filterwarnings = [
 ]
 python_files = ["test_*.py", "test_integration/__init__.py", "test.py"]
 norecursedirs = ["contrib/p4/docker_files", "build", "benchexec/tablegenerator/react-table"]
+
+[tool.codespell]
+builtin = "clear,rare,informal,usage,names"
+summary = true
+skip = [
+    "./BenchExec.egg-info",
+    "./benchexec/tablegenerator/react-table/build",
+    "node_modules",
+    "./benchexec/tablegenerator/test_integration/expected",
+    "*.min.js",
+    "package-lock.json",
+    "*.snap",
+    "*.pdf",
+    "./benchexec/tools/aprove.py",  # because of AProVE, codespell:ignore aprove
+    "./benchexec/tools/gratchk.py",  # because of GRAT, codespell:ignore grat
+    "./benchexec/tools/gratgen.py",  # because of GRAT, codespell:ignore grat
+    "./benchexec/tablegenerator/test_integration/results/test.2015-03-03_1815.logfiles",
+    "./benchexec/tablegenerator/react-table/src/tests/task_definition_files/property_files_multiline_string.yml",
+]
+ignore-words-list = "notIn"

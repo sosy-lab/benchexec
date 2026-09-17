@@ -269,7 +269,7 @@ class _Worker(threading.Thread):
         self.my_memory_nodes = my_memory_nodes
         self.output_handler = output_handler
         self.run_executor = RunExecutor(**benchmark.config.containerargs)
-        self.setDaemon(True)
+        self.daemon = True
 
         self.start()
 

@@ -13,9 +13,9 @@ import subprocess
 import sys
 from pathlib import Path
 
+import benchexec.tooladapter
 import benchexec.util
 from benchexec import BenchExecException
-from benchexec.tooladapter import CURRENT_BASETOOL, create_tool_locator
 
 from . import vcloudutil
 
@@ -45,7 +45,7 @@ def init(config, benchmark):
     if config.containerImage:
         from vcloud.podman_containerized_tool import TOOL_DIRECTORY_MOUNT_POINT
 
-        tool_locator = CURRENT_BASETOOL.ToolLocator(
+        tool_locator = benchexec.tooladapter.CURRENT_BASETOOL.ToolLocator(
             tool_directory=TOOL_DIRECTORY_MOUNT_POINT
         )
         executable_for_version = benchmark.tool.executable(tool_locator)
@@ -93,7 +93,7 @@ def init(config, benchmark):
         benchmark.executable = str(executable_for_cloud)
 
     else:
-        tool_locator = create_tool_locator(config)
+        tool_locator = benchexec.tooladapter.create_tool_locator(config)
         benchmark.executable = benchmark.tool.executable(tool_locator)
         benchmark.tool_version = benchmark.tool.version(benchmark.executable)
 
@@ -436,7 +436,7 @@ def handleCloudResults(benchmark, output_handler, start_time, end_time):
 def parseAndSetCloudWorkerHostInformation(outputDir, output_handler, benchmark):
     filePath = os.path.join(outputDir, "hostInformation.txt")
     try:
-        with open(filePath, "rt") as file:
+        with open(filePath) as file:
             # Parse first part of information about hosts until first blank line
             line = file.readline().strip()
             while True:
@@ -484,7 +484,7 @@ def parseAndSetCloudWorkerHostInformation(outputDir, output_handler, benchmark):
 
 def parseCloudRunResultFile(filePath):
     def read_items():
-        with open(filePath, "rt") as file:
+        with open(filePath) as file:
             for line in file:
                 key, value = line.split("=", 1)
                 yield key, value

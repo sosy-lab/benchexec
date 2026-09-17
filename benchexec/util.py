@@ -10,7 +10,6 @@ This module contains some useful functions for Strings, XML or Lists.
 """
 
 import argparse
-import collections
 import ctypes
 import datetime
 import errno
@@ -26,6 +25,7 @@ import stat
 import subprocess
 import sys
 from ctypes.util import find_library
+from typing import NamedTuple
 from xml.etree import ElementTree
 
 _BYTE_FACTOR = 1000  # byte in kilobyte
@@ -363,7 +363,7 @@ def find_executable(program, fallback=None, exitOnError=True, use_current_dir=Tr
     if fallback is not None and os.path.isfile(fallback):
         if os.access(fallback, os.X_OK):
             return fallback
-        found_non_executable.append(name)
+        found_non_executable.append(fallback)
 
     if exitOnError:
         if found_non_executable:
@@ -442,8 +442,8 @@ def rmtree(path, ignore_errors=False, onerror=None):
 
     for root, dirs, _files in os.walk(path):
         for directory in dirs:
+            abs_directory = os.path.join(root, directory)
             try:
-                abs_directory = os.path.join(root, directory)
                 os.chmod(abs_directory, stat.S_IRWXU)
             except OSError as e:
                 onerror(os.chmod, abs_directory, e)
@@ -548,11 +548,19 @@ def is_url(path_or_url):
     return "://" in path_or_url or path_or_url.startswith("file:")
 
 
-class ProcessExitCode(collections.namedtuple("ProcessExitCode", "raw value signal")):
-    """Tuple for storing the exit status indication given by a os.wait() call.
+class ProcessExitCode(NamedTuple):
+    """
+    Class for storing the exit status indication given by a os.wait() call.
     Only value or signal are present, not both
     (a process cannot return a value when it is killed by a signal).
+    While this class is technically a tuple,
+    this should be seen as an implementation detail and the order of elements in the
+    tuple should not be considered. New fields may be added in the future.
     """
+
+    raw: int
+    value: int | None
+    signal: int | None
 
     @classmethod
     def from_raw(cls, exitcode):
@@ -663,8 +671,7 @@ def add_files_to_git_repository(base_dir, files, description):
     gitRoot = subprocess.run(
         ["git", "rev-parse", "--show-toplevel"],
         cwd=base_dir,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
+        capture_output=True,
         text=True,
     )
     if gitRoot.returncode != 0:
@@ -678,8 +685,7 @@ def add_files_to_git_repository(base_dir, files, description):
     gitStatus = subprocess.run(
         ["git", "status", "--porcelain", "--untracked-files=no"],
         cwd=gitRootDir,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
+        capture_output=True,
         text=True,
     )
     if gitStatus.returncode != 0:
@@ -781,23 +787,21 @@ def get_capability(filename):
 
         @filename: The complete path to the file
     """
-    res = {"capabilities": [], "set": [], "error": False}
-    try:
-        libcap_path = find_library("cap")
-        libcap = ctypes.cdll.LoadLibrary(libcap_path)
-    except OSError:
-        res["error"] = True
-        logging.warning("Unable to find capabilities for %s", filename)
-        return res
+    libcap_path = find_library("cap")
+    if not libcap_path:
+        raise FileNotFoundError
+    libcap = ctypes.cdll.LoadLibrary(libcap_path)
     cap_t = libcap.cap_get_file(ctypes.create_string_buffer(filename.encode()))
     libcap.cap_to_text.restype = ctypes.c_char_p
     cap_object = libcap.cap_to_text(cap_t, None)
     libcap.cap_free(cap_t)
-    if cap_object is not None:
-        cap_string = cap_object.decode()
-        res["capabilities"] = (cap_string.split("+")[0])[2:].split(",")
-        res["set"] = list(cap_string.split("+")[1])
-    return res
+    if not cap_object:
+        return ([], [])
+
+    cap_string = cap_object.decode()
+    capabilities = (cap_string.split("+")[0])[2:].split(",")
+    capability_set = list(cap_string.split("+")[1])
+    return (capabilities, capability_set)
 
 
 def check_msr():

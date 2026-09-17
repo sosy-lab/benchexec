@@ -79,8 +79,8 @@ please raise an issue.
 
 As main CI we use GitLab, which runs all tests and checks,
 but only on branches from our repository (not on PRs from forks).
-GitHub Actions and AppVeyor also run a subset of checks
-(mostly for the JavaScript part of BenchExec) on all PRs.
+GitHub Actions also runs a subset of checks on all PRs,
+including the table-generator tests on Linux, Windows, and macOS.
 
 
 ## Releasing a new Version

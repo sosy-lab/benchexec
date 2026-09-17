@@ -408,7 +408,7 @@ Please refer to the [development instructions](DEVELOPMENT.md).
 [fuse-overlayfs]: https://github.com/containers/fuse-overlayfs
 [libseccomp2]: https://github.com/seccomp/libseccomp
 [LXCFS]: https://github.com/lxc/lxcfs
-[pqos]: https://github.com/intel/intel-cmt-cat/tree/master/pqos
+[pqos]: https://github.com/intel/intel-cmt-cat/tree/master/pqos <!-- codespell:ignore master -->
 [pqos_wrapper]: https://gitlab.com/sosy-lab/software/pqos-wrapper
 [pystemd]: https://github.com/systemd/pystemd
 [cgroupsv1-issue]: https://github.com/sosy-lab/benchexec/issues/1267

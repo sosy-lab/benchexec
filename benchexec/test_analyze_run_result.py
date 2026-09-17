@@ -7,6 +7,7 @@
 
 import types
 import unittest
+import unittest.mock
 
 from benchexec.model import Run
 from benchexec.result import (
@@ -15,7 +16,6 @@ from benchexec.result import (
     RESULT_TRUE_PROP,
     RESULT_UNKNOWN,
 )
-from benchexec.tools.template import BaseTool
 from benchexec.util import ProcessExitCode
 
 normal_result = ProcessExitCode(raw=0, value=0, signal=None)
@@ -36,12 +36,8 @@ class TestResult(unittest.TestCase):
         runSet.benchmark.name = "Test"
         runSet.benchmark.instance = "Test"
         runSet.benchmark.rlimits = {}
-        runSet.benchmark.tool = BaseTool()
-
-        def determine_result(run):
-            return info_result
-
-        runSet.benchmark.tool.determine_result = determine_result
+        runSet.benchmark.tool = unittest.mock.NonCallableMock()
+        runSet.benchmark.tool.determine_result.return_value = info_result
 
         run = Run(
             identifier="test.c",

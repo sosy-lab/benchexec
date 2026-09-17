@@ -1,0 +1,50 @@
+# This file is part of BenchExec, a framework for reliable benchmarking:
+# https://github.com/sosy-lab/benchexec
+#
+# SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: Table-generator tests
+
+on:
+  push:
+    # Skip on branches because these tests are also run on GitLab,
+    # but run on main for Windows + Mac.
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test-table-generator:
+    name: ${{ matrix.os }} (Python ${{ matrix.python-version }})
+    runs-on: ${{ matrix.os }}
+    # own image, rebuilt weekly
+    container: ${{ matrix.os == 'ubuntu-latest' && format('registry.gitlab.com/sosy-lab/software/benchexec/test:python-{0}', matrix.python-version) || '' }}  # zizmor: ignore[unpinned-images]
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ["3.10", "3.14"]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Python ${{ matrix.python-version }}
+        if: runner.os != 'Linux'
+        uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: "pip"
+
+      - name: Install dependencies
+        run: python -m pip install ".[dev]"
+
+      - name: Run table-generator tests
+        run: python -m pytest benchexec/tablegenerator/

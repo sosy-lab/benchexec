@@ -134,7 +134,8 @@ Contributors:
 - [Thomas Bunk](https://github.com/TBunk)
 - [Montgomery Carter](https://github.com/MontyCarter)
 - [Po-Chun Chien](https://github.com/Po-Chun-Chien)
-- [Andreas Donig](https://github.com/adonig)
+- [Andreas Donig](https://github.com/adonig)    <!-- codespell:ignore -->
+- [Jiayi Du](https://github.com/Jah-yee)
 - [Florian Eder](https://github.com/schroeding)
 - [Karlheinz Friedberger](https://www.sosy-lab.org/people/friedberger)
 - [Robin Gloster](https://github.com/globin)
@@ -157,6 +158,7 @@ Contributors:
 - [Tobias Meggendorfer](https://github.com/incaseoftrouble)
 - [Martin Pycha](https://github.com/martinpycha)
 - Alexander von Rhein
+- [Rotzbua](https://github.com/Rotzbua)
 - [Simmo Saan](https://github.com/sim642)
 - [Alexander Schremmer](https://www.xing.com/profile/Alexander_Schremmer)
 - [Dennis Simon](https://github.com/DennisSimon)
@@ -186,7 +188,7 @@ The developers of the following tools use BenchExec:
 
 - [CPAchecker](https://cpachecker.sosy-lab.org), also for regression testing
 - [Dartagnan](https://github.com/hernanponcedeleon/Dat3M)
-- [ESBMC](https://github.com/esbmc/esbmc), also for regression testing and even with a [GitHub action](https://github.com/esbmc/esbmc/blob/master/.github/workflows/benchexec.yml) for BenchExec
+- [ESBMC](https://github.com/esbmc/esbmc), also for regression testing and even with a [GitHub action](https://github.com/esbmc/esbmc/blob/master/.github/workflows/benchexec.yml) for BenchExec  <!-- codespell:ignore master-->
 - [SMACK](https://github.com/smackers/smack)
 - [SMTInterpol](https://github.com/ultimate-pa/smtinterpol)
 - [TriCera](https://github.com/uuverifiers/tricera)

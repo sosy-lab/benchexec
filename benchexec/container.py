@@ -283,7 +283,7 @@ def _generate_native_clone_child_callback():
     #
     # <clone_child_callback>:
     # Store address in rdx:
-    #     48 ba 88 99 aa bb cc    movabsq $0xffeeddccbbaa9988,%rdx
+    #     48 ba 88 99 aa bb cc    movabsq $0xffeeddccbbaa9988,%rdx  # codespell:ignore ba
     #     dd ee ff
     # Allocate space on stack:
     #     48 83 ec 18             subq   $0x18,%rsp
@@ -589,8 +589,9 @@ def duplicate_mount_hierarchy(mount_base, temp_base, work_base, dir_modes):
                         if use_fuse:
                             # We tried to use overlayfs before, but it failed.
                             # No need to try again, just log the error accordingly.
-                            if os.getenv("container") == "podman" or os.path.exists(
-                                "/run/.containerenv"
+                            if (
+                                os.getenv("container") == "podman"  # noqa: SIM112 lowercase variable created by other tools
+                                or os.path.exists("/run/.containerenv")
                             ):
                                 # benchexec running in a container without /dev/fuse
                                 raise OSError(

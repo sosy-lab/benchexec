@@ -14,7 +14,7 @@ from benchexec import result
 from benchexec.tablegenerator import util
 from benchexec.tablegenerator.columns import ColumnType
 
-# It's important to make sure on *all* entry points / methods which perform arithmetics that the correct
+# It's important to make sure on *all* entry points / methods which perform arithmetic that the correct
 # rounding / context is used.
 DECIMAL_CONTEXT = decimal.Context(rounding=decimal.ROUND_HALF_UP)
 

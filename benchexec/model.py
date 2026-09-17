@@ -67,8 +67,8 @@ def substitute_vars(oldList, runSet=None, task_file=None):
             ),
             ("logfile_path", os.path.dirname(runSet.log_folder) or "."),
             ("logfile_path_abs", os.path.abspath(runSet.log_folder)),
-            ("rundefinition_name", runSet.real_name if runSet.real_name else ""),
-            ("test_name", runSet.real_name if runSet.real_name else ""),
+            ("rundefinition_name", runSet.real_name or ""),
+            ("test_name", runSet.real_name or ""),
         ]
 
     if task_file:
@@ -177,8 +177,8 @@ def load_tool_info(tool_name: str, config):
         sys.exit(
             f'Unsupported tool "{tool_name}" specified, class "Tool" is missing: {ae}'
         )
-    except TypeError as te:
-        sys.exit(f'Unsupported tool "{tool_name}" specified. TypeError: {te}')
+    except TypeError as type_error:
+        sys.exit(f'Unsupported tool "{tool_name}" specified. TypeError: {type_error}')
     assert isinstance(tool, tooladapter.CURRENT_BASETOOL)
     return tool_module, tool
 
@@ -1001,6 +1001,8 @@ class Run:
     """
     A Run contains some sourcefile, some options, propertyfiles and some other stuff, that is needed for the Run.
     """
+
+    _cmdline: list[str] | None  # stores cmdline() result for later
 
     def __init__(
         self,

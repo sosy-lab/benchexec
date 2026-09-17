@@ -17,7 +17,7 @@ from benchexec.util import print_decimal
 
 __all__ = ["Column", "ColumnMeasureType", "ColumnType"]
 
-# It's important to make sure on *all* entry points / methods which perform arithmetics that the correct
+# It's important to make sure on *all* entry points / methods which perform arithmetic that the correct
 # rounding / context is used by using a local context.
 DECIMAL_CONTEXT = decimal.Context(rounding=decimal.ROUND_HALF_UP)
 
@@ -614,8 +614,8 @@ def _get_decimal_digits(decimal_number_match, number_of_significant_digits):
             max_num_of_digits = len(decimal_number_match.group(GROUP_SIG_DEC_PART))
             num_of_digits = min(num_of_digits, max_num_of_digits)
             # number of needed decimal digits = number of zeroes after decimal point + significant digits
-            curr_dec_digits = len(decimal_number_match.group(GROUP_ZEROES)) + int(
-                num_of_digits
+            curr_dec_digits = (
+                len(decimal_number_match.group(GROUP_ZEROES)) + num_of_digits
             )
 
         else:
@@ -626,7 +626,7 @@ def _get_decimal_digits(decimal_number_match, number_of_significant_digits):
             )
             num_of_digits = min(num_of_digits, max_num_of_digits)
             # number of needed decimal digits = significant digits - number of digits in front of decimal point
-            curr_dec_digits = int(num_of_digits) - len(
+            curr_dec_digits = num_of_digits - len(
                 decimal_number_match.group(GROUP_INT_PART)
             )
 

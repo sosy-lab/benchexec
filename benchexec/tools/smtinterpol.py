@@ -22,8 +22,7 @@ class Tool(benchexec.tools.smtlib2.Smtlib2Tool):
     def version(self, executable):
         stderr = subprocess.run(
             self.cmdline(executable, ["-version"], []),
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            capture_output=True,
             text=True,
         ).stderr
         line = next(
