@@ -462,7 +462,7 @@ class Benchmark:
             )
 
         if self._skipped_run_count != 0:
-            logging.warning(
+            logging.info(
                 "Skipped %d run(s) because a required-files pattern with "
                 'ifmissing="skip-run" did not match any file.',
                 self._skipped_run_count,

@@ -222,7 +222,7 @@ class TestBenchmarkDefinition(unittest.TestCase):
         benchmark_definition = self.single_task_benchmark_definition(
             '<requiredfiles ifmissing="skip-run">missing-file.txt</requiredfiles>'
         )
-        with self.assertLogs(level="WARNING") as log:
+        with self.assertLogs(level="INFO") as log:
             benchmark = self.parse_benchmark_definition(benchmark_definition)
         run_ids = [run.identifier for run in benchmark.run_sets[0].runs]
         self.assertListEqual(run_ids, [])
@@ -285,7 +285,7 @@ class TestBenchmarkDefinition(unittest.TestCase):
         expected_skipped_count = 4 * len(
             mock_expand_filename_pattern("*.yml", base_dir)
         )
-        with self.assertLogs(level="WARNING") as log:
+        with self.assertLogs(level="INFO") as log:
             benchmark = self.parse_benchmark_definition(benchmark_definition)
         run_ids = [run.identifier for run in benchmark.run_sets[0].runs]
         self.assertListEqual(run_ids, ["true_task.yml"])
@@ -307,7 +307,7 @@ class TestBenchmarkDefinition(unittest.TestCase):
               </rundefinition>
             </benchmark>
             """
-        with self.assertLogs(level="WARNING") as log:
+        with self.assertLogs(level="INFO") as log:
             benchmark = self.parse_benchmark_definition(benchmark_definition)
         run_ids = [run.identifier for run in benchmark.run_sets[0].runs]
         self.assertListEqual(run_ids, ["true_task.yml"])
