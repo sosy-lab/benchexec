@@ -30,4 +30,6 @@ class Tool(benchexec.tools.template.BaseTool2):
         data_model_param = get_data_model_from_task(task, {ILP32: "-m32", LP64: "-m64"})
         if data_model_param and data_model_param not in options:
             options += [data_model_param]
+        if task.property_file:
+            options += [f"--property-file={task.property_file}"]
         return [executable] + options + [task.single_input_file]
