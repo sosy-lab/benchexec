@@ -254,7 +254,6 @@ class TestBenchmarkDefinition(unittest.TestCase):
     def test_requiredfiles_skip_mode_skips_only_runs_with_missing_files(self):
         benchmark_definition = """
             <benchmark tool="dummy">
-              <propertyfile>test.prp</propertyfile>
               <rundefinition>
                 <tasks>
                   <requiredfiles ifmissing="skip-run">missing-file.txt</requiredfiles>

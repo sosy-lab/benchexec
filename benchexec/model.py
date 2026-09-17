@@ -718,8 +718,11 @@ class RunSet:
                         required_files_pattern,
                         appendFileTags,
                     )
-                if run and not run.should_be_skipped:
-                    currentRuns.append(run)
+                if run:
+                    if run.should_be_skipped:
+                        self.benchmark.count_skipped_run()
+                    else:
+                        currentRuns.append(run)
 
             # add runs for cases without source files
             for run in sourcefilesTag.findall("withoutfile"):
@@ -732,7 +735,9 @@ class RunSet:
                     local_propertytag,
                     required_files_pattern,
                 )
-                if not r.should_be_skipped:
+                if r.should_be_skipped:
+                    self.benchmark.count_skipped_run()
+                else:
                     currentRuns.append(r)
 
             if config.results_per_rundefinition or config.results_per_taskset:
@@ -1110,7 +1115,6 @@ class Run:
                 )
             elif missing_files_mode == "skip-run":
                 self.should_be_skipped = True
-                runSet.benchmark.count_skipped_run()
             # mode == "ignore": silently keep the run without the missing file
         # combine all options to be used when executing this run
         # (reduce memory-consumption: if 2 lists are equal, do not use the second one)
