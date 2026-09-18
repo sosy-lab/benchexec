@@ -81,18 +81,27 @@ though the wall-time limit cannot be disabled completely if a CPU-time limit is 
 
 ## Energy
 
-BenchExec attempts to measure the energy consumption of a run where possible.
+BenchExec attempts to measure the energy consumption of a run where possible. 
 Currently measurements are implemented for the energy consumption of the CPU
-(not the whole system), and only for modern Intel CPUs (since SandyBridge).
+(not the whole system), and only for modern Intel CPUs (since SandyBridge) and AMD CPUs (since Zen).
 
-For energy measurements to work,
-the tool [cpu-energy-meter](https://github.com/sosy-lab/cpu-energy-meter) needs to be installed.
-It will measure up to four values for each of the CPUs:
+BenchExec uses the Power Capping Framework to access RAPL energy counters. 
+The necessary Kernel module can be loaded by executing `modprobe intel-rapl-msr`. 
+The Power Capping Framework exposes the RAPL over sysfs. 
+Powercap files are only readable with root permissions by default, but we can configure read acces for benchexec with a udev rule (this should be done automatically with the Debian software package):
+`SUBSYSTEM=="powercap", KERNEL=="intel-rapl*", RUN+="/usr/bin/chgrp benchexec /sys/%p/energy_uj", RUN+="/usr/bin/chmod g+r /sys/%p/energy_uj"`
+Benchexec has to execute as the `benchexec` group.
+If the Powercap files aren't readable it might be neccesary to retrigger udev rules:
+`sudo udevadm control --reload-rules
+sudo udevadm trigger`
+If that doesn't work, try unloading and reloading the `intel-rapl-msr` module.
+In any case, rebooting should fix problems with udev configuration.
 
-- `cpuenergy-pkg<i>-package` is the energy consumption of the CPU `<i>` (whole "package").
-- `cpuenergy-pkg<i>-core` is only the consumption of the CPU cores.
-- `cpuenergy-pkg<i>-uncore` is the consumption of the so-called "uncore" parts of the CPU (this may include an integrated graphics card).
-- `cpuenergy-pkg<i>-dram` is the consumption related to memory attached to CPU `<i>` (unclear what exactly this covers and might vary across systems).
+Benchexec will measure up to four values for each of the CPUs:
+-  `cpuenergy-pkg<i>-package` is the energy consumption of the CPU `<i>` (whole "package").
+-  `cpuenergy-pkg<i>-core` is only the consumption of the CPU cores.
+-  `cpuenergy-pkg<i>-uncore` is the consumption of the so-called "uncore" parts of the CPU (this may include an integrated graphics card).
+-  `cpuenergy-pkg<i>-dram` is the consumption related to memory attached to CPU `<i>` (unclear what exactly this covers and might vary across systems).
 
 The "core" and "uncore" values are included in the "package" value,
 whereas for the "dram" value this is unclear.
@@ -109,7 +118,6 @@ that are used by a run.
 However, note that BenchExec can only measure the energy consumption of each CPU as a whole.
 Thus energy will be measured only if each run uses all cores of one or more CPUs,
 and not if only a subset of the CPU's cores is used per run.
-
 
 ## Disk Space and I/O
 
