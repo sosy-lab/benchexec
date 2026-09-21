@@ -999,7 +999,9 @@ def get_rows(runSetResults):
 
 def filter_rows_with_differences(rows):
     """
-    Find all rows with differences in the status column.
+    Find all rows with differences in the relevant columns
+    (by default the status), also taking the category into
+    account whenever the status is compared.
     """
     if not rows:
         # empty table
@@ -1034,6 +1036,11 @@ def filter_rows_with_differences(rows):
                     if res.values
                 }
             )
+
+        if "status" in relevant_columns:
+            # The same status can have different categories
+            # so we compare them as well
+            status.append({res.category for res in listOfResults})
 
         return functools.reduce(lambda x, y: x and (len(y) <= 1), status, True)
 
