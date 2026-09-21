@@ -120,7 +120,7 @@ class TestCloudInput(unittest.TestCase):
         expected_file = os.path.join(EXPECTED_DIR, expected_file_name)
         util.write_file(
             yaml.dump(
-                actual, default_flow_style=False, sort_keys=True, allow_unicode=True
+                actual, default_flow_style=False, sort_keys=False, allow_unicode=True
             ),
             expected_file,
         )

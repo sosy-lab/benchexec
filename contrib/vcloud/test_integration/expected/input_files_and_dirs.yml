@@ -1,18 +1,18 @@
-basedir: .
-execdir: contrib/vcloud/test_integration/tool
+formatVersion: '1.0'
 files:
 - contrib/vcloud/test_integration/tool/mock_tool.sh
 - test/tasks/other.prp
 - test/tasks/test.prp
-formatVersion: '1.0'
-limits:
-  cputime_hard_s: 30
+basedir: .
+execdir: contrib/vcloud/test_integration/tool
+resultFilePatterns:
+- .
 requirements:
   cores: null
   memory_b: null
-resultFilePatterns:
-- .
+limits:
+  cputime_hard_s: 30
 runs:
-- command:
+- logfile: task1.log
+  command:
   - mock-tool
-  logfile: task1.log

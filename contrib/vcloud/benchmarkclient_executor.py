@@ -113,7 +113,7 @@ def execute_benchmark(benchmark, output_handler):
         cloud_input = getCloudInput(benchmark)
         numberOfRuns = len(cloud_input["runs"])
         cloudInput = yaml.dump(
-            cloud_input, default_flow_style=False, allow_unicode=True
+            cloud_input, default_flow_style=False, allow_unicode=True, sort_keys=False
         )
         if benchmark.config.debug:
             cloudInputFile = os.path.join(benchmark.log_folder, "cloudInput.yml")
