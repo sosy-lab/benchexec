@@ -132,8 +132,23 @@ differ. The default behavior is to compare the `status` column and the category 
 (e. g. `correct` or `correct-unconfirmed`), but it is possible to use any
 column specified in the table-definition file by adding the attribute `relevantForDiff` with value
 `true` to the `column` tag. If the attribute `relevantForDiff` is specified at at least one column,
-only these columns will be taken for comparison. Whenever the `status` column is compared, the
+only these columnswill be taken for comparison. Whenever the `status` column is compared, the
 category is compared as well.
+
+By default, the tables contain only those part of the task id (property, expected verdict, 
+witness category, run set) that differ between the tasks. These columns have no title in the 
+CSV output. By adding `<taskidcolumn>` tags directly inside the `<table>` tag, it is possible
+to choose exactly which parts are shown, and how they are named. The
+content of the tag is one of `property`, `expected_result`, `witness_category` or `runset`,
+and the optional attribute `title` sets the column title. If at least one `<taskidcolumn>` tag is given,
+exactly the listed parts are shown, even if their value is the same for all tasks. The task
+name is always shown as the first column. The set of columns then no longer depends on the result,
+which can be useful for processing CSV files in scripts.
+
+```XML
+<taskidcolumn title="Checked property">property</taskidcolumn>
+<taskidcolumn title="Expected verdict">expected_result</taskidcolumn>
+```
 
 ### CSV Tables
 
@@ -149,8 +164,10 @@ The first three rows contain a header that identifies each column,
 in a similar manner to the header used in the HTML tables,
 so these rows should be ignored when processing the data.
 The first column(s) contain the task identifiers.
-How many columns are used for the task identifiers depends on the result data,
+By default, how many columns are used for the task identifiers depends on the result data,
 i.e., if properties, expected verdicts, etc. are relevant.
+To get a fixed set of task-identifier columns with titles in the header instead,
+use `<taskidcolumn>` tags as mentioned above.
 The same data are used as task identifiers in the CSV tables
 as are visible in the first column of the HTML tables,
 just spread over several columns instead of one column with a list of values.

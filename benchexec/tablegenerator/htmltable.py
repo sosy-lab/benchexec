@@ -32,12 +32,13 @@ def write_html_table(
     relevant_id_columns,
     output_path,
     common_prefix,
+    id_column_titles,
     **kwargs,
 ):
     app_css = [util.read_bundled_file(path + "css") for path in _REACT_FILES]
     app_js = [util.read_bundled_file(path + "js") for path in _REACT_FILES]
     benchmark_setup = _prepare_benchmark_setup_data(
-        run_sets, common_prefix, relevant_id_columns
+        run_sets, common_prefix, relevant_id_columns, id_column_titles
     )
     columns = [run_set.columns for run_set in run_sets]
     stats = _prepare_stats(stats, rows, columns)
@@ -128,7 +129,7 @@ window.data = data;
 
 
 def _prepare_benchmark_setup_data(
-    runSetResults, commonFileNamePrefix, relevant_id_columns
+    runSetResults, commonFileNamePrefix, relevant_id_columns, id_column_titles=None
 ):
     # This list contains the number of columns each run set has
     # (the width of a run set in the final table)
@@ -241,7 +242,9 @@ def _prepare_benchmark_setup_data(
         "title": titleRow,
         "task_id_names": [
             name
-            for name, selected in zip(util.TaskId.field_names, relevant_id_columns)
+            for name, selected in zip(
+                id_column_titles or util.TaskId.field_names, relevant_id_columns
+            )
             if selected
         ],
     }

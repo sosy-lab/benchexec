@@ -36,6 +36,13 @@ SPDX-License-Identifier: Apache-2.0
        considered for the differences table. -->
   <column title="..." relevantForDiff="true">...</column>
 
+  <!-- <taskidcolumn> defines which parts of the task identifier appear as columns.
+       If omitted, only those parts that differ between tasks are shown.
+       If used, exactly the listed parts are shown (the task name is always shown).
+       Allowed values: property, expected_result, witness_category, runset.
+       The optional attribute title renames the column. -->
+  <taskidcolumn title="*optional column title*">*property, expected_result, witness_category, or runset*</taskidcolumn>
+
   <!-- <result> defines from which files to take the benchmark results (can appear multiple times).
        If <result> is not used, the files need to be passed as command-line arguments to table-generator. -->
   <result filename="*file-name pattern or URL for XML files produced by BenchExec*">
