@@ -26,7 +26,7 @@ class Tool(benchexec.tools.template.BaseTool2):
     - the classes to run, either below bin/ or as a java-smt-<version>.jar
     - lib/java/core/ with the core JARs
     - lib/java/runtime-<solver>/ with the JARs of the individual solvers
-    - lib/native/<architecture>/ with the JNI libraries of the native solvers
+    - lib/native/<architecture>-<os>/ with the JNI libraries of the native solvers
     """
 
     REQUIRED_PATHS = [
@@ -65,6 +65,8 @@ class Tool(benchexec.tools.template.BaseTool2):
         return self._program_files_from_executable(executable, self.REQUIRED_PATHS)
 
     def cmdline(self, executable, options, task, rlimits):
+        # The whole memory limit is given to the Java heap. Native solvers allocate outside
+        # of the heap, so exceeding the limit is reported by BenchExec, not as OutOfMemoryError.
         heap = [f"-Xmx{rlimits.memory}"] if rlimits.memory else []
         return [executable, *heap, *options, task.single_input_file]
 
@@ -103,7 +105,11 @@ class Tool(benchexec.tools.template.BaseTool2):
     # The order matters: the more specific parsing messages come first.
     _ERROR_REASONS = {
         "does not support parsing SMT-LIB2 input": "no parser",
+        "is not supported": "unsupported command",
+        "Only one (check-sat)": "unsupported command",
+        "only allowed as the last command": "unsupported command",
         "Could not parse SMT2 file": "parsing",
+        "Unexpected input": "parsing",
         "contains no (check-sat) command": "no check-sat",
         "Could not read SMT2 file": "input file",
         "Invalid configuration": "configuration",
