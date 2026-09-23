@@ -40,7 +40,7 @@ class AreaOfMeasurement:
         if self.energy.total == 0 and self.energy.last_value == 0:  # first measurement
             self.energy.last_value = new_energy
 
-        elif new_energy <= self.energy.last_value:  # overflow
+        elif new_energy < self.energy.last_value:  # overflow
             overflow_border = int(read_file(self.path / "max_energy_range_uj"))
             self.energy.total += overflow_border - self.energy.last_value + new_energy
             self.energy.last_value = new_energy
@@ -181,7 +181,7 @@ class EnergyMeasurement:
 
         if not min_interval:
             return 500
-        return min_interval
+        return min_interval / 2
 
     def __str__(self):
         string = ""

@@ -45,7 +45,7 @@ class TestEnergyMeasurement(unittest.TestCase):
         with patch.object(energy, "rapl_path", self.rapl_mock):
             measurement = energy.EnergyMeasurement.create_if_supported()
             self.assertIsNotNone(measurement)
-            self.assertEqual(measurement.interval, 10.0)
+            self.assertEqual(measurement.interval, 5.0)
             self.assertEqual(measurement.packages[0].name, "package")
             self.assertEqual(measurement.packages[0].domains[0].name, "domain")
             measurement.start()
@@ -193,6 +193,16 @@ class TestEnergyMeasurement(unittest.TestCase):
             self.assertIsNotNone(result)
             self.assertEqual(result.packages[0].energy.total, 9000)
             self.assertEqual(result.packages[0].domains[0].energy.total, 9900)
+
+    def test_unchanged_value_is_not_overflow(self):
+        with patch.object(energy, "rapl_path", self.rapl_mock):
+            measurement = energy.EnergyMeasurement.create_if_supported()
+            self.assertIsNotNone(measurement)
+            # read twice without changing the files - no energy consumed
+            measurement._update_values()
+            measurement._update_values()
+            self.assertEqual(measurement.packages[0].energy.total, 0)
+            self.assertEqual(measurement.packages[0].domains[0].energy.total, 0)
 
     def test_conversion(self):
         self.assertEqual(Decimal("10.0"), energy.convert_to_joules(10000000))
