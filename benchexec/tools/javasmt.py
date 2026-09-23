@@ -35,7 +35,37 @@ class Tool(benchexec.tools.template.BaseTool2):
     ]
 
     def executable(self, tool_locator):
-        return tool_locator.find_executable("javasmt")
+        executable = tool_locator.find_executable("javasmt")
+        # The launcher fails in these cases as well, but only once the runs are started.
+        jars = self._jars(executable)
+        if len(jars) > 1:
+            raise benchexec.tools.template.ToolNotFoundException(
+                f"Found several JARs of JavaSMT next to {executable}: "
+                f"{', '.join(jars)}. Keep only the JAR that should be benchmarked."
+            )
+        main_class = "bin/org/sosy_lab/java_smt/cmdline/JavaSMTMain.class"
+        if not jars and not os.path.exists(
+            os.path.join(os.path.dirname(executable), main_class)
+        ):
+            raise benchexec.tools.template.ToolNotFoundException(
+                f"Found {executable}, but neither a JAR of JavaSMT "
+                "nor its compiled classes below bin/."
+            )
+        return executable
+
+    @staticmethod
+    def _jars(executable):
+        """
+        The names of the JARs of JavaSMT next to the launcher, without those that
+        carry only the sources or the documentation.
+        """
+        return [
+            os.path.basename(jar)
+            for jar in glob.glob(
+                os.path.join(os.path.dirname(executable), "java-smt-*.jar")
+            )
+            if not jar.endswith(("-sources.jar", "-javadoc.jar"))
+        ]
 
     def name(self):
         return "JavaSMT"
@@ -51,15 +81,8 @@ class Tool(benchexec.tools.template.BaseTool2):
     def program_files(self, executable):
         # The launcher executes the JAR if there is one and the compiled classes below
         # bin/ otherwise, so only these are transferred.
-        jars = [
-            os.path.basename(jar)
-            for jar in glob.glob(
-                os.path.join(os.path.dirname(executable), "java-smt-*.jar")
-            )
-            if not jar.endswith(("-sources.jar", "-javadoc.jar"))
-        ]
         return self._program_files_from_executable(
-            executable, self.REQUIRED_PATHS + (jars or ["bin"])
+            executable, self.REQUIRED_PATHS + (self._jars(executable) or ["bin"])
         )
 
     def cmdline(self, executable, options, task, rlimits):
