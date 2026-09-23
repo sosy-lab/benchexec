@@ -1,0 +1,25 @@
+formatVersion: '1.0'
+files:
+- contrib/vcloud/test_integration/tool/mock_tool.sh
+basedir: .
+execdir: contrib/vcloud/test_integration/tool
+resultFilePatterns:
+- .
+requirements:
+  cores: null
+  memory_b: null
+limits:
+  cputime_hard_s: 30
+runs:
+- logfile: true_task.yml.log
+  command:
+  - mock-tool
+  files:
+  - test/tasks/true_task.yml
+  - test/tasks/test.prp
+- logfile: false_task.yml.log
+  command:
+  - mock-tool
+  files:
+  - test/tasks/false_task.yml
+  - test/tasks/test.prp

@@ -46,7 +46,7 @@ class VcloudBenchmarkBase(benchexec.benchexec.BenchExec):
             type=str,
             default=None,
             metavar="CPU_MODEL",
-            help="Only execute runs in the VerifierCloud on CPU models that contain the given string.",
+            help="A comma-separated list of CPU models. Only execute runs in the VerifierCloud on CPU models that contain the given string.",
         )
 
         vcloud_args.add_argument(
