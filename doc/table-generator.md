@@ -135,17 +135,16 @@ column specified in the table-definition file by adding the attribute `relevantF
 only these columnswill be taken for comparison. Whenever the `status` column is compared, the
 category is compared as well.
 
-By default, the tables contain only those part of the task id (property, expected verdict, 
+By default, the tables contain only those part of the task id (task name, property, expected verdict, 
 witness category, run set) that differ between the tasks. These columns have no title in the 
 CSV output. By adding `<taskidcolumn>` tags directly inside the `<table>` tag, it is possible
 to choose exactly which parts are shown, and how they are named. The
-content of the tag is one of `property`, `expected_result`, `witness_category` or `runset`,
+content of the tag is one of `name`, `property`, `expected_result`, `witness_category` or `runset`,
 and the optional attribute `title` sets the column title. If at least one `<taskidcolumn>` tag is given,
-exactly the listed parts are shown, even if their value is the same for all tasks. The task
-name is always shown as the first column. The set of columns then no longer depends on the result,
-which can be useful for processing CSV files in scripts.
+exactly the listed parts are shown, even if their value is the same for all tasks. The columns appear in the order in which the parts occur in the task id, not in the order of the tags. The set of columns then no longer depends on the result, which can be useful for processing CSV files in scripts.
 
 ```XML
+<taskidcolumn title="Task">name</taskidcolumn>
 <taskidcolumn title="Checked property">property</taskidcolumn>
 <taskidcolumn title="Expected verdict">expected_result</taskidcolumn>
 ```

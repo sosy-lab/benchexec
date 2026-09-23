@@ -11,6 +11,7 @@ SPDX-License-Identifier: Apache-2.0
   <result filename="results/test.2015-03-03_1613.results.predicateAnalysis.xml"/>
 
   <taskidcolumn title="checked property">property</taskidcolumn>
+  <taskidcolumn title="task">name</taskidcolumn>
   <taskidcolumn title="expected verdict">expected_result</taskidcolumn>
 
   <column title="status"/>

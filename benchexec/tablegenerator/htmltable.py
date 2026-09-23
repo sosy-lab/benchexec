@@ -242,9 +242,7 @@ def _prepare_benchmark_setup_data(
         "title": titleRow,
         "task_id_names": [
             name
-            for name, selected in zip(
-                id_column_titles or util.TaskId.field_names, relevant_id_columns
-            )
+            for name, selected in zip(util.TaskId.field_names, relevant_id_columns)
             if selected
         ],
     }
@@ -470,9 +468,10 @@ def _prepare_rows_for_js(rows, base_dir, href_base, relevant_id_columns):
             if id_part and relevant
         ]
         # Replace first part of id (task name, which is always shown) with short name
-        assert relevant_id_columns[0]
-        # row.short_filename may contain paths, so standardize the output across OSs
-        id_parts[0] = util.fix_path_if_on_windows(row.short_filename)
+        if relevant_id_columns[0] and id_parts:
+            # Replace first part of id (task name) with short name;
+            # row.short_filename may contain paths, so standardize the output across OSs
+            id_parts[0] = util.fix_path_if_on_windows(row.short_filename)
 
         result = {
             "id": id_parts,

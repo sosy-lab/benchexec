@@ -278,7 +278,7 @@ def extract_task_id_columns_from_table_definition(table_definition):
     if not tags:
         return None
 
-    selectable = TaskId._fields[1:]
+    selectable = TaskId._fields
     selected = {}
     for tag in tags:
         field = (tag.text or "").strip()
@@ -1175,7 +1175,7 @@ def select_relevant_id_columns(rows, task_id_columns=None):
     """
 
     if task_id_columns is not None:
-        return [True] + [i in task_id_columns for i in range(1, len(TaskId._fields))]
+        return [i in task_id_columns for i in range(len(TaskId._fields))]
     relevant_id_columns = [True]  # first column (file name) is always relevant
     if rows:
         prototype_id = rows[0].id
@@ -1371,11 +1371,16 @@ def write_csv_table(
     sep="\t",
     **kwargs,
 ):
-    num_id_columns = relevant_id_columns[1:].count(True)
+    num_id_columns = relevant_id_columns.count(True)
+    # the head lines write their own name in the first column,
+    # so they need one separator less if that column is a task-id column
+    num_head_separators = (
+        num_id_columns - 1 if relevant_id_columns[0] else num_id_columns
+    )
 
     if id_column_titles:
         id_titles = []
-        for title, relevant in zip(id_column_titles[1:], relevant_id_columns[1:]):
+        for title, relevant in zip(id_column_titles, relevant_id_columns):
             if relevant:
                 id_titles.append(title)
     else:
@@ -1390,7 +1395,7 @@ def write_csv_table(
         if any(values):
             # name may contain paths, so standardize the output across OSs
             out.write(util.fix_path_if_on_windows(name))
-            for i in range(num_id_columns):
+            for i in range(num_head_separators):
                 out.write(sep)
                 if id_values:
                     out.write(id_values[i])
@@ -1400,6 +1405,8 @@ def write_csv_table(
                     if value:
                         out.write(value)
             out.write("\n")
+
+    head_titles = id_titles[1:] if relevant_id_columns[0] else id_titles
 
     write_head_line(
         "tool",
@@ -1414,17 +1421,26 @@ def write_csv_table(
     write_head_line(
         common_prefix,
         [column.format_title() for run_set in run_sets for column in run_set.columns],
-        id_values=id_titles,
+        id_values=head_titles,
     )
 
     for row in rows:
         # row.short_filename may contain paths, so standardize the output across OSs
-        out.write(util.fix_path_if_on_windows(row.short_filename))
-        for row_id, is_relevant in zip(row.id[1:], relevant_id_columns[1:]):
-            if is_relevant:
+        first = True
+        index = 0
+        for row_id, is_relevant in zip(row.id, relevant_id_columns):
+            if not is_relevant:
+                index += 1
+                continue
+            if not first:
                 out.write(sep)
-                if row_id is not None:
-                    out.write(str(row_id))
+            first = False
+            if index == 0:
+                out.write(util.fix_path_if_on_windows(row.short_filename))
+            elif row_id is not None:
+                out.write(str(row_id))
+            index += 1
+
         for run_result in row.results:
             for value, column in zip(run_result.values, run_result.columns):
                 out.write(sep)
