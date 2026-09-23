@@ -88,10 +88,10 @@ Currently measurements are implemented for the energy consumption of the CPU
 BenchExec uses the Power Capping Framework to access RAPL energy counters. 
 The necessary Kernel module can be loaded by executing `modprobe intel-rapl-msr`. 
 The Power Capping Framework exposes the RAPL over sysfs. 
-Powercap files are only readable with root permissions by default, but we can configure read acces for benchexec with a udev rule (this should be done automatically with the Debian software package):
+Powercap files are only readable with root permissions by default, but we can configure read access for benchexec with a udev rule (this should be done automatically with the Debian software package):
 `SUBSYSTEM=="powercap", KERNEL=="intel-rapl*", RUN+="/usr/bin/chgrp benchexec /sys/%p/energy_uj", RUN+="/usr/bin/chmod g+r /sys/%p/energy_uj"`
 Benchexec has to execute as the `benchexec` group.
-If the Powercap files aren't readable it might be neccesary to retrigger udev rules:
+If the Powercap files aren't readable it might be necessary to retrigger udev rules:
 `sudo udevadm control --reload-rules
 sudo udevadm trigger`
 If that doesn't work, try unloading and reloading the `intel-rapl-msr` module.

@@ -116,7 +116,7 @@ class EnergyMeasurement:
 
     def start(self):
         """Start the measurement"""
-        if self.packages is None:  # measurements failed in a privious run
+        if self.packages is None:  # measurements failed in a previous run
             return
         for package in self.packages:
             package.reset_value()
