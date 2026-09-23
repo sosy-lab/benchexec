@@ -15,11 +15,9 @@ from benchexec import result
 class Tool(benchexec.tools.template.BaseTool2):
     """
     Tool info for JavaSMT, a unified interface for SMT solvers in Java.
-    https://github.com/sosy-lab/java-smt
 
     JavaSMT decides the satisfiability of a single SMT-LIB 2 formula, so tasks
-    with more than one input file are not supported. If a memory limit is
-    specified for BenchExec, it is passed to the JVM with the parameter -Xmx.
+    with more than one input file are not supported.
 
     The tool directory is the JavaSMT project directory. It needs to contain:
     - javasmt, the launcher script that assembles the classpath
@@ -31,8 +29,6 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     REQUIRED_PATHS = [
         "javasmt",
-        "bin",
-        "java-smt-*.jar",
         "lib/java/core",
         "lib/java/runtime-*",
         "lib/native",
@@ -48,33 +44,31 @@ class Tool(benchexec.tools.template.BaseTool2):
         return "https://github.com/sosy-lab/java-smt"
 
     def version(self, executable):
-        # The version is part of the name of the JAR that "ant jar" produces,
-        # e.g. java-smt-5.0.1-1260-g7e5485a79.jar.
+        # The launcher decides which classes of JavaSMT are executed, so it is asked for
+        # the version. JavaSMT reads it from the manifest of the JAR.
+        return self._version_from_tool(executable, "--help", line_prefix="JavaSMT ")
+
+    def program_files(self, executable):
+        # The launcher executes the JAR if there is one and the compiled classes below
+        # bin/ otherwise, so only these are transferred.
         jars = [
-            jar
+            os.path.basename(jar)
             for jar in glob.glob(
                 os.path.join(os.path.dirname(executable), "java-smt-*.jar")
             )
             if not jar.endswith(("-sources.jar", "-javadoc.jar"))
         ]
-        if len(jars) != 1:
-            return ""
-        return os.path.basename(jars[0])[len("java-smt-") : -len(".jar")]
-
-    def program_files(self, executable):
-        return self._program_files_from_executable(executable, self.REQUIRED_PATHS)
+        return self._program_files_from_executable(
+            executable, self.REQUIRED_PATHS + (jars or ["bin"])
+        )
 
     def cmdline(self, executable, options, task, rlimits):
-        # The whole memory limit is given to the Java heap. Native solvers allocate outside
-        # of the heap, so exceeding the limit is reported by BenchExec, not as OutOfMemoryError.
-        heap = [f"-Xmx{rlimits.memory}"] if rlimits.memory else []
-        return [executable, *heap, *options, task.single_input_file]
+        return [executable, *options, task.single_input_file]
 
     def determine_result(self, run):
         # JavaSMT exits with code 1 after printing "unknown",
         # so the answer is checked before the exit code.
         for line in run.output:
-            line = line.strip()
             if line == "sat":
                 return result.RESULT_TRUE_PROP
             elif line == "unsat":
@@ -85,7 +79,6 @@ class Tool(benchexec.tools.template.BaseTool2):
         # JavaSMT reports expected failures with a message on stderr (see JavaSMTMain).
         # Report the kind of failure, such that the reason is visible in the table.
         for line in run.output:
-            line = line.strip()
             for message, reason in self._ERROR_REASONS.items():
                 if message in line:
                     return f"ERROR ({reason})"
@@ -93,7 +86,6 @@ class Tool(benchexec.tools.template.BaseTool2):
         # Unexpected failures, e.g., in a solver binding, terminate JavaSMT with an
         # uncaught Java exception. Report the exception class.
         for line in run.output:
-            line = line.strip()
             if line.startswith("Exception in thread"):
                 return f"ERROR ({self._exception_class(line)})"
 
