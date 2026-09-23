@@ -30,6 +30,7 @@ class EnergyWrapper:  # This wrapper is needed to keep immutability in the Domai
 class AreaOfMeasurement:
     name: str
     path: Path
+    max_energy_range: int
     energy: EnergyWrapper
 
     def update_value(self):
@@ -41,9 +42,9 @@ class AreaOfMeasurement:
             self.energy.last_value = new_energy
 
         elif new_energy < self.energy.last_value:  # overflow
-            overflow_border = int(read_file(self.path / "max_energy_range_uj"))
-            self.energy.total += overflow_border - self.energy.last_value + new_energy
-            self.energy.last_value = new_energy
+            self.energy.total += (
+                self.max_energy_range - self.energy.last_value + new_energy
+            )
 
         else:
             self.energy.total += new_energy - self.energy.last_value
@@ -95,10 +96,12 @@ class EnergyMeasurement:
                     d for d in package.glob("intel-rapl:*") if d.name.count(":") == 2
                 ):
                     d_name = read_file(domain / "name")
-                    domains.append(Domain(d_name, domain, EnergyWrapper(0)))
+                    d_range = int(read_file(domain / "max_energy_range_uj"))
+                    domains.append(Domain(d_name, domain, d_range, EnergyWrapper(0)))
 
+                p_range = int(read_file(package / "max_energy_range_uj"))
                 self.packages.append(
-                    Package(p_name, package, EnergyWrapper(0), domains)
+                    Package(p_name, package, p_range, EnergyWrapper(0), domains)
                 )
             self.interval = self._calculate_interval()
         except OSError:
@@ -169,7 +172,7 @@ class EnergyMeasurement:
                     constraint_value = int(
                         read_file(package.path / f"{constraint_prefix}_power_limit_uw")
                     )
-                    max_range = int(read_file(package.path / "max_energy_range_uj"))
+                    max_range = package.max_energy_range
                     if constraint_value == 0 or max_range == 0:
                         logging.debug(
                             "failed to read a constraint value for EnergyMeasurement"
