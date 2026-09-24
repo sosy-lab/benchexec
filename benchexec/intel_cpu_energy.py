@@ -186,7 +186,7 @@ class EnergyMeasurement:
         if not min_interval:
             return 500
         return min_interval / 2
-    
+
     def format_results(self):
         """Return a flat dictionary that contains all measured values in joules.
         cpuenergy is calculated as total energy consumed by all packages,
@@ -222,9 +222,6 @@ def convert_to_joules(energy):
     return Decimal(energy) / Decimal(1000000)
 
 
-
-
-
 # for testing
 if __name__ == "__main__":
     measurement = EnergyMeasurement.create_if_supported()
@@ -240,4 +237,4 @@ if __name__ == "__main__":
         subprocess.run(sys.argv[1:])
     result = measurement.stop()
     print(result)
-    print(format_energy_results(result))
+    print(result.format_results() if result else {})
