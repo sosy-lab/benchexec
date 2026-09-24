@@ -210,7 +210,7 @@ def _prepare_benchmark_setup_data(
     }
 
     property_row = None
-    if not relevant_id_columns[1]:  # property is the same for all tasks
+    if 1 not in relevant_id_columns:  # property is the same for all tasks
         common_property = runSetResults[0].results[0].task_id[1]
         if common_property:
             property_row = {
@@ -241,9 +241,8 @@ def _prepare_benchmark_setup_data(
         "property": property_row,
         "title": titleRow,
         "task_id_names": [
-            name
-            for name, selected in zip(util.TaskId.field_names, relevant_id_columns)
-            if selected
+            (id_column_titles or util.TaskId.field_names)[index]
+            for index in relevant_id_columns
         ],
     }
 
@@ -462,17 +461,14 @@ def _prepare_rows_for_js(rows, base_dir, href_base, relevant_id_columns):
         return result
 
     def clean_up_row(row):
-        id_parts = [
-            str(id_part)
-            for id_part, relevant in zip(row.id, relevant_id_columns)
-            if id_part and relevant
-        ]
-        # Replace first part of id (task name, which is always shown) with short name
-        if relevant_id_columns[0] and id_parts:
-            # Replace first part of id (task name) with short name;
-            # row.short_filename may contain paths, so standardize the output across OSs
-            id_parts[0] = util.fix_path_if_on_windows(row.short_filename)
-
+        id_parts = []
+        for index in relevant_id_columns:
+            if index == 0:
+                # use short name for task name;
+                # row.short_filename may contain paths, so standardize across OSs
+                id_parts.append(util.fix_path_if_on_windows(row.short_filename))
+            elif row.id[index]:
+                id_parts.append(str(row.id[index]))
         result = {
             "id": id_parts,
             "results": [clean_up_results(res) for res in row.results],

@@ -132,7 +132,7 @@ differ. The default behavior is to compare the `status` column and the category 
 (e. g. `correct` or `correct-unconfirmed`), but it is possible to use any
 column specified in the table-definition file by adding the attribute `relevantForDiff` with value
 `true` to the `column` tag. If the attribute `relevantForDiff` is specified at at least one column,
-only these columnswill be taken for comparison. Whenever the `status` column is compared, the
+only these columns will be taken for comparison. Whenever the `status` column is compared, the
 category is compared as well.
 
 By default, the tables contain only those parts of the task id (task name, property, expected verdict, 

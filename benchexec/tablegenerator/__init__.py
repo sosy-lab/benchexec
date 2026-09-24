@@ -1171,17 +1171,17 @@ def select_relevant_id_columns(rows, task_id_columns=None):
     Find out which of the entries in Row.id are equal for all given rows.
     If task_id_columns is given (from <taskidcolumn> tags), exactly these are shown.
     Otherwise, those parts of the id that are equal for all rows are omitted.
-    @return: A list of True/False values according to whether the i-th part of the id is shown.
+    @return: A list of indices into Row.id, in the order in which they are shown.
     """
 
     if task_id_columns is not None:
-        return [i in task_id_columns for i in range(len(TaskId._fields))]
-    relevant_id_columns = [True]  # first column (file name) is always relevant
+        return list(task_id_columns)  # keeping the orger of the tags
+    relevant_id_columns = [0]  # first column (file name) is always relevant
     if rows:
         prototype_id = rows[0].id
         for column in range(1, len(prototype_id)):
-            all_equal = all(row.id[column] == prototype_id[column] for row in rows)
-            relevant_id_columns.append(not all_equal)
+            if any(row.id[column] != prototype_id[column] for row in rows):
+                relevant_id_columns.append(column)
     return relevant_id_columns
 
 
@@ -1371,20 +1371,18 @@ def write_csv_table(
     sep="\t",
     **kwargs,
 ):
-    num_id_columns = relevant_id_columns.count(True)
     # the head lines write their own name in the first column,
     # so they need one separator less if that column is a task-id column
-    num_head_separators = (
-        num_id_columns - 1 if relevant_id_columns[0] else num_id_columns
-    )
+    num_head_separators = len(relevant_id_columns) - 1
 
-    if id_column_titles:
-        id_titles = []
-        for title, relevant in zip(id_column_titles, relevant_id_columns):
-            if relevant:
-                id_titles.append(title)
-    else:
-        id_titles = []
+    id_titles = []
+    for index in relevant_id_columns:
+        if id_column_titles:
+            id_titles.append(id_column_titles[index])
+        elif index == 0:
+            id_titles.append(util.fix_path_if_on_windows(common_prefix))
+        else:
+            id_titles.append("")
 
     def write_head_line(
         name,
@@ -1394,7 +1392,7 @@ def write_csv_table(
     ):
         if any(values):
             # name may contain paths, so standardize the output across OSs
-            out.write(util.fix_path_if_on_windows(name))
+            out.write(name)
             for i in range(num_head_separators):
                 out.write(sep)
                 if id_values:
@@ -1405,8 +1403,6 @@ def write_csv_table(
                     if value:
                         out.write(value)
             out.write("\n")
-
-    head_titles = id_titles[1:] if relevant_id_columns[0] else id_titles
 
     write_head_line(
         "tool",
@@ -1419,27 +1415,21 @@ def write_csv_table(
         [len(run_set.columns) for run_set in run_sets],
     )
     write_head_line(
-        common_prefix,
+        id_titles[0],
         [column.format_title() for run_set in run_sets for column in run_set.columns],
-        id_values=head_titles,
+        id_values=id_titles[1:],
     )
 
     for row in rows:
         # row.short_filename may contain paths, so standardize the output across OSs
-        first = True
         index = 0
-        for row_id, is_relevant in zip(row.id, relevant_id_columns):
-            if not is_relevant:
-                index += 1
-                continue
-            if not first:
+        for position, index in enumerate(relevant_id_columns):
+            if position > 0:
                 out.write(sep)
-            first = False
             if index == 0:
                 out.write(util.fix_path_if_on_windows(row.short_filename))
-            elif row_id is not None:
-                out.write(str(row_id))
-            index += 1
+            elif row.id[index] is not None:
+                out.write(str(row.id[index]))
 
         for run_result in row.results:
             for value, column in zip(run_result.values, run_result.columns):
