@@ -135,7 +135,7 @@ column specified in the table-definition file by adding the attribute `relevantF
 only these columnswill be taken for comparison. Whenever the `status` column is compared, the
 category is compared as well.
 
-By default, the tables contain only those part of the task id (task name, property, expected verdict, 
+By default, the tables contain only those parts of the task id (task name, property, expected verdict, 
 witness category, run set) that differ between the tasks. These columns have no title in the 
 CSV output. By adding `<taskidcolumn>` tags directly inside the `<table>` tag, it is possible
 to choose exactly which parts are shown, and how they are named. The
