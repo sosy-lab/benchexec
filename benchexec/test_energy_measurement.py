@@ -78,7 +78,7 @@ class TestEnergyMeasurement(unittest.TestCase):
             expectedResult["cpuenergy-package-domain"] = energy.convert_to_joules(200)
             expectedResult = collections.OrderedDict(sorted(expectedResult.items()))
 
-            self.assertEqual(expectedResult, energy.format_energy_results(result))
+            self.assertEqual(expectedResult, result.format_results())
 
     def test_error(self):
         """this test is expected to print an error message, it's not actually an error"""
@@ -129,7 +129,7 @@ class TestEnergyMeasurement(unittest.TestCase):
             (self.package_mock / "energy_uj").write_text("4000")
             (self.domain_mock / "energy_uj").write_text("400")
             result = measurement.stop()
-            result = energy.format_energy_results(result)
+            result = result.format_results()
             if result is None:
                 self.skipTest()
             self.assertEqual(
@@ -171,7 +171,7 @@ class TestEnergyMeasurement(unittest.TestCase):
             (self.package_mock / "energy_uj").write_text("4000")
             (self.domain_mock / "energy_uj").write_text("400")
             result = measurement.stop()
-            result = energy.format_energy_results(result)
+            result = result.format_results()
             if result is None:
                 self.skipTest()
             self.assertEqual(

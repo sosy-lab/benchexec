@@ -45,6 +45,7 @@ class AreaOfMeasurement:
             self.energy.total += (
                 self.max_energy_range - self.energy.last_value + new_energy
             )
+            self.energy.last_value = new_energy
 
         else:
             self.energy.total += new_energy - self.energy.last_value
@@ -185,6 +186,27 @@ class EnergyMeasurement:
         if not min_interval:
             return 500
         return min_interval / 2
+    
+    def format_results(self):
+        """Return a flat dictionary that contains all measured values in joules.
+        cpuenergy is calculated as total energy consumed by all packages,
+        package names are unique, so we don't have to worry about collisions"""
+        result = {}
+        total = Decimal(0)
+        for package in self.packages:
+            p_energy = convert_to_joules(package.energy.total)
+            # psys describes energy usage of the entire system
+            # and is therefore not relevant for cpuenergy
+            if package.name != "psys":
+                total += p_energy
+                result[f"cpuenergy-{package.name}"] = p_energy
+            else:
+                result["systemenergy"] = p_energy
+            for domain in package.domains:
+                d_energy = convert_to_joules(domain.energy.total)
+                result[f"cpuenergy-{package.name}-{domain.name}"] = d_energy
+        result["cpuenergy"] = total
+        return collections.OrderedDict(sorted(result.items()))
 
     def __str__(self):
         string = ""
@@ -200,28 +222,7 @@ def convert_to_joules(energy):
     return Decimal(energy) / Decimal(1000000)
 
 
-def format_energy_results(measurement):
-    """Take the result of an energy measurement and return a flat dictionary that contains all values
-    cpuenergy is calculated as total energy consumed by all packages
-    package names are unique, we don't have to worry about collisions"""
-    if not measurement:
-        return {}
-    result = {}
-    total = Decimal(0)
-    for package in measurement.packages:
-        p_energy = convert_to_joules(package.energy.total)
-        # psys describes energy usage of the entire system and is therefore not relevant for cpuenergy
-        if package.name != "psys":
-            total += p_energy
-            result[f"cpuenergy-{package.name}"] = p_energy
-        else:
-            result["systemenergy"] = p_energy
-        for domain in package.domains:
-            d_energy = convert_to_joules(domain.energy.total)
-            result[f"cpuenergy-{package.name}-{domain.name}"] = d_energy
-    result["cpuenergy"] = total
-    result = collections.OrderedDict(sorted(result.items()))
-    return result
+
 
 
 # for testing
