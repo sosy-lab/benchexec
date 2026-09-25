@@ -21,7 +21,7 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     The tool directory is the JavaSMT project directory. It needs to contain:
     - javasmt, the launcher script that assembles the classpath
-    - the classes to run, either below bin/ or as a java-smt-<version>.jar
+    - java-smt-<version>.jar, the JAR of JavaSMT that "ant jar" produces
     - lib/java/core/ with the core JARs
     - lib/java/runtime-<solver>/ with the JARs of the individual solvers
     - lib/native/<architecture>-<os>/ with the JNI libraries of the native solvers
@@ -36,20 +36,16 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def executable(self, tool_locator):
         executable = tool_locator.find_executable("javasmt")
-        # The launcher fails in these cases as well, but only once the runs are started.
+        # Stop before the runs are started if it is unclear which JAR would be used.
         jars = self._jars(executable)
+        if not jars:
+            raise benchexec.tools.template.ToolNotFoundException(
+                f"Found {executable}, but no JAR of JavaSMT next to it."
+            )
         if len(jars) > 1:
             raise benchexec.tools.template.ToolNotFoundException(
                 f"Found several JARs of JavaSMT next to {executable}: "
                 f"{', '.join(jars)}. Keep only the JAR that should be benchmarked."
-            )
-        main_class = "bin/org/sosy_lab/java_smt/cmdline/JavaSMTMain.class"
-        if not jars and not os.path.exists(
-            os.path.join(os.path.dirname(executable), main_class)
-        ):
-            raise benchexec.tools.template.ToolNotFoundException(
-                f"Found {executable}, but neither a JAR of JavaSMT "
-                "nor its compiled classes below bin/."
             )
         return executable
 
@@ -74,15 +70,12 @@ class Tool(benchexec.tools.template.BaseTool2):
         return "https://github.com/sosy-lab/java-smt"
 
     def version(self, executable):
-        # The launcher decides which classes of JavaSMT are executed, so it is asked for
-        # the version. JavaSMT reads it from the manifest of the JAR.
+        # JavaSMT reads its version from the manifest of the JAR.
         return self._version_from_tool(executable, "--help", line_prefix="JavaSMT ")
 
     def program_files(self, executable):
-        # The launcher executes the JAR if there is one and the compiled classes below
-        # bin/ otherwise, so only these are transferred.
         return self._program_files_from_executable(
-            executable, self.REQUIRED_PATHS + (self._jars(executable) or ["bin"])
+            executable, self.REQUIRED_PATHS + self._jars(executable)
         )
 
     def cmdline(self, executable, options, task, rlimits):
