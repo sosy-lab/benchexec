@@ -48,7 +48,7 @@ except ImportError:  # pragma: no cover - standalone / offline test
     class BaseTool2:
         pass
 
-    class UnsupportedFeatureException(ValueError):
+    class UnsupportedFeatureException(ValueError):  # noqa: N818 - match BenchExec API
         pass
 
     _TRUE, _FALSE, _UNKNOWN, _TIMEOUT = "true", "false", "unknown", "timeout"
@@ -193,7 +193,7 @@ if __name__ == "__main__":
         out = proc.stdout + proc.stderr
         rc = proc.returncode
         timed_out = False
-    except subprocess.TimeoutExpired as exc:
+    except subprocess.TimeoutExpired:
         out = ""
         rc = -1
         timed_out = True
