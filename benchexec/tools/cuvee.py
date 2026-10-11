@@ -22,17 +22,17 @@ class Tool(benchexec.tools.template.BaseTool2):
     No goal left means that the property holds. A goal that simplifies to false
     means that it is violated, except with the option -unbounded, under which
     nondeterministic values range over all integers. Other goals that remain are
-    not refuted, hence the result is unknown. Cuvée does not produce witnesses.
+    not refuted, hence the result is unknown, also those that Z3 refutes, since
+    the encoding for it abstracts the goal. Cuvée does not produce witnesses.
     """
 
     # z3 next to Cuvee.sh, which puts its own directory first on the PATH
     REQUIRED_PATHS = ["Cuvee.sh", "cuvee.jar", "z3"]
 
-    # a goal that the simplifier refutes, printed as (goal false) or goal false,
-    # or passed on to the solver, which reports it as
-    # (error "goal does not hold" "Sat" "false")
+    # a goal that the simplifier refutes, printed as (goal false) or goal false;
+    # a model of Z3 for a goal passed on to it, (error "goal does not hold" "Sat" ...),
+    # is no counterexample, since the encoding generalizes the goal (see below)
     GOAL_FALSE = re.compile(r"^\(?goal false\)?$")
-    SAT_FALSE = re.compile(r'"goal does not hold"\s+"Sat"\s+"false"')
 
     def executable(self, tool_locator):
         return tool_locator.find_executable("Cuvee.sh")
@@ -70,10 +70,8 @@ class Tool(benchexec.tools.template.BaseTool2):
         # a refuted goal, since the steps before are equivalences,
         # except with -unbounded
         if "-unbounded" not in run.cmdline:
-            for i, line in enumerate(lines):
-                if self.GOAL_FALSE.match(line.strip()) or self.SAT_FALSE.search(
-                    " ".join(lines[i : i + 3])
-                ):
+            for line in lines:
+                if self.GOAL_FALSE.match(line.strip()):
                     return result.RESULT_FALSE_REACH
 
         # errors, e.g. constructs of C that are not supported, or rewriting that
