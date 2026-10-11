@@ -10,8 +10,7 @@ Registers IKOS as an SV-COMP C.no-data-race tool:
 
   - cmdline(): fixes the analysis to `--analyses=race --concurrency=auto`,
     disables the (potentially multi-MB) per-check report in favour of the
-    one-line summary verdict. The SV-COMP `--propertyfile` is deliberately
-    NOT forwarded — the property is always no-data-race.
+    one-line summary verdict. Only the no-data-race property is supported.
   - determine_result(): maps the rendered verdict line back to the SV-COMP
     three-way result. Sound mapping under the FN=0/FP=0 red line: an explicit
     `The program is SAFE` yields TRUE; `definitely UNSAFE` (a race the bounded
@@ -28,6 +27,7 @@ ILP32 by default) and prints TRUE / FALSE(no-data-race) / UNKNOWN.
 """
 
 import re
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -35,7 +35,7 @@ from pathlib import Path
 # --- BenchExec interface (guarded so the module also runs standalone) ---
 try:
     from benchexec import result
-    from benchexec.tools.template import BaseTool2
+    from benchexec.tools.template import BaseTool2, UnsupportedFeatureException
 
     _TRUE, _FALSE, _UNKNOWN, _TIMEOUT = (
         result.RESULT_TRUE_PROP,
@@ -48,6 +48,9 @@ except ImportError:  # pragma: no cover - standalone / offline test
     class BaseTool2:
         pass
 
+    class UnsupportedFeatureException(ValueError):
+        pass
+
     _TRUE, _FALSE, _UNKNOWN, _TIMEOUT = "true", "false", "unknown", "timeout"
 
 
@@ -55,6 +58,17 @@ RE_DEF_UNSAFE = re.compile(r"\bThe program is definitely UNSAFE\b")
 RE_UNKNOWN = re.compile(r"\bThe program is UNKNOWN\b")
 RE_POT_UNSAFE = re.compile(r"\bThe program is potentially UNSAFE\b")
 RE_SAFE = re.compile(r"\bThe program is SAFE\b")
+
+
+def check_property(property_file):
+    if property_file is None:
+        return  # The standalone/default analysis is explicitly no-data-race.
+    try:
+        specification = Path(property_file).read_text(encoding="utf-8")
+    except OSError as exc:
+        raise UnsupportedFeatureException("Cannot read the property file") from exc
+    if re.sub(r"\s+", "", specification) != "CHECK(init(main()),LTL(G!data-race))":
+        raise UnsupportedFeatureException("IKOS-ConC supports only no-data-race")
 
 
 def verdict_from_text(output):
@@ -80,11 +94,18 @@ def verdict_from_text(output):
 
 
 class Tool(BaseTool2):
+    REQUIRED_PATHS = ["bin", "lib", "libexec", "llvm", "include"]
+
     def name(self):
         return "ikos-conc"
 
     def executable(self, tool_locator):
-        return tool_locator.find_executable("ikos")
+        return tool_locator.find_executable("ikos", subdir="bin")
+
+    def program_files(self, executable):
+        return self._program_files_from_executable(
+            executable, self.REQUIRED_PATHS, parent_dir=True
+        )
 
     def version(self, executable):
         # `ikos --version` prints "ikos 3.5" then the NASA license. Parse the
@@ -101,22 +122,30 @@ class Tool(BaseTool2):
             return ""
 
     def cmdline(self, executable, options, task, rlimits):
+        check_property(task.property_file)
+        if task.options and not isinstance(task.options, dict):
+            raise UnsupportedFeatureException("Expected C task options")
+        task_options = task.options or {}
+        if task_options.get("language", "C") != "C":
+            raise UnsupportedFeatureException("IKOS-ConC supports C tasks")
         # Run svcomp_witness.py, bundled next to the tool executable (in the
         # archive's bin/): it forwards IKOS's verdict line to stdout (for
         # determine_result) and writes witness.yml on a race. The SV-COMP
-        # --propertyfile (task.property_file) is deliberately NOT forwarded —
-        # the property is always no-data-race. Locate the wrapper relative to
+        # property is checked above rather than forwarded. Locate the wrapper relative to
         # `executable`, not this module (which lives in the BenchExec repo).
         wrapper = Path(executable).parent / "svcomp_witness.py"
         cmd = [sys.executable, str(wrapper), "--ikos", executable]
         # Forward the task's data model (ILP32/LP64) so the .c/.i is compiled
         # with the right type widths and the witness's data_model field matches.
         # Always pass it explicitly: falling back to the wrapper's/host default
-        # would silently analyze the wrong (64-bit) model. The no-data-race
-        # category is entirely ILP32, so that is the fallback.
-        data_model = (task.options or {}).get("data_model") or "ILP32"
+        # would silently analyze the wrong model. Metadata-free invocations
+        # retain the documented ILP32 default.
+        data_model = task_options.get("data_model") or "ILP32"
+        if data_model not in ("ILP32", "LP64"):
+            raise UnsupportedFeatureException(f"Unsupported data_model '{data_model}'")
+        cmd += options
         cmd += ["--data-model", data_model]
-        return cmd + options + list(task.input_files_or_identifier)
+        return cmd + [task.single_input_file]
 
     def determine_result(self, run):
         if run.was_timeout:
@@ -134,15 +163,18 @@ if __name__ == "__main__":
 
     ap = argparse.ArgumentParser()
     ap.add_argument("source")
-    ap.add_argument(
-        "--property", default=None, help="ignored (property fixed to no-data-race)"
-    )
+    ap.add_argument("--property", default=None, help="no-data-race property file")
     ap.add_argument("--ikos", default=None)
     ap.add_argument("--data-model", default="ILP32", choices=["ILP32", "LP64"])
     ap.add_argument("--timeout", type=int, default=90)
     args = ap.parse_args()
 
-    ikos = args.ikos or "ikos"
+    try:
+        check_property(args.property)
+    except UnsupportedFeatureException as exc:
+        ap.error(str(exc))
+    ikos = shutil.which(args.ikos or "ikos") or args.ikos or "ikos"
+    ikos = str(Path(ikos).resolve())
     # Mirror cmdline(): run the bundled svcomp_witness.py wrapper (demote + BMC
     # re-confirmation + witness.yml) instead of ikos directly, and force ILP32
     # so the local test matches the competition (no-data-race is all ILP32).
@@ -162,9 +194,11 @@ if __name__ == "__main__":
         rc = proc.returncode
         timed_out = False
     except subprocess.TimeoutExpired as exc:
-        out = (exc.stdout or "") + (exc.stderr or "")
+        out = ""
         rc = -1
         timed_out = True
+    except OSError:
+        out, rc, timed_out = "", -1, False
 
     if timed_out or rc != 0:
         print("UNKNOWN")
