@@ -5,10 +5,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+from benchexec import result
 from benchexec.tools.sv_benchmarks_util import ILP32, LP64, get_data_model_from_task
 from benchexec.tools.template import BaseTool2
-
-from benchexec import result
 
 
 class Tool(BaseTool2):
