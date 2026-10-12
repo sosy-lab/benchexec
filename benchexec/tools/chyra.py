@@ -60,7 +60,10 @@ class Tool(benchexec.tools.template.BaseTool2):
         if terminal == "UNKNOWN":
             return result.RESULT_UNKNOWN
         if terminal == "FAILED":
-            if len(run.cmdline) > 1 and os.path.basename(run.cmdline[1]) == "unreach-call.prp":
+            if (
+                len(run.cmdline) > 1
+                and os.path.basename(run.cmdline[1]) == "unreach-call.prp"
+            ):
                 return result.RESULT_FALSE_REACH
             for line in run.output:
                 if "FAILURE" not in line:
