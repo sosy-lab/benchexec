@@ -14,16 +14,17 @@ from benchexec.tools.sv_benchmarks_util import ILP32, LP64, get_data_model_from_
 
 class Tool(benchexec.tools.template.BaseTool2):
     """
-    Tool info for Cuvée, a deductive verifier that proves the property unreach-call
-    of C programs without loop invariants: it summarizes loops by trace equation
-    systems, whose goals it closes by rewriting with a database of lemmas,
-    optionally followed by the SMT solver Z3 on the goals that remain (-fallback -z3).
+    Tool info for Cuvée, a deductive verifier for C programs (property unreach-call)
+    and SV-LIB scripts (property correct-tags): it generates the obligations of the
+    program by trace equation systems (-teq, closed by rewriting with a database of
+    lemmas), by verification conditions (-vcgen), or by constrained Horn clauses
+    (-chc), optionally decided by the SMT solver Z3 (-z3).
 
-    No goal left means that the property holds. A goal that simplifies to false
-    means that it is violated, except with the option -unbounded, under which
-    nondeterministic values range over all integers. Other goals that remain are
-    not refuted, hence the result is unknown, also those that Z3 refutes, since
-    the encoding for it abstracts the goal. Cuvée does not produce witnesses.
+    The tool is run with -verify, which makes Cuvée decide the result itself: it
+    answers correct, incorrect, or unknown to each verify-call of an SV-LIB script,
+    or once to a C program, whether the program satisfies its specification. An
+    incorrect answer means that the property is violated, correct answers only that
+    it holds, anything else is unknown. Cuvée does not produce witnesses.
     """
 
     # z3 next to Cuvee.sh, which puts its own directory first on the PATH
@@ -51,7 +52,9 @@ class Tool(benchexec.tools.template.BaseTool2):
         return version.replace("Cuvée", "").strip()
 
     def cmdline(self, executable, options, task, rlimits):
-        if task.property_file and not task.property_file.endswith("unreach-call.prp"):
+        if task.property_file and not task.property_file.endswith(
+            ("unreach-call.prp", "correct-tags.prp", "correct-annotations.prp")
+        ):
             raise benchexec.tools.template.UnsupportedFeatureException(
                 "property not supported: " + task.property_file
             )
@@ -64,34 +67,31 @@ class Tool(benchexec.tools.template.BaseTool2):
 
         return [executable, *options, *arch, task.single_input_file]
 
+    ANSWERS = ("correct", "incorrect", "unknown")
+
+    # the answers of -verify: an incorrect one is a violation, also before an error, at least one answer and all of
+    # them correct means that the property holds; otherwise errors, e.g. constructs that are not supported, whose
+    # message is the first string at the error or on the lines after it, e.g. (error "not supported" ...)
     def determine_result(self, run):
         lines = list(run.output)
+        answers = [line.strip() for line in lines if line.strip() in self.ANSWERS]
 
-        # a refuted goal, since the steps before are equivalences,
-        # except with -unbounded
-        if "-unbounded" not in run.cmdline:
-            for line in lines:
-                if self.GOAL_FALSE.match(line.strip()):
-                    return result.RESULT_FALSE_REACH
+        if "incorrect" in answers:
+            if run.cmdline and run.cmdline[-1].endswith(".svlib"):
+                return result.RESULT_FALSE_PROP
+            return result.RESULT_FALSE_REACH
 
-        # errors, e.g. constructs of C that are not supported, or rewriting that
-        # does not terminate, whose message is the first string at the error or on
-        # the lines after it, e.g. (error "parse error" ...); goals that the solver
-        # does not prove are not refuted, since the encoding for it generalizes
         for i, line in enumerate(lines):
             if line.startswith(("(error", "error", "Exception in thread")):
                 message = re.search(r'"([^"]*)"', " ".join(lines[i : i + 3]))
-                if message and message.group(1) == "goal does not hold":
-                    return result.RESULT_UNKNOWN
                 return result.RESULT_ERROR + (
                     " (" + message.group(1) + ")" if message else ""
                 )
 
-        if run.exit_code.value not in (0, None):
+        if run.exit_code.value not in (0, None) or not answers:
             return result.RESULT_ERROR
 
-        for line in lines:
-            if line.startswith(("(goal", "goal")):
-                return result.RESULT_UNKNOWN
+        if all(answer == "correct" for answer in answers):
+            return result.RESULT_TRUE_PROP
 
-        return result.RESULT_TRUE_PROP
+        return result.RESULT_UNKNOWN
