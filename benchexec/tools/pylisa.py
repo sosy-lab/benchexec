@@ -27,13 +27,13 @@ class Tool(benchexec.tools.template.BaseTool2):
         return "https://github.com/lisa-analyzer/pylisa"
 
     def cmdline(self, executable, options, task, rlimits):
-        cmd = [executable, "check", "--inputs", " ".join(task.input_files)]
+        cmd = [executable, "check", "--inputs"] + list(task.input_files)
         if task.property_file:
             cmd += ["--property", task.property_file]
         return cmd
 
     def determine_result(self, run):
-        if len(run.output) > 0:
+        if run.output:
             pylisa_output = run.output[-1]
             if "TRUE" in pylisa_output:
                 return result.RESULT_TRUE_PROP
@@ -41,4 +41,4 @@ class Tool(benchexec.tools.template.BaseTool2):
                 return result.RESULT_FALSE_PROP
             if "UNKNOWN" in pylisa_output:
                 return result.RESULT_UNKNOWN
-        return result.RESULT_UNKNOWN
+        return result.RESULT_ERROR
