@@ -233,8 +233,8 @@ class BenchExec:
             type=util.parse_int_list,
             help="""
                 Limit the set of cores BenchExec will use for all runs
-                to the given set of cores
-                (applied only if the number of CPU cores is limited).
+                to the given set of cores (as numbered by "PU P#N" in lstopo,
+                applied only if the number of CPU cores is limited).
             """,
             metavar="N,M-K",
         )
