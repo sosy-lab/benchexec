@@ -23,6 +23,9 @@ class Tool(BaseTool2):
     def name(self):
         return "ikos-conc"
 
+    def project_url(self):
+        return "https://github.com/2393591260/ikos-conc"
+
     def executable(self, tool_locator):
         return tool_locator.find_executable("svcomp_witness.py", subdir="bin")
 
@@ -49,7 +52,7 @@ class Tool(BaseTool2):
         ]
 
     def determine_result(self, run):
-        if run.exit_code.value != 0:
+        if run.exit_code:
             return result.RESULT_ERROR
         if "The program is definitely UNSAFE" in run.output:
             return result.RESULT_FALSE_DATARACE
@@ -60,4 +63,4 @@ class Tool(BaseTool2):
             return result.RESULT_UNKNOWN
         if "The program is SAFE" in run.output:
             return result.RESULT_TRUE_PROP
-        return result.RESULT_UNKNOWN
+        return result.RESULT_ERROR
