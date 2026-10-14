@@ -27,9 +27,11 @@ class Tool(benchexec.tools.template.BaseTool2):
         return "https://github.com/lisa-analyzer/pylisa"
 
     def cmdline(self, executable, options, task, rlimits):
-        cmd = [executable, "check", "--inputs"] + list(task.input_files)
+        cmd = [executable, "check"]
         if task.property_file:
             cmd += ["--property", task.property_file]
+        cmd.append("--inputs")
+        cmd += list(task.input_files)
         return cmd
 
     def determine_result(self, run):
