@@ -5,8 +5,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import os
-
 import benchexec.tools.template
 from benchexec import result
 from benchexec.tools.sv_benchmarks_util import ILP32, LP64, get_data_model_from_task
@@ -45,8 +43,6 @@ class Tool(benchexec.tools.template.BaseTool2):
         if model:
             if model not in arguments:
                 arguments.append(model)
-        elif "--32" not in arguments and "--64" not in arguments:
-            arguments.append("--32")
         return [executable, task.property_file, task.single_input_file] + arguments
 
     def determine_result(self, run):
@@ -55,30 +51,20 @@ class Tool(benchexec.tools.template.BaseTool2):
         if not run.output:
             return result.RESULT_ERROR
         terminal = run.output[-1]
-        if terminal == "SUCCESSFUL":
-            return result.RESULT_TRUE_PROP
         if terminal == "UNKNOWN":
             return result.RESULT_UNKNOWN
-        if terminal == "FAILED":
-            if (
-                len(run.cmdline) > 1
-                and os.path.basename(run.cmdline[1]) == "unreach-call.prp"
-            ):
-                return result.RESULT_FALSE_REACH
+        if terminal == "VERIFICATION SUCCESSFUL":
+            return result.RESULT_TRUE_PROP
+        if terminal == "VERIFICATION FAILED":
+            results = {
+                "CHYRA_RESULT: false(unreach-call)": result.RESULT_FALSE_REACH,
+                "CHYRA_RESULT: false(no-data-race)": result.RESULT_FALSE_DATARACE,
+                "CHYRA_RESULT: false(no-overflow)": result.RESULT_FALSE_OVERFLOW,
+                "CHYRA_RESULT: false(valid-memtrack)": result.RESULT_FALSE_MEMTRACK,
+                "CHYRA_RESULT: false(valid-deref)": result.RESULT_FALSE_DEREF,
+                "CHYRA_RESULT: false(valid-free)": result.RESULT_FALSE_FREE,
+            }
             for line in run.output:
-                if "FAILURE" not in line:
-                    continue
-                if "nodatarace.assertion." in line:
-                    return result.RESULT_FALSE_DATARACE
-                if "overflow." in line:
-                    return result.RESULT_FALSE_OVERFLOW
-                if "memory-leak." in line:
-                    return result.RESULT_FALSE_MEMTRACK
-                if "pointer_dereference." in line or "alloc.assertion." in line:
-                    return result.RESULT_FALSE_DEREF
-                if any(
-                    value in line
-                    for value in ("double free", "free argument", "free called for")
-                ):
-                    return result.RESULT_FALSE_FREE
+                if line.startswith("CHYRA_RESULT:"):
+                    return results.get(line, result.RESULT_ERROR)
         return result.RESULT_ERROR
