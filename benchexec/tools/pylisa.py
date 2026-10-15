@@ -28,6 +28,8 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def cmdline(self, executable, options, task, rlimits):
         cmd = [executable, "check"]
+        if options:
+            cmd += options
         if task.property_file:
             cmd += ["--property", task.property_file]
         cmd.append("--inputs")
