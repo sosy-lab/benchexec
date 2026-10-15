@@ -16,10 +16,10 @@ from benchexec.tools.sv_benchmarks_util import (
 
 class Tool(benchexec.tools.template.BaseTool2):
     """
-    Tool info module for the tool PySvLib which is an extensible
-    framework for prototyping and experimenting with model checking
-    techniques for [SV-LIB](https://gitlab.com/sosy-lab/benchmarking/sv-lib)
-    programs.
+    Tool info module for the tool SvLibChecker which is a
+    extensible and understandable development environment
+    for software verification algorithms for verifying SV-LIB
+    verification tasks.
     """
 
     REQUIRED_PATHS = []
@@ -42,7 +42,17 @@ class Tool(benchexec.tools.template.BaseTool2):
             task, options, "--witness", TaskFilesConsidered.INPUT_FILES
         )
 
-        return [executable, *options, *mapping_options, *input_files]
+        limit_options = []
+        version_tuple = tuple(self.version(executable).split("."))
+        if int(version_tuple[0]) > 1 or (
+            len(version_tuple) >= 2
+            and int(version_tuple[0]) == 1
+            and version_tuple[1] >= 1
+        ):
+            if rlimits.cputime and "--cpu-time-limit" not in options:
+                limit_options = ["--cpu-time-limit", str(rlimits.cputime)]
+
+        return [executable, *options, *limit_options, *mapping_options, *input_files]
 
     def get_value_from_output(self, output, identifier):
         # search for the text in output and get its value,
