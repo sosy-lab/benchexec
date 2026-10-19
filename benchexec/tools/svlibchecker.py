@@ -50,7 +50,7 @@ class Tool(benchexec.tools.template.BaseTool2):
             if int(version_tuple[0]) > 1 or (
                 len(version_tuple) >= 2
                 and int(version_tuple[0]) == 1
-                and version_tuple[1] >= 1
+                and int(version_tuple[1]) >= 1
             ):
                 limit_options = ["--cpu-time-limit", str(rlimits.cputime)]
 
