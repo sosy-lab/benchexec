@@ -36,11 +36,7 @@ class Tool(benchexec.tools.template.BaseTool2):
     def determine_result(self, run):
         if run.output:
             result_str = run.output[-1].strip()
-            if result_str == "CoOpeRace verdict: true":
-                return result.RESULT_TRUE_PROP
-            if result_str == "CoOpeRace verdict: false":
-                return result.RESULT_FALSE_DATARACE
-            if result_str == "CoOpeRace verdict: unknown":
-                return result.RESULT_UNKNOWN
+            if result_str.startswith("CoOpeRace verdict: "):
+                return result_str.removeprefix("CoOpeRace verdict: ")
 
         return result.RESULT_ERROR
