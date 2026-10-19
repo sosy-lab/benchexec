@@ -45,13 +45,13 @@ class Tool(benchexec.tools.template.BaseTool2):
         )
 
         limit_options = []
-        version_tuple = tuple(self.version(executable).split("."))
-        if int(version_tuple[0]) > 1 or (
-            len(version_tuple) >= 2
-            and int(version_tuple[0]) == 1
-            and version_tuple[1] >= 1
-        ):
-            if rlimits.cputime and "--cpu-time-limit" not in options:
+        if rlimits.cputime and "--cpu-time-limit" not in options:
+            version_tuple = tuple(self.version(executable).split("."))
+            if int(version_tuple[0]) > 1 or (
+                len(version_tuple) >= 2
+                and int(version_tuple[0]) == 1
+                and version_tuple[1] >= 1
+            ):
                 limit_options = ["--cpu-time-limit", str(rlimits.cputime)]
 
         return [executable, *options, *limit_options, *mapping_options, *input_files]
