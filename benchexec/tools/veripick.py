@@ -7,9 +7,14 @@
 
 from pathlib import Path
 
-import benchexec.result as result
 import benchexec.tools.template
-from benchexec.tools.sv_benchmarks_util import ILP32, LP64, get_data_model_from_task
+from benchexec import result
+from benchexec.tools.sv_benchmarks_util import (
+    ILP32,
+    LP64,
+    get_data_model_from_task,
+    get_non_witness_input_files_or_identifier,
+)
 
 
 class Tool(benchexec.tools.template.BaseTool2):
@@ -48,7 +53,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         return [executable, *options, *input_files]
 
     def determine_result(self, run):
-        """Read the verdict VeriPick reports in its statistics block.
+        """Read the verdict VeriPick reports.
 
         VeriPick asks the tool info of the verifier it ran, so the verdict is
         already a BenchExec result and is passed on unchanged.
@@ -61,7 +66,12 @@ class Tool(benchexec.tools.template.BaseTool2):
                     return result.RESULT_UNKNOWN
                 return verdict
             if stripped.startswith("Error during analysis:"):
-                return result.RESULT_ERROR + " (" + stripped[len("Error during analysis:") :].strip()[:40] + ")"
+                return (
+                    result.RESULT_ERROR
+                    + " ("
+                    + stripped[len("Error during analysis:") :].strip()[:40]
+                    + ")"
+                )
 
         return result.RESULT_ERROR
 
