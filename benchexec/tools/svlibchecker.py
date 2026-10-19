@@ -4,6 +4,7 @@
 # SPDX-FileCopyrightText: 2007-2024 Dirk Beyer <https://www.sosy-lab.org>
 #
 # SPDX-License-Identifier: Apache-2.0
+import functools
 import logging
 
 import benchexec.tools.template
@@ -33,6 +34,7 @@ class Tool(benchexec.tools.template.BaseTool2):
     def project_url(self):
         return "https://gitlab.com/sosy-lab/software/svlibchecker"
 
+    @functools.cache
     def version(self, executable):
         version_string = self._version_from_tool(executable)
         return version_string
