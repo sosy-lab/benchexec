@@ -30,9 +30,6 @@ class Tool(benchexec.tools.template.BaseTool2):
         ]
 
     def determine_result(self, run):
-        if run.was_timeout or run.exit_code.value == 124:
-            return result.RESULT_TIMEOUT
-
         if run.exit_code.value != 0:
             return result.RESULT_ERROR
 
@@ -45,3 +42,6 @@ class Tool(benchexec.tools.template.BaseTool2):
                 return result.RESULT_UNKNOWN
 
         return result.RESULT_ERROR
+
+    def project_url(self):
+        return "https://codex.top/"
