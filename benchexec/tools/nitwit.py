@@ -11,7 +11,10 @@ import os
 import benchexec.tools.template
 from benchexec import result
 from benchexec.tools.sv_benchmarks_util import (
+    ILP32,
+    LP64,
     TaskFilesConsidered,
+    get_data_model_from_task,
     handle_witness_of_task,
 )
 
@@ -56,6 +59,11 @@ class Tool(benchexec.tools.template.BaseTool2):
 
         if task.property_file:
             options = options + ["-p", task.property_file]
+
+        data_model_param = get_data_model_from_task(task, {ILP32: "-32", LP64: "-64"})
+        if data_model_param and data_model_param not in options:
+            options = options + [data_model_param]
+
         return [executable] + options + witness_options + input_file
 
     def determine_result(self, run):
