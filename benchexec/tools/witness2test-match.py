@@ -68,12 +68,19 @@ class Tool(benchexec.tools.template.BaseTool2):
         return [executable, *options, *witness_options, "--program", *input_files]
 
     def determine_result(self, run):
-        status = result.RESULT_UNKNOWN
+        default_status = result.RESULT_ERROR
+        status = default_status
         for line in run.output:
             confirmed = re.match(r"Verdict: Confirmed (\w\S*)", line)
             if confirmed:
                 return f"{result.RESULT_FALSE_PROP}({confirmed.group(1)})"
 
-            if line.lower().startswith(("error", "panic:", "fatal error:")):
-                status = result.RESULT_ERROR
+            if line.lower().startswith("fatal error:"):
+                status = f"{result.RESULT_ERROR}(fatal error)"
+            elif line.lower().startswith("panic:"):
+                status = f"{result.RESULT_ERROR}(panic)"
+            elif status == default_status:
+                verdict = re.match(r"Verdict: (\S+)", line)
+                if verdict and verdict.group(1) != "Confirmed":
+                    status = result.RESULT_UNKNOWN
         return status
