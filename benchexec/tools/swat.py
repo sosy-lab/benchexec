@@ -16,17 +16,14 @@ class Tool(BaseTool2):
     """
 
     REQUIRED_PATHS = [
-        "knife-fuzzer",
-        "local_z3_installation",
         "libs",
         "symbolic-executor",
         "symbolic-explorer",
-        "WitnessCreator",
         "compile-target.sh",
-        ".venv_ubuntu_24_04_1__x86_64",
         "sv-comp.cfg",
         "run-swat.sh",
         "run_swat.py",
+        "BUILD_INFO.txt",
     ]
 
     def executable(self, tool_locator):
