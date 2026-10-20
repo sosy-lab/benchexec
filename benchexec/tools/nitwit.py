@@ -74,7 +74,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         """
         if run.exit_code.value in [0, 245]:
             status = result.RESULT_FALSE_REACH
-        elif run.exit_code.value in [4, 5, 241, 242, 243, 250]:
+        elif run.exit_code.value in [4, 5, 241, 242, 243, 250, 252]:
             status = result.RESULT_UNKNOWN
         else:
             status = result.RESULT_ERROR
