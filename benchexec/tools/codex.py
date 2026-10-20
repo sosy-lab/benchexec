@@ -24,7 +24,9 @@ class Tool(benchexec.tools.template.BaseTool2):
     def cmdline(self, executable, options, task, rlimits):
         return [
             executable,
+            "--input",
             task.single_input_file,
+            "--property",
             task.property_file,
             *options,
         ]
