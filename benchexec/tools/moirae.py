@@ -34,12 +34,7 @@ class Tool(BaseTool2):
         data_model = get_data_model_from_task(task, {ILP32: "ILP32", LP64: "LP64"})
         data_model_opt = ["--data-model", data_model] if data_model is not None else []
 
-        return (
-            [executable, "--sv-comp"]
-            + data_model_opt
-            + options
-            + list(task.input_files)
-        )
+        return [executable] + data_model_opt + options + list(task.input_files)
 
     def determine_result(self, run):
         if run.exit_code:
