@@ -15,37 +15,19 @@ class Tool(benchexec.tools.template.BaseTool2):
     """
     Tool info for SAF (Static Analyzer Factory), an analyzer for C programs.
 
-    SAF is run through its "verify" subcommand, which is its SV-COMP entry
-    point. That subcommand writes exactly one verdict line to stdout, always one
-    of the BenchExec RESULT_* strings, and every diagnostic message to stderr.
+    SAF is run through its "verify" subcommand, which writes exactly one
+    verdict line to stdout, "true", "false(<subproperty>)" or "unknown" (also
+    when SAF gives up by itself), and every diagnostic message to stderr. It
+    exits with code 0 whenever it reports a verdict; any other exit is an error.
 
-    SAF reports "true", "false(<subproperty>)" (for example
-    "false(unreach-call)" or "false(valid-deref)") or "unknown"; properties it
-    has no strategy for, and tasks it cannot decide, yield "unknown". This
-    module accepts any RESULT_* verdict that SAF prints, so it does not need to
-    change when SAF learns a new property or subproperty.
+    A property file is required: SAF reads the CHECK(... LTL ...) directive out
+    of the given .prp file, so this module rejects tasks without one. The data
+    model of the task, if it defines one, is passed as "--data-model"; SAF
+    assumes LP64 otherwise. All further options are passed on unchanged.
 
-    A property file is required. SAF reads the CHECK(... LTL ...) directive out
-    of the given .prp file and never looks at the file name, so it cannot run
-    without one, and this module rejects tasks that have no property file.
-
-    This module adds two arguments of its own:
-      --property <file>        the property file of the task
-      --data-model ILP32|LP64  the data model, when the task defines one; SAF
-                               assumes LP64 otherwise
-    All further arguments are taken from the benchmark definition and passed on
-    unchanged. The useful ones are "--witness <file>", the path that SAF writes
-    the witness of a task to, and "--timeout <seconds>", a wall-clock budget
-    after which SAF reports "unknown" by itself instead of waiting to be killed.
-    Neither is required: SAF defaults to "witness.yml", the name that SV-COMP
-    expects, and to a budget slightly below the SV-COMP time limit. Note that
-    BenchExec does not expand ${witness} inside option values, so if a witness
-    file name is given here at all it has to be spelled out literally.
-
-    The tool archive has the executable in bin/saf and the data files that SAF
-    needs, stub headers and function specifications, under share/saf/. SAF
-    looks for the latter relative to its own executable, so those two
-    directories have to stay siblings.
+    SAF finds its data files (stub headers and function specifications) in
+    share/saf/ relative to its executable in bin/, so these two directories
+    have to stay siblings.
     """
 
     REQUIRED_PATHS = ["bin", "share"]
@@ -54,8 +36,8 @@ class Tool(benchexec.tools.template.BaseTool2):
         return tool_locator.find_executable("saf", subdir="bin")
 
     def program_files(self, executable):
-        # REQUIRED_PATHS are relative to the archive root, and the executable
-        # lives in bin/ below it, so the base directory is the parent one.
+        # REQUIRED_PATHS are relative to the tool directory, which is the parent
+        # of the directory of the executable.
         return [executable] + self._program_files_from_executable(
             executable, self.REQUIRED_PATHS, parent_dir=True
         )
@@ -67,20 +49,8 @@ class Tool(benchexec.tools.template.BaseTool2):
         return "https://github.com/Static-Analyzer-Factory/static-analyzer-factory"
 
     def version(self, executable):
-        # `saf --version` prints a single line, and clap prefixes it with the
-        # binary name: "saf 0.1.0 (LLVM 18.1)". fm-tools' ci/check_archive.py
-        # REJECTS an archive whose version string starts with the name this
-        # module reports, so strip that leading token. The comparison is
-        # deliberately case-insensitive: name() is "SAF" and clap prints "saf",
-        # so today the check passes only by accident, and renaming either one
-        # would silently fail the archive. Extra lines are dropped because a
-        # version containing a newline is rejected by the same script.
-        version = self._version_from_tool(executable)
-        version = version.splitlines()[0].strip() if version else ""
-        prefix = self.name().lower() + " "
-        if version.lower().startswith(prefix):
-            version = version[len(prefix) :].strip()
-        return version
+        # `saf --version` prints "saf 0.1.0 (LLVM 18.1)".
+        return self._version_from_tool(executable, line_prefix="saf ")
 
     def cmdline(self, executable, options, task, rlimits):
         if not task.property_file:
@@ -100,28 +70,18 @@ class Tool(benchexec.tools.template.BaseTool2):
         return cmd
 
     def determine_result(self, run):
-        if run.exit_code is not None and run.exit_code.signal:
-            # SAF was killed. A verdict that it managed to flush just before
-            # that is not trustworthy, and reporting it would have it scored,
-            # because BenchExec replaces only the unspecific results of
-            # result.RESULT_LIST_OTHER by a more precise status. So report
-            # nothing and let BenchExec turn this into TIMEOUT, KILLED,
-            # ABORTED or SEGMENTATION FAULT.
-            return result.RESULT_UNKNOWN
+        if run.exit_code.value != 0:
+            # A crash, a kill by a signal, or another abnormal termination.
+            return result.RESULT_ERROR
 
         for line in run.output:
-            verdict = line.strip()
-            if verdict in (result.RESULT_TRUE_PROP, result.RESULT_UNKNOWN):
-                return verdict
-            if verdict == result.RESULT_FALSE_PROP or (
-                verdict.startswith(result.RESULT_FALSE_PROP + "(")
-                and verdict.endswith(")")
+            if line in (result.RESULT_TRUE_PROP, result.RESULT_UNKNOWN):
+                return line
+            if line == result.RESULT_FALSE_PROP or (
+                line.startswith(result.RESULT_FALSE_PROP + "(") and line.endswith(")")
             ):
-                # SV-COMP properties name a subproperty in the verdict, as in
-                # "false(valid-deref)". This is the same shape that
-                # result.get_result_classification() accepts.
-                return verdict
+                # The verdict names the violated subproperty, as in
+                # "false(valid-deref)".
+                return line
 
-        # SAF printed no verdict at all. Reporting unknown lets BenchExec
-        # replace it by TIMEOUT or OUT OF MEMORY where that applies.
-        return result.RESULT_UNKNOWN
+        return result.RESULT_ERROR
