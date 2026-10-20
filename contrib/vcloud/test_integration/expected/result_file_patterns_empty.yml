@@ -1,0 +1,15 @@
+formatVersion: '1.0'
+files:
+- mock_tool.sh
+basedir: contrib/vcloud/test_integration/tool
+execdir: .
+resultFilePatterns: []
+requirements:
+  cores: null
+  memory_b: null
+limits:
+  cputime_hard_s: 30
+runs:
+- logfile: task1.log
+  command:
+  - mock-tool
