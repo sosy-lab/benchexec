@@ -70,7 +70,6 @@ class Tool(benchexec.tools.template.BaseTool2):
         if run.exit_code:
             return result.RESULT_ERROR
         for line in reversed(run.output):
-            line = line.strip()
             if not line:
                 continue
             if line == "TRUE":
