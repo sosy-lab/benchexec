@@ -59,8 +59,13 @@ class Tool(benchexec.tools.template.BaseTool2):
             path = os.path.join(bin_dir, name)
             if option not in options and os.path.isfile(path):
                 solvers += [option, path]
-        return [executable, "--color", "false", *solvers, *options] + [
-            task.single_input_file
+        return [
+            executable,
+            "--color",
+            "false",
+            *solvers,
+            *options,
+            task.single_input_file,
         ]
 
     def determine_result(self, run):
@@ -68,26 +73,30 @@ class Tool(benchexec.tools.template.BaseTool2):
         The answers of kMoXI to the queries of the model, from lines such as
         ` :query (q :result unsat :certificate q_cert)`. The model of a task
         has one query: the property holds if its reachability condition
-        cannot be reached (unsat), and is violated if it can (sat).
+        cannot be reached (unsat), and is violated if it can (sat). The result
+        is unknown only if kMoXI answers unknown, and an error otherwise: an
+        SMT-LIB error response, with its message, or no answer at all.
         """
-        answers = []
+        answers = set()
         for line in run.output:
             line = line.strip()
             match = re.match(
                 r":query \((\|[^|]*\||\S+) :result (sat|unsat|unknown)\b", line
             )
             if match:
-                answers.append(match.group(2))
+                answers.add(match.group(2))
             elif line.startswith("(error "):
                 # Every error of kMoXI, such as a syntax or sort error in the
                 # model, is an SMT-LIB error response
                 message = line[len("(error ") : -1].strip('"')
                 return f"{result.RESULT_ERROR} ({message})"
 
-        if not answers:
-            return result.RESULT_ERROR
         if "sat" in answers:
             return result.RESULT_FALSE_PROP
-        if all(answer == "unsat" for answer in answers):
+        if answers == {"unsat"}:
             return result.RESULT_TRUE_PROP
-        return result.RESULT_UNKNOWN
+        if answers == {"unknown"}:
+            # kMoXI gave up
+            return result.RESULT_UNKNOWN
+        # No answer, as after a crash, or none that is recognized
+        return result.RESULT_ERROR
