@@ -22,6 +22,12 @@ class Tool(benchexec.tools.template.BaseTool2):
     def version(self, executable):
         return self._version_from_tool(executable)
 
+    def url_for_version(self, version):
+        if re.fullmatch(r"([0-9.]+)", version):
+            return f"https://github.com/sim642/sv-sanitizers/releases/tag/v{version}"
+
+        return None
+
     def name(self):
         return "SV-sanitizers"
 
