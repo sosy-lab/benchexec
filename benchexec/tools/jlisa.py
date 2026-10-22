@@ -38,10 +38,9 @@ class Tool(benchexec.tools.template.BaseTool2):
             cmd = [executable, "validate"] + options + witness_options
         else:
             cmd = [executable, "check"] + options
-        cmd += ["--inputs", " ".join(input_files)]
         if task.property_file:
             cmd += ["--property", task.property_file]
-        return cmd
+        return cmd + list(input_files)
 
     def determine_result(self, run):
         if len(run.output) > 0:
