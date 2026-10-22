@@ -26,7 +26,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         return "iekke"
 
     def project_url(self):
-        return "https://github.com/paolo-di-biase/Lazy-PO"
+        return "https://github.com/pac-lab00/Iekke"
 
     def cmdline(self, executable, options, task, rlimits):
         data_model_param = get_data_model_from_task(task, {ILP32: "--32", LP64: "--64"})
