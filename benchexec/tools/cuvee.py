@@ -43,9 +43,9 @@ class Tool(benchexec.tools.template.BaseTool2):
 
         return [executable, *options, *arch, task.single_input_file]
 
-    # the answers of -verify, one for each verify-call of an SV-LIB script or one for the whole program: correct
-    # means that the program satisfies its specification, i.e., the property holds, incorrect that it does not; with
-    # several answers, an incorrect one decides, also before an error, and all of them must be correct otherwise;
+    # the answers of Cuvée, one for each goal and lemma, e.g. of the procedures (-teq, -vcgen), or one for the whole
+    # program (-chc): correct means that it holds, incorrect that it does not, i.e., that the property is violated;
+    # an incorrect one decides, also before an error, and all of them must be correct for the property to hold;
     # errors, e.g. constructs that are not supported, are reported with the first string at the error or on the lines
     # after it, e.g. (error "not supported" ...)
     def determine_result(self, run):
