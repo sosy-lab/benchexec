@@ -42,9 +42,9 @@ class Tool(BaseTool2):
                 return result.RESULT_ERROR + " (RacerF)"
             if run.output.any_line_contains("Lachesis failed"):
                 return result.RESULT_ERROR + " (Lachesis)"
-            return result.RESULT_ERROR + " (Moirae)"
+            return result.RESULT_ERROR
 
-        if len(run.output) == 0:
+        if not run.output:
             return result.RESULT_ERROR + " (no output)"
 
         verdict = run.output[-1]
