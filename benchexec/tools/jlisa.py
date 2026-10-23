@@ -7,11 +7,15 @@
 
 import benchexec.tools.template
 from benchexec import result
+from benchexec.tools.sv_benchmarks_util import (
+    TaskFilesConsidered,
+    handle_witness_of_task,
+)
 
 
 class Tool(benchexec.tools.template.BaseTool2):
     """
-    Tool info for JLiSA
+    Tool info for JLiSA (verifier and violation-witness validator).
     """
 
     def executable(self, tool_locator):
@@ -27,10 +31,16 @@ class Tool(benchexec.tools.template.BaseTool2):
         return "https://github.com/lisa-analyzer/jlisa"
 
     def cmdline(self, executable, options, task, rlimits):
-        cmd = [executable, "check", "--inputs", " ".join(task.input_files)]
+        input_files, witness_options = handle_witness_of_task(
+            task, options, "--witness", TaskFilesConsidered.INPUT_FILES
+        )
+        if witness_options or "--witness" in options:
+            cmd = [executable, "validate"] + options + witness_options
+        else:
+            cmd = [executable, "check"] + options
         if task.property_file:
             cmd += ["--property", task.property_file]
-        return cmd
+        return cmd + list(input_files)
 
     def determine_result(self, run):
         if len(run.output) > 0:
