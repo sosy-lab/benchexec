@@ -36,9 +36,18 @@ class Tool(benchexec.tools.template.BaseTool2):
         return [executable] + input_file + options + witness_options
 
     def determine_result(self, run):
+        witness_property = None
         for line in run.output:
+            if (
+                "Witness property: " in line
+            ):  # newer versions of cw2t print the property
+                witness_property = line[len("Witness property: ") :]
+
             if "Verdict: SOMETIMES" in line or "Verdict: ALWAYS" in line:
-                return result.RESULT_FALSE_REACH
+                if witness_property:
+                    return result.RESULT_FALSE_PROP + f"({witness_property})"
+                if not witness_property:
+                    return result.RESULT_FALSE_PROP  # fallback for older versions
             elif "Verdict: NEVER" in line:
                 return result.RESULT_ERROR + "(ineffective witness)"
             elif "Verdict: TIMEOUT" in line:
@@ -57,7 +66,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         # warn if there are more lines (multiple statistics from sequential analysis?)
         match = None
         for line in output:
-            if line.lstrip().startswith(identifier):
+            if line.startswith(identifier + ":"):
                 startPosition = line.find(":") + 1
                 endPosition = line.find("(", startPosition)
                 if endPosition == -1:
