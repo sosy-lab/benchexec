@@ -126,7 +126,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         # warn if there are more lines (multiple statistics from sequential analysis?)
         match = None
         for line in output:
-            if line.lstrip().startswith(identifier):
+            if line.startswith(identifier + ":"):
                 startPosition = line.find(":") + 1
                 endPosition = line.find("(", startPosition)
                 if endPosition == -1:
