@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+
+<!--
+This file is part of BenchExec, a framework for reliable benchmarking:
+https://github.com/sosy-lab/benchexec
+
+SPDX-FileCopyrightText: 2007-2026 Dirk Beyer <https://www.sosy-lab.org>
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
+<benchmark tool="dummy" hardtimelimit="30">
+  <requiredfiles>../../../test/tasks/test.prp</requiredfiles>
+  <rundefinition>
+    <tasks><withoutfile>task1</withoutfile></tasks>
+  </rundefinition>
+</benchmark>

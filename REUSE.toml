@@ -3,7 +3,7 @@ SPDX-PackageName = "BenchExec"
 SPDX-PackageDownloadLocation = "https://github.com/sosy-lab/benchexec"
 
 [[annotations]]
-path = ["benchexec/tablegenerator/test_integration/expected/**.html", "benchexec/tablegenerator/test_integration/expected/**.csv", "benchexec/tablegenerator/test_integration/expected/**.tex", "benchexec/tablegenerator/test_integration/results/**", "benchexec/test_integration/expected/**"]
+path = ["benchexec/tablegenerator/test_integration/expected/**.html", "benchexec/tablegenerator/test_integration/expected/**.csv", "benchexec/tablegenerator/test_integration/expected/**.tex", "benchexec/tablegenerator/test_integration/results/**", "benchexec/test_integration/expected/**", "contrib/vcloud/test_integration/expected/**"]
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2007-2020 Dirk Beyer <https://www.sosy-lab.org>"
 SPDX-License-Identifier = "Apache-2.0"

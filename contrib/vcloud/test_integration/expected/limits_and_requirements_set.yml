@@ -1,0 +1,20 @@
+formatVersion: '1.0'
+files:
+- mock_tool.sh
+basedir: contrib/vcloud/test_integration/tool
+execdir: .
+resultFilePatterns:
+- .
+requirements:
+  cores: 1
+  memory_b: 4000000000
+  cpumodels: Intel
+limits:
+  cputime_hard_s: 60
+  cores: 2
+  walltime_hard_s: 120
+  memory_b: 4000000000
+runs:
+- logfile: task1.log
+  command:
+  - mock-tool
