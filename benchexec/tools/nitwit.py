@@ -21,7 +21,9 @@ from benchexec.tools.sv_benchmarks_util import (
 
 class Tool(benchexec.tools.template.BaseTool2):
     """
-    Tool info for the NITWIT Validator, an interpreter-based violation witness validator.
+    Tool info for the NITWIT Validator, an interpreter-based validator that confirms
+    violation witnesses and refutes correctness witnesses: it runs the program, and a
+    run that calls the error function shows that the program violates the property.
     """
 
     REQUIRED_PATHS = ["bin/nitwit32", "bin/nitwit64"]
@@ -68,13 +70,15 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def determine_result(self, run):
         """
-        See README.md at https://github.com/moves-rwth/nitwit-validator for information
-        about result codes.
+        See docs/exit-codes.md at https://github.com/moves-rwth/nitwit-validator for
+        information about result codes: 0 (and 245 of NITWIT 3) confirm a violation
+        witness, 253 refutes a correctness witness by a run that calls the error
+        function.
         @return: status of validator after executing a run
         """
-        if run.exit_code.value in [0, 245]:
+        if run.exit_code.value in [0, 245, 253]:
             status = result.RESULT_FALSE_REACH
-        elif run.exit_code.value in [4, 5, 241, 242, 243, 250]:
+        elif run.exit_code.value in [4, 5, 241, 242, 243, 250, 252]:
             status = result.RESULT_UNKNOWN
         else:
             status = result.RESULT_ERROR
