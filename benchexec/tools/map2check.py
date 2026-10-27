@@ -5,7 +5,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import functools
 import os
 import re
 
@@ -44,7 +43,11 @@ class Tool(benchexec.tools.template.BaseTool2):
             self._version = 6
         except ToolNotFoundException:
             executable = tool_locator.find_executable("map2check-wrapper.py")
-            self._version = 7
+            # The Python wrapper (Map2Check 7 and later) reports the version,
+            # e.g., "v9.0.0-Songbirds:2026-10-13". If it does not, assume the
+            # current version.
+            match = re.match(r"v?(\d+)\.", self._version_from_tool(executable))
+            self._version = int(match.group(1)) if match else 9
 
         return executable
 
@@ -87,7 +90,7 @@ class Tool(benchexec.tools.template.BaseTool2):
             )
         elif self._version > 6:
             cmd = [executable] + options + ["-p", task.property_file]
-            if _major_version(executable) >= 9:
+            if self._version >= 9:
                 data_model = get_data_model_from_task(
                     task, {ILP32: "ILP32", LP64: "LP64"}
                 )
@@ -149,11 +152,3 @@ class Tool(benchexec.tools.template.BaseTool2):
                 status = "ERROR"
 
         return status
-
-
-@functools.lru_cache
-def _major_version(executable):
-    """The major version of Map2Check, or 0 if the wrapper does not tell."""
-    version = Tool._version_from_tool(executable)
-    match = re.match(r"v?(\d+)\.", version)
-    return int(match.group(1)) if match else 0
