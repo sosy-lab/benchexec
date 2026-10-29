@@ -32,7 +32,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         return tool_locator.find_executable("pathcovc.py")
 
     def version(self, executable):
-        return self._version_from_tool(executable)
+        return self._version_from_tool(executable, line_prefix="ESBMC-PathCov")
 
     def name(self):
         return "ESBMC-PathCov"
