@@ -12,8 +12,10 @@ from benchexec.tools.sv_benchmarks_util import ILP32, LP64, get_data_model_from_
 
 class Tool(benchexec.tools.template.BaseTool2):
     """
-    Tool info for ESBMC-PathCov, a test-generation variant of ESBMC
-    that combines fuzzing with bounded model checking.
+    Tool info for ESBMC-PathCov, a test generator that seeds a
+    comparison-guided input search with inputs from ESBMC.
+    It wraps ESBMC with its own command line and output, so this module
+    does not derive from the one for ESBMC.
     """
 
     REQUIRED_PATHS = [
@@ -48,7 +50,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         if data_model_param and "--architecture" not in options:
             cmd += ["--architecture", data_model_param]
         if rlimits.cputime and "--time-limit" not in options:
-            cmd += ["--time-limit", str(max(0.1, rlimits.cputime * 0.8))]
+            cmd += ["--time-limit", str(rlimits.cputime)]
         return cmd + [task.single_input_file]
 
     def determine_result(self, run):
