@@ -33,7 +33,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         return "https://frama-c.com/"
 
     def cmdline(self, executable, options, task, rlimits):
-        tasks = list(task.input_files_or_identifier)
+        tasks = list(task.input_files)
         # Always put task input files before first occurrence of '-then*' parameters
         # This will give task files to the first batch of operations,
         # and execute succeeding batches on the resulting frama-c 'projects'
