@@ -43,11 +43,12 @@ class Tool(benchexec.tools.template.BaseTool2):
             self._version = 6
         except ToolNotFoundException:
             executable = tool_locator.find_executable("map2check-wrapper.py")
-            # The Python wrapper (Map2Check 7 and later) reports the version,
-            # e.g., "v9.0.0-Songbirds:2026-10-13". If it does not, assume the
-            # current version.
-            match = re.match(r"v?(\d+)\.", self._version_from_tool(executable))
-            self._version = int(match.group(1)) if match else 9
+            # Every Python wrapper (Map2Check 7 and later) reports the version,
+            # e.g., "Map2Check 7.1 : Fri Oct 27 ..." or "v9.0.0-Songbirds:2026-10-13".
+            match = re.search(r"(\d+)\.\d", self._version_from_tool(executable))
+            if not match:
+                raise ToolNotFoundException("Cannot determine Map2Check version")
+            self._version = int(match.group(1))
 
         return executable
 
