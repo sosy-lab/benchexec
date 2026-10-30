@@ -5,8 +5,10 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import logging
 import os
 import re
+import subprocess
 
 import benchexec.tools.template
 from benchexec import result
@@ -43,14 +45,40 @@ class Tool(benchexec.tools.template.BaseTool2):
             self._version = 6
         except ToolNotFoundException:
             executable = tool_locator.find_executable("map2check-wrapper.py")
-            # Map2Check 9 reports its version, e.g., "v9.0.0-Songbirds:2026-10-13".
-            # The wrappers of Map2Check 7 and 8 call ./map2check relative to the
-            # working directory, so --version prints nothing when run from
-            # elsewhere; 8 means "Map2Check 8 or an earlier Python wrapper".
-            match = re.search(r"(\d+)\.\d", self._version_from_tool(executable))
-            self._version = int(match.group(1)) if match else 8
+            # Every Python wrapper reports the version, e.g.,
+            # "Map2Check 7.1 : Fri Oct 27 ..." or "v9.0.0-Songbirds:2026-10-13".
+            match = re.search(r"(\d+)\.\d", self._wrapper_version(executable))
+            if not match:
+                raise ToolNotFoundException("Cannot determine Map2Check version")
+            self._version = int(match.group(1))
 
         return executable
+
+    def _wrapper_version(self, executable):
+        # The wrappers of Map2Check 7 and 8 call ./map2check, so they report the
+        # version only when run from the tool directory.
+        executable = os.path.abspath(executable)
+        try:
+            process = subprocess.run(
+                [executable, "--version"],
+                cwd=os.path.dirname(executable),
+                stdin=subprocess.DEVNULL,
+                capture_output=True,
+                text=True,
+            )
+        except OSError as e:
+            logging.warning(
+                "Cannot run %s to determine version: %s", executable, e.strerror
+            )
+            return ""
+        if process.returncode:
+            logging.warning(
+                "Cannot determine Map2Check version, exit code %s, error output: %s",
+                process.returncode,
+                process.stderr,
+            )
+            return ""
+        return process.stdout.strip()
 
     def program_files(self, executable):
         """
@@ -68,8 +96,9 @@ class Tool(benchexec.tools.template.BaseTool2):
         return executableDir
 
     def version(self, executable):
-        # Map2Check prints "v9.0.0-Songbirds:2026-10-13".
-        return self._version_from_tool(executable).removeprefix("v")
+        if self._version == 6:
+            return self._version_from_tool(executable)
+        return self._wrapper_version(executable).removeprefix("v")
 
     def name(self):
         return "Map2Check"
