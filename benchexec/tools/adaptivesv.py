@@ -44,9 +44,7 @@ class Tool(BaseTool2):
         args = [executable, *options]
 
         def has_option(option):
-            return any(
-                arg == option or arg.startswith(option + "=") for arg in options
-            )
+            return any(arg == option or arg.startswith(option + "=") for arg in options)
 
         if not has_option("--program") and task.single_input_file:
             args += ["--program", task.single_input_file]
