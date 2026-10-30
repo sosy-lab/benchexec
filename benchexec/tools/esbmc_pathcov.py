@@ -54,8 +54,9 @@ class Tool(benchexec.tools.template.BaseTool2):
         return cmd + [task.single_input_file]
 
     def determine_result(self, run):
+        # The tool never gives up; it prints DONE whenever it finishes normally.
         if run.exit_code.value == 0 and any(
             line.strip() == "DONE" for line in run.output
         ):
             return result.RESULT_DONE
-        return result.RESULT_UNKNOWN
+        return result.RESULT_ERROR
