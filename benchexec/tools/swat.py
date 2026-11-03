@@ -27,6 +27,7 @@ class Tool(BaseTool2):
         "sv-comp.cfg",
         "run-swat.sh",
         "run_swat.py",
+        "BUILD_INFO.txt",
     ]
 
     def executable(self, tool_locator):
