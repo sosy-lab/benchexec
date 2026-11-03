@@ -218,6 +218,21 @@ test("applyMatcher for empty row", () => {
   expect(getFilteredDataWithMatcher(filters).length).toBe(1);
 });
 
+test("applyMatcher for aborted row", () => {
+  const rows: TableRow[] = [
+    ...generalRows,
+    {
+      id: ["test/aborted.c"],
+      results: [{ category: "aborted", values: [{}] }],
+    },
+  ];
+  const filters: FilterItem[] = [
+    { id: "0_test_0", value: "aborted ", type: "status" },
+    { id: "0_test_0", value: statusForEmptyRows, type: "status" },
+  ];
+  expect(applyMatcher(buildMatcher(filters))(rows).length).toBe(1);
+});
+
 test("applyMatcher for textual id filter", () => {
   const filters: FilterItem[] = [{ id: "id", value: "DefInItion.YmL" }];
   expect(getFilteredDataWithMatcher(filters).length).toBe(1);

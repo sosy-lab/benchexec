@@ -135,8 +135,12 @@ const asRecord = (value: unknown): value is Record<string, unknown> =>
    filtering for either categories or statuses creates filters for the other one as well.
    Since empty rows don't have a status, they will be filtered out all the time.
    To prevent this, this status placeholder will be used to indicate that empty rows
-   should pass the status filtering. */
+   should pass the status filtering. The same holds for aborted runs,
+   which also have no status. */
 const statusForEmptyRows = "empty_row";
+
+/* Categories of rows that have no status and are matched by statusForEmptyRows */
+const categoriesWithoutStatus = ["empty", "aborted"];
 
 /**
  * Prepares raw data for filtering by retrieving available distinct values as min
@@ -480,8 +484,9 @@ const applyMatcher = (matcher: Matcher) => (data: TableRow[]) => {
             columnPass = categoryPass && statusPass;
           } else if ("status" in filter) {
             const emptyRowPass =
-              row.results[toolIdx]?.category === "empty" &&
-              String(filter.status) === statusForEmptyRows;
+              categoriesWithoutStatus.includes(
+                String(row.results[toolIdx]?.category),
+              ) && String(filter.status) === statusForEmptyRows;
             statusPass =
               row.results[toolIdx]?.values[columnIdx]?.raw === filter.status ||
               statusPass ||
@@ -529,4 +534,5 @@ export {
   applyMatcher,
   buildMatcher,
   statusForEmptyRows,
+  categoriesWithoutStatus,
 };

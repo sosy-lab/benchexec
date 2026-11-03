@@ -27,6 +27,7 @@ import {
   buildMatcher,
   applyMatcher,
   statusForEmptyRows,
+  categoriesWithoutStatus,
 } from "../utils/filters";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faQuestionCircle } from "@fortawesome/free-solid-svg-icons";
@@ -110,13 +111,13 @@ export default class Overview extends React.Component {
       (_tool, column) => column.type === "status",
       (_runResult, value) => getRawOrDefault(value),
     );
-    // Add statusForEmptyRows to status values array if there is a corresponding empty row for the runset
+    // Add statusForEmptyRows to status values array if there is a corresponding empty or aborted row for the runset
     this.originalTools.forEach((tool, j) =>
       tool.columns
         .filter((column) => column.type === "status")
         .forEach((col, i) => {
-          const hasEmptyRow = this.originalTable.some(
-            (row) => row.results[j].category === "empty",
+          const hasEmptyRow = this.originalTable.some((row) =>
+            categoriesWithoutStatus.includes(row.results[j].category),
           );
           if (hasEmptyRow) {
             this.statusValues[j][i].push(statusForEmptyRows);
