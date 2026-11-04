@@ -7,7 +7,7 @@ SPDX-FileCopyrightText: 2007-2020 Dirk Beyer <https://www.sosy-lab.org>
 SPDX-License-Identifier: Apache-2.0
 -->
 
-<!ELEMENT table ((result | union | column)*)>
+<!ELEMENT table ((result | union | column | taskidcolumn)*)>
 
 <!ELEMENT result (column*)>
 <!ATTLIST result id CDATA #IMPLIED
@@ -25,3 +25,7 @@ SPDX-License-Identifier: Apache-2.0
                  displayUnit CDATA #IMPLIED
                  scaleFactor CDATA #IMPLIED
                  relevantForDiff (true|false) #IMPLIED>
+
+<!-- content is one of: name, property, expected_result, witness_category, runset -->
+<!ELEMENT taskidcolumn (#PCDATA)>
+<!ATTLIST taskidcolumn title CDATA #IMPLIED>

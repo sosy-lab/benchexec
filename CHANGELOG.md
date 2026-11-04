@@ -17,6 +17,8 @@ SPDX-License-Identifier: Apache-2.0
   behavior) logs a warning per affected task, `mode="ignore"` stays silent,
   and `mode="skip"` skips the affected task (a single summary message
   reports how many tasks were skipped this way, not one message per task).
+- Introduced `<taskidcolumn>` tag allows to choose which task-id columns 
+  table generator outputs and give them names. 
 
 ## BenchExec 3.35 - 2026-07-03
 
