@@ -32,7 +32,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         ]
 
         data_model_param = get_data_model_from_task(
-            task, {ILP32: "ILP32", LP64: "ILP64"}
+            task, {ILP32: "ILP32", LP64: "LP64"}
         )
         if data_model_param and data_model_param not in options:
             cmd.extend(
