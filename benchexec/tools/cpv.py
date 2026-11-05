@@ -40,10 +40,14 @@ class Tool(benchexec.tools.template.BaseTool2):
         )
 
     def cmdline(self, executable, options, task, rlimits):
-        assert task.options.get("language") == "C"
+        task_options = task.options if isinstance(task.options, dict) else {}
+        if (language := task_options.get("language")) and language != "C":
+            raise benchexec.tools.template.UnsupportedFeatureException(
+                f"Unsupported language '{language}' defined for task '{task}'"
+            )
         options += ["--property", task.property_file]
-        if task.options.get("data_model") and "--model" not in options:
-            options += ["--model", task.options.get("data_model")]
+        if (data_model := task_options.get("data_model")) and "--model" not in options:
+            options += ["--model", data_model]
         return [executable, task.single_input_file, *options]
 
     def determine_result(self, run):
