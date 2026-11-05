@@ -7,6 +7,7 @@
 
 import benchexec.tools.template
 from benchexec import result
+from benchexec.tools.sv_benchmarks_util import ILP32, LP64, get_data_model_from_task
 
 
 class Tool(benchexec.tools.template.BaseTool2):
@@ -22,16 +23,23 @@ class Tool(benchexec.tools.template.BaseTool2):
         return "Codex"
 
     def cmdline(self, executable, options, task, rlimits):
-        return [
+        cmd = [
             executable,
             "--input",
             task.single_input_file,
             "--property",
             task.property_file,
-            "--data-model",
-            task.options["data_model"],
-            *options,
         ]
+
+        data_model_param = get_data_model_from_task(task, {ILP32: "ILP32", LP64: "ILP64"})
+        if data_model_param and data_model_param not in options:
+            cmd.extend([
+                "--data-model",
+                data_model_param,
+            ])
+
+        cmd.extend(options)
+        return cmd
 
     def determine_result(self, run):
         if run.exit_code.value != 0:
