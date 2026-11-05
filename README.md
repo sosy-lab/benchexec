@@ -161,6 +161,7 @@ Contributors:
 - [Rotzbua](https://github.com/Rotzbua)
 - [Simmo Saan](https://github.com/sim642)
 - [Alexander Schremmer](https://www.xing.com/profile/Alexander_Schremmer)
+- [shkomg](https://github.com/shkomg)
 - [Dennis Simon](https://github.com/DennisSimon)
 - [Saurabh Singh](https://github.com/saurabh12nxf)
 - [Andreas Stahlbauer](http://stahlbauer.net/)
