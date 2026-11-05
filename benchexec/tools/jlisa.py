@@ -44,7 +44,13 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def determine_result(self, run):
         if len(run.output) > 0:
-            jlisa_output = run.output[-1]
+            jlisa_output = run.output[-1].strip()
+            if jlisa_output == "ERROR (invalid witness format)":
+                return result.RESULT_ERROR + " (invalid witness format)"
+            if jlisa_output == "ERROR (parsing failed)":
+                return result.RESULT_ERROR + " (parsing failed)"
+            if jlisa_output == "ERROR (invalid witness type)":
+                return result.RESULT_ERROR + " (invalid witness type)"
             if "TRUE" in jlisa_output:
                 return result.RESULT_TRUE_PROP
             if "FALSE" in jlisa_output:
