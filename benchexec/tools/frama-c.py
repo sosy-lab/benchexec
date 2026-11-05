@@ -6,18 +6,17 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import benchexec.tools.template
-from benchexec import util
 
 
-class Tool(benchexec.tools.template.BaseTool):
+class Tool(benchexec.tools.template.BaseTool2):
     """
     Tool info for Frama-C.
     """
 
     REQUIRED_PATHS = ["bin", "lib", "share"]
 
-    def executable(self):
-        return util.find_executable("frama-c", "bin/frama-c")
+    def executable(self, tool_locator):
+        return tool_locator.find_executable("frama-c", subdir="bin")
 
     def program_files(self, executable):
         return self._program_files_from_executable(
@@ -33,7 +32,8 @@ class Tool(benchexec.tools.template.BaseTool):
     def project_url(self):
         return "https://frama-c.com/"
 
-    def cmdline(self, executable, options, tasks, propertyfile=None, rlimits={}):
+    def cmdline(self, executable, options, task, rlimits):
+        tasks = list(task.input_files)
         # Always put task input files before first occurrence of '-then*' parameters
         # This will give task files to the first batch of operations,
         # and execute succeeding batches on the resulting frama-c 'projects'
