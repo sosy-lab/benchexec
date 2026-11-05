@@ -28,6 +28,8 @@ class Tool(benchexec.tools.template.BaseTool2):
             task.single_input_file,
             "--property",
             task.property_file,
+            "--data-model",
+            task.options["data_model"],
             *options,
         ]
 
