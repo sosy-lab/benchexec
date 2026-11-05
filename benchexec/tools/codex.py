@@ -31,12 +31,16 @@ class Tool(benchexec.tools.template.BaseTool2):
             task.property_file,
         ]
 
-        data_model_param = get_data_model_from_task(task, {ILP32: "ILP32", LP64: "ILP64"})
+        data_model_param = get_data_model_from_task(
+            task, {ILP32: "ILP32", LP64: "ILP64"}
+        )
         if data_model_param and data_model_param not in options:
-            cmd.extend([
-                "--data-model",
-                data_model_param,
-            ])
+            cmd.extend(
+                [
+                    "--data-model",
+                    data_model_param,
+                ]
+            )
 
         cmd.extend(options)
         return cmd
