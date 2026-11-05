@@ -17,7 +17,10 @@ import {
   getStep,
   NumberFormatterBuilder,
 } from "../../utils/utils";
-import { statusForEmptyRows } from "../../utils/filters";
+import {
+  statusForEmptyRows,
+  categoriesWithoutStatus,
+} from "../../utils/filters";
 import {
   AvailableFilter,
   FilterUpdatePayload,
@@ -134,7 +137,9 @@ export default class FilterCard extends React.PureComponent<
     const { type, categories } = this.props.filter ?? {};
     if (
       categories &&
-      categories.includes("empty ") &&
+      categoriesWithoutStatus.some((category) =>
+        categories.includes(`${category} `),
+      ) &&
       !values.includes(statusForEmptyRows)
     ) {
       values = values.concat(statusForEmptyRows);
