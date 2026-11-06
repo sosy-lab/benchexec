@@ -74,6 +74,36 @@ def download_required_jars(config):
             temp_dir.cleanup()
 
 
+def resolve_container_image(image):
+    if "@sha256:" in image:
+        return image
+
+    # Pin the image by its digest, such that all runs use exactly the same image
+    # (even if the tag is moved meanwhile) and the provenance information identifies it.
+    logging.info("Pulling container %s to determine its digest", image)
+    if subprocess.run(
+            ["podman", "image", "pull", "--quiet", image],
+            stdout=subprocess.DEVNULL,
+    ).returncode != 0:
+        raise BenchExecException(f"Cannot pull container {image}.")
+
+    digest = subprocess.run(
+        ["podman", "image", "inspect", image, "--format", "{{.Digest}}"],
+        stdout=subprocess.PIPE,
+        text=True,
+    ).stdout.strip()
+    if not digest.startswith("sha256:"):
+        raise BenchExecException(
+            f"Cannot determine digest of container {image} (got '{digest}')."
+        )
+
+    # Remove the tag (a colon before the last slash separates the port of the registry)
+    if ":" in image.rsplit("/", 1)[-1]:
+        image = image.rsplit(":", 1)[0]
+
+    return f"{image}@{digest}"
+
+
 def load_tool_info_in_container(tool_name, config):
     """
     Load the tool-info class inside a Podman container.
@@ -151,6 +181,10 @@ class VcloudBenchmark(VcloudBenchmarkBase):
                     "if the tool directory is explicitly provided. Please set it "
                     "using the --tool-directory option."
                 )
+
+            self.config.containerImage = resolve_container_image(
+                self.config.containerImage
+            )
 
             # Monkey-patch BenchExec to load tool-info module in Podman container.
             benchexec.model.load_tool_info = load_tool_info_in_container
