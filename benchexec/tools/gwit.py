@@ -46,10 +46,18 @@ class Tool(BaseTool2):
 
     def determine_result(self, run):
         status = result.RESULT_ERROR
-        if run.output.any_line_contains("== ERROR"):
+        if run.output.any_line_contains("== ERROR (assertion-violation-reachable)"):
+            status = result.RESULT_FALSE_PROP + "(assertion-violation-reachable)"
+        elif run.output.any_line_contains("== ERROR (runtime-exception-reachable)"):
+            status = result.RESULT_FALSE_PROP + "(runtime-exception-reachable)"
+        elif run.output.any_line_contains("== ERROR"):
             status = result.RESULT_FALSE_PROP
         elif run.output.any_line_contains("== OK"):
             status = result.RESULT_TRUE_PROP
+        elif run.output.any_line_contains("== EXCEPTION (FORMAT_WITNESS)"):
+            status = result.RESULT_ERROR + " (parsing failed due to format)"
+        elif run.output.any_line_contains("== EXCEPTION (EMPTY_WITNESS)"):
+            status = result.RESULT_ERROR + " (parsing failed as no waypoints present)"
         elif run.output.any_line_contains("== DONT-KNOW"):
             status = result.RESULT_UNKNOWN
 
