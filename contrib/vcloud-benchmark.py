@@ -82,10 +82,13 @@ def resolve_container_image(image):
     # Pin the image by its digest, such that all runs use exactly the same image
     # (even if the tag is moved meanwhile) and the provenance information identifies it.
     logging.info("Pulling container %s to determine its digest", image)
-    if subprocess.run(
+    if (
+        subprocess.run(
             ["podman", "image", "pull", "--quiet", image],
             stdout=subprocess.DEVNULL,
-    ).returncode != 0:
+        ).returncode
+        != 0
+    ):
         raise BenchExecException(f"Cannot pull container {image}.")
 
     digest = subprocess.run(
