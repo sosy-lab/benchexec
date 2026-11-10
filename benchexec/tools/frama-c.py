@@ -8,6 +8,7 @@
 
 import benchexec.tools.template
 from benchexec import result
+from benchexec.tools.template import ToolNotFoundException
 
 
 class Tool(benchexec.tools.template.BaseTool2):
@@ -26,13 +27,15 @@ class Tool(benchexec.tools.template.BaseTool2):
     has_wrapper = None
 
     def executable(self, tool_locator):
-        wrapper = tool_locator.find_executable(Tool._WRAPPER_NAME)
-        self.has_wrapper = wrapper is not None
-        if self.has_wrapper:
-            # new version (from 2026): use sv-comp wrapper
+        try:
+            wrapper = tool_locator.find_executable(Tool._WRAPPER_NAME)
+            # if new version (from 2026): use sv-comp wrapper
+            self.has_wrapper = True
             return wrapper
-        # assume old version (pre-2026); return frama-c executable
-        return tool_locator.find_executable("frama-c", subdir="bin/")
+        except ToolNotFoundException:
+            # assume old version (pre-2026); return frama-c executable
+            self.has_wrapper = False
+            return tool_locator.find_executable("frama-c", subdir="bin/")
 
     def version(self, executable):
         return self._version_from_tool(executable)
@@ -75,11 +78,9 @@ class Tool(benchexec.tools.template.BaseTool2):
                 (line for line in reversed(run.output) if line.strip()), None
             )
             if lastline is None:
-                return result.RESULT_ERROR
-            if lastline.startswith("INFO\tRESULT\t"):
-                return lastline.split("\t", maxsplit=3)[-1]
-            if lastline.startswith("INFO:RESULT:"):
-                return lastline.split(":", maxsplit=2)[-1]
-            return result.RESULT_ERROR
+                return result.RESULT_ERROR + "(empty output)"
+            if not lastline.startswith("frama-c-verdict:"):
+                return result.RESULT_ERROR + "(no frama-c-verdict)"
+            return lastline.split(":", maxsplit=1)[-1].strip()
         # assume old (pre-2026) version is used; determine_result did not exist then
         return result.RESULT_DONE
