@@ -12,16 +12,23 @@ from benchexec import result
 
 class Tool(benchexec.tools.template.BaseTool2):
     """
-    Tool info for Frama-C.
+    Tool info for Frama-C wrapper for SVCOMP.
     """
 
     REQUIRED_PATHS = ["bin", "lib", "share"]
     _TOOL_NAME = "frama-c"
     _WRAPPER_NAME = _TOOL_NAME + ".py"
 
+    # has_wrapper indicates whether we are running a recent (>= 2026) frama-c
+    # wrapper, or an old one (pre-2026).
+    # It is set by function executable() to either True or False.
+    # All other functions expect it to be set to something other than None.
+    has_wrapper = None
+
     def executable(self, tool_locator):
         wrapper = tool_locator.find_executable(Tool._WRAPPER_NAME)
-        if wrapper:
+        self.has_wrapper = wrapper is not None
+        if self.has_wrapper:
             # new version (from 2026): use sv-comp wrapper
             return wrapper
         # assume old version (pre-2026); return frama-c executable
@@ -37,8 +44,7 @@ class Tool(benchexec.tools.template.BaseTool2):
         return "https://frama-c.com/"
 
     def cmdline(self, executable, options, task, rlimits):
-        has_wrapper = executable.endswith(".py")
-        if has_wrapper:
+        if self.has_wrapper:
             # new version (from 2026 on): assume sv-comp wrapper is being used
             cmd = [executable, "--program"] + list(task.input_files)
             if task.options is not None and "data_model" in task.options:
@@ -46,7 +52,10 @@ class Tool(benchexec.tools.template.BaseTool2):
             if task.property_file:
                 cmd += ["--property", task.property_file]
             return cmd + list(options)
-        # old version (pre-2026)
+        # old version (pre-2026):
+        # Always put task input files before first occurrence of '-then*' parameters
+        # This will give task files to the first batch of operations,
+        # and execute succeeding batches on the resulting frama-c 'projects'
         try:
             first_then = next(i for i, v in enumerate(options) if v.startswith("-then"))
             return (
@@ -59,11 +68,14 @@ class Tool(benchexec.tools.template.BaseTool2):
             return [executable] + options + list(task.input_files)
 
     def determine_result(self, run):
-        if run.was_timeout:
-            return result.RESULT_TIMEOUT
-        lastline = run.output[-1] or run.output[-2]  # last non-empty line
-        if "RESULT" in lastline:
+        if self.has_wrapper:
             # assume sv-comp wrapper (from 2026 on) was used
+            # get last non-empty line
+            lastline = next(
+                (line for line in reversed(run.output) if line.strip()), None
+            )
+            if lastline is None:
+                return result.RESULT_ERROR
             if lastline.startswith("INFO\tRESULT\t"):
                 return lastline.split("\t", maxsplit=3)[-1]
             if lastline.startswith("INFO:RESULT:"):
