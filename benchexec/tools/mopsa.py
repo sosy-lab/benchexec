@@ -48,7 +48,10 @@ class Tool(benchexec.tools.template.BaseTool2):
     def determine_result(self, run):
         if run.was_timeout:
             return result.RESULT_TIMEOUT
-        r = run.output[-1] or run.output[-2]  # last non-empty line
+        # last non-empty line
+        r = next((line for line in reversed(run.output) if line.strip()), None)
+        if r is None:
+            return result.RESULT_ERROR
         r = r.lower()
         if r.startswith("true"):
             return result.RESULT_TRUE_PROP
