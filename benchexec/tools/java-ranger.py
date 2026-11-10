@@ -5,17 +5,17 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import benchexec.tools.template
-from benchexec import result, util
+from benchexec import result
+from benchexec.tools.template import BaseTool2
 
 
-class Tool(benchexec.tools.template.BaseTool):
+class Tool(BaseTool2):
     """
     Tool info for Java Ranger that is based on the symbolic extension (SPF) of Java PathFinder (JPF)
     """
 
-    def executable(self):
-        return util.find_executable("jr-sv-comp")
+    def executable(self, tool_locator):
+        return tool_locator.find_executable("jr-sv-comp")
 
     def name(self):
         return "Java Ranger"
@@ -28,18 +28,18 @@ class Tool(benchexec.tools.template.BaseTool):
         first_line = output.splitlines()[0]
         return first_line.strip()
 
-    def cmdline(self, executable, options, tasks, propertyfile, rlimits):
-        options = options + ["--propertyfile", propertyfile]
-        return [executable] + options + tasks
+    def cmdline(self, executable, options, task, rlimits):
+        if task.property_file:
+            options = options + ["--propertyfile", task.property_file]
+        return [executable] + options + list(task.input_files)
 
-    def determine_result(self, returncode, returnsignal, output, isTimeout):
+    def determine_result(self, run):
         # parse output
         status = result.RESULT_UNKNOWN
 
-        for line in output:
+        for line in run.output:
             if "UNSAFE" in line:
                 status = result.RESULT_FALSE_PROP
             elif "SAFE" in line:
                 status = result.RESULT_TRUE_PROP
-
         return status

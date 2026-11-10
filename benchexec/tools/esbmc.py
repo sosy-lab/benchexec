@@ -25,6 +25,9 @@ class Tool(benchexec.tools.template.BaseTool2):
     This class serves as tool adaptor for ESBMC
     """
 
+    # A Python task's violation, named by the uncaught exception class
+    _NAMED_FALSE = re.compile(r"FALSE\((\w+)\)")
+
     def executable(self, tool_locator):
         return tool_locator.find_executable("esbmc-wrapper.py")
 
@@ -63,6 +66,9 @@ class Tool(benchexec.tools.template.BaseTool2):
 
     def determine_result(self, run):
         status = result.RESULT_UNKNOWN
+        named_false = self._NAMED_FALSE.fullmatch(
+            next(filter(None, reversed(run.output)), "")
+        )
 
         if run.output.any_line_contains("FALSE_DEREF"):
             status = result.RESULT_FALSE_DEREF
@@ -78,6 +84,8 @@ class Tool(benchexec.tools.template.BaseTool2):
             status = result.RESULT_FALSE_TERMINATION
         elif run.output.any_line_contains("FALSE_DATARACE"):
             status = result.RESULT_FALSE_DATARACE
+        elif named_false:
+            status = f"{result.RESULT_FALSE_PROP}({named_false.group(1)})"
         elif run.output.any_line_contains("FALSE"):
             status = result.RESULT_FALSE_REACH
         elif run.output.any_line_contains("TRUE"):
