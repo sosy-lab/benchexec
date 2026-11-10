@@ -78,6 +78,7 @@ def resolve_container_image(image):
     if "@sha256:" in image:
         return image
 
+    original_image = image
     # Pin the image by its digest, such that all runs use exactly the same image
     # (even if the tag is moved meanwhile) and the provenance information identifies it.
     logging.info("Pulling container %s to determine its digest", image)
@@ -101,7 +102,9 @@ def resolve_container_image(image):
     if ":" in image.rsplit("/", 1)[-1]:
         image = image.rsplit(":", 1)[0]
 
-    return f"{image}@{digest}"
+    resolved_image = f"{image}@{digest}"
+    logging.info("Resolved '%s' to '%s'", original_image, resolved_image)
+    return resolved_image
 
 
 def load_tool_info_in_container(tool_name, config):
