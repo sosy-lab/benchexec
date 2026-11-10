@@ -40,14 +40,19 @@ class Tool(benchexec.tools.template.BaseTool2):
     def determine_result(self, run):
         for line in run.output[::-1]:
             line = line.lower().strip()
+            # rIC3 has changed its output over time (each format replaces the previous one)
+            # - since v1.2.0: "result: true/false"
+            # - since v1.3.0: "result: safe/unsafe"
+            # - since v1.5.0: "result: unsat/sat"
+            # - since v1.5.2: bare "unsat/sat" without prefix
+            if line.startswith("unsat"):
+                return result.RESULT_TRUE_PROP
+            elif line.startswith("sat"):
+                return result.RESULT_FALSE_PROP
             # skip the lines that do not contain verification result
             if not line.startswith("result:"):
                 continue
             res = line[len("result:") :].strip()
-            # rIC3 has changed its output over time
-            # - in v1.2: true/false
-            # - in v1.3: safe/unsafe
-            # - in v1.5: unsat/sat
             if res in {"true", "safe", "unsat"}:
                 return result.RESULT_TRUE_PROP
             elif res in {"false", "unsafe", "sat"}:
