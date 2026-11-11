@@ -8,7 +8,10 @@
 import benchexec.tools.template
 from benchexec import result
 from benchexec.tools.sv_benchmarks_util import (
+    ILP32,
+    LP64,
     TaskFilesConsidered,
+    get_data_model_from_task,
     handle_witness_of_task,
 )
 
@@ -33,7 +36,15 @@ class Tool(benchexec.tools.template.BaseTool2):
         input_files, witness_options = handle_witness_of_task(
             task, options, "-witness", TaskFilesConsidered.INPUT_FILES_OR_IDENTIFIER
         )
-        return [executable] + options + witness_options + input_files
+        task_options = []
+        data_model_param = get_data_model_from_task(
+            task, {ILP32: "--data-model=ILP32", LP64: "--data-model=LP64"}
+        )
+        if data_model_param and not any(
+            option.startswith("--data-model=") for option in options
+        ):
+            task_options += [data_model_param]
+        return [executable] + options + witness_options + input_files + task_options
 
     def version(self, executable):
         return self._version_from_tool(executable)
