@@ -46,7 +46,11 @@ class Tool(benchexec.tools.template.BaseTool2):
 
         limit_options = []
         if rlimits.cputime and "--cpu-time-limit" not in options:
-            version_tuple = tuple(self.version(executable).split("."))
+            # We use two types of versions 1.1.1-dev-hash, 1.1-dev-hash,
+            # or 1-dev-hash for development versions and 1.1.1, 1.1, 1 for releases
+            #
+            # So first remove the -dev-... and then identify the major and minor versions
+            version_tuple = tuple(self.version(executable).split("-")[0].split("."))
             if int(version_tuple[0]) > 1 or (
                 len(version_tuple) >= 2
                 and int(version_tuple[0]) == 1
