@@ -203,8 +203,8 @@ class MetaVal2:
         if lastline.startswith("Witness is correct"):
             return benchexec.result.RESULT_TRUE_PROP
         elif lastline.startswith("Witness is incorrect"):
-            # Newer versions name the violated property, e.g.,
-            # "Witness is incorrect (valid-deref): <reason>"
+            # Newer versions name the violated property in parentheses,
+            # e.g., "Witness is incorrect (valid-deref)" followed by the reason
             match = re.match(r"Witness is incorrect \(([\w-]+)\)", lastline)
             if match:
                 return benchexec.result.RESULT_FALSE_PROP + f"({match.group(1)})"
