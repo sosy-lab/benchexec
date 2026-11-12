@@ -229,7 +229,10 @@ class Tool(benchexec.tools.template.BaseTool2):
             elif "java.lang.AssertionError" in line:
                 status = "ASSERTION"
             elif (
-                ("Exception:" in line or line.startswith("Exception in thread"))
+                (
+                    re.search(r"Exception:(?!:)", line)
+                    or line.startswith("Exception in thread")
+                )
                 # ignore "cbmc error output: ... Minisat::OutOfMemoryException"
                 and not line.startswith("cbmc")
             ):
