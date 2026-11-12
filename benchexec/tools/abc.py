@@ -52,10 +52,12 @@ class Tool(benchexec.tools.template.BaseTool2):
         @return: status of ABC after executing a run
         """
         for line in run.output[::-1]:
-            if line.startswith(("Property proved", "Networks are equivalent")):
+            if "Property proved" in line or line.startswith("Networks are equivalent"):
                 return result.RESULT_TRUE_PROP
-            elif "was asserted in frame" in line or line.startswith(
-                "Networks are NOT EQUIVALENT"
+            elif (
+                "Property disproved" in line
+                or "was asserted in frame" in line
+                or line.startswith("Networks are NOT EQUIVALENT")
             ):
                 return result.RESULT_FALSE_PROP
             elif line.startswith("Networks are UNDECIDED"):
