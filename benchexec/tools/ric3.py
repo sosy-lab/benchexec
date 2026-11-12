@@ -45,9 +45,9 @@ class Tool(benchexec.tools.template.BaseTool2):
             # - since v1.3.0: "result: safe/unsafe"
             # - since v1.5.0: "result: unsat/sat"
             # - since v1.5.2: bare "unsat/sat" without prefix
-            if line.startswith("unsat"):
+            if line == "unsat":
                 return result.RESULT_TRUE_PROP
-            elif line.startswith("sat"):
+            elif line == "sat":
                 return result.RESULT_FALSE_PROP
             # skip the lines that do not contain verification result
             if not line.startswith("result:"):
