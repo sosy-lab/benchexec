@@ -110,6 +110,8 @@ class Tool(OldSymbiotic):
                     return result.RESULT_FALSE_OVERFLOW
                 elif line.startswith("RESULT: false(termination)"):
                     return result.RESULT_FALSE_TERMINATION
+                elif line.startswith("RESULT: false(no-data-race)"):
+                    return result.RESULT_FALSE_DATARACE
                 elif line.startswith("RESULT: false"):
                     return result.RESULT_FALSE_REACH
         else:
