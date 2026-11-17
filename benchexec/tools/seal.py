@@ -62,5 +62,4 @@ class Tool(BaseTool2):
         if run.output.any_line_contains("Witness validated"):
             return result.RESULT_TRUE_PROP
 
-
         return result.RESULT_ERROR
