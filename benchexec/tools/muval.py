@@ -88,8 +88,9 @@ class Tool(benchexec.tools.template.BaseTool2):
             line = line.strip()
 
             if line.startswith("FALSE(") and line.endswith(")"):
-                status = self.FALSE_RESULTS.get(line[len("FALSE(") : -1])
-                return status if status else result.RESULT_ERROR
+                return self.FALSE_RESULTS.get(
+                    line[len("FALSE(") : -1], result.RESULT_ERROR
+                )
 
             if line == "YES":
                 return result.RESULT_TRUE_PROP
