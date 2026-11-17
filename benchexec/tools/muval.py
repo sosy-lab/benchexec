@@ -12,10 +12,17 @@ from benchexec import result
 class Tool(benchexec.tools.template.BaseTool2):
     """Tool-info for MuVal"""
 
-    REQUIRED_PATHS = ["coar", "llvm2kittel", "Ptr2Arr"]
+    # Relative to the archive's root: the tools (bin), MuVal's configurations,
+    # the wrapper scripts, the shared libraries, and Frama-C's share directory
+    REQUIRED_PATHS = ["bin", "config", "helpers", "lib", "share"]
 
     def executable(self, tool_locator):
         return tool_locator.find_executable("solver", subdir="bin")
+
+    def program_files(self, executable):
+        return self._program_files_from_executable(
+            executable, self.REQUIRED_PATHS, parent_dir=True
+        )
 
     def name(self):
         return "MuVal"
