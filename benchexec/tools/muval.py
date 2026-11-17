@@ -12,10 +12,17 @@ from benchexec import result
 class Tool(benchexec.tools.template.BaseTool2):
     """Tool-info for MuVal"""
 
-    REQUIRED_PATHS = ["coar", "llvm2kittel", "Ptr2Arr"]
+    # Relative to the archive's root: the tools (bin), MuVal's configurations,
+    # the wrapper scripts, the shared libraries, and Frama-C's share directory
+    REQUIRED_PATHS = ["bin", "config", "helpers", "lib", "share"]
 
     def executable(self, tool_locator):
         return tool_locator.find_executable("solver", subdir="bin")
+
+    def program_files(self, executable):
+        return self._program_files_from_executable(
+            executable, self.REQUIRED_PATHS, parent_dir=True
+        )
 
     def name(self):
         return "MuVal"
@@ -39,6 +46,11 @@ class Tool(benchexec.tools.template.BaseTool2):
         if task.property_file:
             cmd.append(f"--property={task.property_file}")
 
+        # The task's data model (ILP32 or LP64), from its task definition
+        data_model = task.options.get("data_model") if task.options else None
+        if data_model:
+            cmd.append(f"--data-model={data_model}")
+
         # Add timeout if specified
         if rlimits.cputime:
             cmd.append(f"--timeout={int(rlimits.cputime)}")
@@ -50,6 +62,21 @@ class Tool(benchexec.tools.template.BaseTool2):
         cmd.append(task.single_input_file)
 
         return cmd
+
+    # The answers FALSE(<property>) of helpers/solver_llvm2lts.sh, by property.
+    FALSE_RESULTS = {
+        "unreach-call": result.RESULT_FALSE_REACH,
+        "termination": result.RESULT_FALSE_TERMINATION,
+        "no-overflow": result.RESULT_FALSE_OVERFLOW,
+        "valid-deref": result.RESULT_FALSE_DEREF,
+        "valid-free": result.RESULT_FALSE_FREE,
+        "valid-memtrack": result.RESULT_FALSE_MEMTRACK,
+        # some memory-safety check failed, which one not known: scored as
+        # unknown unless the task's expected result has no subproperty
+        "valid-memsafety": result.RESULT_FALSE_PROP,
+        "valid-memcleanup": result.RESULT_FALSE_MEMCLEANUP,
+        "no-data-race": result.RESULT_FALSE_DATARACE,
+    }
 
     def determine_result(self, run):
         """
@@ -64,6 +91,11 @@ class Tool(benchexec.tools.template.BaseTool2):
         for line in run.output:
             line = line.strip()
 
+            if line.startswith("FALSE(") and line.endswith(")"):
+                return self.FALSE_RESULTS.get(
+                    line[len("FALSE(") : -1], result.RESULT_ERROR
+                )
+
             if line == "YES":
                 return result.RESULT_TRUE_PROP
             elif line == "NO":
@@ -74,7 +106,9 @@ class Tool(benchexec.tools.template.BaseTool2):
             elif line == "FALSE":
                 return result.RESULT_FALSE_REACH
 
-            elif line == "UNKNOWN":
+            elif line == "UNKNOWN" or line == "MAYBE":
+                # MAYBE is CoAR's "no answer" for LTS problems, and the
+                # wrapper's answer when the frontend declines the input.
                 return result.RESULT_UNKNOWN
             elif line == "TIMEOUT":
                 return result.RESULT_TIMEOUT
