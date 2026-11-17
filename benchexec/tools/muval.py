@@ -51,9 +51,6 @@ class Tool(benchexec.tools.template.BaseTool2):
         if data_model:
             cmd.append(f"--data-model={data_model}")
 
-        # A witness for every answer (witness.yml in the run's directory)
-        cmd.append("--witness")
-
         # Add timeout if specified
         if rlimits.cputime:
             cmd.append(f"--timeout={int(rlimits.cputime)}")
