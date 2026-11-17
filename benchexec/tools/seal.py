@@ -26,12 +26,13 @@ class Tool(BaseTool2):
         return tool_locator.find_executable("seal-entrypoint.py")
 
     def cmdline(self, executable, options, task, rlimits):
+        prop = ["--property-file", task.property_file] if task.property_file else []
         machdep = get_data_model_from_task(
             task, {ILP32: "gcc_x86_32", LP64: "gcc_x86_64"}
         )
         machdep_opt = ["-machdep", machdep] if machdep is not None else []
 
-        return [executable] + machdep_opt + options + [task.single_input_file]
+        return [executable] + prop + machdep_opt + options + [task.single_input_file]
 
     def determine_result(self, run):
         if run.exit_code.value != 0:
@@ -49,7 +50,17 @@ class Tool(BaseTool2):
         if run.output.any_line_contains("Invalid_memtrack"):
             return result.RESULT_FALSE_MEMTRACK
 
+        if run.output.any_line_contains("Invalid memcleanup"):
+            return result.RESULT_FALSE_MEMCLEANUP
+
+        if run.output.any_line_contains("Assertion violated"):
+            return result.RESULT_FALSE_REACH
+
         if run.output.any_line_contains("Successful_verification"):
             return result.RESULT_TRUE_PROP
+
+        if run.output.any_line_contains("Witness validated"):
+            return result.RESULT_TRUE_PROP
+
 
         return result.RESULT_ERROR
