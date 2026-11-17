@@ -23,10 +23,28 @@ class Tool(BaseTool2):
         return self._version_from_tool(executable)
 
     def executable(self, tool_locator):
-        return tool_locator.find_executable("seal-entrypoint.py")
+        executable = tool_locator.find_executable("seal-entrypoint.py")
+        self._version = self.version(executable)
+        return executable
+
+    def _version_newer_or_equal(self, requested_version):
+        def version_as_tuple(version):
+            # Version is expected to be of the form X.Y
+            t = tuple(map(int, version.split(".")))
+            assert len(t) == 2
+            return t
+
+        requested = version_as_tuple(requested_version)
+        actual = version_as_tuple(self._version)
+
+        return requested <= actual
 
     def cmdline(self, executable, options, task, rlimits):
-        prop = ["--property-file", task.property_file] if task.property_file else []
+        if self._version_newer_or_equal("0.2") and task.property_file:
+            prop = ["--property-file", task.property_file]
+        else:
+            prop = []
+
         machdep = get_data_model_from_task(
             task, {ILP32: "gcc_x86_32", LP64: "gcc_x86_64"}
         )
