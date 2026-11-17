@@ -6,6 +6,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import re
 
 from benchexec import result
 from benchexec.tools.sv_benchmarks_util import ILP32, LP64, get_data_model_from_task
@@ -28,16 +29,15 @@ class Tool(BaseTool2):
         return executable
 
     def _version_newer_or_equal(self, requested_version):
+        # Only major and minor are compared, the rest of string is ignored
         def version_as_tuple(version):
-            # Version is expected to be of the form X.Y
-            t = tuple(map(int, version.split(".")))
-            assert len(t) == 2
-            return t
+            match = re.match(r"(\d+)\.(\d+)", version.strip())
+            return int(match[1]), int(match[2])
 
         requested = version_as_tuple(requested_version)
         actual = version_as_tuple(self._version)
 
-        return requested <= actual
+        return actual >= requested
 
     def cmdline(self, executable, options, task, rlimits):
         if self._version_newer_or_equal("0.2") and task.property_file:
