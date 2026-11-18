@@ -9,7 +9,7 @@ SPDX-FileCopyrightText: 2007-2025 Dirk Beyer <https://www.sosy-lab.org>
 SPDX-License-Identifier: Apache-2.0
 -->
 
-<!DOCTYPE benchmark PUBLIC "+//IDN sosy-lab.org//DTD BenchExec benchmark 3.30//EN" "https://www.sosy-lab.org/benchexec/benchmark-3.30.dtd">
+<!DOCTYPE benchmark PUBLIC "+//IDN sosy-lab.org//DTD BenchExec benchmark 3.36//EN" "https://www.sosy-lab.org/benchexec/benchmark-3.36.dtd">
 <!-- Example file for benchmark definition for BenchExec
      with dummy tool "calculatepi" that calculates Pi up to some number of digits. -->
 <benchmark displayName="Calculate Pi" tool="calculatepi" timelimit="900s" memlimit="100 MB" cpuCores="1">
