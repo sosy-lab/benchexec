@@ -49,7 +49,13 @@ def init(config, benchmark):
             tool_directory=TOOL_DIRECTORY_MOUNT_POINT
         )
         executable_for_version = benchmark.tool.executable(tool_locator)
-        benchmark.tool_version = benchmark.tool.version(executable_for_version)
+        benchmark.tool_version, version_lookup_failed = (
+            benchmark.tool.version_with_failure_detection(executable_for_version)
+        )
+        if version_lookup_failed:
+            benchmark.tool_version = _determine_version_on_host(
+                benchmark.tool_module, config
+            )
 
         executable_for_version = Path(executable_for_version)
 
@@ -103,6 +109,45 @@ def init(config, benchmark):
             "Unsupported environment configuration in tool-info module, "
             'only "newEnv" is supported by VerifierCloud'
         )
+
+
+def _determine_version_on_host(tool_module, config):
+    """
+    Determine the version of the tool by executing it on the host
+    instead of inside the container image,
+    i.e., in the same way as if no container image was given.
+
+    This is a fallback for tools that cannot be executed in the Podman container
+    in which we load the tool-info module. In order to be able to do the latter,
+    the Python packages of the host are mounted into that container,
+    where they can hide the packages of the image and break tools that are
+    implemented in Python (e.g., if the Python versions of host and image differ).
+
+    @return a (possibly empty) version string
+    """
+    logging.info(
+        "Determining the tool version inside container image %s failed, "
+        "trying again by executing the tool on the host instead.",
+        config.containerImage,
+    )
+    try:
+        if config.container:
+            from benchexec.containerized_tool import ContainerizedTool
+
+            tool = ContainerizedTool(tool_module, config)
+        else:
+            tool = __import__(tool_module, fromlist=["Tool"]).Tool()
+            tool = benchexec.tooladapter.adapt_to_current_version(tool)
+        try:
+            # Call executable() first as in regular execution,
+            # some tool-info modules rely on this.
+            tool_locator = benchexec.tooladapter.create_tool_locator(config)
+            return tool.version(tool.executable(tool_locator))
+        finally:
+            tool.close()
+    except BenchExecException as e:
+        logging.warning("Cannot determine tool version on the host either: %s", e)
+        return ""
 
 
 def get_system_info():

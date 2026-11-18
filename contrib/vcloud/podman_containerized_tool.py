@@ -19,10 +19,47 @@ from benchexec import (
 )
 from benchexec.containerized_tool import (
     ContainerizedTool,
+    _call_tool_func,
     _init_container_and_load_tool,
 )
 
 TOOL_DIRECTORY_MOUNT_POINT = "/mnt/__benchexec_tool_directory"
+
+
+class _WarningDetector(logging.Handler):
+    """Logging handler that only remembers whether a warning or error was logged."""
+
+    def __init__(self):
+        super().__init__(logging.WARNING)
+        self.triggered = False
+
+    def emit(self, record):
+        self.triggered = True
+
+
+def _version_with_failure_detection(executable):
+    """
+    Call version() of the tool-info module in the worker process
+    and detect whether determining the version failed.
+
+    A failure does not produce an exception that we could catch: If the tool crashes,
+    this happens in the process of the tool, and tool-info modules (in particular the
+    commonly used helper _version_from_tool) handle this by logging a warning
+    and returning an empty string. An empty string alone is no sign of a failure,
+    though, because tools are allowed to have no version. So we treat an empty version
+    as failure only if a warning was logged while it was determined.
+
+    @return a tuple of the (possibly empty) version string and a boolean that tells
+        whether determining the version failed
+    """
+    detector = _WarningDetector()
+    root_logger = logging.getLogger()
+    root_logger.addHandler(detector)
+    try:
+        version = _call_tool_func("version", [executable], {})
+    finally:
+        root_logger.removeHandler(detector)
+    return version, not version and detector.triggered
 
 
 def _init_container(
@@ -186,6 +223,15 @@ class PodmanContainerizedTool(ContainerizedTool):
                 "tool_directory": self.tool_directory,
             },
         )
+
+    def version_with_failure_detection(self, executable):
+        """
+        Like version(), but additionally report whether determining the version failed
+        (which is different from the tool having no version).
+        @return a tuple of the (possibly empty) version string and a boolean that tells
+            whether determining the version failed
+        """
+        return self._pool.apply(_version_with_failure_detection, [executable])
 
     def close(self):
         super().close()
