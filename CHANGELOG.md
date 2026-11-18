@@ -9,7 +9,10 @@ SPDX-License-Identifier: Apache-2.0
 
 # BenchExec Changelog
 
-## BenchExec 3.36 - not yet released
+## BenchExec 3.36 - 2026-11-18
+
+As announced before, we are planning to remove support for cgroups v1 in April 2027
+(cf. [issue 1267](https://github.com/sosy-lab/benchexec/issues/1267)).
 
 - `<requiredfiles>` tags now support an optional `mode` attribute
   that controls what happens if a pattern does not match any file:
@@ -17,6 +20,12 @@ SPDX-License-Identifier: Apache-2.0
   behavior) logs a warning per affected task, `mode="ignore"` stays silent,
   and `mode="skip"` skips the affected task (a single summary message
   reports how many tasks were skipped this way, not one message per task).
+- Filters in HTML tables now work correctly even for tables with missing run results
+  due to aborted benchmark execution (which are shown as "-").
+- The "diff" HTML tables now also show tasks where only the category of a status
+  differs between the runs but the status is equal
+  (this happens only if result files are edited after benchmark execution).
+- 39 new and improved tool-info modules for SV-COMP'27.
 
 ## BenchExec 3.35 - 2026-07-03
 
