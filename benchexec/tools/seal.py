@@ -6,6 +6,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import re
 
 from benchexec import result
 from benchexec.tools.sv_benchmarks_util import ILP32, LP64, get_data_model_from_task
@@ -23,15 +24,33 @@ class Tool(BaseTool2):
         return self._version_from_tool(executable)
 
     def executable(self, tool_locator):
-        return tool_locator.find_executable("seal-entrypoint.py")
+        executable = tool_locator.find_executable("seal-entrypoint.py")
+        self._version = self.version(executable)
+        return executable
+
+    def _version_newer_or_equal(self, requested_version):
+        # Only major and minor are compared, the rest of string is ignored
+        def version_as_tuple(version):
+            match = re.match(r"(\d+)\.(\d+)", version.strip())
+            return int(match[1]), int(match[2])
+
+        requested = version_as_tuple(requested_version)
+        actual = version_as_tuple(self._version)
+
+        return actual >= requested
 
     def cmdline(self, executable, options, task, rlimits):
+        if self._version_newer_or_equal("0.2") and task.property_file:
+            prop = ["--property-file", task.property_file]
+        else:
+            prop = []
+
         machdep = get_data_model_from_task(
             task, {ILP32: "gcc_x86_32", LP64: "gcc_x86_64"}
         )
         machdep_opt = ["-machdep", machdep] if machdep is not None else []
 
-        return [executable] + machdep_opt + options + [task.single_input_file]
+        return [executable] + prop + machdep_opt + options + [task.single_input_file]
 
     def determine_result(self, run):
         if run.exit_code.value != 0:
@@ -49,7 +68,19 @@ class Tool(BaseTool2):
         if run.output.any_line_contains("Invalid_memtrack"):
             return result.RESULT_FALSE_MEMTRACK
 
+        if run.output.any_line_contains("Invalid memcleanup"):
+            return result.RESULT_FALSE_MEMCLEANUP
+
+        if run.output.any_line_contains("Assertion violated"):
+            return result.RESULT_FALSE_REACH
+
         if run.output.any_line_contains("Successful_verification"):
             return result.RESULT_TRUE_PROP
+
+        if run.output.any_line_contains("Witness validated"):
+            return result.RESULT_TRUE_PROP
+
+        if run.output.any_line_contains("Validation inconclusive"):
+            return result.RESULT_UNKNOWN
 
         return result.RESULT_ERROR
