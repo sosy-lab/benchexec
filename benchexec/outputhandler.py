@@ -28,8 +28,8 @@ import benchexec
 from benchexec import filewriter, intel_cpu_energy, result, util
 from benchexec.model import CORELIMIT, MEMLIMIT, TIMELIMIT
 
-RESULT_XML_PUBLIC_ID = "+//IDN sosy-lab.org//DTD BenchExec result 3.12//EN"
-RESULT_XML_SYSTEM_ID = "https://www.sosy-lab.org/benchexec/result-3.12.dtd"
+RESULT_XML_PUBLIC_ID = "+//IDN sosy-lab.org//DTD BenchExec result 3.36//EN"
+RESULT_XML_SYSTEM_ID = "https://www.sosy-lab.org/benchexec/result-3.36.dtd"
 
 # colors for column status in terminal
 COLOR_GREEN = "\033[32;1m{0}\033[m"
