@@ -144,7 +144,7 @@ The files need to be in [YAML format](http://yaml.org/) (which is a superset of 
 and their structure needs to adhere to the
 [task-definition format](https://gitlab.com/sosy-lab/benchmarking/task-definition-format)
 (cf. also our [example file doc/task-definition-example.yml](task-definition-example.yml)).
-BenchExec supports versions 1.0 and 2.0 of the format.
+BenchExec supports version 2.1 and older versions of the format.
 For creating task-definition files for existing tasks
 that use the legacy way of encoding expected verdicts in the file name
 we provide a [helper script](../contrib/create_yaml_files.py).
