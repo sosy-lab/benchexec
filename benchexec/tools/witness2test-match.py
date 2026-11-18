@@ -68,19 +68,38 @@ class Tool(benchexec.tools.template.BaseTool2):
         return [executable, *options, *witness_options, "--program", *input_files]
 
     def determine_result(self, run):
-        default_status = result.RESULT_ERROR
-        status = default_status
-        for line in run.output:
+        # witness2test-match prints its verdict as the last line, after the
+        # output of the tested program. Reading the output from the end, the
+        # first verdict line decides the result, even if error or crash lines
+        # follow it. Without a verdict line, the last error or crash in the output
+        # decides the type of error that is reported.
+        error = None
+        for line in reversed(run.output):
             confirmed = re.match(r"Verdict: Confirmed (\w\S*)", line)
             if confirmed:
                 return f"{result.RESULT_FALSE_PROP}({confirmed.group(1)})"
+            if line.startswith("Verdict: Confirmed"):
+                # We don't know which property was confirmed,
+                # but we know verdict 'false'.
+                return result.RESULT_FALSE_PROP
+            if line.startswith("Verdict: "):
+                return result.RESULT_UNKNOWN
+            if error is None:
+                error = self._maybe_get_error_of_line(line)
+        return error or result.RESULT_ERROR
 
-            if line.lower().startswith("fatal error:"):
-                status = f"{result.RESULT_ERROR}(fatal error)"
-            elif line.lower().startswith("panic:"):
-                status = f"{result.RESULT_ERROR}(panic)"
-            elif status == default_status:
-                verdict = re.match(r"Verdict: (\S+)", line)
-                if verdict and verdict.group(1) != "Confirmed":
-                    status = result.RESULT_UNKNOWN
-        return status
+    def _maybe_get_error_of_line(self, line):
+        if line.startswith("witness2test-match error"):
+            tagged = re.match(
+                r"witness2test-match error \[([a-z][a-z0-9 -]*)\]: ", line
+            )
+            if tagged:
+                return f"{result.RESULT_ERROR}({tagged.group(1)})"
+            return result.RESULT_ERROR
+
+        # The below is Go-emitted error messages
+        if line.lower().startswith("fatal error:"):
+            return f"{result.RESULT_ERROR}(fatal error)"
+        if line.lower().startswith("panic:"):
+            return f"{result.RESULT_ERROR}(panic)"
+        return None
