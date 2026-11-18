@@ -269,6 +269,29 @@ def extract_columns_from_table_definition_file(xmltag, table_definition_file):
     return columns
 
 
+def extract_task_id_columns_from_table_definition(table_definition):
+    """
+    Extract the <taskidcolumn> tags of a table definition.
+    We return None if there are no such tags (automatic selection)
+    """
+    tags = table_definition.findall("taskidcolumn")
+    if not tags:
+        return None
+
+    selectable = TaskId._fields
+    selected = {}
+    for tag in tags:
+        field = (tag.text or "").strip()
+        if field not in selectable:
+            raise util.TableDefinitionError(
+                f"Invalid value '{field}' in <taskidcolumn>, "
+                f"only {', '.join(selectable)} are allowed."
+            )
+        index = TaskId._fields.index(field)
+        selected[index] = tag.get("title") or TaskId.field_names[index]
+    return selected
+
+
 def _get_columns_relevant_for_diff(columns_to_show):
     """
     Extract columns that are relevant for the diff table.
@@ -1143,18 +1166,33 @@ def format_run_set_attributes_nicely(runSetResults):
         runSetResult.attributes["niceName"] = niceName
 
 
-def select_relevant_id_columns(rows):
+def select_relevant_id_columns(rows, task_id_columns=None):
     """
     Find out which of the entries in Row.id are equal for all given rows.
-    @return: A list of True/False values according to whether the i-th part of the id is always equal.
+    If task_id_columns is given (from <taskidcolumn> tags), exactly these are shown.
+    Otherwise, those parts of the id that are equal for all rows are omitted.
+    @return: A list of indices into Row.id, in the order in which they are shown.
     """
-    relevant_id_columns = [True]  # first column (file name) is always relevant
+
+    if task_id_columns is not None:
+        return list(task_id_columns)  # keeping the orger of the tags
+    relevant_id_columns = [0]  # first column (file name) is always relevant
     if rows:
         prototype_id = rows[0].id
         for column in range(1, len(prototype_id)):
-            all_equal = all(row.id[column] == prototype_id[column] for row in rows)
-            relevant_id_columns.append(not all_equal)
+            if any(row.id[column] != prototype_id[column] for row in rows):
+                relevant_id_columns.append(column)
     return relevant_id_columns
+
+
+def get_id_column_titles(task_id_columns):
+    """Titles for all parts of the task id, or None if <taskidcolumn> is not used."""
+    if task_id_columns is None:
+        return None
+    titles = list(TaskId.field_names)
+    for index, title in task_id_columns.items():
+        titles[index] = title
+    return titles
 
 
 def compute_stats(rows, run_set_results, use_summary, correct_only):
@@ -1257,9 +1295,11 @@ def create_tables(
     # but we don't need them anymore and this is the easiest way
     format_run_set_attributes_nicely(runSetResults)
 
+    task_id_columns = getattr(options, "task_id_columns", None)
     data = types.SimpleNamespace(
         run_sets=runSetResults,
-        relevant_id_columns=select_relevant_id_columns(rows),
+        relevant_id_columns=select_relevant_id_columns(rows, task_id_columns),
+        id_column_titles=get_id_column_titles(task_id_columns),
         output_path=outputPath,
         common_prefix=common_prefix,
         options=options,
@@ -1322,20 +1362,41 @@ def create_tables(
 
 
 def write_csv_table(
-    out, run_sets, rows, common_prefix, relevant_id_columns, sep="\t", **kwargs
+    out,
+    run_sets,
+    rows,
+    common_prefix,
+    relevant_id_columns,
+    id_column_titles=None,
+    sep="\t",
+    **kwargs,
 ):
-    num_id_columns = relevant_id_columns[1:].count(True)
+    # the head lines write their own name in the first column,
+    # so they need one separator less if that column is a task-id column
+    num_head_separators = len(relevant_id_columns) - 1
+
+    id_titles = []
+    for index in relevant_id_columns:
+        if id_column_titles:
+            id_titles.append(id_column_titles[index])
+        elif index == 0:
+            id_titles.append(util.fix_path_if_on_windows(common_prefix))
+        else:
+            id_titles.append("")
 
     def write_head_line(
         name,
         values,
         value_repetitions=itertools.repeat(1),  # noqa: B008
+        id_values=None,
     ):
         if any(values):
             # name may contain paths, so standardize the output across OSs
-            out.write(util.fix_path_if_on_windows(name))
-            for i in range(num_id_columns):  # noqa: B007
+            out.write(name)
+            for i in range(num_head_separators):
                 out.write(sep)
+                if id_values:
+                    out.write(id_values[i])
             for value, count in zip(values, value_repetitions):
                 for i in range(count):  # noqa: B007
                     out.write(sep)
@@ -1354,18 +1415,22 @@ def write_csv_table(
         [len(run_set.columns) for run_set in run_sets],
     )
     write_head_line(
-        common_prefix,
+        id_titles[0],
         [column.format_title() for run_set in run_sets for column in run_set.columns],
+        id_values=id_titles[1:],
     )
 
     for row in rows:
         # row.short_filename may contain paths, so standardize the output across OSs
-        out.write(util.fix_path_if_on_windows(row.short_filename))
-        for row_id, is_relevant in zip(row.id[1:], relevant_id_columns[1:]):
-            if is_relevant:
+        index = 0
+        for position, index in enumerate(relevant_id_columns):
+            if position > 0:
                 out.write(sep)
-                if row_id is not None:
-                    out.write(str(row_id))
+            if index == 0:
+                out.write(util.fix_path_if_on_windows(row.short_filename))
+            elif row.id[index] is not None:
+                out.write(str(row.id[index]))
+
         for run_result in row.results:
             for value, column in zip(run_result.values, run_result.columns):
                 out.write(sep)
@@ -1624,9 +1689,14 @@ def main(args=None):
     else:
         outputFilePattern = "{name}.{type}.{ext}"
 
+    options.task_id_columns = None
     if options.xmltablefile:
         try:
             table_definition = parse_table_definition_file(options.xmltablefile)
+
+            options.task_id_columns = extract_task_id_columns_from_table_definition(
+                table_definition
+            )
 
             if table_definition_lists_result_files(table_definition):
                 if options.tables:
