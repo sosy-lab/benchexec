@@ -1,3 +1,9 @@
+benchexec (3.36-1) resolute; urgency=medium
+
+  * New upstream version.
+
+ -- Philipp Wendler <debian@philippwendler.de>  Wed, 18 Nov 2026 08:42:30 +0100
+
 benchexec (3.35-1) resolute; urgency=medium
 
   * New upstream version.
