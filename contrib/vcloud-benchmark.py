@@ -83,11 +83,11 @@ def resolve_container_image(image):
     # Users who want the latest version should run podman pull first.
     logging.info("Ensuring container image %s is available locally", image)
     if (
-            subprocess.run(
-                ["podman", "image", "pull", "--policy=missing", "--quiet", image],
-                stdout=subprocess.DEVNULL,
-            ).returncode
-            != 0
+        subprocess.run(
+            ["podman", "image", "pull", "--policy=missing", "--quiet", image],
+            stdout=subprocess.DEVNULL,
+        ).returncode
+        != 0
     ):
         raise BenchExecException(
             f"Cannot make container image {image} available locally."
