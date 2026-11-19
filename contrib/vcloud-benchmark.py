@@ -79,18 +79,22 @@ def resolve_container_image(image):
         return image
 
     original_image = image
-    # Pin the image by its digest, such that all runs use exactly the same image
-    # (even if the tag is moved meanwhile) and the provenance information identifies it.
-    logging.info("Pulling container %s to determine its digest", image)
+    # Use the local image if available, pulling only if it is missing.
+    # Users who want the latest version should run podman pull first.
+    logging.info("Ensuring container image %s is available locally", image)
     if (
-        subprocess.run(
-            ["podman", "image", "pull", "--quiet", image],
-            stdout=subprocess.DEVNULL,
-        ).returncode
-        != 0
+            subprocess.run(
+                ["podman", "image", "pull", "--policy=missing", "--quiet", image],
+                stdout=subprocess.DEVNULL,
+            ).returncode
+            != 0
     ):
-        raise BenchExecException(f"Cannot pull container {image}.")
+        raise BenchExecException(
+            f"Cannot make container image {image} available locally."
+        )
 
+    # Pin the selected image by digest so all runs use the same version,
+    # even if the tag changes later.
     digest = subprocess.run(
         ["podman", "image", "inspect", image, "--format", "{{.Digest}}"],
         stdout=subprocess.PIPE,
@@ -98,15 +102,15 @@ def resolve_container_image(image):
     ).stdout.strip()
     if not digest.startswith("sha256:"):
         raise BenchExecException(
-            f"Cannot determine digest of container {image} (got '{digest}')."
+            f"Cannot determine digest of container image {image} (got '{digest}')."
         )
 
-    # Remove the tag (a colon before the last slash separates the port of the registry)
+    # Remove the tag while preserving a possible registry port.
     if ":" in image.rsplit("/", 1)[-1]:
         image = image.rsplit(":", 1)[0]
 
     resolved_image = f"{image}@{digest}"
-    logging.info("Resolved '%s' to '%s'", original_image, resolved_image)
+    logging.info("Pinned container image '%s' to '%s'", original_image, resolved_image)
     return resolved_image
 
 
