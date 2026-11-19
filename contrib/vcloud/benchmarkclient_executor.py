@@ -52,8 +52,10 @@ def init(config, benchmark):
         benchmark.tool_version, version_lookup_failed = (
             benchmark.tool.version_with_failure_detection(executable_for_version)
         )
-        if version_lookup_failed:
-            benchmark.tool_version = _determine_version_on_host(
+        # We must never fall back to executing the tool without any container,
+        # so there is no fallback if BenchExec containers are disabled.
+        if version_lookup_failed and config.container:
+            benchmark.tool_version = _determine_version_in_benchexec_container(
                 benchmark.tool_module, config
             )
 
@@ -111,10 +113,10 @@ def init(config, benchmark):
         )
 
 
-def _determine_version_on_host(tool_module, config):
+def _determine_version_in_benchexec_container(tool_module, config):
     """
-    Determine the version of the tool by executing it on the host
-    instead of inside the container image,
+    Determine the version of the tool by executing it in a BenchExec container
+    instead of the Podman container with the given container image,
     i.e., in the same way as if no container image was given.
 
     This is a fallback for tools that cannot be executed in the Podman container
@@ -125,19 +127,17 @@ def _determine_version_on_host(tool_module, config):
 
     @return a (possibly empty) version string
     """
+    assert config.container, "tool must not be executed without container"
+    # lazy import because it can fail if container mode is not supported
+    from benchexec.containerized_tool import ContainerizedTool
+
     logging.info(
         "Determining the tool version inside container image %s failed, "
-        "trying again by executing the tool on the host instead.",
+        "trying again in a BenchExec container without this image.",
         config.containerImage,
     )
     try:
-        if config.container:
-            from benchexec.containerized_tool import ContainerizedTool
-
-            tool = ContainerizedTool(tool_module, config)
-        else:
-            tool = __import__(tool_module, fromlist=["Tool"]).Tool()
-            tool = benchexec.tooladapter.adapt_to_current_version(tool)
+        tool = ContainerizedTool(tool_module, config)
         try:
             # Call executable() first as in regular execution,
             # some tool-info modules rely on this.
@@ -146,7 +146,9 @@ def _determine_version_on_host(tool_module, config):
         finally:
             tool.close()
     except BenchExecException as e:
-        logging.warning("Cannot determine tool version on the host either: %s", e)
+        logging.warning(
+            "Cannot determine tool version in a BenchExec container either: %s", e
+        )
         return ""
 
 
