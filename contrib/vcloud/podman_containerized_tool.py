@@ -10,7 +10,7 @@ import os
 import shlex
 import subprocess
 import sys
-from pathlib import Path
+from pathlib import Path, PurePath
 
 from benchexec import (
     BenchExecException,
@@ -23,6 +23,70 @@ from benchexec.containerized_tool import (
 )
 
 TOOL_DIRECTORY_MOUNT_POINT = "/mnt/__benchexec_tool_directory"
+PYTHON_PATH_MOUNT_POINT = "/mnt/__benchexec_python_path"
+
+
+def _plan_python_path_mounts():
+    """
+    Decide where the directories from which Python loads modules (sys.path)
+    are mounted in the container.
+    We do not mount them at their original paths because this would hide whatever
+    the container image has at these paths, for example its own Python packages,
+    and tools that are implemented in Python could break.
+
+    @return a tuple of the Podman arguments for the mounts and a dict that maps
+        paths on the host (as they appear in sys.path, and with symlinks resolved)
+        to paths in the container, to be passed to _redirect_python_path()
+    """
+    volumes = []
+    path_translation = {}
+    for path in sys.path:
+        resolved_path = Path(path).resolve()
+        if not resolved_path.is_dir():
+            continue
+
+        # Podman rejects duplicates, so we mount each directory only once
+        mount_point = path_translation.get(PurePath(resolved_path))
+        if mount_point is None:
+            mount_count = len(set(path_translation.values()))
+            mount_point = PurePath(PYTHON_PATH_MOUNT_POINT, str(mount_count))
+            volumes += ["--volume", f"{resolved_path}:{mount_point}:ro"]
+            path_translation[PurePath(resolved_path)] = mount_point
+        path_translation[PurePath(path)] = mount_point
+
+    return volumes, path_translation
+
+
+def _redirect_python_path(path_translation):
+    """
+    Let Python load modules from where the directories of sys.path are mounted
+    in the container. This needs to be called right after this process
+    has joined the mount namespace of the container.
+    """
+
+    def translate(path):
+        # Look for the longest prefix of path that is mounted in the container
+        pure_path = PurePath(path)
+        for prefix in (pure_path, *pure_path.parents):
+            if prefix in path_translation:
+                return str(path_translation[prefix] / pure_path.relative_to(prefix))
+        return path  # nothing from sys.path
+
+    sys.path[:] = [translate(path) for path in sys.path]
+
+    for module in list(sys.modules.values()):
+        # Packages that are already loaded remember where to look for their modules
+        module_path = getattr(module, "__path__", None)
+        if isinstance(module_path, list):
+            module_path[:] = [translate(path) for path in module_path]
+
+        # Loaders remember the source file, which is needed for lines in tracebacks
+        loader = getattr(module, "__loader__", None)
+        if isinstance(getattr(loader, "path", None), str):
+            loader.path = translate(loader.path)
+
+    # Python caches a finder for each directory from which it loads modules
+    sys.path_importer_cache.clear()
 
 
 def _init_container(
@@ -34,25 +98,8 @@ def _init_container(
     """
     tool_directory = os.path.abspath(tool_directory)
 
-    # Mount the python loaded paths into the container
-    # The modules are mounted at the exact same path in the container
-    # because we do not yet know a solution to tell python to use
-    # different paths for the modules in the container.
-    # We need to deduplicate the paths because Podman rejects duplicates.
-    volumes = []
-    seen_paths = set()
-    for path in sys.path:
-        path = Path(path)
-        resolved_path = path.resolve()
-
-        # paths earlier in sys.path take precedence
-        if not resolved_path.is_dir() or resolved_path in seen_paths:
-            continue
-
-        seen_paths.add(resolved_path)
-
-        # we mount
-        volumes += ["--volume", f"{resolved_path}:{path}:ro"]
+    # Mount the directories from which Python loads modules into the container
+    volumes, python_path_translation = _plan_python_path_mounts()
 
     # Mount the tool directory into the container at a known location
     volumes += [
@@ -150,6 +197,9 @@ def _init_container(
         # mnt must be joined last because after joining it,
         # we can no longer access /proc/<container_pid>/ns
         join_ns("mnt")
+
+        # From now on, the modules of Python exist only at their mount points
+        _redirect_python_path(python_path_translation)
 
         os.chdir(TOOL_DIRECTORY_MOUNT_POINT)
         return container_id
