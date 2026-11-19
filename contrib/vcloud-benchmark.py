@@ -95,7 +95,7 @@ def resolve_container_image(image):
             ).returncode
             != 0
         ):
-            raise BenchExecException(f"Cannot pull container image {image}.")
+            raise BenchExecException(f"Cannot pull container {image}.")
     elif exists_returncode != 0:
         raise BenchExecException(
             f"Cannot check whether container image {image} exists locally."
