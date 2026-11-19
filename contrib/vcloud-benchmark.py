@@ -110,7 +110,7 @@ def resolve_container_image(image):
     ).stdout.strip()
     if not digest.startswith("sha256:"):
         raise BenchExecException(
-            f"Cannot determine digest of container image {image} (got '{digest}')."
+            f"Cannot determine digest of container {image} (got '{digest}')."
         )
 
     # Remove the tag while preserving a possible registry port.
