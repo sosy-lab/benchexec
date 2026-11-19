@@ -82,15 +82,23 @@ def resolve_container_image(image):
     # Use the local image if available, pulling only if it is missing.
     # Users who want the latest version should run podman pull first.
     logging.info("Ensuring container image %s is available locally", image)
-    if (
-        subprocess.run(
-            ["podman", "image", "pull", "--policy=missing", "--quiet", image],
-            stdout=subprocess.DEVNULL,
-        ).returncode
-        != 0
-    ):
+    exists_returncode = subprocess.run(
+        ["podman", "image", "exists", image],
+    ).returncode
+
+    if exists_returncode == 1:
+        logging.info("Pulling missing container image %s", image)
+        if (
+            subprocess.run(
+                ["podman", "image", "pull", "--quiet", image],
+                stdout=subprocess.DEVNULL,
+            ).returncode
+            != 0
+        ):
+            raise BenchExecException(f"Cannot pull container image {image}.")
+    elif exists_returncode != 0:
         raise BenchExecException(
-            f"Cannot make container image {image} available locally."
+            f"Cannot check whether container image {image} exists locally."
         )
 
     # Pin the selected image by digest so all runs use the same version,
