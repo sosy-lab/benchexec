@@ -74,6 +74,55 @@ def download_required_jars(config):
             temp_dir.cleanup()
 
 
+def resolve_container_image(image):
+    if "@sha256:" in image:
+        return image
+
+    original_image = image
+    # Use the local image if available, pulling only if it is missing.
+    # Users who want the latest version should run podman pull first.
+    logging.info("Ensuring container image %s is available locally", image)
+    # Use an explicit check for compatibility with Podman < 5.6.0, which does not support --policy=missing.
+    exists_returncode = subprocess.run(
+        ["podman", "image", "exists", image],
+    ).returncode
+
+    if exists_returncode == 1:
+        logging.info("Pulling missing container image %s", image)
+        if (
+            subprocess.run(
+                ["podman", "image", "pull", "--quiet", image],
+                stdout=subprocess.DEVNULL,
+            ).returncode
+            != 0
+        ):
+            raise BenchExecException(f"Cannot pull container {image}.")
+    elif exists_returncode != 0:
+        raise BenchExecException(
+            f"Cannot check whether container image {image} exists locally."
+        )
+
+    # Pin the selected image by digest so all runs use the same version,
+    # even if the tag changes later.
+    digest = subprocess.run(
+        ["podman", "image", "inspect", image, "--format", "{{.Digest}}"],
+        stdout=subprocess.PIPE,
+        text=True,
+    ).stdout.strip()
+    if not digest.startswith("sha256:"):
+        raise BenchExecException(
+            f"Cannot determine digest of container {image} (got '{digest}')."
+        )
+
+    # Remove the tag while preserving a possible registry port.
+    if ":" in image.rsplit("/", 1)[-1]:
+        image = image.rsplit(":", 1)[0]
+
+    resolved_image = f"{image}@{digest}"
+    logging.info("Pinned container image '%s' to '%s'", original_image, resolved_image)
+    return resolved_image
+
+
 def load_tool_info_in_container(tool_name, config):
     """
     Load the tool-info class inside a Podman container.
@@ -151,6 +200,10 @@ class VcloudBenchmark(VcloudBenchmarkBase):
                     "if the tool directory is explicitly provided. Please set it "
                     "using the --tool-directory option."
                 )
+
+            self.config.containerImage = resolve_container_image(
+                self.config.containerImage
+            )
 
             # Monkey-patch BenchExec to load tool-info module in Podman container.
             benchexec.model.load_tool_info = load_tool_info_in_container
