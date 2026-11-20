@@ -312,8 +312,6 @@ class Benchmark:
         # will be set from the outside if necessary (may not be the case in SaaS environments)
         self.tool_version = None
         self.executable = None
-        # will be set by executors that execute the tool in a container image
-        self.container_image = None
         self.display_name = rootTag.get("displayName")
 
         def parse_memory_limit(value):
