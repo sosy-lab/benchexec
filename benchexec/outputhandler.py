@@ -28,8 +28,8 @@ import benchexec
 from benchexec import filewriter, intel_cpu_energy, result, util
 from benchexec.model import CORELIMIT, MEMLIMIT, TIMELIMIT
 
-RESULT_XML_PUBLIC_ID = "+//IDN sosy-lab.org//DTD BenchExec result 3.36//EN"
-RESULT_XML_SYSTEM_ID = "https://www.sosy-lab.org/benchexec/result-3.36.dtd"
+RESULT_XML_PUBLIC_ID = "+//IDN sosy-lab.org//DTD BenchExec result 3.38//EN"
+RESULT_XML_SYSTEM_ID = "https://www.sosy-lab.org/benchexec/result-3.38.dtd"
 
 # colors for column status in terminal
 COLOR_GREEN = "\033[32;1m{0}\033[m"
@@ -207,6 +207,8 @@ class OutputHandler:
         )
         if self.benchmark.display_name:
             self.xml_header.set("displayName", self.benchmark.display_name)
+        if self.benchmark.container_image:
+            self.xml_header.set("containerImage", self.benchmark.container_image)
 
         if memlimit is not None:
             self.xml_header.set(MEMLIMIT, memlimit)
@@ -284,6 +286,7 @@ class OutputHandler:
                 "tool", self.benchmark.tool_name + " " + self.benchmark.tool_version
             )
             + format_line("tool executable", self.benchmark.executable)
+            + format_line("container image", self.benchmark.container_image)
             + format_line("options", shlex.join(self.benchmark.options))
             + format_line(
                 "property file", util.text_or_none(self.benchmark.propertytag)

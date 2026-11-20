@@ -43,6 +43,10 @@ def init(config, benchmark):
         sys.exit("A CPU-time limit is required when running on Cloud.")
 
     if config.containerImage:
+        # Record the image (pinned by its digest in vcloud-benchmark.py)
+        # in the result files, because its tag can be moved later.
+        benchmark.container_image = config.containerImage
+
         from vcloud.podman_containerized_tool import TOOL_DIRECTORY_MOUNT_POINT
 
         tool_locator = benchexec.tooladapter.CURRENT_BASETOOL.ToolLocator(
