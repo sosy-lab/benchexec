@@ -9,6 +9,10 @@ SPDX-License-Identifier: Apache-2.0
 
 # BenchExec Changelog
 
+## BenchExec 3.37 - 2026-11-20
+
+- One improved tool-info module.
+
 ## BenchExec 3.36 - 2026-11-18
 
 As announced before, we are planning to remove support for cgroups v1 in April 2027
