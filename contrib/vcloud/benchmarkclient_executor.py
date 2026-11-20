@@ -398,6 +398,12 @@ def handleCloudResults(benchmark, output_handler, start_time, end_time):
                     output_handler.set_error("missing results", runSet)
                     executedAllRuns = False
                 else:
+                    if benchmark.config.containerImage:
+                        # Store the image (pinned by its digest in vcloud-benchmark.py)
+                        # like the BenchCloud metadata in parse_vcloud_run_result().
+                        values["vcloud-containerImage"] = (
+                            benchmark.config.containerImage
+                        )
                     output_handler.output_before_run(run)
                     run.set_result(values, ["host"])
                     output_handler.output_after_run(run)

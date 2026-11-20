@@ -8,8 +8,11 @@
 import importlib.util
 import os
 import subprocess
+import tempfile
 import unittest
 from unittest import mock
+
+from vcloud import benchmarkclient_executor
 
 from benchexec import BenchExecException
 
@@ -134,3 +137,42 @@ class TestResolveContainerImage(unittest.TestCase):
                     vcloud_benchmark.resolve_container_image,
                     "image:1",
                 )
+
+
+class TestHandleCloudResults(unittest.TestCase):
+    def handle_result_of_single_run(self, container_image):
+        """Process the result of a single run and return the values given to the run."""
+        with tempfile.TemporaryDirectory() as log_folder:
+            log_file = os.path.join(log_folder, "run.log")
+            with open(log_file, "w"):
+                pass
+            with open(log_file + ".data", "w") as data_file:
+                data_file.write("cputime=1.0s\nwalltime=2.0s\nmemory=100B\n")
+                data_file.write("returnvalue=0\nrunId=42\n")
+
+            run = mock.Mock(log_file=log_file)
+            run_set = mock.Mock(runs=[run])
+            run_set.should_be_executed.return_value = True
+            benchmark = mock.Mock(log_folder=log_folder, run_sets=[run_set])
+            benchmark.config.containerImage = container_image
+            benchmark.config.debug = False
+
+            # hostInformation.txt is missing, which is irrelevant here
+            with self.assertLogs(level="WARNING"):
+                benchmarkclient_executor.handleCloudResults(
+                    benchmark, mock.Mock(), None, None
+                )
+
+        run.set_result.assert_called_once()
+        return run.set_result.call_args.args[0]
+
+    def test_container_image_is_stored_with_run_results(self):
+        image = f"registry.example.org/image@{DIGEST}"
+        values = self.handle_result_of_single_run(image)
+        self.assertEqual(values["vcloud-containerImage"], image)
+        self.assertEqual(values["vcloud-runId"], "42")
+
+    def test_no_container_image(self):
+        values = self.handle_result_of_single_run(None)
+        self.assertNotIn("vcloud-containerImage", values)
+        self.assertEqual(values["vcloud-runId"], "42")
