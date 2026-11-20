@@ -82,6 +82,7 @@ def resolve_container_image(image):
     # Use the local image if available, pulling only if it is missing.
     # Users who want the latest version should run podman pull first.
     logging.info("Ensuring container image %s is available locally", image)
+    # Use an explicit check for compatibility with Podman < 5.6.0, which does not support --policy=missing.
     exists_returncode = subprocess.run(
         ["podman", "image", "exists", image],
     ).returncode
