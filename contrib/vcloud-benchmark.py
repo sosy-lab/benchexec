@@ -75,10 +75,9 @@ def download_required_jars(config):
 
 
 def resolve_container_image(image):
-    if "@sha256:" in image:
+    if "@" in image:
         return image
 
-    original_image = image
     # Use the local image if available, pulling only if it is missing.
     # Users who want the latest version should run podman pull first.
     logging.info("Ensuring container image %s is available locally", image)
@@ -104,22 +103,26 @@ def resolve_container_image(image):
 
     # Pin the selected image by digest so all runs use the same version,
     # even if the tag changes later.
-    digest = subprocess.run(
+    inspect_result = subprocess.run(
         ["podman", "image", "inspect", image, "--format", "{{.Digest}}"],
         stdout=subprocess.PIPE,
         text=True,
-    ).stdout.strip()
-    if not digest.startswith("sha256:"):
+    )
+    if inspect_result.returncode != 0:
+        raise BenchExecException(
+            f"Cannot inspect container image {image} "
+            f"(Podman exited with code {inspect_result.returncode})."
+        )
+
+    digest = inspect_result.stdout.strip()
+    algorithm, _, encoded_digest = digest.partition(":")
+    if not algorithm or not encoded_digest:
         raise BenchExecException(
             f"Cannot determine digest of container {image} (got '{digest}')."
         )
 
-    # Remove the tag while preserving a possible registry port.
-    if ":" in image.rsplit("/", 1)[-1]:
-        image = image.rsplit(":", 1)[0]
-
     resolved_image = f"{image}@{digest}"
-    logging.info("Pinned container image '%s' to '%s'", original_image, resolved_image)
+    logging.info("Pinned container image '%s' to '%s'", image, resolved_image)
     return resolved_image
 
 

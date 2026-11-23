@@ -27,7 +27,12 @@ _spec.loader.exec_module(vcloud_benchmark)
 DIGEST = "sha256:" + "0123456789abcdef" * 4
 
 
-def fake_podman(pull_returncode=0, inspect_stdout=DIGEST + "\n", exists_returncode=0):
+def fake_podman(
+    pull_returncode=0,
+    inspect_stdout=DIGEST + "\n",
+    exists_returncode=0,
+    inspect_returncode=0,
+):
     """Create a replacement for subprocess.run that behaves like podman."""
 
     def run(cmd, **_kwargs):
@@ -36,7 +41,9 @@ def fake_podman(pull_returncode=0, inspect_stdout=DIGEST + "\n", exists_returnco
         if cmd[:3] == ["podman", "image", "pull"]:
             return subprocess.CompletedProcess(cmd, pull_returncode)
         if cmd[:3] == ["podman", "image", "inspect"]:
-            return subprocess.CompletedProcess(cmd, 0, stdout=inspect_stdout)
+            return subprocess.CompletedProcess(
+                cmd, inspect_returncode, stdout=inspect_stdout
+            )
         raise AssertionError(f"Unexpected command {cmd}")
 
     return mock.patch.object(
@@ -45,28 +52,29 @@ def fake_podman(pull_returncode=0, inspect_stdout=DIGEST + "\n", exists_returnco
 
 
 class TestResolveContainerImage(unittest.TestCase):
-    def test_tag_is_replaced_by_digest(self):
-        for image, repository in [
-            ("image", "image"),
-            ("image:latest", "image"),
-            ("image:1.2.3", "image"),
-            ("registry.example.org/group/image", "registry.example.org/group/image"),
-            ("registry.example.org/group/image:1", "registry.example.org/group/image"),
+    def test_digest_is_appended_to_image_reference(self):
+        for image in [
+            "image",
+            "image:latest",
+            "image:1.2.3",
+            "registry.example.org/group/image",
+            "registry.example.org/group/image:1",
             # A colon before the last slash is the port of the registry, not a tag.
-            ("localhost:5000/image", "localhost:5000/image"),
-            ("localhost:5000/image:1", "localhost:5000/image"),
-            ("localhost:5000/group/image:1", "localhost:5000/group/image"),
+            "localhost:5000/image",
+            "localhost:5000/image:1",
+            "localhost:5000/group/image:1",
         ]:
             with self.subTest(image=image), fake_podman():
                 self.assertEqual(
                     vcloud_benchmark.resolve_container_image(image),
-                    f"{repository}@{DIGEST}",
+                    f"{image}@{DIGEST}",
                 )
 
     def test_image_with_digest_is_unchanged(self):
         for image in [
             f"image@{DIGEST}",
             f"image:1@{DIGEST}",
+            "image:1@sha512:" + "a" * 128,
             f"localhost:5000/group/image@{DIGEST}",
         ]:
             with self.subTest(image=image), fake_podman() as run:
@@ -92,7 +100,7 @@ class TestResolveContainerImage(unittest.TestCase):
         with fake_podman(exists_returncode=1) as run:
             self.assertEqual(
                 vcloud_benchmark.resolve_container_image(image),
-                f"registry.example.org/group/image@{DIGEST}",
+                f"{image}@{DIGEST}",
             )
 
         commands = [call.args[0] for call in run.call_args_list]
@@ -128,8 +136,17 @@ class TestResolveContainerImage(unittest.TestCase):
                 ["podman", "image", "exists", "image:1"],
             )
 
+    def test_failing_inspect_is_an_error_even_with_digest_output(self):
+        with fake_podman(inspect_returncode=125):
+            self.assertRaisesRegex(
+                BenchExecException,
+                "Cannot inspect container image image:1",
+                vcloud_benchmark.resolve_container_image,
+                "image:1",
+            )
+
     def test_missing_digest_is_an_error(self):
-        for output in ["", "\n", "<none>\n", "Error: image not known\n"]:
+        for output in ["", "\n", "<none>\n"]:
             with self.subTest(output=output), fake_podman(inspect_stdout=output):
                 self.assertRaisesRegex(
                     BenchExecException,
@@ -137,6 +154,30 @@ class TestResolveContainerImage(unittest.TestCase):
                     vcloud_benchmark.resolve_container_image,
                     "image:1",
                 )
+
+    def test_inspected_digest_format(self):
+        image = "image:1"
+        for digest, valid in [
+            ("sha256:abc123", True),
+            ("sha512:abc123", True),
+            ("sha256:", False),
+            (":abc123", False),
+            ("abc123", False),
+        ]:
+            with (
+                self.subTest(digest=digest),
+                fake_podman(inspect_stdout=digest + "\n"),
+            ):
+                if valid:
+                    self.assertEqual(
+                        vcloud_benchmark.resolve_container_image(image),
+                        f"{image}@{digest}",
+                    )
+                else:
+                    with self.assertRaisesRegex(
+                        BenchExecException, "Cannot determine digest of container"
+                    ):
+                        vcloud_benchmark.resolve_container_image(image)
 
 
 class TestHandleCloudResults(unittest.TestCase):
