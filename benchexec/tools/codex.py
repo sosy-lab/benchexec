@@ -52,6 +52,10 @@ class Tool(benchexec.tools.template.BaseTool2):
         for line in run.output:
             if "TRUE" in line:
                 return result.RESULT_TRUE_PROP
+            elif "FALSE (no-overflow)" in line:
+                return result.RESULT_FALSE_OVERFLOW
+            elif "FALSE (unreach-call)" in line:
+                return result.RESULT_FALSE_REACH
             elif "FALSE" in line:
                 return result.RESULT_FALSE_PROP
             elif "UNKNOWN" in line:
