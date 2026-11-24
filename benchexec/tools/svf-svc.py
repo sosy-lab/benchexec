@@ -17,7 +17,7 @@ class Tool(benchexec.tools.template.BaseTool2):
     - SVF: https://github.com/SVF-tools/SVF
     """
 
-    REQUIRED_PATHS = ["*.py", "pysvf*", "*yaml"]
+    REQUIRED_PATHS = ["*.py", "pysvf*", "*yaml", "svf", "include_replace.c"]
 
     def executable(self, tool_locator):
         return tool_locator.find_executable("svf_run.py")
