@@ -58,6 +58,10 @@ class Tool(benchexec.tools.template.BaseTool2):
                 return result.RESULT_FALSE_MEMCLEANUP
             elif line.startswith("OVERFLOW Incorrect"):
                 return result.RESULT_FALSE_OVERFLOW
+            elif "Incorrect" in line:
+                return result.RESULT_FALSE_PROP
+            elif "Correct" in line:
+                return result.RESULT_TRUE_PROP
             elif line.startswith("Unknown"):
                 return result.RESULT_UNKNOWN
             elif line.startswith("ERROR("):
