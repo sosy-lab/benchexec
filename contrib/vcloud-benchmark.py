@@ -121,6 +121,8 @@ def resolve_container_image(image):
             f"Cannot determine digest of container {image} (got '{digest}')."
         )
 
+    # Append the digest but keep the tag (if present) for readability.
+    # Podman resolves such references by digest and ignores the tag.
     resolved_image = f"{image}@{digest}"
     logging.info("Pinned container image '%s' to '%s'", image, resolved_image)
     return resolved_image
