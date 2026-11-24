@@ -85,7 +85,7 @@ class MetaVal1:
     def cmdline(self, executable, options, task, rlimits):
         if not task.property_file:
             raise UnsupportedFeatureException(
-                f"Execution without property file is not supported by {self.name()}!"
+                "Execution without property file is not supported by MetaVal!"
             )
         parser = argparse.ArgumentParser(add_help=False, usage=argparse.SUPPRESS)
         parser.add_argument("--metavalWitness", default=None)

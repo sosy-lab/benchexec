@@ -5,8 +5,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from benchexec import util
-
 from . import cseq
 
 
@@ -17,8 +15,8 @@ class Tool(cseq.CSeqTool):
 
     REQUIRED_PATHS = ["backends", "bin", "include", "ul-cseq.py"]
 
-    def executable(self):
-        return util.find_executable("ul-cseq.py")
+    def executable(self, tool_locator):
+        return tool_locator.find_executable("ul-cseq.py")
 
     def name(self):
         return "UL-CSeq"
