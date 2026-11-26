@@ -10,6 +10,7 @@ import os
 import shlex
 import subprocess
 import sys
+import weakref
 from pathlib import Path, PurePath
 
 from benchexec import (
@@ -217,6 +218,26 @@ def _join_container(container_id, python_path_translation):
         )
 
 
+def _remove_container(container_id):
+    """
+    Remove a container that was created with _create_container().
+    """
+    logging.debug("Removing container with global id %s", container_id)
+    try:
+        subprocess.run(
+            # Podman may already have removed the container if "podman init" failed.
+            ["podman", "rm", "--ignore", container_id],
+            check=True,
+            stdout=subprocess.DEVNULL,
+            stdin=subprocess.DEVNULL,
+            stderr=subprocess.PIPE,
+        )
+    except subprocess.CalledProcessError as e:
+        logging.warning(
+            "Failed to remove container %s: %s", container_id, e.stderr.decode()
+        )
+
+
 @tooladapter.CURRENT_BASETOOL.register  # mark as instance of CURRENT_BASETOOL
 class PodmanContainerizedTool(ContainerizedTool):
     tool_directory: str
@@ -231,12 +252,14 @@ class PodmanContainerizedTool(ContainerizedTool):
         self.tool_directory = config.tool_directory
         self.image = image
         self.container_id = None
+        # replaced in _setup_container() as soon as the container exists
+        self._container_finalizer = lambda: None
 
         try:
             super().__init__(tool_module, config)
         except BaseException:
             # For example, the tool-info module could not be loaded.
-            self._remove_container()
+            self._container_finalizer()
             raise
 
     def _setup_container(self, tool_module, config):
@@ -250,6 +273,15 @@ class PodmanContainerizedTool(ContainerizedTool):
             # for example, if Podman is not installed
             raise BenchExecException(f"Failed to configure container: {e}")
 
+        # The finalizer runs at most once: when it is called explicitly,
+        # or otherwise when this object is garbage collected or Python exits.
+        # The latter is the safety net for the case that close() is never called.
+        # The arguments must not reference self, otherwise self would never
+        # be garbage collected.
+        self._container_finalizer = weakref.finalize(
+            self, _remove_container, self.container_id
+        )
+
         self.__doc__, _ = self._pool.apply(
             _init_container_and_load_tool,
             [_join_container, tool_module, self.container_id, python_path_translation],
@@ -259,24 +291,4 @@ class PodmanContainerizedTool(ContainerizedTool):
         try:
             super().close()
         finally:
-            self._remove_container()
-
-    def _remove_container(self):
-        if self.container_id is None:
-            return
-        logging.debug("Removing container with global id %s", self.container_id)
-        try:
-            subprocess.run(
-                # Podman already removes the container itself if "podman init" fails.
-                ["podman", "rm", "--ignore", self.container_id],
-                check=True,
-                stdout=subprocess.DEVNULL,
-                stdin=subprocess.DEVNULL,
-                stderr=subprocess.PIPE,
-            )
-        except subprocess.CalledProcessError as e:
-            logging.warning(
-                "Failed to stop container %s: %s",
-                self.container_id,
-                e.stderr.decode(),
-            )
+            self._container_finalizer()
