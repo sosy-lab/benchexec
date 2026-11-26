@@ -308,221 +308,234 @@ class Benchmark:
         if not tool_name:
             sys.exit("A tool needs to be specified in the benchmark definition file.")
         (self.tool_module, self.tool) = load_tool_info(tool_name, config)
-        self.tool_name = self.tool.name()
-        # will be set from the outside if necessary (may not be the case in SaaS environments)
-        self.tool_version = None
-        self.executable = None
-        self.display_name = rootTag.get("displayName")
+        try:
+            self.tool_name = self.tool.name()
+            # will be set from the outside if necessary (may not be the case in SaaS environments)
+            self.tool_version = None
+            self.executable = None
+            self.display_name = rootTag.get("displayName")
 
-        def parse_memory_limit(value):
-            # In a future BenchExec version, we could treat unit-less limits as bytes
-            try:
-                value = int(value)
-            except ValueError:
-                return util.parse_memory_value(value)
-            else:
-                raise ValueError(
-                    f"Memory limit must have a unit suffix, e.g., '{value} MB'"
-                )
-
-        rlimits = {}
-
-        def handle_limit_value(name, from_key, to_key, cmdline_value, parse_fn):
-            value = rootTag.get(from_key, None)
-            # override limit from XML with values from command line
-            if cmdline_value is not None:
-                if cmdline_value.strip() == "-1":  # infinity
-                    value = None
-                else:
-                    value = cmdline_value
-
-            if value is not None:
+            def parse_memory_limit(value):
+                # In a future BenchExec version, we could treat unit-less limits as bytes
                 try:
-                    rlimits[to_key] = parse_fn(value)
-                except ValueError as e:
-                    sys.exit(f"Invalid value for {name.lower()} limit: {e}")
-                if rlimits[to_key] <= 0:
-                    sys.exit(
-                        f'{name} limit "{value}" is invalid, '
-                        f"it needs to be a positive number "
-                        f"(or -1 on the command line for disabling it)."
+                    value = int(value)
+                except ValueError:
+                    return util.parse_memory_value(value)
+                else:
+                    raise ValueError(
+                        f"Memory limit must have a unit suffix, e.g., '{value} MB'"
                     )
 
-        handle_limit_value(
-            "Time", TIMELIMIT, "cputime", config.timelimit, util.parse_timespan_value
-        )
-        handle_limit_value(
-            "Hard time",
-            HARDTIMELIMIT,
-            "cputime_hard",
-            config.timelimit,
-            util.parse_timespan_value,
-        )
-        handle_limit_value(
-            "Wall time",
-            WALLTIMELIMIT,
-            "walltime",
-            config.walltimelimit,
-            util.parse_timespan_value,
-        )
-        handle_limit_value(
-            "Memory", MEMLIMIT, "memory", config.memorylimit, parse_memory_limit
-        )
-        handle_limit_value("Core", CORELIMIT, "cpu_cores", config.corelimit, int)
+            rlimits = {}
 
-        self.rlimits = tooladapter.CURRENT_BASETOOL.ResourceLimits(**rlimits)
+            def handle_limit_value(name, from_key, to_key, cmdline_value, parse_fn):
+                value = rootTag.get(from_key, None)
+                # override limit from XML with values from command line
+                if cmdline_value is not None:
+                    if cmdline_value.strip() == "-1":  # infinity
+                        value = None
+                    else:
+                        value = cmdline_value
 
-        if self.rlimits.cputime:
-            if self.rlimits.cputime_hard:
-                # if both cputime and cputime_hard are given, might need to adjust
-                if self.rlimits.cputime_hard < self.rlimits.cputime:
-                    logging.warning(
-                        "Hard timelimit %d is smaller than timelimit %d, ignoring the former.",
-                        self.rlimits.cputime_hard,
-                        self.rlimits.cputime,
-                    )
+                if value is not None:
+                    try:
+                        rlimits[to_key] = parse_fn(value)
+                    except ValueError as e:
+                        sys.exit(f"Invalid value for {name.lower()} limit: {e}")
+                    if rlimits[to_key] <= 0:
+                        sys.exit(
+                            f'{name} limit "{value}" is invalid, '
+                            f"it needs to be a positive number "
+                            f"(or -1 on the command line for disabling it)."
+                        )
+
+            handle_limit_value(
+                "Time",
+                TIMELIMIT,
+                "cputime",
+                config.timelimit,
+                util.parse_timespan_value,
+            )
+            handle_limit_value(
+                "Hard time",
+                HARDTIMELIMIT,
+                "cputime_hard",
+                config.timelimit,
+                util.parse_timespan_value,
+            )
+            handle_limit_value(
+                "Wall time",
+                WALLTIMELIMIT,
+                "walltime",
+                config.walltimelimit,
+                util.parse_timespan_value,
+            )
+            handle_limit_value(
+                "Memory", MEMLIMIT, "memory", config.memorylimit, parse_memory_limit
+            )
+            handle_limit_value("Core", CORELIMIT, "cpu_cores", config.corelimit, int)
+
+            self.rlimits = tooladapter.CURRENT_BASETOOL.ResourceLimits(**rlimits)
+
+            if self.rlimits.cputime:
+                if self.rlimits.cputime_hard:
+                    # if both cputime and cputime_hard are given, might need to adjust
+                    if self.rlimits.cputime_hard < self.rlimits.cputime:
+                        logging.warning(
+                            "Hard timelimit %d is smaller than timelimit %d, ignoring the former.",
+                            self.rlimits.cputime_hard,
+                            self.rlimits.cputime,
+                        )
+                        self.rlimits = self.rlimits._replace(
+                            cputime_hard=self.rlimits.cputime
+                        )
+                else:
+                    # if only cputime is given, set cputime_hard to same value
                     self.rlimits = self.rlimits._replace(
                         cputime_hard=self.rlimits.cputime
                     )
+            elif self.rlimits.cputime_hard:
+                # if only cputime_hard is given, set cputime to same value
+                self.rlimits = self.rlimits._replace(cputime=self.rlimits.cputime_hard)
+
+            self.num_of_threads = int(rootTag.get("threads", 1))
+            if config.num_of_threads is not None:
+                self.num_of_threads = config.num_of_threads
+            if self.num_of_threads < 1:
+                logging.error("At least ONE thread must be given!")
+                sys.exit()
+
+            # get global options and property file
+            self.options = util.get_list_from_xml(rootTag)
+            self.propertytag = get_propertytag(rootTag)
+
+            # get columns
+            self.columns = Benchmark.load_columns(rootTag.find("columns"))
+
+            # get global source files, they are used in all run sets
+            if rootTag.findall("sourcefiles"):
+                sys.exit(
+                    f"Benchmark file {benchmark_file} has unsupported old format. "
+                    f"Rename <sourcefiles> tags to <tasks>."
+                )
+            globalSourcefilesTags = rootTag.findall("tasks")
+
+            # get required files
+            self._required_files = set()
+            for required_files_tag in rootTag.findall("requiredfiles"):
+                missing_files_mode = _get_requiredfiles_ifmissingmode(
+                    required_files_tag, _REQUIREDFILES_MODES_WITHOUT_SKIP
+                )
+                required_files = util.expand_filename_pattern(
+                    required_files_tag.text, self.base_dir
+                )
+                if not required_files:
+                    if missing_files_mode == "fail":
+                        raise BenchExecException(
+                            f"Pattern {required_files_tag.text} in requiredfiles tag "
+                            f"did not match any file."
+                        )
+                    elif missing_files_mode == "warn":
+                        logging.warning(
+                            "Pattern %s in requiredfiles tag did not match any file.",
+                            required_files_tag.text,
+                        )
+                    # mode == "ignore": stay silent
+                self._required_files = self._required_files.union(required_files)
+
+            # get requirements
+            self.requirements = Requirements(
+                rootTag.findall("require"), self.rlimits, config
+            )
+
+            result_files_tags = rootTag.findall("resultfiles")
+            if result_files_tags:
+                self.result_files_patterns = [
+                    os.path.normpath(p.text) for p in result_files_tags if p.text
+                ]
+                for pattern in self.result_files_patterns:
+                    if pattern.startswith(".."):
+                        sys.exit(f"Invalid relative result-files pattern '{pattern}'.")
             else:
-                # if only cputime is given, set cputime_hard to same value
-                self.rlimits = self.rlimits._replace(cputime_hard=self.rlimits.cputime)
-        elif self.rlimits.cputime_hard:
-            # if only cputime_hard is given, set cputime to same value
-            self.rlimits = self.rlimits._replace(cputime=self.rlimits.cputime_hard)
+                # default is "everything below current directory"
+                self.result_files_patterns = ["."]
 
-        self.num_of_threads = int(rootTag.get("threads", 1))
-        if config.num_of_threads is not None:
-            self.num_of_threads = config.num_of_threads
-        if self.num_of_threads < 1:
-            logging.error("At least ONE thread must be given!")
-            sys.exit()
+            # get benchmarks
+            self._skipped_run_count = 0
+            self.run_sets = []
+            for i, rundefinitionTag in enumerate(rootTag.findall("rundefinition")):
+                self.run_sets.append(
+                    RunSet(rundefinitionTag, self, i + 1, globalSourcefilesTags)
+                )
 
-        # get global options and property file
-        self.options = util.get_list_from_xml(rootTag)
-        self.propertytag = get_propertytag(rootTag)
+            if self._skipped_run_count != 0:
+                logging.info(
+                    "Skipped %d run(s) because a required-files pattern with "
+                    'ifmissing="skip-run" did not match any file.',
+                    self._skipped_run_count,
+                )
 
-        # get columns
-        self.columns = Benchmark.load_columns(rootTag.find("columns"))
-
-        # get global source files, they are used in all run sets
-        if rootTag.findall("sourcefiles"):
-            sys.exit(
-                f"Benchmark file {benchmark_file} has unsupported old format. "
-                f"Rename <sourcefiles> tags to <tasks>."
-            )
-        globalSourcefilesTags = rootTag.findall("tasks")
-
-        # get required files
-        self._required_files = set()
-        for required_files_tag in rootTag.findall("requiredfiles"):
-            missing_files_mode = _get_requiredfiles_ifmissingmode(
-                required_files_tag, _REQUIREDFILES_MODES_WITHOUT_SKIP
-            )
-            required_files = util.expand_filename_pattern(
-                required_files_tag.text, self.base_dir
-            )
-            if not required_files:
-                if missing_files_mode == "fail":
-                    raise BenchExecException(
-                        f"Pattern {required_files_tag.text} in requiredfiles tag "
-                        f"did not match any file."
-                    )
-                elif missing_files_mode == "warn":
-                    logging.warning(
-                        "Pattern %s in requiredfiles tag did not match any file.",
-                        required_files_tag.text,
-                    )
-                # mode == "ignore": stay silent
-            self._required_files = self._required_files.union(required_files)
-
-        # get requirements
-        self.requirements = Requirements(
-            rootTag.findall("require"), self.rlimits, config
-        )
-
-        result_files_tags = rootTag.findall("resultfiles")
-        if result_files_tags:
-            self.result_files_patterns = [
-                os.path.normpath(p.text) for p in result_files_tags if p.text
-            ]
-            for pattern in self.result_files_patterns:
-                if pattern.startswith(".."):
-                    sys.exit(f"Invalid relative result-files pattern '{pattern}'.")
-        else:
-            # default is "everything below current directory"
-            self.result_files_patterns = ["."]
-
-        # get benchmarks
-        self._skipped_run_count = 0
-        self.run_sets = []
-        for i, rundefinitionTag in enumerate(rootTag.findall("rundefinition")):
-            self.run_sets.append(
-                RunSet(rundefinitionTag, self, i + 1, globalSourcefilesTags)
-            )
-
-        if self._skipped_run_count != 0:
-            logging.info(
-                "Skipped %d run(s) because a required-files pattern with "
-                'ifmissing="skip-run" did not match any file.',
-                self._skipped_run_count,
-            )
-
-        if not self.run_sets:
-            logging.warning(
-                "Benchmark file %s specifies no runs to execute "
-                "(no <rundefinition> tags found).",
-                benchmark_file,
-            )
-
-        if not any(runSet.should_be_executed() for runSet in self.run_sets):
-            logging.warning(
-                "No <rundefinition> tag selected, nothing will be executed."
-            )
-            if config.selected_run_definitions:
+            if not self.run_sets:
                 logging.warning(
-                    "The selection %s does not match any run definitions of %s.",
-                    config.selected_run_definitions,
-                    [runSet.real_name for runSet in self.run_sets],
+                    "Benchmark file %s specifies no runs to execute "
+                    "(no <rundefinition> tags found).",
+                    benchmark_file,
                 )
-        elif config.selected_run_definitions:
-            for selected in config.selected_run_definitions:
-                if not any(
-                    util.wildcard_match(run_set.real_name, selected)
-                    for run_set in self.run_sets
-                ):
+
+            if not any(runSet.should_be_executed() for runSet in self.run_sets):
+                logging.warning(
+                    "No <rundefinition> tag selected, nothing will be executed."
+                )
+                if config.selected_run_definitions:
                     logging.warning(
-                        'The selected run definition "%s" is not present in the input file, '
-                        "skipping it.",
-                        selected,
+                        "The selection %s does not match any run definitions of %s.",
+                        config.selected_run_definitions,
+                        [runSet.real_name for runSet in self.run_sets],
+                    )
+            elif config.selected_run_definitions:
+                for selected in config.selected_run_definitions:
+                    if not any(
+                        util.wildcard_match(run_set.real_name, selected)
+                        for run_set in self.run_sets
+                    ):
+                        logging.warning(
+                            'The selected run definition "%s" is not present in the input file, '
+                            "skipping it.",
+                            selected,
+                        )
+
+            run_set_names = collections.Counter(
+                runSet.name for runSet in self.run_sets if runSet.should_be_executed()
+            )
+            if config.results_per_rundefinition or config.results_per_taskset:
+                # with new arguments require strict names for consistency
+                if len(run_set_names) > 1 and run_set_names[None] > 0:
+                    raise BenchExecException(
+                        "Mix of named and unnamed run definitions found. "
+                        "Please add unique names to all run definitions."
+                    )
+            else:
+                # for now follow old default
+                if run_set_names[""] > 1:
+                    raise BenchExecException(
+                        "Cannot execute benchmark with more than one unnamed run definition. "
+                        'Please add attribute "name" to the <rundefinition> tags.'
                     )
 
-        run_set_names = collections.Counter(
-            runSet.name for runSet in self.run_sets if runSet.should_be_executed()
-        )
-        if config.results_per_rundefinition or config.results_per_taskset:
-            # with new arguments require strict names for consistency
-            if len(run_set_names) > 1 and run_set_names[None] > 0:
+            duplicate_run_set_names = [
+                run_set_name
+                for run_set_name, count in run_set_names.items()
+                if count > 1
+            ]
+            if duplicate_run_set_names:
                 raise BenchExecException(
-                    "Mix of named and unnamed run definitions found. "
-                    "Please add unique names to all run definitions."
+                    "Run definitions with the following names are present more than once, "
+                    "please use unique names: " + ", ".join(duplicate_run_set_names)
                 )
-        else:
-            # for now follow old default
-            if run_set_names[""] > 1:
-                raise BenchExecException(
-                    "Cannot execute benchmark with more than one unnamed run definition. "
-                    'Please add attribute "name" to the <rundefinition> tags.'
-                )
-
-        duplicate_run_set_names = [
-            run_set_name for run_set_name, count in run_set_names.items() if count > 1
-        ]
-        if duplicate_run_set_names:
-            raise BenchExecException(
-                "Run definitions with the following names are present more than once, "
-                "please use unique names: " + ", ".join(duplicate_run_set_names)
-            )
+        except BaseException:
+            # The caller cannot close the tool if this constructor fails.
+            self.tool.close()
+            raise
 
     def required_files(self):
         assert self.executable is not None, "executor needs to set tool executable"
