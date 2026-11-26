@@ -57,7 +57,6 @@ class Tool(benchexec.tools.template.BaseTool2):
         modifications to make just before calling SMACK.
         """
         data_model_param = get_data_model_from_task(task, {ILP32: "-m32", LP64: "-m64"})
-        print(options)
         if data_model_param and not any(
             option.startswith("--clang-options=") for option in options
         ):
