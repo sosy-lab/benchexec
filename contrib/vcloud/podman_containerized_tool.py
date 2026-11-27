@@ -89,12 +89,15 @@ def _redirect_python_path(path_translation):
     sys.path_importer_cache.clear()
 
 
-def _init_container(
+def _create_container(
     image,
     tool_directory,
 ):
     """
-    Move this process into a container.
+    Create a container into which this process can be moved with _join_container().
+
+    @return a tuple of the id of the container
+        and the dict that _join_container() needs as second argument
     """
     tool_directory = os.path.abspath(tool_directory)
 
@@ -134,8 +137,13 @@ def _init_container(
             "Creating of the podman container failed:\n" + e.stderr.decode()
         )
 
-    container_id = res.stdout.decode().strip()
+    return res.stdout.decode().strip(), python_path_translation
 
+
+def _join_container(container_id, python_path_translation):
+    """
+    Move this process into a container that was created with _create_container().
+    """
     try:
         subprocess.run(
             ["podman", "init", container_id],
@@ -202,7 +210,6 @@ def _init_container(
         _redirect_python_path(python_path_translation)
 
         os.chdir(TOOL_DIRECTORY_MOUNT_POINT)
-        return container_id
 
     except OSError as e:
         raise BenchExecException(
@@ -225,26 +232,43 @@ class PodmanContainerizedTool(ContainerizedTool):
         self.image = image
         self.container_id = None
 
-        super().__init__(tool_module, config)
+        try:
+            super().__init__(tool_module, config)
+        except BaseException:
+            # For example, the tool-info module could not be loaded.
+            self._remove_container()
+            raise
 
     def _setup_container(self, tool_module, config):
-        self.__doc__, self.container_id = self._pool.apply(
+        # We create the container in a separate step, because we need to know it
+        # in order to remove it if one of the following steps fails.
+        try:
+            self.container_id, python_path_translation = self._pool.apply(
+                _create_container, [self.image, self.tool_directory]
+            )
+        except OSError as e:
+            # for example, if Podman is not installed
+            raise BenchExecException(f"Failed to configure container: {e}")
+
+        self.__doc__, _ = self._pool.apply(
             _init_container_and_load_tool,
-            [_init_container, tool_module],
-            {
-                "image": self.image,
-                "tool_directory": self.tool_directory,
-            },
+            [_join_container, tool_module, self.container_id, python_path_translation],
         )
 
     def close(self):
-        super().close()
-        logging.debug("Removing container with global id %s", self.container_id)
+        try:
+            super().close()
+        finally:
+            self._remove_container()
+
+    def _remove_container(self):
         if self.container_id is None:
             return
+        logging.debug("Removing container with global id %s", self.container_id)
         try:
             subprocess.run(
-                ["podman", "rm", self.container_id],
+                # Podman may already have removed the container if "podman init" failed.
+                ["podman", "rm", "--ignore", self.container_id],
                 check=True,
                 stdout=subprocess.DEVNULL,
                 stdin=subprocess.DEVNULL,
@@ -252,7 +276,7 @@ class PodmanContainerizedTool(ContainerizedTool):
             )
         except subprocess.CalledProcessError as e:
             logging.warning(
-                "Failed to stop container %s: %s",
+                "Failed to remove container %s: %s",
                 self.container_id,
                 e.stderr.decode(),
             )
