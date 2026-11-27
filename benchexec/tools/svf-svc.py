@@ -17,7 +17,7 @@ class Tool(benchexec.tools.template.BaseTool2):
     - SVF: https://github.com/SVF-tools/SVF
     """
 
-    REQUIRED_PATHS = ["svf", "include_replace.c"]
+    REQUIRED_PATHS = ["*.py", "pysvf*", "*yaml", "svf", "include_replace.c"]
 
     def executable(self, tool_locator):
         return tool_locator.find_executable("svf_run.py")
@@ -48,9 +48,14 @@ class Tool(benchexec.tools.template.BaseTool2):
         for line in run.output:
             if line.startswith("REACH Incorrect"):
                 return result.RESULT_FALSE_REACH
-            elif line.startswith("MEMORY Incorrect"):
-                # SVF-SVC does not currently distinguish between memory safety types.
-                return result.RESULT_FALSE_PROP
+            elif line.startswith("MEMORY Incorrect(valid-deref)"):
+                return result.RESULT_FALSE_DEREF
+            elif line.startswith("MEMORY Incorrect(valid-free)"):
+                return result.RESULT_FALSE_FREE
+            elif line.startswith("MEMORY Incorrect(valid-memtrack)"):
+                return result.RESULT_FALSE_MEMTRACK
+            elif line.startswith("CLEANUP Incorrect"):
+                return result.RESULT_FALSE_MEMCLEANUP
             elif line.startswith("OVERFLOW Incorrect"):
                 return result.RESULT_FALSE_OVERFLOW
             elif "Incorrect" in line:
