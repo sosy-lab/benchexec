@@ -156,7 +156,7 @@ Contributors:
 - Stefan Löwe
 - [Stephan Lukasczyk](https://github.com/stephanlukasczyk)
 - [Tobias Meggendorfer](https://github.com/incaseoftrouble)
-- [Martin Pýcha](https://github.com/martinpycha)
+- [Martin Pycha](https://github.com/martinpycha)
 - Alexander von Rhein
 - [Rotzbua](https://github.com/Rotzbua)
 - [Simmo Saan](https://github.com/sim642)
